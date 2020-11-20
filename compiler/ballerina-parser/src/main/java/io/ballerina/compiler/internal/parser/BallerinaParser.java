@@ -3904,7 +3904,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
 
         // Whenever a new expression start is added, make sure to
-        // add it to the relevant section of validateExprAnnotsAndQualifiers method.
+        // add relevant entries in isValidExprStart and validateExprAnnotsAndQualifiers methods.
         validateExprAnnotsAndQualifiers(nextToken, annots, qualifiers);
         switch (nextToken.kind) {
             case DECIMAL_INTEGER_LITERAL_TOKEN:
@@ -4003,55 +4003,16 @@ public class BallerinaParser extends AbstractParser {
 
     private void validateExprAnnotsAndQualifiers(STToken nextToken, STNode annots, List<STNode> qualifiers) {
         switch (nextToken.kind) {
-            case DECIMAL_INTEGER_LITERAL_TOKEN:
-            case HEX_INTEGER_LITERAL_TOKEN:
-            case STRING_LITERAL_TOKEN:
-            case NULL_KEYWORD:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
-            case HEX_FLOATING_POINT_LITERAL_TOKEN:
-            case IDENTIFIER_TOKEN:
-            case OPEN_PAREN_TOKEN:
-            case CHECK_KEYWORD:
-            case CHECKPANIC_KEYWORD:
-            case OPEN_BRACE_TOKEN:
-            case TYPEOF_KEYWORD:
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
-            case NEGATION_TOKEN:
-            case EXCLAMATION_MARK_TOKEN:
-            case TRAP_KEYWORD:
-            case OPEN_BRACKET_TOKEN:
-            case LT_TOKEN:
-            case TABLE_KEYWORD:
-            case STREAM_KEYWORD:
-            case FROM_KEYWORD:
-            case ERROR_KEYWORD:
-            case LET_KEYWORD:
-            case BACKTICK_TOKEN:
-            case XML_KEYWORD:
-            case STRING_KEYWORD:
-            case NEW_KEYWORD:
-            case FLUSH_KEYWORD:
-            case LEFT_ARROW_TOKEN:
-            case WAIT_KEYWORD:
-            case COMMIT_KEYWORD:
-            case TRANSACTIONAL_KEYWORD:
-            case BASE16_KEYWORD:
-            case BASE64_KEYWORD:
-                reportInvalidExpressionAnnots(annots, qualifiers);
-                reportInvalidQualifierList(qualifiers);
-                break;
             case START_KEYWORD:
             case SERVICE_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
                 break;
             case FUNCTION_KEYWORD:
             case OBJECT_KEYWORD:
+            case AT_TOKEN: // goes to recovery and re-parse
                 break;
             default:
-                if (isSimpleType(nextToken.kind)) {
+                if (isValidExprStart(nextToken.kind)) {
                     reportInvalidExpressionAnnots(annots, qualifiers);
                     reportInvalidQualifierList(qualifiers);
                 }
@@ -4096,9 +4057,13 @@ public class BallerinaParser extends AbstractParser {
             case FLUSH_KEYWORD:
             case LEFT_ARROW_TOKEN:
             case WAIT_KEYWORD:
+            case COMMIT_KEYWORD:
             case SERVICE_KEYWORD:
+            case BASE16_KEYWORD:
+            case BASE64_KEYWORD:
             case ISOLATED_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case CLIENT_KEYWORD:
                 return true;
             default:
                 return isSimpleType(tokenKind);
