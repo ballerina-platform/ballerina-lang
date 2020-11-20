@@ -184,10 +184,9 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_ERROR_INTERSECTION;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_INTERSECTION_TYPE;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_ERROR_INTERSECTION;
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_INTERSECTION_TYPE;
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**

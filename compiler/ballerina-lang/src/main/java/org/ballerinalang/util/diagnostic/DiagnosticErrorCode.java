@@ -660,6 +660,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SERVICE_LITERAL_REQUIRED_BY_LISTENER("BCE3973", "service.path.literal.required.by.listener"),
     SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER("BCE3974", "service.absolute.path.required.by.listener"),
     MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3975", "multiple.receive.action.not.yet.supported"),
+
+    INVALID_ERROR_INTERSECTION("BCE3963", "invalid.error.intersection"),
     ;
 
     private String diagnosticId;
