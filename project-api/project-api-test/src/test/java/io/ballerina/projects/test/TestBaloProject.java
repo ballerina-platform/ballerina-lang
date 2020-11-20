@@ -46,7 +46,7 @@ public class TestBaloProject {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
 
-    @Test(description = "tests loading a valid balo project", enabled = false)
+    @Test(description = "tests loading a valid balo project")
     public void testBaloProjectAPI() {
         Path baloPath = RESOURCE_DIRECTORY.resolve("baloloader").resolve("foo-winery-any-0.1.0.balo");
         // 1) Initialize the project instance
@@ -94,8 +94,8 @@ public class TestBaloProject {
         Assert.assertEquals(noOfTestDocuments, 0);
 
         DependencyGraph<PackageDescriptor> packageDescriptorDependencyGraph = currentPackage.packageDependencyGraph();
-        Assert.assertEquals(packageDescriptorDependencyGraph.dependencies().size(), 1);
+        Assert.assertEquals(packageDescriptorDependencyGraph.getNodes().size(), 1);
         DependencyGraph<ModuleId> moduleIdDependencyGraph = currentPackage.moduleDependencyGraph();
-        Assert.assertEquals(moduleIdDependencyGraph.dependencies().size(), 3);
+        Assert.assertEquals(moduleIdDependencyGraph.getNodes().size(), 3);
     }
 }
