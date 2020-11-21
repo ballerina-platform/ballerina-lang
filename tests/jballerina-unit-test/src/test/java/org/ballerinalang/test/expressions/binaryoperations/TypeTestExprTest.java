@@ -129,7 +129,7 @@ public class TypeTestExprTest {
                 "incompatible types: '(string|int)' will not be matched to '(float|boolean)'",
                 262, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'xml<never>' will not be matched to 'string'",
+                "unnecessary condition: expression will always evaluate to 'true'",
                 269, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'",

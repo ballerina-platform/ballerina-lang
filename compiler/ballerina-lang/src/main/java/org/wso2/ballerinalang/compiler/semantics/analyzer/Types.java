@@ -613,8 +613,8 @@ public class Types {
             return true;
         }
 
-        if (TypeTags.isXMLTypeTag(sourceTag) && (TypeTags.isXMLTypeTag(targetTag)
-                || targetTag == TypeTags.STRING)) {
+        if ((TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) ||
+                (targetTag == TypeTags.STRING && sourceTag == TypeTags.XML)) {
             return isXMLTypeAssignable(source, target, unresolvedTypes);
         }
 
@@ -1917,10 +1917,9 @@ public class Types {
             return true;
         } else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.XML_TEXT) {
             return true;
-        } else if (targetType.tag == TypeTags.STRING && TypeTags.isXMLTypeTag(actualType.tag)) {
+        } else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.XML) {
             return isXMLTypeAssignable(actualType, targetType, new HashSet<>());
         }
-
         return false;
     }
 
