@@ -83,10 +83,20 @@ public class DependencyGraph<T> {
     }
 
     public Collection<T> getDirectDependencies(T node) {
-        return dependencies.get(node);
+        Set<T> deps = dependencies.get(node);
+        if (deps == null) {
+            return Collections.emptySet();
+        } else {
+            return deps;
+        }
+    }
+
+    public boolean contains(T node) {
+        return dependencies.containsKey(node);
     }
 
     public List<T> toTopologicallySortedList() {
+        // TODO detect whether there are cycles here, before sorting
         if (topologicallySortedNodes != null) {
             return topologicallySortedNodes;
         }
@@ -95,10 +105,6 @@ public class DependencyGraph<T> {
         sortTopologically(dependencies.keySet(), new HashSet<>(), sorted);
         topologicallySortedNodes = Collections.unmodifiableList(sorted);
         return topologicallySortedNodes;
-    }
-
-    public Map<T, Set<T>> dependencies() {
-        return dependencies;
     }
 
     public boolean isEmpty() {
