@@ -27,5 +27,5 @@ import java.util.Collection;
  */
 public abstract class PackageResolver {
 
-    public abstract Collection<ModuleLoadResponse> loadPackages(Collection<ModuleLoadRequest> moduleLoadRequests);
+    public abstract Collection<PackageLoadResponse> resolvePackages(Collection<PackageLoadRequest> packageLoadRequests);
 }
