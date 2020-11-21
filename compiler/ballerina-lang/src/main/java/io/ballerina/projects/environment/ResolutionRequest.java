@@ -42,6 +42,14 @@ public final class ResolutionRequest {
         return new ResolutionRequest(packageDescriptor);
     }
 
+    public static ResolutionRequest from(PackageOrg org, PackageName name, PackageVersion version) {
+        return new ResolutionRequest(PackageDescriptor.from(name, org, version));
+    }
+
+    public static ResolutionRequest from(PackageOrg org, PackageName name) {
+        return ResolutionRequest.from(org, name, null);
+    }
+
     public PackageOrg orgName() {
         return packageDesc.org();
     }
