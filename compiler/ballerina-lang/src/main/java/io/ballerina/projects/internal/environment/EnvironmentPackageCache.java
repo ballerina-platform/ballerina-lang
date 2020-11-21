@@ -54,8 +54,7 @@ public class EnvironmentPackageCache implements WritablePackageCache {
         // Do we have a need to improve this logic?
         for (Project project : projects.values()) {
             PackageDescriptor pkgDesc = project.currentPackage().descriptor();
-            if (pkgDesc.org().equals(packageOrg) &&
-                    pkgDesc.name().equals(packageName) &&
+            if (pkgDesc.org().equals(packageOrg) && pkgDesc.name().equals(packageName) &&
                     pkgDesc.version().equals(version)) {
                 return Optional.of(project.currentPackage());
             }

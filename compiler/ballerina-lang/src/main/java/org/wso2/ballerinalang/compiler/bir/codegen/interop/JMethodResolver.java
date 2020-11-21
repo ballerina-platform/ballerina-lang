@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
@@ -51,8 +51,8 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.CLASS_NOT_FOUND;
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.OVERLOADED_METHODS;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.CLASS_NOT_FOUND;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.OVERLOADED_METHODS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.J_BOOLEAN_OBJ_TNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.J_DOUBLE_OBJ_TNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.J_INTEGER_OBJ_TNAME;
@@ -247,7 +247,7 @@ class JMethodResolver {
 
         if ((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
                 (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue)) {
-            throw new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+            throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                     "No such Java method '" + jMethodRequest.methodName + "' which throws checked exception " +
                             "found in class '" + jMethodRequest.declaringClass + "'");
         }
@@ -319,7 +319,7 @@ class JMethodResolver {
         BType bReturnType = jMethodRequest.bReturnType;
         if (!isValidReturnBType(jReturnType, bReturnType, jMethodRequest) &&
                 !(jMethod.isBalEnvAcceptingMethod() && jReturnType.equals(void.class))) {
-            throw new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+            throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                                         "Incompatible return type for method '" + jMethodRequest.methodName +
                                                 "' in class '" +
                                                 jMethodRequest.declaringClass.getName() + "': Java type '" +
@@ -771,10 +771,10 @@ class JMethodResolver {
     private JInteropException getMethodNotFoundError(JMethodKind kind, Class<?> declaringClass, String methodName) {
 
         if (kind == JMethodKind.CONSTRUCTOR) {
-            return new JInteropException(DiagnosticCode.CONSTRUCTOR_NOT_FOUND,
+            return new JInteropException(DiagnosticErrorCode.CONSTRUCTOR_NOT_FOUND,
                                          "No such public constructor found in class '" + declaringClass + "'");
         } else {
-            return new JInteropException(DiagnosticCode.METHOD_NOT_FOUND,
+            return new JInteropException(DiagnosticErrorCode.METHOD_NOT_FOUND,
                                          "No such public method '" + methodName + "' found in class '" +
                                                  declaringClass + "'");
         }
@@ -786,11 +786,11 @@ class JMethodResolver {
                                                      int paramCount) {
 
         if (kind == JMethodKind.CONSTRUCTOR) {
-            return new JInteropException(DiagnosticCode.CONSTRUCTOR_NOT_FOUND,
+            return new JInteropException(DiagnosticErrorCode.CONSTRUCTOR_NOT_FOUND,
                     "No such public constructor with '" + paramCount +
                             "' parameter(s) found in class '" + declaringClass + "'");
         } else {
-            return new JInteropException(DiagnosticCode.METHOD_NOT_FOUND,
+            return new JInteropException(DiagnosticErrorCode.METHOD_NOT_FOUND,
                     "No such public method '" + methodName + "' with '" + paramCount +
                             "' parameter(s) found in class '" + declaringClass + "'");
         }
@@ -803,11 +803,11 @@ class JMethodResolver {
 
         String paramTypesSig = getParamTypesAsString(constraints);
         if (kind == JMethodKind.CONSTRUCTOR) {
-            return new JInteropException(DiagnosticCode.CONSTRUCTOR_NOT_FOUND,
+            return new JInteropException(DiagnosticErrorCode.CONSTRUCTOR_NOT_FOUND,
                     "No such public constructor that matches with parameter types '" + paramTypesSig +
                             "' found in class '" + declaringClass + "'");
         } else {
-            return new JInteropException(DiagnosticCode.METHOD_NOT_FOUND,
+            return new JInteropException(DiagnosticErrorCode.METHOD_NOT_FOUND,
                     "No such public method '" + methodName + "' that matches with parameter types '" +
                             paramTypesSig + "' found in class '" + declaringClass + "'");
         }
@@ -862,7 +862,7 @@ class JMethodResolver {
     private JInteropException getNoSuchMethodError(String methodName, Class<?> jType, BType bType,
                                                    Class<?> declaringClass) {
 
-        return new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+        return new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Incompatible param type for method '" + methodName + "' in class '" + declaringClass.getName() +
                         "': Java type '" + jType.getName() + "' will not be matched to ballerina type '" +
                         (bType.tag == TypeTags.FINITE ? bType.tsymbol.name.value : bType) + "'");
@@ -870,7 +870,7 @@ class JMethodResolver {
 
     private JInteropException getParamCountMismatchError(JMethodRequest jMethodRequest) {
 
-        return new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+        return new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Parameter count does not match with Java method '" + jMethodRequest.methodName + "' found in class '" +
                         jMethodRequest.declaringClass.getName() + "'");
     }
