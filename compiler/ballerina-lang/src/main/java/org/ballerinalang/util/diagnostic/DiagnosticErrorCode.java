@@ -97,7 +97,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS("BCE2065", "object.constructor.init.function.cannot.have.parameters"),
     OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS(
             "BCE2066", "object.constructor.does.not.support.type.reference.members"),
-    MISSING_REQUIRED_INCLUDED_RECORD_PARAMETER_FIELD("BCE2067", "missing.required.included.record.parameter.field"),
 
     INCOMPATIBLE_TYPES("BCE2067", "incompatible.types"),
     INCOMPATIBLE_TYPES_SPREAD_OP("BCE2068", "incompatible.types.spread.op"),
@@ -148,6 +147,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INTEGER_TOO_SMALL("BCE2111", "integer.too.small"),
     HEXADECIMAL_TOO_LARGE("BCE2112", "hexadecimal.too.large"),
     HEXADECIMAL_TOO_SMALL("BCE2113", "hexadecimal.too.small"),
+    MISSING_REQUIRED_INCLUDED_RECORD_PARAMETER_FIELD("BCE2114", "missing.required.included.record.parameter.field"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
