@@ -29,6 +29,9 @@ import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Tests order of execution of listener methods.
+ */
 public class ModuleExecutionFlowTests extends BaseTest {
     public static final int TIMEOUT = 10000;
 
@@ -46,9 +49,10 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     @Test(description = "Test 'init' is called only once for each module at runtime")
     public void testModuleDependencyChainForInit() throws BallerinaTestException, InterruptedException {
-        Path projectPath = Paths.get("src", "test", "resources", "packaging", "ModuleInitInvocationProject");
+        Path projectPath = Paths.get("src", "test", "resources", "packaging", "module_invocation_project");
         BServerInstance serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(projectPath.toAbsolutePath().toString(), "current", null, null, null);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), "module_invocation_project", null, null,
+                                   null);
         LogLeecher errLeecherCurrent = new LogLeecher("Stopped module current", LogLeecher.LeecherType.ERROR);
         LogLeecher errLeecherDep1 = new LogLeecher("Stopped module second dependent", LogLeecher.LeecherType.ERROR);
         LogLeecher errLeecherDep2 = new LogLeecher("Stopped module first dependent", LogLeecher.LeecherType.ERROR);
@@ -69,7 +73,8 @@ public class ModuleExecutionFlowTests extends BaseTest {
 
     private void runAndAssert(Path projectPath) throws BallerinaTestException {
         BServerInstance serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(projectPath.toAbsolutePath().toString(), "c", null, null, null);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                                   null, null);
         LogLeecher errLeecherA = new LogLeecher("Stopped module A", LogLeecher.LeecherType.ERROR);
         LogLeecher errLeecherB = new LogLeecher("Stopped module B", LogLeecher.LeecherType.ERROR);
         LogLeecher errLeecherC = new LogLeecher("Stopped module C", LogLeecher.LeecherType.ERROR);

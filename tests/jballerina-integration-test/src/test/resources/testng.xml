@@ -228,6 +228,7 @@
             </run>
         </groups>
         <classes>
+                <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests" />
 <!--            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>-->
