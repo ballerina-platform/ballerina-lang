@@ -27,25 +27,19 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * {@code PackageLoadRequest} is used to load package using repository.
+ * {@code ResolutionRequest} is used to resolve a package from a repository.
  *
  * @since 2.0.0
  */
-public final class PackageLoadRequest {
+public final class ResolutionRequest {
     private final PackageDescriptor packageDesc;
 
-    private PackageLoadRequest(PackageDescriptor packageDescriptor) {
+    private ResolutionRequest(PackageDescriptor packageDescriptor) {
         this.packageDesc = packageDescriptor;
     }
 
-    public static PackageLoadRequest from(ModuleLoadRequest moduleLoadRequest) {
-        return new PackageLoadRequest(PackageDescriptor.from(moduleLoadRequest.packageName(),
-                moduleLoadRequest.orgName().orElse(null),
-                moduleLoadRequest.version().orElse(null)));
-    }
-
-    public static PackageLoadRequest from(PackageDescriptor packageDescriptor) {
-        return new PackageLoadRequest(packageDescriptor);
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor) {
+        return new ResolutionRequest(packageDescriptor);
     }
 
     public PackageOrg orgName() {
@@ -74,7 +68,7 @@ public final class PackageLoadRequest {
             return false;
         }
 
-        PackageLoadRequest that = (PackageLoadRequest) other;
+        ResolutionRequest that = (ResolutionRequest) other;
         return Objects.equals(packageDesc, that.packageDesc);
     }
 

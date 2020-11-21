@@ -20,8 +20,8 @@ package io.ballerina.projects;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
-import io.ballerina.projects.environment.PackageLoadRequest;
-import io.ballerina.projects.environment.PackageLoadResponse;
+import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 
@@ -115,7 +115,7 @@ public class PackageResolution {
         return createDependencyGraphWithResolvedPackages(pkgDescDepGraph);
     }
 
-    private Set<PackageLoadRequest> getPackageLoadRequestsOfDirectDependencies() {
+    private Set<ResolutionRequest> getPackageLoadRequestsOfDirectDependencies() {
         Set<ModuleLoadRequest> allModuleLoadRequests = new HashSet<>();
         for (ModuleId moduleId : rootPackageContext.moduleIds()) {
             ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
@@ -125,9 +125,9 @@ public class PackageResolution {
         return getPackageLoadRequestsOfDirectDependencies(allModuleLoadRequests);
     }
 
-    private Set<PackageLoadRequest> getPackageLoadRequestsOfDirectDependencies(
+    private Set<ResolutionRequest> getPackageLoadRequestsOfDirectDependencies(
             Set<ModuleLoadRequest> moduleLoadRequests) {
-        Set<PackageLoadRequest> packageLoadRequests = new HashSet<>();
+        Set<ResolutionRequest> packageLoadRequests = new HashSet<>();
         for (ModuleLoadRequest moduleLoadRequest : moduleLoadRequests) {
             Optional<PackageOrg> optionalOrgName = moduleLoadRequest.orgName();
             if (optionalOrgName.isEmpty()) {
@@ -149,7 +149,7 @@ public class PackageResolution {
             }
 
             PackageDescriptor pkdDesc = PackageDescriptor.from(packageName, packageOrg, packageVersion);
-            PackageLoadRequest packageLoadRequest = PackageLoadRequest.from(pkdDesc);
+            ResolutionRequest packageLoadRequest = ResolutionRequest.from(pkdDesc);
             packageLoadRequests.add(packageLoadRequest);
         }
         return packageLoadRequests;
@@ -165,14 +165,14 @@ public class PackageResolution {
 
     private DependencyGraph<PackageDescriptor> createDependencyGraphFromSources() {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
-        Set<PackageLoadRequest> packageLoadRequests = getPackageLoadRequestsOfDirectDependencies();
+        Set<ResolutionRequest> packageLoadRequests = getPackageLoadRequestsOfDirectDependencies();
         // 2) Resolve direct dependencies. My assumption is that, all these dependencies comes from BALRs
-        Collection<PackageLoadResponse> packageLoadResponses = packageResolver.resolvePackages(packageLoadRequests);
+        Collection<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(packageLoadRequests);
 
         PackageDescriptor rootPkgDesc = rootPackageContext.descriptor();
         DependencyGraphBuilder<PackageDescriptor> depGraphBuilder = DependencyGraphBuilder.getBuilder();
         depGraphBuilder.add(rootPkgDesc);
-        for (PackageLoadResponse pkgLoadResp : packageLoadResponses) {
+        for (ResolutionResponse pkgLoadResp : resolutionResponses) {
             Package directDependency = pkgLoadResp.resolvedPackage();
             PackageDescriptor dependencyDescriptor = directDependency.descriptor();
             depGraphBuilder.addDependency(rootPkgDesc, dependencyDescriptor);
@@ -190,14 +190,14 @@ public class PackageResolution {
         // Now create PackageLoadRequests for all the remaining packages to be loaded in the graph
         Collection<PackageDescriptor> pkgDescGraphNodes = pkgDescDepGraph.getNodes();
         // TODO Filter out direct dependencies that we've already resolved.
-        Set<PackageLoadRequest> pkgLoadRequests = pkgDescGraphNodes.stream()
-                .map(PackageLoadRequest::from)
+        Set<ResolutionRequest> pkgLoadRequests = pkgDescGraphNodes.stream()
+                .map(ResolutionRequest::from)
                 .collect(Collectors.toSet());
 
-        Collection<PackageLoadResponse> pkgLoadResponses = packageResolver.resolvePackages(pkgLoadRequests);
+        Collection<ResolutionResponse> pkgLoadResponses = packageResolver.resolvePackages(pkgLoadRequests);
         Map<PackageDescriptor, Package> packageIdMap = pkgLoadResponses.stream()
                 .collect(Collectors.toMap(pkgLoadResp -> pkgLoadResp.packageLoadRequest().packageDescriptor(),
-                        PackageLoadResponse::resolvedPackage));
+                        ResolutionResponse::resolvedPackage));
 
         DependencyGraphBuilder<Package> dependencyGraphBuilder = DependencyGraphBuilder.getBuilder();
         for (PackageDescriptor pkgDescGraphNode : pkgDescGraphNodes) {

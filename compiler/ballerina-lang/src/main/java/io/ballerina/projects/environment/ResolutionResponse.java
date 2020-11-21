@@ -20,29 +20,29 @@ package io.ballerina.projects.environment;
 import io.ballerina.projects.Package;
 
 /**
- * {@code PackageLoadResponse} is used to return a response to a given {@code PackageLoadRequest}.
+ * {@code ResolutionResponse} is used to return a response to a given {@code PackageLoadRequest}.
  *
  * @since 2.0.0
  */
-public class PackageLoadResponse {
+public class ResolutionResponse {
     private final Package resolvedPackage;
-    private final PackageLoadRequest packageLoadRequest;
+    private final ResolutionRequest packageLoadRequest;
 
     // TODO We can use this call to send diagnostics if any
-    private PackageLoadResponse(Package resolvedPackage, PackageLoadRequest packageLoadRequest) {
+    private ResolutionResponse(Package resolvedPackage, ResolutionRequest packageLoadRequest) {
         this.resolvedPackage = resolvedPackage;
         this.packageLoadRequest = packageLoadRequest;
     }
 
-    public static PackageLoadResponse from(Package resolvedPackage, PackageLoadRequest packageLoadRequest) {
-        return new PackageLoadResponse(resolvedPackage, packageLoadRequest);
+    public static ResolutionResponse from(Package resolvedPackage, ResolutionRequest packageLoadRequest) {
+        return new ResolutionResponse(resolvedPackage, packageLoadRequest);
     }
 
     public Package resolvedPackage() {
         return resolvedPackage;
     }
 
-    public PackageLoadRequest packageLoadRequest() {
+    public ResolutionRequest packageLoadRequest() {
         return packageLoadRequest;
     }
 }

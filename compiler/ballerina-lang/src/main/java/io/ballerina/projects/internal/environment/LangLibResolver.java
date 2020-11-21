@@ -21,8 +21,8 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.PackageCache;
-import io.ballerina.projects.environment.PackageLoadRequest;
-import io.ballerina.projects.environment.PackageLoadResponse;
+import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
 
@@ -37,7 +37,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class LangLibResolver extends PackageResolver {
+public class LangLibResolver implements PackageResolver {
     private final PackageRepository distCache;
     private final WritablePackageCache globalPackageCache;
 
@@ -47,13 +47,13 @@ public class LangLibResolver extends PackageResolver {
     }
 
     @Override
-    public Collection<PackageLoadResponse> resolvePackages(Collection<PackageLoadRequest> packageLoadRequests) {
+    public Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> packageLoadRequests) {
         if (packageLoadRequests.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<PackageLoadResponse> packageLoadResponses = new ArrayList<>();
-        for (PackageLoadRequest packageLoadRequest : packageLoadRequests) {
+        List<ResolutionResponse> resolutionResponses = new ArrayList<>();
+        for (ResolutionRequest packageLoadRequest : packageLoadRequests) {
             Package resolvedPackage = loadPackageFromCache(packageLoadRequest);
             if (resolvedPackage == null) {
                 resolvedPackage = loadPackageFromDistributionCache(packageLoadRequest);
@@ -63,10 +63,10 @@ public class LangLibResolver extends PackageResolver {
                 continue;
             }
 
-            packageLoadResponses.add(PackageLoadResponse.from(resolvedPackage, packageLoadRequest));
+            resolutionResponses.add(ResolutionResponse.from(resolvedPackage, packageLoadRequest));
         }
 
-        return packageLoadResponses;
+        return resolutionResponses;
     }
 
     private PackageVersion findlatest(List<PackageVersion> packageVersions) {
@@ -74,7 +74,7 @@ public class LangLibResolver extends PackageResolver {
         return packageVersions.get(0);
     }
 
-    private Package loadPackageFromDistributionCache(PackageLoadRequest packageLoadRequest) {
+    private Package loadPackageFromDistributionCache(ResolutionRequest packageLoadRequest) {
         // If version is null load the latest package
         if (packageLoadRequest.version().isEmpty()) {
             // find the latest version
@@ -85,7 +85,7 @@ public class LangLibResolver extends PackageResolver {
                 return null;
             }
             PackageVersion latest = findlatest(packageVersions);
-            packageLoadRequest = PackageLoadRequest.from(
+            packageLoadRequest = ResolutionRequest.from(
                     PackageDescriptor.from(packageLoadRequest.packageName(), packageLoadRequest.orgName(), latest));
         }
 
@@ -94,7 +94,7 @@ public class LangLibResolver extends PackageResolver {
         return packageOptional.orElse(null);
     }
 
-    private Package loadPackageFromCache(PackageLoadRequest packageLoadRequest) {
+    private Package loadPackageFromCache(ResolutionRequest packageLoadRequest) {
         // TODO improve the logic
         List<Package> packageList = globalPackageCache.getPackages(packageLoadRequest.orgName(),
                 packageLoadRequest.packageName());

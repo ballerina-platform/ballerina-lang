@@ -23,7 +23,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.PackageLoadRequest;
+import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
@@ -78,7 +78,7 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     @Override
-    public Optional<Package> getPackage(PackageLoadRequest packageLoadRequest) {
+    public Optional<Package> getPackage(ResolutionRequest packageLoadRequest) {
         // if version and org name is empty we add empty string so we return empty package anyway
         String packageName = packageLoadRequest.packageName().value();
         String orgName = packageLoadRequest.orgName().value();
@@ -100,7 +100,7 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     @Override
-    public List<PackageVersion> getPackageVersions(PackageLoadRequest packageLoadRequest) {
+    public List<PackageVersion> getPackageVersions(ResolutionRequest packageLoadRequest) {
         // if version and org name is empty we add empty string so we return empty package anyway
         String packageName = packageLoadRequest.packageName().value();
         String orgName = packageLoadRequest.orgName().value();
