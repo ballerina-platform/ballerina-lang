@@ -56,7 +56,8 @@ public class ModuleName {
 
         // There are one or more module name separators in the string
         // Check whether moduleNameStr is a langlib module name
-        if (packageOrg.isBallerinaOrg() && PackageName.LANG_LIB_PACKAGE_NAME_PREFIX.equals(moduleNameStr)) {
+        String langLibModulePrefix = PackageName.LANG_LIB_PACKAGE_NAME_PREFIX + MODULE_NAME_SEPARATOR;
+        if (packageOrg.isBallerinaOrg() && moduleNameStr.startsWith(langLibModulePrefix)) {
             return ModuleName.from(PackageName.from(moduleNameStr));
         }
 
