@@ -58,21 +58,21 @@ public class DefaultPackageResolver implements PackageResolver {
 
         List<ResolutionResponse> resolutionResponses = new ArrayList<>();
         Package currentPkg = this.project.currentPackage();
-        for (ResolutionRequest packageLoadRequest : packageLoadRequests) {
+        for (ResolutionRequest resolutionRequest : packageLoadRequests) {
             Package resolvedPackage;
-            if (packageLoadRequest.packageDescriptor().equals(currentPkg.descriptor())) {
+            if (resolutionRequest.packageDescriptor().equals(currentPkg.descriptor())) {
                 resolvedPackage = currentPkg;
             } else {
-                resolvedPackage = loadPackageFromCache(packageLoadRequest);
+                resolvedPackage = loadPackageFromCache(resolutionRequest);
                 if (resolvedPackage == null) {
-                    resolvedPackage = loadPackageFromDistributionCache(packageLoadRequest);
+                    resolvedPackage = loadPackageFromDistributionCache(resolutionRequest);
                 }
 
                 if (resolvedPackage == null) {
                     continue;
                 }
             }
-            resolutionResponses.add(ResolutionResponse.from(resolvedPackage, packageLoadRequest));
+            resolutionResponses.add(ResolutionResponse.from(resolvedPackage, resolutionRequest));
         }
         return resolutionResponses;
     }
@@ -106,7 +106,7 @@ public class DefaultPackageResolver implements PackageResolver {
             }
             PackageVersion latest = findlatest(packageVersions);
             packageLoadRequest = ResolutionRequest.from(
-                    PackageDescriptor.from(packageLoadRequest.packageName(), packageLoadRequest.orgName(), latest));
+                    PackageDescriptor.from(packageLoadRequest.orgName(), packageLoadRequest.packageName(), latest));
         }
 
         Optional<Package> packageOptional = distRepository.getPackage(packageLoadRequest);

@@ -210,7 +210,7 @@ public class LSPackageLoader {
             PackageOrg packageOrg = PackageOrg.from(key);
             PackageName packageName = PackageName.from(nameComponent);
             PackageVersion pkgVersion = PackageVersion.from(version);
-            PackageDescriptor pkdDesc = PackageDescriptor.from(packageName, packageOrg, pkgVersion);
+            PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
             ResolutionRequest request = ResolutionRequest.from(pkdDesc);
 
             Optional<Package> repoPackage = packageRepository.getPackage(request);

@@ -86,7 +86,7 @@ public class LangLibResolver implements PackageResolver {
             }
             PackageVersion latest = findlatest(packageVersions);
             packageLoadRequest = ResolutionRequest.from(
-                    PackageDescriptor.from(packageLoadRequest.packageName(), packageLoadRequest.orgName(), latest));
+                    PackageDescriptor.from(packageLoadRequest.orgName(), packageLoadRequest.packageName(), latest));
         }
 
         Optional<Package> packageOptional = distCache.getPackage(packageLoadRequest);

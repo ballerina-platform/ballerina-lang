@@ -148,7 +148,7 @@ public class PackageResolution {
                 }
             }
 
-            PackageDescriptor pkdDesc = PackageDescriptor.from(packageName, packageOrg, packageVersion);
+            PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, packageVersion);
             ResolutionRequest packageLoadRequest = ResolutionRequest.from(pkdDesc);
             packageLoadRequests.add(packageLoadRequest);
         }

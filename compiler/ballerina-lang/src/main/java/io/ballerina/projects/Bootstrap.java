@@ -175,8 +175,8 @@ public class Bootstrap {
     private ResolutionRequest toPackageLoadRequest(PackageID packageID) {
         PackageName packageName = PackageName.from(packageID.name.getValue());
         PackageVersion version = PackageVersion.from(packageID.getPackageVersion().toString());
-        PackageDescriptor packageDescriptor = PackageDescriptor.from(packageName,
-                PackageOrg.from(packageID.orgName.getValue()), version);
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(PackageOrg.from(packageID.orgName.getValue()), packageName,
+                version);
         return ResolutionRequest.from(packageDescriptor);
     }
 

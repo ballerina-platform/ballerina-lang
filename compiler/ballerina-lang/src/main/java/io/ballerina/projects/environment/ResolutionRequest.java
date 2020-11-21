@@ -43,7 +43,7 @@ public final class ResolutionRequest {
     }
 
     public static ResolutionRequest from(PackageOrg org, PackageName name, PackageVersion version) {
-        return new ResolutionRequest(PackageDescriptor.from(name, org, version));
+        return new ResolutionRequest(PackageDescriptor.from(org, name, version));
     }
 
     public static ResolutionRequest from(PackageOrg org, PackageName name) {
