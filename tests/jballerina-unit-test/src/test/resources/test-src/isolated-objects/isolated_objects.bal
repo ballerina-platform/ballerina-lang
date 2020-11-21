@@ -65,7 +65,7 @@ isolated class IsolatedClassOverridingMutableFieldsInIncludedIsolatedObject {
 }
 
 function testIsolatedObjectOverridingMutableFieldsInIncludedIsolatedObject() {
-    isolated object {} isolatedObjectOverridingMutableFieldsInIncludedIsolatedObject = object IsolatedObjectType {
+    isolated object {} isolatedObjectOverridingMutableFieldsInIncludedIsolatedObject = isolated object IsolatedObjectType {
 
         final int a = 100;
         private string[] b = [];
@@ -208,7 +208,7 @@ isolated object {} isolatedObjectWithMethodsAccessingPrivateMutableFieldsWithinL
 };
 
 isolated class IsolatedClassWithNonPrivateIsolatedObjectFields {
-    final isolated object {} a = object {
+    final isolated object {} a = isolated object {
         final int i = 1;
         private map<int> j = {};
     };
@@ -226,7 +226,7 @@ isolated class IsolatedClassWithNonPrivateIsolatedObjectFields {
 }
 
 isolated object {} isolatedObjectWithNonPrivateIsolatedObjectFields = object {
-    final isolated object { function foo() returns int; } a = object {
+    final isolated object { function foo() returns int; } a = isolated object {
         final int i = 1;
         private map<int> j = {};
 
@@ -446,6 +446,26 @@ function testRuntimeIsolatedFlag() {
     assertFalse(<any> y is isolated object {});
 
     testObjectConstrExprImplicitIsolatedness();
+
+    object {} ob1 = isolated object {
+        private int i = 1;
+
+        function updateI() {
+            lock {
+                self.i = 2;
+            }
+        }
+    };
+    assertTrue(<any> ob1 is isolated object {});
+
+    object {} ob2 = object {
+        private int i = 1;
+
+        function updateI() {
+            self.i = 2;
+        }
+    };
+    assertFalse(<any> ob2 is isolated object {});
 }
 
 function assertTrue(any|error actual) {

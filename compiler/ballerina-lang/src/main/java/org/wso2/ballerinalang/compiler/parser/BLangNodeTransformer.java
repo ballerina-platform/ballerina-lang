@@ -1049,11 +1049,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         NodeList<Token> objectConstructorQualifierList = objectConstructorExpressionNode.objectTypeQualifiers();
         for (Token qualifier : objectConstructorQualifierList) {
-            if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
+            SyntaxKind kind = qualifier.kind();
+            if (kind == SyntaxKind.CLIENT_KEYWORD) {
                 anonClass.flagSet.add(Flag.CLIENT);
                 objectCtorExpression.isClient = true;
+            } else if (kind == SyntaxKind.ISOLATED_KEYWORD) {
+                anonClass.flagSet.add(Flag.ISOLATED);
             } else {
-                throw new RuntimeException("Syntax kind is not supported: " + qualifier.kind());
+                throw new RuntimeException("Syntax kind is not supported: " + kind);
             }
         }
 

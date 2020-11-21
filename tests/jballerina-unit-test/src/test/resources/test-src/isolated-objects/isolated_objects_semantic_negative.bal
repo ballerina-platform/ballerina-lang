@@ -95,3 +95,19 @@ function testNonImplicitlyIsolatedObjectConstrExpr() {
 
     isolated object {} isolatedOb = ob;
 }
+
+isolated class IsolatedClassWithIsolatedObjectFields {
+    final isolated object {} i = object {}; // isolated since the constructed object is readonly
+    final isolated object { int x; } j = object { private int x = 0; };
+}
+
+function testInvalidNonIsolatedObjectConstructorForIsolatedObject() {
+    IsolatedClassWithIsolatedObjectFields f = object {
+        final isolated object {} i = object {
+            private int x = 1;
+        };
+        final isolated object { int x; } j = object {
+            private int x = 1;
+        };
+    };
+}

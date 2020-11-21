@@ -3000,11 +3000,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     return;
                 }
 
-                if (Symbols.isFlagOn(actualType.tsymbol.flags, Flags.ANONYMOUS) &&
-                        Symbols.isFlagOn(expType.flags, Flags.ISOLATED)) {
-                    markTypeAsIsolated(actualType);
-                }
-
                 if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
