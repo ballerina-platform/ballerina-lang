@@ -65,8 +65,7 @@ public final class BallerinaDistribution {
 
     public void loadLangLibPackages(CompilerContext compilerContext, PackageCache packageCache) {
         if (langLibBootstrapPhase == null) {
-            Bootstrap bootstrap = new Bootstrap(new LangLibResolver(distributionRepository, packageCache),
-                    packageCache);
+            Bootstrap bootstrap = new Bootstrap(new LangLibResolver(distributionRepository, packageCache));
             bootstrap.loadLangLibSymbols(compilerContext);
         }
     }

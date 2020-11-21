@@ -45,6 +45,9 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 class DocumentContext {
+    // TODO This constant should not be here
+    private static final String IDENTIFIER_LITERAL_PREFIX = "'";
+
     private SyntaxTree syntaxTree;
     private TextDocument textDocument;
     private Set<ModuleLoadRequest> moduleLoadRequests;
@@ -136,7 +139,7 @@ class DocumentContext {
         // Index in identifierTokenList from which the moduleNamePart starts
         int moduleNamePartStartIndex;
         SeparatedNodeList<IdentifierToken> identifierTokenList = importDcl.moduleName();
-        String firstModuleNamePart = identifierTokenList.get(0).text();
+        String firstModuleNamePart = handleQuotedIdentifier(identifierTokenList.get(0).text());
 
         // Check for langLib packages
         if (PackageOrg.BALLERINA_ORG.equals(orgName) &&
@@ -144,7 +147,7 @@ class DocumentContext {
             // This a request to load a lang lib package
             // Lang lib package names take the form lang.{identifier}
             //  e.g, lang.int, lang.boolean lang.stream
-            String secondModuleNamePart = identifierTokenList.get(1).text();
+            String secondModuleNamePart = handleQuotedIdentifier(identifierTokenList.get(1).text());
             packageName = PackageName.from(firstModuleNamePart + "." + secondModuleNamePart);
             moduleNamePartStartIndex = 2;
         } else {
@@ -155,13 +158,21 @@ class DocumentContext {
         // Compute the module name
         StringJoiner stringJoiner = new StringJoiner(".");
         for (int i = moduleNamePartStartIndex; i < identifierTokenList.size(); i++) {
-            stringJoiner.add(identifierTokenList.get(i).text());
+            stringJoiner.add(handleQuotedIdentifier(identifierTokenList.get(i).text()));
         }
         String moduleNamePart = stringJoiner.toString();
         ModuleName moduleName = ModuleName.from(packageName, moduleNamePart.isEmpty() ? null : moduleNamePart);
 
         // Create the module load request
         return new ModuleLoadRequest(orgName, packageName, moduleName, null);
+    }
+
+    private String handleQuotedIdentifier(String identifier) {
+        if (identifier.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
+            return identifier.substring(1);
+        } else {
+            return identifier;
+        }
     }
 
     private void reportSyntaxDiagnostics(PackageID pkgID, SyntaxTree tree, BLangDiagnosticLog dlog) {

@@ -16,30 +16,45 @@
  *  under the License.
  */
 
-package io.ballerina.projects.model;
+package io.ballerina.projects.internal.model;
 
 /**
- * {@code Dependency} Model for Dependency.
+ * {@code PlatformLibrary} Model for Platform Library.
  *
  * @since 2.0.0
  */
-public class Dependency {
-    String org;
-    String name;
-    String version;
+public class PlatformLibrary {
+    String path;
+    String artifactId; //?
+    String groupId; //?
+    String version; //?
 
-    public Dependency(String org, String name, String version) {
-        this.org = org;
-        this.name = name;
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public void setVersion(String version) {
         this.version = version;
     }
 
-    public String getOrg() {
-        return org;
+    public String getPath() {
+        return path;
     }
 
-    public String getName() {
-        return name;
+    public String getArtifactId() {
+        return artifactId;
+    }
+
+    public String getGroupId() {
+        return groupId;
     }
 
     public String getVersion() {

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.projects.model;
+package io.ballerina.projects.internal.model;
 
 import io.ballerina.projects.Package;
 import io.ballerina.projects.util.ProjectConstants;

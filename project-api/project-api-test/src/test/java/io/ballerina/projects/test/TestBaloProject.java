@@ -16,13 +16,15 @@
  *  under the License.
  */
 
-package io.ballerina.projects.test.balo;
+package io.ballerina.projects.test;
 
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -46,7 +48,7 @@ public class TestBaloProject {
 
     @Test(description = "tests loading a valid balo project")
     public void testBaloProjectAPI() {
-        Path baloPath = RESOURCE_DIRECTORY.resolve("baloloader").resolve("foo-winery-java8-0.1.0.balo");
+        Path baloPath = RESOURCE_DIRECTORY.resolve("baloloader").resolve("foo-winery-any-0.1.0.balo");
         // 1) Initialize the project instance
         BaloProject baloProject = null;
         try {
@@ -90,5 +92,11 @@ public class TestBaloProject {
 
         Assert.assertEquals(noOfSrcDocuments, 4);
         Assert.assertEquals(noOfTestDocuments, 0);
+
+        PackageResolution resolution = currentPackage.getResolution();
+        DependencyGraph<Package> packageDescriptorDependencyGraph = resolution.dependencyGraph();
+        Assert.assertEquals(packageDescriptorDependencyGraph.getNodes().size(), 1);
+        DependencyGraph<ModuleId> moduleIdDependencyGraph = currentPackage.moduleDependencyGraph();
+        Assert.assertEquals(moduleIdDependencyGraph.getNodes().size(), 3);
     }
 }
