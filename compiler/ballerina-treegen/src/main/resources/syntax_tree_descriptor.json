@@ -4209,11 +4209,15 @@
         {
             "name": "ResourcePathParameterNode",
             "base": "Node",
-            "kind": "RESOURCE_PATH_PARAM",
             "attributes": [
                 {
                     "name": "openBracketToken",
                     "type": "Token"
+                },
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "typeDescriptor",

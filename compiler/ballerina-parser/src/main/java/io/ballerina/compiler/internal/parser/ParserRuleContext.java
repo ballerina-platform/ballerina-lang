@@ -128,6 +128,7 @@ public enum ParserRuleContext {
     RELATIVE_RESOURCE_PATH_START("relative-resource-path-start"),
     RESOURCE_PATH_SEGMENT("resource-path-segment"),
     RESOURCE_PATH_PARAM("resource-path-param"),
+    PATH_PARAM_OPTIONAL_ANNOTS("path-param-optional-annots"),
     PATH_PARAM_ELLIPSIS("path-param-ellipsis"),
     RELATIVE_RESOURCE_PATH_END("relative-resource-path-end"),
     RESOURCE_PATH_END("relative-resource-path-end"),

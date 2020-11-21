@@ -5819,18 +5819,18 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseRelativeResourcePath() {
         startContext(ParserRuleContext.RELATIVE_RESOURCE_PATH);
-        List<STNode> identifierList = new ArrayList<>();
+        List<STNode> pathElementList = new ArrayList<>();
 
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.DOT_TOKEN) {
-            identifierList.add(consume());
+            pathElementList.add(consume());
             endContext();
-            return STNodeFactory.createNodeList(identifierList);
+            return STNodeFactory.createNodeList(pathElementList);
         }
 
         // Parse first resource path segment, that has no leading slash
         STNode pathSegment = parseResourcePathSegment();
-        identifierList.add(pathSegment);
+        pathElementList.add(pathSegment);
 
         STNode leadingSlash;
         while (!isEndRelativeResourcePath(nextToken.kind)) {
@@ -5839,14 +5839,14 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            identifierList.add(leadingSlash);
+            pathElementList.add(leadingSlash);
             pathSegment = parseResourcePathSegment();
-            identifierList.add(pathSegment);
+            pathElementList.add(pathSegment);
             nextToken = peek();
         }
 
         endContext();
-        return STNodeFactory.createNodeList(identifierList);
+        return createResourcePathNodeList(pathElementList);
     }
 
     private boolean isEndRelativeResourcePath(SyntaxKind tokenKind) {
@@ -5857,6 +5857,36 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return false;
         }
+    }
+
+    private STNode createResourcePathNodeList(List<STNode> pathElementList) {
+        if (pathElementList.isEmpty()) {
+            return STNodeFactory.createEmptyNodeList();
+        }
+
+        // Validate resource path elements and create a STNodeList
+        List<STNode> validatedList = new ArrayList<>();
+        STNode firstElement = pathElementList.get(0);
+        validatedList.add(firstElement);
+        boolean hasRestPram = firstElement.kind == SyntaxKind.RESOURCE_PATH_REST_PARAM;
+
+        for (int i = 1; i < pathElementList.size(); i = i + 2) {
+            STNode leadingSlash = pathElementList.get(i);
+            STNode pathSegment = pathElementList.get(i + 1);
+
+            if (hasRestPram) {
+                updateLastNodeInListWithInvalidNode(validatedList, leadingSlash,
+                        DiagnosticErrorCode.ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH);
+                updateLastNodeInListWithInvalidNode(validatedList, pathSegment, null);
+                continue;
+            }
+
+            hasRestPram = pathSegment.kind == SyntaxKind.RESOURCE_PATH_REST_PARAM;
+            validatedList.add(leadingSlash);
+            validatedList.add(pathSegment);
+        }
+
+        return STNodeFactory.createNodeList(validatedList);
     }
 
     /**
@@ -5882,17 +5912,22 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse resource path parameter.
      * <p>
-     * <code>resource-path-parameter := "[" type-descriptor [...] param-name "]"</code>
+     * <code>resource-path-parameter := "[" [annots] type-descriptor [...] param-name "]"</code>
      *
      * @return Parsed node
      */
     private STNode parseResourcePathParameter() {
         STNode openBracket = parseOpenBracket();
+        STNode annots = parseOptionalAnnotations();
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PATH_PARAM);
         STNode ellipsis = parseOptionalEllipsis();
         STNode paramName = parseIdentifier(ParserRuleContext.VARIABLE_NAME);
         STNode closeBracket = parseCloseBracket();
-        return STNodeFactory.createResourcePathParameterNode(openBracket, type, ellipsis, paramName, closeBracket);
+
+        SyntaxKind pathPramKind =
+                ellipsis == null ? SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM : SyntaxKind.RESOURCE_PATH_REST_PARAM;
+        return STNodeFactory.createResourcePathParameterNode(pathPramKind, openBracket, annots, type, ellipsis,
+                paramName, closeBracket);
     }
 
     private STNode parseOptionalEllipsis() {

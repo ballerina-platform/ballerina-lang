@@ -1186,8 +1186,10 @@ public class ParserTestUtils {
                 return SyntaxKind.RESOURCE_ACCESSOR_DEFINITION;
             case "RESOURCE_ACCESSOR_DECLARATION":
                 return SyntaxKind.RESOURCE_ACCESSOR_DECLARATION;
-            case "RESOURCE_PATH_PARAM":
-                return SyntaxKind.RESOURCE_PATH_PARAM;
+            case "RESOURCE_PATH_SEGMENT_PARAM":
+                return SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM;
+            case "RESOURCE_PATH_REST_PARAM":
+                return SyntaxKind.RESOURCE_PATH_REST_PARAM;
 
             // XML template
             case "XML_ELEMENT":
