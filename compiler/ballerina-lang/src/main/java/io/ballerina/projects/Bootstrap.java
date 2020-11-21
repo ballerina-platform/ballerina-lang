@@ -17,9 +17,9 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
-import io.ballerina.projects.environment.PackageResolver;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -173,10 +173,10 @@ public class Bootstrap {
     }
 
     private ResolutionRequest toPackageLoadRequest(PackageID packageID) {
-        PackageName packageName = PackageName.from(packageID.name.getValue());
-        PackageVersion version = PackageVersion.from(packageID.getPackageVersion().toString());
-        PackageDescriptor packageDescriptor = PackageDescriptor.from(PackageOrg.from(packageID.orgName.getValue()), packageName,
-                version);
+        PackageOrg pkgOrg = PackageOrg.from(packageID.orgName.getValue());
+        PackageName pkgName = PackageName.from(packageID.name.getValue());
+        PackageVersion pkgVersion = PackageVersion.from(packageID.getPackageVersion().toString());
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(pkgOrg, pkgName, pkgVersion);
         return ResolutionRequest.from(packageDescriptor);
     }
 

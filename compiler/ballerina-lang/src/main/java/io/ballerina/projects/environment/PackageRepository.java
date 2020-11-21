@@ -32,9 +32,9 @@ import java.util.Optional;
  */
 public interface PackageRepository {
 
-    Optional<Package> getPackage(ResolutionRequest packageLoadRequest);
+    Optional<Package> getPackage(ResolutionRequest resolutionRequest);
 
-    List<PackageVersion> getPackageVersions(ResolutionRequest packageLoadRequest);
+    List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest);
 
     Map<String, List<String>> getPackages();
 }

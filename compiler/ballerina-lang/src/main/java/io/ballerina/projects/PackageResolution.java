@@ -20,10 +20,10 @@ package io.ballerina.projects;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
-import io.ballerina.projects.environment.ResolutionRequest;
-import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponse;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,32 +127,41 @@ public class PackageResolution {
 
     private Set<ResolutionRequest> getPackageLoadRequestsOfDirectDependencies(
             Set<ModuleLoadRequest> moduleLoadRequests) {
-        Set<ResolutionRequest> packageLoadRequests = new HashSet<>();
+        Set<ResolutionRequest> resolutionRequests = new HashSet<>();
         for (ModuleLoadRequest moduleLoadRequest : moduleLoadRequests) {
             Optional<PackageOrg> optionalOrgName = moduleLoadRequest.orgName();
             if (optionalOrgName.isEmpty()) {
                 // At the moment we don't check whether the requested module is available
                 // in the current package or not. This error will be reported during the SymbolEnter pass.
                 continue;
-            } else if (optionalOrgName.get().equals(rootPackageContext.packageOrg()) &&
-                    rootPackageContext.moduleContext(moduleLoadRequest.moduleName()) != null) {
+            }
+
+            PackageOrg requestedPkgOrg = optionalOrgName.get();
+            PackageName requestedPkgName = moduleLoadRequest.packageName();
+            if (rootPackageContext.packageOrg().equals(requestedPkgOrg) &&
+                    rootPackageContext.packageName().equals(requestedPkgName)) {
+                // If the requested module belongs to this package, continue.
+                // We don't have to check whether this module exists, an error will be logged later in SymbolEnter.
                 continue;
             }
 
-            PackageOrg packageOrg = optionalOrgName.get();
-            PackageName packageName = moduleLoadRequest.packageName();
-            PackageVersion packageVersion = null;
-            for (PackageManifest.Dependency dependency : rootPackageContext.manifest().dependencies()) {
-                if (dependency.org().equals(packageOrg) && dependency.name().equals(packageName)) {
-                    packageVersion = dependency.version();
-                }
-            }
-
-            PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, packageVersion);
+            PackageVersion requestedPkgVersion = getVersionFromPackageManifest(
+                    requestedPkgOrg, requestedPkgName);
+            PackageDescriptor pkdDesc = PackageDescriptor.from(requestedPkgOrg,
+                    requestedPkgName, requestedPkgVersion);
             ResolutionRequest packageLoadRequest = ResolutionRequest.from(pkdDesc);
-            packageLoadRequests.add(packageLoadRequest);
+            resolutionRequests.add(packageLoadRequest);
         }
-        return packageLoadRequests;
+        return resolutionRequests;
+    }
+
+    private PackageVersion getVersionFromPackageManifest(PackageOrg requestedPkgOrg, PackageName requestedPkgName) {
+        for (PackageManifest.Dependency dependency : rootPackageContext.manifest().dependencies()) {
+            if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
+                return dependency.version();
+            }
+        }
+        return null;
     }
 
     private DependencyGraph<PackageDescriptor> getDependencyGraphWithPackageDescriptors() {
@@ -167,7 +176,8 @@ public class PackageResolution {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         Set<ResolutionRequest> packageLoadRequests = getPackageLoadRequestsOfDirectDependencies();
         // 2) Resolve direct dependencies. My assumption is that, all these dependencies comes from BALRs
-        Collection<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(packageLoadRequests);
+        Collection<ResolutionResponse> resolutionResponses =
+                packageResolver.resolvePackages(packageLoadRequests, rootPackageContext.project());
 
         PackageDescriptor rootPkgDesc = rootPackageContext.descriptor();
         DependencyGraphBuilder<PackageDescriptor> depGraphBuilder = DependencyGraphBuilder.getBuilder();
@@ -190,18 +200,20 @@ public class PackageResolution {
         // Now create PackageLoadRequests for all the remaining packages to be loaded in the graph
         Collection<PackageDescriptor> pkgDescGraphNodes = pkgDescDepGraph.getNodes();
         // TODO Filter out direct dependencies that we've already resolved.
-        Set<ResolutionRequest> pkgLoadRequests = pkgDescGraphNodes.stream()
+        Set<ResolutionRequest> resolutionRequests = pkgDescGraphNodes.stream()
                 .map(ResolutionRequest::from)
                 .collect(Collectors.toSet());
 
-        Collection<ResolutionResponse> pkgLoadResponses = packageResolver.resolvePackages(pkgLoadRequests);
-        Map<PackageDescriptor, Package> packageIdMap = pkgLoadResponses.stream()
+        Collection<ResolutionResponse> resolutionResponses =
+                packageResolver.resolvePackages(resolutionRequests, rootPackageContext.project());
+        Map<PackageDescriptor, Package> packageIdMap = resolutionResponses.stream()
                 .collect(Collectors.toMap(pkgLoadResp -> pkgLoadResp.packageLoadRequest().packageDescriptor(),
                         ResolutionResponse::resolvedPackage));
 
         DependencyGraphBuilder<Package> dependencyGraphBuilder = DependencyGraphBuilder.getBuilder();
         for (PackageDescriptor pkgDescGraphNode : pkgDescGraphNodes) {
-            Collection<PackageDescriptor> directDependencies = pkgDescDepGraph.getDirectDependencies(pkgDescGraphNode);
+            Collection<PackageDescriptor> directDependencies = pkgDescDepGraph.getDirectDependencies(
+                    pkgDescGraphNode);
             List<Package> directDepPkgIds = new ArrayList<>(directDependencies.size());
             for (PackageDescriptor directDependency : directDependencies) {
                 directDepPkgIds.add(packageIdMap.get(directDependency));

@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.Project;
+
 import java.util.Collection;
 
 /**
@@ -28,4 +30,6 @@ import java.util.Collection;
 public interface PackageResolver {
 
     Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> packageLoadRequests);
+
+    Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> packageLoadRequests, Project project);
 }
