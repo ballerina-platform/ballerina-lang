@@ -376,3 +376,99 @@ isolated class InvalidIsolatedClassWithCopyInInsideBlock {
         }
     }
 }
+
+isolated class InvalidIsolatedClassWithInvalidCopyingWithClone {
+    private anydata[] arr = [];
+    private anydata[] arr2 = [];
+
+    isolated function add(anydata val) {
+        lock {
+            self.arr.push(val);
+
+            self.addAgain(val);
+            outerAdd(val);
+            anydata clonedVal = val;
+            self.addAgain(clonedVal); // OK
+            if val is anydata[] {
+                self.arr.push(val.pop());
+
+                lock {
+                    self.arr.push(val.pop());
+                }
+            }
+
+            if clonedVal is anydata[] {
+                self.arr.push(clonedVal.pop()); // OK
+
+                lock {
+                    self.arr.push(clonedVal.pop());
+                }
+            }
+        }
+    }
+
+    isolated function addAgain(anydata val) { }
+}
+
+isolated function outerAdd(anydata val) { }
+
+decimal globDecimal = 0;
+
+isolated class CurrentConfig {
+    private decimal[2] x = [1, 2.0];
+    private record {
+        int[] a;
+        decimal b;
+        boolean c;
+    } y = {a: [1, 2], b: 1.0, c: true};
+
+    function foo(decimal arr) {
+        decimal a = 0;
+        decimal a2 = 0;
+
+        lock {
+            [a, globDecimal] = self.x.clone();
+            [a2, globDecimal] = self.x;
+        }
+    }
+
+    function bar() {
+        int[] a;
+        decimal b;
+
+        lock {
+            boolean c;
+            {a, b, c} = self.y;
+            {a, b, c} = self.y.cloneReadOnly();
+        }
+    }
+}
+
+int[] y = [];
+readonly & int[] z = [];
+
+isolated class IsolatedClassWithInvalidVarRefs {
+    private int[][] x;
+    private int[] y;
+    private any[] z;
+
+    function init() {
+        self.y = y;
+    }
+
+    function push() {
+        lock {
+            self.x = let int[] z = y in [y, z];
+            self.y = (let int[]? z = y in ((z is int[]) ? z : <int[]> []));
+            self.x = let int[] v = z, int[] w = y in <int[][]> [z, v, w];
+        }
+    }
+
+    isolated function nested() {
+        any[] arr = let int[] v = y in [v];
+
+        lock {
+            self.z = let int[] v = y in [v, let int[] w = y in isolated function () returns int[2][] { return [w, v]; }];
+        }
+    }
+}

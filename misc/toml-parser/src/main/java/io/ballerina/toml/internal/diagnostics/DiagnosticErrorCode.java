@@ -74,7 +74,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_DOUBLE_QUOTE("BCE1004", "error.missing.double.quote"),
     ERROR_MISSING_HEX_DIGIT_AFTER_DOT("BCE1005", "error.missing.hex.digit.after.dot"),
     ERROR_INVALID_WHITESPACE_BEFORE("BCE1006", "error.invalid.whitespace.before"),
-    ERROR_INVALID_WHITESPACE_AFTER("BCE1006", "error.invalid.whitespace.after"),
+    ERROR_INVALID_WHITESPACE_AFTER("BCE1007", "error.invalid.whitespace.after"),
 
     ERROR_MISSING_KEY("BCE1500",
             "error.missing.key"),
