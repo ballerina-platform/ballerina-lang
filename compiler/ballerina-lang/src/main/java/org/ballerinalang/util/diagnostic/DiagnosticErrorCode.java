@@ -97,6 +97,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS("BCE2065", "object.constructor.init.function.cannot.have.parameters"),
     OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS(
             "BCE2066", "object.constructor.does.not.support.type.reference.members"),
+    MISSING_REQUIRED_INCLUDED_RECORD_PARAMETER_FIELD("BCE2067", "missing.required.included.record.parameter.field"),
 
     INCOMPATIBLE_TYPES("BCE2067", "incompatible.types"),
     INCOMPATIBLE_TYPES_SPREAD_OP("BCE2068", "incompatible.types.spread.op"),

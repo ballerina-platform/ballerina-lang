@@ -178,6 +178,7 @@ import static org.ballerinalang.model.elements.PackageID.XML;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
@@ -1543,6 +1544,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BVarSymbol varSymbol = defineVarSymbol(varNode.name.pos, varNode.flagSet, varNode.type, varName, env,
                                                varNode.internal);
+        if (varNode.expr != null) {
+            varSymbol.defaultableParam = true;
+        }
         if (isDeprecated(varNode.annAttachments)) {
             varSymbol.flags |= Flags.DEPRECATED;
         }
@@ -2364,6 +2368,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                                              SymbolEnv invokableEnv) {
         boolean foundDefaultableParam = false;
         List<BVarSymbol> paramSymbols = new ArrayList<>();
+        List<BVarSymbol> includedRecordParams = new ArrayList<>();
+        List<BVarSymbol> openIncludedRecordParams = new ArrayList<>();
+        Set<String> requiredParamNames = new HashSet<>();
         invokableNode.clonedEnv = invokableEnv.shallowClone();
         for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
             defineNode(varNode, invokableEnv);
@@ -2378,13 +2385,34 @@ public class SymbolEnter extends BLangNodeVisitor {
                 symbol.flags |= Flags.OPTIONAL;
                 symbol.defaultableParam = true;
             }
+            if (varNode.flagSet.contains(Flag.INCLUDED) && varNode.type.getKind() == TypeKind.RECORD) {
+                symbol.flags |= Flags.INCLUDED;
+                if (((BRecordType) varNode.type).restFieldType != symTable.noType) {
+                    openIncludedRecordParams.add(symbol);
+                }
+                LinkedHashMap<String, BField> fields = ((BRecordType) varNode.type).fields;
+                for (String field : fields.keySet()) {
+                    if (!Symbols.isFlagOn(Flags.asMask(fields.get(field).symbol.getFlags()), Flags.OPTIONAL)) {
+                        includedRecordParams.add(fields.get(field).symbol);
+                        if (!requiredParamNames.add(field)) {
+                            dlog.error(varNode.pos, REDECLARED_SYMBOL, field);
+                        }
+                    }
+                }
+            } else {
+                requiredParamNames.add(symbol.name.value);
+            }
             paramSymbols.add(symbol);
+        }
+        if (isIncRecordParamAllowAdditionalFields(openIncludedRecordParams, requiredParamNames)) {
+            invokableSymbol.incRecordParamAllowAdditionalFields = openIncludedRecordParams.get(0);
         }
 
         if (!invokableNode.desugaredReturnType) {
             symResolver.resolveTypeNode(invokableNode.returnTypeNode, invokableEnv);
         }
         invokableSymbol.params = paramSymbols;
+        invokableSymbol.includedRecordParams = includedRecordParams;
         invokableSymbol.retType = invokableNode.returnTypeNode.type;
 
         // Create function type
@@ -2410,6 +2438,26 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         invokableSymbol.type = new BInvokableType(paramTypes, restType, invokableNode.returnTypeNode.type, null);
         invokableSymbol.type.tsymbol = functionTypeSymbol;
+    }
+
+    private boolean isIncRecordParamAllowAdditionalFields(List<BVarSymbol> inclusiveIncludedRecordParams,
+                                                          Set<String> requiredParamNames) {
+        if (inclusiveIncludedRecordParams.size() != 1) {
+            return false;
+        }
+
+        LinkedHashMap<String, BField> fields = ((BRecordType) inclusiveIncludedRecordParams.get(0).type).fields;
+        if (fields.size() != requiredParamNames.size()) {
+            return false;
+        } else {
+            for (String field : fields.keySet()) {
+                if (!Symbols.isFlagOn(Flags.asMask(fields.get(field).symbol.getFlags()), Flags.OPTIONAL)
+                        || requiredParamNames.add(field)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void defineSymbol(Location pos, BSymbol symbol) {
