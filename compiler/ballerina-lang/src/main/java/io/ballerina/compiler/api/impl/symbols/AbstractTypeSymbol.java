@@ -100,6 +100,12 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         return this.langLibFunctions;
     }
 
+    @Override
+    public boolean assignableTo(TypeSymbol targetType) {
+        Types types = Types.getInstance(this.context);
+        return types.isAssignable(this.bType, ((AbstractTypeSymbol) targetType).bType);
+    }
+
     /**
      * Get the BType.
      *
