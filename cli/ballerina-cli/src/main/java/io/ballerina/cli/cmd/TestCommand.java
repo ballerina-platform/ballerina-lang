@@ -25,6 +25,8 @@ import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.ListTestGroupsTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
@@ -139,10 +141,7 @@ public class TestCommand implements BLauncherCmd {
             return;
         }
 
-        // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
-        if (this.debugPort != null) {
-            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
-        }
+        BuildOptions buildOptions = constructBuildOptions();
 
         String[] args;
         if (this.argList == null) {
@@ -169,7 +168,7 @@ public class TestCommand implements BLauncherCmd {
         boolean isSingleFile = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
-                project = SingleFileProject.load(this.projectPath);
+                project = SingleFileProject.load(this.projectPath, buildOptions);
             } catch (RuntimeException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -178,12 +177,17 @@ public class TestCommand implements BLauncherCmd {
             isSingleFile = true;
         } else {
             try {
-                project = BuildProject.load(this.projectPath);
+                project = BuildProject.load(this.projectPath, buildOptions);
             } catch (RuntimeException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+        }
+
+        // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
+        if (this.debugPort != null) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
 
         // Skip code coverage for single bal files if option is set
@@ -192,14 +196,6 @@ public class TestCommand implements BLauncherCmd {
             this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
                     "and continuing the test run...");
         }
-
-        CompilerContext compilerContext = project.projectEnvironmentContext().getService(CompilerContext.class);
-        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(OFFLINE, Boolean.toString(this.offline));
-        options.put(LOCK_ENABLED, Boolean.toString(!this.skipLock));
-        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
-        options.put(PRESERVE_WHITESPACE, "true");
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFile)   // clean the target directory(projects only)
@@ -210,13 +206,25 @@ public class TestCommand implements BLauncherCmd {
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream), !listGroups) // list the available test groups
                 .addTask(new RunTestsTask(outStream, errStream, args, rerunTests, groupList, disableGroupList,
-                        testList, testReport, coverage), listGroups)
+                        testList), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private BuildOptions constructBuildOptions() {
+        return new BuildOptionsBuilder()
+                .b7aConfigFile(null)
+                .codeCoverage(coverage)
+                .experimental(experimentalFlag)
+                .offline(offline)
+                .skipTests(false)
+                .testReport(testReport)
+                .observabilityIncluded(observabilityIncluded)
+                .build();
     }
 
     @Override

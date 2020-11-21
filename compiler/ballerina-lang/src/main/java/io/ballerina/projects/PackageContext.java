@@ -154,9 +154,9 @@ class PackageContext {
                 moduleId -> new ModuleCompilation(this, moduleContext));
     }
 
-    PackageCompilation getPackageCompilation() {
+    PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
         if (packageCompilation == null) {
-            packageCompilation = PackageCompilation.from(this);
+            packageCompilation = PackageCompilation.from(this, compilationOptions);
         }
         return packageCompilation;
     }

@@ -24,24 +24,36 @@ package io.ballerina.projects;
  *
  * @since 2.0.0
  */
-public class CompilationOptionsBuilder {
-    private boolean skipTests;
-    private boolean buildOffline;
+class CompilationOptionsBuilder {
+    private Boolean skipTests;
+    private Boolean buildOffline;
+    private Boolean experimental;
+    private Boolean observabilityIncluded;
 
     public CompilationOptionsBuilder() {
     }
 
-    public CompilationOptionsBuilder skipTests(boolean value) {
+    public CompilationOptionsBuilder skipTests(Boolean value) {
         skipTests = value;
         return this;
     }
 
-    public CompilationOptionsBuilder buildOffline(boolean value) {
+    public CompilationOptionsBuilder buildOffline(Boolean value) {
         buildOffline = value;
         return this;
     }
 
+    public CompilationOptionsBuilder experimental(Boolean value) {
+        experimental = value;
+        return this;
+    }
+
+    public CompilationOptionsBuilder observabilityIncluded(Boolean value) {
+        observabilityIncluded = value;
+        return this;
+    }
+
     public CompilationOptions build() {
-        return new CompilationOptions(skipTests, buildOffline);
+        return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded);
     }
 }

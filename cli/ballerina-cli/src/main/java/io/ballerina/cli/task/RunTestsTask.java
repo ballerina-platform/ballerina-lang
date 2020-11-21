@@ -93,21 +93,21 @@ public class RunTestsTask implements Task {
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean testReport, boolean coverage) {
+    public RunTestsTask(PrintStream out, PrintStream err, String[] args) {
         this.out = out;
         this.err = err;
         this.args = Lists.of(args);
-        this.report = testReport;
-        this.coverage = coverage;
     }
 
     public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, boolean testReport, boolean coverage) {
+                        List<String> disableGroupList, List<String> testList) {
         this.out = out;
         this.err = err;
         this.args = Lists.of(args);
         this.isSingleTestExecution = false;
-        this.isRerunTestExection = rerunTests;
+
+        //TODO: fix --rerun-failed and enable it
+        this.isRerunTestExection = false;
 
         // If rerunTests is true, we get the rerun test list and assign it to 'testList'
         if (rerunTests) {
@@ -122,15 +122,13 @@ public class RunTestsTask implements Task {
             isSingleTestExecution = true;
             singleExecTests = testList;
         }
-
-        //TODO: handle test report generation once CompilerOptions are available
-        this.report = testReport;
-        this.coverage = coverage;
     }
 
     @Override
     public void execute(Project project) {
         filterTestGroups();
+        report = project.buildOptions().testReport();
+        coverage = project.buildOptions().codeCoverage();
 
         if (report || coverage) {
             testReport = new TestReport();
@@ -169,7 +167,8 @@ public class RunTestsTask implements Task {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
-            TestSuite suite = jBallerinaBackend.testSuite(module);
+
+            TestSuite suite = jBallerinaBackend.testSuite(module).orElse(null);
             Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
             Path reportDir;
 

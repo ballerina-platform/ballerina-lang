@@ -18,6 +18,7 @@
 
 package io.ballerina.projects.balo;
 
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -25,6 +26,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * {@code BaloProject} represents a Ballerina project instance created from a balr.

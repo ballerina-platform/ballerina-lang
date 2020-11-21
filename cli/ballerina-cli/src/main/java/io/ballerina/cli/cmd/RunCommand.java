@@ -25,6 +25,8 @@ import io.ballerina.cli.task.CreateBaloTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.FileUtils;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
@@ -125,24 +127,13 @@ public class RunCommand implements BLauncherCmd {
             this.projectPath = Paths.get(argList.get(0));
         }
 
-
-        // create compiler context
-        CompilerContext compilerContext = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(OFFLINE, Boolean.toString(this.offline));
-        options.put(DUMP_BIR, Boolean.toString(dumpBIR));
-        options.put(LOCK_ENABLED, Boolean.toString(true));
-        options.put(SKIP_TESTS, Boolean.toString(true));
-        options.put(TEST_ENABLED, Boolean.toString(false));
-        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
-
         // load project
         Project project;
+        BuildOptions buildOptions = constructBuildOptions();
         boolean isSingleFileBuild = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
-                project = SingleFileProject.load(this.projectPath);
+                project = SingleFileProject.load(this.projectPath, buildOptions);
             } catch (RuntimeException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -151,7 +142,7 @@ public class RunCommand implements BLauncherCmd {
             isSingleFileBuild = true;
         } else {
             try {
-                project = BuildProject.load(this.projectPath);
+                project = BuildProject.load(this.projectPath, buildOptions);
             } catch (RuntimeException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -199,5 +190,17 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
+    }
+
+    private BuildOptions constructBuildOptions() {
+        return new BuildOptionsBuilder()
+                .b7aConfigFile(null)
+                .codeCoverage(false)
+                .experimental(experimentalFlag)
+                .offline(offline)
+                .skipTests(true)
+                .testReport(false)
+                .observabilityIncluded(observabilityIncluded)
+                .build();
     }
 }
