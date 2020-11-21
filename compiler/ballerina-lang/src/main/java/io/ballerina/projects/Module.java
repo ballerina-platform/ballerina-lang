@@ -19,10 +19,9 @@ package io.ballerina.projects;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -149,7 +148,7 @@ public class Module {
         private Map<DocumentId, DocumentContext> srcDocContextMap;
         private Map<DocumentId, DocumentContext> testDocContextMap;
         private boolean isDefaultModule;
-        private Set<ModuleDependency> moduleDependencies;
+        private final List<ModuleDescriptor> dependencies;
         private Package packageInstance;
         private Project project;
 
@@ -160,7 +159,7 @@ public class Module {
             srcDocContextMap = copySrcDocs(oldModule);
             testDocContextMap = copyTestDocs(oldModule);
             isDefaultModule = oldModule.isDefaultModule();
-            moduleDependencies = new HashSet<>(oldModule.moduleDependencies());
+            dependencies = oldModule.moduleContext().moduleDescDependencies();
             packageInstance = oldModule.packageInstance;
             project = oldModule.project();
         }
@@ -243,10 +242,9 @@ public class Module {
                 DocumentContext> testDocContextMap) {
             ModuleContext newModuleContext = new ModuleContext(this.project,
                     this.moduleId, this.moduleDescriptor, this.isDefaultModule, srcDocContextMap,
-                    testDocContextMap, this.moduleDependencies);
+                    testDocContextMap, this.dependencies);
             Package newPackage = this.packageInstance.modify().updateModule(newModuleContext).apply();
             return newPackage.module(this.moduleId);
         }
-
     }
 }

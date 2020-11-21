@@ -47,9 +47,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -259,11 +257,10 @@ public abstract class BaloWriter {
 
     private void addDependenciesJson(ZipOutputStream baloOutputStream, Package pkg) {
         PackageCache packageCache = pkg.project().projectEnvironmentContext().getService(PackageCache.class);
-        List<Dependency> packageDependencyGraph = getPackageDependencies(pkg.getCompilation().packageDependencyGraph(),
-                packageCache);
+        List<Dependency> packageDependencyGraph = getPackageDependencies(pkg.getResolution().dependencyGraph());
         List<ModuleDependency> moduleDependencyGraph = getModuleDependencies(pkg, packageCache);
-        DependencyGraphJson depGraphJson = new DependencyGraphJson(packageDependencyGraph, moduleDependencyGraph);
 
+        DependencyGraphJson depGraphJson = new DependencyGraphJson(packageDependencyGraph, moduleDependencyGraph);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         try {
@@ -274,40 +271,24 @@ public abstract class BaloWriter {
         }
     }
 
-    private List<Dependency> getPackageDependencies(DependencyGraph<PackageId> packageIdDependencyGraph,
-            PackageCache packageCache) {
-        Map<PackageId, Set<PackageId>> graphDependencies = packageIdDependencyGraph.dependencies();
+    private List<Dependency> getPackageDependencies(DependencyGraph<Package> dependencyGraph) {
         List<Dependency> dependencies = new ArrayList<>();
+        for (Package pkg : dependencyGraph.getNodes()) {
+            PackageContext packageContext = pkg.packageContext();
+            Dependency dependency = new Dependency(packageContext.packageOrg().toString(),
+                    packageContext.packageName().toString(), packageContext.packageVersion().toString());
 
-        for (Map.Entry<PackageId, Set<PackageId>> dependenciesMap : graphDependencies.entrySet()) {
-            PackageId packageId = dependenciesMap.getKey();
-            Optional<Package> aPackage = packageCache.getPackage(packageId);
-
-            if (aPackage.isPresent()) {
-                PackageContext packageContext = aPackage.get().packageContext();
-                Dependency dependency = new Dependency(packageContext.packageOrg().toString(),
-                        packageContext.packageName().toString(), packageContext.packageVersion().toString());
-
-                List<Dependency> dependencyList = new ArrayList<>();
-                Set<PackageId> dependencyIds = dependenciesMap.getValue();
-                for (PackageId dependencyPkgId : dependencyIds) {
-                    Optional<Package> dependencyPkg = packageCache.getPackage(dependencyPkgId);
-
-                    if (dependencyPkg.isPresent()) {
-                        PackageContext dependencyPkgContext = dependencyPkg.get().packageContext();
-                        Dependency dep = new Dependency(dependencyPkgContext.packageOrg().toString(),
-                                dependencyPkgContext.packageName().toString(),
-                                dependencyPkgContext.packageVersion().toString());
-                        dependencyList.add(dep);
-                    } else {
-                        throw new RuntimeException("Cannot resolve package from package cache:" + packageId.toString());
-                    }
-                }
-                dependency.setDependencies(dependencyList);
-                dependencies.add(dependency);
-            } else {
-                throw new RuntimeException("Cannot resolve package from package cache:" + packageId.toString());
+            List<Dependency> dependencyList = new ArrayList<>();
+            Collection<Package> pkgDependencies = dependencyGraph.getDirectDependencies(pkg);
+            for (Package dependencyPkg : pkgDependencies) {
+                PackageContext dependencyPkgContext = dependencyPkg.packageContext();
+                Dependency dep = new Dependency(dependencyPkgContext.packageOrg().toString(),
+                        dependencyPkgContext.packageName().toString(),
+                        dependencyPkgContext.packageVersion().toString());
+                dependencyList.add(dep);
             }
+            dependency.setDependencies(dependencyList);
+            dependencies.add(dependency);
         }
         return dependencies;
     }

@@ -19,9 +19,6 @@ package io.ballerina.projects;
 
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * {@code PackageConfig} contains necessary configuration elements required to
@@ -38,7 +35,6 @@ public class PackageConfig {
     private final BallerinaToml ballerinaToml;
     private final Path packagePath;
     private final DependencyGraph<PackageDescriptor> packageDescDependencyGraph;
-    private final Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDependencyGraph;
     private final Collection<ModuleConfig> otherModules;
 
     private PackageConfig(PackageId packageId,
@@ -46,15 +42,13 @@ public class PackageConfig {
                           PackageManifest packageManifest,
                           BallerinaToml ballerinaToml,
                           Collection<ModuleConfig> moduleConfigs,
-                          DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
-                          Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDependencyGraph) {
+                          DependencyGraph<PackageDescriptor> packageDescDependencyGraph) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.packageManifest = packageManifest;
         this.ballerinaToml = ballerinaToml;
         this.otherModules = moduleConfigs;
         this.packageDescDependencyGraph = packageDescDependencyGraph;
-        this.moduleDependencyGraph = moduleDependencyGraph;
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -63,7 +57,7 @@ public class PackageConfig {
                                      BallerinaToml ballerinaToml,
                                      Collection<ModuleConfig> moduleConfigs) {
         return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml,
-                moduleConfigs, DependencyGraph.emptyGraph(), Collections.emptyMap());
+                moduleConfigs, DependencyGraph.emptyGraph());
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -71,10 +65,9 @@ public class PackageConfig {
                                      PackageManifest packageManifest,
                                      BallerinaToml ballerinaToml,
                                      Collection<ModuleConfig> moduleConfigs,
-                                     DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
-                                     Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDependencyGraph) {
+                                     DependencyGraph<PackageDescriptor> packageDescDependencyGraph) {
         return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml,
-                moduleConfigs, packageDescDependencyGraph, moduleDependencyGraph);
+                moduleConfigs, packageDescDependencyGraph);
     }
 
     public PackageId packageId() {
@@ -107,10 +100,6 @@ public class PackageConfig {
 
     public DependencyGraph<PackageDescriptor> packageDescDependencyGraph() {
         return packageDescDependencyGraph;
-    }
-
-    public Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDependencyGraph() {
-        return moduleDependencyGraph;
     }
 
     // TODO Check whether it makes sense to expose Java Path in the API

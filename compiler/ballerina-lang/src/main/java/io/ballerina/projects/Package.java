@@ -117,18 +117,14 @@ public class Package {
         return this.packageContext.getPackageCompilation();
     }
 
-    public DependencyGraph<PackageDescriptor> packageDependencyGraph() {
-        return this.packageContext.packageDescriptorDependencyGraph();
+    public PackageResolution getResolution() {
+        return this.packageContext.getResolution();
     }
 
     public DependencyGraph<ModuleId> moduleDependencyGraph() {
         // Each Package should know the packages that it depends on and packages that depends on it
         // Each Module should know the modules that it depends on and modules that depends on it
         return this.packageContext.moduleDependencyGraph();
-    }
-
-    public void resolveDependencies() {
-        packageContext.resolveDependencies();
     }
 
     public Collection<PackageDependency> packageDependencies() {
@@ -151,6 +147,7 @@ public class Package {
     public Modifier modify() {
         return new Modifier(this);
     }
+
     private static class ModuleIterable implements Iterable {
 
         private final Collection<Module> moduleList;
@@ -180,7 +177,6 @@ public class Package {
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
         private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
-        private final Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDescDependencyGraph;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
@@ -188,8 +184,7 @@ public class Package {
             this.ballerinaToml = oldPackage.ballerinaToml().orElse(null);
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
-            this.pkgDescDependencyGraph = oldPackage.packageContext().packageDescriptorDependencyGraph();
-            this.moduleDescDependencyGraph = oldPackage.packageContext().moduleDescDependencyGraph();
+            this.pkgDescDependencyGraph = oldPackage.packageContext().dependencyGraph();
         }
 
         Modifier updateModule(ModuleContext newModuleContext) {
@@ -240,8 +235,7 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
-                    this.ballerinaToml, this.moduleContextMap, this.pkgDescDependencyGraph,
-                    this.moduleDescDependencyGraph);
+                    this.ballerinaToml, this.moduleContextMap, this.pkgDescDependencyGraph);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }
