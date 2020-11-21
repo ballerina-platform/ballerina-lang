@@ -21,7 +21,7 @@ import io.ballerina.projects.Bootstrap;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.repos.BallerinaDistributionRepository;
+import io.ballerina.projects.internal.repositories.BallerinaDistributionRepository;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Files;
