@@ -58,9 +58,9 @@ public class BXmlType extends BType implements XmlType {
         this.readonly = readonly;
     }
 
-    public BXmlType(String typeName, Module pkg, int tag, Type constraint, boolean readonly) {
+    public BXmlType(String typeName, Type constraint, Module pkg, boolean readonly) {
         super(typeName, pkg, XmlValue.class);
-        this.tag = tag;
+        this.tag = TypeTags.XML_TAG;
         this.readonly = readonly;
         this.constraint = constraint;
     }

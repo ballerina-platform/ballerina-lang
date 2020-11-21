@@ -613,7 +613,8 @@ public class Types {
             return true;
         }
 
-        if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
+        if (TypeTags.isXMLTypeTag(sourceTag) && (TypeTags.isXMLTypeTag(targetTag)
+                || targetTag == TypeTags.STRING)) {
             return isXMLTypeAssignable(source, target, unresolvedTypes);
         }
 
@@ -940,6 +941,13 @@ public class Types {
             if (source.constraint != null) {
                 return source.constraint.tag == TypeTags.NEVER;
             }
+        }
+        if (targetTag == TypeTags.STRING && sourceTag == TypeTags.XML) {
+            BXMLType source = (BXMLType) sourceType;
+            if (source.constraint.tag == TypeTags.NEVER) {
+                return true;
+            }
+            return isAssignable(source.constraint, targetType, unresolvedTypes);
         }
         return sourceTag == targetTag;
     }
@@ -1909,7 +1917,10 @@ public class Types {
             return true;
         } else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.XML_TEXT) {
             return true;
+        } else if (targetType.tag == TypeTags.STRING && TypeTags.isXMLTypeTag(actualType.tag)) {
+            return isXMLTypeAssignable(actualType, targetType, new HashSet<>());
         }
+
         return false;
     }
 

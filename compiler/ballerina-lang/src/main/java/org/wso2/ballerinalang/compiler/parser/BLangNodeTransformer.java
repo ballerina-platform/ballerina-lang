@@ -3243,7 +3243,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
         if (expressionNode.content().size() == 0) {
             xmlTextLiteral.pos = getPosition(expressionNode);
-            xmlTextLiteral.textFragments.add(createSimpleLiteral(expressionNode));
+            xmlTextLiteral.textFragments.add(createEmptyStringLiteral(expressionNode));
             return xmlTextLiteral;
         }
         xmlTextLiteral.pos = getPosition(expressionNode.content().get(0));
@@ -4479,7 +4479,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLIdentifer;
     }
 
-    private BLangLiteral createSimpleLiteral(TemplateExpressionNode expressionNode) {
+    private BLangLiteral createEmptyStringLiteral(TemplateExpressionNode expressionNode) {
         BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         int typeTag = TypeTags.STRING;
         bLiteral.pos = getPosition(expressionNode);

@@ -138,9 +138,8 @@ public class PredefinedTypes {
                                                          new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
                                                          TypeTags.XML_TEXT_TAG, true);
 
-    public static final XmlType TYPE_XML_NEVER = new BXmlType(TypeConstants.XML_TEXT,
-                                                        new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
-                                                        TypeTags.XML_TEXT_TAG, new BNeverType(EMPTY_MODULE), true);
+    public static final Type TYPE_XML_NEVER = new BXmlType(TypeConstants.XML_TNAME, new BNeverType(EMPTY_MODULE),
+                                                EMPTY_MODULE, true);
 
     public static final Type TYPE_XML = new BXmlType(TypeConstants.XML_TNAME,
                                                      new BUnionType(Arrays.asList(TYPE_ELEMENT, TYPE_COMMENT,

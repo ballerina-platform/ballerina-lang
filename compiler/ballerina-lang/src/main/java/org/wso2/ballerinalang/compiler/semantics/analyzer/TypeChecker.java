@@ -4019,12 +4019,13 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
-        checkStringTemplateExprs(bLangXMLTextLiteral.textFragments, false);
         List<BLangExpression> literalValues = bLangXMLTextLiteral.textFragments;
-        if (literalValues.get(0).getKind() == NodeKind.LITERAL &&
-                ((String) ((BLangLiteral) literalValues.get(0)).value).isEmpty()) {
-            resultType = types.checkType(bLangXMLTextLiteral,
-                    symTable.xmlNeverType, expType);
+        checkStringTemplateExprs(literalValues, false);
+        BLangExpression langExpression = literalValues.get(0);
+        if (langExpression.getKind() == NodeKind.LITERAL &&
+                ((String) ((BLangLiteral) langExpression).value).isEmpty() &&
+                literalValues.size() == 1) {
+            resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlNeverType, expType);
             return;
         }
         resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlTextType, expType);
