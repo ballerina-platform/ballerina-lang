@@ -245,7 +245,8 @@ public class BindingsGenerator {
                         JClass jClass = new JClass(classInstance);
                         jClass.setAccessModifier(accessModifier);
                         // The folder structure is flattened to address the Project API changes.
-                        String filePath = Paths.get(jClass.getShortClassName() + BAL_EXTENSION).toString();
+                        String filePath = Paths.get(modulePath.toString(), jClass.getShortClassName()
+                                + BAL_EXTENSION).toString();
                         writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
                         outStream.println("\t" + c);
                     }

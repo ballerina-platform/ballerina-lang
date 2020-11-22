@@ -12,13 +12,11 @@ target = "java11"
     path = "./lib/snakeyaml-1.25.jar"
 
     [[platform.libraries]]
-    modules = ["balModule1"]
     groupId = "commons-logging"
     artifactId = "commons-logging"
     version = "1.1.1"
 
     [[platform.libraries]]
-    modules = ["balModule1"]
     groupId = "org.yaml"
     artifactId = "snakeyaml"
     version = "1.25"
