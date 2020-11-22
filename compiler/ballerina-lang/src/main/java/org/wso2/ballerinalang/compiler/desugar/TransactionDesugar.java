@@ -251,8 +251,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         //prevAttempt = info();
         BLangAssignment infoAssignment = createPrevAttemptInfoInvocation(pos);
-//        transactionNode.transactionBody.stmts.add(0, desugar.rewrite(startTrxAssignment, env));
-//        transactionNode.transactionBody.stmts.add(1, desugar.rewrite(infoAssignment, env));
         transactionNode.transactionBody.stmts.add(0, startTrxAssignment);
         transactionNode.transactionBody.stmts.add(1, infoAssignment);
 
@@ -310,6 +308,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         // }
 //        createRollbackIfFailed(transactionNode.pos, transactionBlockStmt, nillableErrorVarSymbol);
         return desugar.rewrite(transactionBlockStmt, env);
+//        return transactionBlockStmt;
     }
 
     private BLangAssignment createPrevAttemptInfoInvocation(DiagnosticPos pos) {
@@ -359,7 +358,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     //    if ((result is error) && !(result is TransactionError)) {
     //        rollback result;
     //    }
-    void createRollbackIfFailed(DiagnosticPos pos, SymbolEnv env, BLangBlockStmt onFailBodyBlock,
+    void createRollbackIfFailed(DiagnosticPos pos, BLangBlockStmt onFailBodyBlock,
                                 BSymbol trxFuncResultSymbol, BLangLiteral trxBlockId) {
         BLangIf rollbackCheck = (BLangIf) TreeBuilder.createIfElseStatementNode();
         rollbackCheck.pos = pos;
