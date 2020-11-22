@@ -47,6 +47,23 @@ public class ModuleExecutionFlowTests extends BaseTest {
         runAndAssert(projectPath);
     }
 
+    private void runAndAssert(Path projectPath) throws BallerinaTestException {
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                                   null, null);
+        LogLeecher errLeecherA = new LogLeecher("Stopped module A", LogLeecher.LeecherType.ERROR);
+        LogLeecher errLeecherB = new LogLeecher("Stopped module B", LogLeecher.LeecherType.ERROR);
+        LogLeecher errLeecherC = new LogLeecher("Stopped module C", LogLeecher.LeecherType.ERROR);
+        serverInstance.addErrorLogLeecher(errLeecherA);
+        serverInstance.addErrorLogLeecher(errLeecherB);
+        serverInstance.addErrorLogLeecher(errLeecherC);
+        serverInstance.shutdownServer();
+        errLeecherA.waitForText(TIMEOUT);
+        errLeecherB.waitForText(TIMEOUT);
+        errLeecherC.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
+
     @Test(description = "Test 'init' is called only once for each module at runtime")
     public void testModuleDependencyChainForInit() throws BallerinaTestException, InterruptedException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "module_invocation_project");
@@ -71,20 +88,26 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.removeAllLeechers();
     }
 
-    private void runAndAssert(Path projectPath) throws BallerinaTestException {
+    @Test
+    public void testDynamicListenerExecution() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging", "dynamic_listener_execution");
+        runAssertDynamicListener(projectPath);
+    }
+
+    @Test
+    public void testDynamicListenerDeregister() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging", "dynamic_listener_deregister");
+        runAssertDynamicListener(projectPath);
+    }
+
+    private void runAssertDynamicListener(Path projectPath) throws BallerinaTestException {
         BServerInstance serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
                                    null, null);
         LogLeecher errLeecherA = new LogLeecher("Stopped module A", LogLeecher.LeecherType.ERROR);
-        LogLeecher errLeecherB = new LogLeecher("Stopped module B", LogLeecher.LeecherType.ERROR);
-        LogLeecher errLeecherC = new LogLeecher("Stopped module C", LogLeecher.LeecherType.ERROR);
         serverInstance.addErrorLogLeecher(errLeecherA);
-        serverInstance.addErrorLogLeecher(errLeecherB);
-        serverInstance.addErrorLogLeecher(errLeecherC);
         serverInstance.shutdownServer();
         errLeecherA.waitForText(TIMEOUT);
-        errLeecherB.waitForText(TIMEOUT);
-        errLeecherC.waitForText(TIMEOUT);
         serverInstance.removeAllLeechers();
     }
 }
