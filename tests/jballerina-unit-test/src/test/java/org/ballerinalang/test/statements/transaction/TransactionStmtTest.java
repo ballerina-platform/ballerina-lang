@@ -43,6 +43,11 @@ public class TransactionStmtTest {
     }
 
     @Test
+    public void testHappyPath() {
+        BRunUtil.invoke(programFile, "testHappyPath");
+    }
+
+    @Test
     public void testRollback() {
         BRunUtil.invoke(programFile, "testRollback");
     }

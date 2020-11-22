@@ -1,10 +1,21 @@
 import ballerina/io;
 import ballerina/lang.'transaction as transactions;
 
-function testRollback() {
+function testHappyPath() {
     string|error x =  trap actualCode(0, false);
     if(x is string) {
         assertEquality("start fc-0 inTrx Commit endTrx end", x);
+    } else {
+              panic error("Expected a string");
+    }
+}
+
+function testRollback() {
+    string|error x =  trap actualCode(0, true);
+    if(x is string) {
+        assertEquality("start fc-0 inTrx Rollback endTrx end", x);
+    } else {
+        panic error("Expected a string");
     }
 }
 
