@@ -31,7 +31,7 @@ public enum TomlType {
     TABLE_ARRAY,
 
     STRING,
-    LONG,
+    INTEGER,
     DOUBLE,
     BOOLEAN,
     ARRAY,

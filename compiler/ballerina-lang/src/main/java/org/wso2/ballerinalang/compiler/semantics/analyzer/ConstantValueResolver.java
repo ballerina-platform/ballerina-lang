@@ -23,7 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -193,7 +193,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         } catch (NumberFormatException nfe) {
             // Ignore. This will be handled as a compiler error.
         } catch (ArithmeticException ae) {
-            dlog.error(currentPos, DiagnosticCode.INVALID_CONST_EXPRESSION, ae.getMessage());
+            dlog.error(currentPos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION, ae.getMessage());
         }
         // This is a compilation error already logged.
         // This is to avoid NPE exceptions in sub-sequent validations.

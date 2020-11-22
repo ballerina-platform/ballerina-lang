@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import io.ballerina.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Solution;
@@ -66,6 +65,7 @@ import io.ballerina.compiler.internal.parser.tree.STUnaryExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STUnionTypeDescriptorNode;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.text.CharReader;
 
 import java.util.ArrayDeque;
@@ -3643,7 +3643,8 @@ public class BallerinaParser extends AbstractParser {
                 typeDescriptor = modifyFuncTypeDescWithIsolatedQualifier(typeDescriptor, isolatedQualifier);
                 break;
             default:
-                typeDescriptor = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDescriptor, isolatedQualifier);
+                typeDescriptor = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDescriptor, isolatedQualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) isolatedQualifier).text());
         }
 
         return STNodeFactory.createTypedBindingPatternNode(typeDescriptor, bindingPattern);
@@ -6552,9 +6553,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseConstantDeclaration(STNode metadata, STNode qualifier) {
         startContext(ParserRuleContext.CONSTANT_DECL);
         STNode constKeyword = parseConstantKeyword();
-        STNode constDecl = parseConstDecl(metadata, qualifier, constKeyword);
-        endContext();
-        return constDecl;
+        // context ends inside the method
+        return parseConstDecl(metadata, qualifier, constKeyword);
     }
 
     /**
@@ -6569,9 +6569,13 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case ANNOTATION_KEYWORD:
+                endContext();
                 return parseAnnotationDeclaration(metadata, qualifier, constKeyword);
             case IDENTIFIER_TOKEN:
-                return parseConstantOrListenerDeclWithOptionalType(metadata, qualifier, constKeyword, false);
+                STNode constantDecl =
+                        parseConstantOrListenerDeclWithOptionalType(metadata, qualifier, constKeyword, false);
+                endContext();
+                return constantDecl;
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
                     break;
@@ -6586,6 +6590,7 @@ public class BallerinaParser extends AbstractParser {
         STNode equalsToken = parseAssignOp();
         STNode initializer = parseExpression();
         STNode semicolonToken = parseSemicolon();
+        endContext();
         return STNodeFactory.createConstantDeclarationNode(metadata, qualifier, constKeyword, typeDesc, variableName,
                 equalsToken, initializer, semicolonToken);
     }
@@ -6593,9 +6598,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseConstantOrListenerDeclWithOptionalType(STNode metadata, STNode qualifier, STNode constKeyword,
                                                                boolean isListener) {
         STNode varNameOrTypeName = parseStatementStartIdentifier();
-        STNode constDecl =
-                parseConstantOrListenerDeclRhs(metadata, qualifier, constKeyword, varNameOrTypeName, isListener);
-        return constDecl;
+        return parseConstantOrListenerDeclRhs(metadata, qualifier, constKeyword, varNameOrTypeName, isListener);
     }
 
     /**

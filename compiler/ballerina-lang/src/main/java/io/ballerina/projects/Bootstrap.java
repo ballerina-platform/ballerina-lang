@@ -17,9 +17,8 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.environment.ModuleLoadRequest;
-import io.ballerina.projects.environment.ModuleLoadResponse;
-import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.PackageLoadRequest;
+import io.ballerina.projects.environment.PackageLoadResponse;
 import io.ballerina.projects.environment.PackageResolver;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -60,12 +59,10 @@ import static org.ballerinalang.model.elements.PackageID.XML;
 public class Bootstrap {
 
     private final PackageResolver packageResolver;
-    private final PackageCache packageCache;
     private boolean langLibLoaded = false;
 
-    public Bootstrap(PackageResolver packageResolver, PackageCache packageCache) {
+    public Bootstrap(PackageResolver packageResolver) {
         this.packageResolver = packageResolver;
-        this.packageCache = packageCache;
     }
 
     void loadLangLib(CompilerContext compilerContext, PackageID langLib) {
@@ -169,17 +166,17 @@ public class Bootstrap {
     }
 
     private BPackageSymbol loadLangLibFromBalr(PackageID langLib, CompilerContext compilerContext) {
-        ModuleLoadRequest langLibLoadRequest = toModuleRequest(langLib);
-        loadLangLibFromBalr(langLibLoadRequest);
+        PackageLoadRequest packageLoadRequest = toPackageLoadRequest(langLib);
+        loadLangLibFromBalr(packageLoadRequest);
 
         return getSymbolFromCache(compilerContext, langLib);
     }
 
-    private void loadLangLibFromBalr(ModuleLoadRequest lib) {
-        Collection<ModuleLoadResponse> moduleLoadResponses = packageResolver.loadPackages(
-                Collections.singletonList(lib));
-        moduleLoadResponses.forEach(moduleLoadResp -> {
-            Package pkg = packageCache.getPackageOrThrow(moduleLoadResp.packageId());
+    private void loadLangLibFromBalr(PackageLoadRequest packageLoadRequest) {
+        Collection<PackageLoadResponse> packageLoadResponses = packageResolver.resolvePackages(
+                Collections.singletonList(packageLoadRequest));
+        packageLoadResponses.forEach(pkgLoadResp -> {
+            Package pkg = pkgLoadResp.resolvedPackage();
             PackageCompilation compilation = pkg.getCompilation();
             if (compilation.diagnosticResult().hasErrors()) {
                 throw new ProjectException("Error while bootstrapping :" + pkg.packageId().toString() +
@@ -188,12 +185,12 @@ public class Bootstrap {
         });
     }
 
-    private ModuleLoadRequest toModuleRequest(PackageID packageID) {
+    private PackageLoadRequest toPackageLoadRequest(PackageID packageID) {
         PackageName packageName = PackageName.from(packageID.name.getValue());
-        ModuleName moduleName = ModuleName.from(packageName);
         PackageVersion version = PackageVersion.from(packageID.getPackageVersion().toString());
-        return new ModuleLoadRequest(PackageOrg.from(packageID.orgName.getValue()),
-                packageName, moduleName, version);
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(packageName,
+                PackageOrg.from(packageID.orgName.getValue()), version);
+        return PackageLoadRequest.from(packageDescriptor);
     }
 
     private BPackageSymbol getSymbolFromCache(CompilerContext context, PackageID packageID) {

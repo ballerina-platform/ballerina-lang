@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.internal.diagnostics;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 /**
@@ -50,5 +51,9 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     @Override
     public String messageKey() {
         return messageKey;
+    }
+
+    public boolean equals(DiagnosticCode code) {
+        return this.messageKey.equals(code.messageKey());
     }
 }
