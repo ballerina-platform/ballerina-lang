@@ -16,6 +16,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -92,7 +93,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final Names names;
 
-    private BSymbol transactionError;
+//    private BSymbol transactionError;
     private BLangExpression retryStmt;
     private SymbolEnv env;
 
@@ -120,8 +121,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     public BLangBlockStmt rewrite (BLangNode node, BLangLiteral trxBlockIdDef, SymbolEnv env,
-                                   String uniqueId,
-                                   boolean nestedTrxOnFailHandled) {
+                                   String uniqueId) {
         BLangLiteral currentTrxBlockIdDef = this.trxBlockId;
         this.trxBlockId = trxBlockIdDef;
         String id = this.uniqueId;
@@ -130,7 +130,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangSimpleVarRef attemptVarRef = this.prevAttemptInfoRef;
         BLangSimpleVarRef prevShouldCleanUp = shouldCleanUpVariableRef;
         BLangExpression retryStmt = this.retryStmt;
-        BSymbol errorSymbol = this.transactionError;
+//        BSymbol errorSymbol = this.transactionError;
         SymbolEnv symbolEnv =  this.env;
         this.env = env;
         node.accept(this);
@@ -139,7 +139,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         this.prevAttemptInfoRef = attemptVarRef;
         this.shouldCleanUpVariableRef = prevShouldCleanUp;
         this.retryStmt = retryStmt;
-        this.transactionError = errorSymbol;
+//        this.transactionError = errorSymbol;
         this.env = symbolEnv;
         this.trxBlockId = currentTrxBlockIdDef;
         return result;
@@ -284,7 +284,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 //        BLangSimpleVariableDef trxFuncVarDef = ASTBuilderUtil.createVariableDef(pos,
 //                resultVariable);
 //        transactionError = resultSymbol;
-        transactionError = nillableErrorVarSymbol;
+//        transactionError = nillableErrorVarSymbol;
         if (shouldRetry) {
             retryStmt = statementExpression;
         }
@@ -354,6 +354,16 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 prevAttemptVarSymbol);
     }
 
+    BLangBlockStmt desugar(BLangRollback rollbackNode, BLangLiteral transactionBlockID) {
+        // Rollback desugar implementation
+        BLangBlockStmt rollbackBlockStmt = ASTBuilderUtil.createBlockStmt(rollbackNode.pos);
+        BLangStatementExpression rollbackExpr = invokeRollbackFunc(rollbackNode.pos, rollbackNode.expr,
+                transactionBlockID);
+        BLangExpressionStmt rollbackStmt = ASTBuilderUtil.createExpressionStmt(rollbackNode.pos, rollbackBlockStmt);
+        rollbackStmt.expr = rollbackExpr;
+        return rollbackBlockStmt;
+    }
+
     //  commit or rollback was not executed and fail(e) or panic(e) returned, so rollback
     //    if ((result is error) && !(result is TransactionError)) {
     //        rollback result;
@@ -402,6 +412,20 @@ public class TransactionDesugar extends BLangNodeVisitor {
 //        rollbackCheck.body = ASTBuilderUtil.createBlockStmt(pos);
 //        rollbackCheck.body.stmts.add(desugar.rewrite(rollbackStmt, env));
     }
+
+//    private BLangExpressionStmt crateRollBackInvocation(DiagnosticPos pos, BLangSimpleVarRef ref) {
+//        BLangStatementExpression rollbackInvocation = invokeRollbackFunc(pos, desugar.addConversionExprIfRequired(ref,
+//                symTable.errorOrNilType), trxBlockId);
+//        BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckPanickedExpr(pos, rollbackInvocation,
+//                symTable.nilType);
+//        checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+//
+//        BLangExpressionStmt transactionExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+//        transactionExprStmt.pos = pos;
+//        transactionExprStmt.expr = checkedExpr;
+//        transactionExprStmt.type = symTable.nilType;
+//        return transactionExprStmt;
+//    }
 
     private BLangInvocation createCleanupTrxStmt(DiagnosticPos pos, BLangLiteral trxBlockId) {
         List<BLangExpression> args;
@@ -610,21 +634,74 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangRetryTransaction retryTrxBlock) {
-        BLangBlockStmt blockStmt = desugarTransactionBody(retryTrxBlock.transaction, env, true, retryTrxBlock.pos);
-        BLangSimpleVarRef resultRef = ASTBuilderUtil.createVariableRef(retryTrxBlock.pos, transactionError);
-        BLangSimpleVariableDef retryMgrDef = desugar.createRetryManagerDef(retryTrxBlock.retrySpec, retryTrxBlock.pos);
-        BLangTypeTestExpr isErrorCheck = desugar.createTypeCheckExpr(retryTrxBlock.pos, resultRef,
-                desugar.getErrorTypeNode());
-        BLangIf ifStmt = ASTBuilderUtil.createIfStmt(retryTrxBlock.pos, blockStmt);
-        ifStmt.expr = isErrorCheck;
-        ifStmt.body = ASTBuilderUtil.createBlockStmt(retryTrxBlock.pos);
-        ifStmt.body.stmts.add(retryMgrDef);
+//        BLangBlockStmt trxBlockStmt = desugarTransactionBody(retryTrxBlock.transaction, env, true, retryTrxBlock.pos);
+        BLangBlockStmt trxBlockStmt = retryTrxBlock.transaction.transactionBody;
+
+        DiagnosticPos pos = retryTrxBlock.pos;
+        BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
+        retryBlockStmt.parent = env.enclInvokable;
+        retryBlockStmt.scope = new Scope(env.scope.owner);
+
+        // <RetryManagerType> $retryManager$ = new();
+        BLangSimpleVariableDef retryManagerVarDef = desugar.createRetryManagerDef(retryTrxBlock.retrySpec, pos);
+        retryBlockStmt.stmts.add(retryManagerVarDef);
+        BLangSimpleVarRef retryManagerVarRef = ASTBuilderUtil.createVariableRef(pos, retryManagerVarDef.var.symbol);
+        BVarSymbol retryMangerRefVarSymbol = new BVarSymbol(0, names.fromString("$retryManagerRef$"),
+                env.scope.owner.pkgID, retryManagerVarDef.var.symbol.type, this.env.scope.owner, pos,
+                VIRTUAL);
+        retryMangerRefVarSymbol.closure = true;
+        BLangSimpleVariable retryMangerRefVar = ASTBuilderUtil.createVariable(pos, "$retryManagerRef$",
+                retryManagerVarDef.var.symbol.type, retryManagerVarRef, retryMangerRefVarSymbol);
+        retryBlockStmt.scope.define(retryMangerRefVarSymbol.name, retryMangerRefVarSymbol);
+        BLangSimpleVariableDef retryMangerRefDef = ASTBuilderUtil.createVariableDef(pos, retryMangerRefVar);
+        BLangSimpleVarRef retryManagerRef = ASTBuilderUtil.createVariableRef(pos, retryMangerRefVarSymbol);
+        retryBlockStmt.stmts.add(retryMangerRefDef);
+
+        // error? $retryResult$ = ();
+        BLangLiteral nillLiteral =  ASTBuilderUtil.createLiteral(pos, symTable.nilType, null);
+        BVarSymbol retryResultVarSymbol = new BVarSymbol(0, names.fromString("$retryResult$"),
+                env.scope.owner.pkgID, symTable.errorOrNilType, this.env.scope.owner, pos, VIRTUAL);
+        retryResultVarSymbol.closure = true;
+        BLangSimpleVariable retryResultVariable = ASTBuilderUtil.createVariable(pos, "$retryResult$",
+                symTable.errorOrNilType, nillLiteral, retryResultVarSymbol);
+        retryBlockStmt.scope.define(retryResultVarSymbol.name, retryResultVarSymbol);
+        BLangSimpleVariableDef retryResultDef = ASTBuilderUtil.createVariableDef(pos, retryResultVariable);
+        BLangSimpleVarRef retryResultRef = ASTBuilderUtil.createVariableRef(pos, retryResultVarSymbol);
+        retryBlockStmt.stmts.add(retryResultDef);
+
+        // boolean $shouldRetry$ = false;
+        BLangLiteral falseLiteral =  ASTBuilderUtil.createLiteral(pos, symTable.booleanType, false);
+        BVarSymbol shouldRetryVarSymbol = new BVarSymbol(0, names.fromString("$shouldRetry$"),
+                env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
+        shouldRetryVarSymbol.closure = true;
+        BLangSimpleVariable shouldRetryVariable = ASTBuilderUtil.createVariable(pos, "$shouldRetry$",
+                symTable.booleanType, falseLiteral, shouldRetryVarSymbol);
+        retryBlockStmt.scope.define(shouldRetryVarSymbol.name, shouldRetryVarSymbol);
+        BLangSimpleVariableDef shouldRetryDef = ASTBuilderUtil.createVariableDef(pos, shouldRetryVariable);
+        BLangSimpleVarRef shouldRetryRef = ASTBuilderUtil.createVariableRef(pos, shouldRetryVarSymbol);
+        retryBlockStmt.stmts.add(shouldRetryDef);
+
+        //while ((retryRes == ()) || (retryRes is error && shouldRetryRes)) {
+        // }
+        BLangWhile whileLoop = desugar.createRetryWhileLoop(pos, trxBlockStmt, retryManagerRef, retryResultRef,
+                shouldRetryRef, true);
+        retryBlockStmt.stmts.add(whileLoop);
+
+
+//        BLangSimpleVarRef resultRef = ASTBuilderUtil.createVariableRef(retryTrxBlock.pos, null);
+//        BLangSimpleVariableDef retryMgrDef = desugar.createRetryManagerDef(retryTrxBlock.retrySpec, retryTrxBlock.pos);
+//        BLangTypeTestExpr isErrorCheck = desugar.createTypeCheckExpr(retryTrxBlock.pos, resultRef,
+//                desugar.getErrorTypeNode());
+//        BLangIf ifStmt = ASTBuilderUtil.createIfStmt(retryTrxBlock.pos, blockStmt);
+//        ifStmt.expr = isErrorCheck;
+//        ifStmt.body = ASTBuilderUtil.createBlockStmt(retryTrxBlock.pos);
+//        ifStmt.body.stmts.add(retryMgrDef);
 //        BLangWhile retryWhileLoop = desugar.createRetryWhileLoop(retryTrxBlock.pos, retryMgrDef, retryStmt,
 //                resultRef);
 //        createRollbackIfFailed(retryTrxBlock.pos, env, retryWhileLoop.body, resultRef.symbol, trxBlockId);
 //        ifStmt.body.stmts.add(retryWhileLoop);
 //        desugar.createErrorReturn(retryTrxBlock.pos, blockStmt, resultRef);
-        result = blockStmt;
+        result = retryBlockStmt;
 //        if (retryTrxBlock.transaction.statementBlockReturns) {
 //            //  returns <TypeCast>$result$;
 //            BLangInvokableNode encInvokable = env.enclInvokable;
