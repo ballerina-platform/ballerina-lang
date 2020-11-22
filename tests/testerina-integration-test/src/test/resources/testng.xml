@@ -39,7 +39,7 @@ under the License.
 <!--            <class name="org.ballerinalang.testerina.test.DisableTestsTestCase" />-->
 <!--            <class name="org.ballerinalang.testerina.test.MockTest" />-->
 <!--            <class name="org.ballerinalang.testerina.test.ServicesTest" />-->
-<!--            <class name="org.ballerinalang.testerina.test.TestReportTest" />-->
+            <class name="org.ballerinalang.testerina.test.TestReportTest" />
 <!--            <class name="org.ballerinalang.testerina.test.PathVerificationTest" />-->
 <!--            <class name="org.ballerinalang.testerina.test.RerunFailedTest"/>-->
 <!--            <class name="org.ballerinalang.testerina.test.ImportTest" />-->
