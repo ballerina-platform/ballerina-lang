@@ -26,12 +26,20 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class ConfigurableMapHolder {
+public class ConfigurableMap {
     private static Map<VariableKey, Object> configurableMap = new HashMap<>();
 
-    private ConfigurableMapHolder(){}
+    private ConfigurableMap(){}
 
-    public static Map<VariableKey, Object> getConfigurationMap() {
-        return configurableMap;
+    public static Object get(VariableKey key) {
+        return configurableMap.get(key);
+    }
+
+    public static boolean containsKey(VariableKey key) {
+        return configurableMap.containsKey(key);
+    }
+
+    static void put(VariableKey key, Object value) {
+        configurableMap.put(key, value);
     }
 }

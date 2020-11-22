@@ -21,9 +21,9 @@ package io.ballerina.runtime.internal.configurable;
 import com.moandjiezana.toml.Toml;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import io.ballerina.runtime.internal.values.BmpStringValue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,6 +43,9 @@ import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.I
  * @since 2.0.0
  */
 public class TomlParser {
+    //TODO: Fix integration tests
+    // TODO: check index out of bounds error [test-org.pkg.foo.]
+    // TODO: remove this and support multiple orgs
 
     static final Path CONFIG_FILE_PATH = Paths.get(RuntimeUtils.USER_DIR).resolve(CONFIG_FILE_NAME);
 
@@ -54,7 +57,6 @@ public class TomlParser {
     }
 
     public static void populateConfigMap(Map<Module, VariableKey[]> configurationData) throws TomlException {
-        Map<VariableKey, Object> configurableMap = ConfigurableMapHolder.getConfigurationMap();
         if (configurationData.isEmpty()) {
             return;
         }
@@ -73,7 +75,7 @@ public class TomlParser {
                     break;
                 }
                 Object value = validateAndExtractValue(key, moduleToml);
-                configurableMap.put(key, value);
+                ConfigurableMap.put(key, value);
             }
         }
     }
@@ -93,7 +95,7 @@ public class TomlParser {
                     value = moduleToml.getDouble(variableName);
                     break;
                 case TypeTags.STRING_TAG:
-                    value = new BmpStringValue(moduleToml.getString(variableName));
+                    value = StringUtils.fromString(moduleToml.getString(variableName));
                     break;
                 default:
                     throw new TomlException(String.format("Configurable feature is yet to be supported for type '%s'",

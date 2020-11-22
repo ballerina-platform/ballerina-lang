@@ -20,10 +20,8 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.configurable.ConfigurableMapHolder;
+import io.ballerina.runtime.internal.configurable.ConfigurableMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-
-import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 
@@ -33,21 +31,20 @@ import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
  * @since 2.0
  */
 public class Configurable {
-    private static Map<VariableKey, Object> configMap = ConfigurableMapHolder.getConfigurationMap();
 
     public static Object hasConfigurableValue(BString orgName, BString moduleName, BString versionNumber,
                                               BString configVarName) {
         VariableKey key = new VariableKey(orgName.getValue(), moduleName.getValue(), versionNumber.getValue(),
                 configVarName.getValue());
-        return configMap.containsKey(key);
+        return ConfigurableMap.containsKey(key);
     }
 
     public static Object getConfigurableValue(BString orgName, BString moduleName, BString versionNumber,
                                               BString configVarName) {
         VariableKey key = new VariableKey(orgName.getValue(), moduleName.getValue(), versionNumber.getValue(),
                 configVarName.getValue());
-        if (configMap.containsKey(key)) {
-            return configMap.get(key);
+        if (ConfigurableMap.containsKey(key)) {
+            return ConfigurableMap.get(key);
         }
         throw createError(StringUtils
                 .fromString("Value not provided for required configurable variable '" + configVarName + "'"));
