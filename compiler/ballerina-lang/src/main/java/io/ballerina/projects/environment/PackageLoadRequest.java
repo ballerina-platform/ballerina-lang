@@ -48,8 +48,8 @@ public final class PackageLoadRequest {
         return new PackageLoadRequest(packageDescriptor);
     }
 
-    public Optional<PackageOrg> orgName() {
-        return Optional.of(packageDesc.org());
+    public PackageOrg orgName() {
+        return packageDesc.org();
     }
 
     public PackageName packageName() {
@@ -58,6 +58,10 @@ public final class PackageLoadRequest {
 
     public Optional<PackageVersion> version() {
         return Optional.ofNullable(packageDesc.version());
+    }
+
+    public PackageDescriptor packageDescriptor() {
+        return packageDesc;
     }
 
     @Override

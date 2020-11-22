@@ -28,8 +28,8 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.model.BallerinaToml;
-import io.ballerina.projects.model.Package;
+import io.ballerina.projects.internal.model.BallerinaToml;
+import io.ballerina.projects.internal.model.Package;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.toml.exceptions.TomlException;
 

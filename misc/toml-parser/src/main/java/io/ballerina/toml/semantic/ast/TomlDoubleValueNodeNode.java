@@ -30,4 +30,9 @@ public class TomlDoubleValueNodeNode extends TomlBasicValueNode<Double> {
     public TomlDoubleValueNodeNode(Double value, TomlNodeLocation location) {
         super(value, TomlType.DOUBLE, location);
     }
+
+    @Override
+    public void accept(TomlNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -21,22 +21,7 @@
 <suite name="ballerina-semantic-api-test-suite">
     <test name="semantic-api-test" parallel="false">
         <packages>
-<!--            <package name="io.ballerina.semantic.api.test.*" />-->
+            <package name="io.ballerina.semantic.api.test.*" />
         </packages>
-
-        <classes>
-
-            <!-- Disabled tests related to ProjectAPI change -->
-            <!-- ########################## START ############################# -->
-
-            <class name="io.ballerina.semantic.api.test.ExpressionTypeTest">
-                <methods>
-                    <exclude name="testCheckingExprs"/>
-                    <exclude name="testCheckingExprs"/>
-                </methods>
-            </class>
-
-            <!-- ########################## END ############################# -->
-        </classes>
     </test>
 </suite>

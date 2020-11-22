@@ -75,7 +75,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
 
-    private final PackageCompilation pkgCompilation;
+    private final PackageResolution pkgResolution;
     private final JdkVersion jdkVersion;
     private final PackageContext packageContext;
     private final PackageCache packageCache;
@@ -91,10 +91,10 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private JBallerinaBackend(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
-        this.pkgCompilation = packageCompilation;
         this.jdkVersion = jdkVersion;
         this.packageContext = packageCompilation.packageContext();
-        this.jarResolver = new JarResolver(this, pkgCompilation);
+        this.pkgResolution = packageContext.getResolution();
+        this.jarResolver = new JarResolver(this, packageContext.getResolution());
 
         ProjectEnvironment projectEnvContext = this.packageContext.project().projectEnvironmentContext();
         this.packageCache = projectEnvContext.getService(PackageCache.class);
@@ -114,7 +114,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         List<Diagnostic> diagnostics = new ArrayList<>();
-        for (ModuleContext moduleContext : pkgCompilation.sortedModuleContextList()) {
+        for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
             moduleContext.generatePlatformSpecificCode(compilerContext, this);
             diagnostics.addAll(moduleContext.diagnostics());
         }
