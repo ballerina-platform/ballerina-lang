@@ -195,18 +195,31 @@ public class PackageResolution {
                 .collect(Collectors.toSet());
 
         Collection<PackageLoadResponse> pkgLoadResponses = packageResolver.resolvePackages(pkgLoadRequests);
+
+        // TODO Check there there are diagnostics reported by the PackageResolver.
         Map<PackageDescriptor, Package> packageIdMap = pkgLoadResponses.stream()
                 .collect(Collectors.toMap(pkgLoadResp -> pkgLoadResp.packageLoadRequest().packageDescriptor(),
                         PackageLoadResponse::resolvedPackage));
 
         DependencyGraphBuilder<Package> dependencyGraphBuilder = DependencyGraphBuilder.getBuilder();
         for (PackageDescriptor pkgDescGraphNode : pkgDescGraphNodes) {
+            Package resolvedPkg = packageIdMap.get(pkgDescGraphNode);
+            if (resolvedPkg == null) {
+                // TODO This situation cannot happen once we complete the test dependency implementation.
+                continue;
+            }
+
             Collection<PackageDescriptor> directDependencies = pkgDescDepGraph.getDirectDependencies(pkgDescGraphNode);
             List<Package> directDepPkgIds = new ArrayList<>(directDependencies.size());
             for (PackageDescriptor directDependency : directDependencies) {
-                directDepPkgIds.add(packageIdMap.get(directDependency));
+                Package dependencyPkg = packageIdMap.get(directDependency);
+                if (dependencyPkg == null) {
+                    // TODO This situation cannot happen once we complete the test dependency implementation.
+                    continue;
+                }
+                directDepPkgIds.add(dependencyPkg);
             }
-            dependencyGraphBuilder.addDependencies(packageIdMap.get(pkgDescGraphNode), directDepPkgIds);
+            dependencyGraphBuilder.addDependencies(resolvedPkg, directDepPkgIds);
         }
 
         return dependencyGraphBuilder.build();
