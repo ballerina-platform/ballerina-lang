@@ -1,0 +1,24 @@
+{
+    "line": 3,
+    "character": 6,
+    "expected": [
+        {
+            "title": "Create Variable",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 3,
+                            "character": 4
+                        },
+                        "end": {
+                            "line": 3,
+                            "character": 4
+                        }
+                    },
+                    "newText": "int|string|error fooResult \u003d "
+                }
+            ]
+        }
+    ]
+}
