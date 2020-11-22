@@ -19,9 +19,9 @@
 package org.ballerinalang.debugger.test.adapter.build;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.debugger.main.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.main.utils.DebugUtils;
 import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
-import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
-import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
+import static org.ballerinalang.debugger.main.utils.DebugUtils.findFreePort;
 
 /**
  * Test class for multi module related debug scenarios for build command.

@@ -19,10 +19,10 @@ package org.ballerinalang.debugger.test;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
-import org.ballerinalang.debugger.test.utils.DebugHitListener;
-import org.ballerinalang.debugger.test.utils.DebugUtils;
-import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
+import org.ballerinalang.debugger.main.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.main.utils.DebugHitListener;
+import org.ballerinalang.debugger.main.utils.DebugUtils;
+import org.ballerinalang.debugger.main.utils.client.TestDAPClientConnector;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -60,7 +60,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
+import static org.ballerinalang.debugger.main.utils.DebugUtils.findFreePort;
 
 /**
  * Parent test class for all of the debug adapter integration test cases. This will provide basic functionality for

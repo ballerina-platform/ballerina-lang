@@ -1,4 +1,4 @@
-package org.ballerinalang.debugger.test.utils;
+package org.ballerinalang.debugger.main.utils;
 
 import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.debugger.test.utils.client;
+package org.ballerinalang.debugger.main.utils.client;
 
 import org.eclipse.lsp4j.debug.BreakpointEventArguments;
 import org.eclipse.lsp4j.debug.Capabilities;
@@ -58,9 +58,7 @@ import java.util.concurrent.TimeUnit;
 public class DAPRequestManager {
 
     private TestDAPClientConnector clientConnector;
-    private final DAPClient client;
     private final IDebugProtocolServer server;
-    private final Capabilities serverCapabilities;
 
     private static final int TIMEOUT_SET_BREAKPOINTS = 10000;
     private static final int TIMEOUT_CONFIG_DONE = 2000;
@@ -80,9 +78,7 @@ public class DAPRequestManager {
     public DAPRequestManager(TestDAPClientConnector clientConnector, DAPClient client, IDebugProtocolServer server,
                              Capabilities serverCapabilities) {
         this.clientConnector = clientConnector;
-        this.client = client;
         this.server = server;
-        this.serverCapabilities = serverCapabilities;
     }
 
     public TestDAPClientConnector getClientConnector() {

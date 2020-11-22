@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.debugger.test.utils;
+package org.ballerinalang.debugger.main.utils;
 
-import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
+import org.ballerinalang.debugger.main.utils.client.TestDAPClientConnector;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.StackTraceArguments;

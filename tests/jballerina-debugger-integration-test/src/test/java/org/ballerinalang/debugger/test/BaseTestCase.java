@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.debugger.test;
 
-import org.ballerinalang.debugger.test.utils.FileUtils;
+import org.ballerinalang.debugger.main.utils.FileUtils;
 import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.AfterSuite;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.debugger.test.utils.client.connection;
+package org.ballerinalang.debugger.main.utils.client.connection;
 
 import java.io.IOException;
 import java.io.InputStream;

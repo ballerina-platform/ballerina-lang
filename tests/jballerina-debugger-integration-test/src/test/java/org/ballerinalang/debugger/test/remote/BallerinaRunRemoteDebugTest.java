@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
+import static org.ballerinalang.debugger.main.utils.DebugUtils.findFreePort;
 
 /**
  * Test class to test positive scenarios of remote debugging ballerina run command.
