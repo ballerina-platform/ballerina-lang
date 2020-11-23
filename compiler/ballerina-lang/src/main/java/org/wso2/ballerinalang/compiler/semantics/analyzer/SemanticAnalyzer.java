@@ -113,6 +113,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
@@ -2456,9 +2457,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatchStatement matchStatement) {
         typeChecker.checkExpr(matchStatement.expr, env, symTable.noType);
-        for (BLangMatchClause matchClause : matchStatement.matchClauses) {
-            analyzeNode(matchClause, env);
+
+        List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
+        analyzeNode(matchClauses.get(0), env);
+
+        SymbolEnv prevEnv = env;
+        for (int i = 1; i < matchClauses.size(); i++) {
+            BLangMatchClause prevMatchClause = matchClauses.get(i - 1);
+            BLangMatchClause currentMatchClause = matchClauses.get(i);
+            env = typeNarrower.evaluateTruth(matchStatement.expr, prevMatchClause.patternsType, currentMatchClause,
+                    env);
+            analyzeNode(currentMatchClause, env);
         }
+        env = prevEnv;
 
         if (matchStatement.onFailClause != null) {
             this.analyzeNode(matchStatement.onFailClause, env);
@@ -2467,17 +2478,98 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(matchClause.blockStmt, env);
-
-        for (BLangMatchPattern matchPattern : matchClause.matchPatterns) {
-            analyzeNode(matchPattern, blockEnv);
+        List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
+        BLangMatchPattern firstPattern = matchPatterns.get(0);
+        analyzeNode(firstPattern, env);
+        if (firstPattern.getKind() != NodeKind.CONST_MATCH_PATTERN) {
+            matchClause.patternsType = firstPattern.type;
+        }
+        for (int i = 1; i < matchPatterns.size(); i++) {
+            BLangMatchPattern matchPattern = matchPatterns.get(i);
+            analyzeNode(matchPattern, env);
+            if (matchPattern.getKind() == NodeKind.CONST_MATCH_PATTERN) {
+                continue;
+            }
+            matchClause.patternsType = types.mergeTypes(matchClause.patternsType, matchPattern.type);
         }
 
+        SymbolEnv blockEnv = env;
         if (matchClause.matchGuard != null) {
-            typeChecker.checkExpr(matchClause.matchGuard.expr, blockEnv);
-            blockEnv = typeNarrower.evaluateTruth(matchClause.matchGuard.expr, matchClause.blockStmt, blockEnv);
+            typeChecker.checkExpr(matchClause.matchGuard.expr, env);
+            blockEnv = typeNarrower.evaluateTruth(matchClause.matchGuard.expr, matchClause.blockStmt, env);
+            evaluatePatternsTypeAccordingToMatchGuard(matchClause, matchClause.matchGuard.expr, blockEnv);
         }
         analyzeStmt(matchClause.blockStmt, blockEnv);
+    }
+
+    private void evaluatePatternsTypeAccordingToMatchGuard(BLangMatchClause matchClause, BLangExpression matchExpr,
+                                                           SymbolEnv env) {
+        List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
+        if (matchExpr.getKind() != NodeKind.TYPE_TEST_EXPR) {
+            return; // TODO : Handle other expression
+        }
+
+        if (((BLangTypeTestExpr) matchExpr).expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return; // TODO : Handle others
+        }
+
+        evaluateMatchPatternsTypeAccordingToMatchGuard(matchPatterns.get(0), (BLangSimpleVarRef) ((BLangTypeTestExpr) matchExpr).expr, env);
+        BType clauseType = matchPatterns.get(0).type;
+        for (int i = 1; i < matchPatterns.size(); i++) {
+            evaluateMatchPatternsTypeAccordingToMatchGuard(matchPatterns.get(1), (BLangSimpleVarRef) ((BLangTypeTestExpr) matchExpr).expr, env);
+        }
+//        for (BLangMatchPattern matchPattern : matchPatterns) {
+//            NodeKind patternKind = matchPattern.getKind();
+//            switch (patternKind) {
+//                case VAR_BINDING_PATTERN_MATCH_PATTERN:
+//                    BLangVarBindingPatternMatchPattern varBindingPatternMatchPattern =
+//                            (BLangVarBindingPatternMatchPattern) matchPattern;
+//                    BLangBindingPattern bindingPattern = varBindingPatternMatchPattern.getBindingPattern();
+//                    evaluateBindingPatternsTypeAccordingToMatchGuard(bindingPattern,
+//                            (BLangSimpleVarRef) ((BLangTypeTestExpr) matchExpr).expr, env);
+//                    varBindingPatternMatchPattern.type = bindingPattern.type;
+//                    clauseType = types.mergeTypes(clauseType, varBindingPatternMatchPattern.type);
+//                    break;
+//                default:
+//                    break; // TODO : check other match patterns
+//            }
+//        }
+        matchClause.patternsType = clauseType;
+    }
+
+    private void evaluateBindingPatternsTypeAccordingToMatchGuard(BLangBindingPattern bindingPattern,
+                                                                  BLangSimpleVarRef matchExpr, SymbolEnv env) {
+        NodeKind bindingPatternKind = bindingPattern.getKind();
+        switch (bindingPatternKind) {
+            case CAPTURE_BINDING_PATTERN:
+                BLangCaptureBindingPattern captureBindingPattern =
+                        (BLangCaptureBindingPattern) bindingPattern;
+                Name varName =
+                        new Name(matchExpr.variableName.value);
+                if (env.scope.entries.containsKey(varName)) {
+                    captureBindingPattern.type = env.scope.entries.get(varName).symbol.type;
+                }
+                break;
+            default:
+                break; // TODO : Check other binding patterns
+        }
+    }
+
+    private void evaluateMatchPatternsTypeAccordingToMatchGuard(BLangMatchPattern matchPattern,
+                                                                BLangSimpleVarRef matchExpr, SymbolEnv env) {
+        NodeKind patternKind = matchPattern.getKind();
+        switch (patternKind) {
+            case VAR_BINDING_PATTERN_MATCH_PATTERN:
+                BLangVarBindingPatternMatchPattern varBindingPatternMatchPattern =
+                        (BLangVarBindingPatternMatchPattern) matchPattern;
+                BLangBindingPattern bindingPattern = varBindingPatternMatchPattern.getBindingPattern();
+                evaluateBindingPatternsTypeAccordingToMatchGuard(bindingPattern, matchExpr, env);
+                varBindingPatternMatchPattern.type = bindingPattern.type;
+//                clauseType = types.mergeTypes(clauseType, varBindingPatternMatchPattern.type);
+                break;
+            default:
+                break; // TODO : check other match patterns
+        }
     }
 
     @Override
