@@ -36,6 +36,7 @@ public class BLangFail extends BLangStatement implements FailStatementNode {
 
     public BLangExpression expr;
     public BLangNode exprStmt;
+    public boolean desugaredToFail;
 
     // This list catches types that are equivalent to the error type which are returned by the rhs expression.
     public List<BType> equivalentErrorTypeList;

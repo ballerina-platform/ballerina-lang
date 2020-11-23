@@ -219,6 +219,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         //todo rollback and panic
         BLangBlockStmt ifPanicBlock = ASTBuilderUtil.createBlockStmt(pos);
         BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
+        failStmt.desugaredToFail = true;
         failStmt.pos = pos;
         failStmt.expr = desugar.addConversionExprIfRequired(trapResultRef, symTable.errorType);
         BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
