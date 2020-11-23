@@ -61,6 +61,8 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -92,6 +94,7 @@ public class MainMethodGen {
 
         // set system properties
         initConfigurations(mv);
+        invokeConfigInit(mv, pkg);
         // start all listeners
         startListeners(mv, serviceEPAvailable);
 
@@ -138,6 +141,12 @@ public class MainMethodGen {
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private void invokeConfigInit(MethodVisitor mv, BIRNode.BIRPackage module) {
+        String configClass = JvmCodeGenUtil.getModuleLevelClassName(module, CONFIGURATION_CLASS_NAME);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, "()V", false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {

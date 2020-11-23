@@ -747,7 +747,7 @@ public class Desugar extends BLangNodeVisitor {
                         globalVar.expr = getValueInvocation;
                     } else {
                         // If it is optional configuration create if else
-                        globalVar.expr  = createIfElseFromConfigurable(globalVar);
+                        globalVar.expr = createIfElseFromConfigurable(globalVar);
                     }
                 }
 
