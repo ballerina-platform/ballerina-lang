@@ -3665,4 +3665,31 @@ public class Types {
         }
         return isSimpleBasicType(type.tag);
     }
+
+    public boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(BType type) {
+        if (isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+            return true;
+        }
+
+        int tag = type.tag;
+
+        if (tag == TypeTags.OBJECT) {
+            return isIsolated(type);
+        }
+
+        if (tag != TypeTags.UNION) {
+            return false;
+        }
+
+        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            if (!isSubTypeOfReadOnlyOrIsolatedObjectUnion(memberType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isIsolated(BType type) {
+        return Symbols.isFlagOn(type.flags, Flags.ISOLATED);
+    }
 }
