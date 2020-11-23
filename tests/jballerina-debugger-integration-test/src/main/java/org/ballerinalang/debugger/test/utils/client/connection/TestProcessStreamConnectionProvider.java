@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.debugger.main.utils.client.connection;
+package org.ballerinalang.debugger.test.utils.client.connection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +35,8 @@ import java.util.Objects;
 public class TestProcessStreamConnectionProvider implements TestStreamConnectionProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestProcessStreamConnectionProvider.class);
-    private List<String> commands;
-    private String workingDir;
+    private final List<String> commands;
+    private final String workingDir;
 
     public TestProcessStreamConnectionProvider(List<String> commands, String workingDir) {
         this.commands = commands;

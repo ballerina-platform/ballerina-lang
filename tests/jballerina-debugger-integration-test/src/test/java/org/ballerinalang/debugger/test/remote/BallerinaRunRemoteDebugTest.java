@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.debugger.test.remote;
 
-import org.ballerinalang.debugger.test.BaseTestCase;
+import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -27,12 +27,15 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.debugger.main.utils.DebugUtils.findFreePort;
+import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
+import static org.ballerinalang.debugger.test.utils.TestUtils.balServer;
+import static org.ballerinalang.debugger.test.utils.TestUtils.testProjectBaseDir;
+import static org.ballerinalang.debugger.test.utils.TestUtils.testSingleFileBaseDir;
 
 /**
  * Test class to test positive scenarios of remote debugging ballerina run command.
  */
-public class BallerinaRunRemoteDebugTest extends BaseTestCase {
+public class BallerinaRunRemoteDebugTest extends DebugAdapterBaseTestCase {
 
     private BMainInstance balClient;
     private String projectPath;
@@ -41,7 +44,8 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        testProjectName = "basic-project";
+        String testProjectName = "basic-project";
+        String testSingleFileName = "hello_world.bal";
         projectPath = testProjectBaseDir + File.separator + testProjectName;
         singleFilePath = Paths.get(testSingleFileBaseDir.toString(), testSingleFileName).toString();
     }

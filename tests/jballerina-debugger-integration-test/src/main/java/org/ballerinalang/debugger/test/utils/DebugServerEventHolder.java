@@ -1,4 +1,4 @@
-package org.ballerinalang.debugger.main.utils;
+package org.ballerinalang.debugger.test.utils;
 
 import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
@@ -12,10 +12,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class DebugServerEventHolder {
 
-    private ConcurrentLinkedQueue<StoppedEventArguments> stoppedEvents = new ConcurrentLinkedQueue<>();
-    private ConcurrentLinkedQueue<TerminatedEventArguments> terminatedEvents = new ConcurrentLinkedQueue<>();
-    private ConcurrentLinkedQueue<ExitedEventArguments> exitedEvents = new ConcurrentLinkedQueue<>();
-    private ConcurrentLinkedQueue<OutputEventArguments> outputEvents = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<StoppedEventArguments> stoppedEvents = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<TerminatedEventArguments> terminatedEvents = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<ExitedEventArguments> exitedEvents = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<OutputEventArguments> outputEvents = new ConcurrentLinkedQueue<>();
 
     public ConcurrentLinkedQueue<StoppedEventArguments> getStoppedEvents() {
         return stoppedEvents;

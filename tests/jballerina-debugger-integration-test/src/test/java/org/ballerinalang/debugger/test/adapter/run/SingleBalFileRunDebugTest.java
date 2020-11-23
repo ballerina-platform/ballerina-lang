@@ -19,9 +19,10 @@
 package org.ballerinalang.debugger.test.adapter.run;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugger.main.utils.BallerinaTestDebugPoint;
-import org.ballerinalang.debugger.main.utils.DebugUtils;
 import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
+import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.test.utils.DebugUtils;
+import org.ballerinalang.debugger.test.utils.TestUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
@@ -31,6 +32,13 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
 
+import static org.ballerinalang.debugger.test.utils.TestUtils.DebugResumeKind;
+import static org.ballerinalang.debugger.test.utils.TestUtils.testBreakpoints;
+import static org.ballerinalang.debugger.test.utils.TestUtils.testEntryFilePath;
+import static org.ballerinalang.debugger.test.utils.TestUtils.testProjectBaseDir;
+import static org.ballerinalang.debugger.test.utils.TestUtils.testProjectPath;
+import static org.ballerinalang.debugger.test.utils.TestUtils.testSingleFileBaseDir;
+
 /**
  * Test class for single bal file related debug scenarios for run command.
  */
@@ -38,44 +46,45 @@ public class SingleBalFileRunDebugTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
     public void setup() {
-        testSingleFileName = "hello_world.bal";
+        String testSingleFileName = "hello_world.bal";
+        String testProjectName = "basic-project";
         testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
         testEntryFilePath = Paths.get(testSingleFileBaseDir.toString(), testSingleFileName).toString();
     }
 
     @Test
     public void testSingleBalFileDebugScenarios() throws BallerinaTestException {
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 23));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 29));
-        initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 23));
+        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 29));
+        TestUtils.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         // Test for debug engage
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(20000);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = TestUtils.waitForDebugHit(20000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
 
         // Test for step over
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
-        debugHitInfo = waitForDebugHit(10000);
+        TestUtils.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OVER);
+        debugHitInfo = TestUtils.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 24));
 
         // Test for break point hit
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
+        TestUtils.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = TestUtils.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(1));
 
         // Test for step in
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_IN);
-        debugHitInfo = waitForDebugHit(10000);
+        TestUtils.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_IN);
+        debugHitInfo = TestUtils.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 33));
 
         // Test for step out
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OUT);
-        debugHitInfo = waitForDebugHit(10000);
+        TestUtils.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OUT);
+        debugHitInfo = TestUtils.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(testEntryFilePath, 29));
     }
 
     @AfterClass(alwaysRun = true)
     private void cleanup() {
-        terminateDebugSession();
+        TestUtils.terminateDebugSession();
     }
 }

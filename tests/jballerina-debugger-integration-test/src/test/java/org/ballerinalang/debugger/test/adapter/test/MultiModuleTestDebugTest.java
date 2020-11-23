@@ -19,9 +19,10 @@
 package org.ballerinalang.debugger.test.adapter.test;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugger.main.utils.BallerinaTestDebugPoint;
-import org.ballerinalang.debugger.main.utils.DebugUtils;
 import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
+import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.test.utils.DebugUtils;
+import org.ballerinalang.debugger.test.utils.TestUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
@@ -32,6 +33,12 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.debugger.test.utils.TestUtils.DebugResumeKind;
+import static org.ballerinalang.debugger.test.utils.TestUtils.testBreakpoints;
+import static org.ballerinalang.debugger.test.utils.TestUtils.testEntryFilePath;
+import static org.ballerinalang.debugger.test.utils.TestUtils.testProjectBaseDir;
+import static org.ballerinalang.debugger.test.utils.TestUtils.testProjectPath;
+
 /**
  * Test class for tests file related debug scenarios for test command.
  */
@@ -40,59 +47,59 @@ public class MultiModuleTestDebugTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
     public void setup() {
-        testProjectName = "breakpoint-tests";
-        testModuleFileName = "tests" + File.separator + "main_test.bal";
+        String testProjectName = "breakpoint-tests";
+        String testModuleFileName = "tests" + File.separator + "main_test.bal";
         testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
         testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
     }
 
     @Test
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 22));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 27));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 36));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 44));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 51));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 57));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 64));
-        initDebugSession(DebugUtils.DebuggeeExecutionKind.TEST);
+        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 22));
+        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 27));
+        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 36));
+        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 44));
+        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 51));
+        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 57));
+        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 64));
+        TestUtils.initDebugSession(DebugUtils.DebuggeeExecutionKind.TEST);
 
         // Test for debug engage and break point hit @test:BeforeSuite
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(20000);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = TestUtils.waitForDebugHit(20000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
 
         // Test for break point hit at beforeFunc()
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
+        TestUtils.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = TestUtils.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(1));
 
         // Test for break point hit at testFunc()
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
+        TestUtils.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = TestUtils.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(2));
 
         // Test for break point hit at afterFunc()
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
+        TestUtils.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = TestUtils.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(4));
 
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
+        TestUtils.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = TestUtils.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(3));
 
         // Test for break point hit in mock function
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
+        TestUtils.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = TestUtils.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(6));
 
         // Test for break point hit @test:AfterSuite
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = waitForDebugHit(10000);
+        TestUtils.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = TestUtils.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(5));
     }
 
     @AfterClass(alwaysRun = true)
     private void cleanup() {
-        terminateDebugSession();
+        TestUtils.terminateDebugSession();
     }
 }

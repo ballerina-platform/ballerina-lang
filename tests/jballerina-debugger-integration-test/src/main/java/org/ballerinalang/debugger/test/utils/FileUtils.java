@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.debugger.main.utils;
+package org.ballerinalang.debugger.test.utils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,7 +55,7 @@ public class FileUtils {
      */
     public static String getFileContent(Path filepath) {
         try {
-            return new String(Files.readAllBytes(filepath));
+            return Files.readString(filepath);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

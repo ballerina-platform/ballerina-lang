@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.debugger.main.utils;
+package org.ballerinalang.debugger.test.utils;
 
-import org.ballerinalang.debugger.main.utils.client.TestDAPClientConnector;
+import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.StackTraceArguments;
@@ -45,7 +45,7 @@ public class DebugHitListener extends TimerTask {
     private boolean debugHitFound;
 
     public DebugHitListener(TestDAPClientConnector connector) {
-        this.connector = connector;
+        DebugHitListener.connector = connector;
         this.debugHitFound = false;
         this.debugHitContext = null;
         this.debugHitpoint = null;

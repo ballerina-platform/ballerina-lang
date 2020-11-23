@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.debugger.main.utils.client.connection;
+package org.ballerinalang.debugger.test.utils.client.connection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +33,8 @@ import java.util.Objects;
 public class TestSocketStreamConnectionProvider extends TestProcessStreamConnectionProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestSocketStreamConnectionProvider.class);
-    private String address;
-    private int port;
+    private final String address;
+    private final int port;
 
     private Socket socket;
     private InputStream inputStream;
@@ -126,6 +126,11 @@ public class TestSocketStreamConnectionProvider extends TestProcessStreamConnect
                 LOG.error(e.getMessage());
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
     }
 
     @Override
