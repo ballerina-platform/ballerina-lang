@@ -66,14 +66,4 @@ public class RerunFailedTest extends BaseTestCase {
         clientLeecher2.waitForText(20000);
     }
 
-    @Test
-    public void testRerunWithNoFailedTests() throws BallerinaTestException {
-        String msg1 = "No failed test/s found in cache";
-        LogLeecher clientLeecher = new LogLeecher(msg1);
-
-        balClient.runMain("test", new String[]{"--rerun-failed", "module_2"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-
-        clientLeecher.waitForText(20000);
-    }
 }
