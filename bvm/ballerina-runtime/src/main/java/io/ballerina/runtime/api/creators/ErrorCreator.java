@@ -58,9 +58,12 @@ public class ErrorCreator {
      * @return new error.
      */
     public static BError createError(BString message, BString details) {
-        MappingInitialValueEntry[] initialValues = new MappingInitialValueEntry[1];
+        MappingInitialValueEntry[] initialValues;
         if (details != null) {
+            initialValues = new MappingInitialValueEntry[1];
             initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD, details);
+        } else {
+            initialValues = new MappingInitialValueEntry[0];
         }
         MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return new ErrorValue(message, detailMap);
@@ -101,9 +104,12 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(Type type, BString message, BString details) {
-        MappingInitialValueEntry[] initialValues = new MappingInitialValueEntry[1];
+        MappingInitialValueEntry[] initialValues;
         if (details != null) {
+            initialValues = new MappingInitialValueEntry[1];
             initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD, details);
+        } else {
+            initialValues = new MappingInitialValueEntry[0];
         }
         MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return new ErrorValue(type, message, null, detailMap);
