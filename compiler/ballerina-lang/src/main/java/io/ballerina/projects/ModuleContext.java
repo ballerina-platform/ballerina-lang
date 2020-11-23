@@ -167,8 +167,7 @@ class ModuleContext {
             moduleLoadRequests.addAll(docContext.moduleLoadRequests());
         }
 
-        // TODO Skip this if the tests are skipped.
-        if (!testSrcDocIds.isEmpty()) {
+        if (!this.project.buildOptions().skipTests() && !testSrcDocIds.isEmpty()) {
             for (DocumentContext docContext : testDocContextMap.values()) {
                 moduleLoadRequests.addAll(docContext.moduleLoadRequests());
             }
