@@ -1,5 +1,6 @@
-[project]
-org-name= "test"
+[package]
+org= "bindgen"
+name= "test"
 version= "0.1.0"
 
 [dependencies]
