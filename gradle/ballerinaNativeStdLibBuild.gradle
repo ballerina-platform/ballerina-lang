@@ -137,7 +137,11 @@ task copyInteropImports(type: Copy) {
 }
 
 ext {
-    moduleName = project.projectDir.name
+    if (project.projectDir.name == "debug-adapter-runtime") {
+        modName = "debugger_helpers"
+    } else {
+        modName = project.projectDir.name
+    }
 }
 
 task copyBallerinaProject(type: Copy) {
@@ -160,30 +164,22 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     dependsOn createDistributionCache
     dependsOn jar
     inputs.files("src/main/ballerina")
-    outputs.file("$buildDir/ballerina-src/target/${project.ext.moduleName}.zip")
-    outputs.file("$buildDir/ballerina-src/target/${project.ext.moduleName}.jar")
+    outputs.file("$buildDir/ballerina-src/target/${project.ext.modName}.zip")
+    outputs.file("$buildDir/ballerina-src/target/${project.ext.modName}.jar")
     outputs.cacheIf { true }
     classpath += files(jar.archivePath)
 }
 
-task renameArtifacts(type: Copy) {
-    dependsOn ballerinaLangLibBuild
-    from "$buildDir/ballerina-src/target/"
-    into "$buildDir/ballerina-src/target/"
-    rename '(.+).jar', "${project.ext.moduleName}.jar"
-    rename '(.+).zip', "${project.ext.moduleName}.zip"
-}
-
 artifacts {
-    distributionBalo file("$buildDir/ballerina-src/target/${project.ext.moduleName}.zip"), {
-        builtBy(renameArtifacts)
+    distributionBalo file("$buildDir/ballerina-src/target/${project.ext.modName}.zip"), {
+        builtBy(ballerinaLangLibBuild)
     }
-    distributionBirJar file("$buildDir/ballerina-src/target/${project.ext.moduleName}.jar"), {
-        builtBy(renameArtifacts)
+    distributionBirJar file("$buildDir/ballerina-src/target/${project.ext.modName}.jar"), {
+        builtBy(ballerinaLangLibBuild)
     }
     balDoc file("$buildDir/ballerina-src/target/apidocs/"), {
         builtBy(ballerinaLangLibBuild)
     }
 }
 
-build.dependsOn renameArtifacts
+build.dependsOn ballerinaLangLibBuild
