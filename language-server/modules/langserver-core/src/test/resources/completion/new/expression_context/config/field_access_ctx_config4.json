@@ -53,17 +53,17 @@
       }
     },
     {
-        "label": "iterator()( object {function () returns record {| xml<>|string value; |}|()})",
-        "kind": "Function",
-        "detail": "Function",
-        "documentation": {
-            "right": {
-                "kind": "markdown",
-                "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of `x`\n  \n  \n  \n**Returns** ` object {function () returns record {| xml<>|string value; |}|()}`   \n- iterator object  \nEach item is represented by an xml singleton.  \n  \n"
-            }
-        },
-        "insertText": "iterator()",
-        "insertTextFormat": "Snippet"
+      "label": "iterator()(object {public isolated function next() returns record {| xml<>|string value; |}? ;})",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of `x`\n  \n  \n  \n**Returns** `object {public isolated function next() returns record {| xml<>|string value; |}? ;}`   \n- iterator object  \nEach item is represented by an xml singleton.  \n  \n"
+        }
+      },
+      "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "strip()(xml<>)",
@@ -126,13 +126,13 @@
       }
     },
     {
-      "label": "elements(string|() nm)(xml<Element>)",
+      "label": "elements(string? nm)(xml<Element>)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nSelects elements from an xml value.\nIf `nm` is `()`, selects all elements;\notherwise, selects only elements whose expanded name is `nm`.\n  \n**Params**  \n- `string|()` nm: the expanded name of the elements to be selected, or `()` for all elements(Defaultable)  \n  \n**Returns** `xml<Element>`   \n- an xml sequence consisting of all the element items in `x` whose expanded name is `nm`,  \n or, if `nm` is `()`, all element items in `x`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nSelects elements from an xml value.\nIf `nm` is `()`, selects all elements;\notherwise, selects only elements whose expanded name is `nm`.\n  \n**Params**  \n- `string?` nm: the expanded name of the elements to be selected, or `()` for all elements(Defaultable)  \n  \n**Returns** `xml<Element>`   \n- an xml sequence consisting of all the element items in `x` whose expanded name is `nm`,  \n or, if `nm` is `()`, all element items in `x`  \n  \n"
         }
       },
       "insertText": "elements(${1})",
@@ -143,13 +143,13 @@
       }
     },
     {
-      "label": "elementChildren(string|() nm)(xml<Element>)",
+      "label": "elementChildren(string? nm)(xml<Element>)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nSelects element children of an xml value  \n**Params**  \n- `string|()` nm: the expanded name of the elements to be selected, or `()` for all elements(Defaultable)  \n  \n**Returns** `xml<Element>`   \n- an xml sequence consisting of child elements of elements in `x`; if `nm`  \n is `()`, returns a sequence of all such elements;  \n otherwise, include only elements whose expanded name is `nm`  \nThis is equivalent to `children(x).elements(nm)`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nSelects element children of an xml value  \n**Params**  \n- `string?` nm: the expanded name of the elements to be selected, or `()` for all elements(Defaultable)  \n  \n**Returns** `xml<Element>`   \n- an xml sequence consisting of child elements of elements in `x`; if `nm`  \n is `()`, returns a sequence of all such elements;  \n otherwise, include only elements whose expanded name is `nm`  \nThis is equivalent to `children(x).elements(nm)`.  \n  \n"
         }
       },
       "insertText": "elementChildren(${1})",

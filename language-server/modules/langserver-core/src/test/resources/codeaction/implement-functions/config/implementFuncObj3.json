@@ -1,0 +1,24 @@
+{
+    "line": 14,
+    "character": 4,
+    "expected": [
+        {
+            "title": "Implement \u0027pushText2\u0027 Method",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 15,
+                            "character": 0
+                        },
+                        "end": {
+                            "line": 15,
+                            "character": 0
+                        }
+                    },
+                    "newText": "    public function pushText2(string text) returns error? {\n    }\n"
+                }
+            ]
+        }
+    ]
+}
