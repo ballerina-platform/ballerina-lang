@@ -18,7 +18,12 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.TaskExecutor;
-import io.ballerina.cli.task.*;
+import io.ballerina.cli.task.CleanTargetDirTask;
+import io.ballerina.cli.task.CompileTask;
+import io.ballerina.cli.task.CreateBaloTask;
+import io.ballerina.cli.task.CreateExecutableTask;
+import io.ballerina.cli.task.CreateTargetDirTask;
+import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
