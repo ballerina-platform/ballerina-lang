@@ -38,6 +38,14 @@
                               ],
                               "leadingMinutiae": [
                                 {
+                                  "kind": "COMMENT_MINUTIAE",
+                                  "value": "// Invalid token."
+                                },
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                },
+                                {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
@@ -47,14 +55,6 @@
                                       }
                                     ]
                                   }
-                                },
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
-                                  "kind": "COMMENT_MINUTIAE",
-                                  "value": "// Invalid token."
                                 },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",

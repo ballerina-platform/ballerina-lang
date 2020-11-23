@@ -1,4 +1,5 @@
-} // Invalid token.
+// Invalid token.
+}
 
 # Docs.
 public function bar() {
