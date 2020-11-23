@@ -17,9 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.PackageResolution.DependencyResolution;
 import io.ballerina.projects.environment.ModuleLoadRequest;
-import io.ballerina.projects.environment.ModuleLoadResponse;
-import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
@@ -44,6 +43,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -63,6 +63,7 @@ class ModuleContext {
     private final Map<DocumentId, DocumentContext> testDocContextMap;
     private final Project project;
     private final CompilationCache compilationCache;
+    private final List<ModuleDescriptor> moduleDescDependencies;
 
     private Set<ModuleDependency> moduleDependencies;
     private BLangPackage bLangPackage;
@@ -70,6 +71,7 @@ class ModuleContext {
     private byte[] birBytes = new byte[0];
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
+    private Set<ModuleLoadRequest> moduleLoadRequests;
 
     ModuleContext(Project project,
                   ModuleId moduleId,
@@ -77,7 +79,7 @@ class ModuleContext {
                   boolean isDefaultModule,
                   Map<DocumentId, DocumentContext> srcDocContextMap,
                   Map<DocumentId, DocumentContext> testDocContextMap,
-                  Set<ModuleDependency> moduleDependencies) {
+                  List<ModuleDescriptor> moduleDescDependencies) {
         this.project = project;
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
@@ -86,22 +88,11 @@ class ModuleContext {
         this.srcDocIds = Collections.unmodifiableCollection(srcDocContextMap.keySet());
         this.testDocContextMap = testDocContextMap;
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
-        this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
+        this.moduleDescDependencies = Collections.unmodifiableList(moduleDescDependencies);
 
         ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
-        this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class),
-                projectEnvironment.getService(PackageCache.class));
+        this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class));
         this.compilationCache = projectEnvironment.getService(CompilationCache.class);
-    }
-
-    private ModuleContext(Project project,
-                          ModuleId moduleId,
-                          ModuleDescriptor moduleDescriptor,
-                          boolean isDefaultModule,
-                          Map<DocumentId, DocumentContext> srcDocContextMap,
-                          Map<DocumentId, DocumentContext> testDocContextMap) {
-        this(project, moduleId, moduleDescriptor, isDefaultModule, srcDocContextMap,
-                testDocContextMap, Collections.emptySet());
     }
 
     static ModuleContext from(Project project, ModuleConfig moduleConfig) {
@@ -115,9 +106,8 @@ class ModuleContext {
             testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
         }
 
-        return new ModuleContext(project, moduleConfig.moduleId(),
-                moduleConfig.moduleDescriptor(), moduleConfig.isDefaultModule(),
-                srcDocContextMap, testDocContextMap);
+        return new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleDescriptor(),
+                moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap, moduleConfig.dependencies());
     }
 
     ModuleId moduleId() {
@@ -158,6 +148,29 @@ class ModuleContext {
 
     Collection<ModuleDependency> dependencies() {
         return moduleDependencies;
+    }
+
+    List<ModuleDescriptor> moduleDescDependencies() {
+        return moduleDescDependencies;
+    }
+
+    Set<ModuleLoadRequest> moduleLoadRequests() {
+        if (moduleLoadRequests != null) {
+            return moduleLoadRequests;
+        }
+
+        moduleLoadRequests = new HashSet<>();
+        for (DocumentContext docContext : srcDocContextMap.values()) {
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests());
+        }
+
+        // TODO Skip this if the tests are skipped.
+        if (!testSrcDocIds.isEmpty()) {
+            for (DocumentContext docContext : testDocContextMap.values()) {
+                moduleLoadRequests.addAll(docContext.moduleLoadRequests());
+            }
+        }
+        return moduleLoadRequests;
     }
 
     boolean entryPointExists() {
@@ -210,7 +223,8 @@ class ModuleContext {
         }
     }
 
-    private ModuleCompilationState currentCompilationState() {
+    // TODO temp change
+    ModuleCompilationState currentCompilationState() {
         if (moduleCompState != null) {
             return moduleCompState;
         }
@@ -232,16 +246,47 @@ class ModuleContext {
         currentCompilationState().parse(this);
     }
 
-    boolean resolveDependencies() {
-        // TODO refactor the boolean return
+    void resolveDependencies(DependencyResolution dependencyResolution) {
         ModuleCompilationState moduleState = currentCompilationState();
-        if (moduleState == ModuleCompilationState.DEPENDENCIES_RESOLVED_FROM_BALO ||
-                moduleState == ModuleCompilationState.DEPENDENCIES_RESOLVED_FROM_SOURCES) {
-            return false;
-        } else {
-            moduleState.resolveDependencies(this);
-            return true;
+        Set<ModuleDependency> moduleDependencies = new HashSet<>();
+        if (moduleState == ModuleCompilationState.LOADED_FROM_SOURCES) {
+            Set<ModuleLoadRequest> moduleLoadRequests = moduleLoadRequests();
+            for (ModuleLoadRequest modLoadRequest : moduleLoadRequests) {
+                PackageOrg packageOrg;
+                if (modLoadRequest.orgName().isEmpty()) {
+                    packageOrg = descriptor().org();
+                } else {
+                    packageOrg = modLoadRequest.orgName().get();
+                }
+
+                addModuleDependency(packageOrg, modLoadRequest.packageName(), modLoadRequest.moduleName(),
+                        moduleDependencies, dependencyResolution);
+            }
+        } else if (moduleState == ModuleCompilationState.LOADED_FROM_CACHE) {
+            for (ModuleDescriptor dependencyModDesc : moduleDescDependencies) {
+                addModuleDependency(dependencyModDesc.org(), dependencyModDesc.packageName(),
+                        dependencyModDesc.name(), moduleDependencies, dependencyResolution);
+            }
         }
+
+        this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
+    }
+
+    private void addModuleDependency(PackageOrg org,
+                                     PackageName packageName,
+                                     ModuleName moduleName,
+                                     Set<ModuleDependency> moduleDependencies,
+                                     DependencyResolution dependencyResolution) {
+        Optional<Module> resolvedModuleOptional = dependencyResolution.getModule(org, packageName, moduleName);
+        if (resolvedModuleOptional.isEmpty()) {
+            return;
+        }
+
+        Module resolvedModule = resolvedModuleOptional.get();
+        ModuleDependency moduleDependency = new ModuleDependency(
+                new PackageDependency(resolvedModule.packageInstance().packageId()),
+                resolvedModule.moduleId());
+        moduleDependencies.add(moduleDependency);
     }
 
     void compile(CompilerContext compilerContext) {
@@ -259,34 +304,6 @@ class ModuleContext {
     }
 
     static void resolveDependenciesInternal(ModuleContext moduleContext) {
-        // 1) Combine all the moduleLoadRequests of documents
-        Set<ModuleLoadRequest> moduleLoadRequests = new HashSet<>();
-        for (DocumentContext docContext : moduleContext.srcDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests());
-        }
-
-        // Combine all the moduleLoadRequests of test documents
-        if (!moduleContext.testSrcDocIds.isEmpty()) {
-            for (DocumentContext docContext : moduleContext.testDocContextMap.values()) {
-                moduleLoadRequests.addAll(docContext.moduleLoadRequests());
-            }
-        }
-
-        // 2) Resolve all the dependencies of this module
-        PackageResolver packageResolver = moduleContext.project.projectEnvironmentContext().
-                getService(PackageResolver.class);
-        Collection<ModuleLoadResponse> moduleLoadResponses = packageResolver.loadPackages(moduleLoadRequests);
-
-        // The usage of Set eliminates duplicates
-        Set<ModuleDependency> moduleDependencies = new HashSet<>();
-        for (ModuleLoadResponse moduleLoadResponse : moduleLoadResponses) {
-            ModuleDependency moduleDependency = new ModuleDependency(
-                    new PackageDependency(moduleLoadResponse.packageId()),
-                    moduleLoadResponse.moduleId());
-            moduleDependencies.add(moduleDependency);
-        }
-
-        moduleContext.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
     }
 
     static void compileInternal(ModuleContext moduleContext, CompilerContext compilerContext) {

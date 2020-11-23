@@ -25,7 +25,7 @@ import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.model.Target;
+import io.ballerina.projects.internal.model.Target;
 
 import java.io.File;
 import java.io.IOException;

@@ -21,7 +21,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.model.Target;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;

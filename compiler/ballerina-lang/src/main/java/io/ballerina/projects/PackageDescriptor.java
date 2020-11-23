@@ -74,11 +74,20 @@ public class PackageDescriptor {
         PackageDescriptor that = (PackageDescriptor) other;
         return packageName.equals(that.packageName) &&
                 packageOrg.equals(that.packageOrg) &&
-                packageVersion.equals(that.packageVersion);
+                Objects.equals(packageVersion, that.packageVersion);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(packageName, packageOrg, packageVersion);
+    }
+
+    @Override
+    public String toString() {
+        return "PackageDescriptor{" +
+                "packageName=" + packageName +
+                ", packageOrg=" + packageOrg +
+                ", packageVersion=" + packageVersion +
+                '}';
     }
 }

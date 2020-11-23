@@ -27,7 +27,7 @@ public class CommandConstants {
     public static final String VAR_ASSIGNMENT_REQUIRED = "variable assignment is required";
     public static final String UNRESOLVED_MODULE = "cannot resolve module";
     public static final String TAINTED_PARAM_PASSED = "tainted value passed to untainted parameter";
-    public static final String NO_IMPL_FOUND_FOR_FUNCTION = "no implementation found for the function";
+    public static final String NO_IMPL_FOUND_FOR_METHOD = "no implementation found for the method";
     public static final String FUNC_IMPL_FOUND_IN_ABSTRACT_OBJ = "cannot have a body";
     public static final Pattern UNUSED_IMPORT_MODULE_PATTERN = Pattern.compile(
             "unused import module '(\\S*)\\s*(?:version\\s(.*))?(.*)'");
@@ -40,7 +40,7 @@ public class CommandConstants {
     public static final Pattern INCOMPATIBLE_TYPE_PATTERN = Pattern.compile(
             "incompatible types: expected '(.*)', found '(.*)'");
     public static final Pattern NO_IMPL_FOUND_FOR_FUNCTION_PATTERN = Pattern.compile(
-            "no implementation found for the function '(.*)' of non-abstract object '(.*)'");
+            "no implementation found for the method '(.*)' of class '(.*)'");
     public static final Pattern FUNC_IN_ABSTRACT_OBJ_PATTERN = Pattern.compile(
             "function '(.*)' in abstract object '(.*)' cannot have a body");
     public static final Pattern FQ_TYPE_PATTERN = Pattern.compile("(.*)/([^:]*):(?:.*:)?(.*)");
@@ -96,6 +96,8 @@ public class CommandConstants {
 
     public static final String CHANGE_RETURN_TYPE_TITLE = "Change Return Type to '";
 
+    public static final String ADD_TYPE_CAST_TITLE = "Add Type Cast to Assignment";
+
     public static final String MAKE_OBJ_ABSTRACT_TITLE = "Make '%s' an Abstract Object";
 
     public static final String MAKE_OBJ_NON_ABSTRACT_TITLE = "Make '%s' an Non-Abstract Object";
@@ -112,7 +114,7 @@ public class CommandConstants {
     public static final String ADD_MISSING_PARAMETER_IN_BALLERINA =
             "Add missing parameter '%s' for the method '%s' for the path '%s'";
 
-    public static final String IMPLEMENT_FUNCS_TITLE = "Implement All Functions";
+    public static final String IMPLEMENT_FUNCS_TITLE = "Implement '%s' Method";
 
     public static final String OPTIMIZE_IMPORTS_TITLE = "Optimize All Imports";
 }

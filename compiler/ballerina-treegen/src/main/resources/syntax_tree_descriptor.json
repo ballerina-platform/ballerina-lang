@@ -185,6 +185,11 @@
                     "isOptional": true
                 },
                 {
+                    "name": "qualifiers",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
+                },
+                {
                     "name": "serviceKeyword",
                     "type": "Token"
                 },
