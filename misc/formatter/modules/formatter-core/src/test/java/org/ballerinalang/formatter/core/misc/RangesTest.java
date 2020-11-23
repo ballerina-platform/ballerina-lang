@@ -26,6 +26,11 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+/**
+ * Test range formatting functionality with manually added fixed ranges.
+ *
+ * @since 1.2.10
+ */
 public class RangesTest extends RangeFormatter {
 
     @Test(dataProvider = "test-file-provider")

@@ -35,6 +35,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The abstract class that is extended by all range formatting test classes.
+ *
+ * @since 1.2.10
+ */
 public abstract class RangeFormatter {
     private final Path resourceDirectory = Paths.get("src").resolve("test").resolve("resources").toAbsolutePath();
     private Path buildDirectory = Paths.get("build").toAbsolutePath().normalize();
