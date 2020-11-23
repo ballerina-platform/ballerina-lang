@@ -163,5 +163,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 value.internalNode());
         return stIdentifierLiteralNode.createUnlinkedFacade();
     }
+
+    public static MissingLiteralNode createMissingLiteralNode(
+            Token value) {
+        Objects.requireNonNull(value, "value must not be null");
+
+        STNode stMissingLiteralNode = STNodeFactory.createMissingLiteralNode(
+                value.internalNode());
+        return stMissingLiteralNode.createUnlinkedFacade();
+    }
 }
 

@@ -132,6 +132,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 value);
     }
 
+    @Override
+    public STMissingLiteralNode transform(
+            STMissingLiteralNode missingLiteralNode) {
+        STNode value = modifyNode(missingLiteralNode.value);
+        return missingLiteralNode.modify(
+                value);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

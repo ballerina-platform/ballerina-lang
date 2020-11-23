@@ -225,11 +225,15 @@ public class TomlParser extends AbstractParser {
      */
     private STNode parseNewlines() {
         STToken token = peek();
+        if (token.kind == EOF_TOKEN) {
+            return token;
+        }
+
         if (!isNewline(token.kind)) {
             recover(peek(), ParserRuleContext.NEWLINE);
             return parseNewlines();
         }
-        STToken recentNewline = null;
+        STToken recentNewline = token;
         while (isNewline(token.kind)) {
             recentNewline = consume();
             token = peek();
@@ -254,7 +258,8 @@ public class TomlParser extends AbstractParser {
 
         STNode firstKey = parseSingleKey();
         if (firstKey == null) {
-            return STNodeFactory.createEmptyNodeList();
+            recover(peek(), ParserRuleContext.KEY_VALUE_PAIR);
+            firstKey = parseIdentifierLiteral();
         }
 
         return parseKeyList(firstKey);
@@ -354,7 +359,7 @@ public class TomlParser extends AbstractParser {
      * DECIMAL_INT_TOKEN (Decimal Integer) |
      * DECIMAL_FLOAT_TOKEN (Float) |
      * BOOLEAN |
-     * BASIC_LITERAL (Recovery purposes)
+     * MISSING_VALUE_TOKEN (Recovery purposes)
      * Arrays
      *
      * @return ValueNode
@@ -375,9 +380,21 @@ public class TomlParser extends AbstractParser {
                 return parseBoolean();
             case OPEN_BRACKET_TOKEN:
                 return parseArray();
+            case MISSING_VALUE_TOKEN:
+                return parseMissingValueNode();
             default:
                 recover(token, ParserRuleContext.VALUE);
                 return parseValue();
+        }
+    }
+
+    private STNode parseMissingValueNode() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.MISSING_VALUE_TOKEN) {
+            return STNodeFactory.createMissingLiteralNode(consume());
+        } else {
+            recover(token, ParserRuleContext.MISSING_VALUE_LITERAL);
+            return parseMissingValueNode();
         }
     }
 
@@ -479,7 +496,7 @@ public class TomlParser extends AbstractParser {
      * * DECIMAL_INT_TOKEN (Decimal Integer) |
      * * DECIMAL_FLOAT_TOKEN (Float) |
      * * TRUE/FALSE KEYWORD |
-     * * BASIC_LITERAL (Recovery purposes)
+     * * MISSING_VALUE_TOKEN (Recovery purposes)
      * * Arrays
      *
      * @return ArrayNode
@@ -571,6 +588,6 @@ public class TomlParser extends AbstractParser {
                 token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN ||
                 token.kind == SyntaxKind.TRUE_KEYWORD ||
                 token.kind == SyntaxKind.FALSE_KEYWORD ||
-                token.kind == SyntaxKind.BASIC_LITERAL;
+                token.kind == SyntaxKind.MISSING_VALUE_TOKEN;
     }
 }

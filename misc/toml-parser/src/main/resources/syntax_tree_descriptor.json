@@ -191,6 +191,17 @@
                     "type": "IdentifierToken"
                 }
             ]
+        },
+        {
+            "name": "MissingLiteralNode",
+            "base": "ValueNode",
+            "kind": "MISSING_VALUE",
+            "attributes": [
+                {
+                    "name": "value",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

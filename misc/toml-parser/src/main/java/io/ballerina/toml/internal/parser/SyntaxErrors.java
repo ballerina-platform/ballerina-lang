@@ -131,10 +131,8 @@ public class SyntaxErrors {
 
     private static DiagnosticCode getErrorCode(ParserRuleContext currentCtx) {
         switch (currentCtx) {
-            case VALUE:
+            case MISSING_VALUE_LITERAL: // return var-ref for any kind of terminal expression
                 return DiagnosticErrorCode.ERROR_MISSING_VALUE;
-            case BASIC_LITERAL: // return var-ref for any kind of terminal expression
-                return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case STRING_CONTENT:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
             default:

@@ -59,7 +59,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] ARRAY_VALUE_END = {
             ParserRuleContext.COMMA,
-            ParserRuleContext.ARRAY_VALUE_LIST_END}; //TODO does the order matter? why and how
+            ParserRuleContext.ARRAY_VALUE_LIST_END};
 
     private static final ParserRuleContext[] ARRAY_VALUE_START_OR_VALUE_LIST_END =
             { ParserRuleContext.ARRAY_VALUE_LIST_END, ParserRuleContext.ARRAY_VALUE_START };
@@ -68,7 +68,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL};
 
     private static final ParserRuleContext[] VALUE = {ParserRuleContext.STRING_START,
-            ParserRuleContext.SIGN_TOKEN, ParserRuleContext.NUMERICAL_LITERAL,
+            ParserRuleContext.SIGN_TOKEN, ParserRuleContext.MISSING_VALUE_LITERAL, ParserRuleContext.NUMERICAL_LITERAL,
             ParserRuleContext.BOOLEAN_LITERAL,
 //            ParserRuleContext.ARRAY_VALUE_LIST
     };
@@ -169,6 +169,9 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case SIGN_TOKEN:
                     hasMatch = nextToken.kind == SyntaxKind.PLUS_TOKEN || nextToken.kind == SyntaxKind.MINUS_TOKEN;
+                    break;
+                case MISSING_VALUE_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.MISSING_VALUE_TOKEN;
                     break;
                 case NUMERICAL_LITERAL:
                     alternativeRules = NUMERICAL_LITERAL;
@@ -304,6 +307,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             case DECIMAL_FLOATING_POINT_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
             case BOOLEAN_LITERAL:
+            case MISSING_VALUE_LITERAL:
                 ParserRuleContext parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.ARRAY_VALUE_LIST) {
                     return ParserRuleContext.ARRAY_VALUE_END;
@@ -331,6 +335,8 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
     @Override
     protected SyntaxKind getExpectedTokenKind(ParserRuleContext ctx) {
         switch (ctx) {
+            case MISSING_VALUE_LITERAL:
+                return SyntaxKind.MISSING_VALUE_TOKEN;
             case TOML_TABLE:
                 return SyntaxKind.TABLE;
             case TOML_TABLE_ARRAY:
@@ -341,8 +347,6 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.EQUAL_TOKEN;
             case IDENTIFIER_LITERAL:
                 return SyntaxKind.IDENTIFIER_LITERAL;
-            case VALUE:
-                return SyntaxKind.FALSE_KEYWORD; //Better handling
             case EOF:
                 return SyntaxKind.EOF_TOKEN;
             case COMMA:
@@ -363,7 +367,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             case DECIMAL_FLOATING_POINT_LITERAL:
                 return SyntaxKind.DECIMAL_FLOAT_TOKEN;
             case BOOLEAN_LITERAL:
-                return SyntaxKind.FALSE_KEYWORD; //Better handling
+                return SyntaxKind.FALSE_KEYWORD;
             case NEWLINE:
                 return SyntaxKind.NEWLINE;
             case DOT:

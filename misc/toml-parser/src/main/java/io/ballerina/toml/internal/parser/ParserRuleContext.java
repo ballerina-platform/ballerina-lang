@@ -60,7 +60,7 @@ public enum ParserRuleContext {
     IDENTIFIER_LITERAL("identifier"),
 
     // Expressions
-    BASIC_LITERAL("basic-literal"),
+    MISSING_VALUE_LITERAL("missing-value-literal"),
     DECIMAL_INTEGER_LITERAL("decimal-int-literal"),
     STRING_CONTENT("string-content"),
     NIL_LITERAL("nil-literal"),

@@ -29,6 +29,7 @@ import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.IdentifierLiteralNode;
 import io.ballerina.toml.syntax.tree.KeyValueNode;
+import io.ballerina.toml.syntax.tree.MissingLiteralNode;
 import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.NodeList;
 import io.ballerina.toml.syntax.tree.NodeTransformer;
@@ -333,6 +334,11 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
 
     private TomlNodeLocation getPosition(Node node) {
         return new TomlNodeLocation(node.lineRange(), node.textRange());
+    }
+
+    @Override
+    public TomlNode transform(MissingLiteralNode missingLiteralNode) {
+        return new TomlMissingValueNode(getPosition(missingLiteralNode));
     }
 
     @Override

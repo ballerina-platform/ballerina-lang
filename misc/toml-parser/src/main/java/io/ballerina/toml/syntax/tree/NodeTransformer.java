@@ -76,6 +76,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(identifierLiteralNode);
     }
 
+    public T transform(MissingLiteralNode missingLiteralNode) {
+        return transformSyntaxNode(missingLiteralNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
