@@ -30,8 +30,6 @@ import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.runtime.api.constants.RuntimeConstants;
 import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 
