@@ -119,10 +119,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                 "undefined defaultable parameter 'd'.");
 
         assertEvaluationError(context, "calculate(5, ...b, 7)", String.format(EvaluationExceptionKind
-                .SYNTAX_ERROR.getString(), "arg followed by rest arg"));
+                .SYNTAX_ERROR.getString(), "rest arg followed by another arg"));
 
         assertEvaluationError(context, "calculate(5, ...b, c = 7)", String.format(EvaluationExceptionKind
-                .SYNTAX_ERROR.getString(), "arg followed by rest arg"));
+                .SYNTAX_ERROR.getString(), "rest arg followed by another arg"));
 
         assertEvaluationError(context, "calculate(5, b = 6, ...c)", EvaluationExceptionKind.PREFIX +
                 "rest args are not allowed after named args.");
