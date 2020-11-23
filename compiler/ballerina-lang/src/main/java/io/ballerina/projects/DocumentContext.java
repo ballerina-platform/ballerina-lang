@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.parser.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -130,8 +131,9 @@ class DocumentContext {
         // TODO Traverse the syntax tree to see whether to import the ballerinai/transaction package or not
         TransactionImportValidator trxImportValidator = new TransactionImportValidator();
         if (trxImportValidator.shouldImportTransactionPackage(modulePartNode)) {
-            PackageName packageName = PackageName.from("transaction");
-            ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(PackageOrg.from("ballerinai"),
+            PackageName packageName = PackageName.from(Names.TRANSACTION.value);
+            ModuleLoadRequest ballerinaiLoadReq =
+                    new ModuleLoadRequest(PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
                     packageName, ModuleName.from(packageName), null);
             moduleLoadRequests.add(ballerinaiLoadReq);
         }

@@ -29,6 +29,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
 
 /**
+ * This class will check whether an import statement to internal transaction repo is needed or not.
  * @since 2.0.0
  */
 public class TransactionImportValidator extends NodeVisitor {
