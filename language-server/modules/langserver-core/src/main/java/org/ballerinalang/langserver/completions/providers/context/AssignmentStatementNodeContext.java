@@ -91,7 +91,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
 
     private List<LSCompletionItem> getNewExprCompletionItems(CompletionContext context, AssignmentStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<ObjectTypeSymbol> objectType;
         Node varRef = node.varRef();
         if (varRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {

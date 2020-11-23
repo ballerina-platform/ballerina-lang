@@ -171,9 +171,16 @@ public class RunTestsTask implements Task {
             ModuleName moduleName = module.moduleName();
             TestSuite suite = jBallerinaBackend.testSuite(module);
             Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
+            Path reportDir;
+
+            try {
+                reportDir = target.getReportPath();
+            } catch (IOException e) {
+                throw createLauncherException("error while creating report directory in target", e);
+            }
 
             if (isRerunTestExection) {
-                singleExecTests = readFailedTestsFromFile(moduleTestCachePath);
+                singleExecTests = readFailedTestsFromFile(reportDir);
             }
 
             if (isSingleTestExecution || isRerunTestExection) {

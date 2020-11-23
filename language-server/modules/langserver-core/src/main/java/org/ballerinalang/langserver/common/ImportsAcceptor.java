@@ -47,7 +47,7 @@ public class ImportsAcceptor {
 
     public ImportsAcceptor(DocumentServiceContext context, BiConsumer<String, String> onExistCallback) {
         this.newImports = new HashSet<>();
-        this.currentModuleImports = context.getCurrentDocImports();
+        this.currentModuleImports = context.currentDocImports();
         this.onExistCallback = onExistCallback;
     }
 

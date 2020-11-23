@@ -33,9 +33,6 @@ public class TesterinaConstants {
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
 
     public static final String TARGET_DIR_NAME = "target";
-    public static final String CACHES_DIR_NAME = "caches";
-    public static final String JSON_CACHE_DIR_NAME = "json_cache";
-    public static final String JSON_DIR_NAME = "json";
 
     public static final String DOT = ".";
     public static final String ANON_ORG = "$anon";
