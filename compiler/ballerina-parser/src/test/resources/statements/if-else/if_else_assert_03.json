@@ -136,7 +136,7 @@
                               "kind": "IF_KEYWORD",
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_INVALID_ANNOTATIONS"
+                                "ERROR_ANNOTATIONS_ATTACHED_TO_STATEMENT"
                               ],
                               "leadingMinutiae": [
                                 {

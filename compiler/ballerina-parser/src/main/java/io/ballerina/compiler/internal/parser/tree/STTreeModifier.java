@@ -118,6 +118,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STServiceDeclarationNode transform(
             STServiceDeclarationNode serviceDeclarationNode) {
         STNode metadata = modifyNode(serviceDeclarationNode.metadata);
+        STNode qualifiers = modifyNode(serviceDeclarationNode.qualifiers);
         STNode serviceKeyword = modifyNode(serviceDeclarationNode.serviceKeyword);
         STNode serviceName = modifyNode(serviceDeclarationNode.serviceName);
         STNode onKeyword = modifyNode(serviceDeclarationNode.onKeyword);
@@ -125,6 +126,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode serviceBody = modifyNode(serviceDeclarationNode.serviceBody);
         return serviceDeclarationNode.modify(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 serviceName,
                 onKeyword,
