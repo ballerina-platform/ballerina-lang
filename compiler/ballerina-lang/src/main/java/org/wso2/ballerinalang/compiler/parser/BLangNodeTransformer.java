@@ -591,15 +591,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         boolean isFinal = false;
+        boolean isolated = false;
         for (Token qualifier : modVarDeclrNode.qualifiers()) {
-            if (qualifier.kind() == SyntaxKind.FINAL_KEYWORD) {
+            SyntaxKind kind = qualifier.kind();
+
+            if (kind == SyntaxKind.FINAL_KEYWORD) {
                 isFinal = true;
+                continue;
+            }
+
+            if (kind == SyntaxKind.ISOLATED_KEYWORD) {
+                isolated = true;
             }
         }
 
         // Initialize module variable
         initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer,
-                isFinal);
+                isFinal, isolated);
         //Attach annotations
         NodeList<AnnotationNode> annotations = getAnnotations(modVarDeclrNode.metadata());
         if (annotations != null) {
@@ -2737,8 +2745,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private void initializeBLangVariable(BLangVariable var, TypeDescriptorNode type,
                                          Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer,
                                          boolean isFinal) {
+        initializeBLangVariable(var, type, initializer, isFinal, false);
+    }
+    private void initializeBLangVariable(BLangVariable var, TypeDescriptorNode type,
+                                         Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer,
+                                         boolean isFinal, boolean isIsolated) {
         if (isFinal) {
             markVariableAsFinal(var);
+        }
+
+        if (isIsolated) {
+            var.flagSet.add(Flag.ISOLATED);
         }
 
         var.isDeclaredWithVar = isDeclaredWithVar(type);
@@ -2871,7 +2888,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             actionInvocation.name = invocation.name;
             actionInvocation.argExprs = invocation.argExprs;
             actionInvocation.flagSet = invocation.flagSet;
-            actionInvocation.pos = invocation.pos;
+            actionInvocation.pos = getPosition(startActionNode);
             invocation = actionInvocation;
         }
 
@@ -4371,6 +4388,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer, boolean isFinal,
                                                 boolean isListenerVar, Token visibilityQualifier,
                                                 NodeList<AnnotationNode> annotations) {
+        return createSimpleVar(name, typeName, initializer, isFinal, isListenerVar, visibilityQualifier, false,
+                               annotations);
+    }
+
+    private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer, boolean isFinal,
+                                                boolean isListenerVar, Token visibilityQualifier, boolean isolated,
+                                                NodeList<AnnotationNode> annotations) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(name));
         bLSimpleVar.name.pos = getPosition(name);
@@ -4392,6 +4416,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (isFinal) {
             markVariableAsFinal(bLSimpleVar);
         }
+
+        if (isolated) {
+            bLSimpleVar.flagSet.add(Flag.ISOLATED);
+        }
+
         if (initializer != null) {
             bLSimpleVar.setInitialExpression(createExpression(initializer));
         }

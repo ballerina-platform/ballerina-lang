@@ -33,21 +33,6 @@ public class ModuleDescriptor {
 
     private final PackageID moduleCompilationId;
 
-    private ModuleDescriptor(PackageName packageName,
-                             PackageOrg packageOrg,
-                             PackageVersion packageVersion,
-                             ModuleName moduleName) {
-        this.moduleName = moduleName;
-        this.packageDesc = null;
-
-        if (packageName.value().equals(".") && packageOrg.anonymous()) {
-            moduleCompilationId = PackageID.DEFAULT;
-        } else {
-            moduleCompilationId = new PackageID(new Name(packageOrg.value()),
-                    new Name(moduleName.toString()), new Name(packageVersion.toString()));
-        }
-    }
-
     private ModuleDescriptor(ModuleName moduleName, PackageDescriptor packageDesc) {
         this.moduleName = moduleName;
         this.packageDesc = packageDesc;
@@ -58,13 +43,6 @@ public class ModuleDescriptor {
             moduleCompilationId = new PackageID(new Name(packageDesc.org().value()),
                     new Name(moduleName.toString()), new Name(packageDesc.version().toString()));
         }
-    }
-
-    public static ModuleDescriptor from(PackageName packageName,
-                                        PackageOrg packageOrg,
-                                        PackageVersion packageVersion,
-                                        ModuleName moduleName) {
-        return new ModuleDescriptor(packageName, packageOrg, packageVersion, moduleName);
     }
 
     public static ModuleDescriptor from(ModuleName moduleName, PackageDescriptor packageDescriptor) {

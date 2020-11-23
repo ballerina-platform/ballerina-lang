@@ -281,3 +281,102 @@ isolated class IsolatedClassWithValidCopyInInsideBlock {
         }
     }
 }
+
+isolated class IsolatedClassWithValidCopyyingWithClone {
+    private anydata[] arr = [];
+    private anydata[] arr2 = [];
+
+    isolated function add(anydata val) {
+        lock {
+            self.arr.push(val.clone());
+
+            self.addAgain(val.clone());
+            anydata clonedVal = val.cloneReadOnly();
+            self.addAgain(clonedVal.clone());
+        }
+    }
+
+    isolated function addAgain(anydata val) {
+        lock {
+            self.arr2.push(val.clone());
+            self.arr2.push(val.cloneReadOnly());
+        }
+    }
+}
+
+isolated class IsolatedClassPassingCopiedInVarsToIsolatedFunctions {
+
+    private anydata[] arr = [];
+
+    isolated function add(anydata val) {
+        lock {
+            anydata val2 = val.clone();
+            self.arr.push(val2);
+            self.addAgain(val2);
+            outerAdd(val.clone());
+
+            if val is anydata[] {
+                self.arr.push(val[0].clone());
+                self.addAgain(val[0].clone());
+                anydata val3 = val[0].cloneReadOnly();
+                outerAdd(val3);
+            }
+
+            lock {
+                if val2 is anydata[] {
+                    self.arr.push(val2[0].clone());
+                    self.addAgain(val2[0].clone());
+                    anydata val3 = val2[0].cloneReadOnly();
+                    outerAdd(val3);
+                }
+            }
+        }
+    }
+
+    isolated function addAgain(anydata val) {
+
+    }
+}
+
+isolated function outerAdd(anydata val) {
+
+}
+
+int[] a = [];
+readonly & int[] b = [];
+final readonly & int[] c = [];
+
+isolated class IsolatedClassWithValidVarRefs {
+    private any[] w = [];
+    private int[][] x = [];
+    private int[] y;
+    private int[] z = b;
+
+    function init() {
+        self.y = b;
+    }
+
+    function updateFields() {
+        lock {
+            self.x = let int[] u = b, int[] v = a.clone() in [b, u, v, c];
+            self.y = (let int[]? u = b in ((u is int[]) ? u : <int[]> []));
+            self.z = let int[] u = a.clone() in u;
+        }
+    }
+
+    isolated function isolateUpdateFields() {
+        lock {
+            self.x = let int[] u = c, int[] v = c in [c, u, v];
+            self.y = (let int[]? u = c in ((u is int[]) ? u : <int[]> []));
+            self.z = let int[] u = c.clone() in u;
+        }
+    }
+
+    isolated function nested() {
+        any[] arr = let int[] u = c in [u];
+
+        lock {
+            self.w = let int[] u = c in [u, let int[] v = c.clone() in isolated function () returns int[2][] { return [c, []]; }];
+        }
+    }
+}

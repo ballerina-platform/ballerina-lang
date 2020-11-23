@@ -22,7 +22,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -50,7 +49,6 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.getMessage().startsWith(UNDEFINED_FUNCTION))) {
             return Collections.emptyList();
@@ -69,7 +67,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
         Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
         String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
-        NonTerminalNode cursorNode = positionDetails.matchedNode();
+        NonTerminalNode cursorNode = context.positionDetails().matchedNode();
         if (cursorNode != null && cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
             FunctionCallExpressionNode callExpr = (FunctionCallExpressionNode) cursorNode;
             boolean isWithinFile = callExpr.functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;

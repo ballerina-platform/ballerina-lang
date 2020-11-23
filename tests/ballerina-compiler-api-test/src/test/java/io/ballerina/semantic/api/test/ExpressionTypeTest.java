@@ -19,6 +19,7 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -39,6 +40,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
@@ -295,6 +297,13 @@ public class ExpressionTypeTest {
     @Test
     public void testInferredRecordTypeForInvalidExprs() {
         assertType(97, 5, 97, 20, RECORD);
+    }
+
+    @Test
+    public void testStartAction() {
+        TypeSymbol type = getExprType(101, 4, 101, 21);
+        assertEquals(type.typeKind(), FUTURE);
+        assertEquals(((FutureTypeSymbol) type).typeParameter().get().typeKind(), NIL);
     }
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {

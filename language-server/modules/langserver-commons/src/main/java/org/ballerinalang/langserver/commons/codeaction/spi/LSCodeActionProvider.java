@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.commons.codeaction.spi;
 
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.eclipse.lsp4j.CodeAction;
@@ -49,23 +48,19 @@ public interface LSCodeActionProvider {
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
-     * @param matchedNode     matched {@link NonTerminalNode}
-     * @param matchedNodeType matched {@link CodeActionNodeType}
      * @param context         language server context
      * @return list of Code Actions
      */
-    List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
-                                             CodeActionContext context);
+    List<CodeAction> getNodeBasedCodeActions(CodeActionContext context);
 
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
      * @param diagnostic      diagnostic to evaluate
-     * @param positionDetails {@link PositionDetails}
      * @param context         language server context
      * @return list of Code Actions
      */
-    List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, PositionDetails positionDetails,
+    List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                              CodeActionContext context);
 
     /**

@@ -17,11 +17,11 @@ package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -57,7 +57,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.createModuleID;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getModulePrefix;
@@ -136,17 +135,18 @@ public class FunctionGenerator {
      */
     public static String generateTypeDefinition(ImportsAcceptor importsAcceptor,
                                                 TypeSymbol typeDescriptor, DocumentServiceContext context) {
-//        PackageID packageID = context.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
-        PackageID packageID = null;
-        String signature = typeDescriptor.signature();
-        return (packageID != null) ? processModuleIDsInText(importsAcceptor, context, packageID, signature) : signature;
+        return processModuleIDsInText(importsAcceptor, context, typeDescriptor.signature());
     }
 
     private static String processModuleIDsInText(ImportsAcceptor importsAcceptor, DocumentServiceContext context,
-                                                 PackageID currentPkgID, String text) {
+                                                 String text) {
+        Module module = context.workspace().module(context.filePath()).orElseThrow();
+        String currentOrg = module.packageInstance().descriptor().org().value();
+        String currentModule = module.descriptor().name().packageName().value();
+        String currentVersion = module.packageInstance().descriptor().version().value().toString();
+
         StringBuilder newText = new StringBuilder();
-        String moduleName = currentPkgID.nameComps.stream().map(n -> n.value).collect(Collectors.joining("."));
-        ModuleID currentModuleID = createModuleID(currentPkgID.orgName.value, moduleName, currentPkgID.version.value);
+        ModuleID currentModuleID = createModuleID(currentOrg, currentModule, currentVersion);
         Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(text);
         int nextStart = 0;
         // Matching Fully-Qualified-Module-IDs (eg.`abc/mod1:1.0.0`)
