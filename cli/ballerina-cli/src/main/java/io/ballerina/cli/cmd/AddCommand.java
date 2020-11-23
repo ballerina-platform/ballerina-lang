@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Locale;
 
 import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
@@ -211,7 +212,7 @@ public class AddCommand implements BLauncherCmd {
         // -- mymodule/
         // --- main.bal       <- Contains default main method.
         CommandUtil.applyTemplate(modulePath, template);
-        Path source = modulePath.resolve(template.toLowerCase() + ".bal");
+        Path source = modulePath.resolve(template.toLowerCase(Locale.getDefault()) + ".bal");
         Files.move(source, source.resolveSibling(guessPkgName(moduleName) + ".bal"),
                 StandardCopyOption.REPLACE_EXISTING);
     }
