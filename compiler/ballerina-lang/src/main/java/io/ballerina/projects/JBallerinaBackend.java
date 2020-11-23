@@ -30,6 +30,7 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
@@ -281,15 +282,17 @@ public class JBallerinaBackend extends CompilerBackend {
         bLangPackage.functions.forEach(function -> {
             Location pos = function.pos;
             if (pos != null) {
-                // Remove the duplicated annotations.
-                String className = pos.lineRange().filePath().replace(".bal", "")
-                        .replace("/", ".");
-                String functionClassName = JarResolver.getQualifiedClassName(
-                        bLangPackage.packageID.orgName.value,
-                        bLangPackage.packageID.name.value,
-                        bLangPackage.packageID.version.value,
-                        className);
-                testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+                if (!(function.getFlags().contains(Flag.RESOURCE) || function.getFlags().contains(Flag.REMOTE))) {
+                    // Remove the duplicated annotations.
+                    String className = pos.lineRange().filePath().replace(".bal", "")
+                            .replace("/", ".");
+                    String functionClassName = JarResolver.getQualifiedClassName(
+                            bLangPackage.packageID.orgName.value,
+                            bLangPackage.packageID.name.value,
+                            bLangPackage.packageID.version.value,
+                            className);
+                    testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+                }
             }
         });
 
@@ -305,13 +308,16 @@ public class JBallerinaBackend extends CompilerBackend {
             testablePkg.functions.forEach(function -> {
                 Location location = function.pos;
                 if (location != null) {
-                    String className = location.lineRange().filePath().replace(".bal", "").
-                            replace("/", ".");
-                    String functionClassName = JarResolver.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                            bLangPackage.packageID.name.value,
-                            bLangPackage.packageID.version.value,
-                            className);
-                    testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+                    if (!(function.getFlags().contains(Flag.RESOURCE) || function.getFlags().contains(Flag.REMOTE))) {
+                        String className = location.lineRange().filePath().replace(".bal", "").
+                                replace("/", ".");
+                        String functionClassName = JarResolver.getQualifiedClassName(
+                                bLangPackage.packageID.orgName.value,
+                                bLangPackage.packageID.name.value,
+                                bLangPackage.packageID.version.value,
+                                className);
+                        testSuite.addTestUtilityFunction(function.name.value, functionClassName);
+                    }
                 }
             });
         }
