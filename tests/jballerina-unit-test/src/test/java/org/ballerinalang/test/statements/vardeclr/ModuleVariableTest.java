@@ -39,9 +39,9 @@ public class ModuleVariableTest {
 
     @BeforeClass
     public void setup() {
-//        compileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl.bal");
-//        compileResultNegative = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl_negetive.bal");
-//        recordVarCompileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_record_var_decl.bal");
+        compileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl.bal");
+        compileResultNegative = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl_negetive.bal");
+        recordVarCompileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_record_var_decl.bal");
         recordVarCompileResultNegetive =
                 BCompileUtil.compile("test-src/statements/vardeclr/module_record_var_decl_negetive.bal");
     }
@@ -75,30 +75,7 @@ public class ModuleVariableTest {
         validateError(compileResultNegative, index++, "redeclared symbol 'b'", 20, 7);
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 23, 12);
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 24, 9);
-        validateError(compileResultNegative, index++, "only a simple variable can be marked as 'isolated'", 31, 1);
-        validateError(compileResultNegative, index++, "annotation 'annot' is not allowed on var", 35, 1);
-        validateError(compileResultNegative, index++, "incompatible types: expected 'int', found 'other'", 38, 25);
-        validateError(compileResultNegative, index++, "redeclared symbol 'n'", 40, 9);
         assertEquals(compileResultNegative.getErrorCount(), index);
-    }
-
-    @Test
-    public void testTaintAnalysisWithModuleLevelTupleVar() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "test-src/statements/vardeclr/module_tuple_var_decl_taint_analysis_negetive.bal");
-        int index = 0;
-        validateError(compileResult, index++, "tainted value passed to global variable 'p'", 21, 5);
-        assertEquals(compileResult.getErrorCount(), index);
-    }
-
-    @Test
-    public void testModuleLevelTupleVarAnnotationNegetive() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "test-src/statements/vardeclr/module_tuple_var_decl_annotation_negetive.bal");
-        int index = 0;
-        validateError(compileResult, index++,
-                "annotation 'ballerina/lang.annotations:1.0.0:deprecated' is not allowed on var", 20, 1);
-        assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test
@@ -142,8 +119,20 @@ public class ModuleVariableTest {
     @Test
     public void testModuleLevelRecordVarDeclNegetive() {
         int index = 0;
-        validateError(recordVarCompileResultNegetive, index++, "redeclared symbol 'Fname'", 19, 23);
-        validateError(recordVarCompileResultNegetive, index++, "invalid record binding pattern; unknown field 'age' in record type 'Person'", 20, 7);
-        assertEquals(compileResultNegative.getErrorCount(), index++);
+        validateError(recordVarCompileResultNegetive, index++, "redeclared symbol 'Fname'", 23, 14);
+        validateError(recordVarCompileResultNegetive, index++, "redeclared symbol 'Married'", 25, 9);
+        validateError(recordVarCompileResultNegetive, index++, "invalid record binding pattern; unknown field 'age' in record type 'Person'", 31, 1);
+        assertEquals(recordVarCompileResultNegetive.getErrorCount(), index);
+    }
+
+    @Test
+    public void testUninitializedModuleLevelRecordVar() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_record_var_decl.bal");
+        int index = 0;
+        validateError(compileResult, index++, "uninitialized variable 'carId'", 22, 9);
+        validateError(compileResult, index++, "uninitialized variable 'carColor'", 22, 22);
+        validateError(compileResult, index++, "variable 'carColor' is not initialized", 25, 24);
+        assertEquals(compileResult.getErrorCount(), index);
     }
 }
