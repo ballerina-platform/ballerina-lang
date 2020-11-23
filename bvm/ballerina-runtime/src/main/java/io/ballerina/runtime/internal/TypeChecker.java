@@ -656,6 +656,9 @@ public class TypeChecker {
                 }
                 return sourceTypeTag == targetTypeTag;
             case TypeTags.STRING_TAG:
+                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
+                    return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
+                }
                 if (sourceTypeTag == TypeTags.XML_TAG) {
                     return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
                 }
