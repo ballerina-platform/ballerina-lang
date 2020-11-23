@@ -44,7 +44,7 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
     @Override
     public List<LSCompletionItem> getCompletions(CompletionContext context, WaitFieldsListNode node)
             throws LSCompletionException {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredSymbols = visibleSymbols.stream().filter(symbol -> {
             Optional<TypeDescKind> typeDescKind = SymbolUtil.getTypeKind(symbol);
             return typeDescKind.isPresent() && typeDescKind.get() == TypeDescKind.FUTURE;

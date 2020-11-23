@@ -38,29 +38,28 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class ObservabilityBaseTest extends BaseTest {
     private static BServerInstance servicesServerInstance;
 
-    private static final String TESTOBSERVE_MODULE_ZIP_NAME = "testobserve.zip";
-    private static final String OBESERVABILITY_TEST_UTILS_DIR = System.getProperty("observability.test.utils.dir");
-    private static final String TEST_NATIVES_JAR = System.getProperty("observability.test.utils.jar");
+    private static final String OBESERVABILITY_TEST_UTILS_BALO = System.getProperty("observability.test.utils.balo");
+    private static final String OBESERVABILITY_TEST_UTILS_JAR = System.getProperty("observability.test.utils.jar");
     private static final String BALLERINA_TOML_TEST_NATIVES_JAR_NAME = "observability-test-utils.jar";
 
     protected static final String SERVER_CONNECTOR_NAME = "testobserve_listener";
 
     protected void setupServer(String testProject, String packageName, int[] requiredPorts) throws Exception {
         final String serverHome = balServer.getServerHome();
-        final Path testUtilsJar = Paths.get(TEST_NATIVES_JAR);
+        final Path testUtilsJar = Paths.get(OBESERVABILITY_TEST_UTILS_JAR);
 
         // Copy jar for Ballerina.toml reference to natives Jar
-        copyFile(testUtilsJar, Paths.get(Paths.get(TEST_NATIVES_JAR).getParent().toString(),
+        copyFile(testUtilsJar, Paths.get(testUtilsJar.getParent().toString(),
                 BALLERINA_TOML_TEST_NATIVES_JAR_NAME));
 
         // Copy jar for bre/libs
         copyFile(testUtilsJar, Paths.get(serverHome, "bre", "lib", testUtilsJar.getFileName().toString()));
 
         // Copy caches
-        Path cacheZip = Paths.get(OBESERVABILITY_TEST_UTILS_DIR, "build", "ballerina-src", "target",
-                                  TESTOBSERVE_MODULE_ZIP_NAME);
-        FileSystem fs = FileSystems.newFileSystem(cacheZip, ObservabilityBaseTest.class.getClassLoader());
-        copyDir(fs.getPath("/"), Paths.get(serverHome, "repo"));
+        try (FileSystem fs = FileSystems.newFileSystem(Paths.get(OBESERVABILITY_TEST_UTILS_BALO),
+                ObservabilityBaseTest.class.getClassLoader())) {
+            copyDir(fs.getPath("/"), Paths.get(serverHome, "repo"));
+        }
 
         String sourcesDir = Paths.get("src", "test", "resources", "observability", testProject).toFile()
                 .getAbsolutePath();
@@ -81,18 +80,21 @@ public class ObservabilityBaseTest extends BaseTest {
 
     private void copyDir(Path source, Path dest) throws IOException {
         Files.walk(source).forEach(sourcePath -> {
+            Path relativeSourcePath = source.relativize(sourcePath);
             try {
-                Path targetPath = dest.resolve(source.relativize(sourcePath).toString());
+                Path targetPath = dest.resolve(relativeSourcePath.toString());
                 if (!targetPath.toFile().isDirectory() || !targetPath.toFile().exists()) {
                     copyFile(sourcePath, targetPath);
                 }
             } catch (IOException ex) {
-                Assert.fail("Failed to copy directory " + source.toString() + " to " + dest.toString(), ex);
+                Assert.fail("Failed to copy file " + relativeSourcePath + " in directory " + source.toString()
+                        + " to " + dest.toString(), ex);
             }
         });
     }
 
     private void copyFile(Path source, Path dest) throws IOException {
+        dest.getParent().toFile().mkdirs();     // Create parent directory
         Files.copy(source, dest, REPLACE_EXISTING);
     }
 }

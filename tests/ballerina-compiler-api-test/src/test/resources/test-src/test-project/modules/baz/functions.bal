@@ -14,5 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function main() {
+public function add(int x, int y) returns int => x + y;
+
+function concat(string s1, string s2) returns string {
+    return s1 + s2;
+}
+
+function newPerson(string name, int age = ZERO) returns Person {
+    if (name == "" || age < 0) {
+        panic error("Invalid Args");
+    }
+
+    return {name: name, age: age};
 }

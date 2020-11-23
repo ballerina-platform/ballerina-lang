@@ -81,7 +81,7 @@ public class AnnotationUtil {
         String label = getAnnotationLabel(alias, annotationSymbol);
         String insertText = getAnnotationInsertText(alias, annotationSymbol);
 
-        List<ImportDeclarationNode> imports = ctx.getCurrentDocImports();
+        List<ImportDeclarationNode> imports = ctx.currentDocImports();
         Optional<ImportDeclarationNode> pkgImport = imports.stream()
                 .filter(bLangImportPackage -> {
                     Optional<ImportOrgNameNode> importOrgNameNode = bLangImportPackage.orgName();
@@ -135,7 +135,7 @@ public class AnnotationUtil {
             return Collections.emptyList();
         }
         String currentProjectOrgName = currentModule.get().project().currentPackage().packageOrg().value();
-        List<ImportDeclarationNode> imports = context.getCurrentDocImports();
+        List<ImportDeclarationNode> imports = context.currentDocImports();
         Optional<ImportDeclarationNode> pkgImport = imports.stream()
                 .filter(importNode -> {
                     if (importNode.orgName().isEmpty()) {
@@ -261,7 +261,7 @@ public class AnnotationUtil {
     }
 
     private static Optional<String> getAlias(CompletionContext context, ModuleID moduleID) {
-        return context.getCurrentDocImports().stream().filter(importNode -> {
+        return context.currentDocImports().stream().filter(importNode -> {
             Optional<ImportOrgNameNode> orgName = importNode.orgName();
             StringBuilder nodeName = new StringBuilder();
             orgName.ifPresent(importOrgNameNode -> nodeName.append(importOrgNameNode.orgName().text()));

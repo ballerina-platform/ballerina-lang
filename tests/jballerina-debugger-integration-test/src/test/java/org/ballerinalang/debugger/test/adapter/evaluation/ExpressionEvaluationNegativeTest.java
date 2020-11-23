@@ -105,7 +105,27 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void functionCallEvaluationTest() throws BallerinaTestException {
-        // Todo
+
+        assertEvaluationError(context, "calculate(5, 6)", EvaluationExceptionKind.PREFIX +
+                "missing required parameter 'c'.");
+
+        assertEvaluationError(context, "calculate(5, x = 6, 7)", String.format(EvaluationExceptionKind
+                .SYNTAX_ERROR.getString(), "named arg followed by positional arg"));
+
+        assertEvaluationError(context, "calculate(5, 6, 7, 8)", EvaluationExceptionKind.PREFIX +
+                "too many arguments in call to 'calculate'.");
+
+        assertEvaluationError(context, "calculate(5, 6, 7, d = 8)", EvaluationExceptionKind.PREFIX +
+                "undefined defaultable parameter 'd'.");
+
+        assertEvaluationError(context, "calculate(5, ...b, 7)", String.format(EvaluationExceptionKind
+                .SYNTAX_ERROR.getString(), "rest arg followed by another arg"));
+
+        assertEvaluationError(context, "calculate(5, ...b, c = 7)", String.format(EvaluationExceptionKind
+                .SYNTAX_ERROR.getString(), "rest arg followed by another arg"));
+
+        assertEvaluationError(context, "calculate(5, b = 6, ...c)", EvaluationExceptionKind.PREFIX +
+                "rest args are not allowed after named args.");
     }
 
     @Override
@@ -145,7 +165,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void unaryExpressionEvaluationTest() throws BallerinaTestException {
         assertEvaluationError(context, String.format("+%s", STRING_VAR), "operator '+' not defined for 'string'");
         assertEvaluationError(context, String.format("-%s", STRING_VAR), "operator '-' not defined for 'string'");
@@ -154,7 +174,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void multiplicativeExpressionEvaluationTest() throws BallerinaTestException {
         // semantically incorrect expressions (multiplication between int and string)
         assertEvaluationError(context, String.format("%s * %s", INT_VAR, STRING_VAR), "operator '*' not defined for "
@@ -164,7 +184,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void additiveExpressionEvaluationTest() throws BallerinaTestException {
         // semantically incorrect expressions (addition between int and string)
         assertEvaluationError(context, String.format("%s + %s", INT_VAR, STRING_VAR), "operator '+' not defined for "
@@ -172,7 +192,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void shiftExpressionEvaluationTest() throws BallerinaTestException {
         // left shift
         assertEvaluationError(context, String.format("%s << %s", INT_VAR, STRING_VAR), "operator '<<' not defined for "
@@ -192,7 +212,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void comparisonEvaluationTest() throws BallerinaTestException {
         // semantically incorrect expressions (multiplication between int and string)
         assertEvaluationError(context, String.format("%s < %s", INT_VAR, STRING_VAR), "operator '<' not defined for "
@@ -212,7 +232,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void binaryBitwiseEvaluationTest() throws BallerinaTestException {
         // bitwise AND
         assertEvaluationError(context, String.format("%s & %s", INT_VAR, STRING_VAR), "operator '&' not defined for "
@@ -226,7 +246,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void logicalEvaluationTest() throws BallerinaTestException {
         // Logical AND
         assertEvaluationError(context, String.format("%s && %s", INT_VAR, STRING_VAR), "operator '&&' not defined for "
@@ -278,12 +298,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                 .getString(), "invalid token ';'"));
         // undefined object methods
         assertEvaluationError(context, OBJECT_VAR + ".undefined()",
-                String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(), "undefined"));
+                String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(), "undefined"));
         // Todo - Enable
         // assignment statements
         // assertEvaluationError(context, "int x = 5;", "");
-
-        // Todo - Add negative tests for function invocations related errors. (invalid argument validation, etc.).
     }
 
     @AfterClass(alwaysRun = true)

@@ -51,6 +51,7 @@ public class SingleFileProject extends Project {
 
     private SingleFileProject(ProjectEnvironmentBuilder environmentBuilder, Path filePath) {
         super(ProjectKind.SINGLE_FILE_PROJECT, createTempProjectRoot(), environmentBuilder);
+        populateCompilerContext();
     }
 
     private static Path createTempProjectRoot() {

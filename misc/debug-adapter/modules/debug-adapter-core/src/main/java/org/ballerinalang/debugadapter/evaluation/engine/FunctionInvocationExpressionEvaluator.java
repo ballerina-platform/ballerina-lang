@@ -31,8 +31,10 @@ import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.validateAndProcessArguments;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
 /**
@@ -43,30 +45,34 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 public class FunctionInvocationExpressionEvaluator extends Evaluator {
 
     private final FunctionCallExpressionNode syntaxNode;
-    private final List<Evaluator> argEvaluators;
+    private final String functionName;
+    private final List<Map.Entry<String, Evaluator>> argEvaluators;
 
     public FunctionInvocationExpressionEvaluator(SuspendedContext context, FunctionCallExpressionNode node,
-                                                 List<Evaluator> argEvaluators) {
+                                                 List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context);
         this.syntaxNode = node;
         this.argEvaluators = argEvaluators;
+        this.functionName = syntaxNode.functionName().toSourceCode().trim();
     }
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
+            Map<String, Value> argValueMap = validateAndProcessArguments(context, functionName, argEvaluators);
             // First we try to find the matching JVM method from the JVM backend, among already loaded classes.
-            Optional<JvmMethod> jvmMethod = findFunctionFromLoadedClasses();
-            if (!jvmMethod.isPresent()) {
+            Optional<GeneratedStaticMethod> jvmMethod = findFunctionFromLoadedClasses();
+            if (jvmMethod.isEmpty()) {
                 // If we cannot find the matching method within the loaded classes, then we try to forcefully load
                 // all the generated classes related to the current module using the JDI classloader, and search
                 // again.
                 jvmMethod = loadFunction();
             }
-            if (!jvmMethod.isPresent()) {
+            if (jvmMethod.isEmpty()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
-                        syntaxNode.functionName().toSourceCode()));
+                        functionName));
             }
+            jvmMethod.get().setNamedArgValues(argValueMap);
             Value result = jvmMethod.get().invoke();
             return new BExpressionValue(context, result);
         } catch (EvaluationException e) {
@@ -83,7 +89,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
      *
      * @return the matching JVM method, if available
      */
-    private Optional<JvmMethod> findFunctionFromLoadedClasses() {
+    private Optional<GeneratedStaticMethod> findFunctionFromLoadedClasses() {
         List<ReferenceType> allClasses = context.getAttachedVm().allClasses();
         DebugSourceType sourceType = context.getSourceType();
         for (ReferenceType cls : allClasses) {
@@ -91,7 +97,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                 // Expected class name should end with the file name of the ballerina source, only for single
                 // ballerina sources. (We cannot be sure about the module context, as we can invoke any method
                 // defined within the module.)
-                if (sourceType == DebugSourceType.SINGLE_FILE && !cls.name().endsWith(context.getFileName())) {
+                if (sourceType == DebugSourceType.SINGLE_FILE && !cls.name().endsWith(context.getFileName().get())) {
                     continue;
                 }
                 // If the sources reside inside a ballerina module/project, generated class name should start with the
@@ -99,12 +105,12 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                 if (sourceType == DebugSourceType.PACKAGE && !cls.name().startsWith(context.getPackageOrg().get())) {
                     continue;
                 }
-                List<Method> methods = cls.methodsByName(syntaxNode.functionName().toSourceCode());
+                List<Method> methods = cls.methodsByName(functionName);
                 for (Method method : methods) {
                     // Note - All the ballerina functions are represented as java static methods and all the generated
                     // jvm methods contain strand as its first argument.
                     if (method.isStatic()) {
-                        return Optional.of(new GeneratedStaticMethod(context, cls, method, argEvaluators, null));
+                        return Optional.of(new GeneratedStaticMethod(context, cls, method));
                     }
                 }
             } catch (ClassNotPreparedException ignored) {
@@ -119,29 +125,27 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
      *
      * @return JvmMethod instance
      */
-    private Optional<JvmMethod> loadFunction() throws EvaluationException {
+    private Optional<GeneratedStaticMethod> loadFunction() throws EvaluationException {
         // If the debug source is a ballerina module file and the method is still not loaded into the JVM, we have
         // iterate over all the classes generated for this particular ballerina module and check each class for a
         // matching method.
         if (context.getSourceType() == DebugSourceType.PACKAGE) {
-            List<String> moduleFiles = PackageUtils.getAllModuleFileNames(context.getBreakPointSourcePath().toString());
+            List<String> moduleFiles = PackageUtils.getModuleClassNames(context);
             for (String fileName : moduleFiles) {
                 String className = fileName.replace(BAL_FILE_EXT, "").replace(File.separator, ".");
                 className = className.startsWith(".") ? className.substring(1) : className;
                 String qualifiedClassName = PackageUtils.getQualifiedClassName(context, className);
-                ReferenceType refType = EvaluationUtils.loadClass(context, qualifiedClassName,
-                        syntaxNode.functionName().toSourceCode());
-                List<Method> methods = refType.methodsByName(syntaxNode.functionName().toSourceCode());
+                ReferenceType refType = EvaluationUtils.loadClass(context, qualifiedClassName, functionName);
+                List<Method> methods = refType.methodsByName(functionName);
                 if (!methods.isEmpty()) {
-                    return Optional.of(new GeneratedStaticMethod(context, refType, methods.get(0), argEvaluators,
-                            null));
+                    return Optional.of(new GeneratedStaticMethod(context, refType, methods.get(0)));
                 }
             }
             return Optional.empty();
         } else {
             // If the source is a single bal file, the method(class)must be loaded by now already.
             throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
-                    syntaxNode.functionName().toSourceCode()));
+                    functionName));
         }
     }
 }

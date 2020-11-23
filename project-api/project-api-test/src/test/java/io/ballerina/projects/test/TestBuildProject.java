@@ -39,6 +39,7 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.util.ProjectConstants;
@@ -198,8 +199,19 @@ public class TestBuildProject {
         // 3) Resolve the package dependencies
         PackageResolution resolution = currentPackage.getResolution();
 
-        DependencyGraph<Package> dependencyGraph = resolution.dependencyGraph();
-        Assert.assertEquals(dependencyGraph.getDirectDependencies(currentPackage).size(), 1);
+        ResolvedPackageDependency currentNode = null;
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = resolution.dependencyGraph();
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            if (graphNode.packageId() == currentPackage.packageId()) {
+                currentNode = graphNode;
+            }
+        }
+
+        if (currentNode == null) {
+            throw new IllegalStateException("Current package is found in the dependency graph");
+        }
+
+        Assert.assertEquals(dependencyGraph.getDirectDependencies(currentNode).size(), 1);
     }
 
     @Test (description = "tests loading an invalid Ballerina project")

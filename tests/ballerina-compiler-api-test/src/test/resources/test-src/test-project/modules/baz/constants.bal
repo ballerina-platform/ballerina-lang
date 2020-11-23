@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
+public const PI = 3.14;
 
-@test:Config {}
-function testFunctionPass3() {
-    test:assertTrue(true, msg = "Failed!");
-}
+const ZERO = 0;

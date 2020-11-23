@@ -241,7 +241,6 @@ public class BuildCommand implements BLauncherCmd {
                         this.skipTests || isSingleFileBuild)
                     // run tests (projects only)
                 .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
-//                .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();
 

@@ -49,7 +49,7 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
 
     @Override
     public List<LSCompletionItem> getCompletions(CompletionContext context, ArrayTypeDescriptorNode node) {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<Node> arrayLength = node.arrayLength();
 
         if (arrayLength.isPresent() && this.onQualifiedNameIdentifier(context, arrayLength.get())) {

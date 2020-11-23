@@ -61,7 +61,7 @@ public class CodeActionRouter {
         if (nodeTypeAndNode.isPresent()) {
             CodeActionNodeType nodeType = nodeTypeAndNode.get().getLeft();
             NonTerminalNode matchedNode = nodeTypeAndNode.get().getRight();
-            TypeSymbol matchedTypeSymbol = semanticModel.getType(relPath, matchedNode.lineRange()).orElse(null);
+            TypeSymbol matchedTypeSymbol = semanticModel.type(relPath, matchedNode.lineRange()).orElse(null);
             PositionDetails posDetails = PositionDetailsImpl.from(matchedNode, null, matchedTypeSymbol);
             ctx.setPositionDetails(posDetails);
             codeActionProvidersHolder.getActiveNodeBasedProviders(nodeType).forEach(provider -> {

@@ -43,8 +43,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedund
 public class EvaluationUtils {
 
     // Helper classes
-    public static final String B_UNARY_EXPR_HELPER_CLASS = "debugger.evaluation.1_0_0.unary";
-    public static final String B_BINARY_EXPR_HELPER_CLASS = "debugger.evaluation.1_0_0.binary";
+    public static final String B_UNARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.unary";
+    public static final String B_BINARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.binary";
     public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.internal.TypeChecker";
     public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.utils.StringUtils";
     public static final String B_XML_FACTORY_CLASS = "io.ballerina.runtime.internal.XmlFactory";
@@ -93,6 +93,7 @@ public class EvaluationUtils {
     private static final String GET_STRING_VALUE_METHOD = "getStringValue";
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
+    public static final String REST_ARG_IDENTIFIER = "...";
 
     /**
      * Loads and returns Ballerina JVM runtime method instance for a given qualified class name + method name.

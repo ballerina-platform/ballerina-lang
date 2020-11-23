@@ -89,4 +89,9 @@ public class ModuleVarDeclTest extends AbstractDeclarationTest {
     public void testModuleNoInitVarDeclWithIsolated() {
         testFile("module-var-decl/module_var_decl_source_12.bal", "module-var-decl/module_var_decl_assert_12.json");
     }
+
+    @Test
+    public void testErrorBindingPatternRecovery() {
+        test("module-var-decl/module_var_decl_source_13.bal", "module-var-decl/module_var_decl_assert_13.json");
+    }
 }

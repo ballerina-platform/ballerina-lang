@@ -17,15 +17,19 @@
  */
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.Project;
+
 import java.util.Collection;
 
 /**
- * This class is responsible for loading packages from various sources and maintaining a cache of already loaded
- * packages.
+ * Defines the interface that will be used by the resolution logic to resolve
+ * packages from available repositories.
  *
  * @since 2.0.0
  */
-public abstract class PackageResolver {
+public interface PackageResolver {
 
-    public abstract Collection<PackageLoadResponse> resolvePackages(Collection<PackageLoadRequest> packageLoadRequests);
+    Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> packageLoadRequests);
+
+    Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> packageLoadRequests, Project project);
 }
