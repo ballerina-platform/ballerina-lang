@@ -79,10 +79,6 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                 .filter(token -> !token.isMissing())
                 .collect(Collectors.toList());
 
-        if (moduleName.isEmpty()) {
-            throw new AssertionError("ModuleName cannot be empty");
-        }
-
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         ContextScope contextScope;
 
