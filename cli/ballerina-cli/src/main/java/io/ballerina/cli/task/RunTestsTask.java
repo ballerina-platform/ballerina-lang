@@ -315,8 +315,7 @@ public class RunTestsTask implements Task {
             File jsonFile = new File(target.path().resolve(RESULTS_JSON_FILE).toString());
             try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
                 writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                out.println("\t" + Paths.get("").toAbsolutePath().
-                        relativize(Paths.get(jsonFile.getCanonicalPath())) + "\n");
+                out.println("\t" + jsonFile.getAbsolutePath() + "\n");
             } catch (IOException e) {
                 throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
             }
