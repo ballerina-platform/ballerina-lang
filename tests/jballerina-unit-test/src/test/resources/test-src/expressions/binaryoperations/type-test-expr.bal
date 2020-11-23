@@ -1083,6 +1083,14 @@ public function testXMLNeverType() {
     assertEquality(w is xml, true);
     assertEquality(w is 'xml:Text, true);
     assertEquality(w is 'xml:Element, false);
+
+    xml e = xml ``;
+    assertEquality(<any> e is byte, false);
+    assertEquality(<any> e is xml<'xml:Element>, false);
+    assertEquality(<any> e is xml<'xml:Text>, true);
+    assertEquality(<any> e is xml, true);
+    assertEquality(<any> e is 'xml:Text, true);
+    assertEquality(<any> e is 'xml:Element, false);
 }
 
 function assertTrue(anydata actual) {

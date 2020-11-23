@@ -148,4 +148,8 @@ function testNeverAssignment() {
      xml<never> b = arr[0];
      string empty = "";
      xml<never> c = xml `${empty}`;
+     xml|'xml:Text d = xml ``;
+     string e = d;
+     xml|'xml:Text f = xml ``;
+     string g = f;
 }

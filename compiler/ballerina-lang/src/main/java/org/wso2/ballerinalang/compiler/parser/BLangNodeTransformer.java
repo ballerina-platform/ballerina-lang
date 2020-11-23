@@ -3241,7 +3241,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangNode createXMLLiteral(TemplateExpressionNode expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-        if (expressionNode.content().size() == 0) {
+        if (expressionNode.content().isEmpty()) {
             xmlTextLiteral.pos = getPosition(expressionNode);
             xmlTextLiteral.textFragments.add(createEmptyStringLiteral(expressionNode));
             return xmlTextLiteral;

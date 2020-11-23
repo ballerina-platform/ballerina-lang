@@ -101,7 +101,7 @@ public class NeverTypeTest {
 
     @Test
     public void testNeverTypeNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 22);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 24);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot define a variable of type 'never'", 2, 5);
@@ -148,5 +148,9 @@ public class NeverTypeTest {
                 "incompatible types: expected 'xml<never>', found 'never'", 148, 20);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'xml<never>', found 'xml:Text'", 150, 25);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'string', found '(xml|xml:Text)'", 152, 18);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'string', found '(xml<never>|xml)'", 154, 18);
     }
 }

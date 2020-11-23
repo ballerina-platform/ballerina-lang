@@ -952,17 +952,21 @@ public class Types {
         return sourceTag == targetTag;
     }
 
-    public boolean isConversionExprXMLNever(BLangTypeConversionExpr conversionExpr) {
+    public boolean isConversionExprXMLNeverUnion(BLangTypeConversionExpr conversionExpr) {
         if (conversionExpr.expr.type.tag == TypeTags.XML) {
             BXMLType conversionExpressionType = (BXMLType) conversionExpr.expr.type;
             //Revisit and check xml<xml<constraint>>> on chained iteration
             while (conversionExpressionType.constraint.tag == TypeTags.XML) {
                 conversionExpressionType = (BXMLType) conversionExpressionType.constraint;
             }
-            if (conversionExpressionType.constraint.tag == TypeTags.NEVER) {
+            if (conversionExpressionType.constraint.tag == TypeTags.NEVER ||
+                    conversionExpressionType.constraint.tag == TypeTags.XML_TEXT) {
                 return true;
             }
             return false;
+        }
+        if (conversionExpr.expr.type.tag == TypeTags.UNION) {
+            return isAllXMLMembers((BUnionType) conversionExpr.expr.type);
         }
         return false;
     }
@@ -1935,7 +1939,14 @@ public class Types {
         } else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.XML) {
             return isXMLTypeAssignable(actualType, targetType, new HashSet<>());
         }
+        else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.UNION){
+            return isAllXMLMembers((BUnionType) actualType);
+        }
         return false;
+    }
+
+    public boolean isAllXMLMembers(BUnionType actualType) {
+            return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.xmlTextType));
     }
 
     public boolean isTypeCastable(BLangExpression expr, BType sourceType, BType targetType) {

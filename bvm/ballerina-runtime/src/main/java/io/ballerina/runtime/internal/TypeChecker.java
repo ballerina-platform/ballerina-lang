@@ -655,7 +655,7 @@ public class TypeChecker {
                 if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
-                if (sourceTypeTag == TypeTags.XML_TAG) {
+                if (sourceTypeTag == TypeTags.XML_TAG && targetTypeTag == TypeTags.STRING_TAG) {
                     return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
                 }
                 return sourceTypeTag == targetTypeTag;
@@ -911,10 +911,11 @@ public class TypeChecker {
             }
             BXmlType source = (BXmlType) sourceType;
             if (source.constraint.getTag() == TypeTags.NEVER_TAG) {
-                return target.getTag() == TypeTags.XML_TAG;
+                return targetConstraint.getTag() == TypeTags.UNION_TAG ||
+                        targetConstraint.getTag() == TypeTags.XML_TEXT_TAG ||
+                        targetConstraint.getTag() == TypeTags.NEVER_TAG;
             }
-            return checkIsType(source.constraint, targetConstraint,
-                    unresolvedTypes);
+            return checkIsType(source.constraint, targetConstraint, unresolvedTypes);
         }
         if (TypeTags.isXMLTypeTag(sourceTag)) {
             return checkIsType(sourceType, target.constraint, unresolvedTypes);
