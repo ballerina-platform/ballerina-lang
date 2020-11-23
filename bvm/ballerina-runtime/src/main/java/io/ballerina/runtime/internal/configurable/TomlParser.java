@@ -53,7 +53,11 @@ public class TomlParser {
         if (!Files.exists(CONFIG_FILE_PATH)) {
             throw new TomlException("Configuration toml file `" + CONFIG_FILE_NAME + "` is not found");
         }
-        return new Toml().read(CONFIG_FILE_PATH.toFile());
+        try {
+            return new Toml().read(CONFIG_FILE_PATH.toFile());
+        } catch (RuntimeException exception) {
+            throw new TomlException(INVALID_TOML_FILE + exception.getMessage());
+        }
     }
 
     public static void populateConfigMap(Map<Module, VariableKey[]> configurationData) throws TomlException {
