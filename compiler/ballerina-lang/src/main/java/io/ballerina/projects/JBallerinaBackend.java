@@ -281,18 +281,17 @@ public class JBallerinaBackend extends CompilerBackend {
         // add functions of module/standalone file
         bLangPackage.functions.forEach(function -> {
             Location pos = function.pos;
-            if (pos != null) {
-                if (!(function.getFlags().contains(Flag.RESOURCE) || function.getFlags().contains(Flag.REMOTE))) {
-                    // Remove the duplicated annotations.
-                    String className = pos.lineRange().filePath().replace(".bal", "")
-                            .replace("/", ".");
-                    String functionClassName = JarResolver.getQualifiedClassName(
-                            bLangPackage.packageID.orgName.value,
-                            bLangPackage.packageID.name.value,
-                            bLangPackage.packageID.version.value,
-                            className);
-                    testSuite.addTestUtilityFunction(function.name.value, functionClassName);
-                }
+            if (pos != null && !(function.getFlags().contains(Flag.RESOURCE) ||
+                    function.getFlags().contains(Flag.REMOTE))) {
+                // Remove the duplicated annotations.
+                String className = pos.lineRange().filePath().replace(".bal", "")
+                        .replace("/", ".");
+                String functionClassName = JarResolver.getQualifiedClassName(
+                        bLangPackage.packageID.orgName.value,
+                        bLangPackage.packageID.name.value,
+                        bLangPackage.packageID.version.value,
+                        className);
+                testSuite.addTestUtilityFunction(function.name.value, functionClassName);
             }
         });
 
@@ -307,17 +306,16 @@ public class JBallerinaBackend extends CompilerBackend {
 
             testablePkg.functions.forEach(function -> {
                 Location location = function.pos;
-                if (location != null) {
-                    if (!(function.getFlags().contains(Flag.RESOURCE) || function.getFlags().contains(Flag.REMOTE))) {
-                        String className = location.lineRange().filePath().replace(".bal", "").
-                                replace("/", ".");
-                        String functionClassName = JarResolver.getQualifiedClassName(
-                                bLangPackage.packageID.orgName.value,
-                                bLangPackage.packageID.name.value,
-                                bLangPackage.packageID.version.value,
-                                className);
-                        testSuite.addTestUtilityFunction(function.name.value, functionClassName);
-                    }
+                if (location != null && !(function.getFlags().contains(Flag.RESOURCE) ||
+                        function.getFlags().contains(Flag.REMOTE))) {
+                    String className = location.lineRange().filePath().replace(".bal", "").
+                            replace("/", ".");
+                    String functionClassName = JarResolver.getQualifiedClassName(
+                            bLangPackage.packageID.orgName.value,
+                            bLangPackage.packageID.name.value,
+                            bLangPackage.packageID.version.value,
+                            className);
+                    testSuite.addTestUtilityFunction(function.name.value, functionClassName);
                 }
             });
         }
