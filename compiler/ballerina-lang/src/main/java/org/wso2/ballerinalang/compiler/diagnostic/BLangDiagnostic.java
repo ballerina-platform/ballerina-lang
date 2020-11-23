@@ -18,9 +18,9 @@
 package org.wso2.ballerinalang.compiler.diagnostic;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 
 /**
  * Represent a diagnostic in the ballerina compiler front-end. A diagnostic can be a semantic
@@ -79,6 +79,6 @@ public class BLangDiagnostic extends Diagnostic {
     }
 
     public String toString() {
-        return diagnosticInfo.severity() + ": " + location.toString() + ": " + msg;
+        return diagnosticInfo.severity() + " [" + location.lineRange().filePath() + ":" + location + "] " + msg;
     }
 }

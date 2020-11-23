@@ -19,11 +19,9 @@
 package org.ballerinalang.test.balo.documentation;
 
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
-import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -43,8 +41,7 @@ public class DocumentationTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_documentation", "testDocOrg", "test");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_documentation/testdocorg");
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/documentation/test_documentation.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
         symbol = ((BLangPackage) result.getAST()).symbol;
@@ -52,7 +49,7 @@ public class DocumentationTest {
 
     @Test(description = "Test Doc attachments in Balo.")
     public void testDocAttachmentBalo() {
-        BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test")).symbol;
+        BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test_documentation")).symbol;
         BSymbol functionSymbol = testOrgPackage.scope.lookup(new Name("open")).symbol;
 
         Assert.assertNotNull(functionSymbol.markdownDocumentation);
@@ -105,17 +102,12 @@ public class DocumentationTest {
 
     @Test(description = "Test doc attachments in annotations")
     public void testAnnotationDoc() {
-        BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test")).symbol;
+        BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test_documentation")).symbol;
         BSymbol annotationSymbol = testOrgPackage.scope.lookup(new Name("Test")).symbol;
 
         MarkdownDocAttachment markdownDocumentation = annotationSymbol.markdownDocumentation;
 
         Assert.assertNotNull(annotationSymbol.markdownDocumentation);
         Assert.assertEquals(markdownDocumentation.description, "Documentation for Test annotation");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_documentation", "testorg", "foo");
     }
 }

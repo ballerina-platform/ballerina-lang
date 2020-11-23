@@ -1,6 +1,6 @@
-[project]
-org-name = "debugger"
+[package]
+org = "debugger"
+name = "evaluation"
 version = "1.0.0"
-
-[platform]
-target = "java11"
+[platform.java11]
+dependency = []

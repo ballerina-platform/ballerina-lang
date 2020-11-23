@@ -121,7 +121,7 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
  * @since 0.995.0
  */
 public class BIRPackageSymbolEnter {
-    private final PackageLoader packageLoader;
+    private final PackageCache packageCache;
     private final SymbolResolver symbolResolver;
     private final SymbolTable symTable;
     private final Names names;
@@ -153,7 +153,7 @@ public class BIRPackageSymbolEnter {
     private BIRPackageSymbolEnter(CompilerContext context) {
         context.put(COMPILED_PACKAGE_SYMBOL_ENTER_KEY, this);
 
-        this.packageLoader = PackageLoader.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
         this.symbolResolver = SymbolResolver.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
@@ -336,8 +336,7 @@ public class BIRPackageSymbolEnter {
         String pkgName = getStringCPEntryValue(dataInStream);
         String pkgVersion = getStringCPEntryValue(dataInStream);
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
-        BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.pkgSymbol.pkgID,
-                this.env.repoHierarchy);
+        BPackageSymbol importPackageSymbol = packageCache.getSymbol(importPkgID);
         //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
@@ -1037,13 +1036,16 @@ public class BIRPackageSymbolEnter {
                         boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
                         BInvokableSymbol recordInitFuncSymbol =
                                 Symbols.createFunctionSymbol(recordInitFuncFlags,
-                                        initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
-                                        env.pkgSymbol, isNative, symTable.builtinPos, COMPILED_SOURCE);
+                                                             initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
+                                                             env.pkgSymbol, isNative, symTable.builtinPos,
+                                                             COMPILED_SOURCE);
                         recordInitFuncSymbol.retType = recordInitFuncType.retType;
                         recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
                                                                              recordInitFuncType, symTable.builtinPos);
                         recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
                     }
+
+                    recordType.typeInclusions = readTypeInclusions();
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 
@@ -1054,8 +1056,7 @@ public class BIRPackageSymbolEnter {
                         return recordType;
                     }
 
-                    BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
-                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
                     return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(recordName)).type;
                 case TypeTags.TYPEDESC:
                     BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
@@ -1063,9 +1064,10 @@ public class BIRPackageSymbolEnter {
                     typedescType.flags = flags;
                     return typedescType;
                 case TypeTags.PARAMETERIZED_TYPE:
-                    BParameterizedType type = new BParameterizedType(null, null, null, name);
+                    BParameterizedType type = new BParameterizedType(null, null, null, name, -1);
                     type.paramValueType = readTypeFromCp();
                     type.flags = flags;
+                    type.paramIndex = inputStream.readInt();
                     return type;
                 case TypeTags.STREAM:
                     BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
@@ -1325,6 +1327,7 @@ public class BIRPackageSymbolEnter {
                         ignoreAttachedFunc();
                     }
 
+                    objectType.typeInclusions = readTypeInclusions();
                     objectType.typeIdSet = readTypeIdSet(inputStream);
 
                     Object poppedObjType = compositeStack.pop();
@@ -1334,8 +1337,7 @@ public class BIRPackageSymbolEnter {
                         return objectType;
                     }
 
-                    pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
-                    pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+                    pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
                     return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(objName)).type;
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
@@ -1402,6 +1404,16 @@ public class BIRPackageSymbolEnter {
             // TODO: check
             inputStream.readLong();
             readTypeFromCp();
+        }
+
+        private List<BType> readTypeInclusions() throws IOException {
+            int nTypeInclusions = inputStream.readInt();
+            List<BType> typeInclusions = new ArrayList<>();
+            for (int i = 0; i < nTypeInclusions; i++) {
+                BType inclusion = readTypeFromCp();
+                typeInclusions.add(inclusion);
+            }
+            return typeInclusions;
         }
     }
 

@@ -4440,7 +4440,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
-
         if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
             BType originalInvType = genIExpr.type;
             genIExpr.type = ((BInvokableSymbol) genIExpr.symbol).retType;
@@ -5195,11 +5194,11 @@ public class Desugar extends BLangNodeVisitor {
         BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) objectType.tsymbol;
         Name objectClassName = names.fromString(
                 anonModelHelper.getNextRawTemplateTypeKey(env.enclPkg.packageID, tSymbol.name));
-        tSymbol.flags |= Flags.CLASS;
 
         BObjectTypeSymbol classTSymbol = Symbols.createObjectSymbol(tSymbol.flags, objectClassName,
                                                                     env.enclPkg.packageID, null, env.enclPkg.symbol,
                                                                     pos, VIRTUAL);
+        classTSymbol.flags |= Flags.CLASS;
 
         // Create a new concrete, class type for the provided abstract object type
         BObjectType objectClassType = new BObjectType(classTSymbol, tSymbol.flags);
@@ -7885,12 +7884,13 @@ public class Desugar extends BLangNodeVisitor {
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
             pkgNameComps.add(ASTBuilderUtil.createIdentifier(env.enclPkg.pos, Names.TRANSACTION.value));
             importDcl.pkgNameComps = pkgNameComps;
+            importDcl.pos = env.enclPkg.symbol.pos;
             importDcl.orgName = ASTBuilderUtil.createIdentifier(env.enclPkg.pos, Names.BALLERINA_INTERNAL_ORG.value);
             importDcl.alias = ASTBuilderUtil.createIdentifier(env.enclPkg.pos, "trx");
             importDcl.version = ASTBuilderUtil.createIdentifier(env.enclPkg.pos, "");
-            importDcl.symbol = new BPackageSymbol(packageID, env.enclPkg.symbol.owner,
-                    env.enclPkg.symbol.pos, env.enclPkg.symbol.origin);
+            importDcl.symbol = symTable.internalTransactionModuleSymbol;
             env.enclPkg.imports.add(importDcl);
+            env.enclPkg.symbol.imports.add(importDcl.symbol);
         }
     }
 }

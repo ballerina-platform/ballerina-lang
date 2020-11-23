@@ -17,6 +17,12 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.jacoco.core.analysis.Analyzer;
@@ -51,28 +57,22 @@ public class CoverageReport {
 
     private final String title;
     private final Path projectDir;
-    private final Path jarCache;
-    private final Path jsonCache;
     private Path executionDataFile;
     private Path classesDirectory;
     private ExecFileLoader execFileLoader;
 
-    private String orgName;
-    private String moduleName;
-    private String version;
+    private Module module;
+    private Target target;
 
-    public CoverageReport(Path targetDirPath, String orgName, String moduleName, String version) {
-        this.orgName = orgName;
-        this.moduleName = moduleName;
-        this.version = version;
-        this.projectDir = targetDirPath.resolve(TesterinaConstants.COVERAGE_DIR);
+    public CoverageReport(Module module) throws IOException {
+        this.module = module;
+        this.target = new Target(module.project().sourceRoot());
+
+        this.projectDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR);
         this.title = projectDir.toFile().getName();
         this.classesDirectory = projectDir.resolve(TesterinaConstants.BIN_DIR);
         this.executionDataFile = projectDir.resolve(TesterinaConstants.EXEC_FILE_NAME);
         this.execFileLoader = new ExecFileLoader();
-
-        this.jarCache = targetDirPath.resolve("caches").resolve("jar_cache").resolve(orgName);
-        this.jsonCache = targetDirPath.resolve("caches").resolve("json_cache");
     }
 
     /**
@@ -80,33 +80,42 @@ public class CoverageReport {
      *
      * @throws IOException when file operations are failed
      */
-    public void generateReport() throws IOException {
+    public ModuleCoverage generateReport() throws IOException {
+        String orgName = this.module.packageInstance().packageOrg().toString();
+        String packageName = this.module.packageInstance().packageName().toString();
+        String version = this.module.packageInstance().packageVersion().toString();
 
+        Path moduleJarPath = target.cachesPath().resolve(orgName)
+                .resolve(packageName)
+                .resolve(version).resolve(JdkVersion.JAVA_11.code());
         // Obtain a path list of all the .jar files generated
         List<Path> pathList;
-        try (Stream<Path> walk = Files.walk(this.jarCache, TesterinaConstants.FILE_DEPTH)) {
-            pathList = walk.map(path -> path).filter(f -> f.toString().endsWith(version + ".jar")).collect(
+        try (Stream<Path> walk = Files.walk(moduleJarPath, 1)) {
+            pathList = walk.filter(f -> f.toString().endsWith(ProjectConstants.BLANG_COMPILED_JAR_EXT)).collect(
                     Collectors.toList());
         } catch (IOException e) {
-            return;
+            return null;
         }
 
         if (!pathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
-            for (Path moduleJarPath : pathList) {
+            for (Path jarPath : pathList) {
                 try {
                     // Creates coverage folder with each class per module
-                    CodeCoverageUtils.unzipCompiledSource(moduleJarPath, projectDir, orgName, moduleName, version);
+                    CodeCoverageUtils.unzipCompiledSource(jarPath, projectDir, orgName, packageName, version);
                 } catch (NoSuchFileException e) {
-                    return;
+                    return null;
                 }
             }
 
             execFileLoader.load(executionDataFile.toFile());
             final IBundleCoverage bundleCoverage = analyzeStructure();
-            createReport(bundleCoverage);
+
+            ModuleCoverage moduleCoverage = new ModuleCoverage();
+            createReport(bundleCoverage, moduleCoverage);
+            return moduleCoverage;
         } else {
-            String msg = "Unable to generate code coverage for the module " + moduleName + ". Jar files dont exist.";
+            String msg = "Unable to generate code coverage for the module " + packageName + ". Jar files dont exist.";
             throw new NoSuchFileException(msg);
         }
 
@@ -119,11 +128,11 @@ public class CoverageReport {
         return coverageBuilder.getBundle(title);
     }
 
-    private void createReport(final IBundleCoverage bundleCoverage) {
+    private void createReport(final IBundleCoverage bundleCoverage, ModuleCoverage moduleCoverage) {
         boolean containsSourceFiles = true;
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
-            if (TesterinaConstants.DOT.equals(moduleName)) {
+            if (TesterinaConstants.DOT.equals(this.module.moduleName())) {
                 containsSourceFiles = packageCoverage.getName().isEmpty();
             }
 
@@ -134,7 +143,9 @@ public class CoverageReport {
                     // sourceFileCoverage : "<orgname>/<moduleName>:<version>
                     String sourceFileModule = decodeIdentifier(sourceFileCoverage.getPackageName().split("/")[1]);
 
-                    if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX)
+                    // Only add the source files that belong to the same module and it is a source bal file
+                    if (sourceFileModule.equals(this.module.moduleName().toString())
+                            && sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX)
                             && !sourceFileCoverage.getName().contains("tests/")) {
                         List<Integer> coveredLines = new ArrayList<>();
                         List<Integer> missedLines = new ArrayList<>();
@@ -145,44 +156,26 @@ public class CoverageReport {
                             if (line.getInstructionCounter().getTotalCount() == 0 &&
                                     line.getBranchCounter().getTotalCount() == 0) {
                                 // do nothing. This is to capture the empty lines
-                            } else if ((line.getBranchCounter().getCoveredCount() == 0 &&
-                                    line.getBranchCounter().getMissedCount() > 0) || line.getStatus() == NOT_COVERED) {
+                            } else if ((line.getBranchCounter().getCoveredCount() == 0
+                                    && line.getBranchCounter().getMissedCount() > 0)
+                                    || line.getStatus() == NOT_COVERED) {
                                 missedLines.add(i);
                             } else if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
                                 coveredLines.add(i);
                             }
                         }
-
-                        // Only add the source files that belong to the same module
-                        if (sourceFileModule.equals(moduleName)) {
-                            ModuleCoverage.getInstance().addSourceFileCoverage(moduleName,
-                                    sourceFileCoverage.getName(), coveredLines, missedLines);
-                        } else {
-                            // <org>/<modulename>/<version>
-                            String jsonCachePath = this.jsonCache.toString() +
-                                    resolveSourcePackage(sourceFileCoverage.getPackageName());
-                            ModuleCoverage.getInstance().updateSourceFileCoverage(jsonCachePath, sourceFileModule,
-                                    sourceFileCoverage.getName(), coveredLines, missedLines);
+                        Document document = null;
+                        for (DocumentId documentId : module.documentIds()) {
+                            if (module.document(documentId).name().equals(sourceFileCoverage.getName())) {
+                                document = module.document(documentId);
+                            }
                         }
+                        moduleCoverage.addSourceFileCoverage(document, coveredLines, missedLines);
+
                     }
                 }
             }
 
         }
     }
-
-    private String resolveSourcePackage(String sourcePackage) {
-        String[] split = sourcePackage.split("/");
-        String resolvedSource = "";
-
-        // Replace version value only
-        split[split.length - 1] = split[split.length - 1].replace("_", ".");
-
-        for (String str : split) {
-            resolvedSource += "/" + str;
-        }
-
-        return resolvedSource;
-    }
-
 }

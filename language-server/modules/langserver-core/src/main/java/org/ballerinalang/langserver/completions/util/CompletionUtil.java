@@ -15,31 +15,21 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,21 +40,6 @@ import java.util.stream.Collectors;
  * Common utility methods for the completion operation.
  */
 public class CompletionUtil {
-    /**
-     * Resolve the visible symbols from the given BLang Package and the current context.
-     *
-     * @param completionContext Completion Service Context
-     */
-    public static void resolveSymbols(LSContext completionContext) {
-        // Visit the package to resolve the symbols
-        BLangPackage bLangPackage = completionContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage,
-                completionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
-        Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        String filePath = completionContext.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        completionContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, semanticModel
-                .visibleSymbols(filePath, LinePosition.from(position.getLine(), position.getCharacter())));
-    }
 
     /**
      * Get the completion Items for the context.
@@ -72,10 +47,9 @@ public class CompletionUtil {
      * @param ctx Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem> getCompletionItems(LSContext ctx)
-            throws WorkspaceDocumentException, LSCompletionException {
+    public static List<CompletionItem> getCompletionItems(CompletionContext ctx) throws LSCompletionException {
         fillTokenInfoAtCursor(ctx);
-        NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         List<LSCompletionItem> items = route(ctx, nodeAtCursor);
 
         return items.stream()
@@ -93,7 +67,7 @@ public class CompletionUtil {
      * @param node node to evaluate
      * @return {@link Optional} provider which resolved
      */
-    public static List<LSCompletionItem> route(LSContext ctx, Node node)
+    public static List<LSCompletionItem> route(CompletionContext ctx, Node node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (node == null) {
@@ -107,11 +81,11 @@ public class CompletionUtil {
             provider = providers.get(reference.getClass());
             // Resolver chain check has been added to cover the use-case in the documentation of the method
             if (provider != null && provider.onPreValidation(ctx, reference)
-                    && !ctx.get(CompletionKeys.RESOLVER_CHAIN).contains(reference)) {
-                ctx.get(CompletionKeys.RESOLVER_CHAIN).add(reference);
+                    && !ctx.getResolverChain().contains(reference)) {
+                ctx.addResolver(reference);
                 break;
             }
-            ctx.get(CompletionKeys.RESOLVER_CHAIN).add(reference);
+            ctx.addResolver(reference);
             reference = reference.parent();
         }
 
@@ -124,23 +98,20 @@ public class CompletionUtil {
 
     /**
      * Find the token at cursor.
-     *
-     * @throws WorkspaceDocumentException while retrieving the syntax tree from the document manager
      */
-    public static void fillTokenInfoAtCursor(LSContext context) throws WorkspaceDocumentException {
-        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
-        if (filePath.isEmpty()) {
-            return;
+    public static void fillTokenInfoAtCursor(CompletionContext context) {
+        Optional<Document> document = context.workspace().document(context.filePath());
+        if (document.isEmpty()) {
+            throw new RuntimeException("Could not find a valid document");
         }
-        SyntaxTree syntaxTree = docManager.getTree(filePath.get());
-        TextDocument textDocument = syntaxTree.textDocument();
+        TextDocument textDocument = document.get().textDocument();
 
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position position = context.getCursorPosition();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
-        context.put(CompletionKeys.TEXT_POSITION_IN_TREE, txtPos);
+        // TODO: Try to delegate the set option to the context
+        context.setCursorPositionInTree(txtPos);
         TextRange range = TextRange.from(txtPos, 0);
-        NonTerminalNode nonTerminalNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(range);
+        NonTerminalNode nonTerminalNode = ((ModulePartNode) document.get().syntaxTree().rootNode()).findNode(range);
 
         while (true) {
             if (!withinTextRange(txtPos, nonTerminalNode)) {
@@ -150,7 +121,7 @@ public class CompletionUtil {
             break;
         }
 
-        context.put(CompletionKeys.NODE_AT_CURSOR_KEY, nonTerminalNode);
+        context.setNodeAtCursor(nonTerminalNode);
     }
 
     private static boolean withinTextRange(int position, NonTerminalNode node) {

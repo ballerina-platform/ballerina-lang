@@ -18,20 +18,17 @@ package org.ballerinalang.langserver.codeaction.providers;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,22 +61,20 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
+        SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
         NodeList<ImportDeclarationNode> fileImports = ((ModulePartNode) syntaxTree.rootNode()).imports();
 
-        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        if (bLangPackage == null || fileImports == null || fileImports.isEmpty()) {
+        if (fileImports == null || fileImports.isEmpty()) {
             return actions;
         }
 
         List<String[]> toBeRemovedImports = new ArrayList<>();
 
         // Filter unused imports
-        for (Diagnostic diag : allDiagnostics) {
+        for (Diagnostic diag : context.allDiagnostics()) {
             if (diag.getMessage().startsWith(UNUSED_IMPORT_MODULE)) {
                 Matcher matcher = CommandConstants.UNUSED_IMPORT_MODULE_PATTERN.matcher(diag.getMessage());
                 if (matcher.find()) {
@@ -106,7 +101,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         List<TextEdit> edits = new ArrayList<>();
 
         // Find the imports range
-        int importSLine = fileImports.get(0).lineRange().startLine().line() - 1;
+        int importSLine = fileImports.get(0).lineRange().startLine().line();
         List<Range> importLines = new ArrayList<>();
         for (int i = 0; i < fileImports.size(); i++) {
             ImportDeclarationNode importPkg = fileImports.get(i);
@@ -115,12 +110,12 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
 
             // Get imports starting line
             if (importSLine > pos.startLine().line()) {
-                importSLine = pos.startLine().line() - 1;
+                importSLine = pos.startLine().line();
             }
 
             // Mark locations of the imports
-            Range range = new Range(new Position(pos.startLine().line() - 1, pos.startLine().offset() - 1),
-                                    new Position(pos.endLine().line() - 1, pos.endLine().offset() - 1));
+            Range range = new Range(new Position(pos.startLine().line(), pos.startLine().offset()),
+                                    new Position(pos.endLine().line(), pos.endLine().offset()));
             importLines.add(range);
 
             // Remove any matching imports on-the-go
@@ -140,7 +135,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         final List<ImportDeclarationNode> orderedImports = allImports.stream()
                 .sorted(Comparator.comparing((Function<ImportDeclarationNode, String>) o -> o.orgName().isPresent() ?
                         o.orgName().get().orgName().text() : "")
-                                .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
+                        .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
                 .collect(Collectors.toList());
 
         // Mark import removal ranges
@@ -165,7 +160,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         StringJoiner editText = new StringJoiner(System.lineSeparator());
         for (ImportDeclarationNode importPkg : orderedImports) {
             ImportModel importModel = ImportModel.from(importPkg);
-            String importText = IMPORT_KW + " " + importModel.orgName + ORG_SEPARATOR + importModel.moduleName;
+            String importText = IMPORT_KW + " " + importModel.orgName + importModel.moduleName;
             if (!importModel.version.isEmpty()) {
                 importText += " " + VERSION_KW + " " + importModel.version;
             }

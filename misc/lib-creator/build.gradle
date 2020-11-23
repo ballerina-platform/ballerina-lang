@@ -33,10 +33,10 @@ dependencies {
     implementation project(':ballerina-tool')
     implementation project(':ballerina-packerina')
     implementation project(':docerina')
+    implementation 'com.moandjiezana.toml:toml4j'
 
     dist project(':ballerina-lang')
     dist project(':ballerina-tool')
-    dist project(':ballerina-packerina')
     dist project(':docerina')
 
 }
@@ -52,4 +52,8 @@ jar {
         exclude "META-INF/*.DSA"
         exclude "META-INF/*.RSA"
     }
+}
+
+checkstyle {
+    sourceSets = []
 }

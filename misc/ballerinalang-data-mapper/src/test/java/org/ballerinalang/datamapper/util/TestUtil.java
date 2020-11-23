@@ -17,16 +17,17 @@ package org.ballerinalang.datamapper.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
-import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -46,14 +47,15 @@ import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -67,6 +69,8 @@ public class TestUtil {
     private static final String WORKSPACE_CONFIG_CHANGE = "workspace/didChangeConfiguration";
 
     private static final Gson GSON = new Gson();
+
+    private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
 
     private TestUtil() {
     }
@@ -161,8 +165,8 @@ public class TestUtil {
     /**
      * Get the workspace symbol response as String.
      *
-     * @param serviceEndpoint       Language Server Service Endpoint
-     * @param query                 JsonObject query
+     * @param serviceEndpoint Language Server Service Endpoint
+     * @param query           JsonObject query
      */
     public static void setWorkspaceConfig(Endpoint serviceEndpoint, JsonObject query) {
         DidChangeConfigurationParams params = new DidChangeConfigurationParams(query);
@@ -189,14 +193,17 @@ public class TestUtil {
         return GSON.toJson(jsonrpcResponse).replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
 
-    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath) throws CompilationFailedException {
-        WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
-        LSContext context = new DocumentServiceOperationContext
-                .ServiceOperationContextBuilder(LSContextOperation.DIAGNOSTICS)
-                .withCommonParams(null, sourcePath.toUri().toString(), documentManager)
-                .build();
+    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
 
-        BLangPackage pkg = LSModuleCompiler.getBLangPackage(context, documentManager, true, true);
-        return pkg.getDiagnostics();
+        DocumentServiceContext context = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
+                workspaceManager,
+                LSContextOperation.TXT_DID_OPEN);
+        Optional<Project> project = context.workspace().project(context.filePath());
+        for (Module module : project.get().currentPackage().modules()) {
+            diagnostics.addAll(module.getCompilation().diagnostics().diagnostics());
+        }
+
+        return diagnostics;
     }
 }

@@ -18,10 +18,9 @@ package org.ballerinalang.test.balo.imports;
 
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -52,11 +51,10 @@ public class ImportsTests {
 
     @Test(description = "Get the version from the source file.")
     public void testVersionSupportImportFromSourceFile() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module1", "test_module")).toString(),
-                "testOrg", "testModule", "1.1.0");
+//        BCompileUtil.compile(imports.resolve(Paths.get("test_module1", "test_module")).toString(),
+//                "testOrg", "testModule", "1.1.0");
 
-        CompileResult result = BCompileUtil.compile(this, "/test-src/balo/imports/test-case1/", "testCase1");
+        CompileResult result = BCompileUtil.compile("/test-src/balo/imports/test-case1/");
         BValue[] returns = BRunUtil.invoke(result, "cal");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -65,11 +63,10 @@ public class ImportsTests {
 
     @Test(description = "Get the version from the toml file.")
     public void testVersionSupportImportFromTomlFile() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module2", "test_module")).toString(),
-                "testOrg", "testModule", "1.1.1");
+//        BCompileUtil.compile(imports.resolve(Paths.get("test_module2", "test_module")).toString(),
+//                "testOrg", "testModule", "1.1.1");
 
-        CompileResult result = BCompileUtil.compile(this, "/test-src/balo/imports/test-case2/", "testCase2");
+        CompileResult result = BCompileUtil.compile("/test-src/balo/imports/test-case2/");
         BValue[] returns = BRunUtil.invoke(result, "cal");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -78,11 +75,10 @@ public class ImportsTests {
 
     @Test(description = "Get the version from the lock file.")
     public void testVersionSupportImportFromLockFile() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module3", "test_module")).toString(),
-                "testOrg", "testModule", "1.1.2");
+//        BCompileUtil.compile(imports.resolve(Paths.get("test_module3", "test_module")).toString(),
+//                "testOrg", "testModule", "1.1.2");
 
-        CompileResult result = BCompileUtil.compile(this, "/test-src/balo/imports/test-case3/", "testCase3");
+        CompileResult result = BCompileUtil.compile("/test-src/balo/imports/test-case3/");
         BValue[] returns = BRunUtil.invoke(result, "cal");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -91,9 +87,8 @@ public class ImportsTests {
 
     @Test(description = "Get the version from a single source file.")
     public void testVersionSupportImportInSingleFile() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module1", "test_module")).toString(),
-                "testOrg", "testModule", "1.1.0");
+//        BCompileUtil.compile(imports.resolve(Paths.get("test_module1", "test_module")).toString(),
+//                "testOrg", "testModule", "1.1.0");
 
         CompileResult result = BCompileUtil.compile("test-src/balo/imports/test-case4/main.bal");
         BValue[] returns = BRunUtil.invoke(result, "cal");
@@ -104,9 +99,8 @@ public class ImportsTests {
 
     @Test(description = "Get the version from a single source file without alias.")
     public void testVersionSupportImportInSingleFileWithoutAlias() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo(imports.resolve(Paths.get("test_module2", "test_module")).toString(),
-                "testOrg", "testModule", "1.1.1");
+//        BCompileUtil.compile(imports.resolve(Paths.get("test_module2", "test_module")).toString(),
+//                "testOrg", "testModule", "1.1.1");
 
         CompileResult result = BCompileUtil.compile("test-src/balo/imports/test-case5/main.bal");
         BValue[] returns = BRunUtil.invoke(result, "cal");

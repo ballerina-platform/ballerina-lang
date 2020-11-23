@@ -15,30 +15,24 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Code Action for variable assignment.
@@ -60,20 +54,18 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+                                                    CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
         if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return actions;
         }
-        if (positionDetails.matchedSymbolTypeDesc() == null) {
+        if (context.positionDetails().matchedExprType() == null) {
             return actions;
         }
 
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic, positionDetails, context);
+        String uri = context.fileUri();
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic, context);
         List<String> types = createVarTextEdits.types;
         for (int i = 0; i < types.size(); i++) {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
@@ -93,19 +85,14 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
     }
 
     CreateVariableOut getCreateVariableTextEdits(Diagnostic diagnostic,
-                                                 PositionDetails positionDetails,
-                                                 LSContext context) {
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        Symbol matchedSymbol = positionDetails.matchedSymbol();
-        TypeSymbol typeDescriptor = positionDetails.matchedSymbolTypeDesc();
+                                                 CodeActionContext context) {
+        Symbol matchedSymbol = context.positionDetails().matchedSymbol();
+        TypeSymbol typeDescriptor = context.positionDetails().matchedExprType();
 
-        Set<String> allNameEntries = CommonUtil.getAllNameEntries(compilerContext);
-        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        String filePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage, compilerContext);
-        semanticModel.visibleSymbols(filePath, positionDetails.matchedNode().lineRange().startLine()).stream()
+        Position position = CommonUtil.toPosition(context.positionDetails().matchedNode().lineRange().startLine());
+        Set<String> allNameEntries = context.getVisibleSymbols(position).stream()
                 .map(Symbol::name)
-                .forEach(allNameEntries::add);
+                .collect(Collectors.toSet());
 
         String name = CommonUtil.generateVariableName(matchedSymbol, typeDescriptor, allNameEntries);
 

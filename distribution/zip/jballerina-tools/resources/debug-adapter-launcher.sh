@@ -170,4 +170,4 @@ $JAVACMD \
 	-Dballerina.debugLog=$DEBUG_LOG \
 	-Dexperimental=$ALLOW_EXPERIMETAL \
 	-cp "$CLASSPATHS" \
-	 org.ballerinalang.debugadapter.launcher.Launcher "$@"
+	 org.ballerinalang.debugadapter.DebugAdapterLauncher "$@"

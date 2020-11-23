@@ -19,9 +19,9 @@ package org.ballerinalang.test.object;
 
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,7 +36,8 @@ public class ObjectEquivalencyTest {
     @BeforeClass
     public void setup() {
 
-        compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "ObjectEquivalencyTest");
+//        compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "ObjectEquivalencyTest");
+        compileResult = BCompileUtil.compile("test-src/object/ObjectEquivalencyProject");
     }
 
     @Test(description = "Test equivalence of objects that are in the same package and the members are visible at " +

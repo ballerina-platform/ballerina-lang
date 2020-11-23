@@ -18,13 +18,14 @@
 
 package org.ballerinalang.test.observability;
 
-import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.testng.Assert;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,40 +38,31 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class ObservabilityBaseTest extends BaseTest {
     private static BServerInstance servicesServerInstance;
 
-    private static final String OBESERVABILITY_TEST_BIR = System.getProperty("observability.test.utils");
-    private static final String TEST_NATIVES_JAR = "observability-test-natives.jar";
-    private static final String TEST_OBSERVE_JAR = "ballerina-testobserve-0.0.0.jar";
+    private static final String TESTOBSERVE_MODULE_ZIP_NAME = "testobserve.zip";
+    private static final String OBESERVABILITY_TEST_UTILS_DIR = System.getProperty("observability.test.utils.dir");
+    private static final String TEST_NATIVES_JAR = System.getProperty("observability.test.utils.jar");
+    private static final String BALLERINA_TOML_TEST_NATIVES_JAR_NAME = "observability-test-utils.jar";
 
     protected static final String SERVER_CONNECTOR_NAME = "testobserve_listener";
 
-    protected void setupServer(String testProject, String testModule, int[] requiredPorts) throws Exception {
+    protected void setupServer(String testProject, String packageName, int[] requiredPorts) throws Exception {
         final String serverHome = balServer.getServerHome();
+        final Path testUtilsJar = Paths.get(TEST_NATIVES_JAR);
 
-        // Copy for Ballerina.toml reference to natives Jar
-        copyFile(new File(System.getProperty(TEST_NATIVES_JAR)),
-                Paths.get(Paths.get(System.getProperty(TEST_NATIVES_JAR)).getParent().toString(), TEST_NATIVES_JAR)
-                        .toFile());
+        // Copy jar for Ballerina.toml reference to natives Jar
+        copyFile(testUtilsJar, Paths.get(Paths.get(TEST_NATIVES_JAR).getParent().toString(),
+                BALLERINA_TOML_TEST_NATIVES_JAR_NAME));
 
-        // Copy to bre/libs
-        copyFile(new File(System.getProperty(TEST_NATIVES_JAR)),
-                Paths.get(serverHome, "bre", "lib", TEST_NATIVES_JAR).toFile());
-        copyFile(Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-bir-jar", TEST_OBSERVE_JAR).toFile(),
-                Paths.get(serverHome, "bre", "lib", TEST_OBSERVE_JAR).toFile());
+        // Copy jar for bre/libs
+        copyFile(testUtilsJar, Paths.get(serverHome, "bre", "lib", testUtilsJar.getFileName().toString()));
 
-        // Copy to lib/repo
-        Path observeTestBaloPath =
-                Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-balo", "repo", "ballerina", "testobserve");
-        FileUtils.copyDirectoryToDirectory(observeTestBaloPath.toFile(),
-                Paths.get(serverHome, "lib", "repo", "ballerina").toFile());
+        // Copy caches
+        Path cacheZip = Paths.get(OBESERVABILITY_TEST_UTILS_DIR, "build", "ballerina-src", "target",
+                                  TESTOBSERVE_MODULE_ZIP_NAME);
+        FileSystem fs = FileSystems.newFileSystem(cacheZip, ObservabilityBaseTest.class.getClassLoader());
+        copyDir(fs.getPath("/"), Paths.get(serverHome, "repo"));
 
-        // Copy to bir-cache
-        FileUtils.copyDirectoryToDirectory(observeTestBaloPath.toFile(),
-                Paths.get(serverHome, "bir-cache", "ballerina").toFile());
-        FileUtils.copyDirectoryToDirectory(
-                Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-bir", "ballerina", "testobserve").toFile(),
-                Paths.get(serverHome, "bir-cache", "ballerina").toFile());
-
-        String basePath = Paths.get("src", "test", "resources", "observability", testProject).toFile()
+        String sourcesDir = Paths.get("src", "test", "resources", "observability", testProject).toFile()
                 .getAbsolutePath();
 
         String configFile = Paths.get("src", "test", "resources", "observability", testProject, "ballerina.conf")
@@ -79,7 +71,7 @@ public class ObservabilityBaseTest extends BaseTest {
 
         // Don't use 9898 port here. It is used in metrics test cases.
         servicesServerInstance = new BServerInstance(balServer);
-        servicesServerInstance.startServer(basePath, testModule, null, args, requiredPorts);
+        servicesServerInstance.startServer(sourcesDir, packageName, null, args, requiredPorts);
     }
 
     protected void cleanupServer() throws BallerinaTestException {
@@ -87,7 +79,20 @@ public class ObservabilityBaseTest extends BaseTest {
         servicesServerInstance.shutdownServer();
     }
 
-    private void copyFile(File source, File dest) throws IOException {
-        Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
+    private void copyDir(Path source, Path dest) throws IOException {
+        Files.walk(source).forEach(sourcePath -> {
+            try {
+                Path targetPath = dest.resolve(source.relativize(sourcePath).toString());
+                if (!targetPath.toFile().isDirectory() || !targetPath.toFile().exists()) {
+                    copyFile(sourcePath, targetPath);
+                }
+            } catch (IOException ex) {
+                Assert.fail("Failed to copy directory " + source.toString() + " to " + dest.toString(), ex);
+            }
+        });
+    }
+
+    private void copyFile(Path source, Path dest) throws IOException {
+        Files.copy(source, dest, REPLACE_EXISTING);
     }
 }

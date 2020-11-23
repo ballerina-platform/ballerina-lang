@@ -20,9 +20,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -43,10 +41,10 @@ public class IfElseStatementNodeContext extends AbstractCompletionProvider<IfEls
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, IfElseStatementNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, IfElseStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.FUNCTION)
                 .collect(Collectors.toList());
@@ -57,12 +55,12 @@ public class IfElseStatementNodeContext extends AbstractCompletionProvider<IfEls
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, IfElseStatementNode node) {
+    public boolean onPreValidation(CompletionContext context, IfElseStatementNode node) {
         BlockStatementNode ifBody = node.ifBody();
         if (ifBody.openBraceToken().isMissing()) {
             return true;
         }
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int cursor = context.getCursorPositionInTree();
         return cursor <= ifBody.openBraceToken().textRange().startOffset();
     }
 }
