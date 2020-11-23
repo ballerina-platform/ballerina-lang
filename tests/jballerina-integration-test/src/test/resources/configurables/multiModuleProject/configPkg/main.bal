@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/test;
-import pkg.foo;
+import configPkg.util.foo;
 
 configurable int intVar = 5;
 configurable float floatVar = 9.5;

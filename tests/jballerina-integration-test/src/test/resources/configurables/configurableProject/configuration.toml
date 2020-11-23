@@ -1,4 +1,4 @@
-[test-org.main]
+[testOrg.main]
 intVar = 42
 floatVar = 3.5
 stringVar = "abc"

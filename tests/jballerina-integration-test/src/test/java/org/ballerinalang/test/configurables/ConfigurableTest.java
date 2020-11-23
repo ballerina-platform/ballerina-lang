@@ -60,7 +60,7 @@ public class ConfigurableTest extends BaseTest {
     public void testAccessForImportedModules() throws BallerinaTestException {
         Path projectPath = Paths.get(testFileLocation, "multiModuleProject").toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("Tests passed");
-        bMainInstance.runMain("run", new String[]{"pkg.test.main"}, null, new String[]{},
+        bMainInstance.runMain("run", new String[]{"configPkg"}, null, new String[]{},
                 new LogLeecher[]{runLeecher}, projectPath.toString());
         runLeecher.waitForText(5000);
     }
@@ -88,13 +88,13 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testInvalidOrganizationName() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "InvalidOrgName").toAbsolutePath();
-        LogLeecher errorLeecher = new LogLeecher(errorMsg + "Organization name 'test-org' not found.", ERROR);
+        LogLeecher errorLeecher = new LogLeecher(errorMsg + "Organization name 'testOrg' not found.", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultipleOrganizationNames() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "MultipleOrgNames").toAbsolutePath();
         LogLeecher errorLeecher = new LogLeecher(errorMsg + "Multiple organization names found.", ERROR);

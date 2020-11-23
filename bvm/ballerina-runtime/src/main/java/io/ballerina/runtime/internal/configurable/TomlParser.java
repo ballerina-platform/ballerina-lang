@@ -36,6 +36,7 @@ import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.C
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.DEFAULT_MODULE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_TOML_FILE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_VARIABLE_TYPE;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.SUBMODULE_DELIMITER;
 
 /**
  * Toml parser for configurable implementation.
@@ -43,7 +44,6 @@ import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.I
  * @since 2.0.0
  */
 public class TomlParser {
-    //TODO: Fix integration tests
     // TODO: check index out of bounds error [test-org.pkg.foo.]
     // TODO: remove this and support multiple orgs
 
@@ -113,11 +113,12 @@ public class TomlParser {
 
     private static Toml extractModuleTable(Toml modules, String module) {
         Toml moduleToml = modules;
-        if (!module.contains(DEFAULT_MODULE)) {
+        int subModuleIndex = module.indexOf(SUBMODULE_DELIMITER);
+        if (subModuleIndex == -1) {
             moduleToml = modules.getTable(module);
-        } else {
-            String parent = module.substring(0, module.indexOf(DEFAULT_MODULE));
-            String submodule = module.substring(module.indexOf(DEFAULT_MODULE) + 1);
+        } else if (subModuleIndex != module.length()) {
+            String parent = module.substring(0, subModuleIndex);
+            String submodule = module.substring(subModuleIndex + 1);
             moduleToml = extractModuleTable(moduleToml.getTable(parent), submodule);
         }
         return moduleToml;

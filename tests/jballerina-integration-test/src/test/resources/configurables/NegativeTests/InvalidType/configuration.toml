@@ -1,4 +1,4 @@
-[test-org.main]
+[testOrg.main]
 intVar = 4.25
 floatVar = 32
 stringVar = false
