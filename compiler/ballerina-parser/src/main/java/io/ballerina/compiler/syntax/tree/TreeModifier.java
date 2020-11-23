@@ -57,7 +57,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(functionDefinitionNode.functionKeyword());
         IdentifierToken functionName =
                 modifyNode(functionDefinitionNode.functionName());
-        NodeList<Token> relativeResourcePath =
+        NodeList<Node> relativeResourcePath =
                 modifyNodeList(functionDefinitionNode.relativeResourcePath());
         FunctionSignatureNode functionSignature =
                 modifyNode(functionDefinitionNode.functionSignature());
@@ -154,6 +154,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ServiceDeclarationNode serviceDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(serviceDeclarationNode.metadata().orElse(null));
+        NodeList<Token> qualifiers =
+                modifyNodeList(serviceDeclarationNode.qualifiers());
         Token serviceKeyword =
                 modifyToken(serviceDeclarationNode.serviceKeyword());
         TypeDescriptorNode typeDescriptor =
@@ -172,6 +174,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(serviceDeclarationNode.closeBraceToken());
         return serviceDeclarationNode.modify(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 typeDescriptor,
                 absoluteResourcePath,
@@ -2247,7 +2250,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(methodDeclarationNode.functionKeyword());
         IdentifierToken methodName =
                 modifyNode(methodDeclarationNode.methodName());
-        NodeList<Token> relativeResourcePath =
+        NodeList<Node> relativeResourcePath =
                 modifyNodeList(methodDeclarationNode.relativeResourcePath());
         FunctionSignatureNode methodSignature =
                 modifyNode(methodDeclarationNode.methodSignature());

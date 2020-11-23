@@ -147,7 +147,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
 
     private List<LSCompletionItem> listenersAndPackagesItems(CompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> listeners = visibleSymbols.stream()
                 .filter(SymbolUtil::isListener)
                 .collect(Collectors.toList());
@@ -158,7 +158,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
 
     private List<LSCompletionItem> listenersInModule(CompletionContext context, String modulePrefix) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<ModuleSymbol> moduleSymbol = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == MODULE && symbol.name().equals(modulePrefix))
                 .map(symbol -> (ModuleSymbol) symbol)
@@ -180,7 +180,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
 
     private List<LSCompletionItem> initializerItems(CompletionContext context, ListenerDeclarationNode listenerNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         
         /*
         Supports the following
@@ -247,7 +247,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     private Optional<ObjectTypeSymbol> getListenerTypeDesc(CompletionContext context, ListenerDeclarationNode node) {
         Node typeDescriptor = node.typeDescriptor();
         Optional<ObjectTypeSymbol> typeSymbol = Optional.empty();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
             Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context,

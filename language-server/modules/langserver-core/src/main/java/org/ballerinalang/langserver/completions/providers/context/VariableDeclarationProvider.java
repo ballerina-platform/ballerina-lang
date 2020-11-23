@@ -87,7 +87,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
     private List<LSCompletionItem> getNewExprCompletionItems(CompletionContext context,
                                                              TypeDescriptorNode typeDescriptorNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<ObjectTypeSymbol> objectType;
         if (this.onQualifiedNameIdentifier(context, typeDescriptorNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeDescriptorNode));

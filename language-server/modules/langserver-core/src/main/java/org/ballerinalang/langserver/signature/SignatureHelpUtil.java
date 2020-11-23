@@ -346,7 +346,7 @@ public class SignatureHelpUtil {
         if (tokenAtCursor.get().kind() == SyntaxKind.FUNCTION_CALL) {
             String funcName = ((SimpleNameReferenceNode) ((FunctionCallExpressionNode) tokenAtCursor.get())
                     .functionName()).name().text();
-            List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getPosition());
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getPosition());
             return visibleSymbols.stream().filter(symbol -> symbol.kind() == FUNCTION && symbol.name().equals(funcName))
                     .map(symbol -> (FunctionSymbol) symbol)
                     .findAny();
@@ -440,7 +440,7 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
         String name = ((SimpleNameReferenceNode) referenceNode).name().text();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getPosition());
         Optional<Symbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(name))
                 .findFirst();
@@ -454,7 +454,7 @@ public class SignatureHelpUtil {
     private static Optional<? extends TypeSymbol> getTypeDescForFunctionCall(
             SignatureContext context, FunctionCallExpressionNode expr) {
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getPosition());
         Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
                 .map(symbol -> (FunctionSymbol) symbol)

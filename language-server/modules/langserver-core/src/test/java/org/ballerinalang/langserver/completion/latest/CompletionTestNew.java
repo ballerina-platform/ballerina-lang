@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -122,7 +122,7 @@ public abstract class CompletionTestNew {
     }
 
     public List<String> skipList() {
-        return Arrays.asList("config3.json", "config4.json");
+        return new ArrayList<>();
     }
 
     public abstract String getTestResourceDir();

@@ -72,7 +72,7 @@ public class ObjectConstructorExpressionNodeContext
             Predicate<Symbol> predicate = SymbolUtil::isObject;
             return this.getCompletionItemList(QNameReferenceUtil.getModuleContent(ctx, qNameRef, predicate), ctx);
         }
-        List<Symbol> visibleSymbols = ctx.getVisibleSymbols(ctx.getCursorPosition());
+        List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
         List<Symbol> objectEntries = visibleSymbols.stream()
                 .filter(SymbolUtil::isObject)
                 .collect(Collectors.toList());

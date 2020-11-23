@@ -21,7 +21,6 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
@@ -60,9 +59,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
             return actions;
@@ -96,9 +93,14 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             Position diagnosticPosition;
             if (endingPosition.getCharacter() - startingPosition.getCharacter() > 1) {
                 diagnosticPosition = new Position(startingPosition.getLine(),
-                        (startingPosition.getCharacter() + endingPosition.getCharacter()) / 2);
+                                                  (startingPosition.getCharacter() + endingPosition.getCharacter()) /
+                                                          2);
             } else {
                 diagnosticPosition = startingPosition;
+            }
+            //TODO: Fix this
+            if (document == null) {
+                return Optional.empty();
             }
             SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, diagnosticPosition);
             BType symbolAtCursorType = refAtCursor.getSymbol().type;

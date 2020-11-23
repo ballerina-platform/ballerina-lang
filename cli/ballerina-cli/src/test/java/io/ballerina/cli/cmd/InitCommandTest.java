@@ -213,14 +213,32 @@ public class InitCommandTest extends BaseCommandTest {
                 "directory."));
     }
 
+    @Test(description = "Test init command inside a directory with invalid package name")
+    public void testInitCommandInsideDirectoryWithInvalidPackageName() throws IOException {
+        // Test if no arguments was passed in
+        Path projectPath = tmpDir.resolve("my-app");
+        Files.createDirectory(projectPath);
+        String[] args = {};
+        InitCommand initCommand = new InitCommand(projectPath, printStream);
+        new CommandLine(initCommand).parseArgs(args);
+        initCommand.execute();
+        Assert.assertTrue(Files.exists(projectPath));
+        Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
+
+        Assert.assertTrue(readOutput().contains("warning: invalid package name. Modified package name :"));
+    }
+
     @Test(description = "Test init command with invalid project name")
     public void testInitCommandWithInvalidProjectName() throws IOException {
         // Test if no arguments was passed in
+        Path projectPath = tmpDir.resolve("sample5");
+        Files.createDirectory(projectPath);
         String[] args = {"hello-app"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream);
+        InitCommand initCommand = new InitCommand(projectPath, printStream);
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
-        Assert.assertTrue(readOutput().contains("Invalid package name"));
+
+        Assert.assertTrue(readOutput().contains("Invalid package name :"));
     }
 
     @Test(description = "Test init command inside a ballerina project", dependsOnMethods = "testInitCommand")

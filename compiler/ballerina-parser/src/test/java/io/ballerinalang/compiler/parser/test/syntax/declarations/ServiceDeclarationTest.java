@@ -62,6 +62,11 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
                 "service-decl/isolated_service_func_assert_01.json");
     }
 
+    @Test
+    public void testServiceQualifiers() {
+        test("service-decl/service_decl_source_18.bal", "service-decl/service_decl_assert_18.json");
+    }
+
     // Recovery tests
 
     @Test

@@ -62,7 +62,7 @@
                 },
                 {
                     "name": "relativeResourcePath",
-                    "type": "Token",
+                    "type": "Node",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -188,6 +188,11 @@
                     "name": "metadata",
                     "type": "MetadataNode",
                     "isOptional": true
+                },
+                {
+                    "name": "qualifiers",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "serviceKeyword",
@@ -3040,7 +3045,7 @@
                 },
                 {
                     "name": "relativeResourcePath",
-                    "type": "Token",
+                    "type": "Node",
                     "occurrences": "MULTIPLE"
                 },
                 {

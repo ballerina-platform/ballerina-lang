@@ -32,6 +32,7 @@ import java.util.Collections;
  */
 public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
+    public final STNode qualifiers;
     public final STNode serviceKeyword;
     public final STNode typeDescriptor;
     public final STNode absoluteResourcePath;
@@ -43,6 +44,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
 
     STServiceDeclarationNode(
             STNode metadata,
+            STNode qualifiers,
             STNode serviceKeyword,
             STNode typeDescriptor,
             STNode absoluteResourcePath,
@@ -53,6 +55,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             STNode closeBraceToken) {
         this(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 typeDescriptor,
                 absoluteResourcePath,
@@ -66,6 +69,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
 
     STServiceDeclarationNode(
             STNode metadata,
+            STNode qualifiers,
             STNode serviceKeyword,
             STNode typeDescriptor,
             STNode absoluteResourcePath,
@@ -77,6 +81,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.SERVICE_DECLARATION, diagnostics);
         this.metadata = metadata;
+        this.qualifiers = qualifiers;
         this.serviceKeyword = serviceKeyword;
         this.typeDescriptor = typeDescriptor;
         this.absoluteResourcePath = absoluteResourcePath;
@@ -88,6 +93,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
 
         addChildren(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 typeDescriptor,
                 absoluteResourcePath,
@@ -101,6 +107,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STServiceDeclarationNode(
                 this.metadata,
+                this.qualifiers,
                 this.serviceKeyword,
                 this.typeDescriptor,
                 this.absoluteResourcePath,
@@ -114,6 +121,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
 
     public STServiceDeclarationNode modify(
             STNode metadata,
+            STNode qualifiers,
             STNode serviceKeyword,
             STNode typeDescriptor,
             STNode absoluteResourcePath,
@@ -124,6 +132,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             STNode closeBraceToken) {
         if (checkForReferenceEquality(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 typeDescriptor,
                 absoluteResourcePath,
@@ -137,6 +146,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
 
         return new STServiceDeclarationNode(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 typeDescriptor,
                 absoluteResourcePath,

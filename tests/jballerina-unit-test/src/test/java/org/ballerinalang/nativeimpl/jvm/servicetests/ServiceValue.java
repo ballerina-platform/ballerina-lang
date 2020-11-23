@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.values.ArrayValue;
 
 import java.util.HashMap;
 
@@ -45,6 +46,18 @@ public class ServiceValue {
     public static BFuture callMethod(Environment env, BObject l, BString name) {
         BFuture k = env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
                 PredefinedTypes.TYPE_ANY);
+
+        return k;
+    }
+
+    public static BFuture callMethodWithParams(Environment env, BObject l, BString name, ArrayValue arrayValue) {
+        Object[] args = new Object[arrayValue.size()*2];
+        for (int i = 0, j = 0; i < arrayValue.size(); i += 1, j += 2) {
+            args[j] = arrayValue.get(i);
+            args[j+1] = true;
+        }
+        BFuture k = env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
+                PredefinedTypes.TYPE_ANY, args);
 
         return k;
     }

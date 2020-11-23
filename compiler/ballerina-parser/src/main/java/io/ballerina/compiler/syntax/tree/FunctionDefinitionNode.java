@@ -49,7 +49,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return childInBucket(3);
     }
 
-    public NodeList<Token> relativeResourcePath() {
+    public NodeList<Node> relativeResourcePath() {
         return new NodeList<>(childInBucket(4));
     }
 
@@ -89,7 +89,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken functionName,
-            NodeList<Token> relativeResourcePath,
+            NodeList<Node> relativeResourcePath,
             FunctionSignatureNode functionSignature,
             FunctionBodyNode functionBody) {
         if (checkForReferenceEquality(
@@ -129,7 +129,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         private NodeList<Token> qualifierList;
         private Token functionKeyword;
         private IdentifierToken functionName;
-        private NodeList<Token> relativeResourcePath;
+        private NodeList<Node> relativeResourcePath;
         private FunctionSignatureNode functionSignature;
         private FunctionBodyNode functionBody;
 
@@ -172,7 +172,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         }
 
         public FunctionDefinitionNodeModifier withRelativeResourcePath(
-                NodeList<Token> relativeResourcePath) {
+                NodeList<Node> relativeResourcePath) {
             Objects.requireNonNull(relativeResourcePath, "relativeResourcePath must not be null");
             this.relativeResourcePath = relativeResourcePath;
             return this;

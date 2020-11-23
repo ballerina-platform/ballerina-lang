@@ -34,7 +34,7 @@ public class PackageConfig {
     private final PackageManifest packageManifest;
     private final BallerinaToml ballerinaToml;
     private final Path packagePath;
-    private final DependencyGraph<PackageDescriptor> dependencyGraph;
+    private final DependencyGraph<PackageDescriptor> packageDescDependencyGraph;
     private final Collection<ModuleConfig> otherModules;
 
     private PackageConfig(PackageId packageId,
@@ -42,13 +42,13 @@ public class PackageConfig {
                           PackageManifest packageManifest,
                           BallerinaToml ballerinaToml,
                           Collection<ModuleConfig> moduleConfigs,
-                          DependencyGraph<PackageDescriptor> dependencyGraph) {
+                          DependencyGraph<PackageDescriptor> packageDescDependencyGraph) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.packageManifest = packageManifest;
         this.ballerinaToml = ballerinaToml;
         this.otherModules = moduleConfigs;
-        this.dependencyGraph = dependencyGraph;
+        this.packageDescDependencyGraph = packageDescDependencyGraph;
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -65,9 +65,9 @@ public class PackageConfig {
                                      PackageManifest packageManifest,
                                      BallerinaToml ballerinaToml,
                                      Collection<ModuleConfig> moduleConfigs,
-                                     DependencyGraph<PackageDescriptor> dependencyGraph) {
+                                     DependencyGraph<PackageDescriptor> packageDescDependencyGraph) {
         return new PackageConfig(packageId, packagePath, packageManifest, ballerinaToml,
-                moduleConfigs, dependencyGraph);
+                moduleConfigs, packageDescDependencyGraph);
     }
 
     public PackageId packageId() {
@@ -98,8 +98,8 @@ public class PackageConfig {
         return null;
     }
 
-    public DependencyGraph<PackageDescriptor> dependencyGraph() {
-        return dependencyGraph;
+    public DependencyGraph<PackageDescriptor> packageDescDependencyGraph() {
+        return packageDescDependencyGraph;
     }
 
     // TODO Check whether it makes sense to expose Java Path in the API

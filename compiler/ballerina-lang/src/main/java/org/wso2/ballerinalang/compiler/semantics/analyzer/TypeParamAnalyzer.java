@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -285,10 +285,10 @@ public class TypeParamAnalyzer {
 
             if (checkContravariance) {
                 types.checkType(loc, getMatchingBoundType(expType, env, new HashSet<>()), actualType,
-                                DiagnosticCode.INCOMPATIBLE_TYPES);
+                                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             } else {
                 types.checkType(loc, actualType, getMatchingBoundType(expType, env, new HashSet<>()),
-                                DiagnosticCode.INCOMPATIBLE_TYPES);
+                                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             }
             return;
         }
@@ -397,7 +397,7 @@ public class TypeParamAnalyzer {
             }
         }
         if (boundType == symTable.noType) {
-            dlog.error(location, DiagnosticCode.CANNOT_INFER_TYPE);
+            dlog.error(location, DiagnosticErrorCode.CANNOT_INFER_TYPE);
             return;
         }
         env.typeParamsEntries.add(new SymbolEnv.TypeParamEntry(typeParamType, boundType));
@@ -742,7 +742,8 @@ public class TypeParamAnalyzer {
         if (expFunc instanceof BResourceFunction) {
             BResourceFunction resourceFunction = (BResourceFunction) expFunc;
             return new BResourceFunction(resourceFunction.funcName, invokableSymbol, matchType,
-                    resourceFunction.resourcePath, resourceFunction.accessor, expFunc.pos);
+                    resourceFunction.resourcePath, resourceFunction.accessor, resourceFunction.pathParams,
+                    resourceFunction.restPathParam, expFunc.pos);
         }
         return new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos);
     }

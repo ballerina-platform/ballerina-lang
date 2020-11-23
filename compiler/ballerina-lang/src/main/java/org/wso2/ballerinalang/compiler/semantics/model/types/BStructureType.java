@@ -23,7 +23,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * {@code BStructureType} represents structure type in Ballerina.
@@ -35,15 +37,18 @@ public abstract class BStructureType extends BType {
     private static final String DOLLAR = "$";
 
     public LinkedHashMap<String, BField> fields;
+    public List<BType> typeInclusions;
 
     public BStructureType(int tag, BTypeSymbol tSymbol) {
         super(tag, tSymbol);
         this.fields = new LinkedHashMap<>();
+        this.typeInclusions = new ArrayList<>();
     }
 
     public BStructureType(int tag, BTypeSymbol tSymbol, long flags) {
         super(tag, tSymbol, flags);
         this.fields = new LinkedHashMap<>();
+        this.typeInclusions = new ArrayList<>();
     }
 
     public LinkedHashMap<String, BField> getFields() {

@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -53,13 +52,12 @@ public class CreateServiceTestCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
         String docUri = context.fileUri();
         List<CodeAction> actions = new ArrayList<>();
         List<Object> args = new ArrayList<>();
         args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri));
-        Position position = context.getCursorPosition();
+        Position position = context.cursorPosition();
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + position.getLine()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + position.getCharacter()));
 

@@ -201,7 +201,7 @@ public class CommonUtil {
      */
     public static List<TextEdit> getAutoImportTextEdits(String orgName, String pkgName,
                                                         DocumentServiceContext context) {
-        List<ImportDeclarationNode> currentDocImports = context.getCurrentDocImports();
+        List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
         Position start = new Position(0, 0);
         if (currentDocImports != null && !currentDocImports.isEmpty()) {
             ImportDeclarationNode last = CommonUtil.getLastItem(currentDocImports);
@@ -398,7 +398,7 @@ public class CommonUtil {
      * @return {@link Optional} scope entry for the module symbol
      */
     public static Optional<ModuleSymbol> searchModuleForAlias(CompletionContext context, String alias) {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         for (Symbol symbol : visibleSymbols) {
             if (symbol.kind() == MODULE && symbol.name().equals(alias)) {
                 return Optional.of((ModuleSymbol) symbol);
@@ -715,6 +715,7 @@ public class CommonUtil {
                         name = "mappingResult";
                         break;
                     case TUPLE:
+                    case ARRAY:
                         name = "listResult";
                         break;
                     default:
@@ -834,13 +835,16 @@ public class CommonUtil {
     public static String getModulePrefix(ImportsAcceptor importsAcceptor, ModuleID currentModuleId,
                                          ModuleID moduleID, DocumentServiceContext context) {
         String pkgPrefix = "";
-        if (!moduleID.equals(currentModuleId) && !BUILT_IN_PACKAGE_PREFIX.equals(moduleID.moduleName())) {
+        if (!moduleID.equals(currentModuleId)) {
+            boolean preDeclaredLangLib = moduleID.orgName().equals("ballerina") && PRE_DECLARED_LANG_LIBS.contains(
+                    moduleID.moduleName());
             String moduleName = escapeModuleName(context, moduleID.orgName() + "/" + moduleID.moduleName());
             String[] moduleParts = moduleName.split("/");
             String orgName = moduleParts[0];
             String alias = moduleParts[1];
             pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
-            if (importsAcceptor != null) {
+            pkgPrefix = (preDeclaredLangLib) ? "'" + pkgPrefix : pkgPrefix;
+            if (importsAcceptor != null && !preDeclaredLangLib) {
                 importsAcceptor.getAcceptor().accept(orgName, alias);
             }
         }

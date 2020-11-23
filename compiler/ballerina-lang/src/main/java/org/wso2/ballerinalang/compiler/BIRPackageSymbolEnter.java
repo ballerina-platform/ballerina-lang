@@ -1036,14 +1036,17 @@ public class BIRPackageSymbolEnter {
                         boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
                         BInvokableSymbol recordInitFuncSymbol =
                                 Symbols.createFunctionSymbol(recordInitFuncFlags,
-                                        initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
-                                        env.pkgSymbol, isNative, symTable.builtinPos, COMPILED_SOURCE);
+                                                             initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
+                                                             env.pkgSymbol, isNative, symTable.builtinPos,
+                                                             COMPILED_SOURCE);
                         recordInitFuncSymbol.retType = recordInitFuncType.retType;
                         // Define resource function
                         recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
                                                                              recordInitFuncType, symTable.builtinPos);
                         recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
                     }
+
+                    recordType.typeInclusions = readTypeInclusions();
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 
@@ -1325,6 +1328,7 @@ public class BIRPackageSymbolEnter {
                         ignoreAttachedFunc();
                     }
 
+                    objectType.typeInclusions = readTypeInclusions();
                     objectType.typeIdSet = readTypeIdSet(inputStream);
 
                     Object poppedObjType = compositeStack.pop();
@@ -1401,6 +1405,16 @@ public class BIRPackageSymbolEnter {
             // TODO: check
             inputStream.readLong();
             readTypeFromCp();
+        }
+
+        private List<BType> readTypeInclusions() throws IOException {
+            int nTypeInclusions = inputStream.readInt();
+            List<BType> typeInclusions = new ArrayList<>();
+            for (int i = 0; i < nTypeInclusions; i++) {
+                BType inclusion = readTypeFromCp();
+                typeInclusions.add(inclusion);
+            }
+            return typeInclusions;
         }
     }
 

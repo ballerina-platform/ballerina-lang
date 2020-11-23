@@ -51,7 +51,7 @@ public class ModuleLoadRequest {
     }
 
     public Optional<PackageOrg> orgName() {
-        return Optional.of(orgName);
+        return Optional.ofNullable(orgName);
     }
 
     public PackageName packageName() {

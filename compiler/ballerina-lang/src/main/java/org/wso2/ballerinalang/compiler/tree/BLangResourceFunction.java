@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.NodeKind;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,6 +31,9 @@ public class BLangResourceFunction extends BLangFunction {
 
     public BLangIdentifier accessorName;
     public List<BLangIdentifier> resourcePath;
+    public BLangSimpleVariable restPathParam;
+    public List<BLangSimpleVariable> pathParams = new ArrayList<>();
+
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -44,5 +48,13 @@ public class BLangResourceFunction extends BLangFunction {
     @Override
     public NodeKind getKind() {
         return NodeKind.RESOURCE_FUNC;
+    }
+
+    public void setRestPathParam(BLangSimpleVariable restParam) {
+        this.restPathParam = restParam;
+    }
+
+    public void addPathParam(BLangSimpleVariable param) {
+        this.pathParams.add(param);
     }
 }

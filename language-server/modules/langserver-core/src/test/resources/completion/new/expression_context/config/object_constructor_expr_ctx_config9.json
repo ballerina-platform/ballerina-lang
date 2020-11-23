@@ -341,7 +341,7 @@
     {
       "label": "constructor",
       "kind": "Variable",
-      "detail": " object {int field1}",
+      "detail": "object {int field1}",
       "insertText": "constructor",
       "insertTextFormat": "Snippet"
     },

@@ -2150,6 +2150,8 @@ public class NodeCloner extends BLangNodeVisitor {
 
         clone.resourcePath = cloneList(source.resourcePath);
         clone.accessorName = clone(source.accessorName);
+        clone.restPathParam = clone(source.restPathParam);
+        clone.pathParams = cloneList(source.pathParams);
     }
 
     private void cloneFunctionNode(BLangFunction source, BLangFunction clone) {
