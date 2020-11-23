@@ -18,8 +18,6 @@
 package org.ballerinalang.datamapper.util;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
@@ -37,29 +35,18 @@ import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
-import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
-import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
-import org.eclipse.lsp4j.DocumentFormattingParams;
-import org.eclipse.lsp4j.DocumentSymbolParams;
-import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.InitializeParams;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.ReferenceContext;
-import org.eclipse.lsp4j.ReferenceParams;
-import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
@@ -81,148 +68,13 @@ import java.util.concurrent.ExecutionException;
  */
 public class TestUtil {
 
-    private static final String HOVER = "textDocument/hover";
-
-    private static final String CODELENS = "textDocument/codeLens";
-
-    private static final String COMPLETION = "textDocument/completion";
-
-    private static final String SIGNATURE_HELP = "textDocument/signatureHelp";
-
-    private static final String DEFINITION = "textDocument/definition";
-
-    private static final String REFERENCES = "textDocument/references";
-
-    private static final String RENAME = "textDocument/rename";
-
-    private static final String EXECUTE_COMMAND = "workspace/executeCommand";
-
     private static final String CODE_ACTION = "textDocument/codeAction";
-
-    private static final String FORMATTING = "textDocument/formatting";
-
-    private static final String IMPLEMENTATION = "textDocument/implementation";
-
-    private static final String DOCUMENT_SYMBOL = "textDocument/documentSymbol";
-
-    private static final String WORKSPACE_SYMBOL_COMMAND = "workspace/symbol";
 
     private static final String WORKSPACE_CONFIG_CHANGE = "workspace/didChangeConfiguration";
 
     private static final Gson GSON = new Gson();
 
     private TestUtil() {
-    }
-
-    /**
-     * Get the textDocument/hover response.
-     *
-     * @param filePath        Path of the Bal file
-     * @param position        Cursor Position
-     * @param serviceEndpoint Service Endpoint to Language Server
-     * @return {@link String}   Response as String
-     */
-    public static String getHoverResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(HOVER, getTextDocumentPositionParams(filePath, position));
-        return getResponseString(result);
-    }
-
-    /**
-     * Get the textDocument/codeLens response.
-     *
-     * @param filePath        Path of the Bal file
-     * @param serviceEndpoint Service Endpoint to Language Server
-     * @return {@link String}   Response as String
-     */
-    public static String getCodeLensesResponse(String filePath, Endpoint serviceEndpoint) {
-        TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
-        CodeLensParams codeLensParams = new CodeLensParams(identifier);
-        CompletableFuture result = serviceEndpoint.request(CODELENS, codeLensParams);
-        return getResponseString(result);
-    }
-
-    /**
-     * Get the textDocument/completion response.
-     *
-     * @param filePath Path of the Bal file
-     * @param position Cursor Position
-     * @param endpoint Service Endpoint to Language Server
-     * @return {@link String}   Response as String
-     */
-    public static String getCompletionResponse(String filePath, Position position, Endpoint endpoint) {
-        CompletableFuture result = endpoint.request(COMPLETION, getCompletionParams(filePath, position));
-        return getResponseString(result);
-    }
-
-    /**
-     * Get the textDocument/signatureHelp response.
-     *
-     * @param filePath        Path of the Bal file
-     * @param position        Cursor Position
-     * @param serviceEndpoint Service Endpoint to Language Server
-     * @return {@link String}   Response as String
-     */
-    public static String getSignatureHelpResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(SIGNATURE_HELP,
-                getTextDocumentPositionParams(filePath, position));
-        return getResponseString(result);
-    }
-
-    /**
-     * Get the textDocument/definition response.
-     *
-     * @param filePath        Path of the Bal file
-     * @param position        Cursor Position
-     * @param serviceEndpoint Service Endpoint to Language Server
-     * @return {@link String}   Response as String
-     */
-    public static String getDefinitionResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(DEFINITION,
-                getTextDocumentPositionParams(filePath, position));
-        return getResponseString(result);
-    }
-
-    /**
-     * Get the textDocument/reference response.
-     *
-     * @param filePath        Path of the Bal file
-     * @param position        Cursor Position
-     * @param serviceEndpoint Service Endpoint to Language Server
-     * @return {@link String}   Response as String
-     */
-    public static String getReferencesResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        ReferenceParams referenceParams = new ReferenceParams();
-
-        ReferenceContext referenceContext = new ReferenceContext();
-        referenceContext.setIncludeDeclaration(true);
-
-        referenceParams.setPosition(new Position(position.getLine(), position.getCharacter()));
-        referenceParams.setTextDocument(getTextDocumentIdentifier(filePath));
-        referenceParams.setContext(referenceContext);
-
-        CompletableFuture result = serviceEndpoint.request(REFERENCES, referenceParams);
-        return getResponseString(result);
-    }
-
-    /**
-     * Get the textDocument/rename response.
-     *
-     * @param filePath        Path of the Bal file
-     * @param position        Cursor Position
-     * @param serviceEndpoint Service Endpoint to Language Server
-     * @param newName         newName
-     * @return {@link String}   Response as String
-     */
-    public static String getRenameResponse(String filePath, Position position, String newName,
-                                           Endpoint serviceEndpoint) {
-        RenameParams renameParams = new RenameParams();
-
-        renameParams.setTextDocument(getTextDocumentIdentifier(filePath));
-        renameParams.setNewName(newName);
-        renameParams.setPosition(new Position(position.getLine(), position.getCharacter()));
-
-        CompletableFuture result = serviceEndpoint.request(RENAME, renameParams);
-        return getResponseString(result);
     }
 
     /**
@@ -241,57 +93,6 @@ public class TestUtil {
         CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
         CompletableFuture result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
         return getResponseString(result);
-    }
-
-    /**
-     * Get the workspace/executeCommand response.
-     *
-     * @param params          Execute command parameters
-     * @param serviceEndpoint Service endpoint to language server
-     * @return {@link String}   Lang server Response as String
-     */
-    public static String getExecuteCommandResponse(ExecuteCommandParams params, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(EXECUTE_COMMAND, params);
-        return getResponseString(result);
-    }
-
-    /**
-     * Get the document symbol Response as String.
-     *
-     * @param serviceEndpoint Language Server Service Endpoint
-     * @param filePath        File Path
-     * @return {@link String}       Response string
-     */
-    public static String getDocumentSymbolResponse(Endpoint serviceEndpoint, String filePath) {
-        DocumentSymbolParams params = new DocumentSymbolParams(getTextDocumentIdentifier(filePath));
-        CompletableFuture result = serviceEndpoint.request(DOCUMENT_SYMBOL, params);
-        return getResponseString(result);
-    }
-
-    /**
-     * Get formatting response.
-     *
-     * @param params          Document formatting parameters
-     * @param serviceEndpoint Service endpoint to language server
-     * @return {@link String} Language server response as String
-     */
-    public static String getFormattingResponse(DocumentFormattingParams params, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(FORMATTING, params);
-        return getResponseString(result);
-    }
-
-    /**
-     * Get the Goto implementation response.
-     *
-     * @param serviceEndpoint Language Server Service endpoint
-     * @param filePath        File path to evaluate
-     * @param position        Cursor position
-     * @return {@link CompletableFuture}    Response completable future
-     */
-    public static String getGotoImplementationResponse(Endpoint serviceEndpoint, String filePath, Position position) {
-        TextDocumentPositionParams positionParams = getTextDocumentPositionParams(filePath, position);
-        CompletableFuture completableFuture = serviceEndpoint.request(IMPLEMENTATION, positionParams);
-        return getResponseString(completableFuture);
     }
 
     /**
@@ -376,56 +177,11 @@ public class TestUtil {
         serviceEndpoint.notify("shutdown", null);
     }
 
-    /**
-     * Check whether the evalArray is a sublist of checkAgainst Array.
-     *
-     * @param checkAgainst JsonArray to check against
-     * @param evalArray    JsonArray to evaluate
-     * @return {@link Boolean}      is Sub array status
-     */
-    public static boolean isArgumentsSubArray(JsonArray checkAgainst, JsonArray evalArray) {
-        for (JsonElement jsonElement : evalArray) {
-            if (!checkAgainst.contains(jsonElement)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Get the workspace symbol response as String.
-     *
-     * @param serviceEndpoint Language Server Service Endpoint
-     * @param query           Symbol query
-     * @return {@link String}       Response string
-     */
-    public static String getWorkspaceSymbolResponse(Endpoint serviceEndpoint, String query) {
-        WorkspaceSymbolParams parms = new WorkspaceSymbolParams(query);
-        CompletableFuture result = serviceEndpoint.request(WORKSPACE_SYMBOL_COMMAND, parms);
-        return getResponseString(result);
-    }
-
     public static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
         identifier.setUri(Paths.get(filePath).toUri().toString());
 
         return identifier;
-    }
-
-    private static TextDocumentPositionParams getTextDocumentPositionParams(String filePath, Position position) {
-        TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
-        positionParams.setTextDocument(getTextDocumentIdentifier(filePath));
-        positionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
-
-        return positionParams;
-    }
-
-    private static CompletionParams getCompletionParams(String filePath, Position position) {
-        CompletionParams completionParams = new CompletionParams();
-        completionParams.setTextDocument(getTextDocumentIdentifier(filePath));
-        completionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
-
-        return completionParams;
     }
 
     public static String getResponseString(CompletableFuture completableFuture) {

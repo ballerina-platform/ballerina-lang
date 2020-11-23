@@ -37,7 +37,6 @@ public class FileUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 
     public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
-    public static final Path BUILD_DIR = Paths.get("build/").toAbsolutePath();
 
     /**
      * Get the file content.
@@ -54,18 +53,4 @@ public class FileUtils {
         return JSON_PARSER.parse(contentAsString).getAsJsonObject();
     }
 
-    /**
-     * Get the file content.
-     * @param filePath path to the file
-     * @return {@link String} file content as a String
-     */
-    public static String fileContent(String filePath) {
-        String stringContent = "";
-        try {
-            stringContent = new String(Files.readAllBytes(RES_DIR.resolve(filePath)));
-        } catch (IOException ex) {
-            LOGGER.error(ex.getMessage());
-        }
-        return stringContent;
-    }
 }
