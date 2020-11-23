@@ -647,7 +647,6 @@ public class TypeChecker {
             case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
-            case TypeTags.STRING_TAG:
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.CHAR_STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
@@ -655,7 +654,9 @@ public class TypeChecker {
                 if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
-                if (sourceTypeTag == TypeTags.XML_TAG && targetTypeTag == TypeTags.STRING_TAG) {
+                return sourceTypeTag == targetTypeTag;
+            case TypeTags.STRING_TAG:
+                if (sourceTypeTag == TypeTags.XML_TAG) {
                     return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
                 }
                 return sourceTypeTag == targetTypeTag;

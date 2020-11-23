@@ -953,8 +953,12 @@ public class Types {
         return sourceTag == targetTag;
     }
 
-    public boolean isConversionExprXMLNeverUnion(BLangTypeConversionExpr conversionExpr) {
-        if (conversionExpr.expr.type.tag == TypeTags.XML) {
+    public boolean isXMLConversionExprCastableToString(BLangTypeConversionExpr conversionExpr) {
+        int exprTag = conversionExpr.expr.type.tag;
+        if (exprTag == TypeTags.XML_TEXT) {
+            return true;
+        }
+        if (exprTag == TypeTags.XML) {
             BXMLType conversionExpressionType = (BXMLType) conversionExpr.expr.type;
             //Revisit and check xml<xml<constraint>>> on chained iteration
             while (conversionExpressionType.constraint.tag == TypeTags.XML) {
@@ -966,7 +970,7 @@ public class Types {
             }
             return false;
         }
-        if (conversionExpr.expr.type.tag == TypeTags.UNION) {
+        if (exprTag == TypeTags.UNION) {
             return isAllXMLMembers((BUnionType) conversionExpr.expr.type);
         }
         return false;
