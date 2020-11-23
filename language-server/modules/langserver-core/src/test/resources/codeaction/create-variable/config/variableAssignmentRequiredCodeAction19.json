@@ -1,0 +1,24 @@
+{
+    "line": 9,
+    "character": 4,
+    "expected": [
+        {
+            "title": "Create Variable",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 9,
+                            "character": 4
+                        },
+                        "end": {
+                            "line": 9,
+                            "character": 4
+                        }
+                    },
+                    "newText": "string stringResult = "
+                }
+            ]
+        }
+    ]
+}
