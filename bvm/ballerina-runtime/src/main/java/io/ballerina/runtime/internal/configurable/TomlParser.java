@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIG_FILE_NAME;
@@ -44,8 +43,6 @@ import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.S
  * @since 2.0.0
  */
 public class TomlParser {
-    // TODO: check index out of bounds error [test-org.pkg.foo.]
-    // TODO: remove this and support multiple orgs
 
     static final Path CONFIG_FILE_PATH = Paths.get(RuntimeUtils.USER_DIR).resolve(CONFIG_FILE_NAME);
 
@@ -56,7 +53,7 @@ public class TomlParser {
         try {
             return new Toml().read(CONFIG_FILE_PATH.toFile());
         } catch (RuntimeException exception) {
-            throw new TomlException(INVALID_TOML_FILE + exception.getMessage());
+            throw new TomlException(INVALID_TOML_FILE + exception.getCause().getMessage());
         }
     }
 
@@ -69,9 +66,10 @@ public class TomlParser {
             //No values provided at toml file
             return;
         }
-        Toml orgToml = extractOrganizationTable(toml, configurationData.keySet());
         for (Map.Entry<Module, VariableKey[]> moduleEntry : configurationData.entrySet()) {
+            String orgName = moduleEntry.getKey().getOrg();
             String moduleName = moduleEntry.getKey().getName();
+            Toml orgToml = orgName.equals(ANON_ORG) ? toml : extractOrganizationTable(toml, orgName);
             Toml moduleToml = moduleName.equals(DEFAULT_MODULE) ? orgToml : extractModuleTable(orgToml, moduleName);
             for (VariableKey key : moduleEntry.getValue()) {
                 if (!moduleToml.contains(key.variable)) {
@@ -124,17 +122,10 @@ public class TomlParser {
         return moduleToml;
     }
 
-    private static Toml extractOrganizationTable(Toml toml, Set<Module> moduleSet) throws TomlException {
-        String orgName = moduleSet.iterator().next().getOrg();
-        if (orgName.equals(ANON_ORG)) {
-            return toml;
-        }
-        if (toml.entrySet().size() != 1) {
-            throw new TomlException(INVALID_TOML_FILE + "Multiple organization names found.");
-        }
+    private static Toml extractOrganizationTable(Toml toml, String orgName) throws TomlException {
         if (!toml.contains(orgName)) {
             throw new TomlException(INVALID_TOML_FILE + "Organization name '" + orgName + "' not found.");
         }
-        return (Toml) toml.entrySet().iterator().next().getValue();
+        return toml.getTable(orgName);
     }
 }

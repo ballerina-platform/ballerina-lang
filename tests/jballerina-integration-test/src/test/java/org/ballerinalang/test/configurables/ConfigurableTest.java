@@ -86,18 +86,19 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
-    public void testInvalidOrganizationName() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "InvalidOrgName").toAbsolutePath();
-        LogLeecher errorLeecher = new LogLeecher(errorMsg + "Organization name 'testOrg' not found.", ERROR);
+    public void testInvalidTomlFile() throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "InvalidTomlFile").toAbsolutePath();
+        String tomlError = "Invalid table definition on line 1: [testOrg..main.file..]]";
+        LogLeecher errorLeecher = new LogLeecher(errorMsg + tomlError, ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
     }
 
-    @Test(enabled = false)
-    public void testMultipleOrganizationNames() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "MultipleOrgNames").toAbsolutePath();
-        LogLeecher errorLeecher = new LogLeecher(errorMsg + "Multiple organization names found.", ERROR);
+    @Test
+    public void testInvalidOrganizationName() throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "InvalidOrgName").toAbsolutePath();
+        LogLeecher errorLeecher = new LogLeecher(errorMsg + "Organization name 'testOrg' not found.", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
