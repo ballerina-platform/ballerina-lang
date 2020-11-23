@@ -136,5 +136,9 @@ public enum Flag {
     /**
      * Indicates flagged node is a class.
      */
-    CLASS
+    CLASS,
+    /**
+     * Indicates flagged node is configurable.
+     */
+    CONFIGURABLE
 }

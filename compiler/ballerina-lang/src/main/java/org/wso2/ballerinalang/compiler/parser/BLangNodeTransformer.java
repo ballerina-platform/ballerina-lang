@@ -587,22 +587,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         boolean isFinal = false;
+        boolean isConfigurable = false;
         boolean isolated = false;
+        // TODO handle this inside createSimpleVar
         for (Token qualifier : modVarDeclrNode.qualifiers()) {
             SyntaxKind kind = qualifier.kind();
 
             if (kind == SyntaxKind.FINAL_KEYWORD) {
                 isFinal = true;
-                continue;
-            }
-
-            if (kind == SyntaxKind.ISOLATED_KEYWORD) {
+            } else if (qualifier.kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
+                isConfigurable = true;
+            } else if (kind == SyntaxKind.ISOLATED_KEYWORD) {
                 isolated = true;
             }
         }
 
         BLangSimpleVariable simpleVar = createSimpleVar(variableName, typedBindingPattern.typeDescriptor(),
-                modVarDeclrNode.initializer().orElse(null), isFinal, false, null, isolated,
+                modVarDeclrNode.initializer().orElse(null), isFinal, isolated, isConfigurable, false, null,
                 getAnnotations(modVarDeclrNode.metadata()));
         simpleVar.pos = getPositionWithoutMetadata(modVarDeclrNode);
         simpleVar.markdownDocumentationAttachment =
@@ -1050,11 +1051,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         NodeList<Token> objectConstructorQualifierList = objectConstructorExpressionNode.objectTypeQualifiers();
         for (Token qualifier : objectConstructorQualifierList) {
-            if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
+            SyntaxKind kind = qualifier.kind();
+            if (kind == SyntaxKind.CLIENT_KEYWORD) {
                 anonClass.flagSet.add(Flag.CLIENT);
                 objectCtorExpression.isClient = true;
+            } else if (kind == SyntaxKind.ISOLATED_KEYWORD) {
+                anonClass.flagSet.add(Flag.ISOLATED);
             } else {
-                throw new RuntimeException("Syntax kind is not supported: " + qualifier.kind());
+                throw new RuntimeException("Syntax kind is not supported: " + kind);
             }
         }
 
@@ -1083,9 +1087,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ObjectFieldNode objFieldNode) {
         BLangSimpleVariable simpleVar = createSimpleVar(objFieldNode.fieldName(), objFieldNode.typeName(),
-                                                        objFieldNode.expression().orElse(null),
-                                                        false, false, objFieldNode.visibilityQualifier().orElse(null),
-                                                        getAnnotations(objFieldNode.metadata()));
+                objFieldNode.expression().orElse(null), objFieldNode.visibilityQualifier().orElse(null),
+                getAnnotations(objFieldNode.metadata()));
         // Transform documentation
         Optional<Node> doc = getDocumentationString(objFieldNode.metadata());
         simpleVar.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(doc);
@@ -4381,26 +4384,25 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangSimpleVariable createSimpleVar(Optional<Token> name, Node type, NodeList<AnnotationNode> annotations) {
         if (name.isPresent()) {
             Token nameToken = name.get();
-            return createSimpleVar(nameToken, type, null, false, false, null, annotations);
+            return createSimpleVar(nameToken, type, null, null, annotations);
         }
 
-        return createSimpleVar(null, type, null, false, false, null, annotations);
+        return createSimpleVar(null, type, null, null, annotations);
     }
 
     private BLangSimpleVariable createSimpleVar(Token name, Node type, NodeList<AnnotationNode> annotations) {
-        return createSimpleVar(name, type, null, false, false, null, annotations);
+        return createSimpleVar(name, type, null, null, annotations);
+    }
+
+    private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer,
+                                                Token visibilityQualifier, NodeList<AnnotationNode> annotations) {
+        return createSimpleVar(name, typeName, initializer, false, false, false, false,
+                visibilityQualifier, annotations);
     }
 
     private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer, boolean isFinal,
-                                                boolean isListenerVar, Token visibilityQualifier,
-                                                NodeList<AnnotationNode> annotations) {
-        return createSimpleVar(name, typeName, initializer, isFinal, isListenerVar, visibilityQualifier, false,
-                               annotations);
-    }
-
-    private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer, boolean isFinal,
-                                                boolean isListenerVar, Token visibilityQualifier, boolean isolated,
-                                                NodeList<AnnotationNode> annotations) {
+                                                boolean isolated, boolean isConfigurable, boolean isListenerVar,
+                                                Token visibilityQualifier, NodeList<AnnotationNode> annotations) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(name));
         bLSimpleVar.name.pos = getPosition(name);
@@ -4416,6 +4418,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLSimpleVar.flagSet.add(Flag.PRIVATE);
             } else if (visibilityQualifier.kind() == SyntaxKind.PUBLIC_KEYWORD) {
                 bLSimpleVar.flagSet.add(Flag.PUBLIC);
+            }
+        }
+
+        if (isConfigurable) {
+            bLSimpleVar.flagSet.add(Flag.CONFIGURABLE);
+            if (initializer.kind() == SyntaxKind.REQUIRED_EXPRESSION) {
+                bLSimpleVar.flagSet.add(Flag.REQUIRED);
+                initializer = null;
             }
         }
 
