@@ -13,20 +13,36 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern;
+package org.ballerinalang.test.statements.matchstmt;
+
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * Test cases to verify the type narrowing in match-stmt.
  *
  * @since 2.0.0
  */
+@Test
 public class MatchStmtTypeNarrowingTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setUp() {
-        result = BCompileUtil.compile("test-src/statements/matchstmt/list-match-pattern.bal");
+        result = BCompileUtil.compile("test-src/statements/matchstmt/match-stmt-type-narrow.bal");
     }
 
+    @Test
+    public void testNarrowTypeInCaptureBindingPattern1() {
+        BRunUtil.invoke(result, "testNarrowTypeInCaptureBindingPattern1");
+    }
+
+    @Test
+    public void testNarrowTypeInCaptureBindingPattern2() {
+        BRunUtil.invoke(result, "testNarrowTypeInCaptureBindingPattern2");
+    }
 }
