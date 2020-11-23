@@ -66,7 +66,7 @@ public abstract class FindAllReferencesTest {
             return;
         }
 
-        List<Location> locations = model.references(getFileName(), symbol.get());
+        List<Location> locations = model.references(symbol.get());
         assertLocations(locations, expLocations);
     }
 

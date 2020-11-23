@@ -158,7 +158,7 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public List<Location> references(String fileName, Symbol symbol) {
+    public List<Location> references(Symbol symbol) {
         Location symbolLocation = symbol.location();
 
         // Assumption is that the location will be null for regular type symbols
