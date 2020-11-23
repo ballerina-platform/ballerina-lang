@@ -125,11 +125,11 @@ public class AddCommand implements BLauncherCmd {
 
         // Check if the provided arg a valid module name
         String moduleName = argList.get(0);
-        boolean matches = ProjectUtils.validatePkgName(moduleName);
+        boolean matches = ProjectUtils.validateModuleName(moduleName);
         if (!matches) {
             CommandUtil.printError(errStream,
                     "Invalid module name : '" + moduleName + "' :\n" +
-                            "Module name can only contain alphanumerics, underscores " +
+                            "Module name can only contain alphanumerics, underscores and periods " +
                             "and the maximum length is 256 characters",
                     null,
                     false);
