@@ -55,7 +55,7 @@ public class AddCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--template", "-t"})
-    private String template = "main";
+    private String template = "lib";
 
     public AddCommand() {
         userDir = Paths.get(System.getProperty("user.dir"));
@@ -150,7 +150,7 @@ public class AddCommand implements BLauncherCmd {
         }
 
         // Check if the template exists
-        if (!template.equalsIgnoreCase("main")) {
+        if (!(template.equalsIgnoreCase("service") || template.equalsIgnoreCase("lib"))) {
             CommandUtil.printError(errStream,
                     "Using Ballerina Central module templates is not yet supported.",
                     null,
@@ -211,7 +211,7 @@ public class AddCommand implements BLauncherCmd {
         // -- mymodule/
         // --- main.bal       <- Contains default main method.
         CommandUtil.applyTemplate(modulePath, template);
-        Path source = modulePath.resolve("main.bal");
+        Path source = modulePath.resolve(template.toLowerCase() + ".bal");
         Files.move(source, source.resolveSibling(guessPkgName(moduleName) + ".bal"),
                 StandardCopyOption.REPLACE_EXISTING);
     }

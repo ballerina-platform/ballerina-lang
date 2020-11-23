@@ -23,7 +23,6 @@ import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.tool.util.BCompileUtil;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -38,6 +37,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
@@ -115,45 +116,6 @@ public class CommandUtil {
     /**
      * Initialize a new ballerina project in the given path.
      *
-     * @param path Project path
-     * @throws IOException If any IO exception occurred
-     */
-    public static void initProject(Path path) throws IOException {
-            // We will be creating following in the project directory
-            // - Ballerina.toml
-            // - src/
-            // - tests/
-            // -- resources/      <- integration test resources
-            // - .gitignore       <- git ignore file
-
-            Path manifest = path.resolve("Ballerina.toml");
-            Path src = path.resolve(ProjectConstants.SOURCE_DIR_NAME);
-            //Path test = path.resolve("tests");
-            //Path testResources = test.resolve("resources");
-            Path gitignore = path.resolve(".gitignore");
-
-
-            Files.createFile(manifest);
-            Files.createFile(gitignore);
-            Files.createDirectory(src);
-            // todo need to enable integration tests
-            //Files.createDirectory(test);
-            //Files.createDirectory(testResources);
-
-            String defaultManifest = BCompileUtil.readFileAsString("new_cmd_defaults/manifest.toml");
-            String defaultGitignore = BCompileUtil.readFileAsString("new_cmd_defaults/gitignore");
-
-            // replace manifest org with a guessed value.
-            defaultManifest = defaultManifest.replaceAll("ORG_NAME", ProjectUtils.guessOrgName());
-
-            Files.write(manifest, defaultManifest.getBytes("UTF-8"));
-            Files.write(gitignore, defaultGitignore.getBytes("UTF-8"));
-
-    }
-
-    /**
-     * Initialize a new ballerina project in the given path.
-     *
      * @param path project path
      * @param packageName name of the package
      * @param template package template
@@ -175,6 +137,11 @@ public class CommandUtil {
         String templateMD = template + "_template.md";
         initProject(path, packageName);
         applyTemplate(path, template);
+        if (template.equalsIgnoreCase("lib")) {
+            Path source = path.resolve("lib.bal");
+            Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
+                    StandardCopyOption.REPLACE_EXISTING);
+        }
         Path gitignore = path.resolve(ProjectConstants.GITIGNORE_FILE_NAME);
         Path packageMD = path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
 
