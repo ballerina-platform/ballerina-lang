@@ -19,6 +19,7 @@
 package org.ballerinalang.central.client;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -42,6 +43,7 @@ import java.net.Proxy;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
@@ -165,6 +167,60 @@ public class CentralAPIClient {
             Authenticator.setDefault(null);
         }
     }
+
+    /**
+     * Get the package versions.
+     *
+     * @param orgNamePath     The organization name of the package. (required)
+     * @param packageNamePath The name of the package. (required)
+     * @return PackageJsonSchema
+     */
+    public List<String> getPackageVersions(String orgNamePath, String packageNamePath) {
+        initializeSsl();
+        String url = PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
+
+        HttpURLConnection conn = createHttpUrlConnection(url);
+        conn.setInstanceFollowRedirects(false);
+        setRequestMethod(conn, Utils.RequestMethod.GET);
+
+        // status code and meaning
+        //// 200 - list of versions
+        //// 404 - package not found
+        //// 500 - backend is broken
+        try {
+            int statusCode = getStatusCode(conn);
+            if (statusCode == HttpURLConnection.HTTP_OK) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream(), Charset.defaultCharset()))) {
+                    return new Gson().fromJson(reader, new TypeToken<List<String>>() {}.getType());
+                } catch (IOException e) {
+                    throw ErrorUtil.createCentralClientException(e.getMessage());
+                }
+            } else if (statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(conn.getErrorStream(), Charset.defaultCharset()))) {
+                    Error errorJsonSchema = new Gson().fromJson(reader, Error.class);
+                    if (errorJsonSchema.getMessage().contains("package not found")) {
+                        throw new NoPackageException(errorJsonSchema.getMessage());
+                    } else {
+                        throw new CentralClientException(
+                                "error: could not connect to remote repository to find versions for: " + orgNamePath
+                                        + "/" + packageNamePath + ". reason: " + errorJsonSchema.getMessage());
+                    }
+                } catch (IOException e) {
+                    throw ErrorUtil.createCentralClientException(e.getMessage());
+                }
+            } else {
+                throw new CentralClientException(
+                        "error: could not connect to remote repository to find versions for: " + orgNamePath + "/"
+                                + packageNamePath + ".");
+            }
+        } finally {
+            conn.disconnect();
+            Authenticator.setDefault(null);
+        }
+    }
+
 
     /**
      * Pushing a package to registry.
