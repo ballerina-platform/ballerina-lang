@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -33,11 +34,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Represents a Class Symbol.
@@ -47,16 +47,16 @@ import java.util.Set;
 public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol {
 
     private final ObjectTypeSymbol typeDescriptor;
-    private final Set<Qualifier> qualifiers;
+    private final List<Qualifier> qualifiers;
     private final boolean deprecated;
     private final BClassSymbol internalSymbol;
     private final CompilerContext context;
     private MethodSymbol initMethod;
 
-    protected BallerinaClassSymbol(CompilerContext context, String name, PackageID moduleID, Set<Qualifier> qualifiers,
+    protected BallerinaClassSymbol(CompilerContext context, String name, PackageID moduleID, List<Qualifier> qualifiers,
                                    ObjectTypeSymbol typeDescriptor, BClassSymbol classSymbol) {
         super(name, moduleID, SymbolKind.CLASS, classSymbol);
-        this.qualifiers = Collections.unmodifiableSet(qualifiers);
+        this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.deprecated = Symbols.isFlagOn(classSymbol.flags, Flags.DEPRECATED);
         this.internalSymbol = classSymbol;
@@ -83,6 +83,11 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
         }
 
         return Optional.ofNullable(this.initMethod);
+    }
+
+    @Override
+    public List<TypeSymbol> typeInclusions() {
+        return this.typeDescriptor.typeInclusions();
     }
 
     @Override
@@ -114,7 +119,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     }
 
     @Override
-    public Set<Qualifier> qualifiers() {
+    public List<Qualifier> qualifiers() {
         return this.qualifiers;
     }
 
@@ -125,7 +130,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
      */
     public static class ClassSymbolBuilder extends SymbolBuilder<BallerinaClassSymbol.ClassSymbolBuilder> {
 
-        protected Set<Qualifier> qualifiers = new HashSet<>();
+        protected List<Qualifier> qualifiers = new ArrayList<>();
         protected ObjectTypeSymbol typeDescriptor;
         protected CompilerContext context;
 

@@ -103,7 +103,7 @@ public class Generator {
                 if (node.kind().equals(SyntaxKind.TYPE_DEFINITION)) {
                     TypeDefinitionNode typeDefinition = (TypeDefinitionNode) node;
                     if (typeDefinition.visibilityQualifier().isPresent() && typeDefinition.visibilityQualifier().get()
-                            .kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
+                            .kind().equals(SyntaxKind.PUBLIC_KEYWORD) || isTypePram(typeDefinition.metadata())) {
                         if (typeDefinition.typeDescriptor().kind().equals(SyntaxKind.RECORD_TYPE_DESC)) {
                             hasPublicConstructs = true;
                             module.records.add(getRecordTypeModel(typeDefinition, semanticModel, fileName));
@@ -465,6 +465,19 @@ public class Generator {
 
         }
         return variables;
+    }
+
+    private static boolean isTypePram(Optional<MetadataNode> metadataNode) {
+        if (metadataNode.isEmpty()) {
+            return false;
+        }
+        NodeList<AnnotationNode> annotations = metadataNode.get().annotations();
+        for (AnnotationNode annotationNode : annotations) {
+            if (annotationNode.toString().contains("@typeParam")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isDeprecated(NodeList<AnnotationNode> annotations) {
