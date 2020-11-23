@@ -679,6 +679,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     types.isAssignable(lhsType, symTable.readonlyType))) {
                 dlog.error(varNode.typeNode.pos,
                         DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY);
+            } else if (!(types.isAssignable(lhsType, symTable.intType) ||
+                    types.isAssignable(lhsType, symTable.floatType) ||
+                    types.isAssignable(lhsType, symTable.stringType) ||
+                    types.isAssignable(lhsType, symTable.booleanType))) {
+                // TODO: remove this check onece runtime support all configurable types
+                dlog.error(varNode.typeNode.pos,
+                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
             }
         }
         // Analyze the init expression

@@ -645,6 +645,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "configurable.variable.must.be.anydata.and.readonly"),
     ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE("BCE3965",
             "only.simple.variables.are.allowed.to.be.configurable"),
+    CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED("BCE3966",
+            "configurable.variable.currently.not.supported"),
     ;
 
     private String diagnosticId;

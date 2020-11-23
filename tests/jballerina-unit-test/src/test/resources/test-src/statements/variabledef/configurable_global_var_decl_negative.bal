@@ -27,5 +27,7 @@ function foo() {
     // Cannot declare configurable variable locally
     configurable int e = 6;
 }
+// TODO: remove this after runtime supports all configurable types
+configurable decimal f = ?;
 
 // TODO: validate configurable var decl for tuple, record and error var once they are supported.
