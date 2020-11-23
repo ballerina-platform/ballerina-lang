@@ -1,10 +1,19 @@
 {
   "kind": "SERVICE_DECLARATION",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
-      "children": []
+      "children": [
+        {
+          "kind": "ISOLATED_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
     },
     {
       "kind": "SERVICE_KEYWORD",
@@ -16,21 +25,7 @@
       ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "echoService",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
-        }
-      ]
-    },
-    {
       "kind": "ON_KEYWORD",
-      "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_EXPRESSION"
-      ],
       "trailingMinutiae": [
         {
           "kind": "WHITESPACE_MINUTIAE",
@@ -40,7 +35,23 @@
     },
     {
       "kind": "LIST",
-      "children": []
+      "children": [
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "listner1",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "kind": "SERVICE_BODY",
@@ -60,6 +71,12 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
+          "leadingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ],
           "trailingMinutiae": [
             {
               "kind": "END_OF_LINE_MINUTIAE",
