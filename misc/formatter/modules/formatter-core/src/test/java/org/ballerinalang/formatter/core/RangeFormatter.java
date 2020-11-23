@@ -42,10 +42,10 @@ public abstract class RangeFormatter {
     private static final String SOURCE_DIR = "source";
 
     @Test(dataProvider = "test-file-provider")
-    public void test(String[] sourceData, int[][] positions)
+    public void test(String source, int[][] positions)
             throws IOException, FormatterException {
-        Path assertFilePath = Paths.get(resourceDirectory.toString(), sourceData[0], ASSERT_DIR, sourceData[1]);
-        Path sourceFilePath = Paths.get(resourceDirectory.toString(), sourceData[0], SOURCE_DIR, sourceData[1]);
+        Path assertFilePath = Paths.get(resourceDirectory.toString(), this.getTestResourceDir(), ASSERT_DIR, source);
+        Path sourceFilePath = Paths.get(resourceDirectory.toString(), this.getTestResourceDir(), SOURCE_DIR, source);
 
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);

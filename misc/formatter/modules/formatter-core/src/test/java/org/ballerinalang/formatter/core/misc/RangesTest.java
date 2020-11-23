@@ -30,9 +30,9 @@ public class RangesTest extends RangeFormatter {
 
     @Test(dataProvider = "test-file-provider")
     @Override
-    public void test(String[] sourceData, int[][] positions) throws IOException, FormatterException {
+    public void test(String source, int[][] positions) throws IOException, FormatterException {
 
-        super.test(sourceData, positions);
+        super.test(source, positions);
     }
 
     /**
@@ -46,7 +46,7 @@ public class RangesTest extends RangeFormatter {
 
         return new Object[][]{
                 {
-                        new String[] {"misc/ranges", "ranges_1.bal"}, new int[][] {
+                        "ranges_1.bal", new int[][] {
                             new int[] {5, 30, 9, 34},
                             new int[] {12, 31, 16, 29},
                             new int[] {16, 20, 22, 38},
@@ -56,7 +56,7 @@ public class RangesTest extends RangeFormatter {
                         }
                 },
                 {
-                        new String[] {"misc/ranges", "ranges_2.bal"}, new int[][] {
+                        "ranges_2.bal", new int[][] {
                                 new int[] {0, 1, 1, 0},
                                 new int[] {2, 52, 14, 12},
                                 new int[] {7, 22, 25, 8},
@@ -67,7 +67,7 @@ public class RangesTest extends RangeFormatter {
                         }
                 },
                 {
-                        new String[] {"misc/ranges", "ranges_3.bal"}, new int[][] {
+                        "ranges_3.bal", new int[][] {
                         new int[] {0, 6, 9, 16},
                         new int[] {5, 15, 27, 8},
                         new int[] {26, 37, 35, 30},
@@ -76,14 +76,14 @@ public class RangesTest extends RangeFormatter {
                         }
                 },
                 {
-                        new String[] {"misc/ranges", "ranges_4.bal"}, new int[][] {
+                        "ranges_4.bal", new int[][] {
                         new int[] {2, 14, 12, 25},
                         new int[] {9, 15, 23, 8},
                         new int[] {18, 8, 22, 1},
                         }
                 },
                 {
-                        new String[] {"misc/ranges", "ranges_5.bal"}, new int[][] {
+                        "ranges_5.bal", new int[][] {
                         new int[] {1, 1, 129, 1},
                 }
                 },
