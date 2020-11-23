@@ -284,7 +284,7 @@ class ModuleContext {
 
         Module resolvedModule = resolvedModuleOptional.get();
         ModuleDependency moduleDependency = new ModuleDependency(
-                new PackageDependency(resolvedModule.packageInstance().packageId()),
+                new PackageDependency(resolvedModule.packageInstance().packageId(), PackageDependencyScope.DEFAULT),
                 resolvedModule.moduleId());
         moduleDependencies.add(moduleDependency);
     }

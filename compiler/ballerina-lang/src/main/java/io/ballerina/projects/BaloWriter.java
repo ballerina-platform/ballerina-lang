@@ -271,17 +271,22 @@ public abstract class BaloWriter {
         }
     }
 
-    private List<Dependency> getPackageDependencies(DependencyGraph<Package> dependencyGraph) {
+    private List<Dependency> getPackageDependencies(DependencyGraph<ResolvedPackageDependency> dependencyGraph) {
         List<Dependency> dependencies = new ArrayList<>();
-        for (Package pkg : dependencyGraph.getNodes()) {
-            PackageContext packageContext = pkg.packageContext();
+        for (ResolvedPackageDependency resolvedDep : dependencyGraph.getNodes()) {
+            if (resolvedDep.scope() == PackageDependencyScope.TEST_ONLY) {
+                // We don't add the test dependencies to the balr file.
+                continue;
+            }
+
+            PackageContext packageContext = resolvedDep.packageInstance().packageContext();
             Dependency dependency = new Dependency(packageContext.packageOrg().toString(),
                     packageContext.packageName().toString(), packageContext.packageVersion().toString());
 
             List<Dependency> dependencyList = new ArrayList<>();
-            Collection<Package> pkgDependencies = dependencyGraph.getDirectDependencies(pkg);
-            for (Package dependencyPkg : pkgDependencies) {
-                PackageContext dependencyPkgContext = dependencyPkg.packageContext();
+            Collection<ResolvedPackageDependency> pkgDependencies = dependencyGraph.getDirectDependencies(resolvedDep);
+            for (ResolvedPackageDependency resolvedTransitiveDep : pkgDependencies) {
+                PackageContext dependencyPkgContext = resolvedTransitiveDep.packageInstance().packageContext();
                 Dependency dep = new Dependency(dependencyPkgContext.packageOrg().toString(),
                         dependencyPkgContext.packageName().toString(),
                         dependencyPkgContext.packageVersion().toString());

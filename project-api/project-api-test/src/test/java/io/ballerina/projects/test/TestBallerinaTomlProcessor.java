@@ -25,6 +25,7 @@ import io.ballerina.projects.internal.model.BallerinaToml;
 import io.ballerina.projects.internal.model.Package;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -39,6 +40,14 @@ import java.util.Map;
  */
 public class TestBallerinaTomlProcessor {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+
+    @DataProvider(name = "invalidPackageNames")
+    public Object[][] provideInvalidPackageNames() {
+        return new Object[][] {
+                { "hello-app" },
+                { "my.project" }
+        };
+    }
 
     @Test(description = "Test parse `ballerina.toml` file in to `PackageManifest` object")
     public void testParse() {
@@ -132,6 +141,27 @@ public class TestBallerinaTomlProcessor {
         } catch (Exception e) {
             Assert.assertTrue(e instanceof TomlException);
             Assert.assertEquals(e.getMessage(), "invalid Ballerina.toml file: cannot find 'version' under [package]");
+        }
+    }
+
+    @Test(description = "Test validate ballerina toml package section which contains invalid name",
+            dataProvider = "invalidPackageNames")
+    public void testValidateBallerinaTomlPackageWithInvalidName(String pkgName) {
+        BallerinaToml ballerinaToml = new BallerinaToml();
+        Package pkg = new Package();
+        pkg.setName(pkgName);
+        pkg.setOrg("foo");
+        pkg.setVersion("0.1.0");
+        ballerinaToml.setPkg(pkg);
+
+        try {
+            BallerinaTomlProcessor.validateBallerinaTomlPackage(ballerinaToml);
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof TomlException);
+            Assert.assertEquals(e.getMessage(),
+                    "invalid Ballerina.toml file: Invalid 'name' under [package]: '" + pkgName + "' :\n"
+                            + "'name' can only contain alphanumerics, underscores and the maximum length "
+                            + "is 256 characters");
         }
     }
 
