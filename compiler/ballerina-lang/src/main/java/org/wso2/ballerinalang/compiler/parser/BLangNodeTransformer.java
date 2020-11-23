@@ -565,7 +565,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BindingPatternNode bindingPatternNode = typedBindingPattern.bindingPattern();
         Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer = modVarDeclrNode.initializer();
 
-        //Get target variable
         BLangVariable variable = getBLangVariableNode(bindingPatternNode);
 
         Token variableName;
@@ -605,10 +604,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-        // Initialize module variable
-        initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer,
-                isFinal, isolated);
-        //Attach annotations
+        initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer, isFinal, isolated);
+
         NodeList<AnnotationNode> annotations = getAnnotations(modVarDeclrNode.metadata());
         if (annotations != null) {
             variable.annAttachments = applyAll(annotations);

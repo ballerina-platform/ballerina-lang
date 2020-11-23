@@ -1658,11 +1658,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(bLangTupleVariable.typeNode, env);
         if (bLangTupleVariable.expr != null) {
             analyzeNode(bLangTupleVariable.expr, env);
-        } else {
-            bLangTupleVariable.memberVariables.forEach(member -> {
-                analyzeNode(member, env);
-            });
+            return;
         }
+        bLangTupleVariable.memberVariables.forEach(member -> {
+            analyzeNode(member, env);
+        });
     }
 
     @Override

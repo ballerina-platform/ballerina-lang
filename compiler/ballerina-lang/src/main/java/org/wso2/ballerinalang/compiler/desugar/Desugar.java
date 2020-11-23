@@ -734,9 +734,9 @@ public class Desugar extends BLangNodeVisitor {
                 BLangNode blockStatementNode = rewrite(globalVar, env);
                 // Add each desugared simple variable to global variables
                 ((BLangBlockStmt) blockStatementNode).stmts.forEach(bLangStatement -> {
-                    BLangSimpleVariableDef simpleVarDef1 = (BLangSimpleVariableDef) bLangStatement;
-                    addToInitFunction(simpleVarDef1.var, initFnBody);
-                    desugaredGlobalVarList.add(rewrite(simpleVarDef1.var, env));
+                    BLangSimpleVariableDef simpleVarDef = (BLangSimpleVariableDef) bLangStatement;
+                    addToInitFunction(simpleVarDef.var, initFnBody);
+                    desugaredGlobalVarList.add(rewrite(simpleVarDef.var, env));
                 });
             } else {
                 addToInitFunction((BLangSimpleVariable) globalVar, initFnBody);
@@ -784,12 +784,12 @@ public class Desugar extends BLangNodeVisitor {
         result = pkgNode;
     }
 
-    // Add global variables with default values to init function
     private void addToInitFunction(BLangSimpleVariable globalVar, BLangBlockFunctionBody initFnBody) {
-        if (globalVar.expr != null) {
-            BLangAssignment assignment = createAssignmentStmt(globalVar);
-            initFnBody.stmts.add(assignment);
+        if (globalVar.expr == null) {
+            return;
         }
+        BLangAssignment assignment = createAssignmentStmt(globalVar);
+        initFnBody.stmts.add(assignment);
     }
 
     private void desugarClassDefinitions(List<TopLevelNode> topLevelNodes) {
