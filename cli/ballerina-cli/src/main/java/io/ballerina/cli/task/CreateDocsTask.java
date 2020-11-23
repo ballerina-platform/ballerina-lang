@@ -34,12 +34,10 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  */
 public class CreateDocsTask implements Task {
 
-    private boolean excludeIndex;
     private final transient PrintStream out;
     private Path outputPath;
 
-    public CreateDocsTask(boolean excludeIndex, PrintStream out, Path outputPath) {
-        this.excludeIndex = excludeIndex;
+    public CreateDocsTask(PrintStream out, Path outputPath) {
         this.out = out;
         this.outputPath = outputPath;
     }
@@ -58,7 +56,7 @@ public class CreateDocsTask implements Task {
         }
         this.out.println("Generating API Documentation");
         try {
-            BallerinaDocGenerator.generateAPIDocs(project, outputPath.toString(), excludeIndex);
+            BallerinaDocGenerator.generateAPIDocs(project, outputPath.toString());
             this.out.println("Saved to: " + sourceRootPath.relativize(outputPath).toString());
 
         } catch (IOException e) {

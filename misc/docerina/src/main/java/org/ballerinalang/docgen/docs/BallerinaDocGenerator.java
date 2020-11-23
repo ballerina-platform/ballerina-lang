@@ -118,9 +118,8 @@ public class BallerinaDocGenerator {
      * API to generate API docs using a Project to a given folder.
      *  @param project Ballerina project
      *  @param output Output path as a string
-     *  @param excludeIndex weather to exclude the index page
      */
-    public static void generateAPIDocs(io.ballerina.projects.Project project, String output, boolean excludeIndex)
+    public static void generateAPIDocs(io.ballerina.projects.Project project, String output)
             throws IOException {
         Map<String, ModuleDoc> moduleDocMap = generateModuleDocMap(project);
         Project docerinaProject = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
@@ -132,7 +131,7 @@ public class BallerinaDocGenerator {
             docerinaProject.description = BallerinaDocUtils.mdToHtml(mdContent, true);
         }
         if (!docerinaProject.modules.isEmpty()) {
-            writeAPIDocs(docerinaProject, output, excludeIndex);
+            writeAPIDocs(docerinaProject, output, false);
         }
     }
 
