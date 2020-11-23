@@ -168,7 +168,11 @@ public class NewCommandTest extends BaseCommandTest {
         NewCommand newCommand = new NewCommand(tmpDir, printStream);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
-        Assert.assertTrue(readOutput().contains("Invalid project name"));
+        Path packageDir = tmpDir.resolve(projectName);
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
+        Assert.assertTrue(readOutput().contains("warning: invalid package name. Modified package name :"));
     }
 
     @Test(description = "Test new command with invalid template")
