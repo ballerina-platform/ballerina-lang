@@ -1938,8 +1938,7 @@ public class Types {
             return true;
         } else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.XML) {
             return isXMLTypeAssignable(actualType, targetType, new HashSet<>());
-        }
-        else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.UNION){
+        } else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.UNION) {
             return isAllXMLMembers((BUnionType) actualType);
         }
         return false;
