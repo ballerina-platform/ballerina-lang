@@ -45,8 +45,7 @@ public class NestedRetryTransactionStmtsTest {
         BRunUtil.invoke(programFile, "testRetry");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: TransactionError.*")
+    @Test
     public void testPanic() {
         BRunUtil.invoke(programFile, "testPanic");
     }

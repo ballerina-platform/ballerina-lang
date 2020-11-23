@@ -1,3 +1,4 @@
+import ballerina/io;
 import ballerina/lang.'transaction as transactions;
 
 function testRetry() {
@@ -10,7 +11,12 @@ function testRetry() {
 }
 
 function testPanic() {
-    string|error x = actualCode(2, false, true);
+    string|error x = trap actualCode(2, false, true);
+    if (x is error) {
+         assertEquality("TransactionError", x.message());
+    } else {
+        panic error("Expected an error");
+    }
 }
 
 function actualCode(int failureCutOff, boolean requestRollback, boolean doPanic) returns (string|error) {
@@ -62,7 +68,7 @@ function actualCode(int failureCutOff, boolean requestRollback, boolean doPanic)
             }
             a = a + " -> trx2 end.";
         }
-
+        io:println("Should not reach here");
     }
     a = (a + " -> all trx ended.");
     return a;
