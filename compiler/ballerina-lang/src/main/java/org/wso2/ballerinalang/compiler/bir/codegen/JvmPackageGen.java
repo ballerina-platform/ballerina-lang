@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ConfigMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.FrameClassGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
@@ -137,6 +138,7 @@ public class JvmPackageGen {
     private final ModuleStopMethodGen moduleStopMethodGen;
     private final FrameClassGen frameClassGen;
     private final InitMethodGen initMethodGen;
+    private final ConfigMethodGen configMethodGen;
     private final MainMethodGen mainMethodGen;
     private final LambdaGen lambdaGen;
     private final Map<String, BIRFunctionWrapper> birFunctionMap;
@@ -156,6 +158,7 @@ public class JvmPackageGen {
         methodGen = new MethodGen(this);
         initMethodGen = new InitMethodGen(symbolTable);
         mainMethodGen = new MainMethodGen(symbolTable);
+        configMethodGen = new ConfigMethodGen();
         lambdaGen = new LambdaGen(this);
         moduleStopMethodGen = new ModuleStopMethodGen(symbolTable);
         frameClassGen = new FrameClassGen();
@@ -463,6 +466,7 @@ public class JvmPackageGen {
 
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
+        configMethodGen.generateConfigInit(flattenedModuleImports, module, moduleInitClass, jarEntries);
 
         // generate the shutdown listener class.
         generateShutdownSignalListener(moduleInitClass, jarEntries);

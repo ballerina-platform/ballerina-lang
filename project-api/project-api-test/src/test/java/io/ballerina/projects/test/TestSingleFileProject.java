@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -79,6 +81,48 @@ public class TestSingleFileProject {
             Assert.assertTrue(e.getMessage().contains("The source file '" + projectPath +
                     "' belongs to a Ballerina package."));
         }
+    }
+
+    @Test(description = "tests setting build options to the project")
+    public void testDefaultBuildOptions() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        SingleFileProject project = null;
+        try {
+            project = SingleFileProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        // Verify expected default buildOptions
+        Assert.assertFalse(project.buildOptions().skipTests());
+        Assert.assertFalse(project.buildOptions().observabilityIncluded());
+        Assert.assertFalse(project.buildOptions().codeCoverage());
+        Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertFalse(project.buildOptions().experimental());
+        Assert.assertFalse(project.buildOptions().testReport());
+    }
+
+    @Test(description = "tests setting build options to the project")
+    public void testOverrideBuildOptions() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        SingleFileProject project = null;
+        BuildOptions buildOptions = new BuildOptionsBuilder()
+                .skipTests(true)
+                .observabilityIncluded(true)
+                .build();
+        try {
+            project = SingleFileProject.load(projectPath, buildOptions);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        // Verify expected overridden buildOptions
+        Assert.assertTrue(project.buildOptions().skipTests());
+        Assert.assertTrue(project.buildOptions().observabilityIncluded());
+        Assert.assertFalse(project.buildOptions().codeCoverage());
+        Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertFalse(project.buildOptions().experimental());
+        Assert.assertFalse(project.buildOptions().testReport());
     }
 
     @Test

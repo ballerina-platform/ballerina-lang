@@ -31,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
@@ -166,6 +167,11 @@ public class Type {
                 unionTypeNode = unionType.rightTypeDesc();
             }
             type.memberTypes.add(fromNode(unionTypeNode, semanticModel, fileName));
+        } else if (node instanceof IntersectionTypeDescriptorNode) {
+            type.isIntersectionType = true;
+            IntersectionTypeDescriptorNode intersectionType = (IntersectionTypeDescriptorNode) node;
+            type.memberTypes.add(fromNode(intersectionType.leftTypeDesc(), semanticModel, fileName));
+            type.memberTypes.add(fromNode(intersectionType.rightTypeDesc(), semanticModel, fileName));
         } else if (node instanceof RecordTypeDescriptorNode) {
             type.name = node.toString();
             type.generateUserDefinedTypeLink = false;

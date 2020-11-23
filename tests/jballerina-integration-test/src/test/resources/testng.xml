@@ -290,6 +290,13 @@
         </classes>
     </test>
 
+    <test name="ballerina-configurables-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.configurables.ConfigurableTest"/>
+        </classes>
+    </test>
+
 <!--    <test name="ballerina-bindgen-tests" parallel="false">-->
 <!--        <parameter name="enableJBallerinaTests" value="true" />-->
 <!--        <classes>-->

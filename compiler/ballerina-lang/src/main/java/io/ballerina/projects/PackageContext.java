@@ -154,9 +154,9 @@ class PackageContext {
                 moduleId -> new ModuleCompilation(this, moduleContext));
     }
 
-    PackageCompilation getPackageCompilation() {
+    PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
         if (packageCompilation == null) {
-            packageCompilation = PackageCompilation.from(this);
+            packageCompilation = PackageCompilation.from(this, compilationOptions);
         }
         return packageCompilation;
     }
@@ -170,10 +170,6 @@ class PackageContext {
 
     Collection<PackageDependency> packageDependencies() {
         return packageDependencies;
-    }
-
-    CompilationOptions compilationOptions() {
-        return null;
     }
 
     Project project() {

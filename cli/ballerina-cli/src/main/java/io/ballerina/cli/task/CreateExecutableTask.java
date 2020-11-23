@@ -98,7 +98,13 @@ public class CreateExecutableTask implements Task {
         Path executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
         PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
+
+        //TODO: catch the specific error once the exception model is in place
+        try {
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
+        } catch (RuntimeException e) {
+            throw  createLauncherException(e.getMessage());
+        }
 
         // notify plugin
         // todo following call has to be refactored after introducing new plugin architecture

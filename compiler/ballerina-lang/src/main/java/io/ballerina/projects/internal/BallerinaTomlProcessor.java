@@ -20,6 +20,8 @@ package io.ballerina.projects.internal;
 
 import com.google.gson.JsonSyntaxException;
 import com.moandjiezana.toml.Toml;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageManifest.Dependency;
@@ -31,6 +33,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.model.BallerinaToml;
 import io.ballerina.projects.internal.model.Package;
 import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.toml.exceptions.TomlException;
 
 import java.io.File;
@@ -55,19 +58,14 @@ import java.util.stream.Collectors;
  */
 public class BallerinaTomlProcessor {
 
+    private static Toml toml;
+
     private BallerinaTomlProcessor() {}
 
-    /**
-     * Parse `ballerina.toml` file in to `BallerinaToml` object.
-     *
-     * @param tomlPath path of the toml file
-     * @return `BallerinaToml` object
-     */
-    public static BallerinaToml parse(Path tomlPath) {
-        Toml toml;
+    public static BuildOptions parseBuildOptions(Path tomlPath) {
         try {
             toml = parseAsToml(tomlPath);
-            return parse(toml);
+            return parse(toml).getBuildOptions();
         } catch (TomlException e) {
             throw new ProjectException(e.getMessage(), e);
         }
@@ -75,7 +73,6 @@ public class BallerinaTomlProcessor {
 
     @SuppressWarnings("unchecked")
     public static PackageManifest parseAsPackageManifest(Path tomlPath) {
-        Toml toml;
         try {
             toml = parseAsToml(tomlPath);
             // TODO Validate `Ballerina.toml`
@@ -196,6 +193,8 @@ public class BallerinaTomlProcessor {
             pkg.setKeywords(toml.getList("package.keywords"));
             pkg.setExported(toml.getList("package.exported"));
 
+            ballerinaToml.setBuildOptions(setBuildOptions(toml));
+
             validateBallerinaTomlPackage(ballerinaToml);
             validateManifestDependencies(ballerinaToml);
             return ballerinaToml;
@@ -204,6 +203,27 @@ public class BallerinaTomlProcessor {
                     ise.getMessage().replace("java.lang.IllegalStateException: ", "").toLowerCase(Locale.getDefault()));
             throw new TomlException("invalid Ballerina.toml file: " + tomlErrMsg);
         }
+    }
+
+    private static BuildOptions setBuildOptions(Toml toml) {
+        Toml table = toml.getTable("build-options");
+        if (table == null || table.isEmpty()) {
+            return null;
+        }
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+
+        boolean skipTests = table.getBoolean(CompilerOptionName.SKIP_TESTS.toString(), false);
+        boolean offline = table.getBoolean(CompilerOptionName.OFFLINE.toString(), false);
+        boolean observabilityIncluded = table.getBoolean(CompilerOptionName.OBSERVABILITY_INCLUDED.toString(), false);
+        boolean testReport = table.getBoolean(BuildOptions.OptionName.TEST_REPORT.toString(), false);
+        boolean codeCoverage = table.getBoolean(BuildOptions.OptionName.CODE_COVERAGE.toString(), false);
+        return buildOptionsBuilder
+                .skipTests(skipTests)
+                .offline(offline)
+                .observabilityIncluded(observabilityIncluded)
+                .testReport(testReport)
+                .codeCoverage(codeCoverage)
+                .build();
     }
 
     /**

@@ -57,3 +57,64 @@ function testObjectConstructorWithoutDefiniteTypeAndReferenceVar() {
                                         }
                                     };
 }
+
+//////  Test object-constructor-expr with `readonly` contextually expected type //////
+
+readonly class ReadOnlyClass {
+    int a;
+    string[] b;
+
+    function init(int a, string[] & readonly b) {
+        self.a = a;
+        self.b = b;
+    }
+}
+
+type Object object {
+    int a;
+    string[] b;
+};
+
+string[] mutableStringArr = [];
+string[] & readonly immutableStringArr = [];
+
+function testInvalidObjectConstructorExprWithReadOnlyCET() {
+    ReadOnlyClass v1 = object {
+        int a = 1;
+        string[] b = mutableStringArr; // incompatible types: expected 'string[] & readonly', found 'string[]'
+    };
+
+    ReadOnlyClass v2 = object { // incompatible types: expected 'ReadOnlyClass', found 'object { final int a; final (string[] & readonly) s; } & readonly'
+        int a = 1;
+        string[] s = mutableStringArr; // incompatible types: expected 'string[] & readonly', found 'string[]'
+    };
+
+    Object & readonly v3 = object {
+        int a = 1;
+        string[] b = mutableStringArr; // incompatible types: expected 'string[] & readonly', found 'string[]'
+        stream<string>? c = immutableStringArr.toStream(); // incompatible types: expected '()', found 'stream<string>'
+    };
+
+    Object & readonly v4 = object {
+        int a = 1;
+        string[] b;
+        stream<string>? c;
+
+        function init() {
+            self.b = mutableStringArr; // incompatible types: expected 'string[] & readonly', found 'string[]'
+            self.c = immutableStringArr.toStream(); // incompatible types: expected '()', found 'stream<string>'
+        }
+    };
+
+    readonly & object {
+        string[] a;
+        stream<string>? b;
+    } v5 = object {
+        string[] a = mutableStringArr; // incompatible types: expected 'string[] & readonly', found 'string[]'
+        stream<string>? b;
+
+        function init() {
+            self.b = immutableStringArr.toStream(); // incompatible types: expected '()', found 'stream<string>'
+        }
+    };
+}
