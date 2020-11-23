@@ -730,7 +730,6 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.globalVars.forEach(globalVar -> {
             // This will convert complex variables to simple variable
             if (globalVar.getKind() == NodeKind.TUPLE_VARIABLE) {
-                //Tuple variable will be desugared into block statement node
                 BLangNode blockStatementNode = rewrite(globalVar, env);
                 // Add each desugared simple variable to global variables
                 ((BLangBlockStmt) blockStatementNode).stmts.forEach(bLangStatement -> {
