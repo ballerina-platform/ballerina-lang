@@ -23,4 +23,10 @@ package io.ballerina.compiler.api.symbols;
  * @since 2.0.0
  */
 public interface MethodSymbol extends FunctionSymbol {
+    /**
+     * Get a string representation of the signature of the method.
+     *
+     * @return {@link String} signature
+     */
+    String signature();
 }

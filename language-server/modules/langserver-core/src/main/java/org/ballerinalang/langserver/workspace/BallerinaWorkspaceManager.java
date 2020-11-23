@@ -140,11 +140,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @return {@link SemanticModel}
      */
     public Optional<SemanticModel> semanticModel(Path filePath) {
-        Optional<Module> module = this.module(filePath);
-        if (module.isEmpty()) {
+        Optional<Module> optModule = this.module(filePath);
+        if (optModule.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.ofNullable(module.get().getCompilation().getSemanticModel());
+        Module module = optModule.get();
+        return Optional.ofNullable(module.packageInstance().getCompilation().getSemanticModel(module.moduleId()));
     }
 
     /**
@@ -183,7 +184,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Document updatedDoc = document.get().modify().withContent(content).apply();
 
         // Update project instance
-        sourceRootToProject.put(project.get().sourceRoot(), updatedDoc.module().project());
+        sourceRootToProject.put(projectRoot(filePath), updatedDoc.module().project());
     }
 
     /**
@@ -201,9 +202,10 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
         // If it is a single file project, remove project from mapping
         if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            sourceRootToProject.remove(project.get().sourceRoot());
+            Path projectRoot = projectRoot(filePath);
+            sourceRootToProject.remove(projectRoot);
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
-                                            "' {project: '" + project.get().sourceRoot().toUri().toString() +
+                                            "' {project: '" + projectRoot.toUri().toString() +
                                             "' kind: '" + project.get().kind().name().toLowerCase(Locale.getDefault()) +
                                             "'} removed}");
         }

@@ -2027,6 +2027,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
                 .collect(getFieldCollector());
 
+        List<BType> list = new ArrayList<>();
+        for (BLangType tRef : structureTypeNode.typeRefs) {
+            BType type = tRef.type;
+            list.add(type);
+        }
+        structureType.typeInclusions = list;
+
         // Resolve and add the fields of the referenced types to this object.
         resolveReferencedFields(structureTypeNode, typeDefEnv);
 

@@ -2890,7 +2890,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             actionInvocation.name = invocation.name;
             actionInvocation.argExprs = invocation.argExprs;
             actionInvocation.flagSet = invocation.flagSet;
-            actionInvocation.pos = invocation.pos;
+            actionInvocation.pos = getPosition(startActionNode);
             invocation = actionInvocation;
         }
 

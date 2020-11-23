@@ -22,12 +22,14 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * Represents a ballerina method.
@@ -85,5 +87,25 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     @Override
     public Location location() {
         return this.functionSymbol.location();
+    }
+
+    @Override
+    public String signature() {
+        StringJoiner qualifierJoiner = new StringJoiner(" ");
+        this.functionSymbol.qualifiers().stream().map(Qualifier::getValue).forEach(qualifierJoiner::add);
+        qualifierJoiner.add("function ");
+
+        StringBuilder signature = new StringBuilder(qualifierJoiner.toString());
+        StringJoiner joiner = new StringJoiner(", ");
+        signature.append(this.functionSymbol.name()).append("(");
+        for (ParameterSymbol requiredParam : this.typeDescriptor().parameters()) {
+            String ballerinaParameterSignature = requiredParam.signature();
+            joiner.add(ballerinaParameterSignature);
+        }
+        this.typeDescriptor().restParam().ifPresent(ballerinaParameter -> joiner.add(ballerinaParameter.signature()));
+        signature.append(joiner.toString()).append(")");
+        this.typeDescriptor().returnTypeDescriptor().ifPresent(typeDescriptor -> signature.append(" returns ")
+                .append(typeDescriptor.signature()));
+        return signature.toString();
     }
 }

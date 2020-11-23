@@ -33,6 +33,8 @@ public class ProjectConstants {
     public static final String MODULE_MD_FILE_NAME = "Module.md";
     public static final String PACKAGE_MD_FILE_NAME = "Package.md";
     public static final String PACKAGE_JSON = "package.json";
+    public static final String BALO_JSON = "balo.json";
+    public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
