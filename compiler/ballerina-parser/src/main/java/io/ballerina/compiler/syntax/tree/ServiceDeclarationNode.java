@@ -50,27 +50,27 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
     }
 
     public NodeList<Token> absoluteResourcePath() {
-        return new NodeList<>(childInBucket(3));
+        return new NodeList<>(childInBucket(4));
     }
 
     public Token onKeyword() {
-        return childInBucket(4);
+        return childInBucket(5);
     }
 
     public SeparatedNodeList<ExpressionNode> expressions() {
-        return new SeparatedNodeList<>(childInBucket(5));
+        return new SeparatedNodeList<>(childInBucket(6));
     }
 
     public Token openBraceToken() {
-        return childInBucket(6);
+        return childInBucket(7);
     }
 
     public NodeList<Node> members() {
-        return new NodeList<>(childInBucket(7));
+        return new NodeList<>(childInBucket(8));
     }
 
     public Token closeBraceToken() {
-        return childInBucket(8);
+        return childInBucket(9);
     }
 
     @Override
