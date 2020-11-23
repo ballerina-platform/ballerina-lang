@@ -220,7 +220,7 @@ public class BuildCommandTest extends BaseCommandTest {
             Assert.assertEquals(buildLog.replaceAll("\r", ""),
                     "\nCompiling source\n" +
                             "\thello_world.bal\n" +
-                            "ERROR [hello_world.bal:(2:0,2:0)] invalid token ';'\n");
+                            "ERROR [hello_world.bal:(3:1,3:1)] invalid token ';'\n");
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("compilation contains errors"));
         }
     }
