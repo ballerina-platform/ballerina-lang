@@ -62,11 +62,11 @@ public class SuspendedContext {
         this.frame = frame;
         this.project = project;
         this.projectRoot = projectRoot;
-        this.breakPointSourcePath = getSourcePath(frame);
         this.sourceType = (project instanceof SingleFileProject) ? DebugSourceType.SINGLE_FILE :
                 DebugSourceType.PACKAGE;
-        this.fileName = getFileNameFrom(this.breakPointSourcePath);
         this.lineNumber = -1;
+        this.fileName = null;
+        this.breakPointSourcePath = null;
     }
 
     public Project getProject() {
@@ -116,29 +116,34 @@ public class SuspendedContext {
         return Optional.ofNullable(project.currentPackage().getDefaultModule().moduleName().toString());
     }
 
-    public Path getBreakPointSourcePath() {
+    public Optional<Path> getBreakPointSourcePath() {
         if (breakPointSourcePath == null) {
-            this.breakPointSourcePath = getSourcePath(frame);
+            Optional<Path> sourcePath = getSourcePath(frame);
+            sourcePath.ifPresent(path -> breakPointSourcePath = path);
         }
-        return breakPointSourcePath;
+        return Optional.ofNullable(breakPointSourcePath);
     }
 
-    private Path getSourcePath(StackFrameProxyImpl frame) {
+    private Optional<Path> getSourcePath(StackFrameProxyImpl frame) {
         try {
-            return PackageUtils.getRectifiedSourcePath(frame.location(), project, projectRoot);
+            return Optional.ofNullable(PackageUtils.getRectifiedSourcePath(frame.location(), project, projectRoot));
         } catch (AbsentInformationException | InvalidStackFrameException | JdiProxyException e) {
             // Todo - How to handle InvalidStackFrameException?
-            return null;
+            return Optional.empty();
         } catch (Exception e) {
-            return null;
+            return Optional.empty();
         }
     }
 
-    public String getFileName() {
+    public Optional<String> getFileName() {
         if (fileName == null) {
-            fileName = getFileNameFrom(getBreakPointSourcePath());
+            Optional<Path> breakPointPath = getBreakPointSourcePath();
+            if (breakPointPath.isEmpty()) {
+                return Optional.empty();
+            }
+            fileName = getFileNameFrom(breakPointPath.get());
         }
-        return fileName;
+        return Optional.ofNullable(fileName);
     }
 
     public int getLineNumber() {
@@ -162,7 +167,11 @@ public class SuspendedContext {
     private void loadDocument() {
         if (project instanceof BuildProject) {
             BuildProject prj = (BuildProject) project;
-            Optional<DocumentId> docId = ProjectLoader.getDocumentId(getBreakPointSourcePath(), prj);
+            Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
+            if (breakPointSourcePath.isEmpty()) {
+                return;
+            }
+            Optional<DocumentId> docId = ProjectLoader.getDocumentId(breakPointSourcePath.get(), prj);
             Module module = prj.currentPackage().module(docId.get().moduleId());
             document = module.document(docId.get());
         } else {

@@ -97,7 +97,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                 // Expected class name should end with the file name of the ballerina source, only for single
                 // ballerina sources. (We cannot be sure about the module context, as we can invoke any method
                 // defined within the module.)
-                if (sourceType == DebugSourceType.SINGLE_FILE && !cls.name().endsWith(context.getFileName())) {
+                if (sourceType == DebugSourceType.SINGLE_FILE && !cls.name().endsWith(context.getFileName().get())) {
                     continue;
                 }
                 // If the sources reside inside a ballerina module/project, generated class name should start with the
