@@ -96,8 +96,8 @@ public class RunCommandTest extends BaseCommandTest {
         new CommandLine(runCommand).parse(projectPath.toString());
         try {
             runCommand.execute();
-        } catch (RuntimeException e) {
-            Assert.assertTrue(e.getMessage().contains("no entrypoint found in package"));
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("no entrypoint found in package"));
         }
     }
 

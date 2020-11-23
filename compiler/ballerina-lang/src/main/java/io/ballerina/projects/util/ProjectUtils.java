@@ -439,4 +439,5 @@ public class ProjectUtils {
         Path modulePath = projectPath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
         return Files.exists(modulePath);
     }
+
 }
