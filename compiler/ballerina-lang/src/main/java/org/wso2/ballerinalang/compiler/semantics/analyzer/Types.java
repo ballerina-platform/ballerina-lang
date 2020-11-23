@@ -1946,7 +1946,10 @@ public class Types {
     }
 
     public boolean isAllXMLMembers(BUnionType actualType) {
+        if (actualType.getMemberTypes().stream().allMatch(t -> TypeTags.isXMLTypeTag(t.tag))) {
             return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.xmlTextType));
+        }
+        return false;
     }
 
     public boolean isTypeCastable(BLangExpression expr, BType sourceType, BType targetType) {
