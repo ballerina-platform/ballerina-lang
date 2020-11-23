@@ -27,15 +27,25 @@ import io.ballerina.projects.Package;
 public class ResolutionResponse {
     private final Package resolvedPackage;
     private final ResolutionRequest packageLoadRequest;
+    private final ResolutionStatus status;
 
     // TODO We can use this call to send diagnostics if any
-    private ResolutionResponse(Package resolvedPackage, ResolutionRequest packageLoadRequest) {
+    private ResolutionResponse(ResolutionStatus resolutionStatus,
+                               Package resolvedPackage,
+                               ResolutionRequest packageLoadRequest) {
         this.resolvedPackage = resolvedPackage;
         this.packageLoadRequest = packageLoadRequest;
+        this.status = resolutionStatus;
     }
 
-    public static ResolutionResponse from(Package resolvedPackage, ResolutionRequest packageLoadRequest) {
-        return new ResolutionResponse(resolvedPackage, packageLoadRequest);
+    public static ResolutionResponse from(ResolutionStatus resolutionStatus,
+                                          Package resolvedPackage,
+                                          ResolutionRequest packageLoadRequest) {
+        return new ResolutionResponse(resolutionStatus, resolvedPackage, packageLoadRequest);
+    }
+
+    public ResolutionStatus resolutionStatus() {
+        return status;
     }
 
     public Package resolvedPackage() {
@@ -44,5 +54,21 @@ public class ResolutionResponse {
 
     public ResolutionRequest packageLoadRequest() {
         return packageLoadRequest;
+    }
+
+    /**
+     * Represents the package resolution status of a {@code ResolutionRequest}.
+     *
+     * @since 2.0.0
+     */
+    public enum ResolutionStatus {
+        /**
+         * Package resolution is successful.
+         */
+        RESOLVED,
+        /**
+         * Failed to resolve the specified package.
+         */
+        UNRESOLVED
     }
 }
