@@ -235,7 +235,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         List<ImportDeclarationNode> currentModuleImports = ctx.currentDocImports();
         List<LSCompletionItem> completionItems = currentModuleImports.stream()
                 .map(importNode -> {
-                    String orgName = importNode.orgName().isPresent()
+                    String orgName = importNode.orgName().isEmpty()
                             ? "" : importNode.orgName().get().orgName().text();
                     String pkgName = importNode.moduleName().stream()
                             .map(Token::text)
