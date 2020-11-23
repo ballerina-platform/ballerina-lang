@@ -24,7 +24,6 @@ import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
-import java.util.Optional;
 
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 

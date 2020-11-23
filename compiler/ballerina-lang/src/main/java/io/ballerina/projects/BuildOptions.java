@@ -20,19 +20,16 @@ package io.ballerina.projects;
 import java.util.Objects;
 
 /**
- * Abstract class that contains options to consider when compiling the project.
- *
- * The public getters and setters for common options are exposed from this class. Other applicable options
- * be exposed by available project types accordingly.
+ * Build options of a project.
  */
 public class BuildOptions {
-    private String b7aConfigFile;
     private Boolean testReport;
     private Boolean codeCoverage;
     private CompilationOptions compilationOptions;
 
-    BuildOptions(Boolean testReport, Boolean codeCoverage, String b7aConfigFile, CompilationOptions compilationOptions) {
-        this.b7aConfigFile = b7aConfigFile;
+    BuildOptions(Boolean testReport,
+                 Boolean codeCoverage,
+                 CompilationOptions compilationOptions) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.compilationOptions = compilationOptions;
@@ -40,10 +37,6 @@ public class BuildOptions {
 
     public boolean testReport() {
         return toBooleanDefaultIfNull(testReport);
-    }
-
-    public String b7aConfigFile() {
-        return b7aConfigFile;
     }
 
     public boolean codeCoverage() {
@@ -70,6 +63,12 @@ public class BuildOptions {
         return compilationOptions;
     }
 
+    /**
+     * Merge the given build options by favoring theirs if there are conflicts.
+     *
+     * @param theirOptions Build options to be merged
+     * @return a new {@code BuildOptions} instance that contains our options and their options
+     */
     public BuildOptions acceptTheirs(BuildOptions theirOptions) {
 
         this.codeCoverage = Objects.requireNonNullElseGet(
@@ -82,7 +81,9 @@ public class BuildOptions {
     }
 
     private boolean toBooleanDefaultIfNull(Boolean bool) {
-        if (bool == null) return false;
+        if (bool == null) {
+            return false;
+        }
         return bool;
     }
 

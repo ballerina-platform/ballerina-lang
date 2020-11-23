@@ -429,8 +429,8 @@ public class BuildCommandTest extends BaseCommandTest {
                 "Generating Test Report\n" +
                 "\t../../../../../.." + projectPath.resolve("target").resolve("test_results.json").toString() + "\n" +
                 "\n" +
-                "\tView the test report at: file://" +
-                projectPath.resolve("target").resolve("report").resolve("index.html").toString() + "\n" +
+                "warning: Could not find the required HTML report tools for code coverage at " +
+                "<ballerina.home>/lib/tools/coverage/report.zip\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");
@@ -472,8 +472,8 @@ public class BuildCommandTest extends BaseCommandTest {
                 "Generating Test Report\n" +
                 "\t../../../../../.." + projectPath.resolve("target").resolve("test_results.json").toString() + "\n" +
                 "\n" +
-                "\tView the test report at: file://" +
-                projectPath.resolve("target").resolve("report").resolve("index.html").toString() + "\n" +
+                "warning: Could not find the required HTML report tools for code coverage at " +
+                "<ballerina.home>/lib/tools/coverage/report.zip\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");

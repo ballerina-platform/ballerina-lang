@@ -200,7 +200,6 @@ public class DocCommand implements BLauncherCmd {
 
     private BuildOptions constructBuildOptions() {
         return new BuildOptionsBuilder()
-                .b7aConfigFile(null)
                 .codeCoverage(false)
                 .experimental(experimentalFlag)
                 .offline(offline)

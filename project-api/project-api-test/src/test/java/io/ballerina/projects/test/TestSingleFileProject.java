@@ -17,7 +17,8 @@
  */
 package io.ballerina.projects.test;
 
-import io.ballerina.projects.CompilationOptions;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -83,20 +84,45 @@ public class TestSingleFileProject {
     }
 
     @Test(description = "tests setting build options to the project")
-    public void testCompilationOptions() {
+    public void testDefaultBuildOptions() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
         SingleFileProject project = null;
         try {
-            project = SingleFileProject.loadProject(projectPath);
+            project = SingleFileProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
 
-        Package currentPackage = project.currentPackage();
-        CompilationOptions compilationOptions = currentPackage.packageDescriptor().compilationOptions();
-
         // Verify expected default buildOptions
-        Assert.assertFalse(compilationOptions.skipTests());
+        Assert.assertFalse(project.buildOptions().skipTests());
+        Assert.assertFalse(project.buildOptions().observabilityIncluded());
+        Assert.assertFalse(project.buildOptions().codeCoverage());
+        Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertFalse(project.buildOptions().experimental());
+        Assert.assertFalse(project.buildOptions().testReport());
+    }
+
+    @Test(description = "tests setting build options to the project")
+    public void testOverrideBuildOptions() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        SingleFileProject project = null;
+        BuildOptions buildOptions = new BuildOptionsBuilder()
+                .skipTests(true)
+                .observabilityIncluded(true)
+                .build();
+        try {
+            project = SingleFileProject.load(projectPath, buildOptions);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        // Verify expected overridden buildOptions
+        Assert.assertTrue(project.buildOptions().skipTests());
+        Assert.assertTrue(project.buildOptions().observabilityIncluded());
+        Assert.assertFalse(project.buildOptions().codeCoverage());
+        Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertFalse(project.buildOptions().experimental());
+        Assert.assertFalse(project.buildOptions().testReport());
     }
 
     @Test

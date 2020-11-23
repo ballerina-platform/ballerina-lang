@@ -28,7 +28,6 @@ import io.ballerina.projects.internal.PackageConfigCreator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 /**
  * {@code SingleFileProject} represents a Ballerina standalone file.
@@ -43,7 +42,8 @@ public class SingleFileProject extends Project {
      */
     public static SingleFileProject load(ProjectEnvironmentBuilder environmentBuilder, Path filePath) {
         PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(filePath);
-        SingleFileProject singleFileProject = new SingleFileProject(environmentBuilder, filePath, new BuildOptionsBuilder().build());
+        SingleFileProject singleFileProject = new SingleFileProject(
+                environmentBuilder, filePath, new BuildOptionsBuilder().build());
         singleFileProject.addPackage(packageConfig);
         return singleFileProject;
     }

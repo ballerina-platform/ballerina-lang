@@ -32,10 +32,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -45,13 +42,6 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * This class represents the "run" command and it holds arguments and flags specified by the user.
@@ -194,7 +184,6 @@ public class RunCommand implements BLauncherCmd {
 
     private BuildOptions constructBuildOptions() {
         return new BuildOptionsBuilder()
-                .b7aConfigFile(null)
                 .codeCoverage(false)
                 .experimental(experimentalFlag)
                 .offline(offline)

@@ -28,7 +28,6 @@ import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
@@ -249,7 +248,6 @@ public class BuildCommand implements BLauncherCmd {
 
     private BuildOptions constructBuildOptions() {
         return new BuildOptionsBuilder()
-                .b7aConfigFile(null)
                 .codeCoverage(coverage)
                 .experimental(experimentalFlag)
                 .offline(offline)

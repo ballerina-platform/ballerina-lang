@@ -337,7 +337,8 @@ public class RunTestsTask implements Task {
                 File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
                 try (Writer writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8)) {
                     writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                    out.println("\tView the test report at: " + FILE_PROTOCOL + htmlFile.getAbsolutePath());
+                    out.println("\tView the test report at: " +
+                            FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize().toString());
                 } catch (IOException e) {
                     throw createLauncherException("couldn't read data from the Json file : " + e.toString());
                 }

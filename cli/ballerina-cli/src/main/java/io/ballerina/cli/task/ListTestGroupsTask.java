@@ -26,13 +26,11 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.testsuite.Test;
 import io.ballerina.projects.testsuite.TestSuite;
-import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 

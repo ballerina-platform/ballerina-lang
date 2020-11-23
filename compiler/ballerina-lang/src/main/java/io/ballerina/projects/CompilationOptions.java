@@ -74,7 +74,9 @@ class CompilationOptions {
     }
 
     private boolean toBooleanDefaultIfNull(Boolean bool) {
-        if (bool == null) return false;
+        if (bool == null) {
+            return false;
+        }
         return bool;
     }
 }

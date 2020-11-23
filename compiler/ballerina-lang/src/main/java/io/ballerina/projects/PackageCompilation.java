@@ -53,7 +53,9 @@ public class PackageCompilation {
     private DiagnosticResult diagnosticResult;
     private boolean compiled;
 
-    private PackageCompilation(PackageContext rootPackageContext, PackageResolution packageResolution, CompilationOptions compilationOptions)) {
+    private PackageCompilation(PackageContext rootPackageContext,
+                               PackageResolution packageResolution,
+                               CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.packageResolution = packageResolution;
 

@@ -19,7 +19,7 @@ import java.util.function.Function;
 public class Package {
     private final Project project;
     private final PackageContext packageContext;
-    private CompilationOptions compilationOptions;
+    private final CompilationOptions compilationOptions;
     private final Map<ModuleId, Module> moduleMap;
     private final Function<ModuleId, Module> populateModuleFunc;
 

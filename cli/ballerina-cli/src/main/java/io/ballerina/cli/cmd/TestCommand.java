@@ -34,10 +34,7 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -49,11 +46,6 @@ import java.util.List;
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 
 /**
  * This class represents the "ballerina test" command.
@@ -217,7 +209,6 @@ public class TestCommand implements BLauncherCmd {
 
     private BuildOptions constructBuildOptions() {
         return new BuildOptionsBuilder()
-                .b7aConfigFile(null)
                 .codeCoverage(coverage)
                 .experimental(experimentalFlag)
                 .offline(offline)

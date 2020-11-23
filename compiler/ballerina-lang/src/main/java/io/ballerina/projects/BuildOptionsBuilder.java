@@ -18,7 +18,7 @@
 package io.ballerina.projects;
 
 /**
- * This class can be used to create an instance of {@code CompilationOptions}.
+ * This class can be used to create an instance of {@code BuildOptions}.
  * <p>
  * Implements the builder pattern.
  *
@@ -27,7 +27,6 @@ package io.ballerina.projects;
 public class BuildOptionsBuilder {
     private Boolean testReport;
     private Boolean codeCoverage;
-    private String b7aConfigFile;
     private final CompilationOptionsBuilder compilationOptionsBuilder;
 
     public BuildOptionsBuilder() {
@@ -41,11 +40,6 @@ public class BuildOptionsBuilder {
 
     public BuildOptionsBuilder codeCoverage(Boolean value) {
         codeCoverage = value;
-        return this;
-    }
-
-    public BuildOptionsBuilder b7aConfigFile(String value) {
-        b7aConfigFile = value;
         return this;
     }
 
@@ -71,6 +65,6 @@ public class BuildOptionsBuilder {
 
     public BuildOptions build() {
         CompilationOptions compilationOptions = compilationOptionsBuilder.build();
-        return new BuildOptions(testReport, codeCoverage, b7aConfigFile, compilationOptions);
+        return new BuildOptions(testReport, codeCoverage, compilationOptions);
     }
 }
