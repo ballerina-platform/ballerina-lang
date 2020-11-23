@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.configurable;
 import com.moandjiezana.toml.Toml;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
@@ -84,9 +85,10 @@ public class TomlParser {
 
     private static Object validateAndExtractValue(VariableKey key, Toml moduleToml) throws TomlException {
         String variableName = key.variable;
+        Type type = key.type;
         Object value;
         try {
-            switch (key.type.getTag()) {
+            switch (type.getTag()) {
                 case TypeTags.INT_TAG:
                     value = moduleToml.getLong(variableName);
                     break;
@@ -101,10 +103,11 @@ public class TomlParser {
                     break;
                 default:
                     throw new TomlException(String.format("Configurable feature is yet to be supported for type '%s'",
-                            key.type.toString()));
+                            type.toString()));
             }
         } catch (ClassCastException e) {
-            throw new TomlException(INVALID_TOML_FILE + String.format(INVALID_VARIABLE_TYPE, variableName));
+            throw new TomlException(INVALID_TOML_FILE + String.format(INVALID_VARIABLE_TYPE, variableName,
+                    type.toString()));
         }
         return value;
     }

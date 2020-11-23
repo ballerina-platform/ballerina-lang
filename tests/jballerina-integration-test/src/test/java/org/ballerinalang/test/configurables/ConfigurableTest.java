@@ -107,7 +107,8 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testInvalidType() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "InvalidType").toAbsolutePath();
-        LogLeecher errorLeecher = new LogLeecher(errorMsg + "invalid type found for variable 'intVar'.", ERROR);
+        String typeError = "invalid type found for variable 'intVar', expected type is 'int'";
+        LogLeecher errorLeecher = new LogLeecher(errorMsg + typeError, ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
