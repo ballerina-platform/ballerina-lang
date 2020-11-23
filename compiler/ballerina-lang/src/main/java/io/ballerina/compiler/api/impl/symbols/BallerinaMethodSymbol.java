@@ -27,8 +27,8 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.tools.diagnostics.Location;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -70,7 +70,7 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
-    public Set<Qualifier> qualifiers() {
+    public List<Qualifier> qualifiers() {
         return this.functionSymbol.qualifiers();
     }
 
