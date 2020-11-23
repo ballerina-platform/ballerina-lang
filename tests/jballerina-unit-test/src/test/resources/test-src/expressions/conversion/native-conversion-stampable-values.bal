@@ -71,19 +71,35 @@ type OpenRecord record {
 
 };
 
-function testConvertMapJsonWithDecimalToOpenRecord() {
-    map<json> mp = {
+type OpenRecordWithUnionTarget record {|
+    string|decimal...;
+|};
+
+map<json> mp = {
         name: "foo",
         factor: 1.23d
     };
 
+function testConvertMapJsonWithDecimalToOpenRecord() {
     var or = mp.cloneWithType(OpenRecord);
 
-    if(or is error) {
+    if (or is error) {
         panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
     }
 
     OpenRecord castedValue = <OpenRecord>or;
+    assert(castedValue["factor"], mp["factor"]);
+    assert(castedValue["name"], mp["name"]);
+}
+
+function testConvertMapJsonWithDecimalUnionTarget() {
+    var or = mp.cloneWithType(OpenRecordWithUnionTarget);
+
+    if (or is error) {
+        panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
+    }
+
+    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget>or;
     assert(castedValue["factor"], mp["factor"]);
     assert(castedValue["name"], mp["name"]);
 }
@@ -94,7 +110,7 @@ function assert(anydata actual, anydata expected) {
         typedesc<anydata> actT = typeof actual;
         string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
                             + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        error e = error(reason);
-        panic e;
+
+        panic error(reason);
     }
 }

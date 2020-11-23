@@ -128,4 +128,9 @@ public class NativeConversionWithStampTypesTest {
     public void testConvertMapJsonWithDecimalToOpenRecord() {
         BRunUtil.invoke(compileResult, "testConvertMapJsonWithDecimalToOpenRecord");
     }
+
+    @Test
+    public void testConvertMapJsonWithDecimalUnionTarget() {
+        BRunUtil.invoke(compileResult, "testConvertMapJsonWithDecimalUnionTarget");
+    }
 }
