@@ -28,6 +28,7 @@ import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
@@ -192,7 +193,7 @@ public class BuildCommand implements BLauncherCmd {
             }
             try {
                 project = SingleFileProject.load(this.projectPath, buildOptions);
-            } catch (RuntimeException e) {
+            } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -211,7 +212,7 @@ public class BuildCommand implements BLauncherCmd {
             }
             try {
                 project = BuildProject.load(this.projectPath, buildOptions);
-            } catch (RuntimeException e) {
+            } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
