@@ -110,7 +110,7 @@ public class RunTestsTask implements Task {
         this.isRerunTestExection = false;
 
         // If rerunTests is true, we get the rerun test list and assign it to 'testList'
-        if (rerunTests) {
+        if (this.isRerunTestExection) {
             testList = new ArrayList<>();
         }
 
@@ -178,13 +178,6 @@ public class RunTestsTask implements Task {
                 throw createLauncherException("error while creating report directory in target", e);
             }
 
-            if (isRerunTestExection) {
-                singleExecTests = readFailedTestsFromFile(reportDir);
-            }
-
-            if (isSingleTestExecution || isRerunTestExection) {
-                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
-            }
             if (suite == null) {
                 if (!project.currentPackage().packageOrg().anonymous()) {
                     out.println();
@@ -198,6 +191,14 @@ public class RunTestsTask implements Task {
             } else if (isSingleTestExecution && suite.getTests().size() == 0) {
                 out.println("\t" + "No tests found with the given name/s");
                 continue;
+            }
+
+            if (isRerunTestExection) {
+                singleExecTests = readFailedTestsFromFile(reportDir);
+            }
+
+            if (isSingleTestExecution || isRerunTestExection) {
+                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
             }
             suite.setReportRequired(report || coverage);
             Collection<Path> dependencies = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);

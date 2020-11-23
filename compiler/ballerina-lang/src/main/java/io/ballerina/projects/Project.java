@@ -20,8 +20,6 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import io.ballerina.projects.internal.ProjectFiles;
-import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
 
