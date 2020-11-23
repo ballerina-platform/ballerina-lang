@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.environment.ModuleLoadRequest;
+import io.ballerina.projects.internal.TransactionImportValidator;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
@@ -124,6 +125,17 @@ class DocumentContext {
         for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
             moduleLoadRequests.add(getModuleLoadRequest(importDcl));
         }
+
+        // TODO This is a temporary solution for SLP6 release
+        // TODO Traverse the syntax tree to see whether to import the ballerinai/transaction package or not
+        TransactionImportValidator trxImportValidator = new TransactionImportValidator();
+        if (trxImportValidator.shouldImportTransactionPackage(modulePartNode)) {
+            PackageName packageName = PackageName.from("transaction");
+            ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(PackageOrg.from("ballerinai"),
+                    packageName, ModuleName.from(packageName), null);
+            moduleLoadRequests.add(ballerinaiLoadReq);
+        }
+
         return moduleLoadRequests;
     }
 
