@@ -48,6 +48,14 @@ public abstract class AbstractLexer {
         startMode(initialParserMode);
     }
 
+    public AbstractLexer(CharReader charReader,
+                         ParserMode initialParserMode,
+                         Collection<STNodeDiagnostic> diagnostics) {
+        this.reader = charReader;
+        startMode(initialParserMode);
+        this.diagnostics = diagnostics;
+    }
+
     /**
      * Get the next lexical token.
      * 
