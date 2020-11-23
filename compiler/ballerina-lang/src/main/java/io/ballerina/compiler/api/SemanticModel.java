@@ -66,7 +66,7 @@ public interface SemanticModel {
      * @param range    the text range of the expression
      * @return the type of the expression
      */
-    Optional<TypeSymbol> getType(String fileName, LineRange range);
+    Optional<TypeSymbol> type(String fileName, LineRange range);
 
     /**
      * Get the diagnostics within the given text Span.
