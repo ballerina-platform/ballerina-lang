@@ -909,7 +909,11 @@ public class TypeChecker {
                 target = (BXmlType) target.constraint;
                 targetConstraint = target.constraint;
             }
-            return checkIsType(((BXmlType) sourceType).constraint, targetConstraint,
+            BXmlType source = (BXmlType) sourceType;
+            if (source.constraint.getTag() == TypeTags.NEVER_TAG) {
+                return target.getTag() == TypeTags.XML_TAG;
+            }
+            return checkIsType(source.constraint, targetConstraint,
                     unresolvedTypes);
         }
         if (TypeTags.isXMLTypeTag(sourceTag)) {

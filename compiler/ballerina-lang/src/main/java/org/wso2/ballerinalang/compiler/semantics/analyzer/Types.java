@@ -952,6 +952,21 @@ public class Types {
         return sourceTag == targetTag;
     }
 
+    public boolean isConversionExprXMLNever(BLangTypeConversionExpr conversionExpr) {
+        if (conversionExpr.expr.type.tag == TypeTags.XML) {
+            BXMLType conversionExpressionType = (BXMLType) conversionExpr.expr.type;
+            //Revisit and check xml<xml<constraint>>> on chained iteration
+            while (conversionExpressionType.constraint.tag == TypeTags.XML) {
+                conversionExpressionType = (BXMLType) conversionExpressionType.constraint;
+            }
+            if (conversionExpressionType.constraint.tag == TypeTags.NEVER) {
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
     private boolean isTupleTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
         if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
             return false;

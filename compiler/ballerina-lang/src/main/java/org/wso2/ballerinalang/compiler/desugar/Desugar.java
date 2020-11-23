@@ -62,18 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.*;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -4959,16 +4948,12 @@ public class Desugar extends BLangNodeVisitor {
         }
         conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
         if (conversionExpr.type.tag == TypeTags.STRING && (conversionExpr.expr.type.tag == TypeTags.XML_TEXT ||
-                isConversionExprXMLNever(conversionExpr))) {
+                types.isConversionExprXMLNever(conversionExpr))) {
             result = convertXMLTextToString(conversionExpr);
             return;
         }
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
         result = conversionExpr;
-    }
-
-    private boolean isConversionExprXMLNever(BLangTypeConversionExpr conversionExpr) {
-        return types.isAssignable(conversionExpr.expr.type, conversionExpr.type);
     }
 
     private BLangExpression convertXMLTextToString(BLangTypeConversionExpr conversionExpr) {
