@@ -19,6 +19,7 @@
 package toml.parser.test.api.errors;
 
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -33,7 +34,7 @@ import java.util.List;
 public class ErrorTestUtils {
     private static final PrintStream OUT = System.out;
 
-    public static void validateDiagnostic(TomlDiagnostic actual, LineRange expectedLineRange, String expectedMessage,
+    public static void validateDiagnostic(Diagnostic actual, LineRange expectedLineRange, String expectedMessage,
                                           DiagnosticSeverity diagnosticSeverity) {
         Assert.assertEquals(actual.location().lineRange(), expectedLineRange);
         Assert.assertEquals(actual.message(), expectedMessage);

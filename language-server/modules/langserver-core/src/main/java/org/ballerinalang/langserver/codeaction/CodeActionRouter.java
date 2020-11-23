@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.apache.commons.lang3.tuple.Pair;
@@ -28,7 +30,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,21 +50,23 @@ public class CodeActionRouter {
      * @return list of code actions
      */
     public static List<CodeAction> getAvailableCodeActions(CodeActionContext ctx) {
-        Optional<SyntaxTree> syntaxTree = ctx.workspace().syntaxTree(ctx.filePath());
-        if (syntaxTree.isEmpty()) {
-            return Collections.emptyList();
-        }
+        SyntaxTree syntaxTree = ctx.workspace().syntaxTree(ctx.filePath()).orElseThrow();
 
         List<CodeAction> codeActions = new ArrayList<>();
         CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder.getInstance();
         // Get available node-type based code-actions
         Optional<Pair<CodeActionNodeType, NonTerminalNode>> nodeTypeAndNode = codeActionNodeType(ctx);
+        SemanticModel semanticModel = ctx.workspace().semanticModel(ctx.filePath()).orElseThrow();
+        String relPath = ctx.filePath().getFileName().toString();
         if (nodeTypeAndNode.isPresent()) {
             CodeActionNodeType nodeType = nodeTypeAndNode.get().getLeft();
-            NonTerminalNode node = nodeTypeAndNode.get().getRight();
+            NonTerminalNode matchedNode = nodeTypeAndNode.get().getRight();
+            TypeSymbol matchedTypeSymbol = semanticModel.getType(relPath, matchedNode.lineRange()).orElse(null);
+            PositionDetails posDetails = PositionDetailsImpl.from(matchedNode, null, matchedTypeSymbol);
+            ctx.setPositionDetails(posDetails);
             codeActionProvidersHolder.getActiveNodeBasedProviders(nodeType).forEach(provider -> {
                 try {
-                    List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(node, nodeType, ctx);
+                    List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(ctx);
                     if (codeActionsOut != null) {
                         codeActions.addAll(codeActionsOut);
                     }
@@ -74,13 +77,14 @@ public class CodeActionRouter {
             });
         }
         // Get available diagnostics based code-actions
-        List<Diagnostic> cursorDiagnostics = ctx.getCursorDiagnostics();
+        List<Diagnostic> cursorDiagnostics = ctx.cursorDiagnostics();
         if (cursorDiagnostics != null && !cursorDiagnostics.isEmpty()) {
             for (Diagnostic diagnostic : cursorDiagnostics) {
-                PositionDetails posDetails = findCursorDetails(diagnostic.getRange(), syntaxTree.get(), ctx);
+                PositionDetails posDetails = findCursorDetails(diagnostic.getRange(), syntaxTree, ctx);
+                ctx.setPositionDetails(posDetails);
                 codeActionProvidersHolder.getActiveDiagnosticsBasedProviders().forEach(provider -> {
                     try {
-                        List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic, posDetails, ctx);
+                        List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic, ctx);
                         if (codeActionsOut != null) {
                             codeActions.addAll(codeActionsOut);
                         }

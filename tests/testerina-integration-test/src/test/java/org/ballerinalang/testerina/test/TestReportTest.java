@@ -54,6 +54,15 @@ public class TestReportTest extends BaseTestCase {
     }
 
     @Test ()
+    public void testWarningForReportTools() throws BallerinaTestException, IOException {
+        String msg = "warning: Could not find the required HTML report tools for code coverage";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"--code-coverage"}, null, new String[]{},
+                new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(60000);
+    }
+
+    @Test ()
     public void testWithCoverage() throws BallerinaTestException, IOException {
         runCommand(true);
         validateStatuses();

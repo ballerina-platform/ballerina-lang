@@ -643,7 +643,12 @@ class SymbolFinder extends BLangNodeVisitor {
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         lookupNode(indexAccessExpr.expr);
-        lookupNode(indexAccessExpr.indexExpr);
+
+        if (indexAccessExpr.indexExpr instanceof BLangLiteral) {
+            setEnclosingNode(indexAccessExpr.symbol, indexAccessExpr.indexExpr.pos);
+        } else {
+            lookupNode(indexAccessExpr.indexExpr);
+        }
     }
 
     @Override

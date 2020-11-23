@@ -1,0 +1,24 @@
+{
+    "line": 2,
+    "character": 12,
+    "expected": [
+        {
+            "title": "Add Type Cast to Assignment",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 2,
+                            "character": 12
+                        },
+                        "end": {
+                            "line": 2,
+                            "character": 12
+                        }
+                    },
+                    "newText": "\u003cint\u003e "
+                }
+            ]
+        }
+    ]
+}

@@ -17,19 +17,18 @@
  */
 package io.ballerina.projects.internal.environment;
 
-import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.environment.ModuleLoadRequest;
-import io.ballerina.projects.environment.ModuleLoadResponse;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageLoadRequest;
+import io.ballerina.projects.environment.PackageLoadResponse;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,49 +47,26 @@ public class LangLibResolver extends PackageResolver {
     }
 
     @Override
-    public Collection<ModuleLoadResponse> loadPackages(Collection<ModuleLoadRequest> moduleLoadRequests) {
-        // TODO This is a dummy implementation that checks only the current package in the project.
-        List<ModuleLoadResponse> modLoadResponses = new ArrayList<>();
-        for (ModuleLoadRequest modLoadRequest : moduleLoadRequests) {
-            Module module = loadFromCache(modLoadRequest);
-            if (module == null) {
-                module = loadFromDistributionCache(modLoadRequest);
+    public Collection<PackageLoadResponse> resolvePackages(Collection<PackageLoadRequest> packageLoadRequests) {
+        if (packageLoadRequests.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<PackageLoadResponse> packageLoadResponses = new ArrayList<>();
+        for (PackageLoadRequest packageLoadRequest : packageLoadRequests) {
+            Package resolvedPackage = loadPackageFromCache(packageLoadRequest);
+            if (resolvedPackage == null) {
+                resolvedPackage = loadPackageFromDistributionCache(packageLoadRequest);
             }
 
-            if (module == null) {
+            if (resolvedPackage == null) {
                 continue;
             }
-            modLoadResponses.add(new ModuleLoadResponse(module.packageInstance().packageId(), module.moduleId(),
-                    modLoadRequest));
-        }
-        return modLoadResponses;
-    }
 
-    private Module loadFromDistributionCache(ModuleLoadRequest modLoadRequest) {
-        // If version is null load the latest package
-        PackageLoadRequest loadRequest = PackageLoadRequest.from(modLoadRequest);
-        if (loadRequest.version().isEmpty()) {
-            // find the latest version
-            List<PackageVersion> packageVersions = distCache.getPackageVersions(loadRequest);
-            if (packageVersions.isEmpty()) {
-                // no versions found.
-                // todo handle package not found with exception
-                return null;
-            }
-            PackageVersion latest = findlatest(packageVersions);
-            loadRequest = PackageLoadRequest.from(
-                    PackageDescriptor.from(loadRequest.packageName(),
-                            loadRequest.orgName().orElse(null), latest));
+            packageLoadResponses.add(PackageLoadResponse.from(resolvedPackage, packageLoadRequest));
         }
 
-        Optional<Package> packageOptional = distCache.getPackage(loadRequest);
-
-        return packageOptional.map(pkg -> {
-            pkg.resolveDependencies();
-            globalPackageCache.cache(pkg);
-            // todo fetch the correct module and return
-            return pkg.getDefaultModule();
-        }).orElse(null);
+        return packageLoadResponses;
     }
 
     private PackageVersion findlatest(List<PackageVersion> packageVersions) {
@@ -98,16 +74,35 @@ public class LangLibResolver extends PackageResolver {
         return packageVersions.get(0);
     }
 
-    private Module loadFromCache(ModuleLoadRequest modLoadRequest) {
+    private Package loadPackageFromDistributionCache(PackageLoadRequest packageLoadRequest) {
+        // If version is null load the latest package
+        if (packageLoadRequest.version().isEmpty()) {
+            // find the latest version
+            List<PackageVersion> packageVersions = distCache.getPackageVersions(packageLoadRequest);
+            if (packageVersions.isEmpty()) {
+                // no versions found.
+                // todo handle package not found with exception
+                return null;
+            }
+            PackageVersion latest = findlatest(packageVersions);
+            packageLoadRequest = PackageLoadRequest.from(
+                    PackageDescriptor.from(packageLoadRequest.packageName(), packageLoadRequest.orgName(), latest));
+        }
+
+        Optional<Package> packageOptional = distCache.getPackage(packageLoadRequest);
+        packageOptional.ifPresent(globalPackageCache::cache);
+        return packageOptional.orElse(null);
+    }
+
+    private Package loadPackageFromCache(PackageLoadRequest packageLoadRequest) {
         // TODO improve the logic
-        List<Package> packageList = globalPackageCache.getPackages(
-                modLoadRequest.orgName().orElse(null), modLoadRequest.packageName());
+        List<Package> packageList = globalPackageCache.getPackages(packageLoadRequest.orgName(),
+                packageLoadRequest.packageName());
 
         if (packageList.isEmpty()) {
             return null;
         }
 
-        Package pkg = packageList.get(0);
-        return pkg.module(modLoadRequest.moduleName());
+        return packageList.get(0);
     }
 }
