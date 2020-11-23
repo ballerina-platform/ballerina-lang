@@ -167,7 +167,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
     }
 
     protected List<LSCompletionItem> getSymbolCompletions(CompletionContext context) {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         // TODO: Can we get this filter to a common place
         List<Symbol> filteredList = visibleSymbols.stream()

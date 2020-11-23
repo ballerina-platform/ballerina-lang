@@ -54,7 +54,7 @@ public class BLangRecordLiteralUtil {
     public static List<LSCompletionItem> getSpreadCompletionItems(CompletionContext context, TypeSymbol evalType) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<TypeSymbol> typeList = getTypeListForMapAndRecords(evalType);
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
 
         for (Symbol symbol : visibleSymbols) {
             getSpreadableCompletionItem(context, symbol, typeList).ifPresent(completionItems::add);
