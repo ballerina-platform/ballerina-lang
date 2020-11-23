@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -117,7 +118,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     @Override
     public boolean assignableTo(TypeSymbol targetType) {
         Types types = Types.getInstance(this.context);
-        return types.isAssignable(this.internalSymbol.type, ((AbstractTypeSymbol) targetType).getBType());
+        return types.isAssignable(this.internalSymbol.type, getTargetBType(targetType));
     }
 
     @Override
@@ -128,6 +129,18 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     @Override
     public List<Qualifier> qualifiers() {
         return this.qualifiers;
+    }
+
+    BType getBType() {
+        return this.internalSymbol.type;
+    }
+
+    private BType getTargetBType(TypeSymbol typeSymbol) {
+        if (typeSymbol.kind() == SymbolKind.TYPE) {
+            return ((AbstractTypeSymbol) typeSymbol).getBType();
+        }
+
+        return ((BallerinaClassSymbol) typeSymbol).getBType();
     }
 
     /**

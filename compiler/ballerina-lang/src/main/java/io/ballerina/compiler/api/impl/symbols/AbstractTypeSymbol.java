@@ -103,7 +103,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     @Override
     public boolean assignableTo(TypeSymbol targetType) {
         Types types = Types.getInstance(this.context);
-        return types.isAssignable(this.bType, ((AbstractTypeSymbol) targetType).bType);
+        return types.isAssignable(this.bType, getTargetBType(targetType));
     }
 
     /**
@@ -130,6 +130,14 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         }
 
         return filteredFunctions;
+    }
+
+    private BType getTargetBType(TypeSymbol typeSymbol) {
+        if (typeSymbol.kind() == SymbolKind.TYPE) {
+            return ((AbstractTypeSymbol) typeSymbol).getBType();
+        }
+
+        return ((BallerinaClassSymbol) typeSymbol).getBType();
     }
 
     private Documentation getDocAttachment(BType bType) {
