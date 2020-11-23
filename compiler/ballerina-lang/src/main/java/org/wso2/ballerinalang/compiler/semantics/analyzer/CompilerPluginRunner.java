@@ -26,7 +26,7 @@ import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -168,7 +168,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         try {
             consumer.accept(arg);
         } catch (Throwable e) {
-            dlog.warning(pkgNode.pos, DiagnosticCode.COMPILER_PLUGIN_ERROR);
+            dlog.warning(pkgNode.pos, DiagnosticWarningCode.COMPILER_PLUGIN_ERROR);
             printErrorLog(e);
             failedPlugins.add(plugin);
         }
@@ -326,7 +326,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             try {
                 notifier.accept(processor, Collections.unmodifiableList(list));
             } catch (Throwable e) {
-                dlog.warning(list.get(0).getPosition(), DiagnosticCode.COMPILER_PLUGIN_ERROR);
+                dlog.warning(list.get(0).getPosition(), DiagnosticWarningCode.COMPILER_PLUGIN_ERROR);
                 printErrorLog(e);
                 failedPlugins.add(processor);
             }

@@ -28,6 +28,7 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -50,6 +51,7 @@ import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
@@ -90,7 +92,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class TypedescriptorTest {
 
-    SemanticModel model;
+    private SemanticModel model;
 
     @BeforeClass
     public void setup() {
@@ -386,6 +388,52 @@ public class TypedescriptorTest {
                 {94, 23, TYPE_REFERENCE, NIL},
                 {95, 45, RECORD, ERROR}
         };
+    }
+
+    @Test(dataProvider = "RecordTypeInclusionPosProvider")
+    public void testRecordTypeInclusion(int line, int col, TypeDescKind typeKind, Set<String> expTypes) {
+        Symbol symbol = getSymbol(line, col);
+        RecordTypeSymbol type = (RecordTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
+        List<TypeSymbol> typeInclusions = type.typeInclusions();
+
+        for (TypeSymbol inclusion : typeInclusions) {
+            assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), typeKind);
+            assertTrue(expTypes.contains(inclusion.name()));
+        }
+    }
+
+    @DataProvider(name = "RecordTypeInclusionPosProvider")
+    public Object[][] getRecordTypeInclusionPos() {
+        return new Object[][]{
+                {113, 6, RECORD, Set.of("Person")},
+                {126, 6, RECORD, Set.of("Foo", "Bar")},
+        };
+    }
+
+    @Test
+    public void testObjectTypeInclusion() {
+        Set<String> expTypes = Set.of("FooObj", "BarObj");
+        Symbol symbol = getSymbol(144, 6);
+        ObjectTypeSymbol type = (ObjectTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
+        List<TypeSymbol> typeInclusions = type.typeInclusions();
+
+        for (TypeSymbol inclusion : typeInclusions) {
+            assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), OBJECT);
+            assertTrue(expTypes.contains(inclusion.name()));
+        }
+    }
+
+    @Test
+    public void testObjectTypeInclusionInClasses() {
+        Set<String> expTypes = Set.of("PersonObj");
+        Symbol symbol = getSymbol(149, 6);
+        ClassSymbol clazz = (ClassSymbol) symbol;
+        List<TypeSymbol> typeInclusions = clazz.typeInclusions();
+
+        for (TypeSymbol inclusion : typeInclusions) {
+            assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), OBJECT);
+            assertTrue(expTypes.contains(inclusion.name()));
+        }
     }
 
     private Symbol getSymbol(int line, int column) {

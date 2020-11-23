@@ -180,3 +180,22 @@ public function main() {
     string 'üňĩćőđę_var = "IL with unicode characters in var";
     json 'ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{2324}_json = {};
 }
+
+function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {
+    return string `[${baseSalary}, ${annualIncrement}, ${bonusRate}]`;
+}
+
+function calculate(int a, int b, int c) returns int {
+    return a + 2 * b + 3 * c;
+}
+
+function printDetails(string name, int age = 18, string... modules) returns string {
+    string detailString = "Name: " + name + ", Age: " + age.toString();
+    string moduleString = "";
+    if (modules.length() == 0) {
+        moduleString = "Module(s): ()";
+    } else {
+        moduleString = "Module(s): " + modules[0];
+    }
+    return  string `[${name}, ${age}, ${moduleString}]`;
+}

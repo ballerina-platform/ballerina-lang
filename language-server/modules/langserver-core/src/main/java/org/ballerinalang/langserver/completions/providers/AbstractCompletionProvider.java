@@ -184,7 +184,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @return {@link List}     List of completion items
      */
     protected List<LSCompletionItem> getTypeItems(CompletionContext context) {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(bSymbol -> {
             if (bSymbol.kind() == SymbolKind.TYPE || bSymbol.kind() == SymbolKind.CLASS) {
@@ -232,10 +232,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     protected List<LSCompletionItem> getModuleCompletionItems(CompletionContext ctx) {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
-        List<ImportDeclarationNode> currentModuleImports = ctx.getCurrentDocImports();
+        List<ImportDeclarationNode> currentModuleImports = ctx.currentDocImports();
         List<LSCompletionItem> completionItems = currentModuleImports.stream()
                 .map(importNode -> {
-                    String orgName = importNode.orgName().isPresent()
+                    String orgName = importNode.orgName().isEmpty()
                             ? "" : importNode.orgName().get().orgName().text();
                     String pkgName = importNode.moduleName().stream()
                             .map(Token::text)
@@ -298,7 +298,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             }
         });
 
-        List<LSCompletionItem> langlibModules = ctx.getVisibleSymbols(ctx.getCursorPosition()).stream()
+        List<LSCompletionItem> langlibModules = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
                 .filter(symbol -> {
                     ModuleID moduleID = symbol.moduleID();
                     return symbol.kind() == MODULE && moduleID.orgName().equals("ballerina")
@@ -497,7 +497,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     protected List<LSCompletionItem> expressionCompletions(CompletionContext context) {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         /*
         check and check panic expression starts with check and check panic keywords, Which has been added with actions.
         query pipeline starts with from keyword and also being added with the actions

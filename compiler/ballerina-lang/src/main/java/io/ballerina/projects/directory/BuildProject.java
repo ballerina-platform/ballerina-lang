@@ -62,6 +62,7 @@ public class BuildProject extends Project {
 
     private BuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
         super(ProjectKind.BUILD_PROJECT, projectPath, environmentBuilder);
+        populateCompilerContext();
     }
 
     public Optional<Path> modulePath(ModuleId moduleId) {

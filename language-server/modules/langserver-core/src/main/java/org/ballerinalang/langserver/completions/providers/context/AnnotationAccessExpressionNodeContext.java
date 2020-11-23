@@ -113,7 +113,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         }
 
         List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == ANNOTATION && ((AnnotationSymbol) symbol).attachPoints()
                         .stream()
@@ -157,7 +157,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
      * @return {@link Optional} scope entry for the node
      */
     private Optional<Symbol> getExpressionEntry(CompletionContext context, Node expressionNode) {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
 
         switch (expressionNode.kind()) {
             case SIMPLE_NAME_REFERENCE:

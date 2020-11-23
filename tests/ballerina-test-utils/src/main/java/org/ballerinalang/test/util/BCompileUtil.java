@@ -489,6 +489,24 @@ public class BCompileUtil {
         return comResult;
     }
 
+    public static CompileResult compile(String projectPath, String packageName, CompilerContext context,
+                                        CompilerPhase compilerPhase) {
+        Path sourceRoot = resourceDir.resolve(projectPath);
+
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRoot.toString());
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(OFFLINE, "true");
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage packageNode = compiler.compile(packageName);
+        CompileResult comResult = new CompileResult(context, packageNode);
+        return comResult;
+    }
+
     private static CompileResult compile(CompilerContext context,
                                          String packageName,
                                          CompilerPhase compilerPhase,

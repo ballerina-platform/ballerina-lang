@@ -53,15 +53,16 @@ public class AddCommandTest extends BaseCommandTest {
 
     @Test(description = "Test add command")
     public void testAddCommand() throws IOException {
-        String[] args = {"module1"};
+        String moduleName = "module1";
+        String[] args = {moduleName};
         AddCommand addCommand = new AddCommand(projectPath, printStream);
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Path moduleDir = modulesPath.resolve("module1");
+        Path moduleDir = modulesPath.resolve(moduleName);
         Assert.assertTrue(Files.exists(moduleDir));
         Assert.assertTrue(Files.isDirectory(moduleDir));
-        Assert.assertTrue(Files.exists(moduleDir.resolve("main.bal")));
+        Assert.assertTrue(Files.exists(moduleDir.resolve(moduleName + ".bal")));
         Assert.assertTrue(readOutput().contains("Added new ballerina module"));
     }
 

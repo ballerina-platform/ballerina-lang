@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Diagnostic;
@@ -40,6 +41,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     private Position cursorPosition;
     private List<Diagnostic> diagnostics;
     private final CodeActionParams params;
+    private PositionDetails positionDetails;
 
     public CodeActionContextImpl(LSOperation operation,
                                  String fileUri,
@@ -50,7 +52,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     }
 
     @Override
-    public Position getCursorPosition() {
+    public Position cursorPosition() {
         if (this.cursorPosition == null) {
             int line = params.getRange().getStart().getLine();
             int col = params.getRange().getStart().getCharacter();
@@ -61,7 +63,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     }
 
     @Override
-    public List<Diagnostic> getAllDiagnostics() {
+    public List<Diagnostic> allDiagnostics() {
         if (diagnostics == null) {
             Optional<SemanticModel> semanticModel = this.workspace().semanticModel(this.filePath());
             semanticModel.ifPresent(model -> this.diagnostics = CodeActionUtil.toDiagnostics(model.diagnostics()));
@@ -71,8 +73,18 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     }
 
     @Override
-    public List<Diagnostic> getCursorDiagnostics() {
+    public List<Diagnostic> cursorDiagnostics() {
         return params.getContext().getDiagnostics();
+    }
+
+    @Override
+    public void setPositionDetails(PositionDetails positionDetails) {
+        this.positionDetails = positionDetails;
+    }
+
+    @Override
+    public PositionDetails positionDetails() {
+        return this.positionDetails;
     }
 
     /**

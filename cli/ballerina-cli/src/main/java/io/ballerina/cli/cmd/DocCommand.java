@@ -76,10 +76,6 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
     private String outputLoc;
 
-    @CommandLine.Option(names = {"--excludeIndex", "-excludeIndex"}, description = "Prevents project index from " +
-            "being generated.")
-    private boolean excludeIndex;
-
     @CommandLine.Option(names = {"--combine", "-combine"}, description = "Creates index using modules.")
     private boolean combine;
 
@@ -170,7 +166,7 @@ public class DocCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 //.addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
-                .addTask(new CreateDocsTask(excludeIndex, outStream, outputPath)) // creates API documentation
+                .addTask(new CreateDocsTask(outStream, outputPath)) // creates API documentation
                 .build();
 
         taskExecutor.executeTasks(project);

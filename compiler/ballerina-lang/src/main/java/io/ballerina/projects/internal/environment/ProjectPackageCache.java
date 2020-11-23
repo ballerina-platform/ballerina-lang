@@ -18,6 +18,7 @@
 package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
@@ -69,15 +70,32 @@ public class ProjectPackageCache implements WritablePackageCache {
     public Optional<Package> getPackage(PackageOrg packageOrg,
                                         PackageName packageName,
                                         PackageVersion version) {
+        if (isCurrentPackage(packageOrg, packageName, version)) {
+            return Optional.of(project.currentPackage());
+        }
         return globalPackageCache.getPackage(packageOrg, packageName, version);
     }
 
     @Override
     public List<Package> getPackages(PackageOrg packageOrg, PackageName packageName) {
+        if (isCurrentPackage(packageOrg, packageName)) {
+            return List.of(project.currentPackage());
+        }
         return globalPackageCache.getPackages(packageOrg, packageName);
     }
 
     private boolean isCurrentPackage(PackageId packageId) {
         return project.currentPackage().packageId() == packageId;
+    }
+
+    private boolean isCurrentPackage(PackageOrg packageOrg, PackageName packageName) {
+        PackageDescriptor descriptor = project.currentPackage().descriptor();
+        return descriptor.org().equals(packageOrg) && descriptor.name().equals(packageName);
+    }
+
+    private boolean isCurrentPackage(PackageOrg packageOrg, PackageName packageName, PackageVersion version) {
+        PackageDescriptor descriptor = project.currentPackage().descriptor();
+        return descriptor.org().equals(packageOrg) && descriptor.name().equals(packageName) &&
+                descriptor.version().equals(version);
     }
 }

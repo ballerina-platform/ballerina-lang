@@ -59,8 +59,12 @@ public class FileUtils {
                 .map(f -> f.substring(fileName.toString().lastIndexOf(".") + 1));
         return extension.orElse("");
     }
-    
+
     public static boolean hasExtension(Path filePath) {
+        if (filePath.toFile().isDirectory()) {
+            return false;
+        }
+
         Path fileName = filePath.getFileName();
         if (null != fileName) {
             int index = indexOfExtension(fileName.toString());

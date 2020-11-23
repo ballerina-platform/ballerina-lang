@@ -44,7 +44,7 @@ public class PanicStatementNodeContext extends AbstractCompletionProvider<PanicS
     public List<LSCompletionItem> getCompletions(CompletionContext context, PanicStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(SymbolUtil::isError)
                 .collect(Collectors.toList());

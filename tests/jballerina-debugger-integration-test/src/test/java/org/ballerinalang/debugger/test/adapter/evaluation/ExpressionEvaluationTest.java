@@ -220,9 +220,75 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void functionCallEvaluationTest() throws BallerinaTestException {
-        // functions in a different module file.
-        assertExpression(context, "sum(34,56)", "90", "int");
-        assertExpression(context, "getName(\"John\")", "Name: John", "string");
+
+        // ---------------------- Required Parameters + named arguments ---------------------------------
+
+        // Arguments for required parameters can be passed as positional arguments.
+        // Positional arguments need to be passed in the expected order.
+        assertExpression(context, " calculate ( 5 , 6 , 7 ) ;", "38", "int");
+
+        // Arguments for required parameters can also be passed as named arguments.
+        // Named arguments do not have to be specified in the order in which the parameters are defined.
+        assertExpression(context, "calculate ( 5 , c  =  7 , b  =  6 );", "38", "int");
+
+        // ---------------------- Defaultable Parameters + named arguments  ---------------------------------
+
+        // Call the function by passing a value only for the `baseSalary` parameter.
+        // The `annualIncrement` and `bonusRate` parameters default to 20 and 0.02 respectively.
+        assertExpression(context, "printSalaryDetails(2500)", "[2500, 20, 0.02]", "string");
+
+        // Call the function by passing values only for the `baseSalary` and `annualIncrement`
+        // parameters. The value for the `annualIncrement` parameter is passed as a named argument.
+        // The `bonusRate` parameter defaults to 0.02.
+        assertExpression(context, "printSalaryDetails(2500, annualIncrement = 100)", "[2500, 100, 0.02]", "string");
+
+        // Call the function again by passing values only for the `baseSalary` and `annualIncrement`
+        // parameters, now passing the value for the `annualIncrement` parameter as a positional argument.
+        // The `bonusRate` parameter defaults to 0.02.
+        assertExpression(context, "printSalaryDetails(2500, 100);", "[2500, 100, 0.02]", "string");
+
+        // Call the function by passing values only for the `baseSalary` and `bonusRate` parameters.
+        // The `annualIncrement` parameter defaults to 20.
+        assertExpression(context, "printSalaryDetails(2500, bonusRate = 0.1);", "[2500, 20, 0.1]", "string");
+
+        // In order to pass the value for `bonusRate` as a positional argument, a value would
+        // have to be specified for the `annualIncrement` parameter too.
+        // All arguments are positional arguments here.
+        assertExpression(context, "printSalaryDetails(2500, 20, 0.1);", "[2500, 20, 0.1]", "string");
+
+        // Call the function by passing values for all three parameters, the first argument as
+        // a positional argument and the rest as named arguments.
+        assertExpression(context, "printSalaryDetails(2500, annualIncrement = 100, bonusRate = 0.1);",
+                "[2500, 100, 0.1]", "string");
+
+        // Call the function by passing all three arguments as named arguments.
+        // Any and all arguments after the first named argument need to be specified
+        // as named arguments but could be specified in any order.
+        assertExpression(context, "printSalaryDetails(annualIncrement = 100, baseSalary = 2500, bonusRate = 0.1);",
+                "[2500, 100, 0.1]", "string");
+
+        // ----------------------------  Rest Parameters  ------------------------------------------
+        // Todo - Enable once the debugger runtime helper module is restored.
+
+        // Call the function by passing only the required parameter.
+        // assertExpression(context, "printDetails(\"Alice\");", "[2500, 20, 0.02]", "string");
+
+        // Call the function by passing the required parameter and the defaultable parameter. Named arguments can
+        // also be used since values are not passed for the rest parameter.
+        // assertExpression(context, "printDetails(\"Bob\", 20);", "[2500, 20, 0.02]", "string");
+
+        // Call the function by passing the required parameter, the defaultable parameter, and one value for the rest
+        // parameter. Arguments cannot be passed as named arguments since values are specified for the rest parameter.
+        // assertExpression(context, "printDetails(\"Corey\", 19, \"Math\");", "[2500, 20, 0.02]", "string");
+
+        // Call the function by passing the required parameter, defaultable parameter,
+        // and multiple values for the rest parameter.
+        // assertExpression(context, "printDetails(\"Diana\", 20, \"Math\", \"Physics\");", "[2500, 20, 0.02]",
+        // "string");
+
+        // Pass an array as the rest parameter instead of calling the
+        // function by passing each value separately.
+        // assertExpression(context, "printDetails(\"Diana\", 20, ...modules);", "[2500, 20, 0.02]", "string");
     }
 
     @Override
@@ -271,7 +337,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void unaryExpressionEvaluationTest() throws BallerinaTestException {
         // unary plus operator
         // int
@@ -299,7 +365,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void multiplicativeExpressionEvaluationTest() throws BallerinaTestException {
         ///////////////////////////////-----------multiplication----------------////////////////////////////////////////
         // int * int
@@ -361,7 +427,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void additiveExpressionEvaluationTest() throws BallerinaTestException {
         //////////////////////////////-------------addition------------------///////////////////////////////////////////
         // int + int
@@ -411,7 +477,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void shiftExpressionEvaluationTest() throws BallerinaTestException {
         assertExpression(context, String.format("%s << %s", INT_VAR, INT_VAR), "20971520", "int");
         assertExpression(context, String.format("%s << %s", SIGNED32INT_VAR, SIGNED8INT_VAR), "0", "int");
@@ -440,7 +506,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void comparisonEvaluationTest() throws BallerinaTestException {
         // expression < expression
         // int - int
@@ -549,7 +615,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void binaryBitwiseEvaluationTest() throws BallerinaTestException {
         // bitwise AND
         assertExpression(context, String.format("%s & %s", INT_VAR, INT_VAR), "20", "int");
@@ -560,7 +626,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test(enabled = false)
+    @Test
     public void logicalEvaluationTest() throws BallerinaTestException {
         // logical AND
         assertExpression(context, String.format("%s && false", BOOLEAN_VAR), "false", "boolean");
