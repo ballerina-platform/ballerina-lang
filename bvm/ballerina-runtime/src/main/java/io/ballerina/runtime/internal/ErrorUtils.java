@@ -52,22 +52,23 @@ public class ErrorUtils {
      */
     public static ErrorValue createInteropError(Throwable e) {
         MappingInitialValueEntry[] initialValues;
-        if (e.getMessage() != null && e.getCause() != null) {
+        String message = e.getMessage();
+        Throwable cause = e.getCause();
+        if (message != null && cause != null) {
             initialValues = new MappingInitialValueEntry[2];
             initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD,
-                                                                            StringUtils.fromString(e.getMessage()));
+                                                                            StringUtils.fromString(message));
             initialValues[1] = new MappingInitialValueEntry.KeyValueEntry(ERROR_CAUSE_FIELD, createError(StringUtils.
-                    fromString(e.getCause().getClass().getName()), StringUtils.fromString(e.getCause().getMessage())));
+                    fromString(cause.getClass().getName()), StringUtils.fromString(cause.getMessage())));
 
-        } else if (e.getMessage() != null || e.getCause() != null) {
+        } else if (message != null || cause != null) {
             initialValues = new MappingInitialValueEntry[1];
-            if (e.getMessage() != null) {
+            if (message != null) {
                 initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD,
-                        StringUtils.fromString(e.getMessage()));
+                        StringUtils.fromString(message));
             } else {
-                initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_CAUSE_FIELD, createError(
-                        StringUtils.fromString(e.getCause().getClass().getName()), StringUtils.fromString(e.getCause().
-                                                                                                        getMessage())));
+                initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_CAUSE_FIELD, createError(StringUtils
+                                  .fromString(cause.getClass().getName()), StringUtils.fromString(cause.getMessage())));
             }
         } else {
             initialValues = new MappingInitialValueEntry[0];
