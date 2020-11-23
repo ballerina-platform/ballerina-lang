@@ -256,7 +256,7 @@ public class WebServer {
             }
 
             @Override
-            public void notifySuccess() {
+            public void notifySuccess(Object result) {
                 Utils.logInfo("Successfully executed resource " + this.resourceName);
             }
 
