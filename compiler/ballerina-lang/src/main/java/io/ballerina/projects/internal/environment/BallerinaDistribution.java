@@ -20,8 +20,8 @@ package io.ballerina.projects.internal.environment;
 import io.ballerina.projects.Bootstrap;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.PackageCache;
-import io.ballerina.projects.repos.BallerinaDistributionRepository;
+import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.internal.repositories.BallerinaDistributionRepository;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Files;
@@ -63,9 +63,9 @@ public final class BallerinaDistribution {
         return distributionRepository;
     }
 
-    public void loadLangLibPackages(CompilerContext compilerContext, PackageCache packageCache) {
+    public void loadLangLibPackages(CompilerContext compilerContext, PackageResolver packageResolver) {
         if (langLibBootstrapPhase == null) {
-            Bootstrap bootstrap = new Bootstrap(new LangLibResolver(distributionRepository, packageCache));
+            Bootstrap bootstrap = new Bootstrap(packageResolver);
             bootstrap.loadLangLibSymbols(compilerContext);
         }
     }

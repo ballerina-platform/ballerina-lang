@@ -30,6 +30,8 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
@@ -63,8 +65,8 @@ public class PackageConfigCreator {
         ProjectFiles.validateSingleFileProjectFilePath(filePath);
 
         // Create a PackageManifest instance
-        PackageDescriptor packageDesc = PackageDescriptor.from(ProjectConstants.DOT, ProjectConstants.ANON_ORG,
-                ProjectConstants.DEFAULT_VERSION);
+        PackageDescriptor packageDesc = PackageDescriptor.from(PackageOrg.from(ProjectConstants.ANON_ORG),
+                PackageName.from(ProjectConstants.DOT), PackageVersion.from(ProjectConstants.DEFAULT_VERSION));
         PackageManifest packageManifest = PackageManifest.from(packageDesc);
 
         PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);

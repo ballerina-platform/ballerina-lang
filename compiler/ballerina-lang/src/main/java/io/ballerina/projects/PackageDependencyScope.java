@@ -15,26 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
-package io.ballerina.projects.environment;
-
-import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageVersion;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+package io.ballerina.projects;
 
 /**
- * This interface represent a repository of packages.
+ * Represents the scope of the dependency.
+ * <p>
+ * At the moment a package dependency can be a dependency for src and tests or tests only.
  *
  * @since 2.0.0
  */
-public interface PackageRepository {
-
-    Optional<Package> getPackage(ResolutionRequest resolutionRequest);
-
-    List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest);
-
-    Map<String, List<String>> getPackages();
+public enum PackageDependencyScope {
+    /**
+     * These dependencies are available for both source and test sources.
+     */
+    DEFAULT,
+    /**
+     * These dependencies are only available for test sources.
+     */
+    TEST_ONLY
 }

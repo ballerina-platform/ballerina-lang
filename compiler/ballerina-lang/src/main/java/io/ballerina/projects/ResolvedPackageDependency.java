@@ -15,34 +15,32 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.environment;
-
-import io.ballerina.projects.Package;
+package io.ballerina.projects;
 
 /**
- * {@code PackageLoadResponse} is used to return a response to a given {@code PackageLoadRequest}.
+ * Represents a dependency of a package which already resolved from a repository.
  *
  * @since 2.0.0
  */
-public class PackageLoadResponse {
+public class ResolvedPackageDependency extends PackageDependency {
     private final Package resolvedPackage;
-    private final PackageLoadRequest packageLoadRequest;
 
-    // TODO We can use this call to send diagnostics if any
-    private PackageLoadResponse(Package resolvedPackage, PackageLoadRequest packageLoadRequest) {
+    public ResolvedPackageDependency(Package resolvedPackage, PackageDependencyScope scope) {
+        super(resolvedPackage.packageId(), scope);
         this.resolvedPackage = resolvedPackage;
-        this.packageLoadRequest = packageLoadRequest;
     }
 
-    public static PackageLoadResponse from(Package resolvedPackage, PackageLoadRequest packageLoadRequest) {
-        return new PackageLoadResponse(resolvedPackage, packageLoadRequest);
-    }
-
-    public Package resolvedPackage() {
+    public Package packageInstance() {
         return resolvedPackage;
     }
 
-    public PackageLoadRequest packageLoadRequest() {
-        return packageLoadRequest;
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

@@ -15,11 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.repos;
+package io.ballerina.projects.internal.repositories;
 
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Files;

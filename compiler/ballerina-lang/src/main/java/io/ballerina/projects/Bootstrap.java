@@ -17,9 +17,9 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.environment.PackageLoadRequest;
-import io.ballerina.projects.environment.PackageLoadResponse;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponse;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -153,16 +153,16 @@ public class Bootstrap {
     }
 
     private BPackageSymbol loadLangLibFromBalr(PackageID langLib, CompilerContext compilerContext) {
-        PackageLoadRequest packageLoadRequest = toPackageLoadRequest(langLib);
+        ResolutionRequest packageLoadRequest = toPackageLoadRequest(langLib);
         loadLangLibFromBalr(packageLoadRequest);
 
         return getSymbolFromCache(compilerContext, langLib);
     }
 
-    private void loadLangLibFromBalr(PackageLoadRequest packageLoadRequest) {
-        Collection<PackageLoadResponse> packageLoadResponses = packageResolver.resolvePackages(
+    private void loadLangLibFromBalr(ResolutionRequest packageLoadRequest) {
+        Collection<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
                 Collections.singletonList(packageLoadRequest));
-        packageLoadResponses.forEach(pkgLoadResp -> {
+        resolutionResponses.forEach(pkgLoadResp -> {
             Package pkg = pkgLoadResp.resolvedPackage();
             PackageCompilation compilation = pkg.getCompilation();
             if (compilation.diagnosticResult().hasErrors()) {
@@ -172,12 +172,12 @@ public class Bootstrap {
         });
     }
 
-    private PackageLoadRequest toPackageLoadRequest(PackageID packageID) {
-        PackageName packageName = PackageName.from(packageID.name.getValue());
-        PackageVersion version = PackageVersion.from(packageID.getPackageVersion().toString());
-        PackageDescriptor packageDescriptor = PackageDescriptor.from(packageName,
-                PackageOrg.from(packageID.orgName.getValue()), version);
-        return PackageLoadRequest.from(packageDescriptor);
+    private ResolutionRequest toPackageLoadRequest(PackageID packageID) {
+        PackageOrg pkgOrg = PackageOrg.from(packageID.orgName.getValue());
+        PackageName pkgName = PackageName.from(packageID.name.getValue());
+        PackageVersion pkgVersion = PackageVersion.from(packageID.getPackageVersion().toString());
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(pkgOrg, pkgName, pkgVersion);
+        return ResolutionRequest.from(packageDescriptor);
     }
 
     private BPackageSymbol getSymbolFromCache(CompilerContext context, PackageID packageID) {

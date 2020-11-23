@@ -88,8 +88,10 @@ public class BallerinaTomlProcessor {
         Map<String, Object> otherEntries = toml.toMap();
         Map<String, Object> packageEntry = (Map<String, Object>) otherEntries.remove("package");
 
-        PackageDescriptor pkgDesc = PackageDescriptor.from((String) packageEntry.get("name"),
-                (String) packageEntry.get("org"), (String) packageEntry.get("version"));
+        PackageOrg packageOrg = PackageOrg.from((String) packageEntry.get("org"));
+        PackageName packageName = PackageName.from((String) packageEntry.get("name"));
+        PackageVersion packageVersion = PackageVersion.from((String) packageEntry.get("version"));
+        PackageDescriptor pkgDesc = PackageDescriptor.from(packageOrg, packageName, packageVersion);
 
         // Process dependencies
         List<Map<String, Object>> dependencyEntries =
