@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -52,8 +51,7 @@ public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
         String docUri = context.fileUri();
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         List<Object> args = new ArrayList<>(Collections.singletonList(docUriArg));

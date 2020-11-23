@@ -1,0 +1,20 @@
+{
+  "line": 3,
+  "character": 11,
+  "expected": [
+    {
+      "title": "Create Function addTwoIntegers2(...)",
+      "command": "CREATE_FUNC",
+      "arguments": [
+        {
+          "argumentK": "node.line",
+          "argumentV": "3"
+        },
+        {
+          "argumentK": "node.column",
+          "argumentV": "11"
+        }
+      ]
+    }
+  ]
+}

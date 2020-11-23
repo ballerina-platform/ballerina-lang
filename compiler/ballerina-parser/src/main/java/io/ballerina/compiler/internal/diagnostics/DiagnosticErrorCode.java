@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.internal.diagnostics;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 /**
@@ -257,7 +258,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_EXPR_IN_COMPOUND_ASSIGNMENT_LHS("BCE0620", "error.invalid.expr.in.compound.assignment.lhs"),
     ERROR_INVALID_METADATA("BCE0621", "error.invalid.metadata"),
     ERROR_INVALID_QUALIFIER("BCE0622", "error.invalid.qualifier"),
-    ERROR_INVALID_ANNOTATIONS("BCE0623", "error.invalid.annotations"),
+    ERROR_ANNOTATIONS_ATTACHED_TO_STATEMENT("BCE0623", "error.annotations.attached.to.statement"),
     ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD("BCE0624", "error.more.field.match.patterns.after.rest.field"),
     ERROR_ACTION_AS_A_WAIT_EXPR("BCE0625", "error.action.as.a.wait.expr"),
     ERROR_INVALID_USAGE_OF_VAR("BCE0626", "error.invalid.usage.of.var"),
@@ -318,5 +319,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     @Override
     public String messageKey() {
         return messageKey;
+    }
+
+    public boolean equals(DiagnosticCode code) {
+        return this.messageKey.equals(code.messageKey());
     }
 }
