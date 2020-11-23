@@ -80,6 +80,9 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private boolean observabilityIncluded;
 
+    private static final String runCmd = "ballerina run {<ballerina-file | project-name> | <executable-jar>} " +
+            "[--] [(--key=value)...]";
+
     public RunCommand() {
         this.outStream = System.err;
         this.errStream = System.err;
@@ -107,14 +110,12 @@ public class RunCommand implements BLauncherCmd {
 
         String[] args;
         if (this.argList == null) {
-            args = new String[0];
-            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        } else if (this.argList.get(0).startsWith(RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX)) {
-            args = argList.toArray(new String[0]);
-            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+            CommandUtil.printError(this.errStream, "no project path provided.", runCmd, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         } else {
             args = argList.subList(1, argList.size()).toArray(new String[0]);
-            this.projectPath = Paths.get(argList.get(0));
+            this.projectPath = Paths.get(argList.get(0)).toAbsolutePath().normalize();
         }
 
         // load project
@@ -173,8 +174,8 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina run [--offline]\n" +
-                "                {<balfile> | executable-jar} [(--key=value)...] "
+        out.append("  ballerina run {<balfile> | <project-path> | executable-jar}[--offline]\n" +
+                "                 [(--key=value)...] "
                 + "[--] [args...] \n");
     }
 
