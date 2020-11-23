@@ -195,8 +195,18 @@ public class ProjectFiles {
 
         // Check if it is inside a project
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
-        if (projectRoot != null) {
-            throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
+        if (null != projectRoot) {
+            if (projectRoot.equals(Optional.of(filePath.getParent()).get().toAbsolutePath())) {
+                throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
+            }
+            // Check if it is inside a module
+            Path modulesRoot = projectRoot.resolve(ProjectConstants.MODULES_ROOT);
+            Path parent = filePath.getParent();
+            if (parent != null) {
+                if (modulesRoot.equals(Optional.of(parent.getParent()).get().toAbsolutePath())) {
+                    throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
+                }
+            }
         }
     }
 
