@@ -135,7 +135,7 @@ public class BuildLangLib {
             //Generate docs
             out.println("Generating docs...");
             BallerinaDocGenerator.generateAPIDocs(project, targetPath.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY)
-                    .toString(), false);
+                    .toString());
 
         } catch (Exception e) {
             out.println("Unknown error building : " + projectDir.toString());
