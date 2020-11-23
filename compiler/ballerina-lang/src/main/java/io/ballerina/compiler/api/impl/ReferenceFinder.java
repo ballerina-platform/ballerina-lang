@@ -19,21 +19,19 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
@@ -45,25 +43,32 @@ import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
@@ -73,7 +78,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -82,7 +89,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
@@ -110,9 +116,15 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -122,7 +134,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -131,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
@@ -152,1025 +165,996 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
- * Finds the enclosing AST node for the given position.
+ * Given a particular AST node and a symbol, this will find all the references of that symbol within the given AST
+ * node.
  *
  * @since 2.0.0
  */
-class NodeFinder extends BaseVisitor {
+public class ReferenceFinder extends BaseVisitor {
 
-    private LineRange range;
-    private BLangNode enclosingNode;
-    private BLangNode enclosingContainer;
+    private List<Location> referenceLocations;
+    private BSymbol targetSymbol;
 
-    BLangNode lookup(BLangPackage module, LineRange range) {
-        return lookupTopLevelNodes(module.topLevelNodes, range);
+    public List<Location> findReferences(BLangNode node, BSymbol symbol) {
+        this.referenceLocations = new ArrayList<>();
+        this.targetSymbol = symbol;
+        find(node);
+        return this.referenceLocations;
     }
 
-    BLangNode lookup(BLangCompilationUnit unit, LineRange range) {
-        return lookupTopLevelNodes(unit.topLevelNodes, range);
-    }
-
-    BLangNode lookupEnclosingContainer(BLangPackage module, LineRange range) {
-        this.enclosingContainer = module;
-        lookup(module, range);
-        return this.enclosingContainer;
-    }
-
-    private BLangNode lookupTopLevelNodes(List<TopLevelNode> nodes, LineRange range) {
-        this.range = range;
-        this.enclosingNode = null;
-
-        for (TopLevelNode node : nodes) {
-            if (!PositionUtil.withinRange(this.range, node.getPosition()) || isLambdaFunction(node)) {
-                continue;
-            }
-
-            ((BLangNode) node).accept(this);
-
-            if (this.enclosingNode != null) {
-                break;
-            }
-        }
-
-        return this.enclosingNode;
-    }
-
-    private void lookupNodes(List<? extends BLangNode> nodes) {
-        for (BLangNode node : nodes) {
-            if (!PositionUtil.withinRange(this.range, node.pos)) {
-                continue;
-            }
-
-            node.accept(this);
-
-            if (this.enclosingNode == null && !node.internal) {
-                this.enclosingNode = node;
-                return;
-            }
-        }
-    }
-
-    private void lookupNode(BLangNode node) {
+    void find(BLangNode node) {
         if (node == null) {
             return;
         }
 
-        if (!PositionUtil.withinRange(this.range, node.pos)) {
-            return;
-        }
-
         node.accept(this);
+    }
 
-        if (this.enclosingNode == null && !node.internal) {
-            this.enclosingNode = node;
+    void find(List<? extends BLangNode> nodes) {
+        for (BLangNode node : nodes) {
+            find(node);
         }
+    }
+
+    @Override
+    public void visit(BLangPackage pkgNode) {
+        find(pkgNode.imports);
+        find(pkgNode.xmlnsList);
+        find(pkgNode.constants);
+        find(pkgNode.globalVars);
+        find(pkgNode.services);
+        find(pkgNode.annotations);
+        find(pkgNode.typeDefinitions);
+        find(pkgNode.classDefinitions);
+        find(pkgNode.functions.stream().filter(f -> !f.flagSet.contains(Flag.LAMBDA)).collect(Collectors.toList()));
+    }
+
+    @Override
+    public void visit(BLangImportPackage importPkgNode) {
+        addIfSameSymbol(importPkgNode.symbol, importPkgNode.alias.pos);
     }
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
-        lookupNode(xmlnsNode.namespaceURI);
+        find(xmlnsNode.namespaceURI);
+        addIfSameSymbol(xmlnsNode.symbol, xmlnsNode.prefix.pos);
     }
 
     @Override
     public void visit(BLangFunction funcNode) {
-        // Compare the target lookup pos with the function symbol pos to ensure that we are not looking for the
-        // container of the function.
-        if (!this.range.equals(funcNode.symbol.pos.lineRange())) {
-            this.enclosingContainer = funcNode;
-        }
+        find(funcNode.annAttachments);
+        find(funcNode.requiredParams);
+        find(funcNode.restParam);
+        find(funcNode.returnTypeAnnAttachments);
+        find(funcNode.returnTypeNode);
+        find(funcNode.body);
 
-        lookupNodes(funcNode.requiredParams);
-        lookupNode(funcNode.restParam);
-        lookupNode(funcNode.returnTypeNode);
-        lookupNode(funcNode.body);
+        if (funcNode.symbol.origin != VIRTUAL) {
+            addIfSameSymbol(funcNode.symbol, funcNode.name.pos);
+        }
     }
 
     @Override
     public void visit(BLangBlockFunctionBody blockFuncBody) {
-        this.enclosingContainer = blockFuncBody;
-        lookupNodes(blockFuncBody.stmts);
+        for (BLangStatement stmt : blockFuncBody.stmts) {
+            find(stmt);
+        }
     }
 
     @Override
     public void visit(BLangExprFunctionBody exprFuncBody) {
-        lookupNode(exprFuncBody.expr);
+        find(exprFuncBody.expr);
     }
 
     @Override
     public void visit(BLangExternalFunctionBody externFuncBody) {
-        lookupNodes(externFuncBody.annAttachments);
+        find(externFuncBody.annAttachments);
     }
 
     @Override
     public void visit(BLangService serviceNode) {
-        lookupNodes(serviceNode.resourceFunctions);
-        lookupNodes(serviceNode.annAttachments);
-        lookupNodes(serviceNode.attachedExprs);
+        find(serviceNode.annAttachments);
+        find(serviceNode.resourceFunctions);
+        addIfSameSymbol(serviceNode.symbol, serviceNode.pos);
     }
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        lookupNode(typeDefinition.typeNode);
+        find(typeDefinition.typeNode);
+        find(typeDefinition.annAttachments);
+        addIfSameSymbol(typeDefinition.symbol, typeDefinition.name.pos);
     }
 
     @Override
     public void visit(BLangConstant constant) {
-        lookupNode(constant.typeNode);
-        lookupNode(constant.expr);
-        setEnclosingNode(constant, constant.name.pos);
+        find(constant.typeNode);
+        find(constant.expr);
+        addIfSameSymbol(constant.symbol, constant.name.pos);
     }
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        lookupNode(varNode.typeNode);
-        lookupNode(varNode.expr);
-        setEnclosingNode(varNode, varNode.name.pos);
+        find(varNode.annAttachments);
+        find(varNode.typeNode);
+        find(varNode.expr);
+        addIfSameSymbol(varNode.symbol, varNode.name.pos);
     }
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
-        lookupNode(annotationNode.typeNode);
-        setEnclosingNode(annotationNode, annotationNode.name.pos);
+        find(annotationNode.annAttachments);
+        find(annotationNode.typeNode);
+        addIfSameSymbol(annotationNode.symbol, annotationNode.name.pos);
     }
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        lookupNode(annAttachmentNode.expr);
-        setEnclosingNode(annAttachmentNode, annAttachmentNode.annotationName.pos);
+        find(annAttachmentNode.expr);
+        addIfSameSymbol(annAttachmentNode.annotationSymbol, annAttachmentNode.annotationName.pos);
     }
 
     @Override
     public void visit(BLangTableKeySpecifier tableKeySpecifierNode) {
-
+        // TODO: create an issue for missing symbol info for the key specifiers
     }
 
     @Override
     public void visit(BLangTableKeyTypeConstraint tableKeyTypeConstraint) {
-        lookupNode(tableKeyTypeConstraint.keyType);
+        find(tableKeyTypeConstraint.keyType);
     }
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        this.enclosingContainer = blockNode;
-        lookupNodes(blockNode.stmts);
+        for (BLangStatement stmt : blockNode.stmts) {
+            find(stmt);
+        }
     }
 
     @Override
     public void visit(BLangLock.BLangLockStmt lockStmtNode) {
-        lookupNode(lockStmtNode.body);
+        find(lockStmtNode.body);
+        find(lockStmtNode.onFailClause);
     }
 
     @Override
     public void visit(BLangLock.BLangUnLockStmt unLockNode) {
-        lookupNode(unLockNode.body);
+        find(unLockNode.body);
+        find(unLockNode.onFailClause);
     }
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
-        lookupNode(varDefNode.var);
+        find(varDefNode.var);
     }
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        lookupNode(assignNode.varRef);
-        lookupNode(assignNode.expr);
+        find(assignNode.expr);
+        find(assignNode.varRef);
     }
 
     @Override
     public void visit(BLangCompoundAssignment compoundAssignNode) {
-        lookupNode(compoundAssignNode.varRef);
-        lookupNode(compoundAssignNode.expr);
+        find(compoundAssignNode.expr);
+        find(compoundAssignNode.varRef);
     }
 
     @Override
     public void visit(BLangRetry retryNode) {
-        lookupNode(retryNode.retryBody);
-        lookupNode(retryNode.retrySpec);
+        find(retryNode.retrySpec);
+        find(retryNode.retryBody);
+        find(retryNode.onFailClause);
     }
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        lookupNode(retryTransaction.transaction);
-        lookupNode(retryTransaction.retrySpec);
+        find(retryTransaction.retrySpec);
+        find(retryTransaction.transaction);
     }
 
     @Override
     public void visit(BLangRetrySpec retrySpec) {
-        lookupNode(retrySpec.retryManagerType);
-        lookupNodes(retrySpec.argExprs);
+        find(retrySpec.argExprs);
+        find(retrySpec.retryManagerType);
     }
 
     @Override
     public void visit(BLangReturn returnNode) {
-        lookupNode(returnNode.expr);
+        find(returnNode.expr);
     }
 
     @Override
     public void visit(BLangPanic panicNode) {
-        lookupNode(panicNode.expr);
+        find(panicNode.expr);
     }
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
-        lookupNode(xmlnsStmtNode.xmlnsDecl);
+        find(xmlnsStmtNode.xmlnsDecl);
     }
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        lookupNode(exprStmtNode.expr);
+        find(exprStmtNode.expr);
     }
 
     @Override
     public void visit(BLangIf ifNode) {
-        lookupNode(ifNode.expr);
-        lookupNode(ifNode.body);
-        lookupNode(ifNode.elseStmt);
+        find(ifNode.expr);
+        find(ifNode.body);
+        find(ifNode.elseStmt);
     }
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        lookupNodes(queryAction.queryClauseList);
-        lookupNode(queryAction.doClause);
+        find(queryAction.doClause);
+        find(queryAction.queryClauseList);
     }
 
     @Override
     public void visit(BLangMatch matchNode) {
-        lookupNode(matchNode.expr);
-        lookupNodes(matchNode.patternClauses);
+        find(matchNode.expr);
+        find(matchNode.patternClauses);
+        find(matchNode.onFailClause);
+    }
+
+    @Override
+    public void visit(BLangMatchStatement matchStatementNode) {
+        find(matchStatementNode.expr);
+        find(matchStatementNode.matchClauses);
+        find(matchStatementNode.onFailClause);
+    }
+
+    @Override
+    public void visit(BLangMatchGuard matchGuard) {
+        find(matchGuard.expr);
+    }
+
+    @Override
+    public void visit(BLangConstPattern constMatchPattern) {
+        find(constMatchPattern.expr);
+        find(constMatchPattern.matchExpr);
+    }
+
+    @Override
+    public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
+        find(wildCardMatchPattern.matchExpr);
+    }
+
+    @Override
+    public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
+        find(varBindingPattern.getBindingPattern());
+        find(varBindingPattern.matchExpr);
+    }
+
+    @Override
+    public void visit(BLangCaptureBindingPattern captureBindingPattern) {
+        addIfSameSymbol(captureBindingPattern.symbol, captureBindingPattern.getIdentifier().getPosition());
+    }
+
+    @Override
+    public void visit(BLangListBindingPattern listBindingPattern) {
+        find(listBindingPattern.bindingPatterns);
     }
 
     @Override
     public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        lookupNode(patternClauseNode.matchExpr);
-        lookupNode(patternClauseNode.variable);
-        lookupNode(patternClauseNode.body);
+        find(patternClauseNode.body);
+        find(patternClauseNode.variable);
+        find(patternClauseNode.matchExpr);
     }
 
     @Override
     public void visit(BLangForeach foreach) {
-        lookupNode((BLangNode) foreach.variableDefinitionNode);
-        lookupNode(foreach.collection);
-        lookupNode(foreach.body);
+        find((BLangNode) foreach.variableDefinitionNode);
+        find(foreach.collection);
+        find(foreach.body);
+        find(foreach.onFailClause);
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        find(doNode.body);
+        find(doNode.onFailClause);
+    }
+
+    @Override
+    public void visit(BLangFail failNode) {
+        find(failNode.expr);
     }
 
     @Override
     public void visit(BLangFromClause fromClause) {
-        lookupNode(fromClause.collection);
-        lookupNode((BLangNode) fromClause.variableDefinitionNode);
+        find((BLangNode) fromClause.variableDefinitionNode);
+        find(fromClause.collection);
     }
 
     @Override
     public void visit(BLangJoinClause joinClause) {
-        lookupNode(joinClause.collection);
-        lookupNode((BLangNode) joinClause.variableDefinitionNode);
-        lookupNode((BLangNode) joinClause.onClause);
+        find((BLangNode) joinClause.variableDefinitionNode);
+        find((BLangOnClause) joinClause.onClause);
+        find(joinClause.collection);
     }
 
     @Override
     public void visit(BLangLetClause letClause) {
-        for (BLangLetVariable var : letClause.letVarDeclarations) {
-            lookupNode((BLangNode) var.definitionNode);
+        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
+            find((BLangNode) letVariable.definitionNode);
         }
     }
 
     @Override
     public void visit(BLangOnClause onClause) {
-        lookupNode(onClause.lhsExpr);
-        lookupNode(onClause.rhsExpr);
+        find(onClause.lhsExpr);
+        find(onClause.rhsExpr);
     }
 
     @Override
     public void visit(BLangOrderKey orderKeyClause) {
-        lookupNode(orderKeyClause.expression);
+        find(orderKeyClause.expression);
     }
 
     @Override
     public void visit(BLangOrderByClause orderByClause) {
-        for (OrderKeyNode key : orderByClause.orderByKeyList) {
-            lookupNode((BLangNode) key);
+        for (OrderKeyNode orderKeyNode : orderByClause.orderByKeyList) {
+            find((BLangOrderKey) orderKeyNode);
         }
     }
 
     @Override
     public void visit(BLangSelectClause selectClause) {
-        lookupNode(selectClause.expression);
+        find(selectClause.expression);
     }
 
     @Override
     public void visit(BLangWhereClause whereClause) {
-        lookupNode(whereClause.expression);
+        find(whereClause.expression);
     }
 
     @Override
     public void visit(BLangDoClause doClause) {
-        lookupNode(doClause.body);
+        find(doClause.body);
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        find((BLangNode) onFailClause.variableDefinitionNode);
+        find(onFailClause.body);
     }
 
     @Override
     public void visit(BLangOnConflictClause onConflictClause) {
-        lookupNode(onConflictClause.expression);
+        find(onConflictClause.expression);
     }
 
     @Override
     public void visit(BLangLimitClause limitClause) {
-        lookupNode(limitClause.expression);
+        find(limitClause.expression);
+    }
+
+    @Override
+    public void visit(BLangMatchClause matchClause) {
+        find(matchClause.expr);
+        find(matchClause.matchGuard);
+        find(matchClause.blockStmt);
+        find(matchClause.matchPatterns);
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        lookupNode(whileNode.expr);
-        lookupNode(whileNode.body);
+        find(whileNode.expr);
+        find(whileNode.body);
+        find(whileNode.onFailClause);
     }
 
     @Override
     public void visit(BLangLock lockNode) {
-        lookupNode(lockNode.body);
+        find(lockNode.body);
+        find(lockNode.onFailClause);
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        lookupNode(transactionNode.transactionBody);
+        find(transactionNode.transactionBody);
+        find(transactionNode.onFailClause);
     }
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
-        lookupNode(stmt.expr);
-        lookupNode(stmt.varRef);
+        find(stmt.expr);
+        find(stmt.varRef);
     }
 
     @Override
     public void visit(BLangRecordDestructure stmt) {
-        lookupNode(stmt.expr);
-        lookupNode(stmt.varRef);
+        find(stmt.expr);
+        find(stmt.varRef);
     }
 
     @Override
     public void visit(BLangErrorDestructure stmt) {
-        lookupNode(stmt.expr);
-        lookupNode(stmt.varRef);
+        find(stmt.expr);
+        find(stmt.varRef);
     }
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        lookupNodes(forkJoin.workers);
+        find(forkJoin.workers);
     }
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        lookupNode(workerSendNode.expr);
-        setEnclosingNode(workerSendNode, workerSendNode.workerIdentifier.pos);
+        find(workerSendNode.expr);
+        addIfSameSymbol(workerSendNode.workerSymbol, workerSendNode.workerIdentifier.pos);
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        setEnclosingNode(workerReceiveNode, workerReceiveNode.workerIdentifier.pos);
+        addIfSameSymbol(workerReceiveNode.workerSymbol, workerReceiveNode.workerIdentifier.pos);
     }
 
     @Override
     public void visit(BLangRollback rollbackNode) {
-        lookupNode(rollbackNode.expr);
+        find(rollbackNode.expr);
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
+        if (!constRef.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(constRef.symbol.owner, constRef.pkgAlias.pos);
+        }
+        addIfSameSymbol(constRef.symbol, constRef.variableName.pos);
     }
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-            lookupNode((BLangNode) field);
+            find((BLangNode) field);
         }
     }
 
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
-        lookupNodes(varRefExpr.expressions);
-        lookupNode((BLangNode) varRefExpr.restParam);
+        find(varRefExpr.expressions);
+        find((BLangNode) varRefExpr.restParam);
     }
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
-        // TODO: implement this
+        for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
+            find(recordRefField.getBindingPattern());
+        }
+
+        find((BLangNode) varRefExpr.restParam);
     }
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        lookupNode(varRefExpr.message);
-        lookupNodes(varRefExpr.detail);
-        lookupNode(varRefExpr.cause);
-        lookupNode(varRefExpr.restVar);
+        find(varRefExpr.typeNode);
+        find(varRefExpr.message);
+        find(varRefExpr.detail);
+        find(varRefExpr.cause);
+        find(varRefExpr.restVar);
     }
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        if (setEnclosingNode(varRefExpr, varRefExpr.variableName.pos)) {
+        // Becomes null for fields in a record literal.
+        if (varRefExpr.symbol == null) {
             return;
         }
 
-        setEnclosingNode(varRefExpr, varRefExpr.pos);
+        if (!varRefExpr.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(varRefExpr.symbol.owner, varRefExpr.pkgAlias.pos);
+        }
+        addIfSameSymbol(varRefExpr.symbol, varRefExpr.pos);
     }
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        if (setEnclosingNode(fieldAccessExpr, fieldAccessExpr.field.pos)) {
-            return;
-        }
+        find(fieldAccessExpr.expr);
 
-        lookupNode(fieldAccessExpr.expr);
+        if (fieldAccessExpr instanceof BLangNSPrefixedFieldBasedAccess) {
+            BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess =
+                    (BLangNSPrefixedFieldBasedAccess) fieldAccessExpr;
+            addIfSameSymbol(nsPrefixedFieldBasedAccess.nsSymbol, nsPrefixedFieldBasedAccess.nsPrefix.pos);
+        } else {
+            addIfSameSymbol(fieldAccessExpr.symbol, fieldAccessExpr.field.pos);
+        }
     }
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        lookupNode(indexAccessExpr.expr);
-        lookupNode(indexAccessExpr.indexExpr);
+        find(indexAccessExpr.indexExpr);
+        find(indexAccessExpr.expr);
     }
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (setEnclosingNode(invocationExpr, invocationExpr.name.pos)) {
-            return;
+        // Skipping lang libs because in lang lib function calls, the expr gets added as an argument.
+        if (!invocationExpr.langLibInvocation) {
+            find(invocationExpr.expr);
         }
 
-        lookupNodes(invocationExpr.requiredArgs);
-        lookupNodes(invocationExpr.restArgs);
-        lookupNode(invocationExpr.expr);
+        find(invocationExpr.requiredArgs);
+        find(invocationExpr.annAttachments);
+        find(invocationExpr.restArgs);
+
+        if (!invocationExpr.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos);
+        }
+        addIfSameSymbol(invocationExpr.symbol, invocationExpr.name.pos);
     }
 
     @Override
     public void visit(BLangTypeInit typeInit) {
-        lookupNode(typeInit.userDefinedType);
-        lookupNodes(typeInit.argsExpr);
+        find(typeInit.userDefinedType);
+        find(typeInit.argsExpr);
     }
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
-        if (setEnclosingNode(actionInvocationExpr, actionInvocationExpr.name.pos)) {
-            return;
-        }
+        find(actionInvocationExpr.expr);
+        find(actionInvocationExpr.requiredArgs);
+        find(actionInvocationExpr.annAttachments);
+        find(actionInvocationExpr.restArgs);
 
-        lookupNodes(actionInvocationExpr.requiredArgs);
-        lookupNodes(actionInvocationExpr.restArgs);
-        lookupNode(actionInvocationExpr.expr);
+        if (!actionInvocationExpr.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(actionInvocationExpr.symbol.owner, actionInvocationExpr.pkgAlias.pos);
+        }
+        addIfSameSymbol(actionInvocationExpr.symbol, actionInvocationExpr.name.pos);
     }
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        lookupNode(ternaryExpr.expr);
-        lookupNode(ternaryExpr.thenExpr);
-        lookupNode(ternaryExpr.elseExpr);
+        find(ternaryExpr.expr);
+        find(ternaryExpr.thenExpr);
+        find(ternaryExpr.elseExpr);
     }
 
     @Override
-    public void visit(BLangWaitExpr awaitExpr) {
-        lookupNodes(awaitExpr.exprList);
+    public void visit(BLangWaitExpr waitExpr) {
+        find(waitExpr.exprList);
     }
 
     @Override
     public void visit(BLangTrapExpr trapExpr) {
-        lookupNode(trapExpr.expr);
+        find(trapExpr.expr);
     }
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        lookupNode(binaryExpr.lhsExpr);
-        lookupNode(binaryExpr.rhsExpr);
+        find(binaryExpr.lhsExpr);
+        find(binaryExpr.rhsExpr);
     }
 
     @Override
     public void visit(BLangElvisExpr elvisExpr) {
-        lookupNode(elvisExpr.lhsExpr);
-        lookupNode(elvisExpr.rhsExpr);
+        find(elvisExpr.lhsExpr);
+        find(elvisExpr.rhsExpr);
     }
 
     @Override
     public void visit(BLangGroupExpr groupExpr) {
-        lookupNode(groupExpr.expression);
+        find(groupExpr.expression);
     }
 
     @Override
     public void visit(BLangLetExpression letExpr) {
-        for (BLangLetVariable var : letExpr.letVarDeclarations) {
-            lookupNode((BLangNode) var.definitionNode);
+        for (BLangLetVariable letVarDeclaration : letExpr.letVarDeclarations) {
+            find((BLangNode) letVarDeclaration.definitionNode);
         }
 
-        lookupNode(letExpr.expr);
+        find(letExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangLetVariable letVariable) {
+        find((BLangNode) letVariable.definitionNode);
     }
 
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
-        lookupNodes(listConstructorExpr.exprs);
+        find(listConstructorExpr.exprs);
     }
 
     @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
-        lookupNode(tableConstructorExpr.tableKeySpecifier);
-        lookupNodes(tableConstructorExpr.recordLiteralList);
-    }
-
-    @Override
-    public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
-        lookupNodes(tupleLiteral.exprs);
-    }
-
-    @Override
-    public void visit(BLangListConstructorExpr.BLangArrayLiteral arrayLiteral) {
-        lookupNodes(arrayLiteral.exprs);
+        find(tableConstructorExpr.recordLiteralList);
+        find(tableConstructorExpr.tableKeySpecifier);
     }
 
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
-        lookupNode(unaryExpr.expr);
+        find(unaryExpr.expr);
     }
 
     @Override
     public void visit(BLangTypedescExpr typedescExpr) {
-        lookupNode(typedescExpr.typeNode);
+        find(typedescExpr.typeNode);
     }
 
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
-        lookupNodes(conversionExpr.annAttachments);
-        lookupNode(conversionExpr.typeNode);
-        lookupNode(conversionExpr.expr);
+        find(conversionExpr.annAttachments);
+        find(conversionExpr.typeNode);
+        find(conversionExpr.expr);
     }
 
     @Override
     public void visit(BLangXMLQName xmlQName) {
-        if (setEnclosingNode(xmlQName, xmlQName.pos)
-                || setEnclosingNode(xmlQName, xmlQName.prefix.pos)) {
-            return;
-        }
-
-        setEnclosingNode(xmlQName, xmlQName.localname.pos);
+        addIfSameSymbol(xmlQName.nsSymbol, xmlQName.prefix.pos);
     }
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-
+        find(xmlAttribute.name);
+        find(xmlAttribute.value);
     }
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        lookupNode(xmlElementLiteral.startTagName);
-        lookupNodes(xmlElementLiteral.attributes);
-        lookupNodes(xmlElementLiteral.children);
-        lookupNode(xmlElementLiteral.endTagName);
+        find(xmlElementLiteral.startTagName);
+        find(xmlElementLiteral.endTagName);
+        find(xmlElementLiteral.children);
+        find(xmlElementLiteral.attributes);
+        find(xmlElementLiteral.inlineNamespaces);
     }
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        lookupNode(xmlTextLiteral.concatExpr);
-        lookupNodes(xmlTextLiteral.textFragments);
+        find(xmlTextLiteral.textFragments);
+        find(xmlTextLiteral.concatExpr);
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        lookupNode(xmlCommentLiteral.concatExpr);
-        lookupNodes(xmlCommentLiteral.textFragments);
+        find(xmlCommentLiteral.textFragments);
+        find(xmlCommentLiteral.concatExpr);
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        lookupNode(xmlProcInsLiteral.dataConcatExpr);
-        lookupNodes(xmlProcInsLiteral.dataFragments);
-        lookupNode(xmlProcInsLiteral.target);
+        find(xmlProcInsLiteral.target);
+        find(xmlProcInsLiteral.dataFragments);
+        find(xmlProcInsLiteral.dataConcatExpr);
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        lookupNode(xmlQuotedString.concatExpr);
-        lookupNodes(xmlQuotedString.textFragments);
+        find(xmlQuotedString.textFragments);
+        find(xmlQuotedString.concatExpr);
     }
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        lookupNodes(stringTemplateLiteral.exprs);
+        find(stringTemplateLiteral.exprs);
     }
 
     @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
-        lookupNodes(rawTemplateLiteral.strings);
-        lookupNodes(rawTemplateLiteral.insertions);
+        find(rawTemplateLiteral.insertions);
+        find(rawTemplateLiteral.strings);
     }
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        lookupNode(bLangLambdaFunction.function);
+        find(bLangLambdaFunction.function);
     }
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        lookupNodes(bLangArrowFunction.params);
-        lookupNode(bLangArrowFunction.body);
+        find(bLangArrowFunction.params);
+        find(bLangArrowFunction.body);
     }
 
     @Override
     public void visit(BLangIntRangeExpression intRangeExpression) {
-        lookupNode(intRangeExpression.startExpr);
-        lookupNode(intRangeExpression.endExpr);
+        find(intRangeExpression.startExpr);
+        find(intRangeExpression.endExpr);
     }
 
     @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
-        lookupNode(bLangVarArgsExpression.expr);
+        find(bLangVarArgsExpression.expr);
     }
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        lookupNode(bLangNamedArgsExpression.expr);
+        // TODO: create issue. Missing symbol info.
+        find(bLangNamedArgsExpression.expr);
     }
 
     @Override
     public void visit(BLangIsAssignableExpr assignableExpr) {
-        lookupNode(assignableExpr.lhsExpr);
-        lookupNode(assignableExpr.typeNode);
+        find(assignableExpr.lhsExpr);
+        find(assignableExpr.typeNode);
     }
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        lookupNode(checkedExpr.expr);
-    }
-
-    @Override
-    public void visit(BLangFail failExpr) {
-        lookupNode(failExpr.expr);
+        find(checkedExpr.expr);
     }
 
     @Override
     public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
-        lookupNode(checkPanickedExpr.expr);
+        find(checkPanickedExpr.expr);
     }
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        lookupNode(serviceConstructorExpr.serviceNode);
+        find(serviceConstructorExpr.serviceNode);
     }
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
-        lookupNode(typeTestExpr.expr);
-        lookupNode(typeTestExpr.typeNode);
+        find(typeTestExpr.expr);
+        find(typeTestExpr.typeNode);
     }
 
     @Override
     public void visit(BLangIsLikeExpr typeTestExpr) {
-        lookupNode(typeTestExpr.expr);
-        lookupNode(typeTestExpr.typeNode);
+        find(typeTestExpr.expr);
+        find(typeTestExpr.typeNode);
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        addIfSameSymbol(annotAccessExpr.annotationSymbol, annotAccessExpr.annotationName.pos);
     }
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        lookupNodes(queryExpr.queryClauseList);
+        find(queryExpr.queryClauseList);
     }
 
     @Override
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        lookupNode(tableMultiKeyExpr.expr);
-        lookupNodes(tableMultiKeyExpr.multiKeyIndexExprs);
+        find(tableMultiKeyExpr.expr);
+        find(tableMultiKeyExpr.multiKeyIndexExprs);
+    }
+
+    @Override
+    public void visit(BLangObjectConstructorExpression objConstructor) {
+        find(objConstructor.classNode);
     }
 
     @Override
     public void visit(BLangArrayType arrayType) {
-        lookupNode(arrayType.elemtype);
+        find(arrayType.elemtype);
     }
 
     @Override
     public void visit(BLangConstrainedType constrainedType) {
-        lookupNode(constrainedType.constraint);
+        find(constrainedType.type);
+        find(constrainedType.constraint);
     }
 
     @Override
     public void visit(BLangStreamType streamType) {
-        lookupNode(streamType.constraint);
-        lookupNode(streamType.error);
+        find(streamType.constraint);
+        find(streamType.error);
     }
 
     @Override
     public void visit(BLangTableTypeNode tableType) {
-        lookupNode(tableType.constraint);
-        lookupNode(tableType.tableKeySpecifier);
-        lookupNode(tableType.tableKeyTypeConstraint);
+        find(tableType.constraint);
+        find(tableType.tableKeySpecifier);
+        find(tableType.tableKeyTypeConstraint);
     }
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        setEnclosingNode(userDefinedType, userDefinedType.typeName.pos);
+        if (!userDefinedType.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
+        }
+        addIfSameSymbol(userDefinedType.type.tsymbol, userDefinedType.typeName.pos);
     }
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        lookupNodes(functionTypeNode.params);
-        lookupNode(functionTypeNode.restParam);
-        lookupNode(functionTypeNode.returnTypeNode);
+        find(functionTypeNode.params);
+        find(functionTypeNode.restParam);
+        find(functionTypeNode.returnTypeNode);
     }
 
     @Override
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        lookupNodes(unionTypeNode.memberTypeNodes);
+        find(unionTypeNode.memberTypeNodes);
     }
 
     @Override
     public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
-        lookupNodes(intersectionTypeNode.constituentTypeNodes);
-    }
-
-    @Override
-    public void visit(BLangClassDefinition classDefinition) {
-        // skip the generated class def for services
-        if (classDefinition.flagSet.contains(Flag.SERVICE)) {
-            return;
-        }
-
-        lookupNodes(classDefinition.annAttachments);
-        lookupNodes(classDefinition.fields);
-        lookupNodes(classDefinition.referencedFields);
-        lookupNode(classDefinition.initFunction);
-        lookupNodes(classDefinition.functions);
-        lookupNodes(classDefinition.typeRefs);
-        setEnclosingNode(classDefinition, classDefinition.name.pos);
+        find(intersectionTypeNode.constituentTypeNodes);
     }
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        lookupNodes(objectTypeNode.fields);
-        lookupNodes(objectTypeNode.functions);
-        lookupNodes(objectTypeNode.typeRefs);
+        find(objectTypeNode.fields);
+        find(objectTypeNode.functions);
     }
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        lookupNodes(recordTypeNode.fields);
-        lookupNodes(recordTypeNode.typeRefs);
+        find(recordTypeNode.fields);
+        find(recordTypeNode.restFieldType);
     }
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        lookupNodes(finiteTypeNode.valueSpace);
+        find(finiteTypeNode.valueSpace);
     }
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        lookupNodes(tupleTypeNode.memberTypeNodes);
-        lookupNode(tupleTypeNode.restParamType);
+        find(tupleTypeNode.memberTypeNodes);
+        find(tupleTypeNode.restParamType);
     }
 
     @Override
     public void visit(BLangErrorType errorType) {
-        lookupNode(errorType.detailType);
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
-        lookupNode(fieldAccessExpr.expr);
-        lookupNode(fieldAccessExpr.indexExpr);
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
-        if (setEnclosingNode(functionVarRef, functionVarRef.field.pos)) {
-            return;
-        }
-
-        lookupNode(functionVarRef.expr);
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
-        lookupNode(mapKeyAccessExpr.expr);
-        lookupNode(mapKeyAccessExpr.indexExpr);
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
-        lookupNode(arrayIndexAccessExpr.expr);
-        lookupNode(arrayIndexAccessExpr.indexExpr);
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableKeyAccessExpr) {
-        lookupNode(tableKeyAccessExpr.expr);
-        lookupNode(tableKeyAccessExpr.indexExpr);
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlAccessExpr) {
-        lookupNode(xmlAccessExpr.expr);
-        lookupNode(xmlAccessExpr.indexExpr);
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
-        for (RecordLiteralNode.RecordField field : mapLiteral.fields) {
-            lookupNode((BLangNode) field);
-        }
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-        for (RecordLiteralNode.RecordField field : structLiteral.fields) {
-            lookupNode((BLangNode) field);
-        }
-    }
-
-    @Override
-    public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
-        lookupNodes(bFunctionPointerInvocation.requiredArgs);
-        lookupNodes(bFunctionPointerInvocation.restArgs);
-        setEnclosingNode(bFunctionPointerInvocation, bFunctionPointerInvocation.name.pos);
-    }
-
-    @Override
-    public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
-        if (setEnclosingNode(iExpr, iExpr.name.pos)) {
-            return;
-        }
-
-        lookupNode(iExpr.expr);
-        lookupNodes(iExpr.requiredArgs);
-        lookupNodes(iExpr.restArgs);
-    }
-
-    @Override
-    public void visit(BLangListConstructorExpr.BLangJSONArrayLiteral jsonArrayLiteral) {
-        lookupNodes(jsonArrayLiteral.exprs);
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
-        lookupNode(jsonAccessExpr.expr);
-        lookupNode(jsonAccessExpr.indexExpr);
-    }
-
-    @Override
-    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
-        lookupNode(stringAccessExpr.expr);
-        lookupNode(stringAccessExpr.indexExpr);
-    }
-
-    @Override
-    public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
-        if (setEnclosingNode(xmlnsNode, xmlnsNode.prefix.pos)) {
-            return;
-        }
-
-        lookupNode(xmlnsNode.namespaceURI);
-    }
-
-    @Override
-    public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-        if (setEnclosingNode(xmlnsNode, xmlnsNode.prefix.pos)) {
-            return;
-        }
-
-        lookupNode(xmlnsNode.namespaceURI);
+        find(errorType.detailType);
     }
 
     @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        lookupNodes(bLangXMLSequenceLiteral.xmlItems);
-    }
-
-    @Override
-    public void visit(BLangStatementExpression bLangStatementExpression) {
-        lookupNode(bLangStatementExpression.stmt);
-        lookupNode(bLangStatementExpression.expr);
+        find(bLangXMLSequenceLiteral.xmlItems);
     }
 
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
-        lookupNodes(bLangTupleVariable.memberVariables);
-        lookupNode(bLangTupleVariable.restVariable);
-        lookupNode(bLangTupleVariable.expr);
+        find(bLangTupleVariable.annAttachments);
+        find(bLangTupleVariable.memberVariables);
+        find(bLangTupleVariable.restVariable);
+        find(bLangTupleVariable.expr);
     }
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
-        lookupNode(bLangTupleVariableDef.var);
+        find(bLangTupleVariableDef.var);
     }
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
-        for (BLangRecordVariable.BLangRecordVariableKeyValue var : bLangRecordVariable.variableList) {
-            lookupNode(var.valueBindingPattern);
+        for (BLangRecordVariable.BLangRecordVariableKeyValue variableKeyValue : bLangRecordVariable.variableList) {
+            find(variableKeyValue.valueBindingPattern);
         }
-        lookupNode((BLangNode) bLangRecordVariable.restParam);
-        lookupNodes(bLangRecordVariable.annAttachments);
+
+        find(bLangRecordVariable.annAttachments);
+        find((BLangNode) bLangRecordVariable.restParam);
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        lookupNode(bLangRecordVariableDef.var);
+        find(bLangRecordVariableDef.var);
     }
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
-        lookupNode(bLangErrorVariable.message);
+        find(bLangErrorVariable.message);
+        find(bLangErrorVariable.restDetail);
+        find(bLangErrorVariable.cause);
+        find(bLangErrorVariable.reasonMatchConst);
 
-        for (BLangErrorVariable.BLangErrorDetailEntry detail : bLangErrorVariable.detail) {
-            lookupNode(detail.valueBindingPattern);
+        for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : bLangErrorVariable.detail) {
+            find(errorDetailEntry.valueBindingPattern);
         }
-
-        lookupNode(bLangErrorVariable.detailExpr);
-        lookupNode(bLangErrorVariable.cause);
-        lookupNode(bLangErrorVariable.reasonMatchConst);
-        lookupNode(bLangErrorVariable.restDetail);
     }
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
-        lookupNode(bLangErrorVariableDef.errorVariable);
+        find(bLangErrorVariableDef.errorVariable);
     }
 
     @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
-        lookupNode(bLangMatchStmtStaticBindingPatternClause.matchExpr);
-        lookupNode(bLangMatchStmtStaticBindingPatternClause.literal);
-        lookupNode(bLangMatchStmtStaticBindingPatternClause.body);
+        find(bLangMatchStmtStaticBindingPatternClause.body);
+        find(bLangMatchStmtStaticBindingPatternClause.literal);
+        find(bLangMatchStmtStaticBindingPatternClause.matchExpr);
     }
 
     @Override
-    public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
-        lookupNode(bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable);
-        lookupNode(bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr);
-        lookupNode(bLangMatchStmtStructuredBindingPatternClause.matchExpr);
-        lookupNode(bLangMatchStmtStructuredBindingPatternClause.body);
+    public void visit(
+            BLangMatch.BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
+        find(bLangMatchStmtStructuredBindingPatternClause.body);
+        find(bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable);
+        find(bLangMatchStmtStructuredBindingPatternClause.matchExpr);
+        find(bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr);
     }
 
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
-        setEnclosingNode(workerFlushExpr, workerFlushExpr.workerIdentifier.pos);
+        addIfSameSymbol(workerFlushExpr.workerSymbol, workerFlushExpr.workerIdentifier.pos);
     }
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        lookupNode(syncSendExpr.expr);
-        setEnclosingNode(syncSendExpr, syncSendExpr.workerIdentifier.pos);
+        find(syncSendExpr.expr);
+        addIfSameSymbol(syncSendExpr.workerSymbol, syncSendExpr.workerIdentifier.pos);
     }
 
     @Override
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        lookupNodes(waitForAllExpr.keyValuePairs);
-    }
-
-    @Override
-    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-        lookupNodes(waitLiteral.keyValuePairs);
+        find(waitForAllExpr.keyValuePairs);
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
-        lookupNode(recordKeyValue.key);
-        lookupNode(recordKeyValue.valueExpr);
+        find(recordKeyValue.key);
+        find(recordKeyValue.valueExpr);
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangRecordKey recordKey) {
-        lookupNode(recordKey.expr);
+        find(recordKey.expr);
+        addIfSameSymbol(recordKey.fieldSymbol, recordKey.pos);
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
-        lookupNode(spreadOperatorField.expr);
+        find(spreadOperatorField.expr);
     }
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
-        lookupNode(waitKeyValue.keyExpr);
-        lookupNode(waitKeyValue.valueExpr);
+        find(waitKeyValue.keyExpr);
+        find(waitKeyValue.valueExpr);
     }
 
     @Override
     public void visit(BLangXMLElementFilter xmlElementFilter) {
-        setEnclosingNode(xmlElementFilter, xmlElementFilter.elemNamePos);
+        addIfSameSymbol(xmlElementFilter.namespaceSymbol, xmlElementFilter.nsPos);
     }
 
     @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
-        lookupNode(xmlElementAccess.expr);
-        lookupNodes(xmlElementAccess.filters);
+        find(xmlElementAccess.expr);
+        find(xmlElementAccess.filters);
     }
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
-        lookupNode(xmlNavigation.expr);
-        lookupNode(xmlNavigation.childIndex);
-        lookupNodes(xmlNavigation.filters);
+        find(xmlNavigation.childIndex);
+        find(xmlNavigation.filters);
     }
 
-    private boolean setEnclosingNode(BLangNode node, Location pos) {
-        if (PositionUtil.withinRange(this.range, pos) && this.enclosingNode == null) {
-            this.enclosingNode = node;
-            return true;
-        }
-
-        return false;
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        find(classDefinition.annAttachments);
+        find(classDefinition.fields);
+        find(classDefinition.initFunction);
+        find(classDefinition.functions);
+        addIfSameSymbol(classDefinition.symbol, classDefinition.name.pos);
     }
 
-    private boolean isLambdaFunction(TopLevelNode node) {
-        if (node.getKind() != NodeKind.FUNCTION) {
-            return false;
-        }
+    @Override
+    public void visit(BLangListMatchPattern listMatchPattern) {
+        find(listMatchPattern.matchExpr);
+        find(listMatchPattern.matchPatterns);
+        find(listMatchPattern.restMatchPattern);
+    }
 
-        BLangFunction func = (BLangFunction) node;
-        return func.flagSet.contains(Flag.LAMBDA);
+    @Override
+    public void visit(BLangRestMatchPattern restMatchPattern) {
+        find(restMatchPattern.matchExpr);
+        addIfSameSymbol(restMatchPattern.symbol, restMatchPattern.variableName.pos);
+    }
+
+    // Private methods
+
+    private void addIfSameSymbol(BSymbol symbol, Location location) {
+        if (symbol != null
+                && this.targetSymbol.name.equals(symbol.name)
+                && this.targetSymbol.pkgID.equals(symbol.pkgID)
+                && this.targetSymbol.pos.equals(symbol.pos)) {
+            this.referenceLocations.add(location);
+        }
     }
 }

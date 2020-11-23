@@ -20,8 +20,27 @@
 
 <suite name="ballerina-semantic-api-test-suite">
     <test name="semantic-api-test" parallel="false">
-        <packages>
-            <package name="io.ballerina.semantic.api.test.*" />
-        </packages>
+        <classes>
+            <class name="io.ballerina.semantic.api.test.ClassSymbolTest" />
+            <class name="io.ballerina.semantic.api.test.DiagnosticsTest" />
+            <class name="io.ballerina.semantic.api.test.ExpressionTypeTest" />
+            <class name="io.ballerina.semantic.api.test.LangLibFunctionTest" />
+            <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest" />
+            <class name="io.ballerina.semantic.api.test.SymbolBIRTest" />
+            <class name="io.ballerina.semantic.api.test.SymbolFlagToQualifierMappingTest" />
+            <class name="io.ballerina.semantic.api.test.SymbolLookupTest" />
+            <class name="io.ballerina.semantic.api.test.SymbolPositionTest" />
+            <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
+            <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
+
+            <class name="io.ballerina.semantic.api.test.allreferences.AnnotationRefsTest" />
+            <!--            The following is disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/27049-->
+            <!--            <class name="io.ballerina.semantic.api.test.allreferences.FindModulePrefixRefsTest" />-->
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsAcrossFilesTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInExprsTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInLambdasTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInWorkersTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.XMLRefsTest" />
+        </classes>
     </test>
 </suite>

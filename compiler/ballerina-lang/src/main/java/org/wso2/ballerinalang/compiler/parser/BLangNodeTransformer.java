@@ -613,7 +613,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ImportDeclarationNode importDeclaration) {
         ImportOrgNameNode orgNameNode = importDeclaration.orgName().orElse(null);
-        ImportPrefixNode prefixNode = importDeclaration.prefix().orElse(null);
+        Optional<ImportPrefixNode> prefixNode = importDeclaration.prefix();
+        Token prefix = prefixNode.isPresent() ? prefixNode.get().prefix() : null;
 
         Token orgName = null;
         if (orgNameNode != null) {
@@ -632,8 +633,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         importDcl.pkgNameComps = pkgNameComps;
         importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
         importDcl.version = this.createIdentifier(null, version);
-        importDcl.alias = (prefixNode != null) ? this.createIdentifier(getPosition(prefixNode), prefixNode.prefix())
-                                               : pkgNameComps.get(pkgNameComps.size() - 1);
+        importDcl.alias = (prefix != null) ? this.createIdentifier(getPosition(prefix), prefix)
+                : pkgNameComps.get(pkgNameComps.size() - 1);
 
         return importDcl;
     }
@@ -1440,7 +1441,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Location pos = getPosition(anonFuncExprNode);
 
         // Set function name
-        bLFunction.name = createIdentifier(pos,
+        bLFunction.name = createIdentifier(symTable.builtinPos,
                                            anonymousModelHelper.getNextAnonymousFunctionKey(packageID));
 
         // Set function signature
@@ -2237,6 +2238,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangUserDefinedType userDefinedType = (BLangUserDefinedType) child.apply(this);
                 BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
                 parameter.name = userDefinedType.typeName;
+                parameter.pos = getPosition(child);
                 arrowFunction.params.add(parameter);
             }
 
@@ -2244,10 +2246,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) param.apply(this);
             BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
             parameter.name = userDefinedType.typeName;
+            parameter.pos = getPosition(param);
             arrowFunction.params.add(parameter);
         }
         arrowFunction.body = new BLangExprFunctionBody();
         arrowFunction.body.expr = createExpression(implicitAnonymousFunctionExpressionNode.expression());
+        arrowFunction.body.pos = arrowFunction.body.expr.pos;
         return arrowFunction;
     }
 

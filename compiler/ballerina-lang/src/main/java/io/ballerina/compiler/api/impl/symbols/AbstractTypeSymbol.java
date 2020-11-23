@@ -111,7 +111,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
      *
      * @return {@link BType} associated with the type desc
      */
-    protected BType getBType() {
+    public BType getBType() {
         return bType;
     }
 

@@ -45,6 +45,10 @@ class PositionUtil {
     }
 
     static boolean withinRange(LineRange specifiedRange, Location nodePosition) {
+        if (!nodePosition.lineRange().filePath().equals(specifiedRange.filePath())) {
+            return false;
+        }
+
         int nodeStartLine = nodePosition.lineRange().startLine().line();
         int nodeStartColumn = nodePosition.lineRange().startLine().offset();
         int nodeEndLine = nodePosition.lineRange().endLine().line();
