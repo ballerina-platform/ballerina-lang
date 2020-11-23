@@ -58,7 +58,7 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
                         context);
             }
 
-            List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
             List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
             List<Symbol> errEntries = visibleSymbols.stream()
                     .filter(errorPredicate)

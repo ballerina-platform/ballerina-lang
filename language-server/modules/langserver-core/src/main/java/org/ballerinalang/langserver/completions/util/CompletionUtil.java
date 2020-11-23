@@ -27,6 +27,8 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
 import org.ballerinalang.langserver.completions.ProviderFactory;
+import org.ballerinalang.langserver.util.TokensUtil;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 
@@ -47,7 +49,8 @@ public class CompletionUtil {
      * @param ctx Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem> getCompletionItems(CompletionContext ctx) throws LSCompletionException {
+    public static List<CompletionItem> getCompletionItems(CompletionContext ctx) throws LSCompletionException,
+            TokenOrSymbolNotFoundException {
         fillTokenInfoAtCursor(ctx);
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         List<LSCompletionItem> items = route(ctx, nodeAtCursor);
@@ -99,7 +102,8 @@ public class CompletionUtil {
     /**
      * Find the token at cursor.
      */
-    public static void fillTokenInfoAtCursor(CompletionContext context) {
+    public static void fillTokenInfoAtCursor(CompletionContext context) throws TokenOrSymbolNotFoundException {
+        context.setTokenAtCursor(TokensUtil.findTokenAtPosition(context, context.getCursorPosition()));
         Optional<Document> document = context.workspace().document(context.filePath());
         if (document.isEmpty()) {
             throw new RuntimeException("Could not find a valid document");
