@@ -239,4 +239,9 @@ public class TransactionStmtTest {
     public void testPanicAfterRollback() {
         BRunUtil.invoke(programFile, "testPanicAfterRollback");
     }
+
+    @Test
+    public void testRollbackNReturn() {
+        BRunUtil.invoke(programFile, "testRollbackNReturn");
+    }
 }
