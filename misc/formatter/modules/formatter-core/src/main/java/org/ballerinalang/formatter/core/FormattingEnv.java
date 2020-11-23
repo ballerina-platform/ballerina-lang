@@ -70,4 +70,9 @@ public class FormattingEnv {
      * Flag indicating whether the annotations should be inline.
      */
     boolean inLineAnnotation = false;
+
+    /**
+     * Previous token's trailing whitespaces.
+     */
+    int prevTokensTrailingWS = 0;
 }

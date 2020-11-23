@@ -229,10 +229,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
     private static final ParserRuleContext[] OBJECT_TYPE_START =
-            { ParserRuleContext.OBJECT_TYPE_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
+            { ParserRuleContext.OBJECT_KEYWORD, ParserRuleContext.OBJECT_TYPE_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_CONSTRUCTOR_START =
-            { ParserRuleContext.OBJECT_CONSTRUCTOR_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
+            { ParserRuleContext.OBJECT_KEYWORD, ParserRuleContext.FIRST_OBJECT_CONS_QUALIFIER };
+
+    private static final ParserRuleContext[] OBJECT_CONS_WITHOUT_FIRST_QUALIFIER =
+            { ParserRuleContext.OBJECT_KEYWORD, ParserRuleContext.SECOND_OBJECT_CONS_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_CONSTRUCTOR_RHS =
             { ParserRuleContext.OPEN_BRACE, ParserRuleContext.TYPE_REFERENCE };
@@ -271,9 +274,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.BASE64_KEYWORD, ParserRuleContext.BASE64_KEYWORD,
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
-            ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD,
-            ParserRuleContext.ISOLATED_KEYWORD, ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION,
-            ParserRuleContext.OBJECT_CONSTRUCTOR };
+            ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD,
+            ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION, ParserRuleContext.OBJECT_CONSTRUCTOR,
+            ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.ISOLATED_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -653,7 +656,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.ISOLATED_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD };
 
     private static final ParserRuleContext[] MODULE_CLASS_DEFINITION_START =
-            { ParserRuleContext.CLASS_TYPE_QUALIFIER, ParserRuleContext.CLASS_KEYWORD };
+            { ParserRuleContext.CLASS_KEYWORD, ParserRuleContext.CLASS_TYPE_QUALIFIER };
 
     private static final ParserRuleContext[] REGULAR_COMPOUND_STMT_RHS =
             { ParserRuleContext.STATEMENT, ParserRuleContext.ON_FAIL_CLAUSE };
@@ -665,7 +668,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         super(tokenReader);
     }
 
+    /**
+     * @deprecated This method is no longer used for its original purpose and has not been maintained for a while.
+     */
     @Override
+    @Deprecated
     protected boolean isProductionWithAlternatives(ParserRuleContext currentCtx) {
         switch (currentCtx) {
             case TOP_LEVEL_NODE:
@@ -690,7 +697,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLASS_MEMBER:
             case OBJECT_MEMBER_DESCRIPTOR:
             case OBJECT_TYPE_QUALIFIER:
-            case OBJECT_CONSTRUCTOR_QUALIFIER:
+            case FIRST_OBJECT_CONS_QUALIFIER:
             case CLASS_TYPE_QUALIFIER:
             case ELSE_BODY:
             case IMPORT_DECL_RHS:
@@ -923,9 +930,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case ARG_LIST_END:
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN;
                     break;
-                case OBJECT_CONSTRUCTOR_QUALIFIER:
-                    hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD;
-                    break;
+                case FIRST_OBJECT_CONS_QUALIFIER:
+                case SECOND_OBJECT_CONS_QUALIFIER:
                 case OBJECT_TYPE_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
                             nextToken.kind == SyntaxKind.ISOLATED_KEYWORD;
@@ -1438,6 +1444,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MODULE_CLASS_DEFINITION_START:
             case OBJECT_CONSTRUCTOR_TYPE_REF:
             case OBJECT_FIELD_QUALIFIER:
+            case OBJECT_CONS_WITHOUT_FIRST_QUALIFIER:
                 return true;
             default:
                 return false;
@@ -2033,6 +2040,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LISTENERS_LIST_END:
                 alternativeRules = LISTENERS_LIST_END;
                 break;
+            case OBJECT_CONS_WITHOUT_FIRST_QUALIFIER:
+                alternativeRules = OBJECT_CONS_WITHOUT_FIRST_QUALIFIER;
+                break;
             case EXPRESSION_RHS:
                 return seekMatchInExpressionRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint, false);
             case VARIABLE_REF_RHS:
@@ -2405,10 +2415,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_TYPE_DESCRIPTOR:
                 return ParserRuleContext.OBJECT_TYPE_START;
             case OBJECT_TYPE_QUALIFIER:
-            case OBJECT_CONSTRUCTOR_QUALIFIER:
+            case SECOND_OBJECT_CONS_QUALIFIER:
                 return ParserRuleContext.OBJECT_KEYWORD;
-            case CLASS_TYPE_QUALIFIER:
-                return ParserRuleContext.CLASS_KEYWORD;
+            case FIRST_OBJECT_CONS_QUALIFIER:
+                return ParserRuleContext.OBJECT_CONS_WITHOUT_FIRST_QUALIFIER;
             case OPEN_BRACKET:
                 return getNextRuleForOpenBracket();
             case CLOSE_BRACKET:
@@ -2747,11 +2757,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case STMT_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS:
                 endContext();
                 // We come here trying to recover statement started with function-keyword,
-                // and trying to match it against a var-decl. Since this wasn't a var-decl
-                // originally, a context for type hasn't started yet. Therefore switch to
-                // var-decl context
-                switchContext(ParserRuleContext.VAR_DECL_STMT);
-                startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                // and trying to match it against a var-decl. Or function keyword inside statement startambiguous
+                // bracketed list.
+
+                // If it is the first case, since this wasn't a var-decl
+                // originally, a context for type hasn't started yet. Therefore switch to var-decl context.
+                // If it is the second case just return TYPEDESC_RHS
+                if (!isInTypeDescContext()) {
+                    switchContext(ParserRuleContext.VAR_DECL_STMT);
+                    startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                }
                 return ParserRuleContext.TYPEDESC_RHS;
             case FUNC_TYPE_DESC_END:
                 endContext();
@@ -4836,9 +4851,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ABSTRACT_KEYWORD:
                 return SyntaxKind.ABSTRACT_KEYWORD;
             case CLIENT_KEYWORD:
+            case FIRST_OBJECT_CONS_QUALIFIER:
+            case SECOND_OBJECT_CONS_QUALIFIER:
                 return SyntaxKind.CLIENT_KEYWORD;
             case OBJECT_TYPE_QUALIFIER:
-            case OBJECT_CONSTRUCTOR_QUALIFIER:
                 return SyntaxKind.OBJECT_KEYWORD;
             case CLASS_TYPE_QUALIFIER:
                 return SyntaxKind.CLASS_KEYWORD;

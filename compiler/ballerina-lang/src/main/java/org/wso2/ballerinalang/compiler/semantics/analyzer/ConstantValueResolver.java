@@ -18,10 +18,12 @@
 
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -37,7 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -55,7 +56,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BConstantSymbol currentConstSymbol;
     private BLangConstantValue result;
     private BLangDiagnosticLog dlog;
-    private DiagnosticPos currentPos;
+    private Location currentPos;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
 
     private ConstantValueResolver(CompilerContext context) {
@@ -71,7 +72,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return constantValueResolver;
     }
 
-    public void resolve(List<BLangConstant> constants) {
+    public void resolve(List<BLangConstant> constants, PackageID packageID) {
+        this.dlog.setCurrentPackageId(packageID);
         constants.forEach(constant -> this.unresolvedConstants.put(constant.symbol, constant));
         constants.forEach(constant -> constant.accept(this));
     }
@@ -191,7 +193,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         } catch (NumberFormatException nfe) {
             // Ignore. This will be handled as a compiler error.
         } catch (ArithmeticException ae) {
-            dlog.error(currentPos, DiagnosticCode.INVALID_CONST_EXPRESSION, ae.getMessage());
+            dlog.error(currentPos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION, ae.getMessage());
         }
         // This is a compilation error already logged.
         // This is to avoid NPE exceptions in sub-sequent validations.
@@ -325,7 +327,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case BINARY_EXPR:
             case GROUP_EXPR:
                 BLangConstantValue prevResult = this.result;
-                DiagnosticPos prevPos = this.currentPos;
+                Location prevPos = this.currentPos;
                 this.currentPos = node.pos;
                 this.result = null;
                 node.accept(this);

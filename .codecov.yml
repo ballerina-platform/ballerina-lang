@@ -1,10 +1,11 @@
 codecov:
   ci:
     - travis
-    - !appveyor                # ignore CI builds by AppVeyor
+    - !appveyor # ignore CI builds by AppVeyor
+
 
 ignore:
-  - "compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/parser/antlr4"                # ignore ANTLR4 generated sources
+  - "compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/parser/antlr4" # ignore ANTLR4 generated sources
 
 coverage:
   status:
@@ -29,7 +30,5 @@ flags:
       - ./tests/ballerina-spec-conformance-tests
       - ./tests/ballerina-compiler-plugin-test
       - ./tests/ballerina-unit-test
-      - ./tool-plugins
       - ./bvm
       - ./stdlib
-

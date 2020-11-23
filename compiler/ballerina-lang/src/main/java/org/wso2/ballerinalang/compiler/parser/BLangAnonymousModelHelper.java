@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
 /**
  * {@link BLangAnonymousModelHelper} is a util for holding the number of anonymous constructs found so far in the
@@ -43,7 +43,7 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> rawTemplateTypeCount;
 
     private static final String ANON_TYPE = "$anonType$";
-    private static final String LAMBDA = "$lambda$";
+    public static final String LAMBDA = "$lambda$";
     private static final String SERVICE = "$$service$";
     private static final String ANON_SERVICE = "$anonService$";
     private static final String BUILTIN_ANON_TYPE = "$anonType$builtin$";

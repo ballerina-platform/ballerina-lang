@@ -20,22 +20,19 @@ package org.ballerinalang.langserver.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.semantichighlighter.SemanticHighlightingParams;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
-import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
-import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
+import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -65,23 +62,17 @@ import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.locks.Lock;
-
-import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 
 /**
  * Common utils that are reused within test suits.
@@ -147,48 +138,11 @@ public class TestUtil {
     }
 
     /**
-     * Get semantic highlighting response.
-     *
-     * @param docManager Document manager
-     * @param filePath   Path of the Bal file
-     * @return {@link SemanticHighlightingParams}   Response as SemanticHighlightingParams
-     */
-    public static SemanticHighlightingParams getHighlightingResponse(
-            WorkspaceDocumentManager docManager, Path filePath) throws CompilationFailedException {
-
-        String docUri = filePath.toUri().toString();
-        SemanticHighlightingParams semanticHighlightingParams = null;
-
-        Path compilationPath;
-        try {
-            compilationPath = Paths.get(new URL(docUri).toURI());
-        } catch (URISyntaxException | MalformedURLException e) {
-            compilationPath = null;
-        }
-        if (compilationPath != null) {
-            Optional<Lock> lock = docManager.lockFile(compilationPath);
-            try {
-                LSContext context = new DocumentServiceOperationContext
-                        .ServiceOperationContextBuilder(LSContextOperation.TXT_DID_OPEN)
-                        .withCommonParams(null, docUri, docManager)
-                        .build();
-                semanticHighlightingParams = SemanticHighlightProvider.getHighlights(context, docManager);
-            } catch (HighlightingFailedException e) {
-                String msg = "Semantic highlighting failed!";
-                TextDocumentIdentifier identifier = new TextDocumentIdentifier(docUri);
-                logError(msg, e, identifier, (Position) null);
-            } finally {
-                lock.ifPresent(Lock::unlock);
-            }
-        }
-        return semanticHighlightingParams;
-    }
-    /**
      * Get the textDocument/completion response.
      *
-     * @param filePath          Path of the Bal file
-     * @param position          Cursor Position
-     * @param endpoint          Service Endpoint to Language Server
+     * @param filePath Path of the Bal file
+     * @param position Cursor Position
+     * @param endpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
     public static String getCompletionResponse(String filePath, Position position, Endpoint endpoint) {
@@ -300,8 +254,8 @@ public class TestUtil {
     /**
      * Get the document symbol Response as String.
      *
-     * @param serviceEndpoint       Language Server Service Endpoint
-     * @param filePath              File Path
+     * @param serviceEndpoint Language Server Service Endpoint
+     * @param filePath        File Path
      * @return {@link String}       Response string
      */
     public static String getDocumentSymbolResponse(Endpoint serviceEndpoint, String filePath) {
@@ -313,7 +267,7 @@ public class TestUtil {
     /**
      * Get formatting response.
      *
-     * @param params Document formatting parameters
+     * @param params          Document formatting parameters
      * @param serviceEndpoint Service endpoint to language server
      * @return {@link String} Language server response as String
      */
@@ -325,9 +279,9 @@ public class TestUtil {
     /**
      * Get the Goto implementation response.
      *
-     * @param serviceEndpoint   Language Server Service endpoint
-     * @param filePath          File path to evaluate
-     * @param position          Cursor position
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param filePath        File path to evaluate
+     * @param position        Cursor position
      * @return {@link CompletableFuture}    Response completable future
      */
     public static String getGotoImplementationResponse(Endpoint serviceEndpoint, String filePath, Position position) {
@@ -421,8 +375,8 @@ public class TestUtil {
     /**
      * Check whether the evalArray is a sublist of checkAgainst Array.
      *
-     * @param checkAgainst          JsonArray to check against
-     * @param evalArray             JsonArray to evaluate
+     * @param checkAgainst JsonArray to check against
+     * @param evalArray    JsonArray to evaluate
      * @return {@link Boolean}      is Sub array status
      */
     public static boolean isArgumentsSubArray(JsonArray checkAgainst, JsonArray evalArray) {
@@ -437,8 +391,8 @@ public class TestUtil {
     /**
      * Get the workspace symbol response as String.
      *
-     * @param serviceEndpoint       Language Server Service Endpoint
-     * @param query                 Symbol query
+     * @param serviceEndpoint Language Server Service Endpoint
+     * @param query           Symbol query
      * @return {@link String}       Response string
      */
     public static String getWorkspaceSymbolResponse(Endpoint serviceEndpoint, String query) {
@@ -491,14 +445,27 @@ public class TestUtil {
         return GSON.toJson(jsonrpcResponse).replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
 
-    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath) throws CompilationFailedException {
-        WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
-        LSContext context = new DocumentServiceOperationContext
-                .ServiceOperationContextBuilder(LSContextOperation.DIAGNOSTICS)
-                .withCommonParams(null, sourcePath.toUri().toString(), documentManager)
-                .build();
+    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath, WorkspaceManager workspaceManager)
+            throws IOException {
+        List<Diagnostic> diagnostics = new ArrayList<>();
 
-        BLangPackage pkg = LSModuleCompiler.getBLangPackage(context, documentManager, true, true);
-        return pkg.getDiagnostics();
+        DocumentServiceContext context = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
+                                                                         workspaceManager,
+                                                                         LSContextOperation.TXT_DID_OPEN);
+        DidOpenTextDocumentParams params = new DidOpenTextDocumentParams();
+        TextDocumentItem textDocument = new TextDocumentItem();
+        textDocument.setUri(sourcePath.toUri().toString());
+        textDocument.setText(new String(Files.readAllBytes(sourcePath)));
+        params.setTextDocument(textDocument);
+        context.workspace().didOpen(sourcePath, params);
+        Optional<Project> project = context.workspace().project(context.filePath());
+        if (project.isEmpty()) {
+            return diagnostics;
+        }
+        for (Module module : project.get().currentPackage().modules()) {
+            diagnostics.addAll(module.getCompilation().diagnostics().diagnostics());
+        }
+
+        return diagnostics;
     }
 }

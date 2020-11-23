@@ -15,27 +15,27 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.FieldDescriptor;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
-import io.ballerina.compiler.api.types.RecordTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.FieldCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -66,8 +66,8 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      * @param expr expression node to evaluate
      * @return {@link List} of filtered scope entries
      */
-    protected List<LSCompletionItem> getEntries(LSContext ctx, ExpressionNode expr) {
-        Optional<? extends BallerinaTypeDescriptor> typeDesc = this.getTypeDesc(ctx, expr);
+    protected List<LSCompletionItem> getEntries(CompletionContext ctx, ExpressionNode expr) {
+        Optional<? extends TypeSymbol> typeDesc = this.getTypeDesc(ctx, expr);
         if (typeDesc.isEmpty()) {
             return new ArrayList<>();
         }
@@ -83,7 +83,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      */
     protected abstract boolean removeOptionalFields();
 
-    private Optional<? extends BallerinaTypeDescriptor> getTypeDesc(LSContext ctx, ExpressionNode expr) {
+    private Optional<? extends TypeSymbol> getTypeDesc(CompletionContext ctx, ExpressionNode expr) {
         switch (expr.kind()) {
             case SIMPLE_NAME_REFERENCE:
                 /*
@@ -115,43 +115,51 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                  */
                 return this.getTypeDescForFieldAccess(ctx, (FieldAccessExpressionNode) expr);
             }
+            case INDEXED_EXPRESSION: {
+                /*
+                Address the following
+                (1) test1[].<cursor>
+                (2) test1[].t<cursor>
+                 */
+                return this.getTypeDescForIndexedExpr(ctx, (IndexedExpressionNode) expr);
+            }
 
             default:
                 return Optional.empty();
         }
     }
 
-    private Optional<? extends BallerinaTypeDescriptor> getTypeDescForFieldAccess(LSContext context,
-                                                                                  FieldAccessExpressionNode node) {
+    private Optional<? extends TypeSymbol> getTypeDescForFieldAccess(CompletionContext context,
+                                                                     FieldAccessExpressionNode node) {
         String fieldName = ((SimpleNameReferenceNode) node.fieldName()).name().text();
         ExpressionNode expressionNode = node.expression();
-        Optional<? extends BallerinaTypeDescriptor> typeDescriptor = this.getTypeDesc(context, expressionNode);
+        Optional<? extends TypeSymbol> typeDescriptor = this.getTypeDesc(context, expressionNode);
 
         if (typeDescriptor.isEmpty()) {
             return Optional.empty();
         }
 
-        List<FieldDescriptor> fieldDescriptors = new ArrayList<>();
-        BallerinaTypeDescriptor rawType = CommonUtil.getRawType(typeDescriptor.get());
-        if (rawType.kind() == TypeDescKind.OBJECT) {
-            fieldDescriptors.addAll(((ObjectTypeDescriptor) rawType).fieldDescriptors());
-        } else if (rawType.kind() == TypeDescKind.RECORD) {
-            fieldDescriptors.addAll(((RecordTypeDescriptor) rawType).fieldDescriptors());
+        List<FieldSymbol> fieldSymbols = new ArrayList<>();
+        TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+            fieldSymbols.addAll(((ObjectTypeSymbol) rawType).fieldDescriptors());
+        } else if (rawType.typeKind() == TypeDescKind.RECORD) {
+            fieldSymbols.addAll(((RecordTypeSymbol) rawType).fieldDescriptors());
         }
 
-        return fieldDescriptors.stream()
+        return fieldSymbols.stream()
                 .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
-                .map(FieldDescriptor::typeDescriptor)
+                .map(FieldSymbol::typeDescriptor)
                 .findAny();
     }
 
-    private Optional<? extends BallerinaTypeDescriptor> getTypeDescForNameRef(LSContext context,
-                                                                              NameReferenceNode referenceNode) {
+    private Optional<? extends TypeSymbol> getTypeDescForNameRef(CompletionContext context,
+                                                                 NameReferenceNode referenceNode) {
         if (referenceNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();
         }
         String name = ((SimpleNameReferenceNode) referenceNode).name().text();
-        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<Symbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(name))
                 .findFirst();
@@ -162,10 +170,10 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return SymbolUtil.getTypeDescriptor(symbolRef.get());
     }
 
-    private Optional<? extends BallerinaTypeDescriptor> getTypeDescForFunctionCall(LSContext context,
-                                                                                   FunctionCallExpressionNode expr) {
+    private Optional<? extends TypeSymbol> getTypeDescForFunctionCall(CompletionContext context,
+                                                                      FunctionCallExpressionNode expr) {
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
-        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
                 .map(symbol -> (FunctionSymbol) symbol)
@@ -177,21 +185,21 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return symbolRef.get().typeDescriptor().returnTypeDescriptor();
     }
 
-    private Optional<? extends BallerinaTypeDescriptor> getTypeDescForMethodCall(LSContext context,
-                                                                                 MethodCallExpressionNode node) {
+    private Optional<? extends TypeSymbol> getTypeDescForMethodCall(CompletionContext context,
+                                                                    MethodCallExpressionNode node) {
         String methodName = ((SimpleNameReferenceNode) node.methodName()).name().text();
 
-        Optional<? extends BallerinaTypeDescriptor> fieldTypeDesc = this.getTypeDesc(context, node.expression());
+        Optional<? extends TypeSymbol> fieldTypeDesc = this.getTypeDesc(context, node.expression());
 
         if (fieldTypeDesc.isEmpty()) {
             return Optional.empty();
         }
-        BallerinaTypeDescriptor rawType = CommonUtil.getRawType(fieldTypeDesc.get());
-        List<MethodSymbol> visibleMethods = rawType.builtinMethods();
-        if (rawType.kind() == TypeDescKind.OBJECT) {
-            visibleMethods.addAll(((ObjectTypeDescriptor) rawType).methods());
+        TypeSymbol rawType = CommonUtil.getRawType(fieldTypeDesc.get());
+        List<FunctionSymbol> visibleMethods = rawType.langLibMethods();
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+            visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods());
         }
-        Optional<MethodSymbol> filteredMethod = visibleMethods.stream()
+        Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
                 .findFirst();
 
@@ -202,13 +210,23 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return filteredMethod.get().typeDescriptor().returnTypeDescriptor();
     }
 
-    private List<LSCompletionItem> getCompletionsForTypeDesc(LSContext context,
-                                                             BallerinaTypeDescriptor typeDescriptor) {
+    private Optional<? extends TypeSymbol> getTypeDescForIndexedExpr(CompletionContext context,
+                                                                     IndexedExpressionNode node) {
+        Optional<? extends TypeSymbol> typeDesc = getTypeDesc(context, node.containerExpression());
+
+        if (typeDesc.isEmpty() || typeDesc.get().typeKind() != TypeDescKind.ARRAY) {
+            return Optional.empty();
+        }
+
+        return Optional.of(((ArrayTypeSymbol) typeDesc.get()).memberTypeDescriptor());
+    }
+
+    private List<LSCompletionItem> getCompletionsForTypeDesc(CompletionContext context, TypeSymbol typeDescriptor) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        BallerinaTypeDescriptor rawType = CommonUtil.getRawType(typeDescriptor);
-        switch (rawType.kind()) {
+        TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor);
+        switch (rawType.typeKind()) {
             case RECORD:
-                ((RecordTypeDescriptor) rawType).fieldDescriptors().forEach(fieldDescriptor -> {
+                ((RecordTypeSymbol) rawType).fieldDescriptors().forEach(fieldDescriptor -> {
                     CompletionItem completionItem = new CompletionItem();
                     completionItem.setLabel(fieldDescriptor.name());
                     completionItem.setInsertText(fieldDescriptor.name());
@@ -217,7 +235,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                 });
                 break;
             case OBJECT:
-                ObjectTypeDescriptor objTypeDesc = (ObjectTypeDescriptor) rawType;
+                ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) rawType;
                 objTypeDesc.fieldDescriptors().forEach(fieldDescriptor -> {
                     CompletionItem completionItem = new CompletionItem();
                     completionItem.setLabel(fieldDescriptor.name());
@@ -230,7 +248,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             default:
                 break;
         }
-        completionItems.addAll(this.getCompletionItemList(typeDescriptor.builtinMethods(), context));
+        completionItems.addAll(this.getCompletionItemList(typeDescriptor.langLibMethods(), context));
 
         return completionItems;
     }

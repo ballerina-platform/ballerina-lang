@@ -41,11 +41,7 @@ import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -54,25 +50,23 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.getRelativeSourcePath;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
 /**
  * JDI Event processor implementation.
  */
 public class JDIEventProcessor {
 
-    private Path projectRoot;
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
     private final DebugContext context;
     private final Map<String, Breakpoint[]> breakpointsList = new HashMap<>();
     private final AtomicInteger nextVariableReference = new AtomicInteger();
     private final List<EventRequest> stepEventRequests = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
+    private static final String JBAL_STRAND_PREFIX = "jbal-strand-exec";
 
     JDIEventProcessor(DebugContext context) {
         this.context = context;
-        this.projectRoot = null;
     }
 
     /**
@@ -98,8 +92,7 @@ public class JDIEventProcessor {
     private boolean processEvent(EventSet eventSet, Event event) {
         if (event instanceof ClassPrepareEvent) {
             ClassPrepareEvent evt = (ClassPrepareEvent) event;
-            this.breakpointsList.forEach((path, breakpoints) -> Arrays.stream(breakpoints)
-                    .forEach(breakpoint -> addBreakpoint(evt.referenceType(), breakpoint)));
+            configureUserBreakPoints(evt.referenceType());
             eventSet.resume();
         } else if (event instanceof BreakpointEvent) {
             populateMaps();
@@ -138,19 +131,11 @@ public class JDIEventProcessor {
 
     void setBreakpointsList(String path, Breakpoint[] breakpointsList) {
         Breakpoint[] breakpoints = breakpointsList.clone();
-        this.breakpointsList.put(path, breakpoints);
-        if (this.context.getDebuggee() != null) {
+        this.breakpointsList.put(getQualifiedClassName(path), breakpoints);
+        if (context.getDebuggee() != null) {
             // Setting breakpoints to a already running debug session.
             context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
-            Arrays.stream(breakpointsList).forEach(breakpoint -> this.context.getDebuggee().allClasses()
-                    .forEach(referenceType -> this.addBreakpoint(referenceType, breakpoint)));
-        }
-
-        projectRoot = findProjectRoot(Paths.get(path));
-        if (projectRoot == null) {
-            File file = new File(path);
-            File parentDir = file.getParentFile();
-            projectRoot = parentDir.toPath();
+            context.getDebuggee().allClasses().forEach(this::configureUserBreakPoints);
         }
     }
 
@@ -159,8 +144,19 @@ public class JDIEventProcessor {
             return null;
         }
         List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
-        threadReferences.forEach(threadReference -> threadsMap.put(threadReference.uniqueID(), threadReference));
-        return threadsMap;
+        Map<Long, ThreadReference> breakPointThreads = new HashMap<>();
+
+        // Filter thread references which are at breakpoint, suspended and whose thread status is running.
+        for (ThreadReference threadReference : threadReferences) {
+            if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
+                    && !threadReference.name().equals("Reference Handler")
+                    && !threadReference.name().equals("Signal Dispatcher")
+                    && threadReference.isSuspended()
+            ) {
+                breakPointThreads.put(threadReference.uniqueID(), threadReference);
+            }
+        }
+        return breakPointThreads;
     }
 
     void sendStepRequest(long threadId, int stepType) {
@@ -181,8 +177,7 @@ public class JDIEventProcessor {
             return;
         }
         context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
-        breakpointsList.forEach((filePath, breakpoints) -> Arrays.stream(breakpoints).forEach(breakpoint ->
-                context.getDebuggee().allClasses().forEach(referenceType -> addBreakpoint(referenceType, breakpoint))));
+        context.getDebuggee().allClasses().forEach(this::configureUserBreakPoints);
     }
 
     private void populateMaps() {
@@ -192,20 +187,22 @@ public class JDIEventProcessor {
         threadReferences.forEach(threadReference -> threadsMap.put(threadReference.uniqueID(), threadReference));
     }
 
-    private void addBreakpoint(ReferenceType referenceType, Breakpoint breakpoint) {
+    private void configureUserBreakPoints(ReferenceType referenceType) {
         try {
-            String sourceReference = getRelativeSourcePath(referenceType, breakpoint);
-            String breakpointSource = getSourcePath(breakpoint);
-            if (sourceReference.isEmpty() || breakpointSource.isEmpty() || !sourceReference.equals(breakpointSource)) {
+            String qualifiedClassName = referenceType.name();
+            if (!breakpointsList.containsKey(qualifiedClassName)) {
                 return;
             }
-            List<Location> locations = referenceType.locationsOfLine(breakpoint.getLine().intValue());
-            if (!locations.isEmpty()) {
-                Location location = locations.get(0);
-                BreakpointRequest bpReq = context.getDebuggee().eventRequestManager().createBreakpointRequest(location);
-                bpReq.enable();
+            Breakpoint[] breakpoints = breakpointsList.get(qualifiedClassName);
+            for (Breakpoint bp : breakpoints) {
+                List<Location> locations = referenceType.locationsOfLine(bp.getLine().intValue());
+                if (!locations.isEmpty()) {
+                    Location loc = locations.get(0);
+                    BreakpointRequest bpReq = context.getDebuggee().eventRequestManager().createBreakpointRequest(loc);
+                    bpReq.enable();
+                }
             }
-        } catch (AbsentInformationException e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
     }
@@ -261,19 +258,5 @@ public class JDIEventProcessor {
         stepEventRequests.add(request);
         request.addCountFilter(1);
         request.enable();
-    }
-
-    /**
-     * Extracts relative path of the source file related to a given breakpoint.
-     */
-    private static String getSourcePath(Breakpoint breakpoint) {
-        Path path = Paths.get(breakpoint.getSource().getPath());
-        Path projectRoot = findProjectRoot(path);
-        if (projectRoot == null) {
-            return breakpoint.getSource().getName();
-        } else {
-            Path relativePath = projectRoot.relativize(path);
-            return relativePath.toString();
-        }
     }
 }

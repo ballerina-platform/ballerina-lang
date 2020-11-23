@@ -111,7 +111,6 @@ public class RollbackStatementNode extends StatementNode {
 
         public RollbackStatementNodeModifier withExpression(
                 ExpressionNode expression) {
-            Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }

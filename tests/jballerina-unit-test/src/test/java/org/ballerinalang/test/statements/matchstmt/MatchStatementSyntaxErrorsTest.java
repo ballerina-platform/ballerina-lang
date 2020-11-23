@@ -16,9 +16,9 @@
 
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases to verify the behaviour of the const-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 @Test(groups = { "disableOnOldParser" })
 public class MatchStatementSyntaxErrorsTest {
@@ -40,10 +40,11 @@ public class MatchStatementSyntaxErrorsTest {
 
     @Test
     public void testSyntaxErrors() {
-        Assert.assertEquals(result.getErrorCount(), 11);
+        Assert.assertEquals(result.getErrorCount(), 12);
 
         int i = -1;
         BAssertUtil.validateError(result, ++i, "undefined symbol 'v'", 5, 9);
+        BAssertUtil.validateError(result, ++i, "variable 'v' should be declared as constant", 5, 9);
         BAssertUtil.validateError(result, ++i, "missing open brace token", 6, 1);
         BAssertUtil.validateError(result, ++i, "missing right double arrow token", 6, 1);
         BAssertUtil.validateError(result, ++i, "missing close brace token", 8, 1);

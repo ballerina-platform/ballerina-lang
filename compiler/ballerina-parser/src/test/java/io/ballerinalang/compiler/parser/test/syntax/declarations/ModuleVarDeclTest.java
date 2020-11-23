@@ -38,6 +38,11 @@ public class ModuleVarDeclTest extends AbstractDeclarationTest {
         testFile("module-var-decl/module_var_decl_source_08.bal", "module-var-decl/module_var_decl_assert_08.json");
     }
 
+    @Test
+    public void testIsolatedVarDecl() {
+        testFile("module-var-decl/module_var_decl_source_11.bal", "module-var-decl/module_var_decl_assert_11.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -78,5 +83,15 @@ public class ModuleVarDeclTest extends AbstractDeclarationTest {
     @Test
     public void testIncompleteModuleVarDecl() {
         testFile("module-var-decl/module_var_decl_source_10.bal", "module-var-decl/module_var_decl_assert_10.json");
+    }
+
+    @Test
+    public void testModuleNoInitVarDeclWithIsolated() {
+        testFile("module-var-decl/module_var_decl_source_12.bal", "module-var-decl/module_var_decl_assert_12.json");
+    }
+
+    @Test
+    public void testErrorBindingPatternRecovery() {
+        test("module-var-decl/module_var_decl_source_13.bal", "module-var-decl/module_var_decl_assert_13.json");
     }
 }

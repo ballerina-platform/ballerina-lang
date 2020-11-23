@@ -18,7 +18,10 @@
                     "parameters": [
                         {
                             "label": {
-                                "left": "int a"
+                                "right": {
+                                    "first": 9,
+                                    "second": 10
+                                }
                             },
                             "documentation": {
                                 "right": {
@@ -29,7 +32,10 @@
                         },
                         {
                             "label": {
-                                "left": "boolean b"
+                                "right": {
+                                    "first": 20,
+                                    "second": 21
+                                }
                             },
                             "documentation": {
                                 "right": {

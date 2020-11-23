@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.bir;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,15 +46,15 @@ public class BirVariableOptimizationTest {
     @BeforeClass
     public void setup() {
         birEmitter = BIREmitter.getInstance(new CompilerContext());
-        result = BCompileUtil.compileAndGetBIR("test-src/bir/biroptimizer.bal");
+        result = BCompileUtil.compile("test-src/bir/biroptimizer.bal");
     }
 
-    @Test(description = "Test the liveness analysis on functions", enabled = false)
+    @Test(description = "Test the liveness analysis on functions")
     public void testFunctions() {
         ((BLangPackage) result.getAST()).symbol.bir.functions.forEach(this::assertFunctions);
     }
 
-    @Test(description = "Test the liveness analysis on attached functions", enabled = false)
+    @Test(description = "Test the liveness analysis on attached functions")
     public void testAttachedFunctions() {
         ((BLangPackage) result.getAST()).symbol.bir.typeDefs.forEach(
                 typeDefinition -> typeDefinition.attachedFuncs.forEach(this::assertFunctions));

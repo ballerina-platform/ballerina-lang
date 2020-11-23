@@ -101,7 +101,6 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
 
         public ErrorTypeDescriptorNodeModifier withErrorTypeParamsNode(
                 ErrorTypeParamsNode errorTypeParamsNode) {
-            Objects.requireNonNull(errorTypeParamsNode, "errorTypeParamsNode must not be null");
             this.errorTypeParamsNode = errorTypeParamsNode;
             return this;
         }

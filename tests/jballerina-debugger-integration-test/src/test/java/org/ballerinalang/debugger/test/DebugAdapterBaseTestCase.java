@@ -89,7 +89,7 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient = new BMainInstance(balServer);
-        debuggeeProcess = balClient.debugMain("build", new String[]{"--debug", String.valueOf(port), testModuleName},
+        debuggeeProcess = balClient.debugMain("build", new String[]{"--debug", String.valueOf(port)},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 20, true);
         clientLeecher.waitForText(20000);
     }
@@ -155,10 +155,10 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
 
         setBreakpoints(testBreakpoints);
 
-        if (executionKind != null) {
-            launchDebuggee(executionKind);
-        } else {
+        if (executionKind == DebugUtils.DebuggeeExecutionKind.BUILD) {
             attachToDebuggee();
+        } else {
+            launchDebuggee(executionKind);
         }
     }
 
@@ -376,6 +376,32 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
     }
 
     /**
+     * Can be used to fetch stack frames when a debug hit is occurred.
+     *
+     * @param args debug stopped event arguments.
+     * @return StackFrame array with stack frames information.
+     * @throws BallerinaTestException if an error occurs when fetching stack frames.
+     */
+    protected StackFrame[] fetchStackFrames(StoppedEventArguments args) throws BallerinaTestException {
+        if (!DebugHitListener.connector.isConnected()) {
+            throw new BallerinaTestException("DAP Client connector is not connected");
+        }
+        StackTraceArguments stackTraceArgs = new StackTraceArguments();
+        stackTraceArgs.setThreadId(args.getThreadId());
+        StackFrame[] stackFrames = null;
+        StackTraceResponse stackTraceResp = null;
+
+        try {
+            stackTraceResp = DebugHitListener.connector.getRequestManager().stackTrace(stackTraceArgs);
+            stackFrames = stackTraceResp.getStackFrames();
+        } catch (Exception e) {
+            LOGGER.warn("Error occurred when fetching stack frames", e);
+            throw new BallerinaTestException("Error occurred when fetching stack frames", e);
+        }
+        return stackFrames;
+    }
+
+    /**
      * Can be used to get child variables from parent variable.
      *
      * @param childVariable child variable
@@ -439,7 +465,21 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
             throws BallerinaTestException {
         Variable result = evaluateExpression(context, expression);
         Assert.assertEquals(result.getValue(), errorMessage);
-        Assert.assertEquals(result.getType(), "string");
+        Assert.assertTrue(result.getType().equals("string") || result.getType().equals("error"));
+    }
+
+    /**
+     * Can be used to assert stack frame name, line and source.
+     *
+     * @param frame  debug hit stack frame.
+     * @param name   stack frame name.
+     * @param line   stack frame line.
+     * @param source stack frame source.
+     */
+    protected void assertCallStack(StackFrame frame, String name, int line, String source) {
+        Assert.assertEquals(frame.getName(), name);
+        Assert.assertEquals(frame.getLine().intValue(), line);
+        Assert.assertEquals(frame.getSource().getName(), source);
     }
 
     /**

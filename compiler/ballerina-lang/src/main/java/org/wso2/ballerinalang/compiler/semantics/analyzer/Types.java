@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -24,7 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -68,7 +70,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -76,13 +77,13 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -95,7 +96,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
@@ -164,7 +165,7 @@ public class Types {
     public BType checkType(BLangExpression node,
                            BType actualType,
                            BType expType) {
-        return checkType(node, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        return checkType(node, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
     }
 
     public BType checkType(BLangExpression expr,
@@ -182,7 +183,7 @@ public class Types {
         return expr.type;
     }
 
-    public BType checkType(DiagnosticPos pos,
+    public BType checkType(Location pos,
                            BType actualType,
                            BType expType,
                            DiagnosticCode diagCode) {
@@ -286,8 +287,35 @@ public class Types {
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BLangConstPattern constMatchPattern) {
-        BLangExpression constPatternExpr = constMatchPattern.expr;
+    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BTupleType listMatchPatternType) {
+        if (matchExpr == null) {
+            return listMatchPatternType;
+        }
+        BType matchExprType = matchExpr.type;
+        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType);
+        if (intersectionType != symTable.semanticError) {
+            return intersectionType;
+        }
+        if (matchExprType.tag == TypeTags.ANYDATA) {
+            Collections.fill(listMatchPatternType.tupleTypes, symTable.anydataType);
+            if (listMatchPatternType.restType != null) {
+                listMatchPatternType.restType = symTable.anydataType;
+            }
+            return listMatchPatternType;
+        }
+        return symTable.noType;
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BLangExpression constPatternExpr) {
+        if (matchExpr == null) {
+            if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
+            } else {
+                return constPatternExpr.type;
+            }
+        }
+
+        BType matchExprType = matchExpr.type;
         BType constMatchPatternExprType = constPatternExpr.type;
 
         if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -340,7 +368,7 @@ public class Types {
         return symTable.noType;
     }
 
-    public boolean containsAnyType(BType type) {
+    private boolean containsAnyType(BType type) {
         if (type.tag != TypeTags.UNION) {
             return type.tag == TypeTags.ANY;
         }
@@ -351,6 +379,16 @@ public class Types {
             }
         }
         return false;
+    }
+
+    public BType mergeTypes(BType typeFirst, BType typeSecond) {
+        if (containsAnyType(typeFirst)) {
+            return typeSecond;
+        }
+        if (isSameBasicType(typeFirst, typeSecond)) {
+            return typeFirst;
+        }
+        return BUnionType.create(null, typeFirst, typeSecond);
     }
 
     public boolean isSubTypeOfMapping(BType type) {
@@ -568,6 +606,10 @@ public class Types {
             return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes);
         }
 
+        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
+            return isParameterizedTypeAssignable(source, target, unresolvedTypes);
+        }
+
         if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
             return true;
         }
@@ -717,13 +759,22 @@ public class Types {
             return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
         }
 
-        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
-            BType resolvedType = typeBuilder.build(source);
-            return isAssignable(resolvedType, target, unresolvedTypes);
-        }
-
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
                 isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
+    }
+
+    private boolean isParameterizedTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        BType resolvedSourceType = typeBuilder.build(source);
+
+        if (target.tag != TypeTags.PARAMETERIZED_TYPE) {
+            return isAssignable(resolvedSourceType, target, unresolvedTypes);
+        }
+
+        if (((BParameterizedType) source).paramIndex != ((BParameterizedType) target).paramIndex) {
+            return false;
+        }
+
+        return isAssignable(resolvedSourceType, typeBuilder.build(target), unresolvedTypes);
     }
 
     private boolean isAssignableRecordType(BRecordType recordType, BType type, Set<TypePair> unresolvedTypes) {
@@ -846,7 +897,7 @@ public class Types {
         return isAssignable(sourceMapType.constraint, targetRecType.restFieldType);
     }
 
-    private boolean hasIncompatibleReadOnlyFlags(int targetFlags, int sourceFlags) {
+    private boolean hasIncompatibleReadOnlyFlags(long targetFlags, long sourceFlags) {
         return Symbols.isFlagOn(targetFlags, Flags.READONLY) && !Symbols.isFlagOn(sourceFlags, Flags.READONLY);
     }
 
@@ -1397,7 +1448,7 @@ public class Types {
                 varType = streamType.constraint;
                 if (streamType.error != null) {
                     BType actualType = BUnionType.create(null, varType, streamType.error);
-                    dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                    dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             varType, actualType);
                 }
                 break;
@@ -1411,14 +1462,14 @@ public class Types {
                     BType errorType = getErrorType(nextMethodReturnType);
                     if (errorType != null) {
                         BType actualType = BUnionType.create(null, valueType, errorType);
-                        dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                        dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                                 valueType, actualType);
                     }
                     foreachNode.nillableResultType = nextMethodReturnType;
                     foreachNode.varType = valueType;
                     return;
                 }
-                dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 foreachNode.varType = symTable.semanticError;
@@ -1429,7 +1480,7 @@ public class Types {
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;
                 foreachNode.nillableResultType = symTable.semanticError;
-                dlog.error(foreachNode.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
                 return;
         }
@@ -1502,7 +1553,7 @@ public class Types {
                     return;
                 }
                 dlog.error(bLangInputClause.collection.pos,
-                        DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                        DiagnosticErrorCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 bLangInputClause.varType = symTable.semanticError;
@@ -1513,7 +1564,7 @@ public class Types {
                 bLangInputClause.varType = symTable.semanticError;
                 bLangInputClause.resultType = symTable.semanticError;
                 bLangInputClause.nillableResultType = symTable.semanticError;
-                dlog.error(bLangInputClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                dlog.error(bLangInputClause.collection.pos, DiagnosticErrorCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
                 return;
         }
@@ -1644,15 +1695,14 @@ public class Types {
     }
 
     public BType getResultTypeOfNextInvocation(BObjectType iteratorType) {
-        BAttachedFunction nextFunc = getNextFunc(iteratorType);
+        BAttachedFunction nextFunc = getAttachedFuncFromObject(iteratorType, BLangCompilerConstants.NEXT_FUNC);
         return Objects.requireNonNull(nextFunc).type.retType;
     }
 
-    private BAttachedFunction getNextFunc(BObjectType iteratorType) {
-        BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
+    public BAttachedFunction getAttachedFuncFromObject(BObjectType objectType, String funcName) {
+        BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) objectType.tsymbol;
         for (BAttachedFunction bAttachedFunction : iteratorSymbol.attachedFuncs) {
-            if (bAttachedFunction.funcName.value
-                    .equals(BLangCompilerConstants.NEXT_FUNC)) {
+            if (funcName.equals(bAttachedFunction.funcName.value)) {
                 return bAttachedFunction;
             }
         }
@@ -1987,6 +2037,7 @@ public class Types {
         implicitConversionExpr.expr = expr.impConversionExpr == null ? expr : expr.impConversionExpr;
         implicitConversionExpr.type = expType;
         implicitConversionExpr.targetType = expType;
+        implicitConversionExpr.internal = true;
         expr.impConversionExpr = implicitConversionExpr;
     }
 
@@ -2038,14 +2089,22 @@ public class Types {
     public boolean isValidErrorDetailType(BType detailType) {
         switch (detailType.tag) {
             case TypeTags.MAP:
-            case TypeTags.RECORD:
                 return isAssignable(detailType, symTable.detailType);
-
+            case TypeTags.RECORD: {
+                if (isSealed((BRecordType) detailType)) {
+                    return false;
+                }
+                return isAssignable(detailType, symTable.detailType);
+            }
         }
         return false;
     }
 
     // private methods
+
+    private boolean isSealed(BRecordType recordType) {
+        return recordType.sealed;
+    }
 
     private boolean isNullable(BType fieldType) {
         return fieldType.isNullable();

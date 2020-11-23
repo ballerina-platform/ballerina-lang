@@ -6,11 +6,11 @@
   "source": "import_decl/source/source2.bal",
   "items": [
     {
-      "label": "ballerina/lang.object",
+      "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
       "sortText": "D",
-      "insertText": "ballerina/lang.'object;",
+      "insertText": "ballerina/lang.'array;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -22,43 +22,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.boolean",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'boolean;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.xml",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'xml;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'array;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.transaction",
       "kind": "Module",
       "detail": "Module",
       "sortText": "D",
       "insertText": "ballerina/lang.'transaction;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.string",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'string;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -70,67 +38,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.future",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'future;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "D",
       "insertText": "ballerina/lang.'value;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.float",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'float;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.decimal",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'decimal;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.table",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'table;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.stream",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'stream;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.error",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'error;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.typedesc",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'typedesc;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -142,27 +54,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.map",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'map;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.query",
       "kind": "Module",
       "detail": "Module",
       "sortText": "D",
       "insertText": "ballerina/lang.'query;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.int",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "D",
-      "insertText": "ballerina/lang.'int;",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -40,6 +40,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.BinaryExpressionEvaluator;
@@ -53,6 +54,8 @@ import org.ballerinalang.debugadapter.evaluation.engine.OptionalFieldAccessExpre
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.StringTemplateEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.TypeOfExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.UnaryExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.XMLTemplateEvaluator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -83,12 +86,14 @@ import java.util.StringJoiner;
  * <li> Conditional expression
  * <li> Typeof expression
  * <li> Equality expression
+ * <li> String template expression
+ * <li> XML template expression
+ * <li> Shift expression
+ * <li> Unary expression
  * </ul>
  * <br>
  * To be Implemented.
  * <ul>
- * <li> String template expression
- * <li> XML template expression
  * <li> New expression
  * <li> XML attribute access expression
  * <li> Annotation access expression
@@ -96,8 +101,6 @@ import java.util.StringJoiner;
  * <li> Anonymous function expression
  * <li> Let expression
  * <li> Type cast expression
- * <li> Unary expression
- * <li> Shift expression
  * <li> Range expression
  * <li> Type test expression
  * <li> Checking expression
@@ -125,15 +128,13 @@ public class EvaluatorBuilder extends NodeVisitor {
     /**
      * Parses a given ballerina expression and transforms into a tree of executable {@link Evaluator} instances.
      *
-     * @param expression Ballerina expression(user input).
+     * @param parsedExpr Parsed Ballerina expression node.
      * @throws EvaluationException If validation/parsing is failed.
      */
-    public Evaluator build(String expression) throws EvaluationException {
-        // Validates and converts the expression into a parsed syntax-tree node.
-        ExpressionNode parsedExpr = DebugExpressionParser.validateAndParse(expression);
-        // Encodes all the identifiers in order to be aligned with identifier representation in the JVM runtime.
+    public Evaluator build(ExpressionNode parsedExpr) throws EvaluationException {
+        clearState();
+        // Uses `ExpressionIdentifierModifier` to modify and encode all the identifiers within the expression.
         parsedExpr = (ExpressionNode) parsedExpr.apply(new ExpressionIdentifierModifier());
-        // transforms the parsed ballerina expression into a java expression using a node transformer implementation.
         parsedExpr.accept(this);
         if (unsupportedSyntaxDetected()) {
             final StringJoiner errors = new StringJoiner(System.lineSeparator());
@@ -315,6 +316,8 @@ public class EvaluatorBuilder extends NodeVisitor {
                 templateMemberEvaluators.add(result);
             }
             result = new StringTemplateEvaluator(context, templateExpressionNode, templateMemberEvaluators);
+        } else if (type == SyntaxKind.XML_KEYWORD) {
+            result = new XMLTemplateEvaluator(context, templateExpressionNode);
         }
     }
 
@@ -322,6 +325,14 @@ public class EvaluatorBuilder extends NodeVisitor {
     public void visit(InterpolationNode interpolationNode) {
         visitSyntaxNode(interpolationNode);
         interpolationNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(UnaryExpressionNode unaryExpressionNode) {
+        visitSyntaxNode(unaryExpressionNode);
+        unaryExpressionNode.expression().accept(this);
+        Evaluator subExprEvaluator = result;
+        result = new UnaryExpressionEvaluator(context, unaryExpressionNode, subExprEvaluator);
     }
 
     @Override
@@ -420,7 +431,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addXmlTemplateExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.XML_TEMPLATE_EXPRESSION);
     }
 
     private void addNewExpressionSyntax() {
@@ -490,7 +501,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addUnaryExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.UNARY_EXPRESSION);
     }
 
     private void addMultiplicativeExpressionSyntax() {
@@ -572,5 +583,12 @@ public class EvaluatorBuilder extends NodeVisitor {
         supportedSyntax.add(SyntaxKind.IDENTIFIER_TOKEN);
         supportedSyntax.add(SyntaxKind.NONE);
         supportedSyntax.add(SyntaxKind.EOF_TOKEN);
+    }
+
+    private void clearState() {
+        capturedSyntax.clear();
+        unsupportedNodes.clear();
+        result = null;
+        builderException = null;
     }
 }

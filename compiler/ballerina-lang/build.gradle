@@ -22,24 +22,30 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-cli-module')
+    implementation project(':toml-parser')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.apache.commons:commons-compress:1.18'
     implementation 'io.netty:netty-buffer'
     implementation 'org.ow2.asm:asm'
     implementation 'org.ow2.asm:asm-util'
     implementation 'org.ow2.asm:asm-tree'
+    implementation 'commons-io:commons-io'
     testCompile 'org.testng:testng'
 }
 
 description = 'Ballerina - Lang'
 
 checkstyleMain {
+    exclude 'io/ballerina/projects/internal/balo/BaloJson.java'
+    exclude 'io/ballerina/projects/internal/balo/PackageJson.java'
     exclude 'org/ballerinalang/toml/model/Module.java'
     exclude 'org/ballerinalang/toml/model/Balo.java'
     exclude 'org/ballerinalang/toml/model/LockFile.java'
     exclude 'org/ballerinalang/toml/model/LockFileImport.java'
+    exclude 'io/ballerina/projects/internal/model/BaloJson.java'
+    exclude 'io/ballerina/projects/internal/model/PackageJson.java'
 }
-
 
 test {
     useTestNG() {

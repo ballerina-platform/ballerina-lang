@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.runtime.internal.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -24,11 +25,15 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -41,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -48,7 +54,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -86,7 +92,6 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.V1_8;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.cleanupReadOnlyTypeName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
@@ -138,17 +143,22 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 class JvmValueGen {
 
+    static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
     static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
-    private BIRNode.BIRPackage module;
-    private JvmPackageGen jvmPackageGen;
-    private JvmMethodGen jvmMethodGen;
-    private BType booleanType;
+    static final String ENCODED_RECORD_INIT =
+            IdentifierUtils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
+    private final BIRNode.BIRPackage module;
+    private final JvmPackageGen jvmPackageGen;
+    private final MethodGen methodGen;
+    private final LambdaGen lambdaGen;
+    private final BType booleanType;
 
-    JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmMethodGen jvmMethodGen) {
-
+    JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen,
+                LambdaGen lambdaGen) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
-        this.jvmMethodGen = jvmMethodGen;
+        this.methodGen = methodGen;
+        this.lambdaGen = lambdaGen;
         this.booleanType = jvmPackageGen.symbolTable.booleanType;
     }
 
@@ -161,23 +171,21 @@ class JvmValueGen {
         return func;
     }
 
-    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, JvmMethodGen jvmMethodGen,
+    static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen,
                                                        JvmPackageGen jvmPackageGen) {
-
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             if (bType instanceof BServiceType || (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
-                desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, jvmMethodGen, jvmPackageGen);
+                desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, initMethodGen, jvmPackageGen);
             }
         }
     }
 
     private static void desugarObjectMethods(BIRNode.BIRPackage module, BType bType,
-                                             List<BIRNode.BIRFunction> attachedFuncs, JvmMethodGen jvmMethodGen,
+                                             List<BIRNode.BIRFunction> attachedFuncs, InitMethodGen initMethodGen,
                                              JvmPackageGen jvmPackageGen) {
-
         if (attachedFuncs == null) {
             return;
         }
@@ -188,22 +196,22 @@ class JvmValueGen {
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
                 BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, bType, jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
-                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
+                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
                 } else if (extFuncWrapper instanceof JMethodFunctionWrapper) {
-                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
+                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 } else if (!(extFuncWrapper instanceof JFieldFunctionWrapper)) {
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 }
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
             }
-            enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+            enrichWithDefaultableParamInits(birFunc, initMethodGen);
         }
     }
 
-    static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
-                                             List<? extends NamedNode> nodes, Label defaultCaseLabel) {
+    static List<Label> createDecodedLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
+                                                    List<? extends NamedNode> nodes, Label defaultCaseLabel) {
 
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
@@ -215,7 +223,8 @@ class JvmValueGen {
         for (NamedNode node : nodes) {
             if (node != null) {
                 labels.add(i, new Label());
-                hashCodes[i] = decodeIdentifier(getName(node)).hashCode();
+                String name = decodeIdentifier(node.getName().value);;
+                hashCodes[i] = name.hashCode();
                 i += 1;
             }
         }
@@ -248,13 +257,13 @@ class JvmValueGen {
     static String getTypeDescClassName(Object module, String typeName) {
 
         String packageName = calculateJavaPkgName(module);
-        return packageName + TYPEDESC_CLASS_PREFIX + cleanupReadOnlyTypeName(typeName);
+        return packageName + TYPEDESC_CLASS_PREFIX + typeName;
     }
 
     static String getTypeValueClassName(Object module, String typeName) {
 
         String packageName = calculateJavaPkgName(module);
-        return packageName + VALUE_CLASS_PREFIX + cleanupReadOnlyTypeName(typeName);
+        return packageName + VALUE_CLASS_PREFIX + typeName;
     }
 
     private static String calculateJavaPkgName(Object module) {
@@ -273,9 +282,9 @@ class JvmValueGen {
         return packageName;
     }
 
-    static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
-                                                 List<? extends NamedNode> nodes,
-                                                 List<Label> labels, Label defaultCaseLabel) {
+    static List<Label> createDecodedLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
+                                                        List<? extends NamedNode> nodes,
+                                                        List<Label> labels, Label defaultCaseLabel) {
 
         List<Label> targetLabels = new ArrayList<>();
         int i = 0;
@@ -285,7 +294,7 @@ class JvmValueGen {
             }
             mv.visitLabel(labels.get(i));
             mv.visitVarInsn(ALOAD, nameRegIndex);
-            mv.visitLdcInsn(decodeIdentifier(getName(node)));
+            mv.visitLdcInsn(decodeIdentifier(node.getName().value));
             mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
                     String.format("(L%s;)Z", OBJECT), false);
             Label targetLabel = new Label();
@@ -298,19 +307,9 @@ class JvmValueGen {
         return targetLabels;
     }
 
-    private static String getName(Object node) {
-
-        if (node instanceof NamedNode) {
-            return ((NamedNode) node).getName().value;
-        }
-
-        throw new BLangCompilerException(String.format("Invalid node: %s", node));
-    }
-
     private void createLambdas(ClassWriter cw, AsyncDataCollector asyncDataCollector) {
-
         for (Map.Entry<String, BIRInstruction> entry : asyncDataCollector.getLambdas().entrySet()) {
-            jvmMethodGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
+            lambdaGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
         }
     }
 
@@ -337,8 +336,8 @@ class JvmValueGen {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
-                                        asyncDataCollector);
+            methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
+                                     asyncDataCollector);
         }
     }
 
@@ -390,8 +389,8 @@ class JvmValueGen {
         // sort the fields before generating switch case
         functions.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, funcNameRegIndex, functions, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, functions, labels,
+        List<Label> labels = JvmTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions, defaultCaseLabel);
+        List<Label> targetLabels = JvmTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, functions, labels,
                                                              defaultCaseLabel);
 
         // case body
@@ -427,13 +426,14 @@ class JvmValueGen {
                 j += 1;
             }
 
-            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, JvmCodeGenUtil.cleanupFunctionName(func.name.value),
+            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value,
                                methodSig, false);
             if (retType == null || retType.tag == TypeTags.NIL || retType.tag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);
             } else {
                 JvmCastGen.addBoxInsn(mv, retType);
-                if (io.ballerina.runtime.util.Flags.isFlagOn(func.flags, io.ballerina.runtime.util.Flags.RESOURCE)) {
+                if (io.ballerina.runtime.api.flags.SymbolFlags.
+                        isFlagOn(func.flags, io.ballerina.runtime.api.flags.SymbolFlags.RESOURCE)) {
                     mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, "handleResourceError",
                                        String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
                 }
@@ -463,10 +463,10 @@ class JvmValueGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
-        sortedFields.sort(NAME_HASH_COMPARATOR);
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
+        List<Label> labels = createDecodedLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createDecodedLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         int i = 0;
@@ -519,10 +519,10 @@ class JvmValueGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
-        sortedFields.sort(NAME_HASH_COMPARATOR);
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
-        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
+        List<Label> labels = createDecodedLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createDecodedLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
                                                              defaultCaseLabel);
 
         // case body
@@ -548,8 +548,8 @@ class JvmValueGen {
                                              BIRNode.BIRTypeDefinition typeDef) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        if (typeDef.pos != null && typeDef.pos.src != null) {
-            cw.visitSource(typeDef.pos.getSource().cUnitName, null);
+        if (typeDef.pos != null) {
+            cw.visitSource(typeDef.pos.lineRange().filePath(), null);
         } else {
             cw.visitSource(className, null);
         }
@@ -626,7 +626,7 @@ class JvmValueGen {
         } else {
             // record type is the original record-type of this type-label
             valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
-            initFuncName = JvmCodeGenUtil.cleanupFunctionName(recordType.name + "__init_");
+            initFuncName = recordType.name + ENCODED_RECORD_INIT;
         }
 
         mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName,
@@ -661,8 +661,8 @@ class JvmValueGen {
                                           BIRNode.BIRTypeDefinition typeDef) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        if (typeDef.pos != null && typeDef.pos.src != null) {
-            cw.visitSource(typeDef.pos.getSource().cUnitName, null);
+        if (typeDef.pos != null) {
+            cw.visitSource(typeDef.pos.lineRange().filePath(), null);
         } else {
             cw.visitSource(className, null);
         }
@@ -684,8 +684,8 @@ class JvmValueGen {
         this.createRecordContainsKeyMethod(cw, fields, className);
         this.createRecordGetValuesMethod(cw, fields, className);
         this.createGetSizeMethod(cw, fields, className);
-        this.createRecordRemoveMethod(cw);
-        this.createRecordClearMethod(cw, fields, className);
+        this.createRecordClearMethod(cw);
+        this.createRecordRemoveMethod(cw, fields, className);
         this.createRecordGetKeysMethod(cw, fields, className);
         this.createRecordPopulateInitialValuesMethod(cw);
 
@@ -707,7 +707,7 @@ class JvmValueGen {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, this.module, null, moduleClassName, asyncDataCollector);
+            methodGen.generateMethod(func, cw, this.module, null, moduleClassName, asyncDataCollector);
         }
     }
 
@@ -780,8 +780,7 @@ class JvmValueGen {
                 continue;
             }
 
-            String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID,
-                                                            toNameString(typeRef));
+            String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
             mv.visitInsn(DUP2);
             mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, JvmConstants.RECORD_INIT_WRAPPER_NAME,
                                String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), false);
@@ -800,7 +799,7 @@ class JvmValueGen {
             // record type is the original record-type of this type-label
             BRecordType recordType = (BRecordType) typeDef.type;
             valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
-            initFuncName = JvmCodeGenUtil.cleanupFunctionName(recordType.name + "__init_");
+            initFuncName = recordType.name + ENCODED_RECORD_INIT;
         }
 
         mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName,
@@ -859,10 +858,10 @@ class JvmValueGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
-        sortedFields.sort(NAME_HASH_COMPARATOR);
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
-            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+            List<Label> labels = createDecodedLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createDecodedLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                                                                  defaultCaseLabel);
 
         int i = 0;
@@ -917,10 +916,10 @@ class JvmValueGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
-        sortedFields.sort(NAME_HASH_COMPARATOR);
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
-            List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-            List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+            List<Label> labels = createDecodedLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+            List<Label> targetLabels = createDecodedLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                                                                  defaultCaseLabel);
 
         // case body
@@ -1059,11 +1058,11 @@ class JvmValueGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
-        sortedFields.sort(NAME_HASH_COMPARATOR);
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
         Label defaultCaseLabel = new Label();
-        List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+        List<Label> labels = createDecodedLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createDecodedLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         int i = 0;
@@ -1176,8 +1175,8 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createRecordRemoveMethod(ClassWriter cw) {
-        // throw an UnsupportedOperationException, since remove is not supported by for records.
+    private void createRecordClearMethod(ClassWriter cw) {
+        // throw an UnsupportedOperationException, since clear is not supported by for records.
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "clear", "()V", null, null);
         mv.visitCode();
         mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
@@ -1188,7 +1187,7 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createRecordClearMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createRecordRemoveMethod(ClassWriter cw, Map<String, BField> fields, String className) {
         // throw an UnsupportedOperationException, since remove is not supported by for records.
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", String.format("(L%s;)L%s;", OBJECT, OBJECT),
                                           String.format("(L%s;)TV;", OBJECT), null);
@@ -1209,11 +1208,11 @@ class JvmValueGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
-        sortedFields.sort(NAME_HASH_COMPARATOR);
+        sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
         Label defaultCaseLabel = new Label();
-        List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+        List<Label> labels = createDecodedLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createDecodedLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         int i = 0;
@@ -1366,7 +1365,7 @@ class JvmValueGen {
     private byte[] createObjectValueClass(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visitSource(typeDef.pos.getSource().cUnitName, null);
+        cw.visitSource(typeDef.pos.lineRange().filePath(), null);
 
         AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
@@ -1376,8 +1375,7 @@ class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createObjectMethods(cw, attachedFuncs, className, objectType,
-                                     asyncDataCollector);
+            this.createObjectMethods(cw, attachedFuncs, className, objectType, asyncDataCollector);
         }
 
         this.createObjectInit(cw, fields, className);

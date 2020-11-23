@@ -3,6 +3,10 @@
   "hasDiagnostics": true,
   "children": [
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "SERVICE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -88,12 +92,24 @@
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "foo"
+                  "value": "foo",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
             {
-              "kind": "PLUS_TOKEN"
+              "kind": "PLUS_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "SIMPLE_NAME_REFERENCE",

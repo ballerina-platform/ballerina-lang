@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 /**
@@ -32,6 +32,6 @@ public class FromBalString {
         if (str.equals("null")) {
             return null;
         }
-        return StringUtils.parseExpressionStringValue(str);
+        return StringUtils.parseExpressionStringValue(str, null);
     }
 }

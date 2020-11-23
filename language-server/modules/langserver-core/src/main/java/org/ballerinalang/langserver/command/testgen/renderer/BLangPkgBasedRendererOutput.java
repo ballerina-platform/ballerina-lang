@@ -15,13 +15,13 @@
  */
 package org.ballerinalang.langserver.command.testgen.renderer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
     /**
      * List of placeholders to keep track of placeholder content.
      */
-    private Map<DiagnosticPos, Map<String, String>> positions = new HashMap<>();
+    private Map<Location, Map<String, String>> positions = new HashMap<>();
     /**
      * Need to track focus line.
      */
@@ -85,7 +85,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
     }
 
     private void merge(PlaceHolder placeHolder, Function<String, String> merger) {
-        DiagnosticPos position = placeHolder.getPosition(bLangPackageOfTestFile);
+        Location position = placeHolder.getPosition(bLangPackageOfTestFile);
         Map<String, String> placeHolders = positions.get(position);
         placeHolders = (placeHolders == null) ? new HashMap<>() : placeHolders;
         String oldContent = placeHolders.get(placeHolder.getName());
@@ -94,7 +94,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
         positions.put(position, placeHolders);
 
         //Compute position of the test function
-        computeFocusPosition(placeHolder, newContent, position.eLine);
+        computeFocusPosition(placeHolder, newContent, position.lineRange().endLine().line());
     }
 
     /**
@@ -105,7 +105,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
      */
     @Override
     public void put(PlaceHolder placeHolder, String content) {
-        DiagnosticPos position = placeHolder.getPosition(bLangPackageOfTestFile);
+        Location position = placeHolder.getPosition(bLangPackageOfTestFile);
         Map<String, String> placeHolders = positions.get(position);
         placeHolders = (placeHolders == null) ? new HashMap<>() : placeHolders;
         placeHolders.put(placeHolder.getName(), content);
@@ -124,7 +124,8 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
         //Calculate text-edits
         positions.forEach(
                 (pos, value) -> value.forEach((placeHolder, content) -> {
-                    Position position = new Position(pos.eLine, pos.eCol);
+                    Position position = new Position(
+                            pos.lineRange().endLine().line(), pos.lineRange().endLine().offset());
                     Range range = new Range(position, position);
                     TextEdit textEdit = new TextEdit(range, content);
                     edits.add(textEdit);

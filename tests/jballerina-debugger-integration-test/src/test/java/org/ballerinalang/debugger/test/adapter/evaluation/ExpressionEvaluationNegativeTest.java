@@ -57,7 +57,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // incompatible result types from expressions.
         assertEvaluationError(context, "string `json: ${" + JSON_VAR + "}`",
                 String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(), "(int|float|decimal|string|boolean)",
-                        "json", "${v24_jsonVar}"));
+                        "json", "${jsonVar}"));
     }
 
     @Override
@@ -145,27 +145,44 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void unaryExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        assertEvaluationError(context, String.format("+%s", STRING_VAR), "operator '+' not defined for 'string'");
+        assertEvaluationError(context, String.format("-%s", STRING_VAR), "operator '-' not defined for 'string'");
+        assertEvaluationError(context, String.format("~%s", STRING_VAR), "operator '~' not defined for 'string'");
+        assertEvaluationError(context, String.format("!%s", STRING_VAR), "operator '!' not defined for 'string'");
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void multiplicativeExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // semantically incorrect expressions (multiplication between int and string)
+        assertEvaluationError(context, String.format("%s * %s", INT_VAR, STRING_VAR), "operator '*' not defined for "
+                + "'int' and 'string'.");
+        // runtime error (divide by zero)
+        assertEvaluationError(context, String.format("%s / 0", INT_VAR), "{ballerina}DivisionByZero");
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void additiveExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // semantically incorrect expressions (addition between int and string)
+        assertEvaluationError(context, String.format("%s + %s", INT_VAR, STRING_VAR), "operator '+' not defined for "
+                + "'int' and 'string'.");
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void shiftExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // left shift
+        assertEvaluationError(context, String.format("%s << %s", INT_VAR, STRING_VAR), "operator '<<' not defined for "
+                + "'int' and 'string'.");
+        // signed right shift
+        assertEvaluationError(context, String.format("%s >> %s", INT_VAR, STRING_VAR), "operator '>>' not defined for "
+                + "'int' and 'string'.");
+        // unsigned right shift
+        assertEvaluationError(context, String.format("%s >>> %s", INT_VAR, STRING_VAR), "operator '>>>' not defined " +
+                "for 'int' and 'string'.");
     }
 
     @Override
@@ -175,9 +192,11 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void comparisonEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // semantically incorrect expressions (multiplication between int and string)
+        assertEvaluationError(context, String.format("%s < %s", INT_VAR, STRING_VAR), "operator '<' not defined for "
+                + "'int' and 'string'.");
     }
 
     @Override
@@ -193,15 +212,28 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void binaryBitwiseEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // bitwise AND
+        assertEvaluationError(context, String.format("%s & %s", INT_VAR, STRING_VAR), "operator '&' not defined for "
+                + "'int' and 'string'.");
+        // bitwise OR
+        assertEvaluationError(context, String.format("%s | %s", INT_VAR, STRING_VAR), "operator '|' not defined for "
+                + "'int' and 'string'.");
+        // bitwise XOR
+        assertEvaluationError(context, String.format("%s ^ %s", INT_VAR, STRING_VAR), "operator '^' not defined for "
+                + "'int' and 'string'.");
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void logicalEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Logical AND
+        assertEvaluationError(context, String.format("%s && %s", INT_VAR, STRING_VAR), "operator '&&' not defined for "
+                + "'int' and 'string'.");
+        // Logical OR
+        assertEvaluationError(context, String.format("%s || %s", INT_VAR, STRING_VAR), "operator '||' not defined for "
+                + "'int' and 'string'.");
     }
 
     @Override
@@ -239,15 +271,11 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // empty expressions
         assertEvaluationError(context, "  ", EvaluationExceptionKind.EMPTY.getString());
         // unsupported expressions
-        assertEvaluationError(context, "~x", String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION
-                .getString(), "~x - UNARY_EXPRESSION"));
+        assertEvaluationError(context, "new()", String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION
+                .getString(), "new() - IMPLICIT_NEW_EXPRESSION"));
         // syntactically incorrect expressions (additional semi-colon)
         assertEvaluationError(context, "x + 5;;", String.format(EvaluationExceptionKind.SYNTAX_ERROR
                 .getString(), "invalid token ';'"));
-        // semantically incorrect expressions (addition between int + string)
-        assertEvaluationError(context, String.format("%s + %s", INT_VAR, STRING_VAR),
-                String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
-                        "'+' operation is not supported for types: 'int' and 'string'"));
         // undefined object methods
         assertEvaluationError(context, OBJECT_VAR + ".undefined()",
                 String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(), "undefined"));
@@ -258,7 +286,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // Todo - Add negative tests for function invocations related errors. (invalid argument validation, etc.).
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void cleanup() {
         terminateDebugSession();
         this.context = null;

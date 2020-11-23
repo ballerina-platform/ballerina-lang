@@ -17,16 +17,15 @@
  */
 package org.ballerinalang.test.expressions.checkedexpr;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
  * This class contains a set of negative test cases related to the checked operator.
  */
-@Test(groups = { "brokenOnNewParser" })
 public class CheckedExprNegativeTest {
 
     private static final String ERROR_MISMATCH_ERR_MSG = "invalid usage of the 'check' expression operator: no " +

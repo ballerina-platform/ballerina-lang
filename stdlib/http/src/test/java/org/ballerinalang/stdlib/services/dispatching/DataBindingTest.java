@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.services.dispatching;
 
-import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.internal.JSONParser;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.values.api.BString;
-import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaConnectorException;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.values.BMap;

@@ -18,7 +18,10 @@
                     "parameters": [
                         {
                             "label": {
-                                "left": "string msg"
+                                "right": {
+                                    "first": 12,
+                                    "second": 15
+                                }
                             },
                             "documentation": {
                                 "right": {

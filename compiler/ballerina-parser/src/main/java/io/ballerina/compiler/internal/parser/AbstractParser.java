@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import io.ballerina.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Solution;
@@ -26,6 +25,7 @@ import io.ballerina.compiler.internal.parser.tree.STNodeList;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.internal.syntax.NodeListUtils;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -126,6 +126,10 @@ public abstract class AbstractParser {
         this.errorHandler.endContext();
     }
 
+    protected ParserRuleContext getCurrentContext() {
+        return this.errorHandler.getParentContext();
+    }
+
     /**
      * Switch the current context to the provided one. This will replace the
      * existing context.
@@ -136,7 +140,7 @@ public abstract class AbstractParser {
         this.errorHandler.switchContext(context);
     }
 
-    protected STToken getNextNextToken(SyntaxKind tokenKind) {
+    protected STToken getNextNextToken() {
         return peek(2);
     }
 
@@ -194,7 +198,7 @@ public abstract class AbstractParser {
     }
 
     /**
-     * Clones the last node in list with the invalid node as minutiae and update the list.
+     * Clones the last node in list with the invalid node as trailing minutiae and update the list.
      *
      * @param nodeList       node list to be updated
      * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
@@ -212,6 +216,43 @@ public abstract class AbstractParser {
             newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
         }
         nodeList.add(newNode);
+    }
+
+    /**
+     * Clones the first node in list with the invalid node as leading minutiae and update the list.
+     *
+     * @param nodeList       node list to be updated
+     * @param invalidParam   the invalid node to be attached to the first node in list as minutiae
+     * @param diagnosticCode diagnostic code related to the invalid node
+     * @param args           additional arguments used in diagnostic message
+     */
+    protected void updateFirstNodeInListWithLeadingInvalidNode(List<STNode> nodeList,
+                                                               STNode invalidParam,
+                                                               DiagnosticCode diagnosticCode,
+                                                               Object... args) {
+        updateANodeInListWithLeadingInvalidNode(nodeList, 0, invalidParam, diagnosticCode, args);
+    }
+
+    /**
+     * Clones the a node in list with the invalid node as leading minutiae and update the list.
+     *
+     * @param nodeList       node list to be updated
+     * @param indexOfTheNode index of the node in list to be updated
+     * @param invalidParam   the invalid node to be attached to the first node in list as minutiae
+     * @param diagnosticCode diagnostic code related to the invalid node
+     * @param args           additional arguments used in diagnostic message
+     */
+    protected void updateANodeInListWithLeadingInvalidNode(List<STNode> nodeList,
+                                                           int indexOfTheNode,
+                                                           STNode invalidParam,
+                                                           DiagnosticCode diagnosticCode,
+                                                           Object... args) {
+        STNode node = nodeList.get(indexOfTheNode);
+        STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, invalidParam);
+        if (diagnosticCode != null) {
+            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
+        }
+        nodeList.set(indexOfTheNode, newNode);
     }
 
     /**

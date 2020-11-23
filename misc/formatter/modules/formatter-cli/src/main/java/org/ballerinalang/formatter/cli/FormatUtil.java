@@ -17,6 +17,7 @@ package org.ballerinalang.formatter.cli;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.formatter.core.Formatter;
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -150,7 +151,7 @@ class FormatUtil {
 
                 generateChangeReport(formattedFiles, dryRun);
             }
-        } catch (IOException | NullPointerException e) {
+        } catch (IOException | NullPointerException | FormatterException e) {
             throw LauncherUtils.createLauncherException(Messages.getException() + e);
         }
     }
@@ -213,10 +214,10 @@ class FormatUtil {
     }
 
     private static void formatAndWrite(BLangCompilationUnit compilationUnit, Path sourceRootPath,
-                                       List<String> formattedFiles, boolean dryRun) throws IOException {
+                               List<String> formattedFiles, boolean dryRun) throws IOException, FormatterException {
         String fileName = Paths.get(sourceRootPath.toString()).resolve("src")
-                .resolve(compilationUnit.getPosition().getSource().getPackageName())
-                .resolve(compilationUnit.getPosition().getSource().getCompilationUnitName()).toString();
+                .resolve(compilationUnit.getPackageID().getName().value)
+                .resolve(compilationUnit.getName()).toString();
 
         String originalSource = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
         // Format and get the formatted source.
@@ -232,7 +233,7 @@ class FormatUtil {
     }
 
     private static List<String> iterateAndFormat(BLangPackage bLangPackage, Path sourceRootPath, boolean dryRun)
-            throws IOException {
+            throws IOException, FormatterException {
         List<String> formattedFiles = new ArrayList<>();
 
         // Iterate compilation units and format.

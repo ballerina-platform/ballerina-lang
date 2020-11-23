@@ -135,7 +135,6 @@ public class WhileStatementNode extends StatementNode {
 
         public WhileStatementNodeModifier withOnFailClause(
                 OnFailClauseNode onFailClause) {
-            Objects.requireNonNull(onFailClause, "onFailClause must not be null");
             this.onFailClause = onFailClause;
             return this;
         }

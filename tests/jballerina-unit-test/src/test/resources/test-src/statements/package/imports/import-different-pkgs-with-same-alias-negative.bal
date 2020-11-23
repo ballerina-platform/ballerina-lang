@@ -1,6 +1,6 @@
-import ballerina/http as x;
-import ballerina/crypto as x;
+import ballerina/lang.'int as x;
+import ballerina/lang.'string as x;
 
 function testFunc() {
-    x:Client clientEndpoint1 = new("https://postman-echo.com");
+    int|error i1 = x:fromString("100");
 }

@@ -15,8 +15,7 @@
  *
  */
 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -25,11 +24,9 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:java')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
     implementation project(':metrics-extensions:ballerina-metrics-extension')
@@ -37,16 +34,12 @@ dependencies {
 
     testRuntime 'org.slf4j:slf4j-jdk14'
 
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
-
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils')
     testCompile project(':ballerina-tool')
     testCompile project(':ballerina-runtime')
     testCompile project(':ballerina-test-common')
     testCompile project(':ballerina-core')
-    testCompile project(':ballerina-file')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-api'
     testCompile 'org.slf4j:slf4j-simple'
@@ -58,8 +51,8 @@ configurations {
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
-createBalo {
-    jvmTarget = 'true'
+ballerinaLangLibBuild {
+    skipBootstrap = 'true'
 }
 
 description = 'Ballerina - Observability'

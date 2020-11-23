@@ -114,7 +114,6 @@ public class EnumMemberNode extends NonTerminalNode {
 
         public EnumMemberNodeModifier withMetadata(
                 MetadataNode metadata) {
-            Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
             return this;
         }
@@ -128,14 +127,12 @@ public class EnumMemberNode extends NonTerminalNode {
 
         public EnumMemberNodeModifier withEqualToken(
                 Token equalToken) {
-            Objects.requireNonNull(equalToken, "equalToken must not be null");
             this.equalToken = equalToken;
             return this;
         }
 
         public EnumMemberNodeModifier withConstExprNode(
                 ExpressionNode constExprNode) {
-            Objects.requireNonNull(constExprNode, "constExprNode must not be null");
             this.constExprNode = constExprNode;
             return this;
         }

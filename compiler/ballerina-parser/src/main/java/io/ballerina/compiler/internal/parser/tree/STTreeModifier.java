@@ -64,14 +64,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode importKeyword = modifyNode(importDeclarationNode.importKeyword);
         STNode orgName = modifyNode(importDeclarationNode.orgName);
         STNode moduleName = modifyNode(importDeclarationNode.moduleName);
-        STNode version = modifyNode(importDeclarationNode.version);
         STNode prefix = modifyNode(importDeclarationNode.prefix);
         STNode semicolon = modifyNode(importDeclarationNode.semicolon);
         return importDeclarationNode.modify(
                 importKeyword,
                 orgName,
                 moduleName,
-                version,
                 prefix,
                 semicolon);
     }
@@ -120,6 +118,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STServiceDeclarationNode transform(
             STServiceDeclarationNode serviceDeclarationNode) {
         STNode metadata = modifyNode(serviceDeclarationNode.metadata);
+        STNode qualifiers = modifyNode(serviceDeclarationNode.qualifiers);
         STNode serviceKeyword = modifyNode(serviceDeclarationNode.serviceKeyword);
         STNode serviceName = modifyNode(serviceDeclarationNode.serviceName);
         STNode onKeyword = modifyNode(serviceDeclarationNode.onKeyword);
@@ -127,6 +126,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode serviceBody = modifyNode(serviceDeclarationNode.serviceBody);
         return serviceDeclarationNode.modify(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 serviceName,
                 onKeyword,
@@ -601,16 +601,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STImportVersionNode transform(
-            STImportVersionNode importVersionNode) {
-        STNode versionKeyword = modifyNode(importVersionNode.versionKeyword);
-        STNode versionNumber = modifyNode(importVersionNode.versionNumber);
-        return importVersionNode.modify(
-                versionKeyword,
-                versionNumber);
-    }
-
-    @Override
     public STSpecificFieldNode transform(
             STSpecificFieldNode specificFieldNode) {
         STNode readonlyKeyword = modifyNode(specificFieldNode.readonlyKeyword);
@@ -870,14 +860,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STModuleVariableDeclarationNode transform(
             STModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         STNode metadata = modifyNode(moduleVariableDeclarationNode.metadata);
-        STNode finalKeyword = modifyNode(moduleVariableDeclarationNode.finalKeyword);
+        STNode qualifiers = modifyNode(moduleVariableDeclarationNode.qualifiers);
         STNode typedBindingPattern = modifyNode(moduleVariableDeclarationNode.typedBindingPattern);
         STNode equalsToken = modifyNode(moduleVariableDeclarationNode.equalsToken);
         STNode initializer = modifyNode(moduleVariableDeclarationNode.initializer);
         STNode semicolonToken = modifyNode(moduleVariableDeclarationNode.semicolonToken);
         return moduleVariableDeclarationNode.modify(
                 metadata,
-                finalKeyword,
+                qualifiers,
                 typedBindingPattern,
                 equalsToken,
                 initializer,

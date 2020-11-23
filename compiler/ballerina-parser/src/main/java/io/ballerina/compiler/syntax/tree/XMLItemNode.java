@@ -24,7 +24,7 @@ import io.ballerina.compiler.internal.parser.tree.STNode;
  *
  * @since 2.0.0
  */
-public abstract class XMLItemNode extends TemplateMemberNode {
+public abstract class XMLItemNode extends NonTerminalNode {
 
     public XMLItemNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

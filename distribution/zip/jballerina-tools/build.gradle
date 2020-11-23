@@ -47,12 +47,6 @@ configurations {
     debugAdapterDistribution {
         transitive false
     }
-    composerDistribution {
-        transitive false
-    }
-    composerFonts {
-        transitive false
-    }
     docerina
     bin
     bir
@@ -69,13 +63,7 @@ configurations {
     staticFiles
     balx
     unzipped
-    syntaxHighlighter {
-        transitive false
-    }
-
-    htmlTemplateResources {
-        transitive false
-    }
+    distributionBalo
 }
 
 dependencies {
@@ -103,14 +91,16 @@ dependencies {
     // Following dependencies are required for transactions
     dist 'com.atomikos:transactions-jta:5.0.8'
     dist 'com.atomikos:transactions-api:5.0.8'
+    dist 'com.atomikos:atomikos-util:5.0.8'
     dist 'com.atomikos:transactions:5.0.8'
 
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
-    dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
     dist project(':ballerina-tools-api')
     dist project(':ballerina-cli-module')
+    dist project(':central-client')
+    dist project(':ballerina-cli')
     dist project(':ballerina-rt')
     dist project(':ballerina-choreo-extension-rt')
 
@@ -139,15 +129,13 @@ dependencies {
     balSource project(path: ':jballerina', configuration: 'source')
 
     balxSource project(path: ':jballerina', configuration: 'sourceBalx')
-    distBal project(path: ':jballerina', configuration: 'balo')
+//    distBal project(path: ':jballerina', configuration: 'balo')
     dist project(path: ':jballerina', configuration: 'jar')
     bin project(path: ':jballerina', configuration: 'bin')
     staticFiles project(path: ':jballerina', configuration: 'staticFiles')
     resourceFiles project(path: ':jballerina', configuration: 'resourceFiles')
-    composerDistribution project(path: ':composer-library', configuration: 'composer')
-    composerFonts project(path: ':composer-library', configuration: 'fonts')
 
-    distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
+    distBal project(path: ':testerina:testerina-core', configuration: 'distributionBalo')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
     // ballerinax module cache
@@ -184,17 +172,39 @@ dependencies {
     // testerina modules
     balDoc project(path: ':testerina:testerina-core', configuration: 'balDoc')
 
-    syntaxHighlighter project(path: ':docerina', configuration: 'syntaxHighlighter')
-    htmlTemplateResources project(path: ':docerina', configuration: 'htmlTemplateResources')
+    distributionBalo project(path: ':ballerina-observability', configuration: 'distributionBalo')
 
+    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:future', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:integer', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:map', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:object', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:string', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
+//    distributionBalo project(path: ':ballerina-langlib:test', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:typedesc', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
+
+    distributionBalo project(path: ':testerina:testerina-core', configuration: 'distributionBalo')
 }
 
 
 task configured {
     configurations.distBal.allDependencies.withType(ProjectDependency) {
         def path = it.getDependencyProject().path
-        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
-        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
+//        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
+//        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
     }
 
 }
@@ -235,6 +245,13 @@ def copyBalxSpec = {
     }
 }
 
+def copyToDistCache = {
+    path -> copySpec {
+        from configurations.distributionBalo.collect { zipTree(it) }
+        into(path + 'repo')
+    }
+}
+
 def copyStaticSpec = {
     path -> copySpec {
         from configurations.staticFiles
@@ -242,10 +259,10 @@ def copyStaticSpec = {
     }
 }
 
-def copyTemplatesSpec = {
+def copyDocerinaUi = {
     path -> copySpec {
-        from project(':docerina').file('src/main/resources/template/html')
-        into(path + 'lib/templates')
+        from project(':docerina').file('src/main/resources/doc-ui')
+        into(path + 'lib/tools/doc-ui')
     }
 }
 
@@ -333,24 +350,6 @@ def copyDataMapperLibsSpec = {
     }
 }
 
-def copyComposerDistributionSpec = {
-    path -> copySpec {
-        from(configurations.composerDistribution)
-        into(path + 'lib/tools/composer-library')
-        exclude('**/*.d.ts')
-        exclude('**/*.map')
-    }
-}
-
-def copyComposerFontsSpec = {
-    path -> copySpec {
-        from configurations.composerFonts
-        into(path + 'lib/tools/composer-library')
-        exclude('**/*.d.ts')
-        exclude('**/*.map')
-    }
-}
-
 def apiDocsSpec = {
     path -> copySpec {
         from generateDocs.outputs.files
@@ -359,9 +358,9 @@ def apiDocsSpec = {
 }
 
 task extractBalxBirs(type: Copy) {
-    def path = "$buildDir/bir-cache"
-    from configurations.balxBir.files
-    into path
+//    def path = "$buildDir/bir-cache"
+//    from configurations.balxBir.files
+//    into path
 }
 
 // Fix for windows class path too long issue
@@ -385,23 +384,9 @@ task copyApiDocs(type: Copy) {
     exclude "syntax-highlighter"
 }
 
-task copyHighlighter(type: Copy) {
-    dependsOn configurations.syntaxHighlighter
-    from configurations.syntaxHighlighter
-    into "$buildDir/api-docs/syntax-highlighter"
-}
-
-task copyHtmlTemplateResources(type: Copy) {
-    dependsOn configurations.htmlTemplateResources
-    from configurations.htmlTemplateResources
-    into "$buildDir/api-docs/html-template-resources"
-}
-
 task generateDocs(type: JavaExec) {
     dependsOn pathingJar
     dependsOn copyApiDocs
-    dependsOn copyHighlighter
-    dependsOn copyHtmlTemplateResources
     dependsOn ':docerina-gradle-plugin:build'
     outputs.dir("$buildDir/api-docs")
     outputs.cacheIf { true }
@@ -420,46 +405,43 @@ task createZip(type: Zip) {
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
     with copyBirSpec(basePath)
-    with copyBirJarSpec(basePath)
+//    with copyBirJarSpec(basePath)
     with copyBaloSpec(basePath)
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
     with copyLangServerLibsSpec(basePath)
     with copyDataMapperLibsSpec(basePath)
     with copyLangServerBinSpec(basePath)
-    with copyComposerDistributionSpec(basePath)
-    with copyComposerFontsSpec(basePath)
     with copyBallerinaZipSpec(basePath)
     with copydebugAdapterDistributionSpec(basePath)
     with copyDebugAdapterLauncher(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
-    with copyTemplatesSpec(basePath)
+    with copyDocerinaUi(basePath)
     with copyResourceSpec(basePath)
 //    with copySrcBaloSpec(basePath)
     with copyKraalLib(basePath)
     with copyJaCoCoAgent(basePath)
+    with copyToDistCache(basePath)
 }
 
 task updateBalHome(type: Copy) {
     def installDir = ""
     with copyJarSpec(installDir)
     with copyBirSpec(installDir)
-    with copyBirJarSpec(installDir)
+//    with copyBirJarSpec(installDir)
     with copyBaloSpec(installDir)
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
     with copyLangServerLibsSpec(installDir)
     with copyDataMapperLibsSpec(installDir)
     with copyLangServerBinSpec(installDir)
-    with copyComposerDistributionSpec(installDir)
-    with copyComposerFontsSpec(installDir)
     with copyBallerinaZipSpec(installDir)
     with copydebugAdapterDistributionSpec(installDir)
     with copyDebugAdapterLauncher(installDir)
     with apiDocsSpec(installDir)
     with copyStaticSpec(installDir)
-    with copyTemplatesSpec(installDir)
+    with copyDocerinaUi(installDir)
     with copyResourceSpec(installDir)
     with copyKraalLib(installDir)
     with copyJaCoCoAgent(installDir)
@@ -473,25 +455,24 @@ task createDistribution(type: Copy) {
     file(filePath).mkdirs()
     with copyJarSpec("")
     with copyBirSpec("")
-    with copyBirJarSpec("")
+//    with copyBirJarSpec("")
     with copyBaloSpec("")
     with copyBalxSpec("")
     with copyBinSpec("")
     with copyLangServerLibsSpec("")
     with copyDataMapperLibsSpec("")
     with copyLangServerBinSpec("")
-    with copyComposerDistributionSpec("")
-    with copyComposerFontsSpec("")
     with copyBallerinaZipSpec("")
     with copydebugAdapterDistributionSpec("")
     with copyDebugAdapterLauncher("")
     with apiDocsSpec("")
     with copyStaticSpec("")
-    with copyTemplatesSpec("")
+    with copyDocerinaUi("")
     with copyResourceSpec("")
 //    with copySrcBaloSpec("")
     with copyKraalLib("")
     with copyJaCoCoAgent("")
+    with copyToDistCache("")
     destinationDir=file(filePath)
 }
 

@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.test.expressions.object;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -60,6 +60,26 @@ public class ObjectConstructorTest {
     }
 
     @Test
+    public void testObjectConstructorWithDistintExpectedType() {
+        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDistintExpectedType");
+    }
+
+    @Test
+    public void testObjectConstructorWithDistintTypeReference() {
+        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDistintTypeReference");
+    }
+
+    @Test
+    public void testObjectConstructorWithDistintTypeReferenceVar() {
+        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDistintTypeReferenceVar");
+    }
+
+    @Test
+    public void testObjectConstructorWithDefiniteTypeAndWithoutReference() {
+        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDefiniteTypeAndWithoutReference");
+    }
+
+    @Test
     public void testObjectConstructorNegative() {
 
         CompileResult negativeResult = BCompileUtil.compile(
@@ -74,6 +94,10 @@ public class ObjectConstructorTest {
         BAssertUtil.validateError(negativeResult, index++, "invalid token 'public'", 34, 29);
         BAssertUtil.validateError(negativeResult, index++, "type inclusions are not allowed in object constructor",
                 40, 1);
+        BAssertUtil.validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +
+                        "type 'any'", 42, 9);
+        BAssertUtil.validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +
+                "type '(DistinctFooA|DistinctFoo)'", 53, 47);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }

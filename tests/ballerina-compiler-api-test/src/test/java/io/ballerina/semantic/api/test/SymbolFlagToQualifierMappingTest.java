@@ -18,18 +18,15 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -45,7 +42,6 @@ import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.READONLY;
 import static io.ballerina.compiler.api.symbols.Qualifier.REMOTE;
 import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
-import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.compile;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -61,10 +57,8 @@ public class SymbolFlagToQualifierMappingTest {
 
     @BeforeClass
     public void setup() {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/symbol_flag_to_qualifier_mapping_test.bal", context);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        model = new BallerinaSemanticModel(pkg, context);
+        model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/symbol_flag_to_qualifier_mapping_test.bal");
     }
 
     @Test(dataProvider = "QualifierProvider")
