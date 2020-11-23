@@ -325,8 +325,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     endpoint.addProperty("kind", symbolMetaInfo.getKind());
                     if (symbolMetaInfo.getPosition() != null) {
                         eps.add(endpoint);
-                        typeInfo.put((symbolMetaInfo.getPosition().sLine - 1) + ":"
-                                        + (symbolMetaInfo.getPosition().sCol - 1)
+                        typeInfo.put((symbolMetaInfo.getPosition().sLine) + ":"
+                                        + (symbolMetaInfo.getPosition().sCol)
                                 , endpoint);
                     } else {
                         eps.add(endpoint);
@@ -334,7 +334,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 }
                 JsonObject endpoints = new JsonObject();
                 endpoints.add("visibleEndpoints", eps);
-                typeInfo.put((entry.getKey().pos.sLine - 1) + ":" + (entry.getKey().pos.sCol - 1), endpoints);
+                typeInfo.put((entry.getKey().pos.sLine) + ":" + (entry.getKey().pos.sCol), endpoints);
             }
 
             TextDocument doc = documentManager.getTree(compilationPath).textDocument();

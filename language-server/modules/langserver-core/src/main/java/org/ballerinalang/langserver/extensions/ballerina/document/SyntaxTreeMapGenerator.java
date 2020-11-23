@@ -74,7 +74,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             nodeJson.add("position", position);
             if (typeInfo.size() > 0 && typeInfo.get(startLine.line() + ":" + startLine.offset()) != null) {
                 nodeJson.add("typeData", typeInfo.get(startLine.line() + ":" + startLine.offset()));
-                typeInfo.remove(startLine.line() + ":" + startLine.offset());
+                //typeInfo.remove(startLine.line() + ":" + startLine.offset());
             }
         }
 
