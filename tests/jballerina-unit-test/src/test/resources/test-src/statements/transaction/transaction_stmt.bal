@@ -443,16 +443,26 @@ function panicTrx() returns (string) {
 
 string output = "";
 function testRollbackNReturn() {
-    string|error res = invokeTrxHandlers();
-    if (res is error) {
-        assertEquality("Custom error", res.message());
+    string|error invokeErrorReturnRes = invokeErrorReturn();
+    if (invokeErrorReturnRes is error) {
+        assertEquality("Custom error", invokeErrorReturnRes.message());
         assertEquality("started trxCommited trxAborted", output);
+        output = "";
+    } else {
+        panic error("Expected an error");
+    }
+
+    string|error invokeCheckErrorRes = invokeCheckError();
+    if (invokeCheckErrorRes is error) {
+        assertEquality("Transaction Error", invokeCheckErrorRes.message());
+        assertEquality("started trxCommited trxAborted", output);
+        output = "";
     } else {
         panic error("Expected an error");
     }
 }
 
-function invokeTrxHandlers() returns string|error {
+function invokeErrorReturn() returns string|error {
     string str = "started";
     transactions:Info transInfo;
     var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
@@ -470,5 +480,34 @@ function invokeTrxHandlers() returns string|error {
         transactions:onCommit(onCommitFunc);
         var commitRes = commit;
         return error("Custom error");
+    }
+}
+
+function getErrorOrStr() returns string|error {
+    if(true) {
+        return error("Transaction Error");
+    }
+    return "Ignore String";
+}
+
+function invokeCheckError() returns string|error {
+    string str = "started";
+    transactions:Info transInfo;
+    var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+        str = str + " trxAborted";
+        output = str;
+    };
+
+    var onCommitFunc = function(transactions:Info? info) {
+        str = str + " trxCommited";
+    };
+
+    transaction {
+        transInfo = transactions:info();
+        transactions:onRollback(onRollbackFunc);
+        transactions:onCommit(onCommitFunc);
+        var commitRes = commit;
+        string ignore = check getErrorOrStr();
+        return ignore;
     }
 }
