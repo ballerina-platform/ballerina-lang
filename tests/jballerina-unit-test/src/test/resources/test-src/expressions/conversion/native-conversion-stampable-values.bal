@@ -104,6 +104,18 @@ function testConvertMapJsonWithDecimalUnionTarget() {
     assert(castedValue["name"], mp["name"]);
 }
 
+function testConvertMapJsonWithFromJsonWithType() {
+    var or = mp.fromJsonWithType(OpenRecordWithUnionTarget);
+
+    if (or is error) {
+        panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
+    }
+
+    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget>or;
+    assert(castedValue["factor"], mp["factor"]);
+    assert(castedValue["name"], mp["name"]);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
