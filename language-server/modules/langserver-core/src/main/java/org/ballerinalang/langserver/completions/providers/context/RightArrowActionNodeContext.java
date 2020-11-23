@@ -53,7 +53,7 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
 
     protected List<LSCompletionItem> getFilteredItems(CompletionContext context, ExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Predicate<Symbol> predicate;
         switch (node.kind()) {
             case SIMPLE_NAME_REFERENCE:

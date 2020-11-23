@@ -47,6 +47,13 @@ public interface ObjectTypeSymbol extends TypeSymbol {
     List<MethodSymbol> methods();
 
     /**
+     * Gets a list of included types. An included type is always a subtype of object.
+     *
+     * @return The list of included object types
+     */
+    List<TypeSymbol> typeInclusions();
+
+    /**
      * Represents the object type qualifier.
      *
      * @since 2.0.0

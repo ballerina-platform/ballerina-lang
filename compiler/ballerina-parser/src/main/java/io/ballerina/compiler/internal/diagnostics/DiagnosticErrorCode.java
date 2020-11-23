@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.internal.diagnostics;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 /**
@@ -230,6 +231,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.missing.resource.path.in.resource.accessor.definition"),
     ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION("BCE0516",
             "error.missing.resource.path.in.resource.accessor.declaration"),
+    ERROR_MISSING_ERROR_MESSAGE_BINDING_PATTERN("BCE0517", "error.missing.error.message.binding.pattern"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -260,7 +262,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_EXPR_IN_COMPOUND_ASSIGNMENT_LHS("BCE0620", "error.invalid.expr.in.compound.assignment.lhs"),
     ERROR_INVALID_METADATA("BCE0621", "error.invalid.metadata"),
     ERROR_INVALID_QUALIFIER("BCE0622", "error.invalid.qualifier"),
-    ERROR_INVALID_ANNOTATIONS("BCE0623", "error.invalid.annotations"),
+    ERROR_ANNOTATIONS_ATTACHED_TO_STATEMENT("BCE0623", "error.annotations.attached.to.statement"),
     ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD("BCE0624", "error.more.field.match.patterns.after.rest.field"),
     ERROR_ACTION_AS_A_WAIT_EXPR("BCE0625", "error.action.as.a.wait.expr"),
     ERROR_INVALID_USAGE_OF_VAR("BCE0626", "error.invalid.usage.of.var"),
@@ -272,7 +274,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE0631",
             "error.required.parameter.after.the.defaultable.parameter"),
     ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG("BCE0632", "error.named.arg.followed.by.positional.arg"),
-    ERROR_ARG_FOLLOWED_BY_REST_ARG("BCE0633", "error.arg.followed.by.rest.arg"),
+    ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG("BCE0633", "error.rest.arg.followed.by.another.arg"),
     ERROR_BINDING_PATTERN_NOT_ALLOWED("BCE0634", "error.binding.pattern.not.allowed"),
     ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL("BCE0635", "error.invalid.base16.content.in.byte.array.literal"),
     ERROR_INVALID_BASE64_CONTENT_IN_BYTE_ARRAY_LITERAL("BCE0636", "error.invalid.base64.content.in.byte.array.literal"),
@@ -328,5 +330,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     @Override
     public String messageKey() {
         return messageKey;
+    }
+
+    public boolean equals(DiagnosticCode code) {
+        return this.messageKey.equals(code.messageKey());
     }
 }

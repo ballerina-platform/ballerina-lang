@@ -44,6 +44,10 @@ public final class ModuleId {
         return id;
     }
 
+    public String moduleName() {
+        return moduleName;
+    }
+
     public PackageId packageId() {
         return packageId;
     }

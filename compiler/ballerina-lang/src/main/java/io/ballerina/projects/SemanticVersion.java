@@ -93,4 +93,50 @@ public class SemanticVersion {
     public int hashCode() {
         return Objects.hash(major, minor, patch);
     }
+
+    public VersionCompatibilityResult compareTo(SemanticVersion other) {
+        Objects.requireNonNull(other);
+
+        if (this.major == other.major && this.minor == other.minor && this.patch == other.patch) {
+            return VersionCompatibilityResult.EQUAL;
+        }
+
+        // Versions cannot be equal from this point onwards
+        if (this.major == 0 && other.major == 0) {
+            return VersionCompatibilityResult.INCOMPATIBLE;
+        }
+
+        if (this.major == 0 || other.major == 0) {
+            return VersionCompatibilityResult.INCOMPATIBLE;
+        }
+
+        // We've eliminated initial versions now.
+        if (this.major == other.major && this.minor == other.minor) {
+            return this.patch < other.patch ?
+                    VersionCompatibilityResult.LESS_THAN :
+                    VersionCompatibilityResult.GREATER_THAN;
+        }
+
+        if (this.major == other.major) {
+            return this.minor < other.minor ?
+                    VersionCompatibilityResult.LESS_THAN :
+                    VersionCompatibilityResult.GREATER_THAN;
+        }
+
+        return this.major < other.major ?
+                VersionCompatibilityResult.LESS_THAN :
+                VersionCompatibilityResult.GREATER_THAN;
+    }
+
+    /**
+     * Represents the version compatibility between two {@code SemanticVersion} instances.
+     *
+     * @since 2.0.0
+     */
+    public enum VersionCompatibilityResult {
+        INCOMPATIBLE,
+        EQUAL,
+        LESS_THAN,
+        GREATER_THAN;
+    }
 }

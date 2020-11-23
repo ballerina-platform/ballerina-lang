@@ -37,12 +37,16 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(0);
     }
 
+    public NodeList<Token> qualifiers() {
+        return new NodeList<>(childInBucket(1));
+    }
+
     public Token serviceKeyword() {
-        return childInBucket(1);
+        return childInBucket(2);
     }
 
     public Optional<TypeDescriptorNode> typeDescriptor() {
-        return optionalChildInBucket(2);
+        return optionalChildInBucket(3);
     }
 
     public NodeList<Token> absoluteResourcePath() {
@@ -83,6 +87,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
+                "qualifiers",
                 "serviceKeyword",
                 "typeDescriptor",
                 "absoluteResourcePath",
@@ -95,6 +100,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
 
     public ServiceDeclarationNode modify(
             MetadataNode metadata,
+            NodeList<Token> qualifiers,
             Token serviceKeyword,
             TypeDescriptorNode typeDescriptor,
             NodeList<Token> absoluteResourcePath,
@@ -105,6 +111,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             Token closeBraceToken) {
         if (checkForReferenceEquality(
                 metadata,
+                qualifiers.underlyingListNode(),
                 serviceKeyword,
                 typeDescriptor,
                 absoluteResourcePath.underlyingListNode(),
@@ -118,6 +125,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
 
         return NodeFactory.createServiceDeclarationNode(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 typeDescriptor,
                 absoluteResourcePath,
@@ -140,6 +148,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
     public static class ServiceDeclarationNodeModifier {
         private final ServiceDeclarationNode oldNode;
         private MetadataNode metadata;
+        private NodeList<Token> qualifiers;
         private Token serviceKeyword;
         private TypeDescriptorNode typeDescriptor;
         private NodeList<Token> absoluteResourcePath;
@@ -152,6 +161,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         public ServiceDeclarationNodeModifier(ServiceDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
+            this.qualifiers = oldNode.qualifiers();
             this.serviceKeyword = oldNode.serviceKeyword();
             this.typeDescriptor = oldNode.typeDescriptor().orElse(null);
             this.absoluteResourcePath = oldNode.absoluteResourcePath();
@@ -165,6 +175,13 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         public ServiceDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
             this.metadata = metadata;
+            return this;
+        }
+
+        public ServiceDeclarationNodeModifier withQualifiers(
+                NodeList<Token> qualifiers) {
+            Objects.requireNonNull(qualifiers, "qualifiers must not be null");
+            this.qualifiers = qualifiers;
             return this;
         }
 
@@ -226,6 +243,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         public ServiceDeclarationNode apply() {
             return oldNode.modify(
                     metadata,
+                    qualifiers,
                     serviceKeyword,
                     typeDescriptor,
                     absoluteResourcePath,

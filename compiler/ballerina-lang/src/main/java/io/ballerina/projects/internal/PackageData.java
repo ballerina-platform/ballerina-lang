@@ -17,6 +17,10 @@
  */
 package io.ballerina.projects.internal;
 
+import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PackageDescriptor;
+
 import java.nio.file.Path;
 import java.util.List;
 
@@ -30,19 +34,35 @@ public class PackageData {
     // Ballerina toml file config
     private final ModuleData defaultModule;
     private final List<ModuleData> otherModules;
+    private final DependencyGraph<PackageDescriptor> packageDesDependencyGraph;
+    private final DependencyGraph<ModuleId> moduleDependencyGraph;
 
     private PackageData(Path packagePath,
                         ModuleData defaultModule,
-                        List<ModuleData> otherModules) {
+                        List<ModuleData> otherModules,
+                        DependencyGraph<PackageDescriptor> packageDesDependencyGraph,
+                        DependencyGraph<ModuleId> moduleDependencyGraph) {
         this.packagePath = packagePath;
         this.defaultModule = defaultModule;
         this.otherModules = otherModules;
+        this.packageDesDependencyGraph = packageDesDependencyGraph;
+        this.moduleDependencyGraph = moduleDependencyGraph;
     }
 
     public static PackageData from(Path packagePath,
                                    ModuleData defaultModule,
                                    List<ModuleData> otherModules) {
-        return new PackageData(packagePath, defaultModule, otherModules);
+        return new PackageData(packagePath, defaultModule, otherModules, DependencyGraph.emptyGraph(),
+                DependencyGraph.emptyGraph());
+    }
+
+    public static PackageData from(Path packagePath,
+            ModuleData defaultModule,
+            List<ModuleData> otherModules,
+            DependencyGraph<PackageDescriptor> packageDesDependencyGraph,
+            DependencyGraph<ModuleId> moduleDependencyGraph) {
+        return new PackageData(packagePath, defaultModule, otherModules, packageDesDependencyGraph,
+                moduleDependencyGraph);
     }
 
     public Path packagePath() {
@@ -55,5 +75,13 @@ public class PackageData {
 
     public List<ModuleData> otherModules() {
         return otherModules;
+    }
+
+    public DependencyGraph<PackageDescriptor> packageDescriptorDependencyGraph() {
+        return packageDesDependencyGraph;
+    }
+
+    public DependencyGraph<ModuleId> moduleDependencyGraph() {
+        return moduleDependencyGraph;
     }
 }

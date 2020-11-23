@@ -832,6 +832,10 @@
               ]
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "SERVICE_KEYWORD",
               "trailingMinutiae": [
                 {

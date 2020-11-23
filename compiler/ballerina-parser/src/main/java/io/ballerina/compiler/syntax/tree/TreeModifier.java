@@ -154,6 +154,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ServiceDeclarationNode serviceDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(serviceDeclarationNode.metadata().orElse(null));
+        NodeList<Token> qualifiers =
+                modifyNodeList(serviceDeclarationNode.qualifiers());
         Token serviceKeyword =
                 modifyToken(serviceDeclarationNode.serviceKeyword());
         TypeDescriptorNode typeDescriptor =
@@ -172,6 +174,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(serviceDeclarationNode.closeBraceToken());
         return serviceDeclarationNode.modify(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 typeDescriptor,
                 absoluteResourcePath,

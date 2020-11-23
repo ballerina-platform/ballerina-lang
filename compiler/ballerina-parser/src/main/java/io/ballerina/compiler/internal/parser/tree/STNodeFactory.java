@@ -123,6 +123,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createServiceDeclarationNode(
             STNode metadata,
+            STNode qualifiers,
             STNode serviceKeyword,
             STNode typeDescriptor,
             STNode absoluteResourcePath,
@@ -134,6 +135,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STServiceDeclarationNode(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 typeDescriptor,
                 absoluteResourcePath,

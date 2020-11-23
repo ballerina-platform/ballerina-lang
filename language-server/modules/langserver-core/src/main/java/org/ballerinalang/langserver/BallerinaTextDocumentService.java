@@ -43,7 +43,6 @@ import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.hover.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.util.TokensUtil;
-import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -141,23 +140,18 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
-
-            // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (CommonUtil.isCachedExternalSource(fileUri)) {
-                return null;
-            }
-            HoverContext context = ContextBuilder.buildHoverContext(fileUri, this.workspaceManager);
+            HoverContext context = ContextBuilder
+                    .buildHoverContext(fileUri, this.workspaceManager, position.getPosition());
             Hover hover;
             try {
-                hover = HoverUtil.getHover(context, position.getPosition());
-            } catch (TokenOrSymbolNotFoundException e) {
-                hover = HoverUtil.getDefaultHoverObject();
+                hover = HoverUtil.getHover(context);
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/hover' failed!";
                 logError(msg, e, position.getTextDocument(), position.getPosition());
                 hover = HoverUtil.getDefaultHoverObject();
             }
+            
             return hover;
         });
     }
@@ -456,7 +450,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
         });
     }
-    
+
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
         String fileUri = params.getTextDocument().getUri();

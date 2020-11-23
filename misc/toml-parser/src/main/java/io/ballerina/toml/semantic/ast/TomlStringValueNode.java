@@ -30,4 +30,9 @@ public class TomlStringValueNode extends TomlBasicValueNode<String> {
     public TomlStringValueNode(String value, TomlNodeLocation location) {
         super(value, TomlType.STRING, location);
     }
+
+    @Override
+    public void accept(TomlNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

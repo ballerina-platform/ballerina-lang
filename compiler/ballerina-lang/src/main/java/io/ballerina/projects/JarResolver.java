@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.environment.PackageCache;
-import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.util.ProjectUtils;
 
 import java.net.MalformedURLException;
@@ -48,19 +46,16 @@ import static io.ballerina.runtime.internal.IdentifierUtils.encodeNonFunctionIde
  */
 public class JarResolver {
     private final JBallerinaBackend jBalBackend;
-    private final PackageCompilation pkgCompilation;
+    private final PackageResolution pkgResolution;
     private final PackageContext packageContext;
-    private final PackageCache packageCache;
 
     private List<Path> allJarFilePaths;
     private ClassLoader classLoaderWithAllJars;
 
-    JarResolver(JBallerinaBackend jBalBackend, PackageCompilation pkgCompilation) {
+    JarResolver(JBallerinaBackend jBalBackend, PackageResolution pkgResolution) {
         this.jBalBackend = jBalBackend;
-        this.pkgCompilation = pkgCompilation;
-        this.packageContext = pkgCompilation.packageContext();
-        ProjectEnvironment projectEnvContext = packageContext.project().projectEnvironmentContext();
-        this.packageCache = projectEnvContext.getService(PackageCache.class);
+        this.pkgResolution = pkgResolution;
+        this.packageContext = pkgResolution.packageContext();
     }
 
     // TODO These method names are too long. Refactor them soon
@@ -70,20 +65,22 @@ public class JarResolver {
         }
 
         allJarFilePaths = new ArrayList<>();
-        List<PackageId> sortedPackageIds = pkgCompilation.packageDependencyGraph().toTopologicallySortedList();
-        for (PackageId packageId : sortedPackageIds) {
-            Package pkg = packageCache.getPackageOrThrow(packageId);
+        List<ResolvedPackageDependency> sortedPackageIds =
+                pkgResolution.dependencyGraph().toTopologicallySortedList();
+        for (ResolvedPackageDependency resolvedDep : sortedPackageIds) {
+            Package pkg = resolvedDep.packageInstance();
             PackageContext packageContext = pkg.packageContext();
             for (ModuleId moduleId : packageContext.moduleIds()) {
                 ModuleContext moduleContext = packageContext.moduleContext(moduleId);
                 PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
-                        packageId, moduleContext.moduleName());
+                        pkg.packageId(), moduleContext.moduleName());
                 allJarFilePaths.add(generatedJarLibrary.path());
             }
 
             // Add all the jar library dependencies of current package (packageId)
             // TODO Filter our test scope dependencies
-            Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(packageId);
+            Collection<PlatformLibrary> otherJarDependencies =
+                    jBalBackend.platformLibraryDependencies(pkg.packageId());
             for (PlatformLibrary otherJarDependency : otherJarDependencies) {
                 allJarFilePaths.add(otherJarDependency.path());
             }

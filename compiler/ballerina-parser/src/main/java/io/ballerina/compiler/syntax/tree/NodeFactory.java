@@ -148,6 +148,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ServiceDeclarationNode createServiceDeclarationNode(
             MetadataNode metadata,
+            NodeList<Token> qualifiers,
             Token serviceKeyword,
             TypeDescriptorNode typeDescriptor,
             NodeList<Token> absoluteResourcePath,
@@ -156,6 +157,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token openBraceToken,
             NodeList<Node> members,
             Token closeBraceToken) {
+        Objects.requireNonNull(qualifiers, "qualifiers must not be null");
         Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
         Objects.requireNonNull(absoluteResourcePath, "absoluteResourcePath must not be null");
         Objects.requireNonNull(onKeyword, "onKeyword must not be null");
@@ -166,6 +168,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stServiceDeclarationNode = STNodeFactory.createServiceDeclarationNode(
                 getOptionalSTNode(metadata),
+                qualifiers.underlyingListNode().internalNode(),
                 serviceKeyword.internalNode(),
                 getOptionalSTNode(typeDescriptor),
                 absoluteResourcePath.underlyingListNode().internalNode(),

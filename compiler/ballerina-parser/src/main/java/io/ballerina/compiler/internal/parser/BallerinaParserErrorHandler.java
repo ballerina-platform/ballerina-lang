@@ -236,7 +236,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.OBJECT_KEYWORD, ParserRuleContext.OBJECT_TYPE_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_CONSTRUCTOR_START =
-            { ParserRuleContext.OBJECT_KEYWORD, ParserRuleContext.OBJECT_CONSTRUCTOR_QUALIFIER };
+            { ParserRuleContext.OBJECT_KEYWORD, ParserRuleContext.FIRST_OBJECT_CONS_QUALIFIER };
+
+    private static final ParserRuleContext[] OBJECT_CONS_WITHOUT_FIRST_QUALIFIER =
+            { ParserRuleContext.OBJECT_KEYWORD, ParserRuleContext.SECOND_OBJECT_CONS_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_CONSTRUCTOR_RHS =
             { ParserRuleContext.OPEN_BRACE, ParserRuleContext.TYPE_REFERENCE };
@@ -690,7 +693,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         super(tokenReader);
     }
 
+    /**
+     * @deprecated This method is no longer used for its original purpose and has not been maintained for a while.
+     */
     @Override
+    @Deprecated
     protected boolean isProductionWithAlternatives(ParserRuleContext currentCtx) {
         switch (currentCtx) {
             case TOP_LEVEL_NODE:
@@ -715,7 +722,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLASS_MEMBER:
             case OBJECT_MEMBER_DESCRIPTOR:
             case OBJECT_TYPE_QUALIFIER:
-            case OBJECT_CONSTRUCTOR_QUALIFIER:
+            case FIRST_OBJECT_CONS_QUALIFIER:
             case CLASS_TYPE_QUALIFIER:
             case ELSE_BODY:
             case IMPORT_DECL_RHS:
@@ -948,6 +955,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
                             nextToken.kind == SyntaxKind.SERVICE_KEYWORD;
                     break;
+                case FIRST_OBJECT_CONS_QUALIFIER:
+                case SECOND_OBJECT_CONS_QUALIFIER:
                 case OBJECT_TYPE_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
                             nextToken.kind == SyntaxKind.ISOLATED_KEYWORD ||
@@ -1475,6 +1484,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RESOURCE_PATH_SEGMENT:
             case PATH_PARAM_OPTIONAL_ANNOTS:
             case PATH_PARAM_ELLIPSIS:
+            case OBJECT_CONS_WITHOUT_FIRST_QUALIFIER:
                 return true;
             default:
                 return false;
@@ -2093,6 +2103,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LISTENERS_LIST_END:
                 alternativeRules = LISTENERS_LIST_END;
                 break;
+            case OBJECT_CONS_WITHOUT_FIRST_QUALIFIER:
+                alternativeRules = OBJECT_CONS_WITHOUT_FIRST_QUALIFIER;
+                break;
             case EXPRESSION_RHS:
                 return seekMatchInExpressionRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint, false);
             case VARIABLE_REF_RHS:
@@ -2473,8 +2486,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_TYPE_DESCRIPTOR:
                 return ParserRuleContext.OBJECT_TYPE_START;
             case OBJECT_TYPE_QUALIFIER:
-            case OBJECT_CONSTRUCTOR_QUALIFIER:
+            case SECOND_OBJECT_CONS_QUALIFIER:
                 return ParserRuleContext.OBJECT_KEYWORD;
+            case FIRST_OBJECT_CONS_QUALIFIER:
+                return ParserRuleContext.OBJECT_CONS_WITHOUT_FIRST_QUALIFIER;
             case OPEN_BRACKET:
                 return getNextRuleForOpenBracket();
             case CLOSE_BRACKET:
@@ -4941,9 +4956,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ABSTRACT_KEYWORD:
                 return SyntaxKind.ABSTRACT_KEYWORD;
             case CLIENT_KEYWORD:
+            case FIRST_OBJECT_CONS_QUALIFIER:
+            case SECOND_OBJECT_CONS_QUALIFIER:
                 return SyntaxKind.CLIENT_KEYWORD;
             case OBJECT_TYPE_QUALIFIER:
-            case OBJECT_CONSTRUCTOR_QUALIFIER:
                 return SyntaxKind.OBJECT_KEYWORD;
             case CLASS_TYPE_QUALIFIER:
                 return SyntaxKind.CLASS_KEYWORD;

@@ -34,7 +34,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Compilation at module level by resolving all the dependencies.
  *
+ * @since 2.0.0
  */
 public class ModuleCompilation {
     private final ModuleContext moduleContext;
@@ -50,7 +52,7 @@ public class ModuleCompilation {
         this.moduleContext = moduleContext;
 
         // Resolving the dependencies of this package before the compilation
-        packageContext.resolveDependencies();
+        packageContext.getResolution();
 
         // TODO Figure out a better way to handle this
         ProjectEnvironment projectEnvContext = packageContext.project().projectEnvironmentContext();

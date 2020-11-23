@@ -120,6 +120,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STServiceDeclarationNode transform(
             STServiceDeclarationNode serviceDeclarationNode) {
         STNode metadata = modifyNode(serviceDeclarationNode.metadata);
+        STNode qualifiers = modifyNode(serviceDeclarationNode.qualifiers);
         STNode serviceKeyword = modifyNode(serviceDeclarationNode.serviceKeyword);
         STNode typeDescriptor = modifyNode(serviceDeclarationNode.typeDescriptor);
         STNode absoluteResourcePath = modifyNode(serviceDeclarationNode.absoluteResourcePath);
@@ -130,6 +131,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode closeBraceToken = modifyNode(serviceDeclarationNode.closeBraceToken);
         return serviceDeclarationNode.modify(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 typeDescriptor,
                 absoluteResourcePath,
