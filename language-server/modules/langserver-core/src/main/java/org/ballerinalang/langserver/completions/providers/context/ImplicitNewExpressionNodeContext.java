@@ -83,7 +83,7 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         }
 
         Optional<Symbol> nameReferenceSymbol = Optional.empty();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         if (this.onQualifiedNameIdentifier(context, typeDescriptor)) {
             QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
 
@@ -110,7 +110,7 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
     }
 
     private Optional<ObjectTypeSymbol> getObjectTypeForVarRef(CompletionContext context, Node varRefNode) {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         if (varRefNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();
         }

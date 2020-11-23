@@ -30,6 +30,9 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.List;
+import java.util.Map;
+
+import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.validateAndProcessArguments;
 
 /**
  * Evaluator implementation for method call invocation expressions.
@@ -39,20 +42,23 @@ import java.util.List;
 public class MethodCallExpressionEvaluator extends Evaluator {
 
     private final MethodCallExpressionNode syntaxNode;
+    private final String methodName;
     private final Evaluator objectExpressionEvaluator;
-    private final List<Evaluator> argEvaluators;
+    private final List<Map.Entry<String, Evaluator>> argEvaluators;
 
     public MethodCallExpressionEvaluator(SuspendedContext context, MethodCallExpressionNode methodCallExpressionNode,
-                                         Evaluator expression, List<Evaluator> argEvaluators) {
+                                         Evaluator expression, List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context);
         this.syntaxNode = methodCallExpressionNode;
         this.objectExpressionEvaluator = expression;
         this.argEvaluators = argEvaluators;
+        this.methodName = syntaxNode.methodName().toSourceCode().trim();
     }
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
+            Map<String, Value> argValueMap = validateAndProcessArguments(context, methodName, argEvaluators);
             BExpressionValue result = objectExpressionEvaluator.evaluate();
             BVariable resultVar = VariableFactory.getVariable(context, result.getJdiValue());
             if (resultVar.getBType() != BVariableType.OBJECT && resultVar.getBType() != BVariableType.INT) {
@@ -60,7 +66,8 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                         " calls are not supported on type '" + resultVar.getBType() + "'."));
             }
             String methodName = syntaxNode.methodName().toString().trim();
-            JvmMethod method = getObjectMethodByName(resultVar.getJvmValue(), methodName);
+            GeneratedInstanceMethod method = getObjectMethodByName(resultVar.getJvmValue(), methodName);
+            method.setNamedArgValues(argValueMap);
             Value invocationResult = method.invoke();
             return new BExpressionValue(context, invocationResult);
         } catch (EvaluationException e) {
@@ -71,13 +78,15 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         }
     }
 
-    private JvmMethod getObjectMethodByName(Value objectValueRef, String methodName) throws EvaluationException {
+    private GeneratedInstanceMethod getObjectMethodByName(Value objectValueRef, String methodName)
+            throws EvaluationException {
+
         ReferenceType objectRef = ((ObjectReference) objectValueRef).referenceType();
         List<Method> methods = objectRef.methodsByName(methodName);
         if (methods == null || methods.size() != 1) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
                     syntaxNode.methodName().toString().trim()));
         }
-        return new GeneratedInstanceMethod(context, objectValueRef, methods.get(0), argEvaluators, null);
+        return new GeneratedInstanceMethod(context, objectValueRef, methods.get(0));
     }
 }

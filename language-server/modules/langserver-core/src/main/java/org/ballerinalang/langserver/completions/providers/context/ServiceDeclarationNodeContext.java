@@ -57,7 +57,7 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
             (1) service testService on <cursor>
             (2) service testService on l<cursor>
              */
-            List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
             List<Symbol> listeners = visibleSymbols.stream()
                     .filter(symbol -> symbol instanceof VariableSymbol
                             && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.LISTENER))

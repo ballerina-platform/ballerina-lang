@@ -30,9 +30,11 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
 /**
  * This class represents the "ballerina add" command.
@@ -209,6 +211,9 @@ public class AddCommand implements BLauncherCmd {
         // -- mymodule/
         // --- main.bal       <- Contains default main method.
         CommandUtil.applyTemplate(modulePath, template);
+        Path source = modulePath.resolve("main.bal");
+        Files.move(source, source.resolveSibling(guessPkgName(moduleName) + ".bal"),
+                StandardCopyOption.REPLACE_EXISTING);
     }
 
 //        private void applyBaloTemplate(Path modulePath, String template) {
