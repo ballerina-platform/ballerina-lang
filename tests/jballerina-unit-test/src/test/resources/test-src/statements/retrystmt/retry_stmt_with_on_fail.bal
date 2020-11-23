@@ -42,9 +42,9 @@ function testRetryStatement() {
     }
 
     string|error testNestedRetryLessOnFailSuccessRes = testNestedRetryLessOnFailSuccess();
-     if(testNestedRetryWithLessOnFails2Res is string) {
+     if(testNestedRetryLessOnFailSuccessRes is string) {
          assertEquality("start -> within retry block 1 -> within retry block 2 -> within retry block 3 " +
-         "-> within retry block 3 -> execution completed", testNestedRetryWithLessOnFails2Res);
+         "-> within retry block 3 -> execution completed", testNestedRetryLessOnFailSuccessRes);
     } else {
          panic error("Expected a  string");
     }
