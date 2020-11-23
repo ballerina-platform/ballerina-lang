@@ -61,9 +61,6 @@ public class FileSystemCache extends CompilationCache {
 
     @Override
     public byte[] getBir(ModuleName moduleName) {
-        if (!moduleName.toString().contains("lang") && !moduleName.toString().equals("java")) {
-            return new byte[0];
-        }
         Path birFilePath = getBirPath().resolve(moduleName.toString()
                 + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
         if (Files.exists(birFilePath)) {

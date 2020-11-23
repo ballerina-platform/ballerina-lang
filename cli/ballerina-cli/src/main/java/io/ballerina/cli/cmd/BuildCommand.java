@@ -18,12 +18,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.TaskExecutor;
-import io.ballerina.cli.task.CleanTargetDirTask;
-import io.ballerina.cli.task.CompileTask;
-import io.ballerina.cli.task.CreateBaloTask;
-import io.ballerina.cli.task.CreateExecutableTask;
-import io.ballerina.cli.task.CreateTargetDirTask;
-import io.ballerina.cli.task.RunTestsTask;
+import io.ballerina.cli.task.*;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -241,7 +236,6 @@ public class BuildCommand implements BLauncherCmd {
                         this.skipTests || isSingleFileBuild)
                     // run tests (projects only)
                 .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
-//                .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();
 
