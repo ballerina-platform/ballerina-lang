@@ -30,4 +30,6 @@ public class ConfigurableConstants {
     public static final String DEFAULT_MODULE = ".";
     public static final String SUBMODULE_DELIMITER = ".";
 
+    private ConfigurableConstants() {
+    }
 }
