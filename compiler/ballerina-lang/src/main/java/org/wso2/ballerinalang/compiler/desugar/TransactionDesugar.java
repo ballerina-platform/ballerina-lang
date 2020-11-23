@@ -61,13 +61,13 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createStatementExpression;
 import static org.wso2.ballerinalang.compiler.util.Names.CHECK_IF_TRANSACTIONAL;
 import static org.wso2.ballerinalang.compiler.util.Names.CLEAN_UP_TRANSACTION;
 import static org.wso2.ballerinalang.compiler.util.Names.CURRENT_TRANSACTION_INFO;
@@ -200,7 +200,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BType transactionReturnType = symTable.errorOrNilType;
 
         BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
-        BLangStatementExpression statementExpression = createStatementExpression(transactionNode.transactionBody, nilLiteral);
+        BLangStatementExpression statementExpression =
+                createStatementExpression(transactionNode.transactionBody, nilLiteral);
         statementExpression.type = symTable.nilType;
 
         BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
@@ -241,12 +242,12 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionBlockStmt.addStatement(ifTrapResIsError);
 
         // transactionId = startTransaction(1, prevAttempt)
-        BLangInvocation startTransactionInvocation = createStartTransactionInvocation(pos, ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                uniqueId),
+        BLangInvocation startTransactionInvocation = createStartTransactionInvocation(pos,
+                ASTBuilderUtil.createLiteral(pos, symTable.stringType, uniqueId),
                 ASTBuilderUtil.createVariableRef(pos, prevAttemptVarDef.var.symbol));
         BLangAssignment startTrxAssignment =
                 ASTBuilderUtil.createAssignmentStmt(pos, ASTBuilderUtil.createVariableRef(pos, transactionIDVarSymbol),
-                startTransactionInvocation);
+                        startTransactionInvocation);
 
         //prevAttempt = info();
         BLangAssignment infoAssignment = createPrevAttemptInfoInvocation(pos);
@@ -379,8 +380,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 symTable.booleanType, OperatorKind.AND, null);
         rollbackCheck.body = ASTBuilderUtil.createBlockStmt(pos);
 
-        BLangStatementExpression rollbackInvocation = invokeRollbackFunc(pos, desugar.addConversionExprIfRequired(trxResultRef,
-        symTable.errorOrNilType), trxBlockId);
+        BLangStatementExpression rollbackInvocation = invokeRollbackFunc(pos,
+                desugar.addConversionExprIfRequired(trxResultRef, symTable.errorOrNilType), trxBlockId);
 
         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckPanickedExpr(pos, rollbackInvocation,
                 symTable.nilType);
@@ -426,7 +427,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         BLangExpressionStmt cleanUpTrx = ASTBuilderUtil.createExpressionStmt(pos, rollbackBlockStmt);
         cleanUpTrx.expr = createCleanupTrxStmt(pos, trxBlockId);
-        BLangStatementExpression rollbackStmtExpr = ASTBuilderUtil.createStatementExpression(rollbackBlockStmt,
+        BLangStatementExpression rollbackStmtExpr = createStatementExpression(rollbackBlockStmt,
                 ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
         rollbackStmtExpr.type = symTable.nilType;
 
@@ -545,7 +546,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         //      $outputVar$ = commitResult;
         //   }
         // }
-        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(commitBlockStatement,
+        BLangStatementExpression stmtExpr = createStatementExpression(commitBlockStatement,
                 outputVarRef);
         stmtExpr.type = symTable.errorOrNilType;
         return stmtExpr;

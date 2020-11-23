@@ -2662,7 +2662,7 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    protected BLangWhile createRetryWhileLoop(DiagnosticPos pos,
+    protected BLangWhile createRetryWhileLoop(Location pos,
                                               BLangBlockStmt retryBody,
                                               BLangSimpleVarRef retryManagerRef,
                                               BLangSimpleVarRef retryResultRef,
@@ -2932,20 +2932,19 @@ public class Desugar extends BLangNodeVisitor {
                         failStmt.pos = returnNode.pos;
                         failStmt.desugaredToFail = true;
                         failStmt.expr = returnNode.expr;
-                        if(this.shouldReturnErrors) {
-                            BLangReturn ret = ASTBuilderUtil.createReturnStmt(returnNode.pos,rewrite(returnNode.expr, env));
-                            ret.desugared = true;
-                            failStmt.exprStmt = ret;
+                        if (this.shouldReturnErrors) {
+                            BLangReturn returnStmt =
+                                    ASTBuilderUtil.createReturnStmt(returnNode.pos, rewrite(returnNode.expr, env));
+                            returnStmt.desugared = true;
+                            failStmt.exprStmt = returnStmt;
                         }
                         result = rewrite(failStmt, env);
                         return;
                     } else {
                         BType checkType = returnNode.expr.type.tag == symTable.errorType.tag ? symTable.nilType :
                                 types.getSafeType(returnNode.expr.type, true, true);
-//                    checkType = checkType.tag == TypeTags.NIL ? symTable.errorType : checkType;
                         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(returnNode.pos, returnNode.expr,
                                 checkType);
-                        checkedExpr.returnExpr = this.shouldReturnErrors;
                         checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
                         types.setImplicitCastExpr(checkedExpr, checkType, env.enclInvokable.returnTypeNode.type);
                         returnNode.expr = checkedExpr;
@@ -3165,7 +3164,6 @@ public class Desugar extends BLangNodeVisitor {
 
         rewrite(matchBlockStmt, this.env);
         result = matchBlockStmt;
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
     }
 
     @Override
@@ -3193,7 +3191,6 @@ public class Desugar extends BLangNodeVisitor {
         rewrite(matchBlockStmt, this.env);
 
         result = matchBlockStmt;
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
     }
 
     private BLangStatement convertMatchClausesToIfElseStmt(List<BLangMatchClause> matchClauses,
@@ -3520,8 +3517,9 @@ public class Desugar extends BLangNodeVisitor {
 
         // Rewrite the block.
         rewrite(blockNode, this.env);
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
         result = blockNode;
+        this.onFailClause = currentOnFailClause;
+        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     @Override
@@ -3579,7 +3577,7 @@ public class Desugar extends BLangNodeVisitor {
         this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
         this.onFailCallFuncDef = this.enclosingOnFailCallFunc.get(enclosingOnFailIndex);
         onFailBody = rewrite(onFailBody, env);
-        if(onFailClause.isInternal && fail.exprStmt != null) {
+        if (onFailClause.isInternal && fail.exprStmt != null) {
             if (fail.exprStmt instanceof BLangPanic) {
                 setPanicErrorToTrue(onFailBody, onFailClause);
             } else {
@@ -3801,8 +3799,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+//        BLangOnFailClause currentOnFailClause = this.onFailClause;
+//        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         if (whileNode.onFailClause != null) {
             BLangOnFailClause onFailClause = whileNode.onFailClause;
             whileNode.onFailClause = null;
@@ -3814,7 +3812,8 @@ public class Desugar extends BLangNodeVisitor {
             whileNode.body = rewrite(whileNode.body, env);
             result = whileNode;
         }
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
+//        this.onFailClause = currentOnFailClause;
+//        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     private BLangDo wrapStatementWithinDo(Location location, BLangStatement statement,
@@ -3894,7 +3893,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(lockNode.pos, isErrorTest, ifBody, null);
         blockStmt.addStatement(ifelse);
         result = rewrite(blockStmt, env);
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
         enclLocks.pop();
     }
 
@@ -3909,7 +3907,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
 
-    private BLangOnFailClause createTrxInternalOnFail(DiagnosticPos pos, BLangSimpleVarRef shouldPanicRef) {
+    private BLangOnFailClause createTrxInternalOnFail(Location pos, BLangSimpleVarRef shouldPanicRef) {
         BLangOnFailClause trxOnFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
         trxOnFailClause.pos = pos;
         trxOnFailClause.body = ASTBuilderUtil.createBlockStmt(pos);
@@ -3945,7 +3943,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf exitIf = ASTBuilderUtil.createIfElseStmt(pos, shouldNotPanic, failBlock, panicNode);
         trxOnFailClause.body.stmts.add(exitIf);
 
-        if(this.onFailClause != null) {
+        if (this.onFailClause != null) {
             BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
             failStmt.desugaredToFail = true;
             failStmt.pos = pos;
@@ -4017,7 +4015,7 @@ public class Desugar extends BLangNodeVisitor {
         result = rewrite(rollbackStmtExpr, env);
     }
 
-    private BLangOnFailClause createRetryInternalOnFail(DiagnosticPos pos,
+    private BLangOnFailClause createRetryInternalOnFail(Location pos,
                                                         BLangSimpleVarRef retryResultRef,
                                                         BLangSimpleVarRef retryManagerRef,
                                                         BLangSimpleVarRef shouldRetryRef,
@@ -4043,7 +4041,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment errorAssignment = ASTBuilderUtil.createAssignmentStmt(pos, retryResultRef, caughtErrorRef);
         internalOnFail.body.stmts.add(errorAssignment);
 
-        if(shouldRollback) {
+        if (shouldRollback) {
             transactionDesugar.createRollbackIfFailed(pos, internalOnFail.body, caughtErrorSym, trxBlockId);
         }
 
@@ -4109,7 +4107,7 @@ public class Desugar extends BLangNodeVisitor {
         return internalOnFail;
     }
 
-    BLangUnaryExpr createNotBinaryExpression(DiagnosticPos pos, BLangSimpleVarRef expression) {
+    BLangUnaryExpr createNotBinaryExpression(Location pos, BLangSimpleVarRef expression) {
         List<BType> paramTypes = new ArrayList<>();
         paramTypes.add(symTable.booleanType);
         BInvokableType type = new BInvokableType(paramTypes, symTable.booleanType,
@@ -4117,7 +4115,8 @@ public class Desugar extends BLangNodeVisitor {
         BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(
                 names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
                 symTable.builtinPos, VIRTUAL);
-        return ASTBuilderUtil.createUnaryExpr(pos, expression, symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
+        return ASTBuilderUtil.createUnaryExpr(pos, expression, symTable.booleanType,
+                OperatorKind.NOT, notOperatorSymbol);
     }
 
     BLangLambdaFunction createLambdaFunction(Location pos, String functionNamePrefix,
@@ -6095,7 +6094,7 @@ public class Desugar extends BLangNodeVisitor {
                                             checkedExprVar.symbol, null);
         BLangMatchTypedBindingPatternClause patternErrorCase =
                 getSafeAssignErrorPattern(checkedExpr.pos, this.env.scope.owner, checkedExpr.equivalentErrorTypeList,
-                                          isCheckPanic, checkedExpr.returnExpr);
+                                          isCheckPanic);
 
         // Create the match statement
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(checkedExpr.pos, checkedExpr.expr,
@@ -6823,8 +6822,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangMatchTypedBindingPatternClause getSafeAssignErrorPattern(Location location,
                                                                           BSymbol invokableSymbol,
                                                                           List<BType> equivalentErrorTypes,
-                                                                          boolean isCheckPanicExpr,
-                                                                          boolean returnError) {
+                                                                          boolean isCheckPanicExpr) {
         // From here onwards we assume that this function has only one return type
         // Owner of the variable symbol must be an invokable symbol
         BType enclosingFuncReturnType = ((BInvokableType) invokableSymbol.type).retType;
@@ -6858,12 +6856,11 @@ public class Desugar extends BLangNodeVisitor {
             //fail e;
             BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
             failStmt.desugaredToFail = true;
-//            failStmt.desugaredFromReturn = returnError;
             failStmt.pos = location;
             failStmt.expr = patternFailureCaseVarRef;
             patternBlockFailureCase.stmts.add(failStmt);
             if (returnOnError && this.shouldReturnErrors) {
-                BLangReturn errorReturn = ASTBuilderUtil.createReturnStmt(pos,
+                BLangReturn errorReturn = ASTBuilderUtil.createReturnStmt(location,
                         rewrite(patternFailureCaseVarRef, env));
                 errorReturn.desugared = true;
                 failStmt.exprStmt = errorReturn;
