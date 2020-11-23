@@ -50,8 +50,7 @@ public class DocumentationLexer extends AbstractLexer {
     public DocumentationLexer(CharReader charReader,
                               List<STNode> leadingTriviaList,
                               Collection<STNodeDiagnostic> diagnostics) {
-        super(charReader, ParserMode.DOCUMENTATION_INIT, diagnostics);
-        this.leadingTriviaList = leadingTriviaList;
+        super(charReader, ParserMode.DOCUMENTATION_INIT, leadingTriviaList, diagnostics);
     }
 
     /**
