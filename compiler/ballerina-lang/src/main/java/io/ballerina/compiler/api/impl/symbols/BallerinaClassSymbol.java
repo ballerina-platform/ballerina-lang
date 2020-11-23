@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -83,6 +84,11 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
         }
 
         return Optional.ofNullable(this.initMethod);
+    }
+
+    @Override
+    public List<TypeSymbol> typeInclusions() {
+        return this.typeDescriptor.typeInclusions();
     }
 
     @Override
