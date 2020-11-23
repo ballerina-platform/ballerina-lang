@@ -65,10 +65,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(identifierLiteralNode);
     }
 
-    public void visit(STMissingLiteralNode missingLiteralNode) {
-        visitSyntaxNode(missingLiteralNode);
-    }
-
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

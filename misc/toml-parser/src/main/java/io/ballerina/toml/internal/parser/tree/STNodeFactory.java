@@ -132,12 +132,5 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STIdentifierLiteralNode(
                 value);
     }
-
-    public static STNode createMissingLiteralNode(
-            STNode value) {
-
-        return new STMissingLiteralNode(
-                value);
-    }
 }
 

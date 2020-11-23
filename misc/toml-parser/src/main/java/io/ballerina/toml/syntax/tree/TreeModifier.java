@@ -161,15 +161,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 value);
     }
 
-    @Override
-    public MissingLiteralNode transform(
-            MissingLiteralNode missingLiteralNode) {
-        Token value =
-                modifyToken(missingLiteralNode.value());
-        return missingLiteralNode.modify(
-                value);
-    }
-
     // Tokens
 
     @Override

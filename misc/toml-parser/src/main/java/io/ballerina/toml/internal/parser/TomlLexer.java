@@ -56,9 +56,6 @@ public class TomlLexer extends AbstractLexer {
             case LITERAL_STRING:
                 token = readLiteralStringToken();
                 break;
-            case MULTILINE_LITERAL_STRING:
-                token = readMultilineLiteralStringToken();
-                break;
             case NEW_LINE:
                 token = readNewlineToken();
                 if (token == null) {
@@ -241,18 +238,17 @@ public class TomlLexer extends AbstractLexer {
             endMode();
             reader.advance();
             return getSyntaxToken(SyntaxKind.DOUBLE_QUOTE_TOKEN);
-        } else {
-            while (!reader.isEOF()) {
-                nextChar = this.reader.peek();
-                if (nextChar == LexerTerminals.DOUBLE_QUOTE) {
+        }
+        while (!reader.isEOF()) {
+            nextChar = this.reader.peek();
+            switch (nextChar) {
+                case LexerTerminals.DOUBLE_QUOTE:
                     break;
-                } else if (nextChar == LexerTerminals.CARRIAGE_RETURN) {
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
                     endMode();
-                    return getUnquotedKey(true);
-                } else if (nextChar == LexerTerminals.NEWLINE) {
-                    endMode();
-                    return getUnquotedKey(true);
-                } else if (nextChar == LexerTerminals.BACKSLASH) {
+                    return getUnquotedKey();
+                case LexerTerminals.BACKSLASH:
                     switch (this.reader.peek(1)) {
                         case 'n':
                         case 'r':
@@ -271,16 +267,15 @@ public class TomlLexer extends AbstractLexer {
                             String escapeSequence = String.valueOf(this.reader.peek(2));
                             reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
                             this.reader.advance();
+                            continue;
                     }
-                } else {
+                default:
                     reader.advance();
                     continue;
-                }
-                break;
             }
+            break;
         }
-
-        return getUnquotedKey(false);
+        return getUnquotedKey();
     }
 
     private STToken readLiteralStringToken() {
@@ -290,60 +285,25 @@ public class TomlLexer extends AbstractLexer {
         }
 
         char nextChar = this.reader.peek();
-//        char secondNextChar = this.reader.peek(1);
-//        char thirdNextChar = this.reader.peek(2);
         if (nextChar == LexerTerminals.SINGLE_QUOTE) {
             endMode();
-//            if (secondNextChar == LexerTerminals.SINGLE_QUOTE && thirdNextChar == LexerTerminals.SINGLE_QUOTE) {
-//                reader.advance(3);
-//                return getSyntaxToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
-//            }
             reader.advance();
             return getSyntaxToken(SyntaxKind.SINGLE_QUOTE_TOKEN);
-        } else {
-            while (!reader.isEOF()) {
-                nextChar = this.reader.peek();
-                if (nextChar == LexerTerminals.SINGLE_QUOTE) {
+        }
+        while (!reader.isEOF()) {
+            nextChar = this.reader.peek();
+            switch (nextChar) {
+                case LexerTerminals.SINGLE_QUOTE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
                     break;
-                }  else if (nextChar == LexerTerminals.CARRIAGE_RETURN) {
-                    break;
-                } else if (nextChar == LexerTerminals.NEWLINE) {
-                    break;
-                } else {
+                default:
                     reader.advance();
-                }
+                    continue;
             }
+            break;
         }
-
-        return getUnquotedKey(false);
-    }
-
-    private STToken readMultilineLiteralStringToken() {
-        reader.mark();
-        if (reader.isEOF()) {
-            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
-        }
-
-        char nextChar = this.reader.peek();
-        char secondNextChar = this.reader.peek(1);
-        char thirdNextChar = this.reader.peek(2);
-        if (nextChar == LexerTerminals.SINGLE_QUOTE && secondNextChar == LexerTerminals.SINGLE_QUOTE &&
-                thirdNextChar == LexerTerminals.SINGLE_QUOTE) {
-            endMode();
-            reader.advance(3);
-            return getSyntaxToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
-        } else {
-            while (!reader.isEOF()) {
-                nextChar = this.reader.peek();
-                if (nextChar == LexerTerminals.SINGLE_QUOTE) {
-                    break;
-                } else {
-                    reader.advance();
-                }
-            }
-        }
-
-        return getUnquotedKey(false);
+        return getUnquotedKey();
     }
 
     private STToken readMultilineStringToken() {
@@ -360,40 +320,40 @@ public class TomlLexer extends AbstractLexer {
             endMode();
             reader.advance(3);
             return getSyntaxToken(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
-        } else {
-            while (!reader.isEOF()) {
-                nextChar = this.reader.peek();
-                if (nextChar == LexerTerminals.DOUBLE_QUOTE && this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE &&
-                        this.reader.peek(2) == LexerTerminals.DOUBLE_QUOTE) {
-                    break;
-                } else if (nextChar == LexerTerminals.BACKSLASH) {
-                    switch (this.reader.peek(1)) {
-                        case LexerTerminals.CARRIAGE_RETURN:
-                        case LexerTerminals.NEWLINE:
-                            reader.advance();
-                            continue;
-                        case 'n':
-                        case 't':
-                        case 'r':
-                        case LexerTerminals.BACKSLASH:
-                        case LexerTerminals.DOUBLE_QUOTE:
-                            this.reader.advance(2);
-                            continue;
-                        case 'u':
-                        case 'U':
-                            processStringNumericEscape();
-                            continue;
-                        default:
-                            String escapeSequence = String.valueOf(this.reader.peek(2));
-                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
-                            this.reader.advance();
-                    }
-                } else {
+        }
+        while (!reader.isEOF()) {
+            nextChar = this.reader.peek();
+            if (nextChar == LexerTerminals.DOUBLE_QUOTE && this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE &&
+                    this.reader.peek(2) == LexerTerminals.DOUBLE_QUOTE) {
+                break;
+            }
+            if (nextChar != LexerTerminals.BACKSLASH) {
+                reader.advance();
+                continue;
+            }
+            switch (this.reader.peek(1)) {
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
                     reader.advance();
-                }
+                    continue;
+                case 'n':
+                case 't':
+                case 'r':
+                case LexerTerminals.BACKSLASH:
+                case LexerTerminals.DOUBLE_QUOTE:
+                    this.reader.advance(2);
+                    continue;
+                case 'u':
+                case 'U':
+                    processStringNumericEscape();
+                    continue;
+                default:
+                    String escapeSequence = String.valueOf(this.reader.peek(2));
+                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
+                    this.reader.advance();
             }
         }
-        return getUnquotedKey(false);
+        return getUnquotedKey();
     }
 
     private STToken getNewlineToken() {
@@ -408,13 +368,10 @@ public class TomlLexer extends AbstractLexer {
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getUnquotedKey(boolean skipTrailingTrivia) {
+    private STToken getUnquotedKey() {
         STNode leadingTrivia = getLeadingTrivia();
         String lexeme = getLexeme();
-        STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
-        if (!skipTrailingTrivia) {
-            trailingTrivia = processTrailingTrivia();
-        }
+        STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createIdentifierToken(lexeme, leadingTrivia, trailingTrivia);
     }
 
@@ -641,7 +598,7 @@ public class TomlLexer extends AbstractLexer {
             case LexerTerminals.NAN:
                 return getSyntaxToken(SyntaxKind.NAN_TOKEN);
             default:
-                return getUnquotedKey(false);
+                return getUnquotedKey();
         }
     }
 
@@ -793,8 +750,7 @@ public class TomlLexer extends AbstractLexer {
      * <code>StringNumericEscape := \u00E9 </code>
      */
     private void processStringNumericEscape() {
-        // Process '\ u {'
-        this.reader.advance(3);
+        this.reader.advance(2);
 
         // Process code-point
         if (!isHexDigit(peek())) {

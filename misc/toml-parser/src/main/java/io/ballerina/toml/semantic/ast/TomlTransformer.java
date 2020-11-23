@@ -29,7 +29,6 @@ import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.IdentifierLiteralNode;
 import io.ballerina.toml.syntax.tree.KeyValueNode;
-import io.ballerina.toml.syntax.tree.MissingLiteralNode;
 import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.NodeList;
 import io.ballerina.toml.syntax.tree.NodeTransformer;
@@ -39,6 +38,7 @@ import io.ballerina.toml.syntax.tree.StringLiteralNode;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 import io.ballerina.toml.syntax.tree.TableArrayNode;
 import io.ballerina.toml.syntax.tree.TableNode;
+import io.ballerina.toml.syntax.tree.Token;
 import io.ballerina.toml.syntax.tree.ValueNode;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -337,11 +337,6 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     }
 
     @Override
-    public TomlNode transform(MissingLiteralNode missingLiteralNode) {
-        return new TomlMissingValueNode(getPosition(missingLiteralNode));
-    }
-
-    @Override
     public TomlNode transform(StringLiteralNode stringLiteralNode) {
         String valueString = stringLiteralNode.content().text();
         String unescapedJava = StringEscapeUtils.unescapeJava(valueString);
@@ -356,7 +351,8 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         if (numericLiteralNode.sign().isPresent()) {
             sign = numericLiteralNode.sign().get().text();
         }
-        String value = sign + numericLiteralNode.value().text();
+        Token valueToken = numericLiteralNode.value();
+        String value = sign + valueToken.text();
         if (numericLiteralNode.kind() == SyntaxKind.DEC_INT) {
             return new TomlLongValueNode(Long.parseLong(value),
                     getPosition(numericLiteralNode));

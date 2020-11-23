@@ -65,10 +65,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(identifierLiteralNode);
     }
 
-    public T transform(STMissingLiteralNode missingLiteralNode) {
-        return transformSyntaxNode(missingLiteralNode);
-    }
-
     // Tokens
 
     public T transform(STToken token) {

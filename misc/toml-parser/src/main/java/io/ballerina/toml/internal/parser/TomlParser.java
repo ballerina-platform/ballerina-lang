@@ -380,21 +380,9 @@ public class TomlParser extends AbstractParser {
                 return parseBoolean();
             case OPEN_BRACKET_TOKEN:
                 return parseArray();
-            case MISSING_VALUE_TOKEN:
-                return parseMissingValueNode();
             default:
                 recover(token, ParserRuleContext.VALUE);
                 return parseValue();
-        }
-    }
-
-    private STNode parseMissingValueNode() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.MISSING_VALUE_TOKEN) {
-            return STNodeFactory.createMissingLiteralNode(consume());
-        } else {
-            recover(token, ParserRuleContext.MISSING_VALUE_LITERAL);
-            return parseMissingValueNode();
         }
     }
 
@@ -587,7 +575,6 @@ public class TomlParser extends AbstractParser {
         return token.kind == SyntaxKind.DECIMAL_INT_TOKEN ||
                 token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN ||
                 token.kind == SyntaxKind.TRUE_KEYWORD ||
-                token.kind == SyntaxKind.FALSE_KEYWORD ||
-                token.kind == SyntaxKind.MISSING_VALUE_TOKEN;
+                token.kind == SyntaxKind.FALSE_KEYWORD;
     }
 }

@@ -447,8 +447,6 @@ public class ParserTestUtils {
                 return SyntaxKind.KEY_VALUE;
             case "TABLE_ARRAY":
                 return SyntaxKind.TABLE_ARRAY;
-            case "MISSING_VALUE_TOKEN":
-                return SyntaxKind.MISSING_VALUE_TOKEN;
             case "KEY":
                 return SyntaxKind.KEY;
             case "DEC_INT":

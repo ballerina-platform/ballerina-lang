@@ -65,7 +65,6 @@ public enum SyntaxKind {
     KEY_VALUE(2001),
     TABLE(2002),
     TABLE_ARRAY(2003),
-    MISSING_VALUE_TOKEN(2004),
 
     //Int
     DEC_INT(2010),
