@@ -807,6 +807,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(classDefinitionNode);
     }
 
+    public void visit(RequiredExpressionNode requiredExpressionNode) {
+        visitSyntaxNode(requiredExpressionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
