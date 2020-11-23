@@ -55,7 +55,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken functionName,
-            NodeList<Token> relativeResourcePath,
+            NodeList<Node> relativeResourcePath,
             FunctionSignatureNode functionSignature,
             FunctionBodyNode functionBody) {
         Objects.requireNonNull(qualifierList, "qualifierList must not be null");
@@ -2181,7 +2181,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken methodName,
-            NodeList<Token> relativeResourcePath,
+            NodeList<Node> relativeResourcePath,
             FunctionSignatureNode methodSignature,
             Token semicolon) {
         Objects.requireNonNull(qualifierList, "qualifierList must not be null");

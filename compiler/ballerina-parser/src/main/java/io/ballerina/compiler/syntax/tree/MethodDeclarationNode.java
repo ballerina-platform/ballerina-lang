@@ -49,7 +49,7 @@ public class MethodDeclarationNode extends NonTerminalNode {
         return childInBucket(3);
     }
 
-    public NodeList<Token> relativeResourcePath() {
+    public NodeList<Node> relativeResourcePath() {
         return new NodeList<>(childInBucket(4));
     }
 
@@ -89,7 +89,7 @@ public class MethodDeclarationNode extends NonTerminalNode {
             NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken methodName,
-            NodeList<Token> relativeResourcePath,
+            NodeList<Node> relativeResourcePath,
             FunctionSignatureNode methodSignature,
             Token semicolon) {
         if (checkForReferenceEquality(
@@ -129,7 +129,7 @@ public class MethodDeclarationNode extends NonTerminalNode {
         private NodeList<Token> qualifierList;
         private Token functionKeyword;
         private IdentifierToken methodName;
-        private NodeList<Token> relativeResourcePath;
+        private NodeList<Node> relativeResourcePath;
         private FunctionSignatureNode methodSignature;
         private Token semicolon;
 
@@ -172,7 +172,7 @@ public class MethodDeclarationNode extends NonTerminalNode {
         }
 
         public MethodDeclarationNodeModifier withRelativeResourcePath(
-                NodeList<Token> relativeResourcePath) {
+                NodeList<Node> relativeResourcePath) {
             Objects.requireNonNull(relativeResourcePath, "relativeResourcePath must not be null");
             this.relativeResourcePath = relativeResourcePath;
             return this;

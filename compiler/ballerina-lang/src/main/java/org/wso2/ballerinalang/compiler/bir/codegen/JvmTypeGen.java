@@ -1060,7 +1060,7 @@ public class JvmTypeGen {
         loadType(mv, objType);
         mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
 
-        // Load the field type
+        // Load the invokable type
         loadType(mv, resourceFunction.type);
 
         // Load flags

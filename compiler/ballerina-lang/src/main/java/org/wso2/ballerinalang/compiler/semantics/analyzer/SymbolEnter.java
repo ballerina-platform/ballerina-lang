@@ -58,7 +58,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -2603,15 +2602,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) funcNode.receiver.type.tsymbol;
         BAttachedFunction attachedFunc;
         if (funcNode.getKind() == NodeKind.RESOURCE_FUNC) {
-            BLangResourceFunction resourceFunction = (BLangResourceFunction) funcNode;
-            Name accessor = names.fromIdNode(resourceFunction.accessorName);
-            List<Name> resourcePath =
-                    resourceFunction.resourcePath.stream().map(names::fromIdNode).collect(Collectors.toList());
-            attachedFunc = new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
-                    accessor, funcNode.pos);
+            attachedFunc = createResourceFunction(funcNode, funcSymbol, funcType);
         } else {
-            attachedFunc = new BAttachedFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType,
-                    funcNode.pos);
+            attachedFunc = new BAttachedFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, funcNode.pos);
         }
 
         validateRemoteFunctionAttachedToObject(funcNode, objectSymbol);
@@ -2625,6 +2618,25 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         types.validateErrorOrNilReturn(funcNode, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR);
         objectSymbol.initializerFunc = attachedFunc;
+    }
+
+    private BAttachedFunction createResourceFunction(BLangFunction funcNode, BInvokableSymbol funcSymbol,
+                                                     BInvokableType funcType) {
+        BLangResourceFunction resourceFunction = (BLangResourceFunction) funcNode;
+        Name accessor = names.fromIdNode(resourceFunction.accessorName);
+        List<Name> resourcePath = resourceFunction.resourcePath.stream()
+                .map(names::fromIdNode)
+                .collect(Collectors.toList());
+
+        List<BVarSymbol> pathParamSymbols = resourceFunction.pathParams.stream()
+                .map(p -> p.symbol)
+                .collect(Collectors.toList());
+
+        BVarSymbol restPathParamSym =
+                resourceFunction.restPathParam != null ? resourceFunction.restPathParam.symbol : null;
+
+        return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
+                accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
@@ -2872,7 +2884,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BResourceFunction resourceFunction = (BResourceFunction) referencedFunc;
             attachedFunc = new BResourceFunction(referencedFunc.funcName,
                     funcSymbol, (BInvokableType) funcSymbol.type, resourceFunction.resourcePath,
-                    resourceFunction.accessor, referencedFunc.pos);
+                    resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam, referencedFunc.pos);
         } else {
             attachedFunc = new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
                     referencedFunc.pos);

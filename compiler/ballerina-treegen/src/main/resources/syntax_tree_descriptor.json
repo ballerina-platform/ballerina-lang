@@ -62,7 +62,7 @@
                 },
                 {
                     "name": "relativeResourcePath",
-                    "type": "Token",
+                    "type": "Node",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -3040,7 +3040,7 @@
                 },
                 {
                     "name": "relativeResourcePath",
-                    "type": "Token",
+                    "type": "Node",
                     "occurrences": "MULTIPLE"
                 },
                 {

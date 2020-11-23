@@ -30,14 +30,19 @@ import java.util.List;
  */
 public class BResourceFunction extends BAttachedFunction {
 
+    public List<BVarSymbol> pathParams;
+    public BVarSymbol restPathParam;
     public List<Name> resourcePath;
     public Name accessor;
 
     public BResourceFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type,
-                             List<Name> resourcePath, Name accessor, Location pos) {
+                             List<Name> resourcePath, Name accessor, List<BVarSymbol> pathParams,
+                             BVarSymbol restPathParam, Location pos) {
         super(funcName, symbol, type, pos);
         this.resourcePath = resourcePath;
         this.accessor = accessor;
+        this.pathParams = pathParams;
+        this.restPathParam = restPathParam;
     }
 
     @Override

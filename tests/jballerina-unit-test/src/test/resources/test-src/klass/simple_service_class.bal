@@ -29,6 +29,18 @@ service class SClass {
         return s;
     }
 
+    resource function get foo/[int i]() returns int {
+        return i;
+    }
+
+    resource function get foo/[string s]/[string... r]() returns string {
+        string result = s + ", ";
+        foreach string rdash in r {
+            result += rdash;
+        }
+        return result;
+    }
+
     function init() {
         self.message = "returned from `barPath`";
     }
@@ -46,6 +58,13 @@ function testServiceObjectValue() {
     // disabled on https://github.com/ballerina-platform/ballerina-lang/issues/27007
     //var z = wait callMethod(s, "$get$.");
     //assertEquality(z, s.message + "dot");
+
+    var rParamVal0 = wait callMethodWithParams(s, "$get$foo$*", [1]);
+    assertEquality(rParamVal0, 1);
+
+    any[] ar = ["hey", ["hello", " ", "world", "!"]];
+    var rParamVal1 = wait callMethodWithParams(s, "$get$foo$*$**", ar);
+    assertEquality(rParamVal1, "hey, hello world!");
 }
 
 
@@ -54,7 +73,12 @@ public function callMethod(service object {} s, string name) returns future<any|
     name:"callMethod"
 } external;
 
-function assertEquality(any|error expected, any|error actual) {
+public function callMethodWithParams(service object {} s, string name, (any|error)[] ar) returns future<any|error>  = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name:"callMethodWithParams"
+} external;
+
+function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }

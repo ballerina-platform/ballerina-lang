@@ -148,6 +148,7 @@ import io.ballerina.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.RestDescriptorNode;
@@ -237,9 +238,11 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -646,9 +649,26 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLFunction;
     }
 
+    @Override
+    public BLangNode transform(ResourcePathParameterNode resourcePathParameterNode) {
+
+        BLangSimpleVariable pathParam = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        pathParam.name = createIdentifier(resourcePathParameterNode.paramName());
+        BLangType typeNode = (BLangType) resourcePathParameterNode.typeDescriptor().apply(this);
+
+        if (resourcePathParameterNode.kind() == SyntaxKind.RESOURCE_PATH_REST_PARAM) {
+            BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
+            arrayTypeNode.elemtype = typeNode;
+            arrayTypeNode.dimensions = 1;
+            typeNode = arrayTypeNode;
+        }
+        pathParam.typeNode = typeNode;
+        return pathParam;
+    }
+
     private BLangFunction createResourceFunctionNode(IdentifierToken accessorName,
                                                      NodeList<Token> qualifierList,
-                                                     NodeList<Token> relativeResourcePath,
+                                                     NodeList<Node> relativeResourcePath,
                                                      FunctionSignatureNode methodSignature,
                                                      FunctionBodyNode functionBody) {
 
@@ -659,29 +679,51 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         populateFunctionNode(name, qualifierList, methodSignature, functionBody, bLFunction);
         bLFunction.accessorName = createIdentifier(accessorName);
 
-        List<BLangIdentifier> relResourcePath = new ArrayList<>();
-        for (Token token : relativeResourcePath) {
-            if (token.kind() == SyntaxKind.SLASH_TOKEN) {
-                continue;
+        bLFunction.resourcePath =  new ArrayList<>();
+        for (Node pathSegment : relativeResourcePath) {
+            switch (pathSegment.kind()) {
+                case SLASH_TOKEN:
+                    continue;
+                case RESOURCE_PATH_SEGMENT_PARAM:
+                    BLangSimpleVariable param = (BLangSimpleVariable) pathSegment.apply(this);
+                    bLFunction.addParameter(param);
+                    bLFunction.addPathParam(param);
+                    bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "*"));
+                    break;
+                case RESOURCE_PATH_REST_PARAM:
+                    BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
+                    bLFunction.addParameter(restParam);
+                    bLFunction.setRestPathParam(restParam);
+                    bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "**"));
+                    break;
+                default:
+                    bLFunction.resourcePath.add(createIdentifier((Token) pathSegment));
+                    break;
             }
-            relResourcePath.add(createIdentifier(token));
         }
-        bLFunction.resourcePath = relResourcePath;
 
         return bLFunction;
     }
 
-    private String calculateResourceFunctionName(IdentifierToken accessorName, NodeList<Token> relativeResourcePath) {
+    private String calculateResourceFunctionName(IdentifierToken accessorName, NodeList<Node> relativeResourcePath) {
         StringBuilder sb = new StringBuilder();
         sb.append("$");
         sb.append(createIdentifier(accessorName).getValue());
-        for (Token token : relativeResourcePath) {
-            if (token.kind() == SyntaxKind.SLASH_TOKEN) {
-                continue;
+        for (Node token : relativeResourcePath) {
+            switch (token.kind()) {
+                case SLASH_TOKEN:
+                    continue;
+                case RESOURCE_PATH_SEGMENT_PARAM:
+                    sb.append("$*");
+                    break;
+                case RESOURCE_PATH_REST_PARAM:
+                    sb.append("$**");
+                    break;
+                default:
+                    sb.append("$");
+                    String value = createIdentifier((Token) token).getValue();
+                    sb.append(value);
             }
-            sb.append("$");
-            String value = createIdentifier(token).getValue();
-            sb.append(value);
         }
         return sb.toString();
     }
