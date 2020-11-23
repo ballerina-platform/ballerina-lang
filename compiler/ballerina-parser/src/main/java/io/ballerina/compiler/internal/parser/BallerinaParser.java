@@ -3685,11 +3685,6 @@ public class BallerinaParser extends AbstractParser {
             return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
         }
 
-        if (isSyntaxKindInList(varDeclQuals, SyntaxKind.CONFIGURABLE_KEYWORD)) {
-            semicolon = SyntaxErrors.addDiagnostic(semicolon,
-                    DiagnosticErrorCode.ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED);
-        }
-
         // If following 3 conditions are satisfied, we should let isolated qualifier to be a part of the type.
         // 1. module variable declaration is not initialized.
         // 2. type descriptor in the typed binding pattern is either object or function type.
