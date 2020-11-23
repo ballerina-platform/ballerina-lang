@@ -1,4 +1,4 @@
-import testorg/foo;
+import testorg/foo as foo;
 
 public class NewButSameBin {
     *foo:Bin;

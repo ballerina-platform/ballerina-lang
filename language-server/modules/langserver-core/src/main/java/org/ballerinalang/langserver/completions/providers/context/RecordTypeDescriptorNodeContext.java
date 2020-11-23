@@ -21,9 +21,8 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -44,7 +43,7 @@ public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, RecordTypeDescriptorNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, RecordTypeDescriptorNode node) {
         /*
         Covers the following cases,
         (1) public type T5 record {
@@ -60,7 +59,7 @@ public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<
                 mod:a<cursor>
             };
          */
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             Predicate<Symbol> predicate =

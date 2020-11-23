@@ -1,7 +1,7 @@
-import ballerina/io;
-import ballerina/io as otherIO;
-import ballerina/io as anotherIO;
+import ballerina/java;
+import ballerina/java as otherJAVA;
+import ballerina/java as anotherJAVA;
 
 public function foo() {
-    anotherIO:println();
+    handle header = anotherJAVA:fromString("Ballerina!!!");
 }

@@ -15,14 +15,14 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
+import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -39,33 +39,26 @@ import java.util.regex.Matcher;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class MarkAsUntaintedCodeAction extends AbstractCodeActionProvider {
-
-    @Override
-    public boolean isEnabled() {
-        return false;
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+                                                    CodeActionContext context) {
         if (!(diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.TAINTED_PARAM_PASSED))) {
             return Collections.emptyList();
         }
 
         String diagnosticMessage = diagnostic.getMessage();
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
         Matcher matcher = CommandConstants.TAINTED_PARAM_PATTERN.matcher(diagnosticMessage);
         if (matcher.find() && matcher.groupCount() > 0) {
             String param = matcher.group(1);
             String commandTitle = String.format(CommandConstants.MARK_UNTAINTED_TITLE, param);
             // Extract specific content range
             Range range = diagnostic.getRange();
-            String content = positionDetails.matchedNode().toSourceCode();
+            Document document = context.workspace().document(context.filePath()).orElseThrow();
+            String content = getContent(document, diagnostic.getRange());
             // Add `untaint` keyword
             matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);
             String editText = matcher.find() ? "<@untainted>  " + content : "<@untainted> (" + content + ")";
@@ -75,5 +68,29 @@ public class MarkAsUntaintedCodeAction extends AbstractCodeActionProvider {
             return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
         }
         return new ArrayList<>();
+    }
+
+    private String getContent(Document document, Range range) {
+        Position start = range.getStart();
+        Position end = range.getEnd();
+        TextDocument textDocument = document.textDocument();
+        if (start.getLine() == end.getLine()) {
+            String line = textDocument.line(start.getLine()).text();
+            return line.substring(start.getCharacter(), end.getCharacter());
+        } else {
+            StringBuilder str = new StringBuilder();
+            // Append start line
+            str.append(textDocument.line(start.getLine()).text().substring(start.getCharacter()));
+            // Append middle lines
+            int diff = end.getLine() - start.getLine();
+            if (diff > 1) {
+                for (int i = 0; i < diff; i++) {
+                    str.append(textDocument.line(start.getLine()).text());
+                }
+            }
+            // Append end line
+            str.append(textDocument.line(start.getLine()).text(), 0, end.getCharacter());
+            return str.toString();
+        }
     }
 }

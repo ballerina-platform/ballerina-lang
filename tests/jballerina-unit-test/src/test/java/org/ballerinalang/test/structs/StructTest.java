@@ -22,9 +22,9 @@ import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -164,7 +164,8 @@ public class StructTest {
 
     @Test
     public void testStructLiteral() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/proj/src/default/struct-literals.bal");
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/structs/ObjectWithPrivateFieldsTestProject/struct-literals.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
         Assert.assertEquals(returns[0].stringValue(), "{dptName:\"\", employees:[], manager:" +
                 "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:()}}");
@@ -176,7 +177,8 @@ public class StructTest {
 
     @Test
     public void testStructLiteralInitFunc() {
-        CompileResult result = BCompileUtil.compile("test-src/structs/proj/src/default/nested-struct-inline-init.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/structs/ObjectWithPrivateFieldsTestProject/nested-struct-inline-init.bal");
         BValue[] returns = BRunUtil.invoke(result, "testCreateStruct");
         Assert.assertEquals(returns[0].stringValue(),
                 "{name:\"default first name\", fname:\"\", lname:\"Doe\", adrs:{}, age:999, " +

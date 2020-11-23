@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.test.isolation;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Test cases related to isolation analysis.
@@ -84,7 +84,8 @@ public class IsolationAnalysisTest {
                 "testIsolatedObjectFieldInitializers",
                 "testIsolationAnalysisWithRemoteMethods",
                 "testIsolatedFunctionWithDefaultableParams",
-                "testAccessingFinalIsolatedObjectInIsolatedFunction"
+                "testAccessingFinalIsolatedObjectInIsolatedFunction",
+                "testIsolationOfBoundMethods"
         };
     }
 
@@ -106,6 +107,14 @@ public class IsolationAnalysisTest {
                 "returns (int); }'", 37, 13);
         validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
                 "'function () returns (int)'", 44, 24);
+        validateError(result, i++, "incompatible types: expected 'isolated function (int) returns (int)', found " +
+                "'function (int) returns (int)'", 66, 51);
+        validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
+                "'function () returns (int)'", 69, 48);
+        validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
+                "'function () returns (int)'", 72, 48);
+        validateError(result, i++, "incompatible types: expected 'isolated function (int) returns (int)', found " +
+                "'function (int) returns (int)'", 75, 57);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -130,7 +139,7 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 55, 13);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 68, 13);
         validateError(result, i++, "worker declaration not allowed in an 'isolated' function", 74, 12);
-        validateError(result, i++, "async invocation not allowed in an 'isolated' function", 80, 28);
+        validateError(result, i++, "async invocation not allowed in an 'isolated' function", 80, 22);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 94, 13);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 101, 22);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 105, 25);

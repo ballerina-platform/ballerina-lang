@@ -22,10 +22,8 @@ import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.Position;
@@ -46,7 +44,7 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ModuleVariableDeclarationNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ModuleVariableDeclarationNode node) {
         if (this.withinInitializerContext(context, node)) {
             return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
         }
@@ -58,7 +56,7 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
         return new ArrayList<>();
     }
 
-    private boolean withinServiceOnKeywordContext(LSContext context, ModuleVariableDeclarationNode node) {
+    private boolean withinServiceOnKeywordContext(CompletionContext context, ModuleVariableDeclarationNode node) {
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
         TypeDescriptorNode typeDescriptor = typedBindingPattern.typeDescriptor();
 
@@ -66,24 +64,24 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
             return false;
         }
 
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position position = context.getCursorPosition();
         LineRange lineRange = typedBindingPattern.bindingPattern().lineRange();
         return (position.getLine() == lineRange.endLine().line()
                 && position.getCharacter() > lineRange.endLine().offset())
                 || position.getLine() > lineRange.endLine().line();
     }
 
-    private boolean withinInitializerContext(LSContext context, ModuleVariableDeclarationNode node) {
-        if (node.equalsToken() == null || node.equalsToken().isEmpty()) {
+    private boolean withinInitializerContext(CompletionContext context, ModuleVariableDeclarationNode node) {
+        if (node.equalsToken().isEmpty()) {
             return false;
         }
-        Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int textPosition = context.getCursorPositionInTree();
         TextRange equalTokenRange = node.equalsToken().get().textRange();
         return equalTokenRange.endOffset() <= textPosition;
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, ModuleVariableDeclarationNode node) {
+    public boolean onPreValidation(CompletionContext context, ModuleVariableDeclarationNode node) {
         return node.equalsToken() != null && node.equalsToken().isPresent();
     }
 }

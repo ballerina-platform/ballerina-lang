@@ -31,10 +31,8 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Represent Annotation Symbol.
@@ -43,16 +41,16 @@ import java.util.Set;
  */
 public class BallerinaAnnotationSymbol extends BallerinaSymbol implements AnnotationSymbol {
 
-    private final Set<Qualifier> qualifiers;
+    private final List<Qualifier> qualifiers;
     private final TypeSymbol typeDescriptor;
     private final List<AnnotationAttachPoint> attachPoints;
     private final boolean deprecated;
 
-    private BallerinaAnnotationSymbol(String name, PackageID moduleID, Set<Qualifier> qualifiers,
+    private BallerinaAnnotationSymbol(String name, PackageID moduleID, List<Qualifier> qualifiers,
                                       TypeSymbol typeDescriptor, List<AnnotationAttachPoint> attachPoints,
                                       BSymbol bSymbol) {
         super(name, moduleID, SymbolKind.ANNOTATION, bSymbol);
-        this.qualifiers = Collections.unmodifiableSet(qualifiers);
+        this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.attachPoints = Collections.unmodifiableList(attachPoints);
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
@@ -64,7 +62,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
      * @return {@link List} of qualifiers
      */
     @Override
-    public Set<Qualifier> qualifiers() {
+    public List<Qualifier> qualifiers() {
         return qualifiers;
     }
 
@@ -100,7 +98,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
      */
     public static class AnnotationSymbolBuilder extends SymbolBuilder<AnnotationSymbolBuilder> {
 
-        private final Set<Qualifier> qualifiers = new HashSet<>();
+        private final List<Qualifier> qualifiers = new ArrayList<>();
         private TypeSymbol typeDescriptor;
         private List<AnnotationAttachPoint> attachPoints;
 

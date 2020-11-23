@@ -19,6 +19,8 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
+import io.ballerina.projects.testsuite.Test;
+import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.BooleanType;
 import io.ballerina.runtime.api.types.ByteType;
@@ -42,8 +44,6 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.XmlValue;
-import org.ballerinalang.test.runtime.entity.Test;
-import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
 import org.ballerinalang.test.runtime.entity.TesterinaReport;
 import org.ballerinalang.test.runtime.entity.TesterinaResult;
@@ -243,6 +243,7 @@ public class BTestRunner {
             outStream.println("\tNo tests found\n");
             return;
         }
+
         AtomicBoolean shouldSkip = new AtomicBoolean();
         AtomicBoolean shouldSkipAfterSuite = new AtomicBoolean();
         AtomicBoolean shouldSkipAfterGroups = new AtomicBoolean();
@@ -273,10 +274,6 @@ public class BTestRunner {
             } catch (Throwable e) {
                 throw new BallerinaTestException("failed to load Test init class :" + testClassName);
             }
-            outStream.println("\t" + packageName);
-        } else {
-            // If there is a source file name print it and then execute the tests
-            outStream.println("\t" + suite.getSourceFileName());
         }
         shouldSkip.set(false);
         shouldSkipAfterSuite.set(false);
@@ -464,10 +461,8 @@ public class BTestRunner {
 
         if (!packageName.equals(TesterinaConstants.DOT)) {
             Path sourceRootPath = Paths.get(suite.getSourceRootPath()).resolve(TesterinaConstants.TARGET_DIR_NAME)
-                    .resolve(TesterinaConstants.CACHES_DIR_NAME).resolve(TesterinaConstants.JSON_CACHE_DIR_NAME);
-            Path rerunJson = sourceRootPath.resolve(suite.getOrgName()).resolve(suite.getPackageID())
-                    .resolve(suite.getVersion());
-            Path jsonPath = Paths.get(rerunJson.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
+                    .resolve(TesterinaConstants.REPORT_DIR_NAME);
+            Path jsonPath = Paths.get(sourceRootPath.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
             File jsonFile = new File(jsonPath.toString());
             writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
         }
@@ -758,7 +753,7 @@ public class BTestRunner {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         } catch (IOException e) {
             errorMsg = "Could not write to Rerun Test json. Rerunning tests will not work";
-            errStream.println(errorMsg);
+            errStream.println(errorMsg + ":" + e.getMessage());
         }
 
     }

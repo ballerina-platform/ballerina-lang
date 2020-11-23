@@ -1,13 +1,10 @@
-[project]
-org-name = "ballerina"
+[package]
+org = "ballerina"
+name = "observe"
 version = "0.8.0"
 
-[platform]
-target = "java11"
-
-    [[platform.libraries]]
-    artifactId = "observability"
-    version = "0.8.0"
-    path = "./lib/ballerina-observe-0.8.0-java.jar"
-    groupId = "ballerina"
-    modules = ["observe"]
+[[platform.java11.dependency]]
+path = "../libs/ballerina-observability-2.0.0-Preview6-SNAPSHOT.jar"
+groupId = "ballerina"
+artifactId = "observability"
+version = "0.8.0"

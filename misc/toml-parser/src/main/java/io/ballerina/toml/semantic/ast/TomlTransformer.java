@@ -98,7 +98,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         TomlTableNode parentTable = rootTable;
         for (int i = 0; i < parentTables.size(); i++) {
             String newTable = parentTables.get(i);
-            TopLevelNode dottedParentNode = parentTable.children().get(newTable);
+            TopLevelNode dottedParentNode = parentTable.entries().get(newTable);
             if (dottedParentNode != null) {
                 //TOOD fix
             } else {
@@ -114,7 +114,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             transformedKeyValuePair = new TomlKeyValueNode(newKey, transformedKeyValuePair.value(),
                     transformedKeyValuePair.location());
         }
-        parentTable.children().put(transformedKeyValuePair.key().name(), transformedKeyValuePair);
+        parentTable.entries().put(transformedKeyValuePair.key().name(), transformedKeyValuePair);
     }
 
     private TomlTableNode createDottedKeyParentTable(TomlTableNode parentTable, TomlKeyEntryNode dottedKey) {
@@ -122,7 +122,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         list.add(dottedKey);
         TomlKeyNode newTableKey = new TomlKeyNode(list);
         TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, null);
-        parentTable.children().put(dottedKey.name().toString(), newTomlTableNode);
+        parentTable.entries().put(dottedKey.name().toString(), newTomlTableNode);
         return newTomlTableNode;
     }
 
@@ -135,9 +135,9 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
 
         TomlTableArrayNode newTomlTableArray = new TomlTableArrayNode(new TomlKeyNode(list),
                 tableArrayChild.location(), tableArrayChild.children());
-        TopLevelNode topLevelNode = parentTable.children().get(newTomlTableArray.key().name());
+        TopLevelNode topLevelNode = parentTable.entries().get(newTomlTableArray.key().name());
         if (topLevelNode == null) {
-            parentTable.children().put(newTomlTableArray.key().name(), newTomlTableArray);
+            parentTable.entries().put(newTomlTableArray.key().name(), newTomlTableArray);
         } else {
             //generated false?
             if (topLevelNode instanceof TomlTableArrayNode) {
@@ -167,20 +167,20 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         TomlTableNode parentTable = rootTable;
         for (int i = 0; i < parentTables.size(); i++) {
             String parentString = parentTables.get(i);
-            TopLevelNode rootTableNode = parentTable.children().get(parentString);
+            TopLevelNode rootTableNode = parentTable.entries().get(parentString);
             if (rootTableNode != null) {
                 parentTable = (TomlTableNode) rootTableNode;
             } else {
                 TomlKeyEntryNode tomlKeyEntryNode = childNode.key().keys().get(i);
                 if (childNode instanceof TomlTableArrayNode) {
-                    parentTable = generateTable(parentTable.children(), tomlKeyEntryNode, false);
+                    parentTable = generateTable(parentTable.entries(), tomlKeyEntryNode, false);
                 } else {
-                    parentTable = generateTable(parentTable.children(), tomlKeyEntryNode, true);
+                    parentTable = generateTable(parentTable.entries(), tomlKeyEntryNode, true);
                 }
             }
         }
 
-        TopLevelNode lastNode = parentTable.children().get(tableLeadName);
+        TopLevelNode lastNode = parentTable.entries().get(tableLeadName);
         if (lastNode instanceof TomlKeyValueNode) {
             TomlDiagnostic nodeExists =
                     dlog.error(childNode.location(), DiagnosticErrorCode.ERROR_EXISTING_NODE);
@@ -192,14 +192,14 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
 
     private void addChildTableToParent(TomlTableNode rootTable, TomlTableNode tableChild) {
         TomlTableNode parentTable = getParentTable(rootTable, tableChild);
-        TopLevelNode topLevelNode = parentTable.children().get(tableChild.key().name());
+        TopLevelNode topLevelNode = parentTable.entries().get(tableChild.key().name());
         TomlKeyEntryNode lastKeyEntry = getLastKeyEntry(tableChild);
         List<TomlKeyEntryNode> entries = new ArrayList<>();
         entries.add(lastKeyEntry);
         TomlTableNode newTableNode = new TomlTableNode(new TomlKeyNode(entries),
-                tableChild.generated(), tableChild.location(), tableChild.children());
+                tableChild.generated(), tableChild.location(), tableChild.entries());
         if (topLevelNode == null) {
-            parentTable.children().put(newTableNode.key().name(), newTableNode);
+            parentTable.entries().put(newTableNode.key().name(), newTableNode);
         } else {
             //generated false?
             if (topLevelNode instanceof TomlTableNode) {
@@ -245,7 +245,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             if (transformedChild instanceof TopLevelNode) {
                 TopLevelNode topLevelChild = (TopLevelNode) transformedChild;
                 checkExistingNodes(tomlTableNode, topLevelChild);
-                tomlTableNode.children().put(topLevelChild.key().name(), topLevelChild);
+                tomlTableNode.entries().put(topLevelChild.key().name(), topLevelChild);
             } else {
                 throw new UnsupportedOperationException();
             }
@@ -253,7 +253,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     }
 
     private void checkExistingNodes(TomlTableNode tomlTableNode, TopLevelNode topLevelChild) {
-        Map<String, TopLevelNode> childs = tomlTableNode.children();
+        Map<String, TopLevelNode> childs = tomlTableNode.entries();
         String childName = topLevelChild.key().name();
         if (childs.get(childName) != null) {
             TomlDiagnostic nodeExists = dlog.error(topLevelChild.location(), DiagnosticErrorCode.ERROR_EXISTING_NODE);
@@ -281,7 +281,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             if (transformedChild instanceof TopLevelNode) {
                 TopLevelNode topLevelChild = (TopLevelNode) transformedChild;
 //                checkExistingNodes(tomlTableArray,topLevelChild);
-                anonTable.children().put(topLevelChild.key().name(), topLevelChild);
+                anonTable.entries().put(topLevelChild.key().name(), topLevelChild);
             } else {
                 throw new UnsupportedOperationException();
             }

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
@@ -25,7 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -164,7 +165,7 @@ public class Types {
     public BType checkType(BLangExpression node,
                            BType actualType,
                            BType expType) {
-        return checkType(node, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        return checkType(node, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
     }
 
     public BType checkType(BLangExpression expr,
@@ -605,6 +606,10 @@ public class Types {
             return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes);
         }
 
+        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
+            return isParameterizedTypeAssignable(source, target, unresolvedTypes);
+        }
+
         if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
             return true;
         }
@@ -754,13 +759,22 @@ public class Types {
             return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
         }
 
-        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
-            BType resolvedType = typeBuilder.build(source);
-            return isAssignable(resolvedType, target, unresolvedTypes);
-        }
-
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
                 isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
+    }
+
+    private boolean isParameterizedTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        BType resolvedSourceType = typeBuilder.build(source);
+
+        if (target.tag != TypeTags.PARAMETERIZED_TYPE) {
+            return isAssignable(resolvedSourceType, target, unresolvedTypes);
+        }
+
+        if (((BParameterizedType) source).paramIndex != ((BParameterizedType) target).paramIndex) {
+            return false;
+        }
+
+        return isAssignable(resolvedSourceType, typeBuilder.build(target), unresolvedTypes);
     }
 
     private boolean isAssignableRecordType(BRecordType recordType, BType type, Set<TypePair> unresolvedTypes) {
@@ -1434,7 +1448,7 @@ public class Types {
                 varType = streamType.constraint;
                 if (streamType.error != null) {
                     BType actualType = BUnionType.create(null, varType, streamType.error);
-                    dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                    dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             varType, actualType);
                 }
                 break;
@@ -1448,14 +1462,14 @@ public class Types {
                     BType errorType = getErrorType(nextMethodReturnType);
                     if (errorType != null) {
                         BType actualType = BUnionType.create(null, valueType, errorType);
-                        dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                        dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                                 valueType, actualType);
                     }
                     foreachNode.nillableResultType = nextMethodReturnType;
                     foreachNode.varType = valueType;
                     return;
                 }
-                dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 foreachNode.varType = symTable.semanticError;
@@ -1466,7 +1480,7 @@ public class Types {
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;
                 foreachNode.nillableResultType = symTable.semanticError;
-                dlog.error(foreachNode.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
                 return;
         }
@@ -1539,7 +1553,7 @@ public class Types {
                     return;
                 }
                 dlog.error(bLangInputClause.collection.pos,
-                        DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                        DiagnosticErrorCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 bLangInputClause.varType = symTable.semanticError;
@@ -1550,7 +1564,7 @@ public class Types {
                 bLangInputClause.varType = symTable.semanticError;
                 bLangInputClause.resultType = symTable.semanticError;
                 bLangInputClause.nillableResultType = symTable.semanticError;
-                dlog.error(bLangInputClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                dlog.error(bLangInputClause.collection.pos, DiagnosticErrorCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
                 return;
         }

@@ -21,7 +21,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.PackageLoader;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -92,7 +92,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
-    private final PackageLoader pkgLoader;
+    private final PackageCache packageCache;
 
     private BSymbol transactionError;
     private BLangExpression retryStmt;
@@ -115,7 +115,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.desugar = Desugar.getInstance(context);
-        this.pkgLoader = PackageLoader.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
     //    if (this.symTable.internalTransactionModuleSymbol == null) {
     //        this.symTable.internalTransactionModuleSymbol =
     //                pkgLoader.loadPackageSymbol(PackageID.TRANSACTION_INTERNAL, null, null);
@@ -316,14 +316,15 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private BLangInvocation createStartTransactionInvocation(Location location,
                                                              BLangLiteral transactionBlockIDLiteral,
                                                              BLangSimpleVarRef prevAttempt) {
+        BInvokableSymbol startTransactionInvokableSymbol =
+                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(START_TRANSACTION);
+
         // Include transaction-internal module as an import if not included
         if (!transactionInternalModuleIncluded) {
             desugar.addTransactionInternalModuleImport();
             transactionInternalModuleIncluded = true;
         }
 
-        BInvokableSymbol startTransactionInvokableSymbol =
-                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(START_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionBlockIDLiteral);
         args.add(prevAttempt);
@@ -334,14 +335,15 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     public BLangInvocation createTransactionalCheckInvocation(Location pos) {
+        BInvokableSymbol startTransactionInvokableSymbol =
+                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(CHECK_IF_TRANSACTIONAL);
+
         // Include transaction-internal module as an import if not included
         if (!transactionInternalModuleIncluded) {
             desugar.addTransactionInternalModuleImport();
             transactionInternalModuleIncluded = true;
         }
 
-        BInvokableSymbol startTransactionInvokableSymbol =
-                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(CHECK_IF_TRANSACTIONAL);
         List<BLangExpression> args = new ArrayList<>();
         BLangInvocation startTransactionInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(pos, startTransactionInvokableSymbol, args, symResolver);
@@ -615,7 +617,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     public BSymbol getInternalTransactionModuleInvokableSymbol(Name name) {
         if (symTable.internalTransactionModuleSymbol == null) {
             symTable.internalTransactionModuleSymbol =
-                    pkgLoader.loadPackageSymbol(PackageID.TRANSACTION_INTERNAL, null, null);
+                    packageCache.getSymbol(PackageID.TRANSACTION_INTERNAL);
         }
         return symTable.internalTransactionModuleSymbol.scope.lookup(name).symbol;
     }

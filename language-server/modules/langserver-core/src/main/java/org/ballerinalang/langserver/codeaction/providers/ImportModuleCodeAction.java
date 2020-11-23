@@ -15,14 +15,13 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
@@ -59,18 +58,17 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
     private static final String UNDEFINED_MODULE = "undefined module";
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, PositionDetails positionDetails,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         if (!(diagnostic.getMessage().startsWith(UNDEFINED_MODULE))) {
             return actions;
         }
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
         List<Diagnostic> diagnostics = new ArrayList<>();
         String diagnosticMessage = diagnostic.getMessage();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
-                                                          diagnosticMessage.lastIndexOf("'"));
+                diagnosticMessage.lastIndexOf("'"));
         LSDocumentIdentifier sourceDocument = new LSDocumentIdentifierImpl(uri);
         String sourceRoot = LSCompilerUtil.getProjectRoot(sourceDocument.getPath());
         sourceDocument.setProjectRootRoot(sourceRoot);
@@ -78,8 +76,9 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         packagesList.addAll(LSPackageLoader.getSdkPackages());
         packagesList.addAll(LSPackageLoader.getHomeRepoPackages());
 
-        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        packagesList.addAll(LSPackageLoader.getCurrentProjectModules(bLangPackage, context));
+        // TODO: Fix
+//        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+//        packagesList.addAll(LSPackageLoader.getCurrentProjectModules(bLangPackage, context));
 
         packagesList.stream()
                 .filter(pkgEntry -> {
@@ -88,10 +87,12 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                 })
                 .forEach(pkgEntry -> {
                     String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
-                                                        pkgEntry.getFullPackageNameAlias());
+                            pkgEntry.getFullPackageNameAlias());
                     String moduleName = CommonUtil.escapeModuleName(context, pkgEntry.getFullPackageNameAlias());
                     CodeAction action = new CodeAction(commandTitle);
-                    Position insertPos = getImportPosition(bLangPackage, context);
+                    // TODO: Fix
+//                    Position insertPos = getImportPosition(bLangPackage, context);
+                    Position insertPos = null;
                     String importText = ItemResolverConstants.IMPORT + " " + moduleName
                             + CommonKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
                     List<TextEdit> edits = Collections.singletonList(

@@ -46,12 +46,12 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
     @DataProvider(name = "async-call-data-provider")
     public Object[][] getAsyncCallData() {
         return new Object[][] {
-                {"resourceOne", FILE_NAME + ":21:5", FILE_NAME + ":22:39", FILE_NAME + ":28:20",
-                        "ballerina-test/testservices/MockClient", "calculateSum", null, null},
-                {"resourceTwo", FILE_NAME + ":32:5", FILE_NAME + ":33:39", FILE_NAME + ":39:20",
+                {"resourceOne", FILE_NAME + ":22:5", FILE_NAME + ":23:33", FILE_NAME + ":29:20",
+                        MOCK_CLIENT_OBJECT_NAME, "calculateSum", null, null},
+                {"resourceTwo", FILE_NAME + ":33:5", FILE_NAME + ":34:33", FILE_NAME + ":40:20",
                         null, null, null, "calculateSumWithObservability"},
-                {"resourceThree", FILE_NAME + ":43:5", FILE_NAME + ":45:39", FILE_NAME + ":51:20",
-                        null, null, "ballerina-test/testservices/ObservableAdder", "getSum"}
+                {"resourceThree", FILE_NAME + ":44:5", FILE_NAME + ":46:33", FILE_NAME + ":52:20",
+                        null, null, OBSERVABLE_ADDER_OBJECT_NAME, "getSum"}
         };
     }
 
@@ -83,7 +83,7 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", resourceFunctionPosition),
                     new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
@@ -107,7 +107,7 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
                     : (asyncCallObjectName == null ? "" : asyncCallObjectName + ":") + asyncCallFunctionName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", asyncCallPosition),
                     asyncCallActionName == null ? null : new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
@@ -137,7 +137,7 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), "ballerina/testobserve/Caller:respond");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", callerRespondPosition),
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
@@ -150,14 +150,14 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
 
     @DataProvider(name = "workers-data-provider")
     public Object[][] getWorkersData() {
-        final String w1Position = FILE_NAME + ":102:15";
-        final String w2Position = FILE_NAME + ":109:15";
+        final String w1Position = FILE_NAME + ":103:15";
+        final String w2Position = FILE_NAME + ":110:15";
         return new Object[][] {
-                {"resourceFour", FILE_NAME + ":55:5", "w1", w1Position, "w2", w2Position, FILE_NAME + ":57:20"},
-                {"resourceFive", FILE_NAME + ":61:5", "w1", w1Position, "w2", w2Position, FILE_NAME + ":63:20"},
-                {"resourceSix", FILE_NAME + ":67:5", "w1", w1Position, "w2", w2Position, FILE_NAME + ":69:20"},
-                {"resourceSeven", FILE_NAME + ":73:5", "w3", FILE_NAME + ":76:35", "w4", FILE_NAME + ":84:35",
-                        FILE_NAME + ":97:20"}
+                {"resourceFour", FILE_NAME + ":56:5", "w1", w1Position, "w2", w2Position, FILE_NAME + ":58:20"},
+                {"resourceFive", FILE_NAME + ":62:5", "w1", w1Position, "w2", w2Position, FILE_NAME + ":64:20"},
+                {"resourceSix", FILE_NAME + ":68:5", "w1", w1Position, "w2", w2Position, FILE_NAME + ":70:20"},
+                {"resourceSeven", FILE_NAME + ":74:5", "w3", FILE_NAME + ":77:35", "w4", FILE_NAME + ":85:35",
+                        FILE_NAME + ":98:20"}
         };
     }
 
@@ -190,7 +190,7 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", resourceFunctionPosition),
                     new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
@@ -212,7 +212,7 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), workerAName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", workerAPosition),
                     new AbstractMap.SimpleEntry<>("src.worker", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
@@ -230,7 +230,7 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), workerBName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", workerBPosition),
                     new AbstractMap.SimpleEntry<>("src.worker", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
@@ -248,7 +248,7 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), "ballerina/testobserve/Caller:respond");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", callerRespondPosition),
                     new AbstractMap.SimpleEntry<>("src.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),

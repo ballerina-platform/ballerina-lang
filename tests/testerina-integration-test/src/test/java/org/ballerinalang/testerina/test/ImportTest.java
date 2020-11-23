@@ -35,14 +35,14 @@ public class ImportTest extends BaseTestCase {
     @BeforeClass()
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = predeclaredImportProjectPath.toString();
+        projectPath = projectBasedTestsPath.toString();
     }
 
     @Test()
     public void testBeforeAfter() throws BallerinaTestException {
         String msg = "4 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"importTests"}, null,
+        balClient.runMain("test", new String[]{"predeclared-import-tests"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(40000);
     }
