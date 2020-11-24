@@ -25,15 +25,13 @@ import io.ballerina.cli.task.CreateBaloTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.FileUtils;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.runtime.api.constants.RuntimeConstants;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -43,13 +41,6 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * This class represents the "run" command and it holds arguments and flags specified by the user.
@@ -88,6 +79,9 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private boolean observabilityIncluded;
 
+    private static final String runCmd = "ballerina run {<ballerina-file | project-name> | <executable-jar>} " +
+            "[--] [(--key=value)...]";
+
     public RunCommand() {
         this.outStream = System.err;
         this.errStream = System.err;
@@ -115,35 +109,22 @@ public class RunCommand implements BLauncherCmd {
 
         String[] args;
         if (this.argList == null) {
-            args = new String[0];
-            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        } else if (this.argList.get(0).startsWith(RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX)) {
-            args = argList.toArray(new String[0]);
-            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+            CommandUtil.printError(this.errStream, "no project path provided.", runCmd, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         } else {
             args = argList.subList(1, argList.size()).toArray(new String[0]);
-            this.projectPath = Paths.get(argList.get(0));
+            this.projectPath = Paths.get(argList.get(0)).toAbsolutePath().normalize();
         }
-
-
-        // create compiler context
-        CompilerContext compilerContext = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(OFFLINE, Boolean.toString(this.offline));
-        options.put(DUMP_BIR, Boolean.toString(dumpBIR));
-        options.put(LOCK_ENABLED, Boolean.toString(true));
-        options.put(SKIP_TESTS, Boolean.toString(true));
-        options.put(TEST_ENABLED, Boolean.toString(false));
-        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
 
         // load project
         Project project;
+        BuildOptions buildOptions = constructBuildOptions();
         boolean isSingleFileBuild = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
-                project = SingleFileProject.load(this.projectPath);
-            } catch (RuntimeException e) {
+                project = SingleFileProject.load(this.projectPath, buildOptions);
+            } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -151,8 +132,8 @@ public class RunCommand implements BLauncherCmd {
             isSingleFileBuild = true;
         } else {
             try {
-                project = BuildProject.load(this.projectPath);
-            } catch (RuntimeException e) {
+                project = BuildProject.load(this.projectPath, buildOptions);
+            } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -192,12 +173,23 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina run [--offline]\n" +
-                "                {<balfile> | executable-jar} [(--key=value)...] "
+        out.append("  ballerina run {<balfile> | <project-path> | executable-jar}[--offline]\n" +
+                "                 [(--key=value)...] "
                 + "[--] [args...] \n");
     }
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
+    }
+
+    private BuildOptions constructBuildOptions() {
+        return new BuildOptionsBuilder()
+                .codeCoverage(false)
+                .experimental(experimentalFlag)
+                .offline(offline)
+                .skipTests(true)
+                .testReport(false)
+                .observabilityIncluded(observabilityIncluded)
+                .build();
     }
 }

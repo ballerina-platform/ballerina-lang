@@ -25,17 +25,17 @@ import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.ListTestGroupsTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -47,11 +47,6 @@ import java.util.List;
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 
 /**
  * This class represents the "ballerina test" command.
@@ -91,8 +86,8 @@ public class TestCommand implements BLauncherCmd {
             "dependencies.")
     private boolean offline;
 
-    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
-    private boolean skipLock;
+//    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
+//    private boolean skipLock;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -130,7 +125,8 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
     private boolean rerunTests;
 
-    private static final String testCmd = "ballerina test [<ballerina-file] [--skip-lock] [--] [(--key=value)...]";
+    private static final String testCmd = "ballerina test [--offline] [--skip-tests]\n" +
+            "                    [<ballerina-file> | <ballerina-project>] [(--key=value)...]";
 
     public void execute() {
         if (this.helpFlag) {
@@ -139,10 +135,7 @@ public class TestCommand implements BLauncherCmd {
             return;
         }
 
-        // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
-        if (this.debugPort != null) {
-            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
-        }
+        BuildOptions buildOptions = constructBuildOptions();
 
         String[] args;
         if (this.argList == null) {
@@ -169,8 +162,8 @@ public class TestCommand implements BLauncherCmd {
         boolean isSingleFile = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
-                project = SingleFileProject.load(this.projectPath);
-            } catch (RuntimeException e) {
+                project = SingleFileProject.load(this.projectPath, buildOptions);
+            } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -178,12 +171,17 @@ public class TestCommand implements BLauncherCmd {
             isSingleFile = true;
         } else {
             try {
-                project = BuildProject.load(this.projectPath);
-            } catch (RuntimeException e) {
+                project = BuildProject.load(this.projectPath, buildOptions);
+            } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+        }
+
+        // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
+        if (this.debugPort != null) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
 
         // Skip code coverage for single bal files if option is set
@@ -192,14 +190,6 @@ public class TestCommand implements BLauncherCmd {
             this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
                     "and continuing the test run...");
         }
-
-        CompilerContext compilerContext = project.projectEnvironmentContext().getService(CompilerContext.class);
-        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(OFFLINE, Boolean.toString(this.offline));
-        options.put(LOCK_ENABLED, Boolean.toString(!this.skipLock));
-        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
-        options.put(PRESERVE_WHITESPACE, "true");
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFile)   // clean the target directory(projects only)
@@ -210,13 +200,24 @@ public class TestCommand implements BLauncherCmd {
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream), !listGroups) // list the available test groups
                 .addTask(new RunTestsTask(outStream, errStream, args, rerunTests, groupList, disableGroupList,
-                        testList, testReport, coverage), listGroups)
+                        testList), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private BuildOptions constructBuildOptions() {
+        return new BuildOptionsBuilder()
+                .codeCoverage(coverage)
+                .experimental(experimentalFlag)
+                .offline(offline)
+                .skipTests(false)
+                .testReport(testReport)
+                .observabilityIncluded(observabilityIncluded)
+                .build();
     }
 
     @Override

@@ -26,7 +26,6 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
@@ -148,8 +147,8 @@ public class CommandUtil {
         Files.createFile(gitignore);
         Files.createFile(packageMD);
 
-        String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + File.separator + GITIGNORE);
-        String defaultPackageMD = FileUtils.readFileAsString(PACKAGE_MD_DEFAULTS + File.separator + templateMD);
+        String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
+        String defaultPackageMD = FileUtils.readFileAsString(PACKAGE_MD_DEFAULTS + "/" + templateMD);
 
         Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
         Files.write(packageMD, defaultPackageMD.getBytes(StandardCharsets.UTF_8));
@@ -225,7 +224,7 @@ public class CommandUtil {
     public static void initProject(Path path, String packageName) throws IOException {
         Path ballerinaToml = path.resolve(ProjectConstants.BALLERINA_TOML);
         Files.createFile(ballerinaToml);
-        String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + File.separator + "manifest.toml");
+        String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest.toml");
         // replace manifest org and name with a guessed value.
         defaultManifest = defaultManifest.replaceAll(ORG_NAME, ProjectUtils.guessOrgName()).
                 replaceAll(PKG_NAME, ProjectUtils.guessPkgName(packageName));

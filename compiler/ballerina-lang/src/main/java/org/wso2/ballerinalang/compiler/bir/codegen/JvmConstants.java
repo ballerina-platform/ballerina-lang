@@ -176,6 +176,8 @@ public class JvmConstants {
     public static final String BLANG_EXCEPTION_HELPER =
             "io/ballerina/runtime/internal/util/exceptions/BLangExceptionHelper";
     public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
+    public static final String LISTENER_REGISTRY_CLASS =
+            "io/ballerina/runtime/internal/scheduling/Scheduler$ListenerRegistry";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -266,6 +268,7 @@ public class JvmConstants {
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
     public static final String LOCK_STORE_VAR_NAME = "$LOCK_STORE";
     public static final String RECORD_INIT_WRAPPER_NAME = "$init";
+    public static final String LISTENER_REGISTRY_VARIABLE = "$listenerRegistry";
     public static final String CONFIGURE_INIT = "$configureInit";
     public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$populateConfigurationData";

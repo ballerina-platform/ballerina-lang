@@ -89,7 +89,7 @@ public abstract class BaloWriter {
             // Now lets put stuff in
             populateBaloArchive(baloOutputStream, pkg);
         } catch (IOException e) {
-            throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);
+            throw new ProjectException("Failed to create balo :" + e.getMessage(), e);
         } catch (BLangCompilerException be) {
             // clean up if an error occur
             try {
@@ -119,7 +119,7 @@ public abstract class BaloWriter {
             putZipEntry(baloOutputStream, Paths.get(BALO_JSON),
                     new ByteArrayInputStream(baloJson.getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write 'balo.json' file: " + e.getMessage(), e);
+            throw new ProjectException("Failed to write 'balo.json' file: " + e.getMessage(), e);
         }
     }
 
@@ -173,7 +173,7 @@ public abstract class BaloWriter {
             putZipEntry(baloOutputStream, Paths.get(PACKAGE_JSON),
                     new ByteArrayInputStream(gson.toJson(packageJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write 'package.json' file: " + e.getMessage(), e);
+            throw new ProjectException("Failed to write 'package.json' file: " + e.getMessage(), e);
         }
     }
 
@@ -267,7 +267,7 @@ public abstract class BaloWriter {
             putZipEntry(baloOutputStream, Paths.get(DEPENDENCY_GRAPH_JSON),
                     new ByteArrayInputStream(gson.toJson(depGraphJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
+            throw new ProjectException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
         }
     }
 
@@ -286,6 +286,10 @@ public abstract class BaloWriter {
             List<Dependency> dependencyList = new ArrayList<>();
             Collection<ResolvedPackageDependency> pkgDependencies = dependencyGraph.getDirectDependencies(resolvedDep);
             for (ResolvedPackageDependency resolvedTransitiveDep : pkgDependencies) {
+                if (resolvedTransitiveDep.scope() == PackageDependencyScope.TEST_ONLY) {
+                    // We don't add the test dependencies to the balr file.
+                    continue;
+                }
                 PackageContext dependencyPkgContext = resolvedTransitiveDep.packageInstance().packageContext();
                 Dependency dep = new Dependency(dependencyPkgContext.packageOrg().toString(),
                         dependencyPkgContext.packageName().toString(),
@@ -304,6 +308,10 @@ public abstract class BaloWriter {
             Module module = pkg.module(moduleId);
             List<ModuleDependency> moduleDependencies = new ArrayList<>();
             for (io.ballerina.projects.ModuleDependency moduleDependency : module.moduleDependencies()) {
+                if (moduleDependency.packageDependency().scope() == PackageDependencyScope.TEST_ONLY) {
+                    // Do not test_only scope dependencies
+                    continue;
+                }
                 Package pkgDependency = packageCache.getPackageOrThrow(
                         moduleDependency.packageDependency().packageId());
                 Module moduleInPkgDependency = pkgDependency.module(moduleDependency.moduleId());

@@ -146,7 +146,8 @@ public class RepoUtils {
         } else if (SET_BALLERINA_DEV_CENTRAL) {
             return DEV_URL;
         }
-        return PRODUCTION_URL;
+        // TODO need to change to PRODUCTION_URL after central deployment
+        return DEV_URL;
     }
 
     /**

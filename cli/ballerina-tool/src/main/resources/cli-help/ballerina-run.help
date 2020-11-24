@@ -2,14 +2,15 @@ NAME
        ballerina-run - Build and execute a Ballerina program
 
 SYNOPSIS
-       ballerina run [<options>] <ballerina-file-path> | <module-name>
-                        | <executable-jar> [<config properties>] [--] [<arguments>]
+       ballerina run [<options>]
+                     <ballerina-file-path> | <executable-jar> [<arguments>] [<config properties>]
+       ballerina run [<options>] <.> [<arguments>] [<config properties>]
 
 
 DESCRIPTION
-       Run builds and executes the given .bal file, module, or program.
+       Run builds and executes the given .bal file, package, or program.
 
-       If a Ballerina source file (.bal file) or a module is given, the run
+       If a Ballerina source file (.bal file) or a project directory is given, the run
        command builds and runs it. Compilation is done internally and the
        executable will not be created.
 
@@ -19,7 +20,7 @@ DESCRIPTION
        file requires a compilation phase.
 
        You must have either a public 'main' function or a service(s) or both
-       in order to run a program or a module.
+       in order to run a program or a package.
 
        When both a 'main' function and a service(s) are present, run executes
        the 'main' function first and then starts the services.
@@ -27,15 +28,10 @@ DESCRIPTION
 
 OPTIONS
        --offline
-           When building a module, the remote repository (Ballerina Central) is
+           When building a package, the remote repository (Ballerina Central) is
            always checked for latest artifacts of the dependencies. If the
            '--offline' option is specified, this remote check is not done and
            the local artifacts will be used instead.
-
-       --sourceroot <path>
-           Provide the path to be taken as the root of the source.
-           The source will be looked up relative to the given source root
-           path.
 
        --experimental
            Enable experimental language features.
@@ -45,14 +41,14 @@ OPTIONS
 
        --observability-included
            Package observability in the executable when run is used
-           with a source file or a module.
+           with a source file or a package.
 
 CONFIG PROPERTIES
        (--key=value)...
            Set the Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter
            has to be prefixed with '--'. Details of the environment parameters
-           supported by the Ballerina standard library modules are specified
+           supported by the Ballerina standard library packages are specified
            in the relevant API documentation.
 
 ARGUMENTS
@@ -68,7 +64,7 @@ ARGUMENTS
 
 
 DEFAULT BEHAVIOR
-       Run command runs the 'main' function in the given program or module, if present.
+       Run command runs the 'main' function of the default module in the given package, if present.
        Then looks for a service, and starts the relevant listeners if services
        are present. If no 'main' function or service is present, the run
        command will fail.
@@ -81,12 +77,11 @@ EXAMPLES
        Run the 'main' function and/or services in the hello executable jar.
           $ ballerina run hello.jar
 
-       Run the 'main' function and/or services in the hello module.
-          $ ballerina run hello
+       Run the 'main' function and/or services in the current package.
+          $ ballerina run .
 
-       Run the 'main' function in the math module with three program args:
-       add, 10 and 5. If the second and third parameters of the 'main'
+       Run the 'main' function in the `math` package with three program args:
+       add, 10, and 5. If the second and third parameters of the 'main'
        function are of types int and int, the second and third arguments
        would be passed as integer values 10 and 5.
           $ ballerina run math add 10 5
-

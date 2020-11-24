@@ -131,19 +131,8 @@ public class SyntaxErrors {
 
     private static DiagnosticCode getErrorCode(ParserRuleContext currentCtx) {
         switch (currentCtx) {
-            case VALUE:
-                return DiagnosticErrorCode.ERROR_MISSING_VALUE;
-            case BASIC_LITERAL: // return var-ref for any kind of terminal expression
-                return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case STRING_CONTENT:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
-            default:
-                return getSeperatorTokenErrorCode(currentCtx);
-        }
-    }
-
-    private static DiagnosticCode getSeperatorTokenErrorCode(ParserRuleContext ctx) {
-        switch (ctx) {
             case ASSIGN_OP:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
             case ARRAY_VALUE_LIST_END:
@@ -164,9 +153,9 @@ public class SyntaxErrors {
             case STRING_START:
                 return DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE_TOKEN;
             case DECIMAL_INTEGER_LITERAL:
-                return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
             case DECIMAL_FLOATING_POINT_LITERAL:
-                return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_FLOATING_POINT_LITERAL;
+            case BOOLEAN_LITERAL:
+                return DiagnosticErrorCode.ERROR_MISSING_VALUE;
             case NEWLINE:
                 return DiagnosticErrorCode.ERROR_MISSING_NEW_LINE;
             case IDENTIFIER_LITERAL:
