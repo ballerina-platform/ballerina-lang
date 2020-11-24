@@ -21,6 +21,7 @@ package org.ballerinalang.central.client;
 import org.awaitility.Duration;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
+import org.ballerinalang.central.client.exceptions.UnauthorizedException;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.testng.Assert;
@@ -207,25 +208,21 @@ public class TestCentralApiClient extends CentralAPIClient {
         }
     }
 
-//    @Test(description = "Test push package with invalid access token")
-//    public void testPushPackageWithInvalidAccessToken() throws IOException {
-//        Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
-//        File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
-//
-//        setBallerinaHome();
-//
-//        try (FileOutputStream outputStream = new FileOutputStream(outputBalo)) {
-//            when(connection.getOutputStream()).thenReturn(outputStream);
-//            when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_UNAUTHORIZED);
-//
-//            this.pushPackage(baloPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
-//            String errorLog = readErrorOutput();
-//            given().with().pollInterval(Duration.ONE_SECOND).and()
-//                    .with().pollDelay(Duration.ONE_SECOND)
-//                    .await().atMost(10, SECONDS)
-//                    .until(() -> errorLog.contains("unauthorized access token for organization: foo"));
-//        }
-//    }
+    @Test(description = "Test push package with invalid access token", expectedExceptions = UnauthorizedException.class,
+            expectedExceptionsMessageRegExp = "unauthorized access token for organization: foo")
+    public void testPushPackageWithInvalidAccessToken() throws IOException {
+        Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
+        File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
+
+        setBallerinaHome();
+
+        try (FileOutputStream outputStream = new FileOutputStream(outputBalo)) {
+            when(connection.getOutputStream()).thenReturn(outputStream);
+            when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_UNAUTHORIZED);
+
+            this.pushPackage(baloPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
+        }
+    }
 
     @Test(description = "Test push existing package", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "package already exists: foo/github:1.8.3_2020r2_any")
