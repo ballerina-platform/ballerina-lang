@@ -281,28 +281,34 @@ public class BUnionType extends BType implements UnionType {
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;
                 if (arrayType.eType == unionType) {
-                    arrayType.eType = this;
-                    isCyclic = true;
+                    BArrayType newArrayType = new BArrayType(this, arrayType.tsymbol, arrayType.size,
+                            arrayType.state, arrayType.flags);
+                    this.add(newArrayType);
+                    this.isCyclic = true;
                     continue;
                 }
             } else if (member instanceof BMapType) {
                 BMapType mapType = (BMapType) member;
                 if (mapType.constraint == unionType) {
-                    mapType.constraint = this;
+                    BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                     isCyclic = true;
+                    this.add(newMapType);
                     continue;
                 }
             } else if (member instanceof BTableType) {
                 BTableType tableType = (BTableType) member;
                 if (tableType.constraint == unionType) {
-                    tableType.constraint = this;
+                    BTableType newTableType = new BTableType(tableType.tag, this, tableType.tsymbol,
+                            tableType.flags);
+                    this.add(newTableType);
                     isCyclic = true;
                     continue;
                 } else if (tableType.constraint instanceof BMapType) {
                     BMapType mapType = (BMapType) tableType.constraint;
                     if (mapType.constraint == unionType) {
-                        mapType.constraint = this;
+                        BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                         isCyclic = true;
+                        this.add(newMapType);
                         continue;
                     }
                 }
