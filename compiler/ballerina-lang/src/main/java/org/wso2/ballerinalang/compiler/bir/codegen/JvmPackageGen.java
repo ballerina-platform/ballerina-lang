@@ -131,11 +131,9 @@ public class JvmPackageGen {
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
     private final MethodGen methodGen;
-    private final ModuleStopMethodGen moduleStopMethodGen;
     private final FrameClassGen frameClassGen;
     private final InitMethodGen initMethodGen;
     private final ConfigMethodGen configMethodGen;
-    private final MainMethodGen mainMethodGen;
     private final LambdaGen lambdaGen;
     private final Map<String, BIRFunctionWrapper> birFunctionMap;
     private final Map<String, String> externClassMap;
@@ -153,10 +151,8 @@ public class JvmPackageGen {
         this.dlog = dlog;
         methodGen = new MethodGen(this);
         initMethodGen = new InitMethodGen(symbolTable);
-        mainMethodGen = new MainMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
         lambdaGen = new LambdaGen(this);
-        moduleStopMethodGen = new ModuleStopMethodGen(symbolTable);
         frameClassGen = new FrameClassGen();
         typeBuilder = new ResolvedTypeBuilder();
 
@@ -488,7 +484,7 @@ public class JvmPackageGen {
 
                 serviceEPAvailable = listenerDeclarationFound(module.globalVars)
                         || isServiceDefAvailable(module.typeDefs);
-
+                MainMethodGen mainMethodGen = new MainMethodGen(symbolTable);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
                                                  asyncDataCollector);
                 if (mainFunc != null) {
@@ -499,8 +495,8 @@ public class JvmPackageGen {
                 generateLockForVariable(cw);
                 generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass);
-                moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
-                                                                asyncDataCollector);
+                new ModuleStopMethodGen(symbolTable).generateExecutionStopMethod(cw, moduleInitClass, module,
+                                                                                 moduleImports, asyncDataCollector);
             } else {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
