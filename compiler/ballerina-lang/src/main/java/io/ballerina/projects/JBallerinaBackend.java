@@ -211,7 +211,7 @@ public class JBallerinaBackend extends CompilerBackend {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile);
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to cache generated jar, module: " + moduleContext.moduleName());
+            throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
         }
 
         // skip generation of the test jar if --skip-tests option is set to true
@@ -230,7 +230,7 @@ public class JBallerinaBackend extends CompilerBackend {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile);
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
+            throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
         }
     }
 
@@ -485,7 +485,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private void emitExecutable(Path executableFilePath) {
         if (!this.packageContext.defaultModuleContext().entryPointExists()) {
             // TODO Improve error handling
-            throw new RuntimeException("no entrypoint found in package: " + this.packageContext.packageName());
+            throw new ProjectException("no entrypoint found in package: " + this.packageContext.packageName());
         }
 
         Manifest manifest = createManifest();
@@ -494,7 +494,7 @@ public class JBallerinaBackend extends CompilerBackend {
         try {
             assembleExecutableJar(executableFilePath, manifest, jarLibraryPaths);
         } catch (IOException e) {
-            throw new RuntimeException("error while creating the executable jar file for package: " +
+            throw new ProjectException("error while creating the executable jar file for package: " +
                     this.packageContext.packageName(), e);
         }
     }

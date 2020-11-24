@@ -637,7 +637,7 @@ public class TestBuildProject {
 
         try {
             BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        } catch (RuntimeException e) {
+        } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("module directory path does not exist"));
         }
     }

@@ -22,6 +22,7 @@ import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
 
@@ -69,7 +70,7 @@ public class SingleFileProject extends Project {
         try {
             return Files.createTempDirectory("ballerina-project" + System.nanoTime());
         } catch (IOException e) {
-            throw new RuntimeException("error while creating project root directory for single file execution. ", e);
+            throw new ProjectException("error while creating project root directory for single file execution. ", e);
         }
     }
 }

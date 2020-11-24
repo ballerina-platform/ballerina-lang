@@ -78,7 +78,7 @@ public class ProjectFiles {
                     .filter(path -> {
                         // validate moduleName
                         if (!ProjectUtils.validateModuleName(path.toFile().getName())) {
-                            throw new RuntimeException("Invalid module name : '" + path.getFileName() + "' :\n" +
+                            throw new ProjectException("Invalid module name : '" + path.getFileName() + "' :\n" +
                                     "Module name can only contain alphanumerics, underscores and periods " +
                                     "and the maximum length is 256 characters");
                         }
@@ -87,7 +87,7 @@ public class ProjectFiles {
                     .map(ProjectFiles::loadModule)
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ProjectException(e);
         }
     }
 
@@ -111,7 +111,7 @@ public class ProjectFiles {
                     .map(ProjectFiles::loadDocument)
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ProjectException(e);
         }
     }
 
@@ -122,7 +122,7 @@ public class ProjectFiles {
                     .map(ProjectFiles::loadTestDocument)
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ProjectException(e);
         }
     }
 
@@ -131,7 +131,7 @@ public class ProjectFiles {
         try {
             content = Files.readString(documentFilePath, Charset.defaultCharset());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ProjectException(e);
         }
         return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
     }
@@ -141,7 +141,7 @@ public class ProjectFiles {
         try {
             content = Files.readString(documentFilePath, Charset.defaultCharset());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ProjectException(e);
         }
         String documentName = Optional.of(documentFilePath.getFileName()).get().toString();
         return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);

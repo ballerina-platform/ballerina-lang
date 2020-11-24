@@ -24,7 +24,8 @@ import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
@@ -65,7 +66,7 @@ public class CreateExecutableTask implements Task {
         Path currentDir = Paths.get(System.getProperty(USER_DIR));
         try {
             target = new Target(project.sourceRoot());
-            if (project instanceof SingleFileProject) {
+            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                 Path outputPath;
                 DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
                 String documentName = project.currentPackage().getDefaultModule().document(documentId).name();
@@ -95,15 +96,19 @@ public class CreateExecutableTask implements Task {
             throw createLauncherException("unable to set executable path: " + e.getMessage());
         }
 
-        Path executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
-        PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
-
-        //TODO: catch the specific error once the exception model is in place
+        Path executablePath;
         try {
+            executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
+        } catch (IOException e) {
+            throw createLauncherException(e.getMessage());
+        }
+
+        try {
+            PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
-        } catch (RuntimeException e) {
-            throw  createLauncherException(e.getMessage());
+        } catch (ProjectException e) {
+            throw createLauncherException(e.getMessage());
         }
 
         // notify plugin
