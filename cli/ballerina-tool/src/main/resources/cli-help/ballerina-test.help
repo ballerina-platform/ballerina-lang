@@ -1,5 +1,5 @@
 NAME
-       ballerina-test - Run module tests
+       ballerina-test - Run package tests
 
 SYNOPSIS
        ballerina test [<options>]
@@ -20,7 +20,7 @@ DESCRIPTION
 
 OPTIONS
        --offline
-           When building a module, the remote repository (Ballerina Central) is
+           When building a package, the remote repository (Ballerina Central) is
            always checked for latest artifacts of the dependencies. If the
            '--offline' option is specified, this remote check is not done and
            the local artifacts will be used instead.
@@ -54,8 +54,7 @@ OPTIONS
             test functions can be executed using this command.
 
        --rerun-failed
-            Executes only the previously-failed test cases for the specified
-            module.
+            Executes only the previously-failed test cases in the package.
 
        --code-coverage
            Enables code coverage. This will analyze the line coverage of
@@ -81,7 +80,7 @@ CONFIG PROPERTIES
            Set the Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter
            has to be prefixed with '--'. Details of the environment parameters
-           supported by the Ballerina standard library modules are specified
+           supported by the Ballerina standard library packages are specified
            in the relevant API documentation.
 
 

@@ -20,7 +20,7 @@ DESCRIPTION
        file requires a compilation phase.
 
        You must have either a public 'main' function or a service(s) or both
-       in order to run a program or a module.
+       in order to run a program or a package.
 
        When both a 'main' function and a service(s) are present, run executes
        the 'main' function first and then starts the services.
@@ -28,7 +28,7 @@ DESCRIPTION
 
 OPTIONS
        --offline
-           When building a module, the remote repository (Ballerina Central) is
+           When building a package, the remote repository (Ballerina Central) is
            always checked for latest artifacts of the dependencies. If the
            '--offline' option is specified, this remote check is not done and
            the local artifacts will be used instead.
@@ -41,14 +41,14 @@ OPTIONS
 
        --observability-included
            Package observability in the executable when run is used
-           with a source file or a module.
+           with a source file or a package.
 
 CONFIG PROPERTIES
        (--key=value)...
            Set the Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter
            has to be prefixed with '--'. Details of the environment parameters
-           supported by the Ballerina standard library modules are specified
+           supported by the Ballerina standard library packages are specified
            in the relevant API documentation.
 
 ARGUMENTS

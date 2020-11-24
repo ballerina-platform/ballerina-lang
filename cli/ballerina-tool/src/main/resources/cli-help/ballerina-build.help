@@ -1,5 +1,5 @@
 NAME
-       ballerina-build - Build Ballerina module(s) and generate executables
+       ballerina-build - Build the Ballerina package and generate executables
 
 SYNOPSIS
        ballerina build [<options>]
@@ -8,11 +8,11 @@ SYNOPSIS
 
 DESCRIPTION
        Build compiles Ballerina sources and produces executable JAR file(s). However, 
-       if the module does not contain an entry point, it will produce a non-executable
-       JAR file, which can be used in another module/program.
+       if the package does not contain an entry point, it will produce a non-executable
+       JAR file, which can be used in another package/program.
 
-       Building a Ballerina project or a specific module in a project creates the
-       executable .jar files in the <project-root>/target/bin directory.
+       Building a Ballerina package creates the executable .jar files
+       in the <project-root>/target/bin directory.
 
        Building a single Ballerina file will create an executable .jar file in the
        current directory. The name of the executable file will be
@@ -61,7 +61,7 @@ CONFIG PROPERTIES
            Set the Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter
            has to be prefixed with '--'. Details of the environment parameters
-           supported by the Ballerina standard library modules are specified
+           supported by the Ballerina standard library packages are specified
            in the relevant API documentation.
 
 
