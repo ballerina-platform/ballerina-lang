@@ -40,6 +40,7 @@ import java.net.Proxy;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -189,7 +190,8 @@ public class CentralAPIClient {
                         new InputStreamReader(conn.getErrorStream(), Charset.defaultCharset()))) {
                     Error errorJsonSchema = new Gson().fromJson(reader, Error.class);
                     if (errorJsonSchema.getMessage().contains("package not found")) {
-                        throw new NoPackageException(errorJsonSchema.getMessage());
+                        // if package not found return empty list
+                        return new ArrayList<>();
                     } else {
                         throw new CentralClientException(
                                 "error: could not connect to remote repository to find versions for: " + orgNamePath
