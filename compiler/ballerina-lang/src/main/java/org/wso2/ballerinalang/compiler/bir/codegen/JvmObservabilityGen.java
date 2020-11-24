@@ -83,16 +83,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPORT_ERROR_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CALLABLE_OBSERVATION_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.*;
 
 /**
  * BIR desugar to inject observations class.
@@ -130,10 +121,21 @@ class JvmObservabilityGen {
      * Instrument the package by rewriting the BIR to add relevant Observability related instructions.
      *
      * @param pkg The package to instrument
+     * @param entryPointExists
      */
-    void instrumentPackage(BIRPackage pkg) {
+    void instrumentPackage(BIRPackage pkg, boolean entryPointExists) {
         for (int i = 0; i < pkg.functions.size(); i++) {
             BIRFunction func = pkg.functions.get(i);
+
+            // For control flow for all the Terminator kinds
+//            if (!(pkg.org.toString().equalsIgnoreCase("ballerina"))){
+//                rewriteControlFlowInvocation(func, pkg);
+//            }
+
+            // If there is an entry point in the package, then we instrument with control flow checkpoints
+            if (entryPointExists){
+                rewriteControlFlowInvocation(func, pkg);
+            }
             rewriteAsyncInvocations(func, null, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
             if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
@@ -168,6 +170,139 @@ class JvmObservabilityGen {
                     operand.variableDcl.type, operand);
             constInitBB.instructions.add(constLoadIns);
         }
+    }
+
+    private void rewriteControlFlowInvocation(BIRFunction func, BIRPackage pkg) {
+        int i = 0;
+        while (i < func.basicBlocks.size()) {
+
+            BIRBasicBlock startBB = func.basicBlocks.get(i);
+
+            // Creating a generic JI calls for all kinds of terminators
+            Location desugaredPos;
+            // First we give the priority to instructions,
+            // if no instructions are found then we get the terminator position
+            if (startBB.instructions.size() != 0) {
+                desugaredPos = startBB.instructions.get(0).pos;
+                if (desugaredPos != null){
+                    BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
+                    swapBasicBlockContent(startBB, newBB);
+                    injectCheckpointCall(startBB,func,pkg,desugaredPos);
+                    startBB.terminator.thenBB = newBB;
+                    i += 1;
+                } else {
+                    System.out.println("no position details for Instruction in: " + func.name + " : " + startBB);
+                }
+
+            } else {
+                desugaredPos = startBB.terminator.pos;
+                if (desugaredPos != null) {
+                    BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
+                    swapBasicBlockContent(startBB, newBB);
+                    injectCheckpointCall(startBB,func,pkg,desugaredPos);
+                    startBB.terminator.thenBB = newBB;
+                    i += 1; // Number of inserted BBs
+                } else {
+                    System.out.println("no position details for Terminator in : " + func.name + " : " + startBB);
+                }
+            }
+
+            ////
+//             // Instrumentation based on the terminator type
+//            Location desugaredPos;
+//            // check for BRanch and Goto separately with the insutrctions considered as well
+//            if (startBB.terminator.kind == InstructionKind.BRANCH ){
+//                desugaredPos = startBB.terminator.pos;
+//                if (desugaredPos == null) {
+//                    System.out.println("no position details for Branch : " + func.name + " : " + startBB);
+//                } else {
+//                    // Create a new BB and then add it to the beginning and then add the position details withs the checkpointing
+//                    BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
+//                    swapBasicBlockContent(startBB, newBB);
+//                    injectCheckpointCall(startBB,func,pkg,desugaredPos); // position is only added if there is a position
+//                    startBB.terminator.thenBB = newBB;
+//                    i += 1; // Number of inserted BBs
+//                }
+//            } else if (startBB.terminator.kind == InstructionKind.GOTO) {
+//                if (startBB.instructions.size() != 0) {
+//                    desugaredPos = startBB.instructions.get(0).pos;
+//                    BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
+//                    swapBasicBlockContent(startBB, newBB);
+//                    injectCheckpointCall(startBB,func,pkg,desugaredPos);
+//                    startBB.terminator.thenBB = newBB;
+//
+//
+//                    // inject a new BB to get only th terminator
+////                    desugaredPos = newBB.terminator.pos;
+////                    if (desugaredPos != null) {
+////                        BIRBasicBlock terminatorBB = insertBasicBlock(func, i + 2);
+////                        injectCheckpointCall(terminatorBB,func,pkg,desugaredPos);
+////                        GOTO newBBTerminator = (GOTO) newBB.terminator;
+////                        terminatorBB.terminator.thenBB = newBBTerminator.targetBB;
+////                        ((GOTO) newBB.terminator).targetBB = terminatorBB;
+////                        i += 2;
+////
+////                    } else {
+////                        i += 1;
+////                    }
+//
+//
+//                    i += 1;
+//                } else {
+//                    desugaredPos = startBB.terminator.pos;
+//                    if (desugaredPos != null) {
+//                        // Create a new BB and then add it to the beginning and then add the position details withs the checkpointing
+//                        BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
+//                        swapBasicBlockContent(startBB, newBB);
+//                        injectCheckpointCall(startBB,func,pkg,desugaredPos); // position is only added if there is a position
+//                        startBB.terminator.thenBB = newBB;
+//                        i += 1; // Number of inserted BBs
+//                    } else {
+//                        System.out.println("no position details for Goto : " + func.name + " : " + startBB);
+//                    }
+//                }
+//            } else {
+//                if (startBB.instructions.size() == 0) {
+//                    // if no instructions, then get the terminator pos
+//                    desugaredPos = startBB.terminator.pos;
+//                    if (desugaredPos == null) {
+//                        System.out.println("no position details for : " + func.name + " : " + startBB);
+//                    }
+//                } else {
+//                    desugaredPos = startBB.instructions.get(0).pos;
+//                }
+//
+//                if (desugaredPos != null) {
+//                    // Create a new BB and then add it to the beginning and then add the position details withs the checkpointing
+//                    BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
+//                    swapBasicBlockContent(startBB, newBB);
+//                    injectCheckpointCall(startBB,func,pkg,desugaredPos); // position is only added if there is a position
+//                    startBB.terminator.thenBB = newBB;
+//                    i += 1; // Number of inserted BBs
+//                }
+//
+//            }
+
+            i += 1;
+        }
+    }
+
+    private void injectCheckpointCall(BIRBasicBlock startBB, BIRFunction func, BIRPackage pkg, Location desugaredInsPosition) {
+        String pkgId = generatePackageId(pkg);
+
+        String position = generatePositionId(desugaredInsPosition);
+
+        BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
+        BIROperand originalInsPosOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, position);
+
+        JIMethodCall observeStartCallTerminator = new JIMethodCall(null);
+        observeStartCallTerminator.invocationType = INVOKESTATIC;
+        observeStartCallTerminator.jClassName = OBSERVE_UTILS;
+        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V",
+                BAL_ENV, B_STRING_VALUE, B_STRING_VALUE);
+        observeStartCallTerminator.name = RECORD_CHECKPOINT_METHOD;
+        observeStartCallTerminator.args = Arrays.asList(pkgOperand,originalInsPosOperand);
+        startBB.terminator = observeStartCallTerminator;
     }
 
     /**
