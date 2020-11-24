@@ -28,6 +28,7 @@ import java.util.Map;
 /**
  * FS program directory handler for the language server.
  */
+@Deprecated(forRemoval = true)
 public class LangServerFSProgramDirectory extends FileSystemProgramDirectory {
     private static final Map<Path, LangServerFSProgramDirectory> projectDirs = new HashMap<>();
 

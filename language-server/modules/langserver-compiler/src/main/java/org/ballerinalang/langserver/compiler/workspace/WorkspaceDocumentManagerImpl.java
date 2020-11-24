@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
  * An in-memory document manager that keeps dirty files in-memory and will match the collection of files currently open
  * in tool's workspace.
  */
+@Deprecated(forRemoval = true)
 public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     private volatile Map<Path, DocumentPair> documentList = new ConcurrentHashMap<>();
