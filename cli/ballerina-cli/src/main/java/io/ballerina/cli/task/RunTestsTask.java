@@ -89,7 +89,7 @@ public class RunTestsTask implements Task {
     private boolean report;
     private boolean coverage;
     private boolean isSingleTestExecution;
-    private boolean isRerunTestExection;
+    private boolean isRerunTestExecution;
     private List<String> singleExecTests;
     TestReport testReport;
 
@@ -106,11 +106,10 @@ public class RunTestsTask implements Task {
         this.args = Lists.of(args);
         this.isSingleTestExecution = false;
 
-        //TODO: fix --rerun-failed and enable it
-        this.isRerunTestExection = false;
+        this.isRerunTestExecution = rerunTests;
 
         // If rerunTests is true, we get the rerun test list and assign it to 'testList'
-        if (this.isRerunTestExection) {
+        if (this.isRerunTestExecution) {
             testList = new ArrayList<>();
         }
 
@@ -185,19 +184,19 @@ public class RunTestsTask implements Task {
                 }
                 out.println("\t" + "No tests found");
                 continue;
-            } else if (isRerunTestExection && suite.getTests().size() == 0) {
+            } else if (isRerunTestExecution && suite.getTests().isEmpty()) {
                 out.println("\t" + "No failed test/s found in cache");
                 continue;
-            } else if (isSingleTestExecution && suite.getTests().size() == 0) {
+            } else if (isSingleTestExecution && suite.getTests().isEmpty()) {
                 out.println("\t" + "No tests found with the given name/s");
                 continue;
             }
 
-            if (isRerunTestExection) {
+            if (isRerunTestExecution) {
                 singleExecTests = readFailedTestsFromFile(reportDir);
             }
 
-            if (isSingleTestExecution || isRerunTestExection) {
+            if (isSingleTestExecution || isRerunTestExecution) {
                 suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
             }
             suite.setReportRequired(report || coverage);
