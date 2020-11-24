@@ -153,7 +153,7 @@ public class MappingConstructorExpressionNodeContext extends
 
     private Optional<RecordTypeSymbol> getRecordTypeDesc(CompletionContext context,
                                                          MappingConstructorExpressionNode node) {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         NonTerminalNode parent = node.parent();
         if (parent.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             TypeDescriptorNode typeDesc = ((VariableDeclarationNode) parent).typedBindingPattern().typeDescriptor();
@@ -210,7 +210,7 @@ public class MappingConstructorExpressionNodeContext extends
     }
 
     private List<LSCompletionItem> getVariableCompletionsForFields(CompletionContext ctx, List<FieldSymbol> recFields) {
-        List<Symbol> visibleSymbols = ctx.getVisibleSymbols(ctx.getCursorPosition());
+        List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
         Map<String, TypeSymbol> fieldTypeMap = new HashMap<>();
         recFields.forEach(fieldDesc -> fieldTypeMap.put(fieldDesc.name(), fieldDesc.typeDescriptor()));
         List<LSCompletionItem> completionItems = new ArrayList<>();
@@ -275,7 +275,7 @@ public class MappingConstructorExpressionNodeContext extends
     }
 
     private Optional<RecordTypeSymbol> getAnnotationAttachedType(CompletionContext context, AnnotationNode annotNode) {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Node annotRef = annotNode.annotReference();
         List<Symbol> searchableEntries;
         String annotationName;
@@ -308,7 +308,7 @@ public class MappingConstructorExpressionNodeContext extends
     }
 
     private List<LSCompletionItem> getComputedNameCompletions(CompletionContext context) {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
 
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol instanceof VariableSymbol || symbol.kind() == SymbolKind.FUNCTION)

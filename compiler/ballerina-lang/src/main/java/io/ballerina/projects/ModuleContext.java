@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
@@ -41,10 +42,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
  * Maintains the internal state of a {@code Module} instance.
@@ -71,7 +75,7 @@ class ModuleContext {
     private byte[] birBytes = new byte[0];
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
-    private Set<ModuleLoadRequest> moduleLoadRequests;
+    private Set<ModuleLoadRequest> allModuleLoadRequests;
 
     ModuleContext(Project project,
                   ModuleId moduleId,
@@ -154,22 +158,24 @@ class ModuleContext {
         return moduleDescDependencies;
     }
 
-    Set<ModuleLoadRequest> moduleLoadRequests() {
-        if (moduleLoadRequests != null) {
-            return moduleLoadRequests;
-        }
-
-        moduleLoadRequests = new HashSet<>();
+    Set<ModuleLoadRequest> populateModuleLoadRequests() {
+        allModuleLoadRequests = new LinkedHashSet<>();
+        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : srcDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests());
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(PackageDependencyScope.DEFAULT));
         }
 
-        // TODO Skip this if the tests are skipped.
-        if (!testSrcDocIds.isEmpty()) {
-            for (DocumentContext docContext : testDocContextMap.values()) {
-                moduleLoadRequests.addAll(docContext.moduleLoadRequests());
-            }
+        allModuleLoadRequests.addAll(moduleLoadRequests);
+        return moduleLoadRequests;
+    }
+
+    Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
+        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
+        for (DocumentContext docContext : testDocContextMap.values()) {
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(PackageDependencyScope.TEST_ONLY));
         }
+
+        allModuleLoadRequests.addAll(moduleLoadRequests);
         return moduleLoadRequests;
     }
 
@@ -247,10 +253,16 @@ class ModuleContext {
     }
 
     void resolveDependencies(DependencyResolution dependencyResolution) {
-        ModuleCompilationState moduleState = currentCompilationState();
         Set<ModuleDependency> moduleDependencies = new HashSet<>();
-        if (moduleState == ModuleCompilationState.LOADED_FROM_SOURCES) {
-            Set<ModuleLoadRequest> moduleLoadRequests = moduleLoadRequests();
+        if (this.project.kind() == ProjectKind.BALR_PROJECT) {
+            for (ModuleDescriptor dependencyModDesc : moduleDescDependencies) {
+                // Dependencies loaded from cache should not contain test dependencies
+                addModuleDependency(dependencyModDesc.org(), dependencyModDesc.packageName(),
+                        dependencyModDesc.name(), PackageDependencyScope.DEFAULT,
+                        moduleDependencies, dependencyResolution);
+            }
+        } else {
+            Set<ModuleLoadRequest> moduleLoadRequests = this.allModuleLoadRequests;
             for (ModuleLoadRequest modLoadRequest : moduleLoadRequests) {
                 PackageOrg packageOrg;
                 if (modLoadRequest.orgName().isEmpty()) {
@@ -260,12 +272,7 @@ class ModuleContext {
                 }
 
                 addModuleDependency(packageOrg, modLoadRequest.packageName(), modLoadRequest.moduleName(),
-                        moduleDependencies, dependencyResolution);
-            }
-        } else if (moduleState == ModuleCompilationState.LOADED_FROM_CACHE) {
-            for (ModuleDescriptor dependencyModDesc : moduleDescDependencies) {
-                addModuleDependency(dependencyModDesc.org(), dependencyModDesc.packageName(),
-                        dependencyModDesc.name(), moduleDependencies, dependencyResolution);
+                        modLoadRequest.scope(), moduleDependencies, dependencyResolution);
             }
         }
 
@@ -275,6 +282,7 @@ class ModuleContext {
     private void addModuleDependency(PackageOrg org,
                                      PackageName packageName,
                                      ModuleName moduleName,
+                                     PackageDependencyScope scope,
                                      Set<ModuleDependency> moduleDependencies,
                                      DependencyResolution dependencyResolution) {
         Optional<Module> resolvedModuleOptional = dependencyResolution.getModule(org, packageName, moduleName);
@@ -284,7 +292,7 @@ class ModuleContext {
 
         Module resolvedModule = resolvedModuleOptional.get();
         ModuleDependency moduleDependency = new ModuleDependency(
-                new PackageDependency(resolvedModule.packageInstance().packageId()),
+                new PackageDependency(resolvedModule.packageInstance().packageId(), scope),
                 resolvedModule.moduleId());
         moduleDependencies.add(moduleDependency);
     }
@@ -326,9 +334,10 @@ class ModuleContext {
             pkgNode.addCompilationUnit(documentContext.compilationUnit(compilerContext, moduleCompilationId));
         }
 
-        // Parse test source files
-        // TODO use the compilerOption such as --skip-tests to enable or disable tests
-        if (!moduleContext.testSrcDocumentIds().isEmpty()) {
+        // Parse test source files if --skip-tests option is set to false
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+        if (!Boolean.parseBoolean(compilerOptions.get(SKIP_TESTS))
+                && !moduleContext.testSrcDocumentIds().isEmpty()) {
             moduleContext.parseTestSources(pkgNode, moduleCompilationId, compilerContext);
         }
 

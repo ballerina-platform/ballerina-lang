@@ -111,18 +111,8 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertTrue(Files.exists(packageDir.resolve("hello_service.bal")));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
-        Assert.assertTrue(Files.isDirectory(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
-
-        Path moduleTests = packageDir.resolve(ProjectConstants.TEST_DIR_NAME);
-        Assert.assertTrue(Files.exists(moduleTests));
-        Assert.assertTrue(Files.isDirectory(moduleTests));
-        Assert.assertTrue(Files.exists(moduleTests.resolve("hello_service_test.bal")));
-        Assert.assertTrue(Files.exists(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
-        Assert.assertTrue(Files.isDirectory(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("service.bal")));
 
         Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
     }
@@ -151,19 +141,8 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-//        todo: Need to enable this check, when the lib template gets finalised
-//        Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
-        Assert.assertTrue(Files.isDirectory(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
-
-        Path moduleTests = packageDir.resolve(ProjectConstants.TEST_DIR_NAME);
-        Assert.assertTrue(Files.exists(moduleTests));
-        Assert.assertTrue(Files.isDirectory(moduleTests));
-//        Assert.assertTrue(Files.exists(moduleTests.resolve("main_test.bal")));
-        Assert.assertTrue(Files.exists(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
-        Assert.assertTrue(Files.isDirectory(moduleTests.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("myproject.bal")));
 
         Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
     }
@@ -213,14 +192,32 @@ public class InitCommandTest extends BaseCommandTest {
                 "directory."));
     }
 
+    @Test(description = "Test init command inside a directory with invalid package name")
+    public void testInitCommandInsideDirectoryWithInvalidPackageName() throws IOException {
+        // Test if no arguments was passed in
+        Path projectPath = tmpDir.resolve("my-app");
+        Files.createDirectory(projectPath);
+        String[] args = {};
+        InitCommand initCommand = new InitCommand(projectPath, printStream);
+        new CommandLine(initCommand).parseArgs(args);
+        initCommand.execute();
+        Assert.assertTrue(Files.exists(projectPath));
+        Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
+
+        Assert.assertTrue(readOutput().contains("warning: invalid package name. Modified package name :"));
+    }
+
     @Test(description = "Test init command with invalid project name")
     public void testInitCommandWithInvalidProjectName() throws IOException {
         // Test if no arguments was passed in
+        Path projectPath = tmpDir.resolve("sample5");
+        Files.createDirectory(projectPath);
         String[] args = {"hello-app"};
-        InitCommand initCommand = new InitCommand(tmpDir, printStream);
+        InitCommand initCommand = new InitCommand(projectPath, printStream);
         new CommandLine(initCommand).parseArgs(args);
         initCommand.execute();
-        Assert.assertTrue(readOutput().contains("Invalid package name"));
+
+        Assert.assertTrue(readOutput().contains("Invalid package name :"));
     }
 
     @Test(description = "Test init command inside a ballerina project", dependsOnMethods = "testInitCommand")

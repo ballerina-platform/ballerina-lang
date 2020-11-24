@@ -58,7 +58,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             final Scheduler scheduler = new Scheduler(false);
             runInitOnSchedule(moduleName, moduleVersion, scheduler, strandName, metaData);
             runMainOnSchedule(moduleName, moduleVersion, scheduler, strandName, metaData, args);
-            scheduler.immortal = true;
+            scheduler.setImmortal(true);
             new Thread(scheduler::start).start();
             return Optional.empty();
         } catch (RuntimeException e) {
@@ -76,7 +76,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             final Scheduler scheduler = new Scheduler(false);
             runInitOnSchedule(moduleName, moduleVersion, scheduler, strandName, metaData);
             runStartOnSchedule(moduleName, moduleVersion, scheduler, strandName, metaData);
-            scheduler.immortal = true;
+            scheduler.setImmortal(true);
             new Thread(scheduler::start).start();
             return Optional.empty();
         } catch (RuntimeException e) {

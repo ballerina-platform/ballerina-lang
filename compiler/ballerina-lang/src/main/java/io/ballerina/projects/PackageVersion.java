@@ -68,4 +68,8 @@ public class PackageVersion {
     public String toString() {
         return version.toString();
     }
+
+    public SemanticVersion.VersionCompatibilityResult compareTo(PackageVersion other) {
+        return this.version.compareTo(other.version);
+    }
 }

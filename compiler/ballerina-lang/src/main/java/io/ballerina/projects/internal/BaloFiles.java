@@ -26,6 +26,9 @@ import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.balo.DependencyGraphJson;
 import io.ballerina.projects.internal.balo.ModuleDependency;
@@ -179,25 +182,26 @@ public class BaloFiles {
     }
 
     private static void extractPlatformLibraries(FileSystem zipFileSystem, PackageJson packageJson, Path balrPath) {
-        if (packageJson.getPlatformDependencies() != null) {
-            packageJson.getPlatformDependencies().forEach(dependency -> {
-                Path libPath = balrPath.getParent().resolve(dependency.getPath());
-                if (!Files.exists(libPath)) {
-                    try {
-                        Files.createDirectories(libPath.getParent());
-                        Files.copy(zipFileSystem.getPath(dependency.getPath()), libPath);
-                    } catch (IOException e) {
-                        throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
-                    }
-                }
-                dependency.setPath(libPath.toString());
-            });
+        if (packageJson.getPlatformDependencies() == null) {
+            return;
         }
+        packageJson.getPlatformDependencies().forEach(dependency -> {
+            Path libPath = balrPath.getParent().resolve(dependency.getPath());
+            if (!Files.exists(libPath)) {
+                try {
+                    Files.createDirectories(libPath.getParent());
+                    Files.copy(zipFileSystem.getPath(dependency.getPath()), libPath);
+                } catch (IOException e) {
+                    throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
+                }
+            }
+            dependency.setPath(libPath.toString());
+        });
     }
 
     private static PackageManifest getPackageManifest(PackageJson packageJson) {
-        PackageDescriptor pkgDesc = PackageDescriptor.from(packageJson.getName(),
-                packageJson.getOrganization(), packageJson.getVersion());
+        PackageDescriptor pkgDesc = PackageDescriptor.from(PackageOrg.from(packageJson.getOrganization()),
+                PackageName.from(packageJson.getName()), PackageVersion.from(packageJson.getVersion()));
         List<PackageManifest.Dependency> dependencies;
         if (packageJson.getDependencies() != null) {
             dependencies = packageJson.getDependencies();
@@ -237,14 +241,13 @@ public class BaloFiles {
         DependencyGraph.DependencyGraphBuilder<PackageDescriptor> graphBuilder = getBuilder();
 
         for (Dependency dependency : packageDependencyGraph) {
-            PackageDescriptor pkg = PackageDescriptor.from(dependency.getName(),
-                                                           dependency.getOrg(),
-                                                           dependency.getVersion());
+            PackageDescriptor pkg = PackageDescriptor.from(PackageOrg.from(dependency.getOrg()),
+                    PackageName.from(dependency.getName()), PackageVersion.from(dependency.getVersion()));
             Set<PackageDescriptor> dependentPackages = new HashSet<>();
             for (Dependency dependencyPkg : dependency.getDependencies()) {
-                dependentPackages.add(PackageDescriptor.from(dependencyPkg.getName(),
-                        dependencyPkg.getOrg(),
-                        dependencyPkg.getVersion()));
+                dependentPackages.add(PackageDescriptor.from(PackageOrg.from(dependencyPkg.getOrg()),
+                        PackageName.from(dependencyPkg.getName()),
+                        PackageVersion.from(dependencyPkg.getVersion())));
             }
             graphBuilder.addDependencies(pkg, dependentPackages);
         }
@@ -260,8 +263,9 @@ public class BaloFiles {
     }
 
     private static ModuleDescriptor getModuleDescriptorFromDependencyEntry(ModuleDependency modDepEntry) {
-        PackageDescriptor pkgDesc = PackageDescriptor.from(modDepEntry.getPackageName(),
-                modDepEntry.getOrg(), modDepEntry.getVersion());
+        PackageDescriptor pkgDesc = PackageDescriptor.from(PackageOrg.from(modDepEntry.getOrg()),
+                PackageName.from(modDepEntry.getPackageName()),
+                PackageVersion.from(modDepEntry.getVersion()));
         final ModuleName moduleName = ModuleName.from(modDepEntry.getModuleName(), pkgDesc.org());
         return ModuleDescriptor.from(moduleName, pkgDesc);
     }

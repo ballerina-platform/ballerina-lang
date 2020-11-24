@@ -63,13 +63,6 @@ configurations {
     staticFiles
     balx
     unzipped
-    syntaxHighlighter {
-        transitive false
-    }
-
-    htmlTemplateResources {
-        transitive false
-    }
     distributionBalo
 }
 
@@ -170,6 +163,7 @@ dependencies {
     balDoc project(path: ':ballerina-lang:value', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:xml', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:bool', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:runtime', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:query', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:transaction', configuration: 'balDoc')
 
@@ -179,9 +173,6 @@ dependencies {
     // testerina modules
     balDoc project(path: ':testerina:testerina-core', configuration: 'balDoc')
 
-    syntaxHighlighter project(path: ':docerina', configuration: 'syntaxHighlighter')
-    htmlTemplateResources project(path: ':docerina', configuration: 'htmlTemplateResources')
-
     distributionBalo project(path: ':ballerina-observability', configuration: 'distributionBalo')
 
     distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
@@ -189,6 +180,7 @@ dependencies {
     distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:runtime', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')
@@ -269,10 +261,10 @@ def copyStaticSpec = {
     }
 }
 
-def copyTemplatesSpec = {
+def copyDocerinaUi = {
     path -> copySpec {
-        from project(':docerina').file('src/main/resources/template/html')
-        into(path + 'lib/templates')
+        from project(':docerina').file('src/main/resources/doc-ui')
+        into(path + 'lib/tools/doc-ui')
     }
 }
 
@@ -394,23 +386,9 @@ task copyApiDocs(type: Copy) {
     exclude "syntax-highlighter"
 }
 
-task copyHighlighter(type: Copy) {
-    dependsOn configurations.syntaxHighlighter
-    from configurations.syntaxHighlighter
-    into "$buildDir/api-docs/syntax-highlighter"
-}
-
-task copyHtmlTemplateResources(type: Copy) {
-    dependsOn configurations.htmlTemplateResources
-    from configurations.htmlTemplateResources
-    into "$buildDir/api-docs/html-template-resources"
-}
-
 task generateDocs(type: JavaExec) {
     dependsOn pathingJar
     dependsOn copyApiDocs
-    dependsOn copyHighlighter
-    dependsOn copyHtmlTemplateResources
     dependsOn ':docerina-gradle-plugin:build'
     outputs.dir("$buildDir/api-docs")
     outputs.cacheIf { true }
@@ -441,7 +419,7 @@ task createZip(type: Zip) {
     with copyDebugAdapterLauncher(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
-    with copyTemplatesSpec(basePath)
+    with copyDocerinaUi(basePath)
     with copyResourceSpec(basePath)
 //    with copySrcBaloSpec(basePath)
     with copyKraalLib(basePath)
@@ -465,7 +443,7 @@ task updateBalHome(type: Copy) {
     with copyDebugAdapterLauncher(installDir)
     with apiDocsSpec(installDir)
     with copyStaticSpec(installDir)
-    with copyTemplatesSpec(installDir)
+    with copyDocerinaUi(installDir)
     with copyResourceSpec(installDir)
     with copyKraalLib(installDir)
     with copyJaCoCoAgent(installDir)
@@ -491,7 +469,7 @@ task createDistribution(type: Copy) {
     with copyDebugAdapterLauncher("")
     with apiDocsSpec("")
     with copyStaticSpec("")
-    with copyTemplatesSpec("")
+    with copyDocerinaUi("")
     with copyResourceSpec("")
 //    with copySrcBaloSpec("")
     with copyKraalLib("")

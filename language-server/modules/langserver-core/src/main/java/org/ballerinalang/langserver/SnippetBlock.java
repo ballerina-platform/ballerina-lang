@@ -73,7 +73,7 @@ public class SnippetBlock {
     public CompletionItem build(CompletionContext ctx) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setInsertText(this.snippet);
-        List<ImportDeclarationNode> currentDocImports = ctx.getCurrentDocImports();
+        List<ImportDeclarationNode> currentDocImports = ctx.currentDocImports();
         if (imports != null) {
             List<TextEdit> importTextEdits = new ArrayList<>();
             for (Pair<String, String> pair : imports) {

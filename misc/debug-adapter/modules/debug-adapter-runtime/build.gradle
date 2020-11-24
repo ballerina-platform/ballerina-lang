@@ -14,33 +14,16 @@
  * limitations under the License.
  *
  */
-
-apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
-//apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-//apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
-
-configurations.testCompileClasspath {
-    resolutionStrategy {
-        preferProjectModules()
-    }
-}
+apply from: "$rootDir/gradle/ballerinaModuleToPackage.gradle"
+apply from: "$rootDir/gradle/ballerinaNativeStdLibBuild.gradle"
 
 dependencies {
-    baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:java')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
-
-//    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-//    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
 }
-
-//createBalo {
-//    jvmTarget = 'true'
-//    newParser = 'true'
-//}
 
 description = 'Debugger adapter runtime utils implementation'

@@ -1,0 +1,97 @@
+{
+  "position": {
+    "line": 0,
+    "character": 7
+  },
+  "source": "import_decl/source/lsproject/modules/module1/source1.bal",
+  "items": [
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "ballerina/lang.'array;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "B",
+      "insertText": "ballerina/",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "ballerina/lang.'value;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.query",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "ballerina/lang.'query;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/module1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "ballerina/lang.'transaction;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "ballerina/lang.'runtime;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/java",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lsproject",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "lsproject.",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lsproject.module2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "lsproject.module2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lsproject.module3",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "lsproject.module3",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

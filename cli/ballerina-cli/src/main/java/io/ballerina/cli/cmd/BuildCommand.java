@@ -25,17 +25,16 @@ import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -46,13 +45,6 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * This class represents the "ballerina build" command.
@@ -87,6 +79,17 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.skipTests = skipTests;
+        this.testReport = testReport;
+    }
+
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                         boolean skipCopyLibsFromDist, String output) {
         this.projectPath = projectPath;
         this.outStream = outStream;
@@ -107,13 +110,13 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
                                                               "dependencies.")
-    private boolean offline;
+    private Boolean offline;
 
-    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
-    private boolean skipLock;
+//    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
+//    private boolean skipLock;
 
     @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
-    private boolean skipTests;
+    private Boolean skipTests;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -122,34 +125,29 @@ public class BuildCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private boolean experimentalFlag;
+    private Boolean experimentalFlag;
 
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
-    private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
-            "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
+    private static final String buildCmd = "ballerina build [-o <output>] [--offline] [--skip-tests]\n" +
+            "                    [<ballerina-file | ballerina-project>] [(--key=value)...]";
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
-    private boolean testReport;
+    private Boolean testReport;
 
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
-    private boolean coverage;
+    private Boolean coverage;
 
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
             "JAR file(s).")
-    private boolean observabilityIncluded;
+    private Boolean observabilityIncluded;
 
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
-        }
-
-        // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
-        if (!this.skipTests && this.debugPort != null) {
-            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
 
         String[] args;
@@ -174,6 +172,17 @@ public class BuildCommand implements BLauncherCmd {
 
         // load project
         Project project;
+
+        // Skip code coverage for single bal files if option is set
+        if (FileUtils.hasExtension(this.projectPath)) {
+            if (coverage != null && coverage) {
+                this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
+                        "and continuing the test run...");
+            }
+            coverage = false;
+        }
+        BuildOptions buildOptions = constructBuildOptions();
+
         boolean isSingleFileBuild = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             if (this.compile) {
@@ -183,8 +192,8 @@ public class BuildCommand implements BLauncherCmd {
                 return;
             }
             try {
-                project = SingleFileProject.load(this.projectPath);
-            } catch (RuntimeException e) {
+                project = SingleFileProject.load(this.projectPath, buildOptions);
+            } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -202,30 +211,18 @@ public class BuildCommand implements BLauncherCmd {
                 return;
             }
             try {
-                project = BuildProject.load(this.projectPath);
-            } catch (RuntimeException e) {
+                project = BuildProject.load(this.projectPath, buildOptions);
+            } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
         }
 
-        // Skip code coverage for single bal files if option is set
-        if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT) && coverage) {
-            coverage = false;
-            this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
-                    "and continuing the test run...");
+        // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
+        if (!project.buildOptions().skipTests() && this.debugPort != null) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
-
-        CompilerContext compilerContext = project.projectEnvironmentContext().getService(CompilerContext.class);
-        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(OFFLINE, Boolean.toString(this.offline));
-        options.put(LOCK_ENABLED, Boolean.toString(!this.skipLock));
-        options.put(SKIP_TESTS, Boolean.toString(this.skipTests));
-        options.put(TEST_ENABLED, Boolean.toString(!this.skipTests));
-        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
-        options.put(PRESERVE_WHITESPACE, "true");
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
@@ -237,11 +234,10 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
 //                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
-                .addTask(new RunTestsTask(outStream, errStream, args, testReport, coverage),
-                        this.skipTests || isSingleFileBuild)
+                .addTask(new RunTestsTask(outStream, errStream, args),
+                        project.buildOptions().skipTests() || isSingleFileBuild)
                     // run tests (projects only)
                 .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
-//                .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();
 
@@ -249,6 +245,17 @@ public class BuildCommand implements BLauncherCmd {
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private BuildOptions constructBuildOptions() {
+        return new BuildOptionsBuilder()
+                .codeCoverage(coverage)
+                .experimental(experimentalFlag)
+                .offline(offline)
+                .skipTests(skipTests)
+                .testReport(testReport)
+                .observabilityIncluded(observabilityIncluded)
+                .build();
     }
 
     @Override

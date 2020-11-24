@@ -21,26 +21,25 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.datamapper.config.LSClientExtendedConfig;
 import org.ballerinalang.datamapper.utils.HttpClientRequest;
 import org.ballerinalang.datamapper.utils.HttpResponse;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,17 +68,14 @@ class AIDataMapperCodeActionUtil {
     /**
      * Returns the workspace edits for the automatic data mapping code action.
      *
-     * @param context     {@link LSContext}
-     * @param refAtCursor {@link SymbolReferencesModel.Reference}
-     * @param diagnostic  {@link Diagnostic}
+     * @param context    {@link LSContext}
+     * @param diagnostic {@link Diagnostic}
      * @return edits for the data mapper code action
-     * @throws IOException                throws if error occurred when getting generatedRecordMappingFunction
-     * @throws WorkspaceDocumentException throws if error occurred when reading file content
+     * @throws IOException throws if error occurred when getting generatedRecordMappingFunction
      */
     static List<TextEdit> getAIDataMapperCodeActionEdits(CodeActionContext context,
-                                                         SymbolReferencesModel.Reference refAtCursor,
                                                          Diagnostic diagnostic)
-            throws IOException, WorkspaceDocumentException {
+            throws IOException {
         List<TextEdit> fEdits = new ArrayList<>();
         String diagnosticMessage = diagnostic.getMessage();
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
@@ -87,24 +83,19 @@ class AIDataMapperCodeActionUtil {
         if (!(matcher.find() && matcher.groupCount() > 1)) {
             return fEdits;
         }
-        String foundTypeLeft = matcher.group(1)
-                .replaceAll(refAtCursor.getSymbol().type.tsymbol.pkgID.toString() + ":",
-                        "");  // variable at left side of the equal sign
-        String foundTypeRight = matcher.group(2)
-                .replaceAll(refAtCursor.getSymbol().type.tsymbol.pkgID.toString() + ":",
-                        "");  // variable at right side of the equal sign
+
+        String foundTypeLeft = matcher.group(1);
+        String foundTypeRight = matcher.group(2);
 
         // Insert function call in the code where error is found
-        BLangNode bLangNode = refAtCursor.getbLangNode();
-        Position startPos = new Position(bLangNode.pos.lineRange().startLine().line() - 1,
-                bLangNode.pos.lineRange().startLine().offset() - 1);
-        Position endPosWithSemiColon = new Position(bLangNode.pos.lineRange().endLine().line() - 1,
-                bLangNode.pos.lineRange().endLine().offset());
-        Range newTextRange = new Range(startPos, endPosWithSemiColon);
+        Range newTextRange = diagnostic.getRange();
 
-        BSymbol symbolAtCursor = refAtCursor.getSymbol();
+        String symbolAtCursor = context.workspace().semanticModel(context.filePath()).get().
+                symbol(context.filePath().getFileName().toString(), LinePosition.from(context.cursorPosition().
+                        getLine(), context.cursorPosition().getCharacter())).get().name();
+
         String generatedFunctionName =
-                String.format("map%sTo%s(%s);", foundTypeRight, foundTypeLeft, symbolAtCursor.name.value);
+                String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursor);
         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
 
         // Insert function declaration at the bottom of the file
@@ -116,7 +107,8 @@ class AIDataMapperCodeActionUtil {
             Position endPosOfLastLine = new Position(numberOfLinesInFile + 2, 1);
             Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
             String generatedRecordMappingFunction =
-                    getGeneratedRecordMappingFunction(bLangNode, symbolAtCursor, foundTypeLeft, foundTypeRight);
+                    getGeneratedRecordMappingFunction(context.positionDetails(), context, foundTypeLeft,
+                            foundTypeRight);
             fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
         }
         return fEdits;
@@ -125,41 +117,43 @@ class AIDataMapperCodeActionUtil {
     /**
      * Given two record types, this returns a function with mapped schemas.
      *
-     * @param bLangNode      {@link BLangNode}
-     * @param symbolAtCursor {@link BSymbol}
-     * @param foundTypeLeft  {@link String}
-     * @param foundTypeRight {@link String}
+     * @param context         {@link LSContext}
+     * @param positionDetails {@link PositionDetails}
+     * @param foundTypeLeft   {@link String}
+     * @param foundTypeRight  {@link String}
      * @return function string with mapped schemas
      * @throws IOException throws if error occurred when getting mapped function
      */
-    private static String getGeneratedRecordMappingFunction(BLangNode bLangNode, BSymbol symbolAtCursor,
+    private static String getGeneratedRecordMappingFunction(PositionDetails positionDetails,
+                                                            CodeActionContext context,
                                                             String foundTypeLeft, String foundTypeRight)
             throws IOException {
         JsonObject rightRecordJSON = new JsonObject();
         JsonObject leftRecordJSON = new JsonObject();
 
+
         // Schema 1
-        BType variableTypeMappingFrom = symbolAtCursor.type;
-        if (variableTypeMappingFrom instanceof BRecordType) {
-            List<BField> rightSchemaFields = new ArrayList<>(((BRecordType) variableTypeMappingFrom).fields.values());
-            JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
+        List<FieldSymbol> rightSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(context.workspace().
+                semanticModel(context.filePath()).get().symbol(context.filePath().getFileName().toString(),
+                LinePosition.from(context.cursorPosition().getLine(), context.cursorPosition().getCharacter())).
+                get()).fieldDescriptors();
 
-            rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
-            rightRecordJSON.addProperty(ID, "dummy_id");
-            rightRecordJSON.addProperty(TYPE, "object");
-            rightRecordJSON.add(PROPERTIES, rightSchema);
-        }
+        JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
+
+        rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
+        rightRecordJSON.addProperty(ID, "dummy_id");
+        rightRecordJSON.addProperty(TYPE, "object");
+        rightRecordJSON.add(PROPERTIES, rightSchema);
+
         // Schema 2
-        BType variableTypeMappingTo = ((BLangSimpleVarRef) bLangNode).expectedType;
-        if (variableTypeMappingTo instanceof BRecordType) {
-            List<BField> leftSchemaFields = new ArrayList<>(((BRecordType) variableTypeMappingTo).fields.values());
-            JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields);
+        List<FieldSymbol> leftSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(positionDetails.matchedSymbol()).
+                fieldDescriptors();
+        JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields);
 
-            leftRecordJSON.addProperty(SCHEMA, foundTypeLeft);
-            leftRecordJSON.addProperty(ID, "dummy_id");
-            leftRecordJSON.addProperty(TYPE, "object");
-            leftRecordJSON.add(PROPERTIES, leftSchema);
-        }
+        leftRecordJSON.addProperty(SCHEMA, foundTypeLeft);
+        leftRecordJSON.addProperty(ID, "dummy_id");
+        leftRecordJSON.addProperty(TYPE, "object");
+        leftRecordJSON.add(PROPERTIES, leftSchema);
 
         JsonArray schemas = new JsonArray();
         schemas.add(leftRecordJSON);
@@ -188,28 +182,20 @@ class AIDataMapperCodeActionUtil {
         }
     }
 
-    private static JsonElement recordToJSON(List<BField> schemaFields) {
+    private static JsonElement recordToJSON(List<FieldSymbol> schemaFields) {
         JsonObject properties = new JsonObject();
-        for (BField attribute : schemaFields) {
+        for (FieldSymbol attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
             fieldDetails.addProperty(ID, "dummy_id");
-            if (attribute.type instanceof BArrayType) {
-                BType attributeEType = ((BArrayType) attribute.type).eType;
-                if (attributeEType instanceof BRecordType) {
-                    fieldDetails.addProperty(TYPE, "ballerina_type");
-                    fieldDetails.add(PROPERTIES,
-                            recordToJSON(new ArrayList<>(((BRecordType) attributeEType).fields.values())));
-                } else {
-                    fieldDetails.addProperty(TYPE, String.valueOf(attribute.type));
-                }
-            } else if (attribute.type instanceof BRecordType) {
+            TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
+            if (attributeType.typeKind() == TypeDescKind.RECORD) {
+                List<FieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
                 fieldDetails.addProperty(TYPE, "ballerina_type");
-                fieldDetails.add(PROPERTIES,
-                        recordToJSON(new ArrayList<>(((BRecordType) attribute.type).fields.values())));
+                fieldDetails.add(PROPERTIES, recordToJSON(recordFields));
             } else {
-                fieldDetails.addProperty(TYPE, String.valueOf(attribute.type));
+                fieldDetails.addProperty(TYPE, attributeType.typeKind().toString());
             }
-            properties.add(String.valueOf(attribute.name), fieldDetails);
+            properties.add(attribute.name(), fieldDetails);
         }
         return properties;
     }

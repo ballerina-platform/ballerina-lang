@@ -28,6 +28,7 @@ import java.util.Map;
 /**
  * Lang Server File System Project Directory.
  */
+@Deprecated(forRemoval = true)
 public class LangServerFSProjectDirectory extends FileSystemProjectDirectory {
     private static final Map<Path, LangServerFSProjectDirectory> projectDirs = new HashMap<>();
     private Path projectDirPath;

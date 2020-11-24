@@ -32,6 +32,7 @@ import java.util.Collections;
  */
 public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
+    public final STNode qualifiers;
     public final STNode serviceKeyword;
     public final STNode serviceName;
     public final STNode onKeyword;
@@ -40,6 +41,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
 
     STServiceDeclarationNode(
             STNode metadata,
+            STNode qualifiers,
             STNode serviceKeyword,
             STNode serviceName,
             STNode onKeyword,
@@ -47,6 +49,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             STNode serviceBody) {
         this(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 serviceName,
                 onKeyword,
@@ -57,6 +60,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
 
     STServiceDeclarationNode(
             STNode metadata,
+            STNode qualifiers,
             STNode serviceKeyword,
             STNode serviceName,
             STNode onKeyword,
@@ -65,6 +69,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.SERVICE_DECLARATION, diagnostics);
         this.metadata = metadata;
+        this.qualifiers = qualifiers;
         this.serviceKeyword = serviceKeyword;
         this.serviceName = serviceName;
         this.onKeyword = onKeyword;
@@ -73,6 +78,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
 
         addChildren(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 serviceName,
                 onKeyword,
@@ -83,6 +89,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STServiceDeclarationNode(
                 this.metadata,
+                this.qualifiers,
                 this.serviceKeyword,
                 this.serviceName,
                 this.onKeyword,
@@ -93,6 +100,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
 
     public STServiceDeclarationNode modify(
             STNode metadata,
+            STNode qualifiers,
             STNode serviceKeyword,
             STNode serviceName,
             STNode onKeyword,
@@ -100,6 +108,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             STNode serviceBody) {
         if (checkForReferenceEquality(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 serviceName,
                 onKeyword,
@@ -110,6 +119,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
 
         return new STServiceDeclarationNode(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 serviceName,
                 onKeyword,

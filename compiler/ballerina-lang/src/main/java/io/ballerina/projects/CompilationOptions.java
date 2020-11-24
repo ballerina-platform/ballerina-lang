@@ -17,26 +17,40 @@
  */
 package io.ballerina.projects;
 
+import java.util.Objects;
+
 /**
  * The class {@code CompilationOptions} holds various Ballerina compilation options.
  *
  * @since 2.0.0
  */
-public class CompilationOptions {
-    private final boolean skipTests;
-    private final boolean offlineBuild;
+class CompilationOptions {
+    private Boolean skipTests;
+    private Boolean offlineBuild;
+    private Boolean experimental;
+    private Boolean observabilityIncluded;
 
-    CompilationOptions(boolean skipTests, boolean offlineBuild) {
+    CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental, Boolean observabilityIncluded) {
         this.skipTests = skipTests;
         this.offlineBuild = offlineBuild;
+        this.experimental = experimental;
+        this.observabilityIncluded = observabilityIncluded;
     }
 
-    public boolean skipTests() {
-        return skipTests;
+    boolean skipTests() {
+        return toBooleanDefaultIfNull(skipTests);
     }
 
-    public boolean offlineBuild() {
-        return offlineBuild;
+    boolean offlineBuild() {
+        return toBooleanDefaultIfNull(offlineBuild);
+    }
+
+    boolean experimental() {
+        return toBooleanDefaultIfNull(experimental);
+    }
+
+    boolean observabilityIncluded() {
+        return toBooleanDefaultIfNull(observabilityIncluded);
     }
 
     /**
@@ -45,7 +59,24 @@ public class CompilationOptions {
      * @param theirOptions Compilation options to be merged
      * @return a new {@code CompilationOptions} instance that contains our options and their options
      */
-    public CompilationOptions mergeWithTheirs(CompilationOptions theirOptions) {
-        return null;
+    CompilationOptions acceptTheirs(CompilationOptions theirOptions) {
+
+        this.skipTests = Objects.requireNonNullElseGet(
+                theirOptions.skipTests, () -> toBooleanDefaultIfNull(this.skipTests));
+        this.offlineBuild = Objects.requireNonNullElseGet(
+                theirOptions.offlineBuild, () -> toBooleanDefaultIfNull(this.offlineBuild));
+        this.experimental = Objects.requireNonNullElseGet(
+                theirOptions.experimental, () -> toBooleanDefaultIfNull(this.experimental));
+        this.observabilityIncluded = Objects.requireNonNullElseGet(
+                theirOptions.observabilityIncluded, () -> toBooleanDefaultIfNull(this.observabilityIncluded));
+
+        return this;
+    }
+
+    private boolean toBooleanDefaultIfNull(Boolean bool) {
+        if (bool == null) {
+            return false;
+        }
+        return bool;
     }
 }

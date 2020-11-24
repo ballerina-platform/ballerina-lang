@@ -28,11 +28,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
-      - name: Use Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '8.x'
 
       - name: Initialize sub-modules
         run: git submodule update --init
@@ -41,11 +36,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-
-      - name: Down grade npm version
-        run: |
-          npm install -g npm@'5.6.0'
-          npm version
 
       - name: Cache Gradle packages
         uses: actions/cache@v1
@@ -69,11 +59,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Use Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '8.x'
-
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
@@ -90,5 +75,5 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build with Gradle
-        run: ./gradlew.bat build --continue -x :ballerina-packerina:test -x :ballerina-lang:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :jballerina-debugger-integration-test:test  -x :ballerina-cli:test -x :observability-test-utils:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
+        run: ./gradlew.bat build --continue -x :ballerina-packerina:test -x :ballerina-lang:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :jballerina-debugger-integration-test:test  -x :ballerina-cli:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
 

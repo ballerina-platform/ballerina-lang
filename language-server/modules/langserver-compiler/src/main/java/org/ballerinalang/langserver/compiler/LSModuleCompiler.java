@@ -49,6 +49,7 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompil
 /**
  * Language server compiler implementation for Ballerina.
  */
+@Deprecated(forRemoval = true)
 public class LSModuleCompiler {
     protected LSModuleCompiler() {
     }

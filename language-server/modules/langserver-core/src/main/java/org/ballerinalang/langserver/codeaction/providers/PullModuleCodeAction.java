@@ -19,7 +19,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -42,8 +41,13 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
     private static final String UNRESOLVED_MODULE = "cannot resolve module";
 
     @Override
+    public boolean isEnabled() {
+        //TODO: disabled since offline is yet to be supported through project api
+        return false;
+    }
+
+    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.getMessage().startsWith(UNRESOLVED_MODULE))) {
             return Collections.emptyList();
@@ -75,7 +79,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
     }
 
     private static String getVersion(CodeActionContext context, String pkgName, Matcher matcher) {
-        // TODO: Fix
+        // TODO: Fix when version info is available through project api
 //        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
 //        String version = matcher.groupCount() > 1 && matcher.group(2) != null ? ":" + matcher.group(2) : "";
 //        int aliasIndex = version.indexOf(" as ");

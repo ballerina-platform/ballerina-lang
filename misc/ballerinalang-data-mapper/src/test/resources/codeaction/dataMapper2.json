@@ -11,10 +11,10 @@
         },
         "end":{
           "line":57,
-          "character":37
+          "character":36
         }
       },
-        "newText": "mapApplicantToAddress(appl_1);"
+        "newText": "mapApplicantToAddress(appl_1)"
       },
       {"range":{
         "start":{
@@ -26,7 +26,7 @@
           "character":1
         }
       },
-        "newText":"\nfunction mapStudentToGrades (Student student) returns Grades {\n// Some record fields might be missing in the AI based mapping.\n\tGrades grades \u003d {maths: student.grades.maths, chemistry: student.grades.chemistry, physics: student.grades.physics};\n\treturn grades;\n}"
+        "newText":"\nfunction mapApplicantToAddress (Applicant applicant) returns Address {\n// Some record fields might be missing in the AI based mapping.\n\tAddress address \u003d {city: applicant.applying_student.city, country: applicant.country};\n\treturn address;\n}"
       }
     ]
   }

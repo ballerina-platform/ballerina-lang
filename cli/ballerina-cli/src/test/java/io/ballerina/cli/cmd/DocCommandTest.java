@@ -60,9 +60,9 @@ public class DocCommandTest extends BaseCommandTest {
         docCommand.execute();
 
         Assert.assertTrue(Files.exists(this.testResources.resolve("doc_project").resolve("target")
-                .resolve("apidocs").resolve("index.html")));
+                .resolve("apidocs").resolve("winery").resolve("index.html")));
 
         Files.delete(this.testResources.resolve("doc_project").resolve("target")
-                .resolve("apidocs").resolve("index.html"));
+                .resolve("apidocs").resolve("winery").resolve("index.html"));
     }
 }

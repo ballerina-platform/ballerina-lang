@@ -65,7 +65,7 @@ isolated class IsolatedClassOverridingMutableFieldsInIncludedIsolatedObject {
 }
 
 function testIsolatedObjectOverridingMutableFieldsInIncludedIsolatedObject() {
-    isolated object {} isolatedObjectOverridingMutableFieldsInIncludedIsolatedObject = object IsolatedObjectType {
+    isolated object {} isolatedObjectOverridingMutableFieldsInIncludedIsolatedObject = isolated object IsolatedObjectType {
 
         final int a = 100;
         private string[] b = [];
@@ -208,7 +208,7 @@ isolated object {} isolatedObjectWithMethodsAccessingPrivateMutableFieldsWithinL
 };
 
 isolated class IsolatedClassWithNonPrivateIsolatedObjectFields {
-    final isolated object {} a = object {
+    final isolated object {} a = isolated object {
         final int i = 1;
         private map<int> j = {};
     };
@@ -226,7 +226,7 @@ isolated class IsolatedClassWithNonPrivateIsolatedObjectFields {
 }
 
 isolated object {} isolatedObjectWithNonPrivateIsolatedObjectFields = object {
-    final isolated object { function foo() returns int; } a = object {
+    final isolated object { function foo() returns int; } a = isolated object {
         final int i = 1;
         private map<int> j = {};
 
@@ -342,6 +342,23 @@ isolated function outerAdd(anydata val) {
 
 }
 
+isolated class ArrayGen {
+    isolated function getArray() returns int[] => [];
+}
+
+ArrayGen|(int[] & readonly) unionVal = [1, 2, 3];
+
+isolated class IsolatedClassAccessingSubTypeOfReadOnlyOrIsolatedObjectUnion {
+    private int[] a;
+
+    function testAccessingSubTypeOfReadOnlyOrIsolatedObjectUnionInIsolatedClass() {
+        lock {
+            var val = unionVal;
+            self.a = val is ArrayGen ? val.getArray() : val;
+        }
+    }
+}
+
 int[] a = [];
 readonly & int[] b = [];
 final readonly & int[] c = [];
@@ -379,4 +396,94 @@ isolated class IsolatedClassWithValidVarRefs {
             self.w = let int[] u = c in [u, let int[] v = c.clone() in isolated function () returns int[2][] { return [c, []]; }];
         }
     }
+}
+
+function testObjectConstrExprImplicitIsolatedness() {
+    var ob = object {
+        final int[] & readonly x = [];
+        final IsolatedObjectType y = object {
+            final int a = 1;
+            final readonly & string[] b = [];
+        };
+        final (readonly & string[])|IsolatedClassWithPrivateMutableFields z = new IsolatedClassWithPrivateMutableFields({i: 2}, 3);
+    };
+
+    isolated object {} isolatedOb = ob;
+    assertTrue(<any> isolatedOb is isolated object {});
+
+    var ob2 = object {
+        final int[] x = [];
+        final object {} y = object {
+            final int a = 1;
+            final string[] b = [];
+        };
+        final IsolatedClassWithPrivateMutableFields z = new ({i: 2}, 3);
+    };
+
+    assertFalse(<any> ob2 is isolated object {});
+
+    var ob3 = object {
+        final int[] & readonly x = [];
+        final IsolatedObjectType y = object {
+            final int a = 1;
+            final readonly & string[] b = [];
+        };
+        final string[]|IsolatedClassWithPrivateMutableFields z = new IsolatedClassWithPrivateMutableFields({i: 2}, 3);
+    };
+
+    assertFalse(<any> ob3 is isolated object {});
+}
+
+class NonIsolatedClass {
+    int i = 1;
+}
+
+function testRuntimeIsolatedFlag() {
+    IsolatedClassWithPrivateMutableFields x = new ({i: 2}, 3);
+    assertTrue(<any> x is isolated object {});
+
+    NonIsolatedClass y = new;
+    assertFalse(<any> y is isolated object {});
+
+    testObjectConstrExprImplicitIsolatedness();
+
+    object {} ob1 = isolated object {
+        private int i = 1;
+
+        function updateI() {
+            lock {
+                self.i = 2;
+            }
+        }
+    };
+    assertTrue(<any> ob1 is isolated object {});
+
+    object {} ob2 = object {
+        private int i = 1;
+
+        function updateI() {
+            self.i = 2;
+        }
+    };
+    assertFalse(<any> ob2 is isolated object {});
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+function assertFalse(any|error actual) {
+    assertEquality(false, actual);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

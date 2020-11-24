@@ -28,6 +28,7 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 
@@ -50,14 +51,29 @@ public class ErrorUtils {
      * @return ballerina error
      */
     public static ErrorValue createInteropError(Throwable e) {
-        BMap<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
-        if (e.getMessage() != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, StringUtils.fromString(e.getMessage()));
+        MappingInitialValueEntry[] initialValues;
+        String message = e.getMessage();
+        Throwable cause = e.getCause();
+        if (message != null && cause != null) {
+            initialValues = new MappingInitialValueEntry[2];
+            initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD,
+                                                                            StringUtils.fromString(message));
+            initialValues[1] = new MappingInitialValueEntry.KeyValueEntry(ERROR_CAUSE_FIELD, createError(StringUtils.
+                    fromString(cause.getClass().getName()), StringUtils.fromString(cause.getMessage())));
+
+        } else if (message != null || cause != null) {
+            initialValues = new MappingInitialValueEntry[1];
+            if (message != null) {
+                initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD,
+                        StringUtils.fromString(message));
+            } else {
+                initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_CAUSE_FIELD, createError(StringUtils
+                                  .fromString(cause.getClass().getName()), StringUtils.fromString(cause.getMessage())));
+            }
+        } else {
+            initialValues = new MappingInitialValueEntry[0];
         }
-        if (e.getCause() != null) {
-            detailMap.put(ERROR_CAUSE_FIELD, createError(StringUtils.fromString(e.getCause().getClass().getName()),
-                                                         StringUtils.fromString(e.getCause().getMessage())));
-        }
+        BMap<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
 
         return (ErrorValue) createError(StringUtils.fromString(e.getClass().getName()), detailMap);
     }

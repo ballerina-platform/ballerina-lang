@@ -201,8 +201,8 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parse(projectPath.toString());
         try {
             buildCommand.execute();
-        } catch (RuntimeException e) {
-            Assert.assertTrue(e.getMessage().contains("no entrypoint found in package"));
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("no entrypoint found in package"));
         }
     }
 
@@ -220,7 +220,7 @@ public class BuildCommandTest extends BaseCommandTest {
             Assert.assertEquals(buildLog.replaceAll("\r", ""),
                     "\nCompiling source\n" +
                             "\thello_world.bal\n" +
-                            "ERROR [hello_world.bal:(2:0,2:0)] invalid token ';'\n");
+                            "ERROR [hello_world.bal:(3:1,3:1)] invalid token ';'\n");
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("compilation contains errors"));
         }
     }
@@ -374,6 +374,124 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.storage.bir").toFile().exists());
+    }
+
+    @Test(description = "Build a valid ballerina project with build options in toml")
+    public void testBuildProjectWithDefaultBuildOptions() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, null, null);
+        // non existing bal file
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
+                "\tfoo/winery:0.1.0\n" +
+                "\n" +
+                "Creating balos\n" +
+                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
+                "\n" +
+                "Generating executable\n" +
+                "\ttarget/bin/winery.jar\n");
+
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("balo").resolve("foo-winery-any-0.1.0.balo").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery.jar").toFile().exists());
+        Assert.assertFalse(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery-testable.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("bir")
+                .resolve("winery.bir").toFile().exists());
+    }
+
+    @Test(description = "Build a valid ballerina project with build options in toml")
+    public void testBuildProjectOverrideBuildOptions() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false, true);
+        // non existing bal file
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
+                "\tfoo/winery:0.1.0\n" +
+                "\n" +
+                "Creating balos\n" +
+                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
+                "\n" +
+                "Running Tests\n" +
+                "\twinery\n" +
+                "\n" +
+                "Generating Test Report\n" +
+                "\t" + projectPath.resolve("target").resolve("test_results.json").toString() + "\n" +
+                "\n" +
+                "warning: Could not find the required HTML report tools for code coverage at " +
+                "<ballerina.home>/lib/tools/coverage/report.zip\n" +
+                "\n" +
+                "Generating executable\n" +
+                "\ttarget/bin/winery.jar\n");
+
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("balo").resolve("foo-winery-any-0.1.0.balo").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery-testable.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("bir")
+                .resolve("winery.bir").toFile().exists());
+
+        Assert.assertTrue(projectPath.resolve("target").resolve("test_results.json").toFile().exists());
+    }
+
+    @Test(description = "Build a valid ballerina project with build options in toml")
+    public void testSingleFileWithBuildOptions() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithBuildOptions");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false, true);
+        // non existing bal file
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
+                "\tfoo/winery:0.1.0\n" +
+                "\n" +
+                "Creating balos\n" +
+                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
+                "\n" +
+                "Running Tests\n" +
+                "\twinery\n" +
+                "\n" +
+                "Generating Test Report\n" +
+                "\t" + projectPath.resolve("target").resolve("test_results.json").toString() + "\n" +
+                "\n" +
+                "warning: Could not find the required HTML report tools for code coverage at " +
+                "<ballerina.home>/lib/tools/coverage/report.zip\n" +
+                "\n" +
+                "Generating executable\n" +
+                "\ttarget/bin/winery.jar\n");
+
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("balo").resolve("foo-winery-any-0.1.0.balo").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery-testable.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("bir")
+                .resolve("winery.bir").toFile().exists());
+
+        Assert.assertTrue(projectPath.resolve("target").resolve("test_results.json").toFile().exists());
     }
 
     static class Copy extends SimpleFileVisitor<Path> {
