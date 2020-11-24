@@ -60,6 +60,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
 /**
  * Language server compiler implementation for Ballerina.
  */
+@Deprecated(forRemoval = true)
 public class LSCompilerUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(LSCompilerUtil.class);
