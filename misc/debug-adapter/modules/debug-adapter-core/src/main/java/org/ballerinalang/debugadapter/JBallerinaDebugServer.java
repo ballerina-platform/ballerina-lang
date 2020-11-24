@@ -684,6 +684,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private void loadProjectInfo(Map<String, Object> clientArgs) {
         String entryFilePath = clientArgs.get("script").toString();
         project = ProjectLoader.loadProject(Paths.get(entryFilePath));
+        context.setSourceProject(project);
         if (project instanceof BuildProject) {
             projectRoot = project.sourceRoot().toAbsolutePath().toString();
         } else {
