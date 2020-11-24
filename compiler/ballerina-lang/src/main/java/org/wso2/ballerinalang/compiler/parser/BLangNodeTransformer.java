@@ -589,24 +589,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             variable = createSimpleVariable(bindingPatternPos, variableName, variable.pos);
         }
 
-        boolean isFinal = false;
-        boolean isConfigurable = false;
-        boolean isolated = false;
-        // TODO handle this inside createSimpleVar
-        for (Token qualifier : modVarDeclrNode.qualifiers()) {
-            SyntaxKind kind = qualifier.kind();
-
-            if (kind == SyntaxKind.FINAL_KEYWORD) {
-                isFinal = true;
-            } else if (qualifier.kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
-                isConfigurable = true;
-            } else if (kind == SyntaxKind.ISOLATED_KEYWORD) {
-                isolated = true;
-            }
-        }
-
-        initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer, isFinal, isolated,
-                isConfigurable);
+        initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer,
+                modVarDeclrNode.qualifiers());
 
         NodeList<AnnotationNode> annotations = getAnnotations(modVarDeclrNode.metadata());
         if (annotations != null) {
@@ -2706,6 +2690,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                 Optional<Token> finalKeyword) {
         BindingPatternNode bindingPattern = typedBindingPattern.bindingPattern();
         BLangVariable variable = getBLangVariableNode(bindingPattern);
+        List<Token> qualifiers = new ArrayList<>();
+
+        if (finalKeyword.isPresent()) {
+            qualifiers.add(finalKeyword.get());
+        }
+        NodeList<Token> qualifierList =  NodeFactory.createNodeList(qualifiers);
+
         switch (bindingPattern.kind()) {
             case CAPTURE_BINDING_PATTERN:
             case WILDCARD_BINDING_PATTERN:
@@ -2728,15 +2719,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 return bLVarDef;
             case MAPPING_BINDING_PATTERN:
                 initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer,
-                        finalKeyword.isPresent());
+                        qualifierList);
                 return createRecordVariableDef(variable);
             case LIST_BINDING_PATTERN:
                 initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer,
-                        finalKeyword.isPresent());
+                        qualifierList);
                 return createTupleVariableDef(variable);
             case ERROR_BINDING_PATTERN:
                 initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer,
-                        finalKeyword.isPresent());
+                        qualifierList);
                 return createErrorVariableDef(variable);
             default:
                 throw new RuntimeException(
@@ -2746,26 +2737,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private void initializeBLangVariable(BLangVariable var, TypeDescriptorNode type,
                                          Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer,
-                                         boolean isFinal) {
-        initializeBLangVariable(var, type, initializer, isFinal, false, false);
-    }
-    private void initializeBLangVariable(BLangVariable var, TypeDescriptorNode type,
-                                         Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer,
-                                         boolean isFinal, boolean isIsolated, boolean isConfigurable) {
-        if (isFinal) {
-            markVariableAsFinal(var);
-        }
+                                         NodeList<Token> qualifiers) {
 
-        if (isIsolated) {
-            var.flagSet.add(Flag.ISOLATED);
-        }
-
-        if (isConfigurable) {
-            var.flagSet.add(Flag.CONFIGURABLE);
-            // Initializer is always present for configurable, hence get directly
-            if (initializer.get().kind() == SyntaxKind.REQUIRED_EXPRESSION) {
-                var.flagSet.add(Flag.REQUIRED);
-                initializer = Optional.empty();
+        for (Token qualifier : qualifiers) {
+            SyntaxKind kind = qualifier.kind();
+            if (kind == SyntaxKind.FINAL_KEYWORD) {
+                markVariableAsFinal(var);
+            } else if (qualifier.kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
+                var.flagSet.add(Flag.CONFIGURABLE);
+                // Initializer is always present for configurable, hence get directly
+                if (initializer.get().kind() == SyntaxKind.REQUIRED_EXPRESSION) {
+                    var.flagSet.add(Flag.REQUIRED);
+                    initializer = Optional.empty();
+                }
+            } else if (kind == SyntaxKind.ISOLATED_KEYWORD) {
+                var.flagSet.add(Flag.ISOLATED);
             }
         }
 
