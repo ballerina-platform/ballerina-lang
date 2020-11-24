@@ -124,6 +124,21 @@ public class ObserveUtils {
         env.setStrandLocal(ObservabilityConstants.SERVICE_NAME, service);
     }
 
+    public static void recordCheckpoint(Environment env, BString pkg, BString position){
+
+        if (!tracingEnabled) {
+            return;
+        }
+        System.out.println("checkpointing in : " + pkg + " " + position);
+
+        Supplier<String> logPosition = position::getValue;
+
+        logMessageToActiveSpan("Position: " ,logPosition, false);
+
+
+
+    }
+
     /**
      * Stop observation of an observer context.
      */
