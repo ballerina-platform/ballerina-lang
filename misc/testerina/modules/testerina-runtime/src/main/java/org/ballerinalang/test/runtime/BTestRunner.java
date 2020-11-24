@@ -572,7 +572,7 @@ public class BTestRunner {
             testStart.invoke();
         }
         // Once the start function finish we will re start the scheduler with immortal true
-        initScheduler.immortal = true;
+        initScheduler.setImmortal(true);
         Thread immortalThread = new Thread(initScheduler::start, "module-start");
         immortalThread.setDaemon(true);
         immortalThread.start();
@@ -589,7 +589,7 @@ public class BTestRunner {
             testStop.invoke();
         }
         stop.setName("$moduleStop");
-        stop.directInvoke(new Class<?>[]{});
+        stop.directInvoke(new Class<?>[]{Scheduler.ListenerRegistry.class});
     }
 
     private Object invokeTestFunction(TestSuite suite, String functionName, ClassLoader classLoader,
