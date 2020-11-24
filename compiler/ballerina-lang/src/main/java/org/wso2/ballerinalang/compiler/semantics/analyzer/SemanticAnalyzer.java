@@ -775,6 +775,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE);
         }
 
+        if (isIsolated(varNode)) {
+            dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_ISOLATED);
+        }
+
         if (varNode.isDeclaredWithVar) {
             handleDeclaredWithVar(varNode);
             return;
@@ -805,6 +809,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Only simple variables are allowed to be configurable.
         if (isConfigurable(varNode)) {
             dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE);
+        }
+
+        if (isIsolated(varNode)) {
+            dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_ISOLATED);
         }
 
         if (varNode.isDeclaredWithVar) {
@@ -854,6 +862,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Only simple variables are allowed to be configurable.
         if (isConfigurable(varNode)) {
             dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE);
+        }
+
+        if (isIsolated(varNode)) {
+            dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_ISOLATED);
         }
         // Error variable declarations (destructuring etc.)
         if (varNode.isDeclaredWithVar) {
@@ -3500,6 +3512,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private boolean isConfigurable(BLangVariable varNode) {
         if (varNode.flagSet.contains(Flag.CONFIGURABLE)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isIsolated(BLangVariable varNode) {
+        if (varNode.flagSet.contains(Flag.ISOLATED)) {
             return true;
         }
         return false;
