@@ -30,12 +30,14 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedInputStream;
@@ -61,6 +63,7 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
  * This class represents the Ballerina compiler backend that produces executables that runs on the JVM.
@@ -84,6 +87,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
     private final JarResolver jarResolver;
+    private final CompilerOptions compilerOptions;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
         return packageCompilation.getCompilerBackend(jdkVersion,
@@ -100,6 +104,7 @@ public class JBallerinaBackend extends CompilerBackend {
         this.packageCache = projectEnvContext.getService(PackageCache.class);
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
+        this.compilerOptions = CompilerOptions.getInstance(compilerContext);
 
         // TODO The following line is a temporary solution to cleanup the TesterinaRegistry
         TesterinaRegistry.reset();
@@ -206,14 +211,13 @@ public class JBallerinaBackend extends CompilerBackend {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile);
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to cache generated jar, module: " + moduleContext.moduleName());
+            throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
         }
 
-        // TODO Check whether the tests have been skipped
-        //  Use the CompilationOptions
-//        if (skipTests) {
-//            return;
-//        }
+        // skip generation of the test jar if --skip-tests option is set to true
+        if (Boolean.parseBoolean(compilerOptions.get(SKIP_TESTS))) {
+            return;
+        }
 
         if (!bLangPackage.hasTestablePackage()) {
             return;
@@ -226,7 +230,7 @@ public class JBallerinaBackend extends CompilerBackend {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile);
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
+            throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
         }
     }
 
@@ -245,12 +249,17 @@ public class JBallerinaBackend extends CompilerBackend {
      * @param module module
      * @return test suite
      */
-    public TestSuite testSuite(Module module) {
+    public Optional<TestSuite> testSuite(Module module) {
         if (module.project().kind() != ProjectKind.SINGLE_FILE_PROJECT
                 && !module.moduleContext().bLangPackage().hasTestablePackage()) {
-            return null;
+            return Optional.empty();
         }
-        return generateTestSuite(module.moduleContext(), compilerContext);
+        // skip generation of the testsuite if --skip-tests option is set to true
+        if (Boolean.getBoolean(compilerOptions.get(SKIP_TESTS))) {
+            return Optional.empty();
+        }
+
+        return Optional.of(generateTestSuite(module.moduleContext(), compilerContext));
     }
 
     private TestSuite generateTestSuite(ModuleContext moduleContext, CompilerContext compilerContext) {
@@ -272,7 +281,8 @@ public class JBallerinaBackend extends CompilerBackend {
         // add functions of module/standalone file
         bLangPackage.functions.forEach(function -> {
             Location pos = function.pos;
-            if (pos != null) {
+            if (pos != null && !(function.getFlags().contains(Flag.RESOURCE) ||
+                    function.getFlags().contains(Flag.REMOTE))) {
                 // Remove the duplicated annotations.
                 String className = pos.lineRange().filePath().replace(".bal", "")
                         .replace("/", ".");
@@ -296,10 +306,12 @@ public class JBallerinaBackend extends CompilerBackend {
 
             testablePkg.functions.forEach(function -> {
                 Location location = function.pos;
-                if (location != null) {
+                if (location != null && !(function.getFlags().contains(Flag.RESOURCE) ||
+                        function.getFlags().contains(Flag.REMOTE))) {
                     String className = location.lineRange().filePath().replace(".bal", "").
                             replace("/", ".");
-                    String functionClassName = JarResolver.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                    String functionClassName = JarResolver.getQualifiedClassName(
+                            bLangPackage.packageID.orgName.value,
                             bLangPackage.packageID.name.value,
                             bLangPackage.packageID.version.value,
                             className);
@@ -473,7 +485,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private void emitExecutable(Path executableFilePath) {
         if (!this.packageContext.defaultModuleContext().entryPointExists()) {
             // TODO Improve error handling
-            throw new RuntimeException("no entrypoint found in package: " + this.packageContext.packageName());
+            throw new ProjectException("no entrypoint found in package: " + this.packageContext.packageName());
         }
 
         Manifest manifest = createManifest();
@@ -482,7 +494,7 @@ public class JBallerinaBackend extends CompilerBackend {
         try {
             assembleExecutableJar(executableFilePath, manifest, jarLibraryPaths);
         } catch (IOException e) {
-            throw new RuntimeException("error while creating the executable jar file for package: " +
+            throw new ProjectException("error while creating the executable jar file for package: " +
                     this.packageContext.packageName(), e);
         }
     }

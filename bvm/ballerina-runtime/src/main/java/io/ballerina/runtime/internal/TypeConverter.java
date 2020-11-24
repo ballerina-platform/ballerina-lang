@@ -824,6 +824,10 @@ public class TypeConverter {
             return PredefinedTypes.TYPE_BYTE;
         }
 
+        if (checkIsLikeType(value, PredefinedTypes.TYPE_DECIMAL)) {
+            return PredefinedTypes.TYPE_DECIMAL;
+        }
+
         Type anydataArrayType = new BArrayType(type);
         if (checkIsLikeType(value, anydataArrayType)) {
             return anydataArrayType;

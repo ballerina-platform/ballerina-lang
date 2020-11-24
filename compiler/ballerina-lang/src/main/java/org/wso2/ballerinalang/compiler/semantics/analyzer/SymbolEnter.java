@@ -2075,7 +2075,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void validateResourceField(BField value, boolean isService) {
         if (!isService && value.symbol != null && Symbols.isResource(value.symbol)) {
             value.symbol.flags ^= Flags.RESOURCE;
-            dlog.error(value.pos, DiagnosticCode.RESOURCE_FIELD_ONLY_ALLOWED_IN_SERVICE_TYPE);
+            dlog.error(value.pos, DiagnosticErrorCode.RESOURCE_FIELD_ONLY_ALLOWED_IN_SERVICE_TYPE);
         }
     }
 
@@ -2352,19 +2352,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return;
             }
 
-            SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDef, objectType.tsymbol.scope, pkgEnv);
-            for (BField field : objectType.fields.values()) {
-                BType type = field.type;
-
-                if (!types.isInherentlyImmutableType(type)) {
-                    field.type = field.symbol.type = ImmutableTypeCloner.getImmutableIntersectionType(
-                            pos, types, (SelectivelyImmutableReferenceType) type, typeDefEnv, symTable,
-                            anonymousModelHelper, names, classDef.flagSet);
-
-                }
-
-                field.symbol.flags |= Flags.FINAL;
-            }
+            ImmutableTypeCloner.markFieldsAsImmutable(classDef, pkgEnv, objectType, types, anonymousModelHelper,
+                                                      symTable, names, pos);
         } else {
             Collection<BField> fields = objectType.fields.values();
             if (fields.isEmpty()) {

@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 /**
  * Workspace Package repository for language server.
  */
+@Deprecated(forRemoval = true)
 public class WorkspacePackageRepository extends GeneralFSPackageRepository {
     private static final String BAL_SOURCE_EXT = ".bal";
 

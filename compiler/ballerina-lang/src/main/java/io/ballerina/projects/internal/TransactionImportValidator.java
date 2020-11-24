@@ -18,7 +18,7 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
-import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
@@ -26,7 +26,11 @@ import io.ballerina.compiler.syntax.tree.RetryStatementNode;
 import io.ballerina.compiler.syntax.tree.RollbackStatementNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class will check whether an import statement to internal transaction repo is needed or not.
@@ -65,10 +69,15 @@ public class TransactionImportValidator extends NodeVisitor {
     }
 
     @Override
-    public void visit(MethodDeclarationNode methodDeclarationNode) {
-        // TODO transactional keyword
-        super.visit(methodDeclarationNode);
+    public void visit(FunctionDefinitionNode functionDefinitionNode) {
+        List<String> qualifiers = functionDefinitionNode.qualifierList().stream().map(Token::text)
+                .collect(Collectors.toList());
+        if (qualifiers.contains(SyntaxKind.TRANSACTIONAL_KEYWORD.stringValue()) &&
+                qualifiers.contains(SyntaxKind.RESOURCE_KEYWORD.stringValue())) {
+            importTransactionPackage = true;
+        }
     }
+
 
     protected void visitSyntaxNode(Node node) {
         if (importTransactionPackage) {

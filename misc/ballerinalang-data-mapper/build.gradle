@@ -1,5 +1,6 @@
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 //apply plugin: 'jacoco'
 
@@ -26,6 +27,7 @@ dependencies {
     implementation project(':language-server:language-server-compiler')
     implementation project(':language-server:language-server-core')
     implementation project(':language-server:language-server-cli')
+    implementation 'org.apache.commons:commons-lang3'
 
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-tool')
@@ -38,7 +40,8 @@ dependencies {
 }
 
 test {
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/test/"
+    dependsOn loadDistributionCache
+    systemProperty "ballerina.home", "$buildDir/"
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
     useTestNG() {

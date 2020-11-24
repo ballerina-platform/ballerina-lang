@@ -89,7 +89,7 @@ public abstract class BaloWriter {
             // Now lets put stuff in
             populateBaloArchive(baloOutputStream, pkg);
         } catch (IOException e) {
-            throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);
+            throw new ProjectException("Failed to create balo :" + e.getMessage(), e);
         } catch (BLangCompilerException be) {
             // clean up if an error occur
             try {
@@ -119,7 +119,7 @@ public abstract class BaloWriter {
             putZipEntry(baloOutputStream, Paths.get(BALO_JSON),
                     new ByteArrayInputStream(baloJson.getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write 'balo.json' file: " + e.getMessage(), e);
+            throw new ProjectException("Failed to write 'balo.json' file: " + e.getMessage(), e);
         }
     }
 
@@ -173,7 +173,7 @@ public abstract class BaloWriter {
             putZipEntry(baloOutputStream, Paths.get(PACKAGE_JSON),
                     new ByteArrayInputStream(gson.toJson(packageJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write 'package.json' file: " + e.getMessage(), e);
+            throw new ProjectException("Failed to write 'package.json' file: " + e.getMessage(), e);
         }
     }
 
@@ -267,7 +267,7 @@ public abstract class BaloWriter {
             putZipEntry(baloOutputStream, Paths.get(DEPENDENCY_GRAPH_JSON),
                     new ByteArrayInputStream(gson.toJson(depGraphJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
+            throw new ProjectException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
         }
     }
 

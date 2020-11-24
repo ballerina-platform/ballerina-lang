@@ -19,18 +19,20 @@ import java.util.function.Function;
 public class Package {
     private final Project project;
     private final PackageContext packageContext;
+    private final CompilationOptions compilationOptions;
     private final Map<ModuleId, Module> moduleMap;
     private final Function<ModuleId, Module> populateModuleFunc;
 
-    private Package(PackageContext packageContext, Project project) {
+    private Package(PackageContext packageContext, Project project, CompilationOptions compilationOptions) {
         this.packageContext = packageContext;
         this.project = project;
+        this.compilationOptions = compilationOptions;
         this.moduleMap = new ConcurrentHashMap<>();
         this.populateModuleFunc = moduleId -> Module.from(
                 this.packageContext.moduleContext(moduleId), this);
     }
 
-    static Package from(Project project, PackageConfig packageConfig) {
+    static Package from(Project project, PackageConfig packageConfig, CompilationOptions compilationOptions) {
         // TODO create package context here by giving the package config
         // do the same for modules and documents
         // il. package context creates modules contexts and modules context create document contexts
@@ -38,7 +40,7 @@ public class Package {
         // contexts need to hold onto the configs. Should we decouple config from tree information as follows.
         // package config has the tree information like modules.
         PackageContext packageContext = PackageContext.from(project, packageConfig);
-        return new Package(packageContext, project);
+        return new Package(packageContext, project, compilationOptions);
     }
 
     PackageContext packageContext() {
@@ -114,7 +116,7 @@ public class Package {
     }
 
     public PackageCompilation getCompilation() {
-        return this.packageContext.getPackageCompilation();
+        return this.packageContext.getPackageCompilation(this.compilationOptions);
     }
 
     public PackageResolution getResolution() {
@@ -132,7 +134,7 @@ public class Package {
     }
 
     public CompilationOptions compilationOptions() {
-        return packageContext.compilationOptions();
+        return compilationOptions;
     }
 
     public Optional<BallerinaToml> ballerinaToml() {
@@ -177,6 +179,7 @@ public class Package {
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
         private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
+        private CompilationOptions compilationOptions;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
@@ -185,6 +188,7 @@ public class Package {
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
             this.pkgDescDependencyGraph = oldPackage.packageContext().dependencyGraph();
+            this.compilationOptions = oldPackage.compilationOptions;
         }
 
         Modifier updateModule(ModuleContext newModuleContext) {
@@ -236,7 +240,7 @@ public class Package {
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.ballerinaToml, this.moduleContextMap, this.pkgDescDependencyGraph);
-            this.project.setCurrentPackage(new Package(newPackageContext, this.project));
+            this.project.setCurrentPackage(new Package(newPackageContext, this.project, this.compilationOptions));
             return this.project.currentPackage();
         }
     }

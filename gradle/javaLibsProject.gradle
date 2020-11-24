@@ -113,6 +113,7 @@ dependencies {
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
     dist project(':ballerina-lang:bool')
+    dist project(':ballerina-lang:runtime')
     dist project(':ballerina-lang:query')
     dist project(':ballerina-lang:transaction')
 

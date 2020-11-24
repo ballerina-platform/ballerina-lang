@@ -1854,16 +1854,6 @@ public class JvmTypeGen {
                            String.format("(L%s;L%s;I)V", STRING_VALUE, SET), false);
     }
 
-    static boolean isServiceDefAvailable(List<BIRTypeDefinition> typeDefs) {
-        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
-            if ((bType.flags & Flags.SERVICE) == Flags.SERVICE) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private JvmTypeGen() {
     }
 }
