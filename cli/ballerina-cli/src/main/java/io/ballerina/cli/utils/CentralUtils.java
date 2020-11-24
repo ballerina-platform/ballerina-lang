@@ -21,14 +21,10 @@ import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.ballerinalang.tool.LauncherUtils;
-import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.Authenticator;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -86,25 +82,6 @@ public class CentralUtils {
             }
         }
         return accessToken;
-    }
-
-    /**
-     * Initialize proxy if proxy is available in settings.toml.
-     *
-     * @param proxy toml model proxy
-     * @return proxy
-     */
-    public static Proxy initializeProxy(org.ballerinalang.toml.model.Proxy proxy) {
-        if (!"".equals(proxy.getHost())) {
-            InetSocketAddress proxyInet = new InetSocketAddress(proxy.getHost(), proxy.getPort());
-            if (!"".equals(proxy.getUserName()) && "".equals(proxy.getPassword())) {
-                Authenticator authenticator = new URIDryConverter.RemoteAuthenticator();
-                Authenticator.setDefault(authenticator);
-            }
-            return new Proxy(Proxy.Type.HTTP, proxyInet);
-        }
-
-        return null;
     }
 
     /**

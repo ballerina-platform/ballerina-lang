@@ -37,9 +37,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
-import static io.ballerina.cli.utils.CentralUtils.initializeProxy;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectConstants.PKG_NAME_REGEX;
+import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static java.nio.file.Files.createDirectories;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;

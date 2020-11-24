@@ -31,9 +31,9 @@ import java.net.Proxy;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.SEARCH_COMMAND;
-import static io.ballerina.cli.utils.CentralUtils.initializeProxy;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.cli.utils.PrintUtils.printPackages;
+import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
