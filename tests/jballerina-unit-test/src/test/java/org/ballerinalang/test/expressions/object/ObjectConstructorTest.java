@@ -93,17 +93,17 @@ public class ObjectConstructorTest {
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: 'SampleRec' is not an object", 19, 39);
         validateError(negativeResult, index++, "remote method has a visibility qualifier", 22, 13);
-        BAssertUtil.validateError(negativeResult, index++,
+        validateError(negativeResult, index++,
                 "remote qualifier only allowed in client and service objects", 22, 13);
         validateError(negativeResult, index++, "object constructor 'init' method cannot have parameters",
                 26, 5);
         validateError(negativeResult, index++, "object initializer function can not be declared as " +
                 "private", 30, 5);
-        BAssertUtil.validateError(negativeResult, index++, "missing identifier", 34, 22);
-        BAssertUtil.validateError(negativeResult, index++, "missing semicolon token", 34, 22);
-        BAssertUtil.validateError(negativeResult, index++, "invalid qualifier 'public'", 34, 29);
-        BAssertUtil.validateError(negativeResult, index++, "missing identifier", 34, 38);
-        BAssertUtil.validateError(negativeResult, index++, "type inclusions are not allowed in object constructor",
+        validateError(negativeResult, index++, "missing identifier", 34, 22);
+        validateError(negativeResult, index++, "missing semicolon token", 34, 22);
+        validateError(negativeResult, index++, "invalid qualifier 'public'", 34, 29);
+        validateError(negativeResult, index++, "missing identifier", 34, 38);
+        validateError(negativeResult, index++, "type inclusions are not allowed in object constructor",
                 40, 1);
         validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +
                         "type 'any'", 42, 9);

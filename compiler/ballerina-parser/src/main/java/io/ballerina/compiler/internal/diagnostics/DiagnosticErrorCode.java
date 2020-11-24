@@ -234,7 +234,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.missing.resource.path.in.resource.accessor.definition"),
     ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION("BCE0518",
             "error.missing.resource.path.in.resource.accessor.declaration"),
-    ERROR_MISSING_ERROR_MESSAGE_BINDING_PATTERN("BCE0519", "error.missing.error.message.binding.pattern"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),

@@ -485,8 +485,7 @@ public class JvmPackageGen {
                             .cleanupPathSeparators(mainFunc.pos.lineRange().filePath()));
                 }
 
-                serviceEPAvailable = listenerDeclarationFound(module.globalVars)
-                        || isServiceDefAvailable(module.typeDefs);
+                serviceEPAvailable = listenerDeclarationFound(module.globalVars);
 
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
                                                  asyncDataCollector);
@@ -528,16 +527,6 @@ public class JvmPackageGen {
     private boolean listenerDeclarationFound(List<BIRGlobalVariableDcl> variableDcls) {
         for (BIRGlobalVariableDcl globalVariableDcl : variableDcls) {
             if (Symbols.isFlagOn(globalVariableDcl.flags, Flags.LISTENER)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isServiceDefAvailable(List<BIRTypeDefinition> typeDefs) {
-        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
-            if (bType instanceof BServiceType) {
                 return true;
             }
         }

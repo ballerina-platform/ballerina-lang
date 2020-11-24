@@ -24,7 +24,6 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.RetryStatementNode;
 import io.ballerina.compiler.syntax.tree.RollbackStatementNode;
-import io.ballerina.compiler.syntax.tree.ServiceBodyNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -67,11 +66,6 @@ public class TransactionImportValidator extends NodeVisitor {
         if (statementNode.kind() == SyntaxKind.TRANSACTION_STATEMENT) {
             importTransactionPackage = true;
         }
-    }
-
-    @Override
-    public void visit(ServiceBodyNode serviceDeclarationNode) {
-        super.visit(serviceDeclarationNode);
     }
 
     @Override

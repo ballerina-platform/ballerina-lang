@@ -804,7 +804,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 // fall through
             default:
-                if (isDuplicate(qualifiers, SyntaxKind.SERVICE_KEYWORD)) {
+                if (isSyntaxKindInList(qualifiers, SyntaxKind.SERVICE_KEYWORD)) {
                     reportInvalidQualifier(publicQualifier);
                     return parseServiceDeclOrVarDecl(metadata, qualifiers);
                 }
@@ -1136,7 +1136,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         boolean hasResourcePath = !isNodeListEmpty(resourcePath);
-        boolean hasResourceQual = isDuplicate(qualifierList, SyntaxKind.RESOURCE_KEYWORD);
+        boolean hasResourceQual = isSyntaxKindInList(qualifierList, SyntaxKind.RESOURCE_KEYWORD);
         if (hasResourceQual && !hasResourcePath) {
             // create missing relative path and direct towards resource accessor definition / declaration
             List<STNode> relativePath = new ArrayList<>();
@@ -1333,7 +1333,7 @@ public class BallerinaParser extends AbstractParser {
             STNode qualifier = qualifierList.get(i);
             int nextIndex = i + 1;
 
-            if (isDuplicate(validatedList, qualifier.kind)) {
+            if (isSyntaxKindInList(validatedList, qualifier.kind)) {
                 updateLastNodeInListWithInvalidNode(validatedList, qualifier,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
                 continue;
@@ -1413,7 +1413,7 @@ public class BallerinaParser extends AbstractParser {
             STNode qualifier = qualifierList.get(i);
             int nextIndex = i + 1;
 
-            if (isDuplicate(validatedList, qualifier.kind)) {
+            if (isSyntaxKindInList(validatedList, qualifier.kind)) {
                 updateLastNodeInListWithInvalidNode(validatedList, qualifier,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
                 continue;
