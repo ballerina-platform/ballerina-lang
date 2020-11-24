@@ -24,7 +24,7 @@ OPTIONS
            Build offline without downloading dependencies.
 
 EXAMPLES
-       Generate API documentation for the current project.
+       Generate API documentation for the current package.
           $ ballerina doc
 
        Generate API documentation for a Ballerina package in a given path.
