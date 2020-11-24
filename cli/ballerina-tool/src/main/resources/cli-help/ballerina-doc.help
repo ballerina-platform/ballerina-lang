@@ -1,5 +1,5 @@
 NAME
-       ballerina-doc - Build a Ballerina project's documentation
+       ballerina-doc - Build the documentation of a Ballerina package
 
 SYNOPSIS
        ballerina doc [<options>]
