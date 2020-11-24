@@ -33,7 +33,16 @@ import java.util.Map;
  */
 public class BIRVarToJVMIndexMap {
 
-    private int localVarIndex = 0;
+    private int localVarIndex;
+
+    public BIRVarToJVMIndexMap() {
+        this(0);
+    }
+
+    public BIRVarToJVMIndexMap(int localVarIndex) {
+        this.localVarIndex = localVarIndex;
+    }
+
     private final Map<String, Integer> jvmLocalVarIndexMap = new HashMap<>();
 
     private void add(BIRNode.BIRVariableDcl varDcl) {

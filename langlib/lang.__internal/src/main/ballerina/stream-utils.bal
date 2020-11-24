@@ -35,7 +35,7 @@ class EmptyIterator {
     public isolated function next() returns record {|Type value;|}|ErrorType? {
         return ();
     }
-};
+}
 
 # Sets the narrowed type of the `value`.
 #

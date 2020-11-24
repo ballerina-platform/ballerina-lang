@@ -638,8 +638,18 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL(
             "BCE3962", "binding.pattern.not.yet.supported.in.module.var.decl"),
 
-    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3963", "remote.function.in.non.network.object"),
-    RESOURCE_FIELD_ONLY_ALLOWED_IN_SERVICE_TYPE("BCE3964", "resource.function.in.non.service.object"),
+    // Configurable var related error codes
+    CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR("BCE3963",
+            "configurable.variable.cannot.be.declared.with.var"),
+    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY("BCE3964",
+            "configurable.variable.must.be.anydata.and.readonly"),
+    ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE("BCE3965",
+            "only.simple.variables.are.allowed.to.be.configurable"),
+    CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED("BCE3966",
+            "configurable.variable.currently.not.supported"),
+
+    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3967", "remote.function.in.non.network.object"),
+    RESOURCE_FIELD_ONLY_ALLOWED_IN_SERVICE_TYPE("BCE3968", "resource.function.in.non.service.object"),
     ;
 
     private String diagnosticId;

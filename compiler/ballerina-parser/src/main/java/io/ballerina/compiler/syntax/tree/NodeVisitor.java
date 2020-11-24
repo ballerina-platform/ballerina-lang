@@ -803,6 +803,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(resourcePathParameterNode);
     }
 
+    public void visit(RequiredExpressionNode requiredExpressionNode) {
+        visitSyntaxNode(requiredExpressionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

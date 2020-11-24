@@ -804,6 +804,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(resourcePathParameterNode);
     }
 
+    public T transform(RequiredExpressionNode requiredExpressionNode) {
+        return transformSyntaxNode(requiredExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

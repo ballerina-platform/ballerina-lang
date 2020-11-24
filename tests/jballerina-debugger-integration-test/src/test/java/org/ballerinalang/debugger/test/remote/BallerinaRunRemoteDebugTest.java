@@ -51,7 +51,7 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port)}, null,
+        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port), "."}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 10);
         clientLeecher.waitForText(20000);
     }

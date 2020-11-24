@@ -793,6 +793,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(resourcePathParameterNode);
     }
 
+    public T transform(STRequiredExpressionNode requiredExpressionNode) {
+        return transformSyntaxNode(requiredExpressionNode);
+    }
+
     // Tokens
 
     public T transform(STToken token) {

@@ -2326,5 +2326,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 paramName,
                 closeBracketToken);
     }
+
+    public static STNode createRequiredExpressionNode(
+            STNode questionMarkToken) {
+
+        return new STRequiredExpressionNode(
+                questionMarkToken);
+    }
 }
 

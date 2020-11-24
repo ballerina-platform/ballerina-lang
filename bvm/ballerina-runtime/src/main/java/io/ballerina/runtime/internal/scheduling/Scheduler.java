@@ -24,12 +24,14 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -54,7 +56,8 @@ public class Scheduler {
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
      */
-    public boolean immortal;
+    private volatile boolean immortal;
+    private boolean listenerDeclarationFound;
     /**
      * Strands that are ready for execution.
      */
@@ -75,6 +78,7 @@ public class Scheduler {
     private static int poolSize = Runtime.getRuntime().availableProcessors() * 2;
 
     private Semaphore mainBlockSem;
+    private ListenerRegistry listenerRegistry;
 
     public Scheduler(boolean immortal) {
         try {
@@ -88,11 +92,13 @@ public class Scheduler {
         }
         this.numThreads = poolSize;
         this.immortal = immortal;
+        listenerRegistry = new ListenerRegistry();
     }
 
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;
         this.immortal = immortal;
+        listenerRegistry = new ListenerRegistry();
     }
 
     public static Strand getStrand() {
@@ -372,15 +378,17 @@ public class Scheduler {
                     assert runnableList.size() == 0;
 
                     if (!immortal) {
-                        for (int i = 0; i < numThreads; i++) {
-                            runnableList.add(POISON_PILL);
-                        }
+                        poison();
                     }
                 }
                 break;
             default:
                 assert false : "illegal strand state during execute " + item.getState();
         }
+    }
+
+    public void setImmortal(boolean immortal) {
+        this.immortal = immortal;
     }
 
     private Throwable createError(Throwable t) {
@@ -465,6 +473,46 @@ public class Scheduler {
             runnableList.add(POISON_PILL);
         }
     }
+
+    public void setListenerDeclarationFound(boolean listenerDeclarationFound) {
+        this.listenerDeclarationFound = listenerDeclarationFound;
+        if (listenerDeclarationFound) {
+            setImmortal(true);
+        }
+    }
+
+    public boolean isListenerDeclarationFound() {
+        return listenerDeclarationFound;
+    }
+
+    public ListenerRegistry getListenerRegistry() {
+        return listenerRegistry;
+    }
+
+    /**
+     * The registry for runtime dynamic listeners.
+     */
+    public class ListenerRegistry {
+        private final Set<BObject> listenerSet = new HashSet<>();
+
+        public synchronized void registerListener(BObject listener) {
+            listenerSet.add(listener);
+            setImmortal(true);
+        }
+
+        public synchronized void deregisterListener(BObject listener) {
+            listenerSet.remove(listener);
+            if (!isListenerDeclarationFound() && listenerSet.isEmpty()) {
+                setImmortal(false);
+            }
+        }
+
+        public synchronized void stopListeners(Strand strand) {
+            for (BObject listener : listenerSet) {
+                listener.call(strand, "__gracefulStop");
+            }
+        }
+    }
 }
 
 /**
@@ -525,7 +573,7 @@ class ItemGroup {
      * Keep the list of items that should run on same thread.
      * Using a stack to get advantage of the locality.
      */
-    Stack<SchedulerItem> items = new Stack();
+    Stack<SchedulerItem> items = new Stack<>();
 
     /**
      * Indicates this item is already in runnable list/executing or not.

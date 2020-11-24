@@ -104,6 +104,7 @@ public enum SyntaxKind {
     BY_KEYWORD(249, "by"),
     ASCENDING_KEYWORD(250, "ascending"),
     DESCENDING_KEYWORD(251, "descending"),
+    CONFIGURABLE_KEYWORD(252, "configurable"),
 
     // Type keywords
     INT_KEYWORD(300, "int"),
@@ -319,6 +320,7 @@ public enum SyntaxKind {
     NULL_LITERAL(1341),
     BYTE_ARRAY_LITERAL(1342),
     ASTERISK_LITERAL(1343),
+    REQUIRED_EXPRESSION(1344),
 
     // Type descriptors
     TYPE_DESC(2000),

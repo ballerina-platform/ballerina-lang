@@ -96,4 +96,12 @@ public class Runtime {
         return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
                 metadata);
     }
+
+    public void registerListener(BObject listener) {
+        scheduler.getListenerRegistry().registerListener(listener);
+    }
+
+    public void deregisterListener(BObject listener) {
+        scheduler.getListenerRegistry().deregisterListener(listener);
+    }
 }

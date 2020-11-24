@@ -3070,5 +3070,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeBracketToken.internalNode());
         return stResourcePathParameterNode.createUnlinkedFacade();
     }
+
+    public static RequiredExpressionNode createRequiredExpressionNode(
+            Token questionMarkToken) {
+        Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
+
+        STNode stRequiredExpressionNode = STNodeFactory.createRequiredExpressionNode(
+                questionMarkToken.internalNode());
+        return stRequiredExpressionNode.createUnlinkedFacade();
+    }
 }
 

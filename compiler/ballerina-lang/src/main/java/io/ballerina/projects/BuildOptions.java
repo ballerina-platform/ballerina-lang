@@ -17,71 +17,94 @@
  */
 package io.ballerina.projects;
 
+import java.util.Objects;
+
 /**
- * Abstract class that contains options to consider when compiling the project.
- *
- * The public getters and setters for common options are exposed from this class. Other applicable options
- * be exposed by available project types accordingly.
+ * Build options of a project.
  */
-public abstract class BuildOptions {
-    protected String b7aConfigFile;
-    protected boolean offline;
-    protected boolean skipTests;
-    protected boolean experimental;
-    protected boolean testReport;
-    protected boolean skipLock;
-    protected boolean codeCoverage;
-    protected boolean observabilityIncluded;
+public class BuildOptions {
+    private Boolean testReport;
+    private Boolean codeCoverage;
+    private CompilationOptions compilationOptions;
 
-    public boolean isSkipTests() {
-        return skipTests;
-    }
-
-    public void setSkipTests(boolean skipTests) {
-        this.skipTests = skipTests;
-    }
-
-    public boolean isOffline() {
-        return offline;
-    }
-
-    public void setOffline(boolean offline) {
-        this.offline = offline;
-    }
-
-    public boolean isExperimental() {
-        return experimental;
-    }
-
-    public void setExperimental(boolean experimental) {
-        this.experimental = experimental;
-    }
-
-    public boolean isTestReport() {
-        return testReport;
-    }
-
-    public void setTestReport(boolean testReport) {
+    BuildOptions(Boolean testReport,
+                 Boolean codeCoverage,
+                 CompilationOptions compilationOptions) {
         this.testReport = testReport;
+        this.codeCoverage = codeCoverage;
+        this.compilationOptions = compilationOptions;
     }
 
-    public String getB7aConfigFile() {
-        return b7aConfigFile;
+    public boolean testReport() {
+        return toBooleanDefaultIfNull(testReport);
     }
 
-    public void setB7aConfigFile(String b7aConfigFile) {
-        this.b7aConfigFile = b7aConfigFile;
+    public boolean codeCoverage() {
+        return toBooleanDefaultIfNull(codeCoverage);
     }
 
-    public boolean isSkipLock() {
-        return skipLock;
+    public boolean skipTests() {
+        return this.compilationOptions.skipTests();
     }
 
-    public boolean isCodeCoverage() {
-        return codeCoverage;
+    public boolean offlineBuild() {
+        return this.compilationOptions.offlineBuild();
     }
 
-    public boolean isObservabilityIncluded() {
-        return observabilityIncluded;
+    public boolean experimental() {
+        return this.compilationOptions.experimental();
+    }
+
+    public boolean observabilityIncluded() {
+        return this.compilationOptions.observabilityIncluded();
+    }
+
+    CompilationOptions compilationOptions() {
+        return compilationOptions;
+    }
+
+    /**
+     * Merge the given build options by favoring theirs if there are conflicts.
+     *
+     * @param theirOptions Build options to be merged
+     * @return a new {@code BuildOptions} instance that contains our options and their options
+     */
+    public BuildOptions acceptTheirs(BuildOptions theirOptions) {
+
+        this.codeCoverage = Objects.requireNonNullElseGet(
+                theirOptions.codeCoverage, () -> toBooleanDefaultIfNull(this.codeCoverage));
+        this.testReport = Objects.requireNonNullElseGet(
+                theirOptions.testReport, () -> toBooleanDefaultIfNull(this.testReport));
+        this.compilationOptions = compilationOptions.acceptTheirs(theirOptions.compilationOptions());
+
+        return this;
+    }
+
+    private boolean toBooleanDefaultIfNull(Boolean bool) {
+        if (bool == null) {
+            return false;
+        }
+        return bool;
+    }
+
+    /**
+     * Enum to represent build options.
+     */
+    public enum OptionName {
+        TEST_REPORT("testReport"),
+        CODE_COVERAGE("codeCoverage"),
+        B7A_CONFIG_FILE("b7aConfigFile")
+        ;
+
+        private String name;
+
+        OptionName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }

@@ -164,9 +164,9 @@ public class PredefinedTypes {
     public static final ServiceType TYPE_ANY_SERVICE = new BServiceType(TypeConstants.SERVICE, EMPTY_MODULE, 0);
     public static final HandleType TYPE_HANDLE = new BHandleType(TypeConstants.HANDLE_TNAME, EMPTY_MODULE);
     public static final UnionType ANYDATA_OR_READONLY = new BUnionType(Arrays.asList(TYPE_ANYDATA, TYPE_READONLY));
-    public static final MapType TYPE_ERROR_DETAIL = new BMapType(TypeConstants.MAP_TNAME, ANYDATA_OR_READONLY,
-                                                                 EMPTY_MODULE);
-    public static final ErrorType TYPE_ERROR = new BErrorType(TypeConstants.ERROR, EMPTY_MODULE, TYPE_ERROR_DETAIL);
+    private static final MapType TYPE_DETAIL = new BMapType(TypeConstants.MAP_TNAME, ANYDATA_OR_READONLY, EMPTY_MODULE);
+    public static final Type TYPE_ERROR_DETAIL = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_DETAIL);
+    public static final ErrorType TYPE_ERROR = new BErrorType(TypeConstants.ERROR, EMPTY_MODULE, TYPE_DETAIL);
 
     public static final RecordType STRING_ITR_NEXT_RETURN_TYPE =
             IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING);

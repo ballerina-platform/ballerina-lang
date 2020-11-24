@@ -11,10 +11,10 @@
         },
         "end":{
           "line":58,
-          "character":20
+          "character":19
         }
       },
-        "newText":"mapSupplierToUser(s);"
+        "newText":"mapSupplierToUser(s)"
       },
       {"range":{
         "start":{
@@ -26,7 +26,7 @@
           "character":1
         }
       },
-        "newText":"\nfunction mapStudentToGrades (Student student) returns Grades {\n// Some record fields might be missing in the AI based mapping.\n\tGrades grades \u003d {maths: student.grades.maths, chemistry: student.grades.chemistry, physics: student.grades.physics};\n\treturn grades;\n}"
+        "newText":"\nfunction mapSupplierToUser (Supplier supplier) returns User {\n// Some record fields might be missing in the AI based mapping.\n\tUser user \u003d {user: {age: supplier.supplier_details.age, id: supplier.id, name: supplier.supplier_details.name}, ID: supplier.supplier_details.id, email: supplier.email};\n\treturn user;\n}"
       }
     ]
   }

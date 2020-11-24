@@ -46,7 +46,7 @@ public class SemanticVersion {
         Matcher matcher = pattern.matcher(versionString);
         if (!matcher.matches()) {
             // TODO Proper error handling
-            throw new IllegalArgumentException("Specified version: '" + versionString + "' is not semvar compatible");
+            throw new ProjectException("Specified version: '" + versionString + "' is not semvar compatible");
         }
 
         int major = Integer.parseInt(matcher.group(1));

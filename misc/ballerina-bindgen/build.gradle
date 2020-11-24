@@ -28,6 +28,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':maven-resolver')
     implementation project(':ballerina-lang:annotations')
+    implementation 'com.moandjiezana.toml:toml4j'
     testCompile 'org.testng:testng'
 }
 
