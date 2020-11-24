@@ -27,5 +27,5 @@ EXAMPLES
        Generate API documentation for the current project.
           $ ballerina doc
 
-       Generate API documentation for a project in a given path.
+       Generate API documentation for a Ballerina package in a given path.
           $ ballerina doc /path/to/project
