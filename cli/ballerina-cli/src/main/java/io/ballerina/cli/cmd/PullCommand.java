@@ -21,9 +21,10 @@ package io.ballerina.cli.cmd;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -67,6 +68,10 @@ public class PullCommand implements BLauncherCmd {
         this.errStream = System.err;
     }
 
+    public PullCommand(PrintStream errStream) {
+        this.errStream = errStream;
+    }
+
     @Override
     public void execute() {
         if (helpFlag) {
@@ -76,11 +81,13 @@ public class PullCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.isEmpty()) {
-            throw LauncherUtils.createUsageExceptionWithHelp("no package given");
+            CommandUtil.printError(this.errStream, "no package given", "ballerina pull <package-name> ", false);
+            return;
         }
 
         if (argList.size() > 1) {
-            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+            CommandUtil.printError(this.errStream, "too many arguments", "ballerina pull <package-name> ", false);
+            return;
         }
 
         // Enable remote debugging
@@ -96,7 +103,6 @@ public class PullCommand implements BLauncherCmd {
         if (!validPackageName(resourceName)) {
             CommandUtil.printError(errStream, "invalid package name. Provide the package name with the org name ",
                     "ballerina pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}", false);
-            Runtime.getRuntime().exit(1);
             return;
         }
 
@@ -132,7 +138,11 @@ public class PullCommand implements BLauncherCmd {
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
                 client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform,
                                    RepoUtils.getBallerinaVersion(), false);
-            } catch (Exception e) {
+            } catch (PackageAlreadyExistsException e) {
+                errStream.println(e.getMessage());
+                // Exit status, zero for OK, non-zero for error
+                Runtime.getRuntime().exit(0);
+            } catch (CentralClientException e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
                 // Exit status, zero for OK, non-zero for error
                 Runtime.getRuntime().exit(1);

@@ -22,8 +22,8 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
-import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
@@ -65,7 +65,6 @@ import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
 @CommandLine.Command(name = PUSH_COMMAND, description = "push packages and binaries available locally to "
         + "Ballerina Central")
 public class PushCommand implements BLauncherCmd {
-    private static PrintStream outStream = System.err;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -87,14 +86,17 @@ public class PushCommand implements BLauncherCmd {
 
     private Path userDir;
     private PrintStream errStream;
+    private PrintStream outStream;
 
     public PushCommand() {
         userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         errStream = System.err;
+        outStream = System.out;
     }
 
-    public PushCommand(Path userDir, PrintStream errStream) {
+    public PushCommand(Path userDir, PrintStream outStream, PrintStream errStream) {
         this.userDir = userDir;
+        this.outStream = outStream;
         this.errStream = errStream;
     }
 
@@ -178,7 +180,7 @@ public class PushCommand implements BLauncherCmd {
         }
 
         Path packageBaloFile = findBaloFile(pkgName, orgName, baloOutputDir);
-        if (null != packageBaloFile && !packageBaloFile.toFile().exists()) {
+        if (null == packageBaloFile) {
             throw createLauncherException("cannot find balo file for the package: " + pkgName + ". Run "
                     + "'ballerina build' to compile and generate the balo.");
         }
