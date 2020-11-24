@@ -6,9 +6,9 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Pull downloads the specified package from Ballerina Central
-       along with its dependencies. It then caches this package at
-       '.ballerina' directory in user home.
+       The pull command downloads the specified package from Ballerina Central
+       along with its dependencies. It then caches this package in the
+       '.ballerina' directory in the user home.
 
        Ballerina Central is a package repository hosted at
        https://central.ballerina.io/. A package repository organizes packages
