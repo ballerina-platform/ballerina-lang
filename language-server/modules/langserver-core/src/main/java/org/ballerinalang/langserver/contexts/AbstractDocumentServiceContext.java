@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.Module;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -53,6 +54,8 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     private List<Symbol> visibleSymbols;
 
     private List<ImportDeclarationNode> currentDocImports;
+
+    private Module currentModule;
 
     AbstractDocumentServiceContext(LSOperation operation, String fileUri, WorkspaceManager wsManager) {
         this.operation = operation;
@@ -89,7 +92,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     }
 
     @Override
-    public List<Symbol> getVisibleSymbols(Position position) {
+    public List<Symbol> visibleSymbols(Position position) {
         if (this.visibleSymbols == null) {
             Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(this.filePath);
             if (semanticModel.isEmpty()) {
@@ -110,7 +113,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     }
 
     @Override
-    public List<ImportDeclarationNode> getCurrentDocImports() {
+    public List<ImportDeclarationNode> currentDocImports() {
         if (this.currentDocImports == null) {
             Optional<Document> document = this.workspace().document(this.filePath);
             if (document.isEmpty()) {
@@ -121,6 +124,15 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
         }
 
         return this.currentDocImports;
+    }
+
+    @Override
+    public Optional<Module> currentModule() {
+        if (this.currentModule == null) {
+            this.currentModule = this.workspaceManager.module(this.filePath).orElse(null);
+        }
+
+        return Optional.ofNullable(this.currentModule);
     }
 
     /**

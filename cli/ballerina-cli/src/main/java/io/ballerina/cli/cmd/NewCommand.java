@@ -126,13 +126,8 @@ public class NewCommand implements BLauncherCmd {
         }
 
         if (!ProjectUtils.validatePkgName(packageName)) {
-            CommandUtil.printError(errStream,
-                    "Invalid project name : '" + packageName + "' :\n" +
-                            "Project name can only contain alphanumerics, underscores and periods " +
-                            "and the maximum length is 256 characters",
-                    null,
-                    false);
-            return;
+            errStream.println("warning: invalid package name. Modified package name : " +
+                    ProjectUtils.guessPkgName(packageName));
         }
 
         // Check if the template exists

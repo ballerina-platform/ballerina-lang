@@ -17,23 +17,21 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
-import io.ballerina.projects.environment.PackageLoadRequest;
-import io.ballerina.projects.environment.PackageLoadResponse;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponse;
+import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Resolves dependencies and handles version conflicts in the dependency graph.
@@ -42,9 +40,9 @@ import java.util.stream.Collectors;
  */
 public class PackageResolution {
     private final PackageContext rootPackageContext;
+    private final PackageCache packageCache;
     private final PackageResolver packageResolver;
-    private final DependencyGraph<Package> dependencyGraph;
-    private final DependencyResolution dependencyResolution;
+    private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
 
     private List<ModuleContext> topologicallySortedModuleList;
 
@@ -53,11 +51,12 @@ public class PackageResolution {
 
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
+        this.packageCache = projectEnvContext.getService(PackageCache.class);
 
-        this.dependencyGraph = buildDependencyGraph();
-        this.dependencyResolution = new DependencyResolution(projectEnvContext.getService(PackageCache.class),
-                dependencyGraph);
-        resolveDependencies();
+        dependencyGraph = buildDependencyGraph();
+        DependencyResolution dependencyResolution = new DependencyResolution(
+                projectEnvContext.getService(PackageCache.class), dependencyGraph);
+        resolveDependencies(dependencyResolution);
     }
 
     static PackageResolution from(PackageContext rootPackageContext) {
@@ -69,7 +68,7 @@ public class PackageResolution {
      *
      * @return the package dependency graph of this package
      */
-    public DependencyGraph<Package> dependencyGraph() {
+    public DependencyGraph<ResolvedPackageDependency> dependencyGraph() {
         return dependencyGraph;
     }
 
@@ -107,15 +106,13 @@ public class PackageResolution {
      *
      * @return package dependency graph of this package
      */
-    private DependencyGraph<Package> buildDependencyGraph() {
+    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph() {
         // TODO We should get diagnostics as well. Need to design that contract
-        DependencyGraph<PackageDescriptor> pkgDescDepGraph = getDependencyGraphWithPackageDescriptors();
+        return getDependencyGraphWithPackageDescriptors();
         // TODO Check for cycles
-        // TODO Check for version conflicts and the perform further conflict resolution
-        return createDependencyGraphWithResolvedPackages(pkgDescDepGraph);
     }
 
-    private Set<PackageLoadRequest> getPackageLoadRequestsOfDirectDependencies() {
+    private Set<ResolutionRequest> getPackageLoadRequestsOfDirectDependencies() {
         Set<ModuleLoadRequest> allModuleLoadRequests = new HashSet<>();
         for (ModuleId moduleId : rootPackageContext.moduleIds()) {
             ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
@@ -125,55 +122,73 @@ public class PackageResolution {
         return getPackageLoadRequestsOfDirectDependencies(allModuleLoadRequests);
     }
 
-    private Set<PackageLoadRequest> getPackageLoadRequestsOfDirectDependencies(
+    private Set<ResolutionRequest> getPackageLoadRequestsOfDirectDependencies(
             Set<ModuleLoadRequest> moduleLoadRequests) {
-        Set<PackageLoadRequest> packageLoadRequests = new HashSet<>();
+        Set<ResolutionRequest> resolutionRequests = new HashSet<>();
         for (ModuleLoadRequest moduleLoadRequest : moduleLoadRequests) {
             Optional<PackageOrg> optionalOrgName = moduleLoadRequest.orgName();
             if (optionalOrgName.isEmpty()) {
                 // At the moment we don't check whether the requested module is available
                 // in the current package or not. This error will be reported during the SymbolEnter pass.
                 continue;
-            } else if (optionalOrgName.get().equals(rootPackageContext.packageOrg()) &&
-                    rootPackageContext.moduleContext(moduleLoadRequest.moduleName()) != null) {
+            }
+
+            PackageOrg requestedPkgOrg = optionalOrgName.get();
+            PackageName requestedPkgName = moduleLoadRequest.packageName();
+            if (rootPackageContext.packageOrg().equals(requestedPkgOrg) &&
+                    rootPackageContext.packageName().equals(requestedPkgName)) {
+                // If the requested module belongs to this package, continue.
+                // We don't have to check whether this module exists, an error will be logged later in SymbolEnter.
                 continue;
             }
 
-            PackageOrg packageOrg = optionalOrgName.get();
-            PackageName packageName = moduleLoadRequest.packageName();
-            PackageVersion packageVersion = null;
-            for (PackageManifest.Dependency dependency : rootPackageContext.manifest().dependencies()) {
-                if (dependency.org().equals(packageOrg) && dependency.name().equals(packageName)) {
-                    packageVersion = dependency.version();
-                }
+            PackageVersion requestedPkgVersion = getVersionFromPackageManifest(
+                    requestedPkgOrg, requestedPkgName);
+            PackageDescriptor pkdDesc = PackageDescriptor.from(requestedPkgOrg,
+                    requestedPkgName, requestedPkgVersion);
+            ResolutionRequest packageLoadRequest = ResolutionRequest.from(pkdDesc);
+            resolutionRequests.add(packageLoadRequest);
+        }
+        return resolutionRequests;
+    }
+
+    private PackageVersion getVersionFromPackageManifest(PackageOrg requestedPkgOrg, PackageName requestedPkgName) {
+        for (PackageManifest.Dependency dependency : rootPackageContext.manifest().dependencies()) {
+            if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
+                return dependency.version();
             }
-
-            PackageDescriptor pkdDesc = PackageDescriptor.from(packageName, packageOrg, packageVersion);
-            PackageLoadRequest packageLoadRequest = PackageLoadRequest.from(pkdDesc);
-            packageLoadRequests.add(packageLoadRequest);
         }
-        return packageLoadRequests;
+        return null;
     }
 
-    private DependencyGraph<PackageDescriptor> getDependencyGraphWithPackageDescriptors() {
+    private DependencyGraph<ResolvedPackageDependency> getDependencyGraphWithPackageDescriptors() {
+        PackageDependencyGraphBuilder depGraphBuilder = PackageDependencyGraphBuilder.getInstance();
         if (rootPackageContext.project().kind() == ProjectKind.BALR_PROJECT) {
-            return rootPackageContext.dependencyGraph();
+            depGraphBuilder.mergeGraph(rootPackageContext.dependencyGraph());
         } else {
-            return createDependencyGraphFromSources();
+            createDependencyGraphFromSources(depGraphBuilder);
         }
+
+        return depGraphBuilder.buildPackageDependencyGraph(rootPackageContext.descriptor(), packageResolver,
+                packageCache, rootPackageContext.project());
     }
 
-    private DependencyGraph<PackageDescriptor> createDependencyGraphFromSources() {
+    private void createDependencyGraphFromSources(PackageDependencyGraphBuilder depGraphBuilder) {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
-        Set<PackageLoadRequest> packageLoadRequests = getPackageLoadRequestsOfDirectDependencies();
+        Set<ResolutionRequest> packageLoadRequests = getPackageLoadRequestsOfDirectDependencies();
+
         // 2) Resolve direct dependencies. My assumption is that, all these dependencies comes from BALRs
-        Collection<PackageLoadResponse> packageLoadResponses = packageResolver.resolvePackages(packageLoadRequests);
+        Collection<ResolutionResponse> resolutionResponses =
+                packageResolver.resolvePackages(packageLoadRequests, rootPackageContext.project());
 
         PackageDescriptor rootPkgDesc = rootPackageContext.descriptor();
-        DependencyGraphBuilder<PackageDescriptor> depGraphBuilder = DependencyGraphBuilder.getBuilder();
-        depGraphBuilder.add(rootPkgDesc);
-        for (PackageLoadResponse pkgLoadResp : packageLoadResponses) {
-            Package directDependency = pkgLoadResp.resolvedPackage();
+        depGraphBuilder.addNode(rootPkgDesc);
+        for (ResolutionResponse resolutionResponse : resolutionResponses) {
+            if (resolutionResponse.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
+                // We don't log errors for unresolved direct dependencies
+                continue;
+            }
+            Package directDependency = resolutionResponse.resolvedPackage();
             PackageDescriptor dependencyDescriptor = directDependency.descriptor();
             depGraphBuilder.addDependency(rootPkgDesc, dependencyDescriptor);
 
@@ -182,47 +197,6 @@ public class PackageResolution {
         }
 
         // Now we have raw dependency graph that contains all the direct and transitive dependencies of this module
-        return depGraphBuilder.build();
-    }
-
-    private DependencyGraph<Package> createDependencyGraphWithResolvedPackages(
-            DependencyGraph<PackageDescriptor> pkgDescDepGraph) {
-        // Now create PackageLoadRequests for all the remaining packages to be loaded in the graph
-        Collection<PackageDescriptor> pkgDescGraphNodes = pkgDescDepGraph.getNodes();
-        // TODO Filter out direct dependencies that we've already resolved.
-        Set<PackageLoadRequest> pkgLoadRequests = pkgDescGraphNodes.stream()
-                .map(PackageLoadRequest::from)
-                .collect(Collectors.toSet());
-
-        Collection<PackageLoadResponse> pkgLoadResponses = packageResolver.resolvePackages(pkgLoadRequests);
-
-        // TODO Check there there are diagnostics reported by the PackageResolver.
-        Map<PackageDescriptor, Package> packageIdMap = pkgLoadResponses.stream()
-                .collect(Collectors.toMap(pkgLoadResp -> pkgLoadResp.packageLoadRequest().packageDescriptor(),
-                        PackageLoadResponse::resolvedPackage));
-
-        DependencyGraphBuilder<Package> dependencyGraphBuilder = DependencyGraphBuilder.getBuilder();
-        for (PackageDescriptor pkgDescGraphNode : pkgDescGraphNodes) {
-            Package resolvedPkg = packageIdMap.get(pkgDescGraphNode);
-            if (resolvedPkg == null) {
-                // TODO This situation cannot happen once we complete the test dependency implementation.
-                continue;
-            }
-
-            Collection<PackageDescriptor> directDependencies = pkgDescDepGraph.getDirectDependencies(pkgDescGraphNode);
-            List<Package> directDepPkgIds = new ArrayList<>(directDependencies.size());
-            for (PackageDescriptor directDependency : directDependencies) {
-                Package dependencyPkg = packageIdMap.get(directDependency);
-                if (dependencyPkg == null) {
-                    // TODO This situation cannot happen once we complete the test dependency implementation.
-                    continue;
-                }
-                directDepPkgIds.add(dependencyPkg);
-            }
-            dependencyGraphBuilder.addDependencies(resolvedPkg, directDepPkgIds);
-        }
-
-        return dependencyGraphBuilder.build();
     }
 
     /**
@@ -232,7 +206,7 @@ public class PackageResolution {
      * Because PackageCache may contain various versions of a single package,
      * but the dependency graph contains only the resolved version.
      */
-    private void resolveDependencies() {
+    private void resolveDependencies(DependencyResolution dependencyResolution) {
         // Topologically sort packages in the package dependency graph.
         // Iterate through the sorted package list
         // Resolve each package
@@ -243,13 +217,14 @@ public class PackageResolution {
         // Compile the module and collect diagnostics.
         // Repeat this for each module in each package in the package dependency graph.
         List<ModuleContext> sortedModuleList = new ArrayList<>();
-        List<Package> sortedPackages = dependencyGraph.toTopologicallySortedList();
-        for (Package pkg : sortedPackages) {
-            pkg.packageContext().resolveDependencies(dependencyResolution);
-            DependencyGraph<ModuleId> moduleDependencyGraph = pkg.moduleDependencyGraph();
+        List<ResolvedPackageDependency> sortedPackages = dependencyGraph.toTopologicallySortedList();
+        for (ResolvedPackageDependency pkgDependency : sortedPackages) {
+            Package resolvedPackage = pkgDependency.packageInstance();
+            resolvedPackage.packageContext().resolveDependencies(dependencyResolution);
+            DependencyGraph<ModuleId> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
             List<ModuleId> sortedModuleIds = moduleDependencyGraph.toTopologicallySortedList();
             for (ModuleId moduleId : sortedModuleIds) {
-                ModuleContext moduleContext = pkg.module(moduleId).moduleContext();
+                ModuleContext moduleContext = resolvedPackage.module(moduleId).moduleContext();
                 sortedModuleList.add(moduleContext);
             }
         }
@@ -263,9 +238,10 @@ public class PackageResolution {
      */
     static class DependencyResolution {
         private final PackageCache delegate;
-        private final DependencyGraph<Package> dependencyGraph;
+        private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
 
-        private DependencyResolution(PackageCache delegate, DependencyGraph<Package> dependencyGraph) {
+        private DependencyResolution(PackageCache delegate,
+                                     DependencyGraph<ResolvedPackageDependency> dependencyGraph) {
             this.delegate = delegate;
             this.dependencyGraph = dependencyGraph;
         }
@@ -273,14 +249,12 @@ public class PackageResolution {
         public Optional<Package> getPackage(PackageOrg packageOrg, PackageName packageName) {
             List<Package> resolvedPackages = delegate.getPackages(packageOrg, packageName);
             for (Package resolvedPackage : resolvedPackages) {
-                if (dependencyGraph.contains(resolvedPackage)) {
+                if (containsPackage(resolvedPackage)) {
                     return Optional.of(resolvedPackage);
                 }
             }
 
             // TODO convert this to a debug log
-//            throw new IllegalStateException("Cannot find a Package with the organization '" + packageOrg +
-//                    "' and name '" + packageName + "'");
             return Optional.empty();
         }
 
@@ -296,8 +270,16 @@ public class PackageResolution {
             }
 
             // TODO convert this to a debug log
-//            throw new RuntimeException("Cannot find module '" + dependencyModDesc.name() + "' in package ");
             return Optional.of(resolvedModule);
+        }
+
+        private boolean containsPackage(Package pkg) {
+            for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+                if (graphNode.packageId() == pkg.packageId()) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

@@ -2492,6 +2492,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 closeBrace);
     }
 
+    @Override
+    public STRequiredExpressionNode transform(
+            STRequiredExpressionNode requiredExpressionNode) {
+        STNode questionMarkToken = modifyNode(requiredExpressionNode.questionMarkToken);
+        return requiredExpressionNode.modify(
+                questionMarkToken);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

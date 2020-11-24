@@ -93,24 +93,24 @@ public class RunTestsTask implements Task {
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean testReport, boolean coverage) {
+    public RunTestsTask(PrintStream out, PrintStream err, String[] args) {
         this.out = out;
         this.err = err;
         this.args = Lists.of(args);
-        this.report = testReport;
-        this.coverage = coverage;
     }
 
     public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, boolean testReport, boolean coverage) {
+                        List<String> disableGroupList, List<String> testList) {
         this.out = out;
         this.err = err;
         this.args = Lists.of(args);
         this.isSingleTestExecution = false;
-        this.isRerunTestExection = rerunTests;
+
+        //TODO: fix --rerun-failed and enable it
+        this.isRerunTestExection = false;
 
         // If rerunTests is true, we get the rerun test list and assign it to 'testList'
-        if (rerunTests) {
+        if (this.isRerunTestExection) {
             testList = new ArrayList<>();
         }
 
@@ -122,15 +122,13 @@ public class RunTestsTask implements Task {
             isSingleTestExecution = true;
             singleExecTests = testList;
         }
-
-        //TODO: handle test report generation once CompilerOptions are available
-        this.report = testReport;
-        this.coverage = coverage;
     }
 
     @Override
     public void execute(Project project) {
         filterTestGroups();
+        report = project.buildOptions().testReport();
+        coverage = project.buildOptions().codeCoverage();
 
         if (report || coverage) {
             testReport = new TestReport();
@@ -169,16 +167,17 @@ public class RunTestsTask implements Task {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
-            TestSuite suite = jBallerinaBackend.testSuite(module);
+
+            TestSuite suite = jBallerinaBackend.testSuite(module).orElse(null);
             Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
+            Path reportDir;
 
-            if (isRerunTestExection) {
-                singleExecTests = readFailedTestsFromFile(moduleTestCachePath);
+            try {
+                reportDir = target.getReportPath();
+            } catch (IOException e) {
+                throw createLauncherException("error while creating report directory in target", e);
             }
 
-            if (isSingleTestExecution || isRerunTestExection) {
-                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
-            }
             if (suite == null) {
                 if (!project.currentPackage().packageOrg().anonymous()) {
                     out.println();
@@ -192,6 +191,14 @@ public class RunTestsTask implements Task {
             } else if (isSingleTestExecution && suite.getTests().size() == 0) {
                 out.println("\t" + "No tests found with the given name/s");
                 continue;
+            }
+
+            if (isRerunTestExection) {
+                singleExecTests = readFailedTestsFromFile(reportDir);
+            }
+
+            if (isSingleTestExecution || isRerunTestExection) {
+                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
             }
             suite.setReportRequired(report || coverage);
             Collection<Path> dependencies = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
@@ -309,8 +316,7 @@ public class RunTestsTask implements Task {
             File jsonFile = new File(target.path().resolve(RESULTS_JSON_FILE).toString());
             try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
                 writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                out.println("\t" + Paths.get("").toAbsolutePath().
-                        relativize(Paths.get(jsonFile.getCanonicalPath())) + "\n");
+                out.println("\t" + jsonFile.getAbsolutePath() + "\n");
             } catch (IOException e) {
                 throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
             }
@@ -331,7 +337,8 @@ public class RunTestsTask implements Task {
                 File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
                 try (Writer writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8)) {
                     writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                    out.println("\tView the test report at: " + FILE_PROTOCOL + htmlFile.getAbsolutePath());
+                    out.println("\tView the test report at: " +
+                            FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize().toString());
                 } catch (IOException e) {
                     throw createLauncherException("couldn't read data from the Json file : " + e.toString());
                 }

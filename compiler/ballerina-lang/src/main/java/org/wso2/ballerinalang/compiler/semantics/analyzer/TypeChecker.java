@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -173,6 +174,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
@@ -2973,18 +2975,29 @@ public class TypeChecker extends BLangNodeVisitor {
 
         switch (actualType.tag) {
             case TypeTags.OBJECT:
+                BObjectType actualObjectType = (BObjectType) actualType;
+
+                if (isObjectConstructorExpr(cIExpr, actualObjectType)) {
+                    BLangClassDefinition classDefForConstructor = getClassDefinitionForObjectConstructorExpr(cIExpr,
+                                                                                                             env);
+
+                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
+
+                    if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
+                        handleObjectConstrExprForReadOnlyCET(cIExpr, actualObjectType, classDefForConstructor, pkgEnv);
+                    } else {
+                        semanticAnalyzer.analyzeNode(classDefForConstructor, pkgEnv);
+                    }
+
+                    markConstructedObjectIsolatedness(actualObjectType);
+                }
+
                 if ((actualType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
                     dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT,
                             actualType.tsymbol);
                     cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
                     resultType = symTable.semanticError;
                     return;
-                }
-
-                if (Symbols.isFlagOn(actualType.tsymbol.flags, Flags.ANONYMOUS) &&
-                        Symbols.isFlagOn(expType.flags, Flags.ISOLATED)) {
-                    actualType.flags |= Flags.ISOLATED;
-                    actualType.tsymbol.flags |= Flags.ISOLATED;
                 }
 
                 if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
@@ -4809,6 +4822,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BType bType = paramTypes.get(i);
             BLangValueType valueTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
             valueTypeNode.setTypeKind(bType.getKind());
+            valueTypeNode.pos = symTable.builtinPos;
             paramIdentifier.setTypeNode(valueTypeNode);
             paramIdentifier.type = bType;
         }
@@ -7421,6 +7435,68 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!missingNodesHelper.isMissingNode(name)) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_SYMBOL, name);
         }
+    }
+
+    private void markTypeAsIsolated(BType actualType) {
+        actualType.flags |= Flags.ISOLATED;
+        actualType.tsymbol.flags |= Flags.ISOLATED;
+    }
+
+    private boolean isObjectConstructorExpr(BLangTypeInit cIExpr, BType actualType) {
+        return cIExpr.getType() != null && Symbols.isFlagOn(actualType.tsymbol.flags, Flags.ANONYMOUS);
+    }
+
+    private BLangClassDefinition getClassDefinitionForObjectConstructorExpr(BLangTypeInit cIExpr, SymbolEnv env) {
+        List<BLangClassDefinition> classDefinitions = env.enclPkg.classDefinitions;
+
+        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) cIExpr.getType();
+        BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(userDefinedType.pos, env,
+                                                                    names.fromIdNode(userDefinedType.pkgAlias),
+                                                                    names.fromIdNode(userDefinedType.typeName));
+
+        for (BLangClassDefinition classDefinition : classDefinitions) {
+            if (classDefinition.symbol == symbol) {
+                return classDefinition;
+            }
+        }
+        return null; // Won't reach here.
+    }
+
+    private void handleObjectConstrExprForReadOnlyCET(BLangTypeInit cIExpr, BObjectType actualObjectType,
+                                                      BLangClassDefinition classDefForConstructor, SymbolEnv env) {
+        for (BField field : actualObjectType.fields.values()) {
+            BType fieldType = field.type;
+            if (!types.isInherentlyImmutableType(fieldType) &&
+                    !types.isSelectivelyImmutableType(fieldType, false, false)) {
+                semanticAnalyzer.analyzeNode(classDefForConstructor, env);
+                return;
+            }
+        }
+
+        classDefForConstructor.flagSet.add(Flag.READONLY);
+        actualObjectType.flags |= Flags.READONLY;
+        actualObjectType.tsymbol.flags |= Flags.READONLY;
+
+        ImmutableTypeCloner.markFieldsAsImmutable(classDefForConstructor, env, actualObjectType, types,
+                                                  anonymousModelHelper, symTable, names, cIExpr.pos);
+
+        semanticAnalyzer.analyzeNode(classDefForConstructor, env);
+    }
+
+    private void markConstructedObjectIsolatedness(BObjectType actualObjectType) {
+        if (Symbols.isFlagOn(actualObjectType.flags, Flags.READONLY)) {
+            markTypeAsIsolated(actualObjectType);
+            return;
+        }
+
+        for (BField field : actualObjectType.fields.values()) {
+            if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
+                    !types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(field.type)) {
+                return;
+            }
+        }
+
+        markTypeAsIsolated(actualObjectType);
     }
 
     private static class FieldInfo {

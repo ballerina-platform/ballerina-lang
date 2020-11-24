@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
@@ -25,6 +27,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
+import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
@@ -45,7 +48,8 @@ public class BuildProject extends Project {
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
-        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath);
+        BuildProject buildProject = new BuildProject(
+                environmentBuilder, projectPath, new BuildOptionsBuilder().build());
         buildProject.addPackage(packageConfig);
         return buildProject;
     }
@@ -57,11 +61,21 @@ public class BuildProject extends Project {
      * @return build project
      */
     public static BuildProject load(Path projectPath) {
-        return load(ProjectEnvironmentBuilder.getDefaultBuilder(), projectPath);
+        return load(projectPath, new BuildOptionsBuilder().build());
     }
 
-    private BuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
-        super(ProjectKind.BUILD_PROJECT, projectPath, environmentBuilder);
+    public static BuildProject load(Path projectPath, BuildOptions buildOptions) {
+        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
+        BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(projectPath, buildOptions);
+        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions);
+        buildProject.addPackage(packageConfig);
+        return buildProject;
+    }
+
+    private BuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions buildOptions) {
+        super(ProjectKind.BUILD_PROJECT, projectPath, environmentBuilder, buildOptions);
+        populateCompilerContext();
     }
 
     public Optional<Path> modulePath(ModuleId moduleId) {

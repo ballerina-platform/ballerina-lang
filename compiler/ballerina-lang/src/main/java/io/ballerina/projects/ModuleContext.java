@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
@@ -45,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
  * Maintains the internal state of a {@code Module} instance.
@@ -164,8 +167,7 @@ class ModuleContext {
             moduleLoadRequests.addAll(docContext.moduleLoadRequests());
         }
 
-        // TODO Skip this if the tests are skipped.
-        if (!testSrcDocIds.isEmpty()) {
+        if (!this.project.buildOptions().skipTests() && !testSrcDocIds.isEmpty()) {
             for (DocumentContext docContext : testDocContextMap.values()) {
                 moduleLoadRequests.addAll(docContext.moduleLoadRequests());
             }
@@ -284,7 +286,7 @@ class ModuleContext {
 
         Module resolvedModule = resolvedModuleOptional.get();
         ModuleDependency moduleDependency = new ModuleDependency(
-                new PackageDependency(resolvedModule.packageInstance().packageId()),
+                new PackageDependency(resolvedModule.packageInstance().packageId(), PackageDependencyScope.DEFAULT),
                 resolvedModule.moduleId());
         moduleDependencies.add(moduleDependency);
     }
@@ -326,9 +328,10 @@ class ModuleContext {
             pkgNode.addCompilationUnit(documentContext.compilationUnit(compilerContext, moduleCompilationId));
         }
 
-        // Parse test source files
-        // TODO use the compilerOption such as --skip-tests to enable or disable tests
-        if (!moduleContext.testSrcDocumentIds().isEmpty()) {
+        // Parse test source files if --skip-tests option is set to false
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+        if (!Boolean.parseBoolean(compilerOptions.get(SKIP_TESTS))
+                && !moduleContext.testSrcDocumentIds().isEmpty()) {
             moduleContext.parseTestSources(pkgNode, moduleCompilationId, compilerContext);
         }
 

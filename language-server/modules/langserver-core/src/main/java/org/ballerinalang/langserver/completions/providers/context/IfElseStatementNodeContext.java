@@ -44,7 +44,7 @@ public class IfElseStatementNodeContext extends AbstractCompletionProvider<IfEls
     public List<LSCompletionItem> getCompletions(CompletionContext context, IfElseStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.FUNCTION)
                 .collect(Collectors.toList());

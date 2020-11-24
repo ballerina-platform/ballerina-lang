@@ -23,6 +23,7 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.balo.BaloProject;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
@@ -108,7 +109,7 @@ public class PushCommand implements BLauncherCmd {
         BuildProject project;
         try {
             project = BuildProject.load(userDir);
-        } catch (RuntimeException e) {
+        } catch (ProjectException e) {
             CommandUtil.printError(errStream, e.getMessage(), null, false);
             return;
         }

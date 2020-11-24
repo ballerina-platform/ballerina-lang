@@ -37,15 +37,24 @@ import java.util.List;
 public abstract class AbstractLexer {
 
     protected static final int INITIAL_TRIVIA_CAPACITY = 10;
-    protected List<STNode> leadingTriviaList = new ArrayList<>(INITIAL_TRIVIA_CAPACITY);
-    private Collection<STNodeDiagnostic> diagnostics = new ArrayList<>();
+    protected List<STNode> leadingTriviaList;
+    private Collection<STNodeDiagnostic> diagnostics;
     protected CharReader reader;
     protected ParserMode mode;
     protected ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
 
     public AbstractLexer(CharReader charReader, ParserMode initialParserMode) {
+        this(charReader, initialParserMode, new ArrayList<>(INITIAL_TRIVIA_CAPACITY), new ArrayList<>());
+    }
+
+    public AbstractLexer(CharReader charReader,
+                         ParserMode initialParserMode,
+                         List<STNode> leadingTriviaList,
+                         Collection<STNodeDiagnostic> diagnostics) {
         this.reader = charReader;
         startMode(initialParserMode);
+        this.leadingTriviaList = leadingTriviaList;
+        this.diagnostics = diagnostics;
     }
 
     /**

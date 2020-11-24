@@ -22,6 +22,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.ProjectException;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -97,7 +98,7 @@ public class ProjectUtils {
      * @return True if valid package name, else false.
      */
     public static boolean validatePkgName(String packageName) {
-        String validLanglib = "^[lang.a-z0-9_]*$";
+        String validLanglib = "^lang.[a-z0-9_]*$";
         String validRegex = "^[a-zA-Z0-9_]*$";
         // We have special case for lang. packages
         // todo consider orgname when checking is it is a lang lib
@@ -340,7 +341,7 @@ public class ProjectUtils {
                         s.append(c);
                     }
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new ProjectException(e);
                 }
                 if (c != '\n') {
                     s.append('\n');
@@ -439,4 +440,5 @@ public class ProjectUtils {
         Path modulePath = projectPath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
         return Files.exists(modulePath);
     }
+
 }

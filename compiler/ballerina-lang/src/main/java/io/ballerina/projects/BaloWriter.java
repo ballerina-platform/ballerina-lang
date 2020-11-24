@@ -89,7 +89,7 @@ public abstract class BaloWriter {
             // Now lets put stuff in
             populateBaloArchive(baloOutputStream, pkg);
         } catch (IOException e) {
-            throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);
+            throw new ProjectException("Failed to create balo :" + e.getMessage(), e);
         } catch (BLangCompilerException be) {
             // clean up if an error occur
             try {
@@ -119,7 +119,7 @@ public abstract class BaloWriter {
             putZipEntry(baloOutputStream, Paths.get(BALO_JSON),
                     new ByteArrayInputStream(baloJson.getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write 'balo.json' file: " + e.getMessage(), e);
+            throw new ProjectException("Failed to write 'balo.json' file: " + e.getMessage(), e);
         }
     }
 
@@ -173,7 +173,7 @@ public abstract class BaloWriter {
             putZipEntry(baloOutputStream, Paths.get(PACKAGE_JSON),
                     new ByteArrayInputStream(gson.toJson(packageJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write 'package.json' file: " + e.getMessage(), e);
+            throw new ProjectException("Failed to write 'package.json' file: " + e.getMessage(), e);
         }
     }
 
@@ -267,21 +267,26 @@ public abstract class BaloWriter {
             putZipEntry(baloOutputStream, Paths.get(DEPENDENCY_GRAPH_JSON),
                     new ByteArrayInputStream(gson.toJson(depGraphJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
+            throw new ProjectException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
         }
     }
 
-    private List<Dependency> getPackageDependencies(DependencyGraph<Package> dependencyGraph) {
+    private List<Dependency> getPackageDependencies(DependencyGraph<ResolvedPackageDependency> dependencyGraph) {
         List<Dependency> dependencies = new ArrayList<>();
-        for (Package pkg : dependencyGraph.getNodes()) {
-            PackageContext packageContext = pkg.packageContext();
+        for (ResolvedPackageDependency resolvedDep : dependencyGraph.getNodes()) {
+            if (resolvedDep.scope() == PackageDependencyScope.TEST_ONLY) {
+                // We don't add the test dependencies to the balr file.
+                continue;
+            }
+
+            PackageContext packageContext = resolvedDep.packageInstance().packageContext();
             Dependency dependency = new Dependency(packageContext.packageOrg().toString(),
                     packageContext.packageName().toString(), packageContext.packageVersion().toString());
 
             List<Dependency> dependencyList = new ArrayList<>();
-            Collection<Package> pkgDependencies = dependencyGraph.getDirectDependencies(pkg);
-            for (Package dependencyPkg : pkgDependencies) {
-                PackageContext dependencyPkgContext = dependencyPkg.packageContext();
+            Collection<ResolvedPackageDependency> pkgDependencies = dependencyGraph.getDirectDependencies(resolvedDep);
+            for (ResolvedPackageDependency resolvedTransitiveDep : pkgDependencies) {
+                PackageContext dependencyPkgContext = resolvedTransitiveDep.packageInstance().packageContext();
                 Dependency dep = new Dependency(dependencyPkgContext.packageOrg().toString(),
                         dependencyPkgContext.packageName().toString(),
                         dependencyPkgContext.packageVersion().toString());

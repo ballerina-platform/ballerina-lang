@@ -82,3 +82,32 @@ function testIsolatedFunctionSemanticsNegative() {
 
     Quuz v6 = {f: new Quux()};
 }
+
+class NonIsolatedClass {
+    int i = 1;
+}
+
+function testNonImplicitlyIsolatedObjectConstrExpr() {
+    var ob = object {
+        final int[] x = [];
+        final NonIsolatedClass y = new;
+    };
+
+    isolated object {} isolatedOb = ob;
+}
+
+isolated class IsolatedClassWithIsolatedObjectFields {
+    final isolated object {} i = object {}; // isolated since the constructed object is readonly
+    final isolated object { int x; } j = object { private int x = 0; };
+}
+
+function testInvalidNonIsolatedObjectConstructorForIsolatedObject() {
+    IsolatedClassWithIsolatedObjectFields f = object {
+        final isolated object {} i = object {
+            private int x = 1;
+        };
+        final isolated object { int x; } j = object {
+            private int x = 1;
+        };
+    };
+}

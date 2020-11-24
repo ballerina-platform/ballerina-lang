@@ -26,6 +26,7 @@ dependencies {
     implementation project(':language-server:language-server-compiler')
     implementation project(':language-server:language-server-core')
     implementation project(':language-server:language-server-cli')
+    implementation 'org.apache.commons:commons-lang3'
 
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-tool')

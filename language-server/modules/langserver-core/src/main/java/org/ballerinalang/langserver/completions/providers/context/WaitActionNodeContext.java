@@ -53,7 +53,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
             Covers the following,
             (1) wait fs1|f<cursor>
              */
-            List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
             List<Symbol> filteredSymbols = visibleSymbols.stream().filter(symbol -> {
                 Optional<TypeDescKind> typeDescKind = SymbolUtil.getTypeKind(symbol);
                 return typeDescKind.isPresent() && typeDescKind.get() == TypeDescKind.FUTURE;

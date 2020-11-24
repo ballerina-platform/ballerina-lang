@@ -20,6 +20,8 @@ package io.ballerina.projects.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.BallerinaToml;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
@@ -39,6 +41,7 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.util.ProjectConstants;
@@ -198,8 +201,19 @@ public class TestBuildProject {
         // 3) Resolve the package dependencies
         PackageResolution resolution = currentPackage.getResolution();
 
-        DependencyGraph<Package> dependencyGraph = resolution.dependencyGraph();
-        Assert.assertEquals(dependencyGraph.getDirectDependencies(currentPackage).size(), 1);
+        ResolvedPackageDependency currentNode = null;
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = resolution.dependencyGraph();
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            if (graphNode.packageId() == currentPackage.packageId()) {
+                currentNode = graphNode;
+            }
+        }
+
+        if (currentNode == null) {
+            throw new IllegalStateException("Current package is found in the dependency graph");
+        }
+
+        Assert.assertEquals(dependencyGraph.getDirectDependencies(currentNode).size(), 1);
     }
 
     @Test (description = "tests loading an invalid Ballerina project")
@@ -239,6 +253,47 @@ public class TestBuildProject {
             Assert.assertTrue(e.getMessage().contains("Provided path is already within a Ballerina package: " +
                     projectPath));
         }
+    }
+
+    @Test(enabled = false, description = "tests loading a valid build project with build options from toml")
+    public void testLoadingBuildOptionsFromToml() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        // Verify expected default buildOptions
+        Assert.assertTrue(project.buildOptions().skipTests());
+        Assert.assertTrue(project.buildOptions().observabilityIncluded());
+        Assert.assertFalse(project.buildOptions().codeCoverage());
+        Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertTrue(project.buildOptions().experimental());
+        Assert.assertFalse(project.buildOptions().testReport());
+    }
+
+    @Test(enabled = false, description = "tests loading a valid build project with build options from toml")
+    public void testOverrideBuildOptions() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        BuildOptions buildOptions = new BuildOptionsBuilder().skipTests(false).build();
+        try {
+            project = BuildProject.load(projectPath, buildOptions);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        // Verify expected default buildOptions
+        Assert.assertFalse(project.buildOptions().skipTests());
+        Assert.assertTrue(project.buildOptions().observabilityIncluded());
+        Assert.assertFalse(project.buildOptions().codeCoverage());
+        Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertTrue(project.buildOptions().experimental());
+        Assert.assertFalse(project.buildOptions().testReport());
     }
 
     @Test
@@ -582,7 +637,7 @@ public class TestBuildProject {
 
         try {
             BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        } catch (RuntimeException e) {
+        } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("module directory path does not exist"));
         }
     }
