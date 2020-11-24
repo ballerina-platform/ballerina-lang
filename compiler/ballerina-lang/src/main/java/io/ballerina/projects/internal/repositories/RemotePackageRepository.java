@@ -7,6 +7,7 @@ import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -67,8 +68,12 @@ public class RemotePackageRepository implements PackageRepository {
         Path packagePathInBaloCache = this.fileSystemRepo.balo.resolve(orgName).resolve(packageName);
 
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
-            this.client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform,
-                                    RepoUtils.getBallerinaVersion(), true);
+            try {
+                this.client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform,
+                                        RepoUtils.getBallerinaVersion(), true);
+            } catch (CentralClientException e) {
+                // ignore when get package fail
+            }
         }
 
         return this.fileSystemRepo.getPackage(resolutionRequest);
