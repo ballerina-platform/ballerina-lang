@@ -153,7 +153,7 @@ public class ProjectFiles {
 
     public static BuildOptions createBuildOptions(Path projectPath, BuildOptions theirOptions) {
         Path ballerinaTomlFilePath = projectPath.resolve(ProjectConstants.BALLERINA_TOML);
-        BuildOptions defaultBuildOptions = BallerinaTomlProcessor.parseBuildOptions(ballerinaTomlFilePath);
+        BuildOptions defaultBuildOptions = BallerinaTomlProcessor.parse(ballerinaTomlFilePath).getBuildOptions();
         if (defaultBuildOptions == null) {
             defaultBuildOptions = new BuildOptionsBuilder().build();
         }
