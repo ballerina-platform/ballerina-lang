@@ -30,9 +30,11 @@ import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
@@ -123,7 +125,7 @@ public class BCompileUtil {
                                                 String pkgName,
                                                 String version) throws IOException {
         Path targetPath = baloCachePath(org, pkgName, version);
-        Files.copy(srcPath, targetPath);
+        Files.copy(srcPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     public static ProjectEnvironmentBuilder getTestProjectEnvironmentBuilder() {

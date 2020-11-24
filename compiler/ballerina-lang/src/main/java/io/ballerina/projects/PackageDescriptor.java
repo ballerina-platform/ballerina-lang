@@ -26,6 +26,8 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class PackageDescriptor {
+    private static final String LANG_LIB_PACKAGE_NAME_PREFIX = "lang.";
+
     private final PackageName packageName;
     private final PackageOrg packageOrg;
     private final PackageVersion packageVersion;
@@ -53,6 +55,10 @@ public class PackageDescriptor {
 
     public PackageVersion version() {
         return packageVersion;
+    }
+
+    public boolean isLangLibPackage() {
+        return org().isBallerinaOrg() && packageName.value().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX);
     }
 
     @Override
