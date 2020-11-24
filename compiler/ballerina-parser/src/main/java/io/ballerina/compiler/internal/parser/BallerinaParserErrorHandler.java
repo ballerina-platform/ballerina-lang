@@ -951,10 +951,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case ARG_LIST_END:
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN;
                     break;
-                case OBJECT_CONSTRUCTOR_QUALIFIER:
-                    hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
-                            nextToken.kind == SyntaxKind.SERVICE_KEYWORD;
-                    break;
                 case FIRST_OBJECT_CONS_QUALIFIER:
                 case SECOND_OBJECT_CONS_QUALIFIER:
                 case OBJECT_TYPE_QUALIFIER:

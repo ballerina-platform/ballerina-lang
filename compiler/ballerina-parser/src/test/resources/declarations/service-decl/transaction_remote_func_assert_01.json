@@ -2,6 +2,10 @@
   "kind": "SERVICE_DECLARATION",
   "children": [
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "SERVICE_KEYWORD",
       "trailingMinutiae": [
         {

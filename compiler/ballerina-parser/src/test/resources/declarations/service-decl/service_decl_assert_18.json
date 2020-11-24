@@ -25,6 +25,10 @@
       ]
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "ON_KEYWORD",
       "trailingMinutiae": [
         {
@@ -54,35 +58,30 @@
       ]
     },
     {
-      "kind": "SERVICE_BODY",
-      "children": [
+      "kind": "OPEN_BRACE_TOKEN",
+      "trailingMinutiae": [
         {
-          "kind": "OPEN_BRACE_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ]
-        },
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN",
+      "leadingMinutiae": [
         {
-          "kind": "LIST",
-          "children": []
-        },
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ],
+      "trailingMinutiae": [
         {
-          "kind": "CLOSE_BRACE_TOKEN",
-          "leadingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ],
-          "trailingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ]
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
         }
       ]
     }
