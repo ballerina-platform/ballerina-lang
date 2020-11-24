@@ -2386,18 +2386,21 @@ public class SymbolEnter extends BLangNodeVisitor {
                 symbol.defaultableParam = true;
             }
             if (varNode.flagSet.contains(Flag.INCLUDED) && varNode.type.getKind() == TypeKind.RECORD) {
+                boolean fieldDescWithDisallowFieldsOnly = true;
                 symbol.flags |= Flags.INCLUDED;
-                if (((BRecordType) varNode.type).restFieldType != symTable.noType) {
-                    openIncludedRecordParams.add(symbol);
-                }
                 LinkedHashMap<String, BField> fields = ((BRecordType) varNode.type).fields;
-                for (String field : fields.keySet()) {
-                    if (!Symbols.isFlagOn(Flags.asMask(fields.get(field).symbol.getFlags()), Flags.OPTIONAL)) {
-                        includedRecordParams.add(fields.get(field).symbol);
-                        if (!requiredParamNames.add(field)) {
-                            dlog.error(varNode.pos, REDECLARED_SYMBOL, field);
+                for (String fieldName : fields.keySet()) {
+                    BField field = fields.get(fieldName);
+                    if (field.symbol.type.tag != TypeTags.NEVER) {
+                        fieldDescWithDisallowFieldsOnly = false;
+                        includedRecordParams.add(field.symbol);
+                        if (!requiredParamNames.add(fieldName)) {
+                            dlog.error(varNode.pos, REDECLARED_SYMBOL, fieldName);
                         }
                     }
+                }
+                if (fieldDescWithDisallowFieldsOnly && ((BRecordType) varNode.type).restFieldType != symTable.noType) {
+                    openIncludedRecordParams.add(symbol);
                 }
             } else {
                 requiredParamNames.add(symbol.name.value);
@@ -2445,16 +2448,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (inclusiveIncludedRecordParams.size() != 1) {
             return false;
         }
-
         LinkedHashMap<String, BField> fields = ((BRecordType) inclusiveIncludedRecordParams.get(0).type).fields;
-        if (fields.size() != requiredParamNames.size()) {
-            return false;
-        } else {
-            for (String field : fields.keySet()) {
-                if (!Symbols.isFlagOn(Flags.asMask(fields.get(field).symbol.getFlags()), Flags.OPTIONAL)
-                        || requiredParamNames.add(field)) {
-                    return false;
-                }
+        for (String paramName : requiredParamNames) {
+            if (!fields.containsKey(paramName)) {
+                return false;
             }
         }
         return true;

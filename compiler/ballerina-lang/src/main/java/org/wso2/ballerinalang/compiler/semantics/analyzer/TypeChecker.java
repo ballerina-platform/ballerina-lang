@@ -5292,8 +5292,22 @@ public class TypeChecker extends BLangNodeVisitor {
         BInvokableSymbol invokableSymbol = ((BInvokableSymbol) iExpr.symbol);
         List<BType> paramTypes = ((BInvokableType) invokableSymbol.type).getParameterTypes();
 
-        int parameterCount = paramTypes.size();
+        int parameterCountForPositionalArgs = paramTypes.size();
+        int parameterCountForNamedArgs = parameterCountForPositionalArgs + invokableSymbol.includedRecordParams.size();
         iExpr.requiredArgs = new ArrayList<>();
+        for (BVarSymbol symbol : invokableSymbol.params) {
+            if (Symbols.isFlagOn(Flags.asMask(symbol.getFlags()), Flags.INCLUDED)) {
+                LinkedHashMap<String, BField> fields = ((BRecordType) symbol.type).fields;
+                if (!fields.isEmpty()) {
+                    for (String field : fields.keySet()) {
+                        if (fields.get(field).type.tag != TypeTags.NEVER) {
+                            parameterCountForNamedArgs = parameterCountForNamedArgs - 1;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
         // Split the different argument types: required args, named args and rest args
         int i = 0;
@@ -5303,8 +5317,7 @@ public class TypeChecker extends BLangNodeVisitor {
             switch (expr.getKind()) {
                 case NAMED_ARGS_EXPR:
                     foundNamedArg = true;
-                    if (i < parameterCount + invokableSymbol.includedRecordParams.size() ||
-                                                        invokableSymbol.incRecordParamAllowAdditionalFields != null) {
+                    if (i < parameterCountForNamedArgs || invokableSymbol.incRecordParamAllowAdditionalFields != null) {
                         iExpr.requiredArgs.add(expr);
                     } else {
                         // can not provide a rest parameters as named args
@@ -5323,7 +5336,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     if (foundNamedArg) {
                         dlog.error(expr.pos, DiagnosticErrorCode.POSITIONAL_ARG_DEFINED_AFTER_NAMED_ARG);
                     }
-                    if (i < parameterCount) {
+                    if (i < parameterCountForPositionalArgs) {
                         iExpr.requiredArgs.add(expr);
                     } else {
                         iExpr.restArgs.add(expr);
@@ -5435,9 +5448,15 @@ public class TypeChecker extends BLangNodeVisitor {
             // Log errors if any non-defaultable required record fields of included record parameters are not given as
             // named args.
             for (BVarSymbol requiredIncludedRecordParam : requiredIncludedRecordParams) {
-                dlog.error(iExpr.pos, DiagnosticErrorCode.MISSING_REQUIRED_INCLUDED_RECORD_PARAMETER_FIELD,
-                        requiredIncludedRecordParam.name, iExpr.name.value);
-                errored = true;
+                if (!Symbols.isFlagOn(Flags.asMask(requiredIncludedRecordParam.getFlags()), Flags.OPTIONAL)) {
+                    for (BVarSymbol requiredParam : requiredParams) {
+                        if (requiredParam.type == requiredIncludedRecordParam.owner.type) {
+                            dlog.error(iExpr.pos, DiagnosticErrorCode.MISSING_REQUIRED_INCLUDED_RECORD_PARAMETER_FIELD,
+                                    requiredIncludedRecordParam.name, iExpr.name.value);
+                            errored = true;
+                        }
+                    }
+                }
             }
         }
 
@@ -5602,15 +5621,16 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         for (BVarSymbol includedRecordParam : includedRecordParams) {
-            if (includedRecordParam.getName().value.equals(argName.value) &&
-                    !Symbols.isFlagOn(Flags.asMask(includedRecordParam.getFlags()), Flags.OPTIONAL)) {
+            if (includedRecordParam.getName().value.equals(argName.value)) {
                 return includedRecordParam;
             }
         }
-        if (incRecordParamAllowAdditionalFields != null &&
-                types.isAssignable(expr.type, ((BRecordType) incRecordParamAllowAdditionalFields.type).restFieldType)) {
-            return new BVarSymbol(0, names.fromIdNode(argName),
-                    null, symTable.noType, null, argName.pos, VIRTUAL);
+        if (incRecordParamAllowAdditionalFields != null) {
+            LinkedHashMap<String, BField> fields = ((BRecordType) incRecordParamAllowAdditionalFields.type).fields;
+            if (!fields.containsKey(argName.value) && types.isAssignable(expr.type,
+                                            ((BRecordType) incRecordParamAllowAdditionalFields.type).restFieldType)) {
+                return new BVarSymbol(0, names.fromIdNode(argName), null, symTable.noType, null, argName.pos, VIRTUAL);
+            }
         }
         return null;
     }

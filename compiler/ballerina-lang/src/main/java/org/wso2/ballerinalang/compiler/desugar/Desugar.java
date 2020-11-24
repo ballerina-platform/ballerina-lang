@@ -6392,23 +6392,24 @@ public class Desugar extends BLangNodeVisitor {
         iExpr.requiredArgs = args;
     }
 
-    private void createIncludedRecordLiteral(BLangInvocation iExpr, BVarSymbol param, Map<String,
-            BLangExpression> namedArgs, List<BLangExpression> args) {
-        BLangRecordLiteral recordLiteral = TreeBuilder.createBLangRecordLiteralNode();
-        recordLiteral.type = param.type;
+    private void createIncludedRecordLiteral(BLangInvocation iExpr, BVarSymbol param,
+                                             Map<String, BLangExpression> namedArgs, List<BLangExpression> args) {
+        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        BType paramType = param.type;
+        recordLiteral.type = paramType;
         if (param == ((BInvokableSymbol) iExpr.symbol).incRecordParamAllowAdditionalFields) {
             for (String name : namedArgs.keySet()) {
                 BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
-                if (!((BRecordType) param.type).fields.containsKey(name)) {
+                if (!((BRecordType) paramType).fields.containsKey(name)) {
                     createAndAddRecordFieldForIncludedRecordLiteral(recordLiteral, expr);
                 }
             }
         } else {
             for (String name : namedArgs.keySet()) {
                 BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
-                LinkedHashMap<String, BField> fields = ((BRecordType) param.type).fields;
+                LinkedHashMap<String, BField> fields = ((BRecordType) paramType).fields;
                 if (fields.containsKey(name) && ((BInvokableSymbol) iExpr.symbol).includedRecordParams.
-                        contains(fields.get(name).symbol)) {
+                        contains(fields.get(name).symbol) && fields.get(name).type.tag != TypeTags.NEVER) {
                     createAndAddRecordFieldForIncludedRecordLiteral(recordLiteral, expr);
                 }
             }
