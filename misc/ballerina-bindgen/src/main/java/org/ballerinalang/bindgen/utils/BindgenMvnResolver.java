@@ -17,15 +17,14 @@
  */
 package org.ballerinalang.bindgen.utils;
 
+import io.ballerina.projects.internal.BallerinaTomlProcessor;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.ballerinalang.toml.model.Library;
-import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Platform;
-import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -117,9 +116,8 @@ public class BindgenMvnResolver {
 
     private static void populateBallerinaToml(String groupId, String artifactId, String version, File tomlFile,
                                               Path projectRoot, String parent) throws BindgenException {
-        Manifest manifest = TomlParserUtils.getManifest(projectRoot);
         try (FileWriterWithEncoding fileWriter = new FileWriterWithEncoding(tomlFile, StandardCharsets.UTF_8, true)) {
-            Platform platform = manifest.getPlatform();
+            Platform platform = BallerinaTomlProcessor.parse(tomlFile.toPath()).getPlatform();
             if (platform == null || (platform.target == null && platform.libraries == null)) {
                 fileWriter.write("\n\n[platform]\n");
                 fileWriter.write("target = \"java11\"\n");

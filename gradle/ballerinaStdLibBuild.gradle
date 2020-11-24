@@ -61,6 +61,7 @@ dependencies {
     distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:runtime', configuration: 'distributionBalo')
     //distributionBalo project(path: ':ballerina-lang-test', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')

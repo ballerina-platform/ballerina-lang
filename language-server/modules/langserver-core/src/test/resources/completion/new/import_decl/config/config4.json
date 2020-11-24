@@ -14,27 +14,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.transaction",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "lang.'transaction;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "java",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
       "insertText": "lang.'value;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.query",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'query;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -46,11 +38,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.query",
+      "label": "lang.transaction",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "lang.'query;",
+      "insertText": "lang.'transaction;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'runtime;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "java",
       "insertTextFormat": "Snippet"
     }
   ]

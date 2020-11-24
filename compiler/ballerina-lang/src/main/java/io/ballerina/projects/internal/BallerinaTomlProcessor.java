@@ -62,10 +62,16 @@ public class BallerinaTomlProcessor {
 
     private BallerinaTomlProcessor() {}
 
-    public static BuildOptions parseBuildOptions(Path tomlPath) {
+    /**
+     * Parse `ballerina.toml` file in to `BallerinaToml` object.
+     *
+     * @param tomlPath path of the toml file
+     * @return `BallerinaToml` object
+     */
+    public static BallerinaToml parse(Path tomlPath) {
         try {
             toml = parseAsToml(tomlPath);
-            return parse(toml).getBuildOptions();
+            return parse(toml);
         } catch (TomlException e) {
             throw new ProjectException(e.getMessage(), e);
         }

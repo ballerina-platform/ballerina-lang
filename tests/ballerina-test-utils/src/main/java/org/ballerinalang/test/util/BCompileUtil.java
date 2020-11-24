@@ -180,7 +180,7 @@ public class BCompileUtil {
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
         if (temp) {
-            scheduler.immortal = true;
+            scheduler.setImmortal(true);
             new Thread(scheduler::start).start();
         }
     }
