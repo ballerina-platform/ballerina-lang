@@ -129,8 +129,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
-    private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
-            "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
+    private static final String buildCmd = "ballerina build [-o <output>] [--offline] [--skip-tests]\n" +
+            "                    [--skip-lock] [<ballerina-file | project-name>] [--] [(--key=value)...]";
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
     private Boolean testReport;

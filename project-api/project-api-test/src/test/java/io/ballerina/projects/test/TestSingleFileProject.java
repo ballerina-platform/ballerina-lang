@@ -61,6 +61,27 @@ public class TestSingleFileProject {
 
     }
 
+    @Test (description = "tests loading a valid standalone Ballerina file")
+    public void testLoadSingleFileInProject() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("util").resolve("file-util.bal");
+        SingleFileProject project = null;
+        try {
+            project = SingleFileProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 1);
+
+        Collection<ModuleId> moduleIds = currentPackage.moduleIds();
+        Assert.assertEquals(moduleIds.size(), 1);
+        Assert.assertEquals(moduleIds.iterator().next(), currentPackage.getDefaultModule().moduleId());
+
+    }
+
     @Test (description = "tests loading an invalid standalone Ballerina file")
     public void testLoadSingleFileNegative() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
