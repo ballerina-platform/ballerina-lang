@@ -16,24 +16,16 @@
  *  under the License.
  */
 
-package org.ballerinalang.central.client;
+package org.ballerinalang.central.client.exceptions;
 
 /**
- * Class contains utility methods for error handling.
+ * Thrown to indicate that given access token is unauthorized.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
-public class ErrorUtil {
-    private ErrorUtil() {
-    }
+public class UnauthorizedException extends RuntimeException {
 
-    /**
-     * Create a central client exception.
-     *
-     * @param errorMsg error message
-     * @return command exception
-     */
-    public static CentralClientException createCentralClientException(String errorMsg) {
-        return new CentralClientException(errorMsg);
+    public UnauthorizedException(String message) {
+        super(message);
     }
 }
