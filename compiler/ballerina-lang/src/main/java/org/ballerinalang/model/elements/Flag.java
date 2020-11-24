@@ -140,5 +140,9 @@ public enum Flag {
     /**
      * Indicates flagged node is configurable.
      */
-    CONFIGURABLE
+    CONFIGURABLE,
+    /**
+     * Indicates flagged parameter is a included record parameter.
+     */
+    INCLUDED
 }
