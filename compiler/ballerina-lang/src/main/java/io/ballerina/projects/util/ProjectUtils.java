@@ -22,6 +22,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.ProjectException;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -340,7 +341,7 @@ public class ProjectUtils {
                         s.append(c);
                     }
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new ProjectException(e);
                 }
                 if (c != '\n') {
                     s.append('\n');

@@ -24,6 +24,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -89,7 +90,7 @@ public class TestSingleFileProject {
         try {
             SingleFileProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
-        } catch (Exception e) {
+        } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("The source file '" + projectPath +
                     "' belongs to a Ballerina package."));
         }
@@ -98,7 +99,7 @@ public class TestSingleFileProject {
         try {
             SingleFileProject.load(projectPath);
             Assert.fail("expected an invalid project exception");
-        } catch (Exception e) {
+        } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("The source file '" + projectPath +
                     "' belongs to a Ballerina package."));
         }

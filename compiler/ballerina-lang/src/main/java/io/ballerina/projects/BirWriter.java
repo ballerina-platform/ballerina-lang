@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
@@ -64,7 +63,7 @@ class BirWriter {
         } catch (IOException e) {
             String msg = "error writing the compiled module(BIR) of '" +
                     bLangPackage.packageID + "' to '" + birFilePath + "': " + e.getMessage();
-            throw new BLangCompilerException(msg, e);
+            throw new ProjectException(msg, e);
         }
     }
 }
