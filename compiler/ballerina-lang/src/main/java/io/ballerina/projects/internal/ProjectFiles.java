@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.internal;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.util.ProjectConstants;
@@ -149,6 +151,15 @@ public class ProjectFiles {
         return BallerinaTomlProcessor.parseAsPackageManifest(ballerinaTomlFilePath);
     }
 
+    public static BuildOptions createBuildOptions(Path projectPath, BuildOptions theirOptions) {
+        Path ballerinaTomlFilePath = projectPath.resolve(ProjectConstants.BALLERINA_TOML);
+        BuildOptions defaultBuildOptions = BallerinaTomlProcessor.parseBuildOptions(ballerinaTomlFilePath);
+        if (defaultBuildOptions == null) {
+            defaultBuildOptions = new BuildOptionsBuilder().build();
+        }
+        return defaultBuildOptions.acceptTheirs(theirOptions);
+    }
+
     public static void validateBuildProjectDirPath(Path projectDirPath) {
         if (Files.notExists(projectDirPath)) {
             throw new ProjectException("The directory does not exist: " + projectDirPath);
@@ -184,8 +195,18 @@ public class ProjectFiles {
 
         // Check if it is inside a project
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
-        if (projectRoot != null) {
-            throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
+        if (null != projectRoot) {
+            if (projectRoot.equals(Optional.of(filePath.getParent()).get().toAbsolutePath())) {
+                throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
+            }
+            // Check if it is inside a module
+            Path modulesRoot = projectRoot.resolve(ProjectConstants.MODULES_ROOT);
+            Path parent = filePath.getParent();
+            if (parent != null) {
+                if (modulesRoot.equals(Optional.of(parent.getParent()).get().toAbsolutePath())) {
+                    throw new ProjectException("The source file '" + filePath + "' belongs to a Ballerina package.");
+                }
+            }
         }
     }
 

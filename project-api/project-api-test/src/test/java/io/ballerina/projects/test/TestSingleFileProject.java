@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -59,6 +61,27 @@ public class TestSingleFileProject {
 
     }
 
+    @Test (description = "tests loading a valid standalone Ballerina file")
+    public void testLoadSingleFileInProject() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("util").resolve("file-util.bal");
+        SingleFileProject project = null;
+        try {
+            project = SingleFileProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 1);
+
+        Collection<ModuleId> moduleIds = currentPackage.moduleIds();
+        Assert.assertEquals(moduleIds.size(), 1);
+        Assert.assertEquals(moduleIds.iterator().next(), currentPackage.getDefaultModule().moduleId());
+
+    }
+
     @Test (description = "tests loading an invalid standalone Ballerina file")
     public void testLoadSingleFileNegative() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
@@ -79,6 +102,48 @@ public class TestSingleFileProject {
             Assert.assertTrue(e.getMessage().contains("The source file '" + projectPath +
                     "' belongs to a Ballerina package."));
         }
+    }
+
+    @Test(description = "tests setting build options to the project")
+    public void testDefaultBuildOptions() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        SingleFileProject project = null;
+        try {
+            project = SingleFileProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        // Verify expected default buildOptions
+        Assert.assertFalse(project.buildOptions().skipTests());
+        Assert.assertFalse(project.buildOptions().observabilityIncluded());
+        Assert.assertFalse(project.buildOptions().codeCoverage());
+        Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertFalse(project.buildOptions().experimental());
+        Assert.assertFalse(project.buildOptions().testReport());
+    }
+
+    @Test(description = "tests setting build options to the project")
+    public void testOverrideBuildOptions() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        SingleFileProject project = null;
+        BuildOptions buildOptions = new BuildOptionsBuilder()
+                .skipTests(true)
+                .observabilityIncluded(true)
+                .build();
+        try {
+            project = SingleFileProject.load(projectPath, buildOptions);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        // Verify expected overridden buildOptions
+        Assert.assertTrue(project.buildOptions().skipTests());
+        Assert.assertTrue(project.buildOptions().observabilityIncluded());
+        Assert.assertFalse(project.buildOptions().codeCoverage());
+        Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertFalse(project.buildOptions().experimental());
+        Assert.assertFalse(project.buildOptions().testReport());
     }
 
     @Test

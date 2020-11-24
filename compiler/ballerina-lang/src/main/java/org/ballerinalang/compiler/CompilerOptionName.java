@@ -34,6 +34,8 @@ public enum CompilerOptionName {
 
     SKIP_TESTS("skipTests"),
 
+    OBSERVABILITY_INCLUDED("observabilityIncluded"),
+
     COMPILER_PHASE("compilerPhase"),
 
     TRANSACTION_EXISTS("transactionBlockExists"),
