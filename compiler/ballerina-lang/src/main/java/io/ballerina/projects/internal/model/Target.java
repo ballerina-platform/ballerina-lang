@@ -93,15 +93,11 @@ public class Target {
      * @param pkg Package instance
      * @return the path of the executable
      */
-    public Path getExecutablePath(Package pkg) {
+    public Path getExecutablePath(Package pkg) throws IOException {
         if (outputPath != null) {
             return outputPath;
         }
-        try {
-            return getBinPath().resolve(ProjectUtils.getExecutableName(pkg));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return getBinPath().resolve(ProjectUtils.getExecutableName(pkg));
     }
 
     /**

@@ -49,6 +49,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
  * 
  * @since 1.0.0
  */
+@Deprecated(forRemoval = true)
 public class ExtendedLSCompiler extends LSModuleCompiler {
 
     private static final Logger logger = LoggerFactory.getLogger(ExtendedLSCompiler.class);

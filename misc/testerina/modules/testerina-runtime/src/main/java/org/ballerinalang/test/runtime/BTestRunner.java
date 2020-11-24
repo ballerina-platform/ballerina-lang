@@ -554,12 +554,20 @@ public class BTestRunner {
         // As the init function we need to use $moduleInit to initialize all the dependent modules
         // properly.
         init.setName("$moduleInit");
-        init.invoke();
+        Object response = init.invoke();
+        if (response instanceof Exception) {
+            throw new BallerinaTestException("Dependant module initialization for test suite failed due to " +
+                    ((Exception) response).getCause());
+        }
         // Now we initialize the init of testable module.
         if (hasTestablePackage) {
             TesterinaFunction testInit =
                     new TesterinaFunction(testInitClazz, suite.getTestInitFunctionName(), initScheduler);
-            testInit.invoke();
+            response = testInit.invoke();
+            if (response instanceof Exception) {
+                throw new BallerinaTestException("Test module initialization for test suite failed due to " +
+                        ((Exception) response).getCause());
+            }
         }
         // As the start function we need to use $moduleStart to start all the dependent modules
         // properly.
@@ -572,7 +580,7 @@ public class BTestRunner {
             testStart.invoke();
         }
         // Once the start function finish we will re start the scheduler with immortal true
-        initScheduler.immortal = true;
+        initScheduler.setImmortal(true);
         Thread immortalThread = new Thread(initScheduler::start, "module-start");
         immortalThread.setDaemon(true);
         immortalThread.start();
@@ -589,7 +597,7 @@ public class BTestRunner {
             testStop.invoke();
         }
         stop.setName("$moduleStop");
-        stop.directInvoke(new Class<?>[]{});
+        stop.directInvoke(new Class<?>[]{Scheduler.ListenerRegistry.class});
     }
 
     private Object invokeTestFunction(TestSuite suite, String functionName, ClassLoader classLoader,

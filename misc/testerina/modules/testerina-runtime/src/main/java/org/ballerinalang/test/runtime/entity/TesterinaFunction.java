@@ -89,7 +89,7 @@ public class TesterinaFunction {
         String funcName = cleanupFunctionName(name);
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
-            return method.invoke(null, new Object[]{});
+            return method.invoke(null, scheduler.getListenerRegistry());
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new BallerinaTestException("Failed to invoke the function '" +
                                                      funcName + " due to " + e.getMessage());

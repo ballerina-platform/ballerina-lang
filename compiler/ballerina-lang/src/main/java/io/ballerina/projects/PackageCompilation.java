@@ -25,6 +25,7 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +33,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+
+import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
  * Compilation at package level by resolving all the dependencies.
@@ -47,20 +53,33 @@ public class PackageCompilation {
     private DiagnosticResult diagnosticResult;
     private boolean compiled;
 
-    private PackageCompilation(PackageContext rootPackageContext, PackageResolution packageResolution) {
+    private PackageCompilation(PackageContext rootPackageContext,
+                               PackageResolution packageResolution,
+                               CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.packageResolution = packageResolution;
 
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
 
+        // Set compilation options retrieved from the build options
+        setCompilerOptions(compilationOptions);
+
         // We have only the jvm backend for now.
         this.compilerBackends = new HashMap<>(1);
     }
 
-    static PackageCompilation from(PackageContext rootPackageContext) {
+    private void setCompilerOptions(CompilationOptions compilationOptions) {
+        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
+        options.put(OFFLINE, Boolean.toString(compilationOptions.offlineBuild()));
+        options.put(SKIP_TESTS, Boolean.toString(compilationOptions.skipTests()));
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(compilationOptions.experimental()));
+        options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
+    }
+
+    static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         PackageResolution packageResolution = rootPackageContext.getResolution();
-        return new PackageCompilation(rootPackageContext, packageResolution);
+        return new PackageCompilation(rootPackageContext, packageResolution, compilationOptions);
     }
 
     public PackageResolution getResolution() {

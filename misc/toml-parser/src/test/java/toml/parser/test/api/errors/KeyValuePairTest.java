@@ -61,7 +61,7 @@ public class KeyValuePairTest {
                 DiagnosticSeverity.ERROR);
     }
 
-    @Test(enabled = false) //due to getExpectedTokenKind issue
+    @Test
     public void testMissingValue() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
@@ -73,10 +73,10 @@ public class KeyValuePairTest {
         Diagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils
-                .validateDiagnostic(actualDiag, expectedLineRange, "error missing value", DiagnosticSeverity.ERROR);
+                .validateDiagnostic(actualDiag, expectedLineRange, "missing value", DiagnosticSeverity.ERROR);
     }
 
-    @Test(enabled = false) //due to getExpectedTokenKind issue
+    @Test
     public void testMultipleMissing() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
@@ -94,13 +94,13 @@ public class KeyValuePairTest {
         Diagnostic actualDiag1 = diagnostics.get(1);
 
         ErrorTestUtils
-                .validateDiagnostic(actualDiag1, expectedLineRange1, "error missing key", DiagnosticSeverity.ERROR);
+                .validateDiagnostic(actualDiag1, expectedLineRange1, "missing identifier", DiagnosticSeverity.ERROR);
 
         LineRange expectedLineRange2 = ErrorTestUtils.toLineRange(26, 26, 1, 1);
         Diagnostic actualDiag2 = diagnostics.get(2);
 
         ErrorTestUtils
-                .validateDiagnostic(actualDiag2, expectedLineRange2, "error missing value", DiagnosticSeverity.ERROR);
+                .validateDiagnostic(actualDiag2, expectedLineRange2, "missing value", DiagnosticSeverity.ERROR);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class KeyValuePairTest {
                 .validateDiagnostic(actualDiag, expectedLineRange, "missing comma token", DiagnosticSeverity.ERROR);
     }
 
-    @Test(enabled = false) //due to getExpectedTokenKind issue
+    @Test
     public void testArrayMissingValue() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
@@ -126,10 +126,10 @@ public class KeyValuePairTest {
         Toml read = Toml.read(inputStream);
         List<Diagnostic> diagnostics = read.diagnostics();
 
-        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 8, 9);
+        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 8, 8);
         Diagnostic actualDiag = diagnostics.get(0);
 
-        ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange,  "invalid token ','",
+        ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange,  "missing value",
                 DiagnosticSeverity.ERROR);
     }
 }

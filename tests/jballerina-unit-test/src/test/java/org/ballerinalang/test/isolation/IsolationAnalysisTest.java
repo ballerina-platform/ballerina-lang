@@ -114,7 +114,7 @@ public class IsolationAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'isolated function () returns (int)', found " +
                 "'function () returns (int)'", 72, 48);
         validateError(result, i++, "incompatible types: expected 'isolated function (int) returns (int)', found " +
-                "'function (int) returns (int)'", 75, 57);
+                "'(function (int) returns (int)|isolated function (int) returns (int))'", 75, 57);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

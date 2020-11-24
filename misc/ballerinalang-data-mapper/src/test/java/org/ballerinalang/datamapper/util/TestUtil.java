@@ -1,17 +1,19 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
 package org.ballerinalang.datamapper.util;
 
@@ -20,14 +22,16 @@ import com.google.gson.JsonObject;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
-import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -70,8 +74,6 @@ public class TestUtil {
 
     private static final Gson GSON = new Gson();
 
-    private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
-
     private TestUtil() {
     }
 
@@ -87,7 +89,7 @@ public class TestUtil {
     public static String getCodeActionResponse(Endpoint serviceEndpoint, String filePath, Range range,
                                                CodeActionContext context) {
         LSCompilerCache.clearAll();
-        TextDocumentIdentifier identifier = new TextDocumentIdentifier(Paths.get(filePath).toUri().toString());
+        TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
         CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
         CompletableFuture result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
         return getResponseString(result);
@@ -126,14 +128,25 @@ public class TestUtil {
         serviceEndpoint.notify("textDocument/didClose", new DidCloseTextDocumentParams(documentIdentifier));
     }
 
+
     /**
      * Initialize the language server instance to use.
      *
      * @return {@link Endpoint}     Service Endpoint
      */
     public static Endpoint initializeLanguageSever() {
+        return initializeLanguageSeverAndGetDocManager().getLeft();
+    }
+
+    /**
+     * Initialize the language server instance to use.
+     *
+     * @return {@link Endpoint}     Service Endpoint
+     */
+    public static Pair<Endpoint, WorkspaceDocumentManager> initializeLanguageSeverAndGetDocManager() {
         LSPackageLoader.clearHomeRepoPackages();
-        Endpoint endpoint = ServiceEndpoints.toEndpoint(new BallerinaLanguageServer());
+        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+        Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
         InitializeParams params = new InitializeParams();
         ClientCapabilities capabilities = new ClientCapabilities();
         TextDocumentClientCapabilities textDocumentClientCapabilities = new TextDocumentClientCapabilities();
@@ -147,10 +160,12 @@ public class TestUtil {
 
         textDocumentClientCapabilities.setCompletion(completionCapabilities);
         textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
+
         capabilities.setTextDocument(textDocumentClientCapabilities);
         params.setCapabilities(capabilities);
         endpoint.request("initialize", params);
-        return endpoint;
+
+        return new ImmutablePair<>(endpoint, languageServer.getDocumentManager());
     }
 
     /**
@@ -160,6 +175,58 @@ public class TestUtil {
      */
     public static void shutdownLanguageServer(Endpoint serviceEndpoint) {
         serviceEndpoint.notify("shutdown", null);
+    }
+
+    public static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
+        TextDocumentIdentifier identifier = new TextDocumentIdentifier();
+        identifier.setUri(Paths.get(filePath).toUri().toString());
+
+        return identifier;
+    }
+
+    public static String getResponseString(CompletableFuture completableFuture) {
+        ResponseMessage jsonrpcResponse = new ResponseMessage();
+        try {
+            jsonrpcResponse.setId("324");
+            jsonrpcResponse.setResult(completableFuture.get());
+        } catch (InterruptedException e) {
+            ResponseError responseError = new ResponseError();
+            responseError.setCode(-32002);
+            responseError.setMessage("Attempted to retrieve the result of a task/s" +
+                    "that was aborted by throwing an exception");
+            jsonrpcResponse.setError(responseError);
+        } catch (ExecutionException e) {
+            ResponseError responseError = new ResponseError();
+            responseError.setCode(-32001);
+            responseError.setMessage("Current thread was interrupted");
+            jsonrpcResponse.setError(responseError);
+        }
+
+        return GSON.toJson(jsonrpcResponse).replace("\r\n", "\n").replace("\\r\\n", "\\n");
+    }
+
+    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath, WorkspaceManager workspaceManager)
+            throws IOException {
+        List<Diagnostic> diagnostics = new ArrayList<>();
+
+        DocumentServiceContext context = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
+                workspaceManager,
+                LSContextOperation.TXT_DID_OPEN);
+        DidOpenTextDocumentParams params = new DidOpenTextDocumentParams();
+        TextDocumentItem textDocument = new TextDocumentItem();
+        textDocument.setUri(sourcePath.toUri().toString());
+        textDocument.setText(new String(Files.readAllBytes(sourcePath)));
+        params.setTextDocument(textDocument);
+        context.workspace().didOpen(sourcePath, params);
+        Optional<Project> project = context.workspace().project(context.filePath());
+        if (project.isEmpty()) {
+            return diagnostics;
+        }
+        for (Module module : project.get().currentPackage().modules()) {
+            diagnostics.addAll(module.getCompilation().diagnostics().diagnostics());
+        }
+
+        return diagnostics;
     }
 
     /**
@@ -173,37 +240,4 @@ public class TestUtil {
         serviceEndpoint.request(WORKSPACE_CONFIG_CHANGE, params);
     }
 
-    private static String getResponseString(CompletableFuture completableFuture) {
-        ResponseMessage jsonrpcResponse = new ResponseMessage();
-        try {
-            jsonrpcResponse.setId("324");
-            jsonrpcResponse.setResult(completableFuture.get());
-        } catch (InterruptedException e) {
-            ResponseError responseError = new ResponseError();
-            responseError.setCode(-32002);
-            responseError.setMessage("Attempted to retrieve the result of a task/s" +
-                    " that was aborted by throwing an exception");
-            jsonrpcResponse.setError(responseError);
-        } catch (ExecutionException e) {
-            ResponseError responseError = new ResponseError();
-            responseError.setCode(-32001);
-            responseError.setMessage("Current thread was interrupted");
-            jsonrpcResponse.setError(responseError);
-        }
-        return GSON.toJson(jsonrpcResponse).replace("\r\n", "\n").replace("\\r\\n", "\\n");
-    }
-
-    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath) {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-
-        DocumentServiceContext context = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
-                workspaceManager,
-                LSContextOperation.TXT_DID_OPEN);
-        Optional<Project> project = context.workspace().project(context.filePath());
-        for (Module module : project.get().currentPackage().modules()) {
-            diagnostics.addAll(module.getCompilation().diagnostics().diagnostics());
-        }
-
-        return diagnostics;
-    }
 }

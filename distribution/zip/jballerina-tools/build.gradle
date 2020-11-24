@@ -163,6 +163,7 @@ dependencies {
     balDoc project(path: ':ballerina-lang:value', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:xml', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:bool', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:runtime', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:query', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:transaction', configuration: 'balDoc')
 
@@ -179,6 +180,7 @@ dependencies {
     distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:runtime', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')

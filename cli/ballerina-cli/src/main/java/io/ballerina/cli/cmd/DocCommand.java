@@ -21,7 +21,10 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateDocsTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -139,9 +142,10 @@ public class DocCommand implements BLauncherCmd {
 
         // load project
         Project project;
+        BuildOptions buildOptions = constructBuildOptions();
         try {
-            project = BuildProject.load(this.projectPath);
-        } catch (RuntimeException e) {
+            project = BuildProject.load(this.projectPath, buildOptions);
+        } catch (ProjectException e) {
             CommandUtil.printError(this.errStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -193,5 +197,16 @@ public class DocCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
+    }
+
+    private BuildOptions constructBuildOptions() {
+        return new BuildOptionsBuilder()
+                .codeCoverage(false)
+                .experimental(experimentalFlag)
+                .offline(offline)
+                .skipTests(true)
+                .testReport(false)
+                .observabilityIncluded(false)
+                .build();
     }
 }

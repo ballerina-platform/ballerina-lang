@@ -110,4 +110,9 @@ public class DocumentationTest extends AbstractMiscTest {
     public void testInvalidDocumentation() {
         testFile("documentation/doc_source_13.bal", "documentation/doc_assert_13.json");
     }
+
+    @Test
+    public void testDocWithInitialDiagnostics() {
+        testFile("documentation/doc_source_18.bal", "documentation/doc_assert_18.json");
+    }
 }
