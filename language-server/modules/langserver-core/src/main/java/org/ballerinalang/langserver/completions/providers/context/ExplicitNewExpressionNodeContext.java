@@ -56,7 +56,7 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
         TypeDescriptorNode typeDescriptor = node.typeDescriptor();
 
         if (typeDescriptor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
             /*
             Supports the following
             (1) public listener mod:Listener test = new <cursor>

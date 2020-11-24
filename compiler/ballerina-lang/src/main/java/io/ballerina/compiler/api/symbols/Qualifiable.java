@@ -17,7 +17,7 @@
 
 package io.ballerina.compiler.api.symbols;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * An interface for symbols for which qualifiers apply.
@@ -27,9 +27,9 @@ import java.util.Set;
 public interface Qualifiable {
 
     /**
-     * Gets the set of qualifiers the user has applied to a symbol.
+     * Gets the list of qualifiers the user has applied to a symbol.
      *
-     * @return The set of qualifiers applied to the symbol
+     * @return The list of qualifiers applied to the symbol
      */
-    Set<Qualifier> qualifiers();
+    List<Qualifier> qualifiers();
 }

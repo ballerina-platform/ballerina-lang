@@ -46,6 +46,10 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.docgen.Generator;
+import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,6 +101,7 @@ public class Type {
     public Type returnType;
     @Expose
     public Type constraint;
+    private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
 
     private Type() {
     }
@@ -113,7 +118,9 @@ public class Type {
                         LinePosition.from(node.lineRange().startLine().line(),
                                 node.lineRange().startLine().offset()));
             } catch (NullPointerException nullException) {
-                System.out.print(Arrays.toString(nullException.getStackTrace()));
+                if (BallerinaDocUtils.isDebugEnabled()) {
+                    log.error("Symbol find threw null pointer in " + fileName + " : Line range:" + node.lineRange());
+                }
             }
             if (symbol != null && symbol.isPresent()) {
                 resolveSymbol(type, symbol.get());

@@ -90,7 +90,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         TypeSymbol typeDescriptor = context.positionDetails().matchedExprType();
 
         Position position = CommonUtil.toPosition(context.positionDetails().matchedNode().lineRange().startLine());
-        Set<String> allNameEntries = context.getVisibleSymbols(position).stream()
+        Set<String> allNameEntries = context.visibleSymbols(position).stream()
                 .map(Symbol::name)
                 .collect(Collectors.toSet());
 

@@ -23,8 +23,8 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.PackageLoadRequest;
 import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -78,12 +78,12 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     @Override
-    public Optional<Package> getPackage(PackageLoadRequest packageLoadRequest) {
+    public Optional<Package> getPackage(ResolutionRequest resolutionRequest) {
         // if version and org name is empty we add empty string so we return empty package anyway
-        String packageName = packageLoadRequest.packageName().value();
-        String orgName = packageLoadRequest.orgName().value();
-        String version = packageLoadRequest.version().isPresent() ?
-                packageLoadRequest.version().get().toString() : "0.0.0";
+        String packageName = resolutionRequest.packageName().value();
+        String orgName = resolutionRequest.orgName().value();
+        String version = resolutionRequest.version().isPresent() ?
+                resolutionRequest.version().get().toString() : "0.0.0";
         String baloName = ProjectUtils.getBaloName(orgName, packageName, version, null);
 
         Path baloPath = this.balo.resolve(orgName).resolve(packageName).resolve(version).resolve(baloName);
@@ -100,10 +100,10 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     @Override
-    public List<PackageVersion> getPackageVersions(PackageLoadRequest packageLoadRequest) {
+    public List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest) {
         // if version and org name is empty we add empty string so we return empty package anyway
-        String packageName = packageLoadRequest.packageName().value();
-        String orgName = packageLoadRequest.orgName().value();
+        String packageName = resolutionRequest.packageName().value();
+        String orgName = resolutionRequest.orgName().value();
 
         // Here we dont rely on directories we check for available balos
         String globFilePart = orgName + "-" + packageName + "-*.balo";

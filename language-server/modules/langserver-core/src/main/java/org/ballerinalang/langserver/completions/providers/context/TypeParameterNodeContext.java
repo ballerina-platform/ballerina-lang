@@ -50,7 +50,7 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
     @Override
     public List<LSCompletionItem> getCompletions(CompletionContext context, TypeParameterNode node)
             throws LSCompletionException {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {

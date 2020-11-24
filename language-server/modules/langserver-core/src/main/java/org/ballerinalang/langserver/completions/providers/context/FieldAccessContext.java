@@ -159,7 +159,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             return Optional.empty();
         }
         String name = ((SimpleNameReferenceNode) referenceNode).name().text();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<Symbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(name))
                 .findFirst();
@@ -173,7 +173,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
     private Optional<? extends TypeSymbol> getTypeDescForFunctionCall(CompletionContext context,
                                                                       FunctionCallExpressionNode expr) {
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
                 .map(symbol -> (FunctionSymbol) symbol)

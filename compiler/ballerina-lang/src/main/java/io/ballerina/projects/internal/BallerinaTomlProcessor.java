@@ -88,8 +88,10 @@ public class BallerinaTomlProcessor {
         Map<String, Object> otherEntries = toml.toMap();
         Map<String, Object> packageEntry = (Map<String, Object>) otherEntries.remove("package");
 
-        PackageDescriptor pkgDesc = PackageDescriptor.from((String) packageEntry.get("name"),
-                (String) packageEntry.get("org"), (String) packageEntry.get("version"));
+        PackageOrg packageOrg = PackageOrg.from((String) packageEntry.get("org"));
+        PackageName packageName = PackageName.from((String) packageEntry.get("name"));
+        PackageVersion packageVersion = PackageVersion.from((String) packageEntry.get("version"));
+        PackageDescriptor pkgDesc = PackageDescriptor.from(packageOrg, packageName, packageVersion);
 
         // Process dependencies
         List<Map<String, Object>> dependencyEntries =
@@ -235,7 +237,7 @@ public class BallerinaTomlProcessor {
         boolean isValidPkg = ProjectUtils.validatePkgName(pkg);
         if (!isValidPkg) {
             throw new TomlException("invalid Ballerina.toml file: Invalid 'name' under [package]: '" + pkg + "' :\n"
-                    + "'name' can only contain alphanumerics, underscores and periods "
+                    + "'name' can only contain alphanumerics, underscores "
                     + "and the maximum length is 256 characters");
         }
 

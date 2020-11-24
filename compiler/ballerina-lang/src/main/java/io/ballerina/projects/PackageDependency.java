@@ -26,13 +26,19 @@ import java.util.Objects;
  */
 public class PackageDependency {
     private final PackageId packageId;
+    private final PackageDependencyScope scope;
 
-    public PackageDependency(PackageId packageId) {
+    public PackageDependency(PackageId packageId, PackageDependencyScope scope) {
         this.packageId = packageId;
+        this.scope = scope;
     }
 
     public PackageId packageId() {
-        return this.packageId;
+        return packageId;
+    }
+
+    public PackageDependencyScope scope() {
+        return scope;
     }
 
     @Override

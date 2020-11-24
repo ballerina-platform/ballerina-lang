@@ -612,7 +612,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangSimpleVariable varNode) {
 
+        boolean configurable = isConfigurable(varNode);
+
         if (varNode.isDeclaredWithVar) {
+            // Configurable variable cannot be declared with var
+            if (configurable) {
+                dlog.error(varNode.pos, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR);
+            }
             validateWorkerAnnAttachments(varNode.expr);
             handleDeclaredWithVar(varNode);
             transferForkFlag(varNode);
@@ -667,6 +673,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
 
+        // Configurable variable type must be a subtype of anydata&readonly.
+        if (configurable && varNode.typeNode != null) {
+            if (!(types.isAssignable(lhsType, symTable.anydataType) &&
+                    types.isAssignable(lhsType, symTable.readonlyType))) {
+                dlog.error(varNode.typeNode.pos,
+                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY);
+            } else if (!(types.isAssignable(lhsType, symTable.intType) ||
+                    types.isAssignable(lhsType, symTable.floatType) ||
+                    types.isAssignable(lhsType, symTable.stringType) ||
+                    types.isAssignable(lhsType, symTable.booleanType))) {
+                // TODO: remove this check onece runtime support all configurable types
+                dlog.error(varNode.typeNode.pos,
+                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
+            }
+        }
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
         if (rhsExpr == null) {
@@ -749,6 +770,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangRecordVariable varNode) {
 
+        // Only simple variables are allowed to be configurable.
+        if (isConfigurable(varNode)) {
+            dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE);
+        }
+
         if (varNode.isDeclaredWithVar) {
             handleDeclaredWithVar(varNode);
             return;
@@ -775,6 +801,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTupleVariable varNode) {
+
+        // Only simple variables are allowed to be configurable.
+        if (isConfigurable(varNode)) {
+            dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE);
+        }
 
         if (varNode.isDeclaredWithVar) {
             expType = resolveTupleType(varNode);
@@ -819,6 +850,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorVariable varNode) {
+
+        // Only simple variables are allowed to be configurable.
+        if (isConfigurable(varNode)) {
+            dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE);
+        }
         // Error variable declarations (destructuring etc.)
         if (varNode.isDeclaredWithVar) {
             handleDeclaredWithVar(varNode);
@@ -3458,6 +3494,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (attachment.annotationName.value.equals(name)) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    private boolean isConfigurable(BLangVariable varNode) {
+        if (varNode.flagSet.contains(Flag.CONFIGURABLE)) {
+            return true;
         }
         return false;
     }

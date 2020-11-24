@@ -18,8 +18,12 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.ProjectEnvironment;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
+
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * The class {code Project} provides an abstract representation of a Ballerina project.
@@ -74,5 +78,14 @@ public abstract class Project {
 
     public ProjectEnvironment projectEnvironmentContext() {
         return this.projectEnvironment;
+    }
+
+    // Following project path was added to support old compiler extensions.
+    // Currently this method is only called from Build and Single File projects
+    // todo remove after introducing extension model
+    protected void populateCompilerContext() {
+        CompilerContext compilerContext = this.projectEnvironmentContext().getService(CompilerContext.class);
+        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
+        options.put(PROJECT_DIR, this.sourceRoot().toAbsolutePath().toString());
     }
 }

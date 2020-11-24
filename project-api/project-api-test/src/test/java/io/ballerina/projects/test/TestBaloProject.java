@@ -26,6 +26,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.testng.Assert;
@@ -94,7 +95,7 @@ public class TestBaloProject {
         Assert.assertEquals(noOfTestDocuments, 0);
 
         PackageResolution resolution = currentPackage.getResolution();
-        DependencyGraph<Package> packageDescriptorDependencyGraph = resolution.dependencyGraph();
+        DependencyGraph<ResolvedPackageDependency> packageDescriptorDependencyGraph = resolution.dependencyGraph();
         Assert.assertEquals(packageDescriptorDependencyGraph.getNodes().size(), 1);
         DependencyGraph<ModuleId> moduleIdDependencyGraph = currentPackage.moduleDependencyGraph();
         Assert.assertEquals(moduleIdDependencyGraph.getNodes().size(), 3);
