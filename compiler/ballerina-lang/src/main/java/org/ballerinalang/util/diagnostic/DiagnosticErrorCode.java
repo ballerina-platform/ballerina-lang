@@ -637,6 +637,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL(
             "BCE3962", "binding.pattern.not.yet.supported.in.module.var.decl"),
+
+    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3963", "remote.function.in.non.network.object"),
+    RESOURCE_FIELD_ONLY_ALLOWED_IN_SERVICE_TYPE("BCE3964", "resource.function.in.non.service.object"),
     ;
 
     private String diagnosticId;

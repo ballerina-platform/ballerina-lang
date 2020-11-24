@@ -2075,7 +2075,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void validateResourceField(BField value, boolean isService) {
         if (!isService && value.symbol != null && Symbols.isResource(value.symbol)) {
             value.symbol.flags ^= Flags.RESOURCE;
-            dlog.error(value.pos, DiagnosticCode.RESOURCE_FIELD_ONLY_ALLOWED_IN_SERVICE_TYPE);
+            dlog.error(value.pos, DiagnosticErrorCode.RESOURCE_FIELD_ONLY_ALLOWED_IN_SERVICE_TYPE);
         }
     }
 

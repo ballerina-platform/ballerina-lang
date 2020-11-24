@@ -1742,9 +1742,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     break;
                 default:
                     bLAttachPoint = AttachPoint.getAttachmentPoint(firstIndent.text(), source);
-                    if (bLAttachPoint == null) {
-                        dlog.error(pos, DiagnosticCode.ANNOTATION_UNKNOWN_ATTACH_POINT, firstIndent.text());
-                    }
             }
             annotationDecl.addAttachPoint(bLAttachPoint);
         }
