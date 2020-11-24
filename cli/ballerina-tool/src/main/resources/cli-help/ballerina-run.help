@@ -77,12 +77,11 @@ EXAMPLES
        Run the 'main' function and/or services in the hello executable jar.
           $ ballerina run hello.jar
 
-       Run the 'main' function and/or services in the current packge.
+       Run the 'main' function and/or services in the current package.
           $ ballerina run .
 
-       Run the 'main' function in the math package with three program args:
-       add, 10 and 5. If the second and third parameters of the 'main'
+       Run the 'main' function in the `math` package with three program args:
+       add, 10, and 5. If the second and third parameters of the 'main'
        function are of types int and int, the second and third arguments
        would be passed as integer values 10 and 5.
           $ ballerina run math add 10 5
-

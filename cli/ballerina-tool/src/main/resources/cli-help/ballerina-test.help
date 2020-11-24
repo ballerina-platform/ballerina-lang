@@ -7,14 +7,14 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Test compiles and executes Ballerina test sources and print a summary of
-       test results. You can execute tests in a Ballerina package or a standalone,
+       Test compiles and executes Ballerina test sources and prints a summary of
+       test results. You can execute tests in a Ballerina package or a standalone
        Ballerina file.
     
        Use 'ballerina test to execute tests in the current package.
 
        Use 'ballerina test <balfile>' to execute the given Ballerina test file.
-              Note that testing single bal files will not work within a Ballerina project.
+              Note that testing single BAL files will not work within a Ballerina project.
               File path can be relative or absolute.
 
 
@@ -54,7 +54,7 @@ OPTIONS
             test functions can be executed using this command.
 
        --rerun-failed
-            Executes only the previously failed test cases for the specified
+            Executes only the previously-failed test cases for the specified
             module.
 
        --code-coverage
@@ -92,19 +92,19 @@ EXAMPLES
         List all test groups in the package.
            $ ballerina test --list-groups
 
-        Run only the set of tests belonging to group_x in current package.
+        Run only the set of tests belonging to the `group_x` in the current package.
            $ ballerina test --groups group_x
 
-        Run only the given set of functions in current package.
+        Run only the given set of functions in the current package.
             $ ballerina test --tests testFunction
 
-        Run only the previously failed test cases in the current package.
+        Run only the previously-failed test cases in the current package.
             $ ballerina test --rerun-failed
 
-        Run tests in single bal file.
+        Run tests in a single BAL file.
            $ ballerina test main_test.bal
 
-        Run tests and generate a test report in addition.
+        Run tests and generate a test report.
            $ ballerina test --test-report
 
         Run tests with code coverage. This will generate a test report

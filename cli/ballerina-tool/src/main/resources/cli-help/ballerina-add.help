@@ -14,17 +14,17 @@ DESCRIPTION
        If a template is not specified, this command creates a module
        with a 'main' function.
 
-       There are three built-in templates named: 'main', 'service' and 'lib''.
+       There are three built-in templates named: 'main', 'service', and 'lib''.
 
        You can download templates from Ballerina Central as well.
-       In that case <template-name> becomes a qualified module name.
+       In that case, <template-name> becomes a qualified module name.
 
            <org-name>/<package-name>[:<version>]
 
 
 OPTIONS
        -t <template-name>, --template <template-name>
-           Add a module using a predefined template.
+           Add a module using a pre-defined template.
 
 
 EXAMPLES

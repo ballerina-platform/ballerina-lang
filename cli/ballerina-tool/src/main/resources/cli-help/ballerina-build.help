@@ -25,14 +25,14 @@ DESCRIPTION
 
 OPTIONS
        -o <output>, --output <output>
-           Write output to the given file. The provided output
-           filename may or may not contain the ‘.jar’ extension.
+           Write the output to the given file. The provided output
+           file name may or may not contain the ‘.jar’ extension.
 
        -c, --compile
            Compile the source without generating executable(s).
 
        --offline
-           Build offline without downloading dependencies.
+           Build offline without downloading the dependencies.
 
        --skip-tests
            Skip test compilation and execution.
@@ -66,11 +66,11 @@ CONFIG PROPERTIES
 
 
 EXAMPLES
-       Compile a Ballerina source file and create an executable jar.
+       Compile a Ballerina source file and create an executable JAR.
           $ ballerina build hello.bal
 
        Build the 'hello' package that has an entry point. This will generate a
-        hello.jar file in the '<project-root>/target/bin' directory.
+        `hello.jar` file in the '<project-root>/target/bin' directory.
           $ ballerina build
 
        Build the 'hello' package from a different directory location.
