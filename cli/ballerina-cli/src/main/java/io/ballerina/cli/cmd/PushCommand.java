@@ -21,18 +21,23 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
-import org.ballerinalang.central.client.CentralClientException;
-import org.ballerinalang.central.client.NoPackageException;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.NoPackageException;
+import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.ballerinalang.tool.LauncherUtils;
+import org.ballerinalang.tool.BLauncherException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,6 +46,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
+import static io.ballerina.cli.utils.CentralUtils.authenticate;
+import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
+import static io.ballerina.cli.utils.CentralUtils.initializeProxy;
+import static io.ballerina.cli.utils.CentralUtils.readSettings;
+import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
@@ -76,12 +86,12 @@ public class PushCommand implements BLauncherCmd {
 
     private Path userDir;
     private PrintStream errStream;
-    
+
     public PushCommand() {
         userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         errStream = System.err;
     }
-    
+
     public PushCommand(Path userDir, PrintStream errStream) {
         this.userDir = userDir;
         this.errStream = errStream;
@@ -109,9 +119,19 @@ public class PushCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.isEmpty()) {
-            pushPackage(project);
+            Settings settings = readSettings();
+            Proxy proxy = initializeProxy(settings.getProxy());
+            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
+
+            try {
+                pushPackage(project, client, settings);
+            } catch (BLauncherException e) {
+                CommandUtil.printError(this.errStream, e.getMessages().get(0), null, false);
+                return;
+            }
         } else {
-            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+            CommandUtil.printError(this.errStream, "too many arguments", "ballerina push ", false);
+            return;
         }
 
         // Exit status, zero for OK, non-zero for error
@@ -137,12 +157,12 @@ public class PushCommand implements BLauncherCmd {
     public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
-    private void pushPackage(BuildProject project) {
-        Path baloFilePath = validateBalo(project);
-        pushBaloToRemote(baloFilePath);
+    private void pushPackage(BuildProject project, CentralAPIClient client, Settings settings) {
+        Path baloFilePath = validateBalo(project, client);
+        pushBaloToRemote(baloFilePath, client, settings);
     }
 
-    private static Path validateBalo(BuildProject project) {
+    private static Path validateBalo(BuildProject project, CentralAPIClient client) {
         final PackageName pkgName = project.currentPackage().packageName();
         final PackageOrg orgName = project.currentPackage().packageOrg();
         final PackageVersion version = project.currentPackage().packageVersion();
@@ -162,41 +182,15 @@ public class PushCommand implements BLauncherCmd {
                     + "'ballerina build' to compile and generate the balo.");
         }
 
-        // Validate the org-name
-        if (!RepoUtils.validateOrg(orgName.toString())) {
-            throw createLauncherException(
-                    "invalid organization name provided \'" + orgName
-                            + "\'. Only lowercase alphanumerics "
-                            + "and underscores are allowed in an organization name and the maximum "
-                            + "length is 256 characters");
-        }
-
-        // Validate the pkg-name
-        if (!RepoUtils.validatePkg(pkgName.toString())) {
-            throw createLauncherException("invalid package name provided \'" + pkgName + "\'. Only "
-                    + "alphanumerics, underscores and periods are allowed in a package name "
-                    + "and the maximum length is 256 characters");
-        }
-
-        // todo: need to add after ballerina.toml changes
-        // check if there are any dependencies with balo path
-//        List<String> dependenciesWithBaloPath = baloProject.currentPackage().packageDescriptor().dependencies()
-//                .stream()
-//                .filter(dep -> dep.getMetadata().getPath() != null).map(Dependency::getModuleID)
-//                .collect(Collectors.toList());
-//
-//        if (!dependenciesWithBaloPath.isEmpty()) {
-//            throw createLauncherException("dependencies cannot be given by path when pushing module(s) to "
-//                    + "remote. check dependencies in Ballerina.toml: [" + String.join(", ", dependenciesWithBaloPath)
-//                    + "]");
-//        }
-
         // check if the package is already there in remote repository
         PackageManifest.Dependency pkgAsDependency = new PackageManifest.Dependency(pkgName, orgName, version);
 
-        if (isPackageAvailableInRemote(pkgAsDependency)) {
+        if (isPackageAvailableInRemote(pkgAsDependency, client)) {
+            String pkg = pkgAsDependency.org().toString() + "/"
+                    + pkgAsDependency.name().toString() + ":"
+                    + pkgAsDependency.version().toString();
             throw createLauncherException(
-                    "package '" + pkgAsDependency.toString() + "' already exists in " + "remote repository("
+                    "package '" + pkg + "' already exists in " + "remote repository("
                             + getRemoteRepoURL() + "). build and push after "
                             + "updating the version in the Ballerina.toml.");
         }
@@ -210,12 +204,25 @@ public class PushCommand implements BLauncherCmd {
      *
      * @param baloPath Path to the balo file.
      */
-    private static void pushBaloToRemote(Path baloPath) {
+    private void pushBaloToRemote(Path baloPath, CentralAPIClient client, Settings settings) {
         Path baloFileName = baloPath.getFileName();
         if (null != baloFileName) {
             try {
-                CentralAPIClient client = new CentralAPIClient();
-                client.pushPackage(baloPath);
+
+                ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+                defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+                BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
+
+                String org = baloProject.currentPackage().manifest().org().toString();
+                String name = baloProject.currentPackage().manifest().name().toString();
+                String version = baloProject.currentPackage().manifest().version().toString();
+
+                Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
+                Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
+                String accessToken = authenticate(errStream, getBallerinaCentralCliTokenUrl(), settings,
+                                                  settingsTomlFilePath);
+
+                client.pushPackage(baloPath, org, name, version, accessToken);
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
                 if (null != errorMessage && !"".equals(errorMessage.trim())) {
@@ -237,15 +244,14 @@ public class PushCommand implements BLauncherCmd {
      * @param pkg package
      * @return is package available in the remote
      */
-    private static boolean isPackageAvailableInRemote(PackageManifest.Dependency pkg) {
+    private static boolean isPackageAvailableInRemote(PackageManifest.Dependency pkg, CentralAPIClient client) {
         List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
         supportedPlatforms.add("any");
 
         for (String supportedPlatform : supportedPlatforms) {
-            CentralAPIClient client = new CentralAPIClient();
             try {
                 client.getPackage(pkg.org().toString(), pkg.name().toString(), pkg.version().toString(),
-                        supportedPlatform);
+                                  supportedPlatform);
                 return true;
             } catch (NoPackageException e) {
                 return false;

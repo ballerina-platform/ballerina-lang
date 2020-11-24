@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.central.client;
+package org.ballerinalang.central.client.exceptions;
 
 /**
  * Thrown to indicate that package not found in the central for a given package id.

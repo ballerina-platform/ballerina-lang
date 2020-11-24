@@ -21,18 +21,23 @@ package io.ballerina.cli.cmd;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.Proxy;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
+import static io.ballerina.cli.utils.CentralUtils.initializeProxy;
+import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectConstants.PKG_NAME_REGEX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static java.nio.file.Files.createDirectories;
@@ -122,8 +127,11 @@ public class PullCommand implements BLauncherCmd {
 
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
-                CentralAPIClient client = new CentralAPIClient();
-                client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform, false);
+                Settings settings = readSettings();
+                Proxy proxy = initializeProxy(settings.getProxy());
+                CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
+                client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform,
+                                   RepoUtils.getBallerinaVersion(), false);
             } catch (Exception e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
                 // Exit status, zero for OK, non-zero for error

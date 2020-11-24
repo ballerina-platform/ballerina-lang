@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.central.client;
+package org.ballerinalang.central.client.exceptions;
 
 /**
  * Thrown to indicate that an exception occurred in the central client.
@@ -27,5 +27,9 @@ public class CentralClientException extends RuntimeException {
 
     public CentralClientException(String message) {
         super(message);
+    }
+
+    public CentralClientException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

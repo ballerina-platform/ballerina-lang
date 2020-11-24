@@ -13,36 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.ballerina.cli.utils;
 
-package org.ballerinalang.central.client;
-
-import java.util.Locale;
+import java.io.IOException;
 
 /**
- * Utility functions used by launcher.
+ * Starting the default browser once the composer starts.
  *
  * @since 2.0.0
  */
-public class OsUtils {
+class BrowserLauncher {
 
-    private OsUtils() {
+    private BrowserLauncher() {
     }
 
-    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+    static void startInDefaultBrowser(String url) throws IOException {
 
-    public static boolean isWindows() {
-        return (OS.contains("win"));
-    }
+        Runtime rt = Runtime.getRuntime();
+        if (OsUtils.isWindows()) {
+            rt.exec("rundll32 url.dll,FileProtocolHandler " + url);
 
-    public static boolean isMac() {
-        return (OS.contains("mac"));
-    }
-
-    public static boolean isUnix() {
-        return (OS.contains("nix") || OS.contains("nux") || OS.contains("aix"));
-    }
-
-    public static boolean isSolaris() {
-        return (OS.contains("sunos"));
+        } else if (OsUtils.isMac()) {
+            rt.exec("open " + url);
+        } else if (OsUtils.isUnix()) {
+            rt.exec("xdg-open " + url);
+        }
     }
 }
