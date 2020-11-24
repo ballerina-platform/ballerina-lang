@@ -15,6 +15,10 @@
           "hasDiagnostics": true,
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "SERVICE_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -98,6 +102,10 @@
           "kind": "SERVICE_DECLARATION",
           "hasDiagnostics": true,
           "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
             {
               "kind": "SERVICE_KEYWORD",
               "leadingMinutiae": [
