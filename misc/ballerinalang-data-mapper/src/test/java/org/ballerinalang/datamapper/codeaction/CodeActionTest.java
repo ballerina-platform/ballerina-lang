@@ -70,7 +70,7 @@ public class CodeActionTest {
         TestUtil.setWorkspaceConfig(serviceEndpoint, configs);
     }
 
-    @Test(dataProvider = "codeAction-data-mapper-data-provider")
+    @Test(dataProvider = "codeAction-data-mapper-data-provider", enabled = false)
     public void testDataMapperCodeAction(String config, String source) throws Exception {
         // Read expected results
         String configJsonPath = "codeaction" + File.separator + config;
