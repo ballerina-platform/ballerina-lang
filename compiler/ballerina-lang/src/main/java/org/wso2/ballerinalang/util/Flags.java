@@ -70,8 +70,8 @@ public class Flags {
     public static final long CONFIGURABLE = ISOLATED_PARAM << 1;                 //  31
     public static final long INCLUDED = CONFIGURABLE << 1;                       //  32
 
-    public static int asMask(Set<Flag> flagSet) {
-        int mask = 0;
+    public static long asMask(Set<Flag> flagSet) {
+        long mask = 0;
         for (Flag flag : flagSet) {
             switch (flag) {
                 case PUBLIC:
