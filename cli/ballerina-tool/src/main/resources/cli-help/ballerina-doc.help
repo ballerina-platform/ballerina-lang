@@ -5,7 +5,7 @@ SYNOPSIS
        ballerina doc [<options>]
 
 DESCRIPTION
-       Doc builds documentation for a given Ballerina project.
+       Doc command builds the documentation for a Ballerina package.
 
        This command writes the module documentation to the 'target/apidocs'
        directory inside the project.
