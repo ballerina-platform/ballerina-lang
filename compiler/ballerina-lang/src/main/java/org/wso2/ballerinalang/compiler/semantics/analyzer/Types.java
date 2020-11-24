@@ -3171,6 +3171,69 @@ public class Types {
         return false;
     }
 
+    public BType getRemainingMatchExprType(BType originalType, BType typeToRemove) {
+        switch (originalType.tag) {
+            case TypeTags.UNION:
+                return getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove));
+            case TypeTags.FINITE:
+                return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove));
+            case TypeTags.TUPLE:
+                return getRemainingType((BTupleType)originalType, typeToRemove);
+            default:
+                return originalType;
+        }
+    }
+
+    private BType getRemainingType(BTupleType originalType, BType typeToRemove) {
+        switch (typeToRemove.tag) {
+            case TypeTags.TUPLE:
+                return getRemainingType(originalType, (BTupleType) typeToRemove);
+            case TypeTags.ARRAY:
+                return getRemainingType(originalType, (BArrayType) typeToRemove);
+            default:
+                return originalType;
+        }
+    }
+
+    private BType getRemainingType(BTupleType originalType, BTupleType typeToRemove) {
+        if (originalType.restType != null) {
+            return originalType;
+        }
+
+        List<BType> originalTupleTypes = new ArrayList<>(originalType.tupleTypes);
+        List<BType> typesToRemove = new ArrayList<>(typeToRemove.tupleTypes);
+        if (originalTupleTypes.size() < typesToRemove.size()) {
+            return originalType;
+        }
+        List<BType> tupleTypes = new ArrayList<>();
+        for (int i = 0; i < originalTupleTypes.size(); i++) {
+            tupleTypes.add(getRemainingMatchExprType(originalTupleTypes.get(i), typesToRemove.get(i)));
+        }
+        if (typeToRemove.restType == null) {
+            return new BTupleType(tupleTypes);
+        }
+        if (originalTupleTypes.size() == typesToRemove.size()) {
+            return originalType;
+        }
+        for (int i = typesToRemove.size(); i < originalTupleTypes.size(); i++) {
+            tupleTypes.add(getRemainingMatchExprType(originalTupleTypes.get(i), typeToRemove.restType));
+        }
+        return new BTupleType(tupleTypes);
+    }
+
+    private BType getRemainingType(BTupleType originalType, BArrayType typeToRemove) {
+        BType eType = typeToRemove.eType;
+        List<BType> tupleTypes = new ArrayList<>();
+        for (BType tupleType : originalType.tupleTypes) {
+            tupleTypes.add(getRemainingMatchExprType(tupleType, eType));
+        }
+        BTupleType remainingType = new BTupleType(tupleTypes);
+        if (originalType.restType != null) {
+            remainingType.restType = getRemainingMatchExprType(originalType.restType, eType);
+        }
+        return remainingType;
+    }
+
     public BType getRemainingType(BType originalType, BType typeToRemove) {
         switch (originalType.tag) {
             case TypeTags.UNION:

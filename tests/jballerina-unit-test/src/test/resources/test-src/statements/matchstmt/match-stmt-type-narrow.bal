@@ -48,6 +48,60 @@ function testNarrowTypeInCaptureBindingPattern2() {
     assertEquals("str", narrowTypeInCaptureBindingPattern2("str"));
 }
 
+function narrowTypeInListBindingPattern1([int|string, int] v) returns string {
+    match v {
+        [var a, var b] if a is int => {
+            return "";
+        }
+        _ => {
+            return v[0];
+        }
+    }
+}
+
+function testNarrowTypeInListBindingPattern1() {
+    assertEquals("str", narrowTypeInListBindingPattern1(["str", 2]));
+}
+
+function narrowTypeInListBindingPattern2([int|string|boolean, int] v) returns string {
+    match v {
+        [var a, var b] if a is int => {
+            return "int";
+        }
+        [var a, var b] if a is boolean => {
+            return "boolean";
+        }
+        _ => {
+            return v[0];
+        }
+    }
+}
+
+function testNarrowTypeInListBindingPattern2() {
+    assertEquals("str", narrowTypeInListBindingPattern2(["str", 2]));
+}
+
+function narrowTypeInListBindingPattern3([int|string, int|string] v) returns string {
+    match v {
+        [var a, var b] if a is int && b is int=> {
+            return "match1";
+        }
+        [var a, var b] if a is int && b is string=> {
+            return "match2";
+        }
+        [var a, var b] if a is string && b is int=> {
+            return "match3";
+        }
+        _ => {
+            return v[0] + v[1];
+        }
+    }
+}
+
+function testNarrowTypeInListBindingPattern3() {
+    assertEquals("Hello World", narrowTypeInListBindingPattern3(["Hello ", "World"]));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

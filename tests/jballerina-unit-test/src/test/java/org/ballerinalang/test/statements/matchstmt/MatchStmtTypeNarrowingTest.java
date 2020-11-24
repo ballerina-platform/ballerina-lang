@@ -45,4 +45,19 @@ public class MatchStmtTypeNarrowingTest {
     public void testNarrowTypeInCaptureBindingPattern2() {
         BRunUtil.invoke(result, "testNarrowTypeInCaptureBindingPattern2");
     }
+
+    @Test
+    public void testNarrowTypeInListBindingPattern1() {
+        BRunUtil.invoke(result, "testNarrowTypeInListBindingPattern1");
+    }
+
+    @Test
+    public void testNarrowTypeInListBindingPattern2() {
+        BRunUtil.invoke(result, "testNarrowTypeInListBindingPattern2");
+    }
+
+    @Test
+    public void testNarrowTypeInListBindingPattern3() {
+        BRunUtil.invoke(result, "testNarrowTypeInListBindingPattern3");
+    }
 }
