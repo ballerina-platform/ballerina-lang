@@ -19,7 +19,7 @@ package io.ballerina.projects.environment;
 
 import io.ballerina.projects.Project;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Defines the interface that will be used by the resolution logic to resolve
@@ -29,7 +29,7 @@ import java.util.Collection;
  */
 public interface PackageResolver {
 
-    Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> packageLoadRequests);
+    List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests);
 
-    Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> packageLoadRequests, Project project);
+    List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests, Project project);
 }

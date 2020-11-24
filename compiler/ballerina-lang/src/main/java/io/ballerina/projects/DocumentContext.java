@@ -35,7 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -111,20 +111,20 @@ class DocumentContext {
         return nodeCloner.clone(compilationUnit);
     }
 
-    Set<ModuleLoadRequest> moduleLoadRequests() {
+    Set<ModuleLoadRequest> moduleLoadRequests(PackageDependencyScope scope) {
         if (this.moduleLoadRequests != null) {
             return this.moduleLoadRequests;
         }
 
-        this.moduleLoadRequests = getModuleLoadRequests();
+        this.moduleLoadRequests = getModuleLoadRequests(scope);
         return this.moduleLoadRequests;
     }
 
-    private Set<ModuleLoadRequest> getModuleLoadRequests() {
-        Set<ModuleLoadRequest> moduleLoadRequests = new HashSet<>();
+    private Set<ModuleLoadRequest> getModuleLoadRequests(PackageDependencyScope scope) {
+        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         ModulePartNode modulePartNode = syntaxTree().rootNode();
         for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
-            moduleLoadRequests.add(getModuleLoadRequest(importDcl));
+            moduleLoadRequests.add(getModuleLoadRequest(importDcl, scope));
         }
 
         // TODO This is a temporary solution for SLP6 release
@@ -134,14 +134,14 @@ class DocumentContext {
             PackageName packageName = PackageName.from(Names.TRANSACTION.value);
             ModuleLoadRequest ballerinaiLoadReq =
                     new ModuleLoadRequest(PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
-                    packageName, ModuleName.from(packageName), null);
+                            packageName, ModuleName.from(packageName), null, scope);
             moduleLoadRequests.add(ballerinaiLoadReq);
         }
 
         return moduleLoadRequests;
     }
 
-    private ModuleLoadRequest getModuleLoadRequest(ImportDeclarationNode importDcl) {
+    private ModuleLoadRequest getModuleLoadRequest(ImportDeclarationNode importDcl, PackageDependencyScope scope) {
         // TODO We need to handle syntax errors in importDcl
         // Get organization name
         PackageOrg orgName = importDcl.orgName()
@@ -178,7 +178,7 @@ class DocumentContext {
         ModuleName moduleName = ModuleName.from(packageName, moduleNamePart.isEmpty() ? null : moduleNamePart);
 
         // Create the module load request
-        return new ModuleLoadRequest(orgName, packageName, moduleName, null);
+        return new ModuleLoadRequest(orgName, packageName, moduleName, null, scope);
     }
 
     private String handleQuotedIdentifier(String identifier) {

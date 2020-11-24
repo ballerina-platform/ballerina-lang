@@ -32,7 +32,6 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -56,14 +55,13 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
-    public Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> packageLoadRequests,
-                                                          Project currentProject) {
+    public List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests,
+                                                    Project currentProject) {
         if (packageLoadRequests.isEmpty()) {
             return Collections.emptyList();
         }
 
         List<ResolutionResponse> resolutionResponses = new ArrayList<>();
-        List<ResolutionRequest> pendingRequests = new ArrayList<>();
         Package currentPkg = currentProject != null ? currentProject.currentPackage() : null;
         for (ResolutionRequest resolutionRequest : packageLoadRequests) {
             Package resolvedPackage = null;
@@ -77,29 +75,11 @@ public class DefaultPackageResolver implements PackageResolver {
                 resolvedPackage = loadFromCache(resolutionRequest);
             }
 
+            // If not try to resolve from dist and central repositories
             if (resolvedPackage == null) {
-                // If not add it to the pending requests and ask from the package repository
-                pendingRequests.add(resolutionRequest);
-            } else {
-                // Otherwise add the resolved package to the resolved list
-                resolutionResponses.add(ResolutionResponse.from(ResolutionStatus.RESOLVED,
-                        resolvedPackage, resolutionRequest));
+                resolvedPackage = resolveFromRepository(resolutionRequest);
             }
-        }
 
-        resolutionResponses.addAll(resolveFromRepository(pendingRequests));
-        return resolutionResponses;
-    }
-
-    @Override
-    public Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> resolutionRequests) {
-        return resolvePackages(resolutionRequests, null);
-    }
-
-    private Collection<ResolutionResponse> resolveFromRepository(Collection<ResolutionRequest> resolutionRequests) {
-        List<ResolutionResponse> resolutionResponses = new ArrayList<>();
-        for (ResolutionRequest resolutionRequest : resolutionRequests) {
-            Package resolvedPackage = loadFromRepository(resolutionRequest);
             ResolutionStatus resolutionStatus;
             if (resolvedPackage == null) {
                 resolutionStatus = ResolutionStatus.UNRESOLVED;
@@ -109,7 +89,13 @@ public class DefaultPackageResolver implements PackageResolver {
             }
             resolutionResponses.add(ResolutionResponse.from(resolutionStatus, resolvedPackage, resolutionRequest));
         }
+
         return resolutionResponses;
+    }
+
+    @Override
+    public List<ResolutionResponse> resolvePackages(List<ResolutionRequest> resolutionRequests) {
+        return resolvePackages(resolutionRequests, null);
     }
 
     private Package loadFromCache(ResolutionRequest resolutionRequest) {
@@ -123,7 +109,7 @@ public class DefaultPackageResolver implements PackageResolver {
         return resolvedPackage.orElse(null);
     }
 
-    private Package loadFromRepository(ResolutionRequest resolutionRequest) {
+    private Package resolveFromRepository(ResolutionRequest resolutionRequest) {
         Optional<Package> resolvedPackage;
         PackageDescriptor requestedPkgDesc = resolutionRequest.packageDescriptor();
         if (requestedPkgDesc.isLangLibPackage()) {
@@ -168,8 +154,9 @@ public class DefaultPackageResolver implements PackageResolver {
         }
 
         // Load the latest version
-        ResolutionRequest newResolutionReq = ResolutionRequest.from(resolutionRequest.orgName(),
-                resolutionRequest.packageName(), latestVersion);
+        ResolutionRequest newResolutionReq = ResolutionRequest.from(
+                PackageDescriptor.from(resolutionRequest.orgName(), resolutionRequest.packageName(),
+                        latestVersion), resolutionRequest.scope());
         Optional<Package> packageOptional = pkgRepoThatContainsLatestVersion.getPackage(newResolutionReq);
         return packageOptional.orElse(null);
     }
@@ -183,8 +170,9 @@ public class DefaultPackageResolver implements PackageResolver {
             if (versionList.isEmpty()) {
                 resolvedPackage = Optional.empty();
             } else {
-                ResolutionRequest newResolutionReq = ResolutionRequest.from(resolutionRequest.orgName(),
-                        resolutionRequest.packageName(), versionList.get(0));
+                ResolutionRequest newResolutionReq = ResolutionRequest.from(
+                        PackageDescriptor.from(resolutionRequest.orgName(), resolutionRequest.packageName(),
+                                versionList.get(0)), resolutionRequest.scope());
                 resolvedPackage = ballerinaDistRepo.getPackage(newResolutionReq);
             }
         }
