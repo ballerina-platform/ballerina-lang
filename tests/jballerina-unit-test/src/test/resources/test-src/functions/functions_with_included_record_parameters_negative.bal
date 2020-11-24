@@ -68,8 +68,8 @@ function functionWithIncludedRecordParam3(*Address address) returns string {
 }
 
 type Bar record {
-    int a?;
-    int b?;
+    never a?;
+    never b?;
 };
 
 function functionWithIncludedRecordParam4(*Bar bar) returns int? {
@@ -82,8 +82,8 @@ function testfunctionWithIncludedRecordParam2() {
 }
 
 type Bar2 record {|
-    int a?;
-    int b?;
+    never a?;
+    never b?;
 |};
 
 function functionWithIncludedRecordParam5(*Bar2 bar) returns anydata {
@@ -110,8 +110,8 @@ type Foo3 record {|
 |};
 
 type Foo4 record {
-    int a?;
-    int b?;
+    never a?;
+    never b?;
 };
 
 function functionWithIncludedRecordParam7(int c, *Foo4 foo4, *Foo3 foo3) returns anydata {
@@ -123,9 +123,9 @@ function testfunctionWithIncludedRecordParam4() {
 }
 
 type Foo5 record {
-    int a?;
-    int b?;
-    int d?;
+    never a?;
+    never b?;
+    never d?;
 };
 
 function functionWithIncludedRecordParam8(int d, *Foo2 foo4, *Foo5 foo5) returns anydata {
@@ -148,9 +148,20 @@ function functionWithIncludedRecordParam10(*Foo5 foo5) returns anydata {
     return foo5["abc"];
 }
 
-function testfunctionWithIncludedRecordParam7() {
-    Foo5 foo = {
-        b: 23
-    };
-    anydata a1 = functionWithIncludedRecordParam10(foo, c = 19);
+type Options record {|
+    string name;
+|};
+
+type OthRecord record {|
+    float id?;
+    boolean name?;
+    int...;    
+|};
+
+function functionWithIncludedRecordParam11(int id, *OthRecord othRec, *Options options) {
+    string? name = options?.name;
+}
+
+function testfunctionWithIncludedRecordParam8() {
+    functionWithIncludedRecordParam11(1, name = "bar", options = {name: "baz"});
 }

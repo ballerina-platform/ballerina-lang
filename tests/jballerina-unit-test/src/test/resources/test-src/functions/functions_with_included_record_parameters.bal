@@ -38,8 +38,8 @@ type Grades record {|
 |};
 
 type Foo record {
-    int a?;
-    string b?;
+    never a?;
+    never b?;
 };
 
 type Foo2 record {
@@ -56,7 +56,7 @@ type Bar record {|
 
 type Bar2 record {|
     int c;
-    int b?;
+    int d?;
 |};
 
 type Baz record {
@@ -69,10 +69,22 @@ type KVPairs record {
 };
 
 type Val record {|
-    int a?;
-    int b?;
+    never a?;
+    never b?;
     int...;
 |};
+
+type Foo3 record {
+    never a?;
+    never b?;
+};
+
+type Foo4 record {
+    never a?;
+    never b?;
+    never c?;
+    never d?;
+};
 
 function functionOfFunctionTypedParamWithIncludedRecordParam(*NewPerson person) returns string {
     return person.firstName + " " + person.secondName;
@@ -99,11 +111,10 @@ function functionOfFunctionTypedParamWithIncludedRecordParam6(*Foo foo, *Bar bar
 }
 
 function functionOfFunctionTypedParamWithIncludedRecordParam7(int a, int b, *Foo foo) returns int {
-    anydata value = foo["value"];
-    return a + b + <int> value;
+    return a + b + <int> foo["value"];
 }
 
-function functionOfFunctionTypedParamWithIncludedRecordParam8(int c, int d, *Foo2 foo, *Bar bar) returns int {
+function functionOfFunctionTypedParamWithIncludedRecordParam8(int c, int d, *Foo4 foo, *Bar bar) returns int {
     anydata value = foo["value"];
     return bar.a + bar.b + c+ d + <int> value;
 }
@@ -127,7 +138,7 @@ function functionOfFunctionTypedParamWithIncludedRecordParam13(*Grades grades) r
     return grades.chemistry + grades.physics + grades.maths;
 }
 
-function functionOfFunctionTypedParamWithIncludedRecordParam14(int a, int b, *Foo foo, *Foo2 foo2) returns int {
+function functionOfFunctionTypedParamWithIncludedRecordParam14(int a, int b, *Foo3 foo, *Foo4 foo2) returns int {
     return a + b;
 }
 
@@ -136,7 +147,7 @@ function functionOfFunctionTypedParamWithIncludedRecordParam15(*Bar2 bar2, *Bar 
 }
 
 function functionOfFunctionTypedParamWithIncludedRecordParam16(*Bar2 bar2, *Bar bar) returns anydata {
-    return bar2["b"];
+    return bar2["d"];
 }
 
 function functionOfFunctionTypedParamWithIncludedRecordParam17(*Foo2 foo2) returns anydata {
@@ -145,6 +156,14 @@ function functionOfFunctionTypedParamWithIncludedRecordParam17(*Foo2 foo2) retur
 
 function functionOfFunctionTypedParamWithIncludedRecordParam18(int a, int b, *Val val) returns int {
     return a + b + <int> val["c"] + <int> val["d"];
+}
+
+function functionOfFunctionTypedParamWithIncludedRecordParam19(*Foo foo) returns int {
+    return <int> foo["c"];
+}
+
+function functionOfFunctionTypedParamWithIncludedRecordParam20(*Bar2 bar) returns int {
+    return <int> bar.c;
 }
 
 function testFunctionOfFunctionTypedParamWithIncludedRecordParam() {
@@ -246,6 +265,16 @@ function testFunctionOfFunctionTypedParamWithIncludedRecordParam17() {
 function testFunctionOfFunctionTypedParamWithIncludedRecordParam18() {
     int sum = functionOfFunctionTypedParamWithIncludedRecordParam18(a = 10, b = 15, c = 5, d = 20);
     assertEquality(50, sum);
+}
+
+function testFunctionOfFunctionTypedParamWithIncludedRecordParam19() {
+    int val = functionOfFunctionTypedParamWithIncludedRecordParam19(c = 10);
+    assertEquality(10, val);
+}
+
+function testFunctionOfFunctionTypedParamWithIncludedRecordParam20() {
+    int val = functionOfFunctionTypedParamWithIncludedRecordParam20(c = 5);
+    assertEquality(5, val);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

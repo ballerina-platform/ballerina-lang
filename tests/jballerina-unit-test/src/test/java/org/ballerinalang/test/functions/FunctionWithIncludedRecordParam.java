@@ -44,12 +44,14 @@ public class FunctionWithIncludedRecordParam {
         BAssertUtil.validateError(result, i++, "redeclared symbol 'secondName'", 47, 82);
         BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'b' in call to " +
                                 "'functionWithIncludedRecordParam1'()", 56, 16);
-        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'age'", 57, 105);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to " +
+                                            "'functionWithIncludedRecordParam2()'", 57, 105);
         BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'firstName' in" +
                                 " call to 'functionWithIncludedRecordParam2'()", 58, 19);
         BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'secondName'" +
                                 " in call to 'functionWithIncludedRecordParam2'()", 58, 19);
-        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'zip'", 59, 95);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to " +
+                                            "'functionWithIncludedRecordParam3()'", 59, 95);
         BAssertUtil.validateError(result, i++, "invalid operation: type 'Address' does not support field access" +
                                 " for non-required field 'firstName'", 67, 12);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'a'", 80, 47);
@@ -61,8 +63,9 @@ public class FunctionWithIncludedRecordParam {
                                 "'functionWithIncludedRecordParam8'()", 136, 18);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 136, 71);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 144, 63);
-        BAssertUtil.validateError(result, i++, "too many arguments in call to " +
-                                "'functionWithIncludedRecordParam10()'", 155, 57);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'id'", 161, 53);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'name'", 161, 72);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'string'", 166, 49);
 
         Assert.assertEquals(i, result.getErrorCount());
     }
@@ -157,5 +160,15 @@ public class FunctionWithIncludedRecordParam {
     @Test
     public void testFunctionOfFunctionTypedParamWithIncludedRecordParam18() {
         BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam18");
+    }
+
+    @Test
+    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam19() {
+        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam19");
+    }
+
+    @Test
+    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam20() {
+        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam20");
     }
 }
