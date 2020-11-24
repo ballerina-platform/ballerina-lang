@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -1509,7 +1510,11 @@ public class BIRGen extends BLangNodeVisitor {
 
         // If a terminator statement has not been set for the then-block then just add it.
         if (this.env.enclBB.terminator == null) {
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB);
+            Location newLocation = new BLangDiagnosticLocation(astIfStmt.body.pos.lineRange().filePath(),
+                    astIfStmt.body.pos.lineRange().endLine().line(), astIfStmt.body.pos.lineRange().endLine().line(),
+                    astIfStmt.body.pos.lineRange().endLine().offset(), astIfStmt.body.pos.lineRange().endLine().offset());
+            // close curly brace of if block
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, nextBB); // passing the else body position
         }
 
         // Check whether there exists an else-if or an else block.
@@ -1526,7 +1531,10 @@ public class BIRGen extends BLangNodeVisitor {
 
             // If a terminator statement has not been set for the else-block then just add it.
             if (this.env.enclBB.terminator == null) {
-                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB);
+                Location newLocation = new BLangDiagnosticLocation(astIfStmt.elseStmt.pos.lineRange().filePath(),
+                        astIfStmt.elseStmt.pos.lineRange().endLine().line(), astIfStmt.elseStmt.pos.lineRange().endLine().line(),
+                        astIfStmt.elseStmt.pos.lineRange().endLine().offset(), astIfStmt.elseStmt.pos.lineRange().endLine().offset());
+                this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, nextBB);
             }
 
         } else {
