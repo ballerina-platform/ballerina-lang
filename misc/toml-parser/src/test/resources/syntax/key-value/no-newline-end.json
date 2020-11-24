@@ -1,14 +1,11 @@
 {
   "kind": "MODULE_PART",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
-      "hasDiagnostics": true,
       "children": [
         {
           "kind": "KEY_VALUE",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LIST",
@@ -143,57 +140,15 @@
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "EQUAL_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_EQUAL_TOKEN"
-              ]
-            },
-            {
-              "kind": "STRING_LITERAL",
-              "children": [
-                {
-                  "kind": "DOUBLE_QUOTE_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "value": "value"
-                },
-                {
-                  "kind": "DOUBLE_QUOTE_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "KEY_VALUE",
-          "children": [
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "key1",
-                      "leadingMinutiae": [
+                        },
+                        {
+                          "kind": "COMMENT_MINUTIAE",
+                          "value": "# Keys"
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
@@ -220,55 +175,6 @@
               ]
             },
             {
-              "kind": "DEC_INT",
-              "children": [
-                {
-                  "kind": "DECIMAL_INT_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "KEY_VALUE",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "LIST",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_IDENTIFIER"
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "EQUAL_TOKEN",
-              "leadingMinutiae": [
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
-                }
-              ]
-            },
-            {
               "kind": "STRING_LITERAL",
               "children": [
                 {
@@ -276,125 +182,10 @@
                 },
                 {
                   "kind": "IDENTIFIER_LITERAL",
-                  "value": "value"
+                  "value": "basic key"
                 },
                 {
-                  "kind": "DOUBLE_QUOTE_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "KEY_VALUE",
-          "children": [
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "key2",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "EQUAL_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "DEC_INT",
-              "children": [
-                {
-                  "kind": "DECIMAL_INT_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "KEY_VALUE",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "value": "key",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "EQUAL_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
-                }
-              ]
-            },
-            {
-              "kind": "BOOLEAN",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "FALSE_KEYWORD",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_VALUE"
-                  ]
+                  "kind": "DOUBLE_QUOTE_TOKEN"
                 }
               ]
             }

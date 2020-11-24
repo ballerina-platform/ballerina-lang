@@ -50,6 +50,9 @@ public class TomlLexer extends AbstractLexer {
             case STRING:
                 token = readStringToken();
                 break;
+            case MULTILINE_STRING:
+                token = readMultilineStringToken();
+                break;
             case LITERAL_STRING:
                 token = readLiteralStringToken();
                 break;
@@ -121,10 +124,11 @@ public class TomlLexer extends AbstractLexer {
                 if (this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
                     this.reader.advance(2);
                     token = getDoubleQuoteToken(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
+                    startMode(ParserMode.MULTILINE_STRING);
                 } else {
                     token = getDoubleQuoteToken(SyntaxKind.DOUBLE_QUOTE_TOKEN);
+                    startMode(ParserMode.STRING);
                 }
-                startMode(ParserMode.STRING);
                 break;
 
             // Numbers
@@ -230,27 +234,47 @@ public class TomlLexer extends AbstractLexer {
         }
 
         char nextChar = this.reader.peek();
-        char secondNextChar = this.reader.peek(1);
-        char thirdNextChar = this.reader.peek(2);
         if (nextChar == LexerTerminals.DOUBLE_QUOTE) {
             endMode();
-            if (secondNextChar == LexerTerminals.DOUBLE_QUOTE && thirdNextChar == LexerTerminals.DOUBLE_QUOTE) {
-                reader.advance(3);
-                return getSyntaxToken(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
-            }
             reader.advance();
             return getSyntaxToken(SyntaxKind.DOUBLE_QUOTE_TOKEN);
-        } else {
-            while (!reader.isEOF()) {
-                nextChar = this.reader.peek();
-                if (nextChar != LexerTerminals.DOUBLE_QUOTE) {
+        }
+        while (!reader.isEOF()) {
+            nextChar = this.reader.peek();
+            switch (nextChar) {
+                case LexerTerminals.DOUBLE_QUOTE:
+                    break;
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
+                    endMode();
+                    return getUnquotedKey();
+                case LexerTerminals.BACKSLASH:
+                    switch (this.reader.peek(1)) {
+                        case 'n':
+                        case 'r':
+                            endMode();
+                            continue;
+                        case 't':
+                        case LexerTerminals.BACKSLASH:
+                        case LexerTerminals.DOUBLE_QUOTE:
+                            this.reader.advance(2);
+                            continue;
+                        case 'u':
+                        case 'U':
+                            processStringNumericEscape();
+                            continue;
+                        default:
+                            String escapeSequence = String.valueOf(this.reader.peek(2));
+                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
+                            this.reader.advance();
+                            continue;
+                    }
+                default:
                     reader.advance();
                     continue;
-                }
-                break;
             }
+            break;
         }
-
         return getUnquotedKey();
     }
 
@@ -261,27 +285,74 @@ public class TomlLexer extends AbstractLexer {
         }
 
         char nextChar = this.reader.peek();
-        char secondNextChar = this.reader.peek(1);
-        char thirdNextChar = this.reader.peek(2);
         if (nextChar == LexerTerminals.SINGLE_QUOTE) {
             endMode();
-            if (secondNextChar == LexerTerminals.SINGLE_QUOTE && thirdNextChar == LexerTerminals.SINGLE_QUOTE) {
-                reader.advance(3);
-                return getSyntaxToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
-            }
             reader.advance();
             return getSyntaxToken(SyntaxKind.SINGLE_QUOTE_TOKEN);
-        } else {
-            while (!reader.isEOF()) {
-                nextChar = this.reader.peek();
-                if (nextChar != LexerTerminals.SINGLE_QUOTE) {
+        }
+        while (!reader.isEOF()) {
+            nextChar = this.reader.peek();
+            switch (nextChar) {
+                case LexerTerminals.SINGLE_QUOTE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
+                    break;
+                default:
                     reader.advance();
                     continue;
-                }
-                break;
             }
+            break;
+        }
+        return getUnquotedKey();
+    }
+
+    private STToken readMultilineStringToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
 
+        char nextChar = this.reader.peek();
+        char secondNextChar = this.reader.peek(1);
+        char thirdNextChar = this.reader.peek(2);
+        if (nextChar == LexerTerminals.DOUBLE_QUOTE && secondNextChar == LexerTerminals.DOUBLE_QUOTE && thirdNextChar
+                == LexerTerminals.DOUBLE_QUOTE) {
+            endMode();
+            reader.advance(3);
+            return getSyntaxToken(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
+        }
+        while (!reader.isEOF()) {
+            nextChar = this.reader.peek();
+            if (nextChar == LexerTerminals.DOUBLE_QUOTE && this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE &&
+                    this.reader.peek(2) == LexerTerminals.DOUBLE_QUOTE) {
+                break;
+            }
+            if (nextChar != LexerTerminals.BACKSLASH) {
+                reader.advance();
+                continue;
+            }
+            switch (this.reader.peek(1)) {
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
+                    reader.advance();
+                    continue;
+                case 'n':
+                case 't':
+                case 'r':
+                case LexerTerminals.BACKSLASH:
+                case LexerTerminals.DOUBLE_QUOTE:
+                    this.reader.advance(2);
+                    continue;
+                case 'u':
+                case 'U':
+                    processStringNumericEscape();
+                    continue;
+                default:
+                    String escapeSequence = String.valueOf(this.reader.peek(2));
+                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
+                    this.reader.advance();
+            }
+        }
         return getUnquotedKey();
     }
 
@@ -672,4 +743,26 @@ public class TomlLexer extends AbstractLexer {
     private String getLexeme() {
         return reader.getMarkedChars();
     }
+
+    /**
+     * Process string numeric escape.
+     * <p>
+     * <code>StringNumericEscape := \u00E9 </code>
+     */
+    private void processStringNumericEscape() {
+        this.reader.advance(2);
+
+        // Process code-point
+        if (!isHexDigit(peek())) {
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
+            return;
+        }
+
+        reader.advance();
+        while (isHexDigit(peek())) {
+            reader.advance();
+        }
+        this.reader.advance();
+    }
+
 }

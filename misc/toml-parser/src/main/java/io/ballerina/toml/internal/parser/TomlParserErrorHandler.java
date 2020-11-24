@@ -59,7 +59,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] ARRAY_VALUE_END = {
             ParserRuleContext.COMMA,
-            ParserRuleContext.ARRAY_VALUE_LIST_END}; //TODO does the order matter? why and how
+            ParserRuleContext.ARRAY_VALUE_LIST_END};
 
     private static final ParserRuleContext[] ARRAY_VALUE_START_OR_VALUE_LIST_END =
             { ParserRuleContext.ARRAY_VALUE_LIST_END, ParserRuleContext.ARRAY_VALUE_START };
@@ -68,8 +68,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL};
 
     private static final ParserRuleContext[] VALUE = {ParserRuleContext.STRING_START,
-            ParserRuleContext.SIGN_TOKEN, ParserRuleContext.NUMERICAL_LITERAL,
-            ParserRuleContext.BOOLEAN_LITERAL,
+            ParserRuleContext.SIGN_TOKEN, ParserRuleContext.BOOLEAN_LITERAL, ParserRuleContext.NUMERICAL_LITERAL,
 //            ParserRuleContext.ARRAY_VALUE_LIST
     };
 
@@ -159,7 +158,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 case STRING_CONTENT:
                     hasMatch = nextToken.kind == SyntaxKind.STRING_LITERAL_TOKEN ||
                             nextToken.kind == SyntaxKind.ML_STRING_LITERAL ||
-                            nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL; //TODO check
+                            nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL;
                     break;
                 case IDENTIFIER_LITERAL:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL;
@@ -341,8 +340,6 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.EQUAL_TOKEN;
             case IDENTIFIER_LITERAL:
                 return SyntaxKind.IDENTIFIER_LITERAL;
-            case VALUE:
-                return SyntaxKind.FALSE_KEYWORD; //Better handling
             case EOF:
                 return SyntaxKind.EOF_TOKEN;
             case COMMA:
@@ -363,7 +360,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             case DECIMAL_FLOATING_POINT_LITERAL:
                 return SyntaxKind.DECIMAL_FLOAT_TOKEN;
             case BOOLEAN_LITERAL:
-                return SyntaxKind.FALSE_KEYWORD; //Better handling
+                return SyntaxKind.FALSE_KEYWORD;
             case NEWLINE:
                 return SyntaxKind.NEWLINE;
             case DOT:
