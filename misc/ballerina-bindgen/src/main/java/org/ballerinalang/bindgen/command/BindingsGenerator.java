@@ -37,18 +37,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_BINDINGS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BBGEN_CLASS_TEMPLATE_NAME;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BINDINGS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.DEPENDENCIES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TYPES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.UTILS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getExistingBindings;
@@ -186,9 +181,10 @@ public class BindingsGenerator {
             }
             userPath = outputPath;
         }
-        modulePath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
-        dependenciesPath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR);
-        utilsDirPath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, UTILS_DIR);
+        // The folder structure is flattened to address the Project API changes.
+        modulePath = Paths.get(userPath);
+        dependenciesPath = Paths.get(userPath);
+        utilsDirPath = Paths.get(userPath);
     }
 
     private void handleFailedClassGens() {
@@ -204,7 +200,6 @@ public class BindingsGenerator {
     private void generateUtilFiles() throws BindgenException {
         String utilsDirStrPath = utilsDirPath.toString();
         createDirectory(utilsDirStrPath);
-        createDirectory(Paths.get(utilsDirStrPath, ERROR_TYPES_DIR).toString());
 
         // Create the Constants.bal file.
         Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
@@ -221,8 +216,9 @@ public class BindingsGenerator {
         for (JError jError : exceptionList) {
             jError.setAccessModifier(accessModifier);
             String fileName = jError.getShortExceptionName() + BAL_EXTENSION;
+            // The folder structure is flattened to address the Project API changes.
             writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
-                    Paths.get(utilsDirStrPath, ERROR_TYPES_DIR, fileName).toString(), false);
+                    Paths.get(utilsDirStrPath, fileName).toString(), false);
         }
     }
 
@@ -248,9 +244,9 @@ public class BindingsGenerator {
                     if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance);
                         jClass.setAccessModifier(accessModifier);
-                        String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
-                        createDirectory(outputFile);
-                        String filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
+                        // The folder structure is flattened to address the Project API changes.
+                        String filePath = Paths.get(modulePath.toString(), jClass.getShortClassName()
+                                + BAL_EXTENSION).toString();
                         writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
                         outStream.println("\t" + c);
                     }
