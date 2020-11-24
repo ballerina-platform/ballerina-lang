@@ -234,6 +234,5 @@ public class PackageResolutionTests {
                     throw new IllegalStateException("Unexpected dependency");
             }
         }
-        System.out.println(dependencyGraph.getNodes().size());
     }
 }
