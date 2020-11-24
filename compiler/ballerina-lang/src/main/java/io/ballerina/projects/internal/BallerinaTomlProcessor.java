@@ -77,15 +77,6 @@ public class BallerinaTomlProcessor {
         }
     }
 
-    public static BuildOptions parseBuildOptions(Path tomlPath) {
-        try {
-            toml = parseAsToml(tomlPath);
-            return parse(toml).getBuildOptions();
-        } catch (TomlException e) {
-            throw new ProjectException(e.getMessage(), e);
-        }
-    }
-
     @SuppressWarnings("unchecked")
     public static PackageManifest parseAsPackageManifest(Path tomlPath) {
         try {
