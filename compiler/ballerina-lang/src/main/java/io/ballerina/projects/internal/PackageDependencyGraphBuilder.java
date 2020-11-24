@@ -193,9 +193,9 @@ public class PackageDependencyGraphBuilder {
             if (resolutionResponse.resolutionStatus() == ResolutionStatus.UNRESOLVED) {
                 // TODO collect this as a diagnostic and move on to the next one.
                 throw new ProjectException("Transitive dependency cannot be found:" +
-                        " org=" + transitiveDepNode.org +
-                        ", package=" + transitiveDepNode.name +
-                        ", version=" + transitiveDepNode.pkgDesc.version());
+                        " org=" + resolutionResponse.packageLoadRequest().orgName() +
+                        ", package=" + resolutionResponse.packageLoadRequest().packageName() +
+                        ", version=" + resolutionResponse.packageLoadRequest().version());
             }
 
             packageDependencyMap.put(transitiveDepNode.pkgDesc, new ResolvedPackageDependency(
