@@ -86,8 +86,8 @@ public class TestCommand implements BLauncherCmd {
             "dependencies.")
     private boolean offline;
 
-    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
-    private boolean skipLock;
+//    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
+//    private boolean skipLock;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -125,7 +125,8 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
     private boolean rerunTests;
 
-    private static final String testCmd = "ballerina test [<ballerina-file] [--skip-lock] [--] [(--key=value)...]";
+    private static final String testCmd = "ballerina test [--offline] [--skip-tests]\n" +
+            "                    [<ballerina-file> | <ballerina-project>] [(--key=value)...]";
 
     public void execute() {
         if (this.helpFlag) {
