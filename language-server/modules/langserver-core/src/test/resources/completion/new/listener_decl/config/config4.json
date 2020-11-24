@@ -30,6 +30,29 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "H",
+      "insertText": "'test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'test;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -49,6 +72,52 @@
             }
           },
           "newText": "import ballerina/lang.'array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "H",
+      "insertText": "'transaction",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'transaction;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "H",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
         }
       ]
     },
@@ -99,29 +168,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.transaction",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "H",
-      "insertText": "'transaction",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.'transaction;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -141,29 +187,6 @@
             }
           },
           "newText": "import ballerina/lang.'runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "H",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/java;\n"
         }
       ]
     },
