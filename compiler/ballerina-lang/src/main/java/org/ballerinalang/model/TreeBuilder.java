@@ -450,10 +450,6 @@ public class TreeBuilder {
         return new BLangRecordLiteral();
     }
 
-    public static BLangRecordLiteral createBLangRecordLiteralNode() {
-        return new BLangRecordLiteral();
-    }
-
     public static RecordLiteralNode.RecordKeyValueFieldNode createRecordKeyValue() {
         return new BLangRecordLiteral.BLangRecordKeyValueField();
     }
