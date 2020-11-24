@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -23,7 +23,6 @@ import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
@@ -67,11 +66,6 @@ public class CleanCommand implements BLauncherCmd {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CLEAN_COMMAND);
             this.outStream.println(commandUsageInfo);
             return;
-        }
-
-        if (FileUtils.hasExtension(this.projectPath)) {
-            this.outStream.println("'clean' command can only be executed for a Ballerina project.");
-            CommandUtil.exitError(this.exitWhenFinish);
         }
 
         Project project;

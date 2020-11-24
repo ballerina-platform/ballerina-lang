@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.jacoco.core.analysis.ICounter.FULLY_COVERED;
 import static org.jacoco.core.analysis.ICounter.NOT_COVERED;
@@ -56,7 +57,7 @@ import static org.jacoco.core.analysis.ICounter.PARTLY_COVERED;
 public class CoverageReport {
 
     private final String title;
-    private final Path projectDir;
+    private final Path coverageDir;
     private Path executionDataFile;
     private Path classesDirectory;
     private ExecFileLoader execFileLoader;
@@ -68,10 +69,10 @@ public class CoverageReport {
         this.module = module;
         this.target = new Target(module.project().sourceRoot());
 
-        this.projectDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR);
-        this.title = projectDir.toFile().getName();
-        this.classesDirectory = projectDir.resolve(TesterinaConstants.BIN_DIR);
-        this.executionDataFile = projectDir.resolve(TesterinaConstants.EXEC_FILE_NAME);
+        this.coverageDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR);
+        this.title = coverageDir.toFile().getName();
+        this.classesDirectory = coverageDir.resolve(TesterinaConstants.BIN_DIR);
+        this.executionDataFile = coverageDir.resolve(TesterinaConstants.EXEC_FILE_NAME);
         this.execFileLoader = new ExecFileLoader();
     }
 
@@ -102,8 +103,11 @@ public class CoverageReport {
             for (Path jarPath : pathList) {
                 try {
                     // Creates coverage folder with each class per module
-                    CodeCoverageUtils.unzipCompiledSource(jarPath, projectDir, orgName, packageName, version);
+                    CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir, orgName, packageName, version);
                 } catch (NoSuchFileException e) {
+                    if (Files.exists(coverageDir.resolve(BIN_DIR))) {
+                        CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
+                    }
                     return null;
                 }
             }
@@ -113,6 +117,7 @@ public class CoverageReport {
 
             ModuleCoverage moduleCoverage = new ModuleCoverage();
             createReport(bundleCoverage, moduleCoverage);
+            CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
             return moduleCoverage;
         } else {
             String msg = "Unable to generate code coverage for the module " + packageName + ". Jar files dont exist.";
