@@ -115,7 +115,7 @@ public class TestCommand implements BLauncherCmd {
     private boolean coverage;
 
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
-    private boolean observabilityIncluded;
+    private Boolean observabilityIncluded;
 
     @CommandLine.Option(names = "--tests", split = ",", description = "Test functions to be executed")
     private List<String> testList;
