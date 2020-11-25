@@ -19,11 +19,11 @@ public class Listener {
         return err;
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string? name = ()) returns error? {
         return self.register(s, name);
     }
 
-    public function __detach(service s) returns error? {
+    public function __detach(service object {} s) returns error? {
         return self.detach(s);
     }
 
@@ -34,7 +34,7 @@ public class Listener {
         return ();
     }
 
-    function register(service s, string? name) returns error? {
+    function register(service object {} s, string? name) returns error? {
         return ();
     }
 
@@ -46,7 +46,7 @@ public class Listener {
         return ();
     }
 
-    function detach(service s) returns error? {
+    function detach(service object {} s) returns error? {
         return ();
     }
 }
