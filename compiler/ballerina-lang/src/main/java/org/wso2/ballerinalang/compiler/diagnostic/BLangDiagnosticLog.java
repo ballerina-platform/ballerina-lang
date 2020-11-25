@@ -186,9 +186,13 @@ public class BLangDiagnosticLog implements DiagnosticLog {
             return;
         }
 
-        // TODO: Add 'code' and 'messageTemplate' to the DiagnosticInfo
-        DiagnosticInfo diagInfo = new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.messageKey(),
-                                                     diagnosticCode.severity());
+        DiagnosticInfo diagInfo;
+        if (diagnosticCode != null) {
+            diagInfo = new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.messageKey(),
+                                                         diagnosticCode.severity());
+        } else {
+            diagInfo = new DiagnosticInfo(null, msg, severity);
+        }
 
         BLangDiagnostic diagnostic = new BLangDiagnostic(location, msg, diagInfo, diagnosticCode);
 
