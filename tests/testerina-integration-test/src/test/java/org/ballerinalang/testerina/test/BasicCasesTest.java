@@ -48,7 +48,7 @@ public class BasicCasesTest extends BaseTestCase {
 
     @Test
     public void testAssertDiffError() throws BallerinaTestException {
-        String msg = "13 passing";
+        String msg = "14 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"assertions-diff-error"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);
