@@ -179,12 +179,6 @@ class ModuleContext {
         return moduleLoadRequests;
     }
 
-    boolean entryPointExists() {
-        // TODO this is temporary method. We should remove this ASAP
-        BLangPackage bLangPackage = getBLangPackageOrThrow();
-        return bLangPackage.symbol.entryPointExists;
-    }
-
     BLangPackage bLangPackage() {
         return getBLangPackageOrThrow();
     }
