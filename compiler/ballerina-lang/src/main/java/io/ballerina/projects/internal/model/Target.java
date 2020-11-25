@@ -180,5 +180,7 @@ public class Target {
         // Remove any generated balo
         FileUtils.deleteDirectory(this.baloCachePath.toFile());
         FileUtils.deleteDirectory(this.binPath.toFile());
+        FileUtils.deleteDirectory(this.docPath.toFile());
+        FileUtils.deleteDirectory(this.reportPath.toFile());
     }
 }

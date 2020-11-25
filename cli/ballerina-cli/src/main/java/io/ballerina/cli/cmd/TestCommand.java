@@ -29,7 +29,6 @@ import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
@@ -156,6 +155,13 @@ public class TestCommand implements BLauncherCmd {
             return;
         }
 
+        // Skip code coverage for single bal files if option is set
+        if (FileUtils.hasExtension(this.projectPath) && coverage) {
+            coverage = false;
+            this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
+                    "and continuing the test run...");
+        }
+
         // load project
         Project project;
         boolean isSingleFile = false;
@@ -181,13 +187,6 @@ public class TestCommand implements BLauncherCmd {
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
         if (this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
-        }
-
-        // Skip code coverage for single bal files if option is set
-        if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT) && coverage) {
-            coverage = false;
-            this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
-                    "and continuing the test run...");
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
