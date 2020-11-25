@@ -323,6 +323,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     endpoint.addProperty("pkgName", symbolMetaInfo.getPkgName());
                     endpoint.addProperty("pkgOrgName", symbolMetaInfo.getPkgOrgName());
                     endpoint.addProperty("kind", symbolMetaInfo.getKind());
+                    endpoint.addProperty("name", symbolMetaInfo.getName());
+                    endpoint.addProperty("isLocal", symbolMetaInfo.isLocal());
+                    endpoint.addProperty("caller", symbolMetaInfo.isCaller());
                     if (symbolMetaInfo.getPosition() != null) {
                         eps.add(endpoint);
                         typeInfo.put((symbolMetaInfo.getPosition().sLine) + ":"
@@ -367,10 +370,46 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         try {
             LSContext astContext = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(), fileUri,
                     compilationPath, documentManager);
+            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(astContext, this.documentManager, true,
+                    false);
             Map<String, JsonObject> typeInfo = new HashMap<>();
+//            TypeInfoExtractingVisitor typeInfoExtractingVisitor = new TypeInfoExtractingVisitor(typeInfo);
+//            bLangPackage.accept(typeInfoExtractingVisitor);
+
+            CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+            VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
+            bLangPackage.accept(visibleEndpointVisitor);
+            Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
+
+            for (Map.Entry<BLangNode, List<SymbolMetaInfo>> entry : visibleEPsByNode.entrySet()) {
+                JsonArray eps = new JsonArray();
+                for (SymbolMetaInfo symbolMetaInfo : entry.getValue()) {
+                    JsonObject endpoint = new JsonObject();
+                    endpoint.addProperty("isEndpoint", true);
+                    endpoint.addProperty("typeName", symbolMetaInfo.getTypeName());
+                    endpoint.addProperty("pkgAlias", symbolMetaInfo.getPkgAlias());
+                    endpoint.addProperty("pkgName", symbolMetaInfo.getPkgName());
+                    endpoint.addProperty("pkgOrgName", symbolMetaInfo.getPkgOrgName());
+                    endpoint.addProperty("kind", symbolMetaInfo.getKind());
+                    endpoint.addProperty("name", symbolMetaInfo.getName());
+                    endpoint.addProperty("isLocal", symbolMetaInfo.isLocal());
+                    endpoint.addProperty("caller", symbolMetaInfo.isCaller());
+                    if (symbolMetaInfo.getPosition() != null) {
+                        eps.add(endpoint);
+                        typeInfo.put((symbolMetaInfo.getPosition().sLine) + ":"
+                                        + (symbolMetaInfo.getPosition().sCol)
+                                , endpoint);
+                    } else {
+                        eps.add(endpoint);
+                    }
+                }
+                JsonObject endpoints = new JsonObject();
+                endpoints.add("visibleEndpoints", eps);
+                typeInfo.put((entry.getKey().pos.sLine) + ":" + (entry.getKey().pos.sCol), endpoints);
+            }
+
+            TextDocument textDocument = documentManager.getTree(compilationPath).textDocument();
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(typeInfo);
-            String fileContent = astContext.get(UPDATED_SOURCE);
-            TextDocument textDocument = TextDocuments.from(fileContent);
             SyntaxTree syntaxTree = SyntaxTree.from(textDocument, compilationPath.toString());
             ModulePartNode modulePartNode = syntaxTree.rootNode();
             reply.setSyntaxTree(mapGenerator.transform(modulePartNode));
