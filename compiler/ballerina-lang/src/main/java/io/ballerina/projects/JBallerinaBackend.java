@@ -483,11 +483,6 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void emitExecutable(Path executableFilePath) {
-        if (!this.packageContext.defaultModuleContext().entryPointExists()) {
-            // TODO Improve error handling
-            throw new ProjectException("no entrypoint found in package: " + this.packageContext.packageName());
-        }
-
         Manifest manifest = createManifest();
         Collection<Path> jarLibraryPaths = jarResolver.getJarFilePathsRequiredForExecution();
 
