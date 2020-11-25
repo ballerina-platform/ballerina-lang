@@ -87,6 +87,9 @@ public class SymbolAtCursorTest {
                 {63, 41, "lname"},
                 {72, 4, "test"},
                 {72, 7, "test"},
+                {76, 25, "RSA"},
+                {82, 8, "rsa"},
+                {83, 15, "RSA"},
         };
     }
 

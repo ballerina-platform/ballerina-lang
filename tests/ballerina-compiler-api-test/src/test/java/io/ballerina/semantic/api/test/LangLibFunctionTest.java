@@ -47,6 +47,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
@@ -93,7 +94,7 @@ public class LangLibFunctionTest {
     public void testFloatLangLib() {
         Symbol symbol = getSymbol(16, 7);
         TypeSymbol type = ((ConstantSymbol) symbol).typeDescriptor();
-        assertEquals(type.typeKind(), FLOAT);
+        assertEquals(type.typeKind(), SINGLETON);
 
         List<String> expFunctions = List.of("isFinite", "isInfinite", "isNaN", "abs", "round", "floor", "ceiling",
                                             "sqrt", "cbrt", "pow", "log", "log10", "exp", "sin", "cos", "tan", "asin",

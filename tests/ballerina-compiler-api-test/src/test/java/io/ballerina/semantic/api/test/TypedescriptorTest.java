@@ -110,8 +110,10 @@ public class TypedescriptorTest {
     @Test
     public void testConstantType() {
         Symbol symbol = getSymbol(16, 7);
+        assertEquals(((ConstantSymbol) symbol).typeKind(), SINGLETON);
+
         TypeSymbol type = ((ConstantSymbol) symbol).typeDescriptor();
-        assertEquals(type.typeKind(), FLOAT);
+        assertEquals(type.typeKind(), SINGLETON);
     }
 
     @Test
