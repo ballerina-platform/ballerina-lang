@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.compiler;
 
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
@@ -210,7 +211,7 @@ public class LSPackageLoader {
             PackageName packageName = PackageName.from(nameComponent);
             PackageVersion pkgVersion = PackageVersion.from(version);
             PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
-            ResolutionRequest request = ResolutionRequest.from(pkdDesc);
+            ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
 
             Optional<Package> repoPackage = packageRepository.getPackage(request);
             repoPackage.ifPresent(packages::add);

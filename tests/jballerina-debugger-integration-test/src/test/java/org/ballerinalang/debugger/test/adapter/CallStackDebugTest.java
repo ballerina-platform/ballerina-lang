@@ -54,19 +54,19 @@ public class CallStackDebugTest extends DebugAdapterBaseTestCase {
     public void callStackTest() throws BallerinaTestException {
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
         StackFrame[] frames = fetchStackFrames(debugHitInfo.getRight());
-        // Todo - enable after fixing
+
         // Call stack representation test for strand creation with 'start' keyword.
         // Created strand is invoking a remote function.
-        // assertCallStack(frames[0], "getName", 35, "main.bal");
-        // assertCallStack(frames[1], "func3", 28, "main.bal");
-        // assertCallStack(frames[2], "func2", 23, "main.bal");
-        // assertCallStack(frames[3], "func1", 19, "main.bal");
-        // assertCallStack(frames[4], "addition", 14, "main.bal");
-        // assertCallStack(frames[5], "start:f1", 2, "main.bal");
+        assertCallStack(frames[0], "getName", 35, "main.bal");
+        assertCallStack(frames[1], "func3", 28, "main.bal");
+        assertCallStack(frames[2], "func2", 23, "main.bal");
+        assertCallStack(frames[3], "func1", 19, "main.bal");
+        assertCallStack(frames[4], "addition", 14, "main.bal");
+        assertCallStack(frames[5], "start:f1", 2, "main.bal");
 
-        // resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        // debugHitInfo = waitForDebugHit(10000);
-        // frames = fetchStackFrames(debugHitInfo.getRight());
+        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = waitForDebugHit(10000);
+        frames = fetchStackFrames(debugHitInfo.getRight());
 
         // Call stack representation test for strand creation with 'worker' keyword.
         assertCallStack(frames[0], "multiply", 44, "main.bal");
