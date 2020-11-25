@@ -36,15 +36,18 @@ import java.util.List;
 public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements ConstantSymbol {
 
     private final Object constValue;
+    private TypeSymbol broaderType;
 
     private BallerinaConstantSymbol(String name,
                                     PackageID moduleID,
                                     List<Qualifier> qualifiers,
                                     TypeSymbol typeDescriptor,
+                                    TypeSymbol broaderType,
                                     Object constValue,
                                     BSymbol bSymbol) {
         super(name, moduleID, SymbolKind.CONSTANT, qualifiers, typeDescriptor, bSymbol);
         this.constValue = constValue;
+        this.broaderType = broaderType;
     }
 
     /**
@@ -55,6 +58,11 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
     @Override
     public Object constValue() {
         return constValue;
+    }
+
+    @Override
+    public TypeSymbol broaderTypeDescriptor() {
+        return this.broaderType;
     }
 
     @Override
@@ -83,6 +91,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
     public static class ConstantSymbolBuilder extends VariableSymbolBuilder {
 
         private Object constantValue;
+        private TypeSymbol broaderType;
 
         public ConstantSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
             super(name, moduleID, symbol);
@@ -93,6 +102,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
                     this.moduleID,
                     this.qualifiers,
                     this.typeDescriptor,
+                    this.broaderType,
                     this.constantValue,
                     this.bSymbol);
         }
@@ -105,6 +115,11 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
         @Override
         public ConstantSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
             super.withTypeDescriptor(typeDescriptor);
+            return this;
+        }
+
+        public ConstantSymbolBuilder withBroaderTypeDescriptor(TypeSymbol typeDescriptor) {
+            this.broaderType = typeDescriptor;
             return this;
         }
     }

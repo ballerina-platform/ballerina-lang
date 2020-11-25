@@ -30,4 +30,11 @@ public interface ConstantSymbol extends VariableSymbol, SingletonTypeSymbol {
      * @return {@link Object} value of the constant
      */
     Object constValue();
+
+    /**
+     * Gets the broader type of constant expression associated with this symbol.
+     *
+     * @return {@link TypeSymbol} of the broader type
+     */
+    TypeSymbol broaderTypeDescriptor();
 }
