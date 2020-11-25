@@ -65,8 +65,6 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     private static final String PKG_VERSION = "pkgVersion";
     private static final String BALLERINA_VERSION = "ballerinaVersion";
     private static final String COMPILATION_UNITS = "compilationUnits";
-    private static final String SRC = "src";
-    private static final String KEY_URI = "uri";
     private static final String AST = "ast";
     private static final String JSON = ".json";
     public static final String PROGRAM_HASH_KEY = "PROGRAM_HASH";
@@ -157,11 +155,9 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     }
 
     private Map<BLangNode, List<SymbolMetaInfo>> getVisibleEndpoints(BLangPackage packageNode) {
-        Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode;
         VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
         visibleEndpointVisitor.visit(packageNode);
-        visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
-        return visibleEPsByNode;
+        return visibleEndpointVisitor.getVisibleEPsByNode();
     }
 
     private CUnitASTHolder getCUnitASTHolder(Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode,
@@ -169,11 +165,6 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         CUnitASTHolder cUnitASTHolder = new CUnitASTHolder();
         cUnitASTHolder.setName(cUnit.name);
 
-        SourceDirectory sourceDirectory = compilerContext.get(SourceDirectory.class);
-        Path sourceRoot = sourceDirectory.getPath();
-        String uri = sourceRoot.resolve(
-                Paths.get(SRC, cUnit.getName(), cUnit.getName())).toUri().toString();
-        cUnitASTHolder.setUri(uri);
         try {
             JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);
             cUnitASTHolder.setAst(jsonAST);
@@ -216,7 +207,6 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
                 }
                 jsonStringBuilder.append("\"").append(cUnitName).append("\":{\"")
                         .append(NAME).append("\":\"").append(cUnitASTHolder.getName()).append("\",\"")
-                        .append(KEY_URI).append("\":\"").append(cUnitASTHolder.getUri()).append("\",\"")
                         .append(AST).append("\":").append(astDataString)
                         .append("}");
             }
