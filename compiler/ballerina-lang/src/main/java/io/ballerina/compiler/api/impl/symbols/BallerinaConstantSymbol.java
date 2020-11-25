@@ -18,8 +18,10 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -53,6 +55,26 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
     @Override
     public Object constValue() {
         return constValue;
+    }
+
+    @Override
+    public TypeDescKind typeKind() {
+        return TypeDescKind.SINGLETON;
+    }
+
+    @Override
+    public String signature() {
+        return this.typeDescriptor().signature();
+    }
+
+    @Override
+    public List<FunctionSymbol> langLibMethods() {
+        return this.typeDescriptor().langLibMethods();
+    }
+
+    @Override
+    public boolean assignableTo(TypeSymbol targetType) {
+        return this.typeDescriptor().assignableTo(targetType);
     }
 
     /**
