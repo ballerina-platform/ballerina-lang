@@ -269,10 +269,10 @@ public class BallerinaTreeModifyUtil {
                 doEdit = true;
             }
             if (doEdit) {
-                LinePosition startLinePos = LinePosition.from(astModification.getStartLine() - 1,
-                        astModification.getStartColumn() - 1);
-                LinePosition endLinePos = LinePosition.from(astModification.getEndLine() - 1,
-                        astModification.getEndColumn() - 1);
+                LinePosition startLinePos = LinePosition.from(astModification.getStartLine(),
+                        astModification.getStartColumn());
+                LinePosition endLinePos = LinePosition.from(astModification.getEndLine(),
+                        astModification.getEndColumn());
                 int startOffset = oldTextDocument.textPositionFrom(startLinePos);
                 int endOffset = oldTextDocument.textPositionFrom(endLinePos);
                 return TextEdit.from(
