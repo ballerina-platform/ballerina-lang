@@ -119,7 +119,7 @@ public class BindgenMvnResolver {
         try (FileWriterWithEncoding fileWriter = new FileWriterWithEncoding(tomlFile, StandardCharsets.UTF_8, true)) {
             PackageManifest.Platform platform = BallerinaTomlProcessor.parseAsPackageManifest(tomlFile.toPath())
                     .platform("java11");
-            if (platform.dependencies() != null) {
+            if (platform != null && platform.dependencies() != null) {
                 for (Map<String, Object> library : platform.dependencies()) {
                     if (library.get("path") == null &&
                             library.get("groupId") != null && library.get("groupId").equals(groupId) &&

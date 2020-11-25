@@ -77,7 +77,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      */
     public void error(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(ERROR_PREFIX, code, args);
-        reportDiagnostic(code, location, msg, DiagnosticSeverity.ERROR);
+        reportDiagnostic(null, code, location, msg, DiagnosticSeverity.ERROR);
     }
 
     /**
@@ -89,7 +89,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      */
     public void warning(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(WARNING_PREFIX, code, args);
-        reportDiagnostic(code, location, msg, DiagnosticSeverity.WARNING);
+        reportDiagnostic(null, code, location, msg, DiagnosticSeverity.WARNING);
     }
 
     /**
@@ -101,7 +101,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      */
     public void note(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(NOTE_PREFIX, code, args);
-        reportDiagnostic(code, location, msg, DiagnosticSeverity.INFO);
+        reportDiagnostic(null, code, location, msg, DiagnosticSeverity.INFO);
     }
 
     /**
@@ -147,7 +147,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     @Override
     @Deprecated
     public void logDiagnostic(DiagnosticSeverity severity, Location location, CharSequence message) {
-        reportDiagnostic(null, location, message.toString(), severity);
+        reportDiagnostic(null, null, location, message.toString(), severity);
     }
 
     @Override
@@ -186,29 +186,21 @@ public class BLangDiagnosticLog implements DiagnosticLog {
             return;
         }
 
-        // TODO: Add 'code' and 'messageTemplate' to the DiagnosticInfo
-        DiagnosticInfo diagInfo = new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.messageKey(),
-                                                     diagnosticCode.severity());
-
-        BLangDiagnostic diagnostic = new BLangDiagnostic(location, msg, diagInfo, diagnosticCode);
-        storeDiagnosticInModule(packageID, diagnostic);
-    }
-
-    private void reportDiagnostic(DiagnosticCode diagnosticCode, Location location, String msg,
-                                  DiagnosticSeverity severity) {
-        if (severity == DiagnosticSeverity.ERROR) {
-            this.errorCount++;
+        DiagnosticInfo diagInfo;
+        if (diagnosticCode != null) {
+            diagInfo = new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.messageKey(),
+                                                         diagnosticCode.severity());
+        } else {
+            diagInfo = new DiagnosticInfo(null, msg, severity);
         }
 
-        if (this.isMute) {
-            return;
-        }
-
-        DiagnosticInfo diagInfo = new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.messageKey(),
-                                                     severity);
-
         BLangDiagnostic diagnostic = new BLangDiagnostic(location, msg, diagInfo, diagnosticCode);
-        storeDiagnosticInModule(currentPackageId, diagnostic);
+
+        if (packageID != null) {
+            storeDiagnosticInModule(packageID, diagnostic);
+        } else {
+            storeDiagnosticInModule(currentPackageId, diagnostic);
+        }
     }
 
     private void storeDiagnosticInModule(PackageID pkgId, Diagnostic diagnostic) {
