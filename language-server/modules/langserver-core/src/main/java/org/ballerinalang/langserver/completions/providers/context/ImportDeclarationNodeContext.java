@@ -150,10 +150,10 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
 
     private int rankModuleName(String label) {
         if (label.startsWith("ballerina/lang.")) {
-            return 2;
+            return 1;
         }
         if (label.startsWith("ballerina/")) {
-            return 1;
+            return 2;
         }
 
         return 3;
@@ -167,11 +167,11 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         if (!label.contains(SLASH)) {
             return 2;
         }
-        if (label.startsWith("ballerina/lang.")) {
-            return 4;
-        }
         if (label.startsWith("ballerina/")) {
             return 3;
+        }
+        if (label.startsWith("ballerina/lang.")) {
+            return 4;
         }
 
         return 5;
@@ -183,9 +183,6 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         List<Package> packagesList = LSPackageLoader.getDistributionRepoPackages();
 
         packagesList.forEach(pkg -> {
-            if (this.isPreDeclaredLangLib(pkg)) {
-                return;
-            }
             String orgName = pkg.packageOrg().value();
             String pkgName = pkg.packageName().value();
             String fullPkgNameLabel = orgName + SLASH + pkgName;

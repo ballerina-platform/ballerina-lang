@@ -49,7 +49,7 @@ public class TestReportTest extends BaseTestCase {
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.resolve("test-report-tests").toString();
-        resultsJsonPath = projectBasedTestsPath.resolve("test-report-tests").resolve("target")
+        resultsJsonPath = projectBasedTestsPath.resolve("test-report-tests").resolve("target").resolve("report")
                 .resolve("test_results.json");
     }
 
@@ -69,7 +69,7 @@ public class TestReportTest extends BaseTestCase {
         validateCoverage();
     }
 
-    @Test ()
+    @Test (enabled = false)
     public void testWithoutCoverage() throws BallerinaTestException, IOException {
         runCommand(false);
         validateStatuses();

@@ -118,7 +118,10 @@ public class CompletionUtil {
         NonTerminalNode nonTerminalNode = ((ModulePartNode) document.get().syntaxTree().rootNode()).findNode(range);
 
         while (true) {
-            if (!withinTextRange(txtPos, nonTerminalNode)) {
+            /*
+            ModulePartNode's parent is null
+             */
+            if (nonTerminalNode.parent() != null && !withinTextRange(txtPos, nonTerminalNode)) {
                 nonTerminalNode = nonTerminalNode.parent();
                 continue;
             }

@@ -202,8 +202,7 @@ public class LSPackageLoader {
             String[] components = nameEntry.split(":");
             if (components.length != 2
                     || components[0].equals("lang.__internal")
-                    || components[0].equals("lang.annotation")
-                    || components[0].equals("lang.test")) {
+                    || components[0].equals("lang.annotations")) {
                 return;
             }
             String nameComponent = components[0];
