@@ -278,7 +278,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.BASE64_KEYWORD, ParserRuleContext.BASE64_KEYWORD,
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
-            ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD,
+            ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.OBJECT_CONSTRUCTOR,
             ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.ISOLATED_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
