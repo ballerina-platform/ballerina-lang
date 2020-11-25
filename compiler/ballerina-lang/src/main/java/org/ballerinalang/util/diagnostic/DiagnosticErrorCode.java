@@ -649,7 +649,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "configurable.variable.currently.not.supported"),
 
     REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3967", "remote.function.in.non.network.object"),
-    RESOURCE_FIELD_ONLY_ALLOWED_IN_SERVICE_TYPE("BCE3968", "resource.function.in.non.service.object"),
     ;
 
     private String diagnosticId;

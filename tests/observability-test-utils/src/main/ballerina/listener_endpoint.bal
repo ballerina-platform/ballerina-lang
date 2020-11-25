@@ -25,11 +25,11 @@ public class Listener {
         externInitEndpoint(self, port);
     }
 
-    public isolated function __attach(service s, string? name = ()) returns error? {
+    public isolated function __attach(service object {} s, string? name = ()) returns error? {
         return externAttach(self, s);
     }
 
-    public isolated function __detach(service s) returns error? {
+    public isolated function __detach(service object {} s) returns error? {
         return externDetach(self, s);
     }
 
@@ -51,12 +51,12 @@ isolated function externInitEndpoint(Listener listenerObj, int port) = @java:Met
     name: "initEndpoint"
 } external;
 
-isolated function externAttach(Listener listenerObj, service s) returns error? = @java:Method {
+isolated function externAttach(Listener listenerObj, service object {} s) returns error? = @java:Method {
     'class: "org.ballerina.testobserve.listenerendpoint.Endpoint",
     name: "attachService"
 } external;
 
-isolated function externDetach(Listener listenerObj, service s) returns error? = @java:Method {
+isolated function externDetach(Listener listenerObj, service object {} s) returns error? = @java:Method {
     'class: "org.ballerina.testobserve.listenerendpoint.Endpoint",
     name: "detachService"
 } external;

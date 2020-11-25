@@ -216,7 +216,8 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         if (PositionUtil.withinBlock(this.linePosition, serviceNode.getPosition())) {
-            SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, this.symbolEnv);
+            SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.getServiceClass().symbol.scope,
+                    this.symbolEnv);
             this.scope = serviceEnv;
             serviceNode.getResources().forEach(function -> this.acceptNode(function, serviceEnv));
             return;

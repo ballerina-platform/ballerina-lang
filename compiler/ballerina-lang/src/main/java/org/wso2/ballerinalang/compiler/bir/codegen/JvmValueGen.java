@@ -101,7 +101,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;

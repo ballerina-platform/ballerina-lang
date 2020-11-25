@@ -17,8 +17,8 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 
