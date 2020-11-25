@@ -122,6 +122,8 @@ public class ModuleVariableTest {
         validateError(recordVarCompileResultNegetive, index++, "redeclared symbol 'Fname'", 23, 14);
         validateError(recordVarCompileResultNegetive, index++, "redeclared symbol 'Married'", 25, 9);
         validateError(recordVarCompileResultNegetive, index++, "invalid record binding pattern; unknown field 'age' in record type 'Person'", 31, 1);
+        validateError(recordVarCompileResultNegetive, index++, "only simple variables are allowed to be isolated", 34, 1);
+        validateError(recordVarCompileResultNegetive, index++, "only simple variables are allowed to be configurable", 37, 1);
         assertEquals(recordVarCompileResultNegetive.getErrorCount(), index);
     }
 

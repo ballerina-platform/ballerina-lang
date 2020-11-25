@@ -29,3 +29,9 @@ public function testBasic() returns [string, boolean] {
 
 // Invalid field name age which is not it Person type
 Person {name:Fname2, married:Married2, age:Age2} = {name:"Jhone", married:true};
+
+// Only simple variables are allowed to be isolated
+isolated Person {name:name3, married:married3} = {name:"Jhone", married:true};
+
+// Only simple variables are allowed to be configurable
+configurable Person {name:name4, married:married4} = {name:"Jhone", married:true};
