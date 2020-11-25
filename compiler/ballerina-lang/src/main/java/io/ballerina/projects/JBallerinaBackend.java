@@ -34,6 +34,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObserverbilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -113,6 +114,19 @@ public class JBallerinaBackend extends CompilerBackend {
 
         // Trigger code generation
         performCodeGen();
+
+        // TODO: Move to a compiler extension once Compiler revamp is complete
+        BLangDiagnosticLog dLog = BLangDiagnosticLog.getInstance(compilerContext);
+        if (dLog.errorCount() == 0) {
+            ObservabilitySymbolCollector observabilitySymbolCollector
+                    = ObserverbilitySymbolCollectorRunner.getInstance(compilerContext);
+            for (ModuleId moduleId : packageContext.moduleIds()) {
+                ModuleContext moduleContext = packageContext.moduleContext(moduleId);
+                packageContext.getModuleCompilation(moduleContext);     // Trigger Compilation
+                BLangPackage bLangPackage = moduleContext.bLangPackage();
+                observabilitySymbolCollector.process(bLangPackage);
+            }
+        }
     }
 
     private void performCodeGen() {
