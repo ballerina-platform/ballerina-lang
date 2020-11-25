@@ -19,17 +19,12 @@
 package org.ballerinalang.observability.anaylze;
 
 import com.google.gson.JsonElement;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.observability.anaylze.model.CUnitASTHolder;
 import org.ballerinalang.observability.anaylze.model.PkgASTHolder;
-import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -39,10 +34,12 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -50,8 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Default implementation of ObserverbilitySymbolCollector.
@@ -67,17 +62,15 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     private static final String COMPILATION_UNITS = "compilationUnits";
     private static final String AST = "ast";
     private static final String JSON = ".json";
+    private static final PrintStream out = System.out;
     public static final String PROGRAM_HASH_KEY = "PROGRAM_HASH";
     public static final String AST_META_FILENAME = "meta.properties";
 
     private CompilerContext compilerContext;
 
-    private DiagnosticLog diagnosticLog;
-
     @Override
     public void init(CompilerContext context) {
         compilerContext = context;
-        diagnosticLog = BLangDiagnosticLog.getInstance(context);
     }
 
     @Override
@@ -87,29 +80,25 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     }
 
     @Override
-    public void writeCollectedSymbols(BLangPackage module, Path destination)
-            throws IOException, NoSuchAlgorithmException {
-        ((BLangDiagnosticLog) this.diagnosticLog).setCurrentPackageId(module.packageID);
-        Path targetDirPath = destination.resolve(AST);
-        if (Files.notExists(targetDirPath)) {
-            Files.createDirectory(targetDirPath);
-        }
+    public void writeCollectedSymbols(Path executableFile) throws IOException {
+        try (FileSystem fs = FileSystems.newFileSystem(executableFile,
+                DefaultObservabilitySymbolCollector.class.getClassLoader())) {
+            Path astDirPath = fs.getPath(AST);
+            Files.createDirectories(astDirPath);
 
-        Set<String> userPackages = getUserPackages();
-        Map<String, PkgASTHolder> userPackageASTMap = new HashMap<>();
-        for (Map.Entry<String, PkgASTHolder> entry : JsonASTHolder.getInstance().getASTMap().entrySet()) {
-            if (userPackages.contains(entry.getKey())) {
-                userPackageASTMap.put(entry.getKey(), entry.getValue());
+            // Writing AST Json
+            Map<String, PkgASTHolder> astMap = JsonASTHolder.getInstance().getASTMap();
+            String astDataString = generateCanonicalJsonString(astMap);
+            Files.write(astDirPath.resolve(AST + JSON), astDataString.getBytes(StandardCharsets.UTF_8));
+
+            // Writing AST Metadata
+            Properties props = new Properties();
+            try (OutputStream outputStream = Files.newOutputStream(astDirPath.resolve(AST_META_FILENAME))) {
+                props.setProperty(PROGRAM_HASH_KEY, getAstHash(astDataString));
+                props.store(outputStream, null);
+            } catch (NoSuchAlgorithmException e) {
+                out.println("ballerina: failed to store json AST into the Jar due to " + e.getMessage());
             }
-        }
-
-        String astDataString = generateCanonicalJsonString(userPackageASTMap);
-        Files.write(targetDirPath.resolve(AST + JSON), astDataString.getBytes(StandardCharsets.UTF_8));
-
-        Properties props = new Properties();
-        props.setProperty(PROGRAM_HASH_KEY, getAstHash(astDataString));
-        try (OutputStream outputStream = Files.newOutputStream(targetDirPath.resolve(AST_META_FILENAME))) {
-            props.store(outputStream, null);
         }
     }
 
@@ -130,13 +119,6 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             hexString.append(hex);
         }
         return hexString.toString();
-    }
-
-    private Set<String> getUserPackages() {
-        SourceDirectoryManager sourceDirectoryManager = SourceDirectoryManager.getInstance(compilerContext);
-        return sourceDirectoryManager.listSourceFilesAndPackages()
-                .map(x -> x.getName().getValue())
-                .collect(Collectors.toSet());
     }
 
     private PkgASTHolder getModuleASTHolder(BLangPackage module) {
@@ -169,8 +151,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);
             cUnitASTHolder.setAst(jsonAST);
         } catch (JSONGenerationException e) {
-            diagnosticLog.logDiagnostic(DiagnosticSeverity.WARNING, cUnit.getPosition(),
-                    "Error while generating json AST for " + cUnit.name + ". " + e.getMessage());
+            out.println("ballerina: error while generating json AST for " + cUnit.name + ". " + e.getMessage());
         }
         return cUnitASTHolder;
     }
