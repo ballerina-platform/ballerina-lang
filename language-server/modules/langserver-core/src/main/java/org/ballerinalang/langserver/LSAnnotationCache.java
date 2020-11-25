@@ -29,7 +29,9 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.AttachPoints;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -111,7 +113,7 @@ public class LSAnnotationCache {
 //                });
         switch (attachmentPoint) {
             case SERVICE_DECLARATION:
-            case SERVICE_CONSTRUCTOR_EXPRESSION:
+            //case SERVICE_CONSTRUCTOR_EXPRESSION:
                 return serviceAnnotations;
             case RESOURCE_KEYWORD:
                 return resourceAnnotations;
@@ -236,8 +238,8 @@ public class LSAnnotationCache {
                     addAttachment(annotationSymbol, objectMethodAnnotations);
                     addAttachment(annotationSymbol, resourceAnnotations);
                 }
-                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.SERVICE_REMOTE)) {
-                    addAttachment(annotationSymbol, resourceAnnotations, context);
+                if (attachPoints.contains(AttachPoints.SERVICE_REMOTE)) {
+                    addAttachment(annotationSymbol, resourceAnnotations);
                 }
                 if (attachPoints.contains(AnnotationAttachPoint.RESOURCE)) {
                     addAttachment(annotationSymbol, resourceAnnotations);

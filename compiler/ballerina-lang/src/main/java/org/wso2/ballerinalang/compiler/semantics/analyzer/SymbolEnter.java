@@ -2047,12 +2047,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         structureType.typeInclusions = list;
 
-        for (Map.Entry<String, BField> fieldEntry : structureType.fields.entrySet()) {
-            boolean isService = Symbols.isService(structureType.tsymbol);
-            validateResourceField(fieldEntry.getValue(), isService);
-            updateServiceResourceFieldVisibilityRegion(fieldEntry.getValue(), isService);
-        }
-
         // Resolve and add the fields of the referenced types to this object.
         resolveReferencedFields(structureTypeNode, typeDefEnv);
 
@@ -2069,13 +2063,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void updateServiceResourceFieldVisibilityRegion(BField value, boolean isService) {
         if (isService && value.symbol != null && Symbols.isResource(value.symbol)) {
             value.symbol.flags |= Flags.PUBLIC;
-        }
-    }
-
-    private void validateResourceField(BField value, boolean isService) {
-        if (!isService && value.symbol != null && Symbols.isResource(value.symbol)) {
-            value.symbol.flags ^= Flags.RESOURCE;
-            dlog.error(value.pos, DiagnosticErrorCode.RESOURCE_FIELD_ONLY_ALLOWED_IN_SERVICE_TYPE);
         }
     }
 
