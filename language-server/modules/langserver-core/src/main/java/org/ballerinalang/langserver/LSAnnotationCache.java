@@ -29,7 +29,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.AttachPoints;
 

@@ -18,8 +18,8 @@
 package org.ballerinalang.testerina.natives.mock;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
