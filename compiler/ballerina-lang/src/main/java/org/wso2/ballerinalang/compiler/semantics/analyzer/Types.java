@@ -3178,7 +3178,7 @@ public class Types {
             case TypeTags.FINITE:
                 return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove));
             case TypeTags.TUPLE:
-                return getRemainingType((BTupleType)originalType, typeToRemove);
+                return getRemainingType((BTupleType) originalType, typeToRemove);
             default:
                 return originalType;
         }
