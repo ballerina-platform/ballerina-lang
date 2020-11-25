@@ -583,24 +583,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BindingPatternNode bindingPatternNode = typedBindingPattern.bindingPattern();
         BLangVariable variable = getBLangVariableNode(bindingPatternNode);
 
-        Token variableName;
-        String unsupportedBP = null;
-        switch (variable.getKind()) { // TODO : Remove this after all binding patterns are implemented
-            case ERROR_VARIABLE:
-                unsupportedBP = "error";
-                break;
-        }
-
-        if (unsupportedBP != null) {
-            Location bindingPatternPos = getPosition(bindingPatternNode);
-            dlog.error(bindingPatternPos, DiagnosticErrorCode.BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL,
-                    unsupportedBP);
-            variableName = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
-                    NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
-            variable = createSimpleVariable(bindingPatternPos, variableName, variable.pos);
-        }
-
-        initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
+        initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer,
                 modVarDeclrNode.qualifiers());
 
         NodeList<AnnotationNode> annotations = getAnnotations(modVarDeclrNode.metadata());
