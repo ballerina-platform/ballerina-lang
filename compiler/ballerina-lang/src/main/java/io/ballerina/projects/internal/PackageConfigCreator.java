@@ -18,6 +18,7 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BallerinaToml;
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ModuleConfig;
@@ -29,10 +30,15 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -59,8 +65,8 @@ public class PackageConfigCreator {
         ProjectFiles.validateSingleFileProjectFilePath(filePath);
 
         // Create a PackageManifest instance
-        PackageDescriptor packageDesc = PackageDescriptor.from(ProjectConstants.DOT, ProjectConstants.ANON_ORG,
-                ProjectConstants.DEFAULT_VERSION);
+        PackageDescriptor packageDesc = PackageDescriptor.from(PackageOrg.from(ProjectConstants.ANON_ORG),
+                PackageName.from(ProjectConstants.DOT), PackageVersion.from(ProjectConstants.DEFAULT_VERSION));
         PackageManifest packageManifest = PackageManifest.from(packageDesc);
 
         PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);
@@ -70,9 +76,12 @@ public class PackageConfigCreator {
     public static PackageConfig createBalrProjectConfig(Path balrPath) {
         ProjectFiles.validateBalrProjectPath(balrPath);
         PackageManifest packageManifest = BaloFiles.createPackageManifest(balrPath);
-
         PackageData packageData = BaloFiles.loadPackageData(balrPath, packageManifest);
-        return createPackageConfig(packageData, packageManifest);
+        BaloFiles.DependencyGraphResult packageDependencyGraph = BaloFiles
+                .createPackageDependencyGraph(balrPath, packageManifest.name().value());
+
+        return createPackageConfig(packageData, packageManifest, null,
+                packageDependencyGraph.packageDependencyGraph(), packageDependencyGraph.moduleDependencies());
     }
 
     public static PackageConfig createPackageConfig(PackageData packageData, PackageManifest packageManifest) {
@@ -82,6 +91,16 @@ public class PackageConfigCreator {
     public static PackageConfig createPackageConfig(PackageData packageData,
                                                     PackageManifest packageManifest,
                                                     BallerinaToml ballerinaToml) {
+        return createPackageConfig(packageData, packageManifest, ballerinaToml, DependencyGraph.emptyGraph(),
+                Collections.emptyMap());
+    }
+
+    public static PackageConfig createPackageConfig(PackageData packageData,
+                                                    PackageManifest packageManifest,
+                                                    BallerinaToml ballerinaToml,
+                                                    DependencyGraph<PackageDescriptor> packageDependencyGraph,
+                                                    Map<ModuleDescriptor, List<ModuleDescriptor>>
+                                                            moduleDependencyGraph) {
         // TODO PackageData should contain the packageName. This should come from the Ballerina.toml file.
         // TODO For now, I take the directory name as the project name. I am not handling the case where the
         //  directory name is not a valid Ballerina identifier.
@@ -93,45 +112,55 @@ public class PackageConfigCreator {
 
         List<ModuleConfig> moduleConfigs = packageData.otherModules()
                 .stream()
-                .map(moduleData -> createModuleConfig(packageManifest.descriptor(), moduleData, packageId))
+                .map(moduleData -> createModuleConfig(packageManifest.descriptor(), moduleData,
+                        packageId, moduleDependencyGraph))
                 .collect(Collectors.toList());
+
         moduleConfigs.add(createDefaultModuleConfig(packageManifest.descriptor(),
-                packageData.defaultModule(), packageId));
-        return PackageConfig.from(packageId, packageData.packagePath(),
-                packageManifest, ballerinaToml, moduleConfigs);
+                packageData.defaultModule(), packageId, moduleDependencyGraph));
+        return PackageConfig.from(packageId, packageData.packagePath(), packageManifest, ballerinaToml,
+                moduleConfigs, packageDependencyGraph);
     }
 
     private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDesc,
                                                           ModuleData moduleData,
-                                                          PackageId packageId) {
+                                                          PackageId packageId,
+                                                          Map<ModuleDescriptor, List<ModuleDescriptor>>
+                                                                  moduleDepGraph) {
         ModuleName moduleName = ModuleName.from(pkgDesc.name());
-        return createModuleConfig(createModuleDescriptor(pkgDesc, moduleName), moduleData, packageId);
+        ModuleDescriptor moduleDescriptor = createModuleDescriptor(pkgDesc, moduleName);
+        List<ModuleDescriptor> dependencies = getModuleDependencies(moduleDepGraph, moduleDescriptor);
+        return createModuleConfig(moduleDescriptor, moduleData, packageId, dependencies);
     }
 
     private static ModuleDescriptor createModuleDescriptor(PackageDescriptor pkgDesc, ModuleName moduleName) {
-        return ModuleDescriptor.from(pkgDesc.name(), pkgDesc.org(), pkgDesc.version(), moduleName);
+        return ModuleDescriptor.from(moduleName, pkgDesc);
     }
 
     private static ModuleConfig createModuleConfig(PackageDescriptor pkgDesc,
                                                    ModuleData moduleData,
-                                                   PackageId packageId) {
+                                                   PackageId packageId,
+                                                   Map<ModuleDescriptor, List<ModuleDescriptor>> moduleDepGraph) {
         Path fileName = moduleData.moduleDirectoryPath().getFileName();
         if (fileName == null) {
             // TODO Proper error handling
             throw new IllegalStateException("This branch cannot be reached");
         }
         ModuleName moduleName = ModuleName.from(pkgDesc.name(), moduleData.moduleName());
-        return createModuleConfig(createModuleDescriptor(pkgDesc, moduleName), moduleData, packageId);
+        ModuleDescriptor moduleDescriptor = createModuleDescriptor(pkgDesc, moduleName);
+        List<ModuleDescriptor> dependencies = getModuleDependencies(moduleDepGraph, moduleDescriptor);
+        return createModuleConfig(moduleDescriptor, moduleData, packageId, dependencies);
     }
 
     private static ModuleConfig createModuleConfig(ModuleDescriptor moduleDescriptor,
                                                    ModuleData moduleData,
-                                                   PackageId packageId) {
+                                                   PackageId packageId,
+                                                   List<ModuleDescriptor> dependencies) {
         ModuleId moduleId = ModuleId.create(moduleDescriptor.name().toString(), packageId);
 
         List<DocumentConfig> srcDocs = getDocumentConfigs(moduleId, moduleData.sourceDocs());
         List<DocumentConfig> testSrcDocs = getDocumentConfigs(moduleId, moduleData.testSourceDocs());
-        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs);
+        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, dependencies);
     }
 
     private static List<DocumentConfig> getDocumentConfigs(ModuleId moduleId, List<DocumentData> documentData) {
@@ -144,5 +173,12 @@ public class PackageConfigCreator {
     static DocumentConfig createDocumentConfig(DocumentData documentData, ModuleId moduleId) {
         final DocumentId documentId = DocumentId.create(documentData.name(), moduleId);
         return DocumentConfig.from(documentId, documentData.content(), documentData.name());
+    }
+
+    private static List<ModuleDescriptor> getModuleDependencies(Map<ModuleDescriptor, List<ModuleDescriptor>>
+                                                                        moduleDepGraph,
+                                                                ModuleDescriptor moduleDescriptor) {
+        List<ModuleDescriptor> moduleDependencies = moduleDepGraph.get(moduleDescriptor);
+        return Objects.requireNonNullElse(moduleDependencies, Collections.emptyList());
     }
 }

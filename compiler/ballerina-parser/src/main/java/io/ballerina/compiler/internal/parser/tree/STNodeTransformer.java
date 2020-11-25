@@ -797,6 +797,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(classDefinitionNode);
     }
 
+    public T transform(STRequiredExpressionNode requiredExpressionNode) {
+        return transformSyntaxNode(requiredExpressionNode);
+    }
+
     public T transform(STErrorConstructorExpressionNode errorConstructorExpressionNode) {
         return transformSyntaxNode(errorConstructorExpressionNode);
     }

@@ -19,6 +19,9 @@
 package org.ballerinalang.central.client;
 
 import org.awaitility.Duration;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.NoPackageException;
+import org.ballerinalang.central.client.exceptions.UnauthorizedException;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.testng.Assert;
@@ -46,10 +49,8 @@ import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.TestUtils.cleanDirectory;
-import static org.ballerinalang.toml.parser.SettingsProcessor.parseTomlContentFromFile;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 
 /**
  * Test cases to test central api client.
@@ -58,17 +59,16 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     private HttpURLConnection connection = mock(HttpURLConnection.class);
     private ByteArrayOutputStream console;
-    private ByteArrayOutputStream errConsole;
 
     private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
     private static final Path TMP_DIR = UTILS_TEST_RESOURCES.resolve("temp-test-central-api-client");
     private static final String TEST_BALO_NAME = "sf-any.balo";
     private static final String OUTPUT_BALO = "output.balo";
     private static final String WINERY = "winery";
+    private static final String ACCESS_TOKEN = "273cc9f6-c333-36ab-aa2q-f08e9513ff5y";
 
-    public TestCentralApiClient() throws IOException {
-        super();
-        this.settings = parseTomlContentFromFile(UTILS_TEST_RESOURCES.resolve("Settings.toml"));
+    public TestCentralApiClient() {
+        super("", null);
     }
 
     @Override
@@ -92,21 +92,10 @@ public class TestCentralApiClient extends CentralAPIClient {
         return output;
     }
 
-    private String readErrorOutput() throws IOException {
-        String output;
-        output = this.errConsole.toString();
-        this.errConsole.close();
-        this.errConsole = new ByteArrayOutputStream();
-        this.errStream = new PrintStream(this.errConsole);
-        return output;
-    }
-
     @BeforeMethod
     public void beforeMethod() {
         this.console = new ByteArrayOutputStream();
-        this.errConsole = new ByteArrayOutputStream();
         this.outStream = new PrintStream(this.console);
-        this.errStream = new PrintStream(this.errConsole);
     }
 
     private void cleanTmpDir() {
@@ -135,7 +124,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getContentLengthLong()).thenReturn(Files.size(baloPath));
             when(connection.getInputStream()).thenReturn(baloStream);
 
-            this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, "any", false);
+            this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, "any", "slp5", false);
 
             Assert.assertTrue(TMP_DIR.resolve("1.3.5").resolve("sf-2020r2-any-1.3.5.balo").toFile().exists());
             String buildLog = readOutput();
@@ -159,7 +148,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
         when(connection.getErrorStream()).thenReturn(resStream);
 
-        this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, "any", false);
+        this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, "any", "slp5", false);
     }
 
     @Test(description = "Test get package")
@@ -210,7 +199,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getOutputStream()).thenReturn(outputStream);
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
 
-            this.pushPackage(baloPath);
+            this.pushPackage(baloPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
             String buildLog = readOutput();
             given().with().pollInterval(Duration.ONE_SECOND).and()
                     .with().pollDelay(Duration.ONE_SECOND)
@@ -219,7 +208,8 @@ public class TestCentralApiClient extends CentralAPIClient {
         }
     }
 
-    @Test(description = "Test push package with invalid access token")
+    @Test(description = "Test push package with invalid access token", expectedExceptions = UnauthorizedException.class,
+            expectedExceptionsMessageRegExp = "unauthorized access token for organization: foo")
     public void testPushPackageWithInvalidAccessToken() throws IOException {
         Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
         File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
@@ -230,12 +220,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getOutputStream()).thenReturn(outputStream);
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_UNAUTHORIZED);
 
-            this.pushPackage(baloPath);
-            String errorLog = readErrorOutput();
-            given().with().pollInterval(Duration.ONE_SECOND).and()
-                    .with().pollDelay(Duration.ONE_SECOND)
-                    .await().atMost(10, SECONDS)
-                    .until(() -> errorLog.contains("unauthorized access token for organization: foo"));
+            this.pushPackage(baloPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
         }
     }
 
@@ -253,7 +238,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
             when(connection.getErrorStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
 
-            this.pushPackage(baloPath);
+            this.pushPackage(baloPath, "foo", "github", "1.8.3", ACCESS_TOKEN);
         }
     }
 
@@ -271,7 +256,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
             when(connection.getURL()).thenReturn(new URL("https://api.central.ballerina.io/registry"));
 
-            this.pushPackage(baloPath);
+            this.pushPackage(baloPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
         }
     }
 
@@ -302,8 +287,9 @@ public class TestCentralApiClient extends CentralAPIClient {
     }
 
     private void setBallerinaHome() {
-        if (System.getProperty(BALLERINA_INSTALL_DIR_PROP) == null) {
-            System.setProperty(BALLERINA_INSTALL_DIR_PROP, String.valueOf(Paths.get("build")));
+        final String ballerinaInstallDirProp = "ballerina.home";
+        if (System.getProperty(ballerinaInstallDirProp) == null) {
+            System.setProperty(ballerinaInstallDirProp, String.valueOf(Paths.get("build")));
         }
     }
 }

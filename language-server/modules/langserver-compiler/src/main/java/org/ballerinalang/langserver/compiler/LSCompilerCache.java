@@ -43,6 +43,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
  *
  * @since 1.0.0
  */
+@Deprecated(forRemoval = true)
 public class LSCompilerCache {
     private static final long MAX_CACHE_COUNT = 10L;
     private static Map<Key, CacheEntry> packageMap;

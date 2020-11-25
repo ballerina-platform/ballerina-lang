@@ -808,6 +808,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(classDefinitionNode);
     }
 
+    public T transform(RequiredExpressionNode requiredExpressionNode) {
+        return transformSyntaxNode(requiredExpressionNode);
+    }
+
     public T transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
         return transformSyntaxNode(errorConstructorExpressionNode);
     }

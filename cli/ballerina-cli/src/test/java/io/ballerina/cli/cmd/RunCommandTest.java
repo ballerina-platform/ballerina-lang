@@ -61,18 +61,6 @@ public class RunCommandTest extends BaseCommandTest {
         Files.delete(tempFile);
     }
 
-    @Test(description = "Run non .bal file")
-    public void testRunNonBalFile() throws IOException {
-        Path nonBalFilePath = this.testResources.resolve("non-bal-file").resolve("hello_world.txt");
-        RunCommand runCommand = new RunCommand(nonBalFilePath, printStream, false);
-        new CommandLine(runCommand).parse(nonBalFilePath.toString());
-        runCommand.execute();
-
-        String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.replaceAll("\r", "")
-                .contains("Invalid Ballerina source file(.bal): " + nonBalFilePath.toString()));
-    }
-
     @Test(description = "Run non existing bal file")
     public void testRunNonExistingBalFile() throws IOException {
         // valid source root path
@@ -96,8 +84,8 @@ public class RunCommandTest extends BaseCommandTest {
         new CommandLine(runCommand).parse(projectPath.toString());
         try {
             runCommand.execute();
-        } catch (RuntimeException e) {
-            Assert.assertTrue(e.getMessage().contains("no entrypoint found in package"));
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("no entrypoint found in package"));
         }
     }
 
@@ -115,26 +103,8 @@ public class RunCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Run a valid ballerina file", enabled = false)
-    public void testRunValidBalProject() throws IOException {
-        Path projectPath = this.testResources.resolve("validRunProject");
-
-        System.setProperty("user.dir", projectPath.toString());
-        Path tempFile = projectPath.resolve("temp.txt");
-        // set valid source root
-        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
-        // name of the file as argument
-        new CommandLine(runCommand).parse(tempFile.toString());
-
-        Assert.assertFalse(tempFile.toFile().exists());
-        runCommand.execute();
-        Assert.assertTrue(tempFile.toFile().exists());
-
-        Files.delete(tempFile);
-    }
-
     @Test(description = "Run a valid ballerina file from a different directory")
-    public void testRunValidBalProjectFromDifferentDirectory() throws IOException {
+    public void testRunValidBalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validRunProject");
 
         Path tempFile = projectPath.resolve("temp.txt");

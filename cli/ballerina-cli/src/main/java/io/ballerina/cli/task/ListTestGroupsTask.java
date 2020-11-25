@@ -29,7 +29,9 @@ import io.ballerina.projects.testsuite.TestSuite;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -39,7 +41,7 @@ import java.util.stream.Collectors;
  */
 public class ListTestGroupsTask implements Task {
 
-    private PrintStream out;
+    private final PrintStream out;
 
     public ListTestGroupsTask(PrintStream out) {
         this.out = out;
@@ -50,8 +52,12 @@ public class ListTestGroupsTask implements Task {
             Module module = project.currentPackage().module(moduleId);
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-            TestSuite suite = jBallerinaBackend.testSuite(module);
-            listGroups(suite, this.out);
+            Optional<TestSuite> suite = jBallerinaBackend.testSuite(module);
+            if (!project.currentPackage().packageOrg().anonymous()) {
+                out.println();
+                out.println("\t" + module.moduleName().toString());
+            }
+            listGroups(suite.orElse(null), this.out);
         }
     }
 
@@ -63,10 +69,10 @@ public class ListTestGroupsTask implements Task {
     private void listGroups(TestSuite testSuite, PrintStream outStream) {
         List<String> groupList = getGroupList(testSuite);
         if (groupList.size() == 0) {
-            outStream.println("There are no groups available!");
+            outStream.println("\tThere are no groups available!");
         } else {
-            outStream.println("Following groups are available : ");
-            outStream.println(groupList);
+            outStream.println("\tFollowing groups are available : ");
+            outStream.println("\t" + groupList);
         }
     }
 
@@ -77,6 +83,9 @@ public class ListTestGroupsTask implements Task {
      * @return a list of groups
      */
     private List<String> getGroupList(TestSuite testSuite) {
+        if (testSuite == null) {
+            return Collections.emptyList();
+        }
         List<String> groupList = new ArrayList<>();
         for (Test test : testSuite.getTests()) {
             if (test.getGroups().size() > 0) {

@@ -37,24 +37,28 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(0);
     }
 
+    public NodeList<Token> qualifiers() {
+        return new NodeList<>(childInBucket(1));
+    }
+
     public Token serviceKeyword() {
-        return childInBucket(1);
+        return childInBucket(2);
     }
 
     public Optional<IdentifierToken> serviceName() {
-        return optionalChildInBucket(2);
+        return optionalChildInBucket(3);
     }
 
     public Token onKeyword() {
-        return childInBucket(3);
+        return childInBucket(4);
     }
 
     public SeparatedNodeList<ExpressionNode> expressions() {
-        return new SeparatedNodeList<>(childInBucket(4));
+        return new SeparatedNodeList<>(childInBucket(5));
     }
 
     public Node serviceBody() {
-        return childInBucket(5);
+        return childInBucket(6);
     }
 
     @Override
@@ -71,6 +75,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
+                "qualifiers",
                 "serviceKeyword",
                 "serviceName",
                 "onKeyword",
@@ -80,6 +85,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
 
     public ServiceDeclarationNode modify(
             MetadataNode metadata,
+            NodeList<Token> qualifiers,
             Token serviceKeyword,
             IdentifierToken serviceName,
             Token onKeyword,
@@ -87,6 +93,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             Node serviceBody) {
         if (checkForReferenceEquality(
                 metadata,
+                qualifiers.underlyingListNode(),
                 serviceKeyword,
                 serviceName,
                 onKeyword,
@@ -97,6 +104,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
 
         return NodeFactory.createServiceDeclarationNode(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 serviceName,
                 onKeyword,
@@ -116,6 +124,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
     public static class ServiceDeclarationNodeModifier {
         private final ServiceDeclarationNode oldNode;
         private MetadataNode metadata;
+        private NodeList<Token> qualifiers;
         private Token serviceKeyword;
         private IdentifierToken serviceName;
         private Token onKeyword;
@@ -125,6 +134,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         public ServiceDeclarationNodeModifier(ServiceDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
+            this.qualifiers = oldNode.qualifiers();
             this.serviceKeyword = oldNode.serviceKeyword();
             this.serviceName = oldNode.serviceName().orElse(null);
             this.onKeyword = oldNode.onKeyword();
@@ -135,6 +145,13 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         public ServiceDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
             this.metadata = metadata;
+            return this;
+        }
+
+        public ServiceDeclarationNodeModifier withQualifiers(
+                NodeList<Token> qualifiers) {
+            Objects.requireNonNull(qualifiers, "qualifiers must not be null");
+            this.qualifiers = qualifiers;
             return this;
         }
 
@@ -175,6 +192,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         public ServiceDeclarationNode apply() {
             return oldNode.modify(
                     metadata,
+                    qualifiers,
                     serviceKeyword,
                     serviceName,
                     onKeyword,

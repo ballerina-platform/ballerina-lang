@@ -18,7 +18,9 @@
 package io.ballerina.projects.environment;
 
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
+import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
+import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.internal.environment.EnvironmentPackageCache;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -36,7 +38,9 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_API_INITIATE
  */
 public class EnvironmentBuilder {
 
+    private PackageRepository ballerinaCentralRepo;
     private Path ballerinaHome;
+    private Path userHome;
 
     public static EnvironmentBuilder getBuilder() {
         return new EnvironmentBuilder();
@@ -46,34 +50,65 @@ public class EnvironmentBuilder {
         return new EnvironmentBuilder().build();
     }
 
+    public EnvironmentBuilder setUserHome(Path userHome) {
+        this.userHome = userHome;
+        return this;
+    }
+
     public EnvironmentBuilder setBallerinaHome(Path ballerinaHome) {
         this.ballerinaHome = ballerinaHome;
+        return this;
+    }
+
+    public EnvironmentBuilder setBallerinaCentralRepository(PackageRepository ballerinaCentralRepo) {
+        this.ballerinaCentralRepo = ballerinaCentralRepo;
         return this;
     }
 
     public Environment build() {
         DefaultEnvironment environment = new DefaultEnvironment();
 
+        // Environment creation logic needs to validate following things
+        //    BallerinaDistribution
+        //    BallerinaUserHome --> create if not exists get the .ballerina
+        //      centralRepo = BallerinaUserHome.getCentralRepository()
+
         // Creating a Ballerina distribution instance
         BallerinaDistribution ballerinaDistribution = getBallerinaDistribution(environment);
-        PackageRepository packageRepository = ballerinaDistribution.packageRepository();
-        environment.addService(PackageRepository.class, packageRepository);
+        PackageRepository distributionRepository = ballerinaDistribution.packageRepository();
+        environment.addService(PackageRepository.class, distributionRepository);
 
         PackageCache packageCache = new EnvironmentPackageCache();
         environment.addService(PackageCache.class, packageCache);
 
+        if (ballerinaCentralRepo == null) {
+            // Creating a Ballerina user home instance
+            BallerinaUserHome ballerinaUserHome = getBallerinaUserHome(environment);
+            ballerinaCentralRepo = ballerinaUserHome.remotePackageRepository();
+        }
+
+        PackageResolver packageResolver = new DefaultPackageResolver(distributionRepository,
+                ballerinaCentralRepo, packageCache);
+        environment.addService(PackageResolver.class, packageResolver);
+
         CompilerContext compilerContext = populateCompilerContext();
         environment.addService(CompilerContext.class, compilerContext);
-        ballerinaDistribution.loadLangLibPackages(compilerContext, packageCache);
+        ballerinaDistribution.loadLangLibPackages(compilerContext, packageResolver);
         return environment;
     }
 
+    // this
     private BallerinaDistribution getBallerinaDistribution(DefaultEnvironment environment) {
         return (ballerinaHome != null) ?
                 BallerinaDistribution.from(environment, ballerinaHome) :
                 BallerinaDistribution.from(environment);
     }
 
+    private BallerinaUserHome getBallerinaUserHome(DefaultEnvironment environment) {
+        return (userHome != null) ?
+                BallerinaUserHome.from(environment, userHome) :
+                BallerinaUserHome.from(environment);
+    }
 
     private static CompilerContext populateCompilerContext() {
         CompilerContext compilerContext = new CompilerContext();

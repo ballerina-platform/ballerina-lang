@@ -31,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
@@ -112,6 +113,12 @@ public class ScopedSymbolFinder extends NodeVisitor {
     public void visit(ClassDefinitionNode classDefinitionNode) {
         this.currentNode = classDefinitionNode;
         this.currentIdentifierPos = classDefinitionNode.className().lineRange().startLine();
+    }
+
+    @Override
+    public void visit(VariableDeclarationNode varDeclrNodeNode) {
+        this.currentNode = varDeclrNodeNode;
+        this.currentIdentifierPos = varDeclrNodeNode.typedBindingPattern().bindingPattern().lineRange().startLine();
     }
 
     public void visit(Node node) {

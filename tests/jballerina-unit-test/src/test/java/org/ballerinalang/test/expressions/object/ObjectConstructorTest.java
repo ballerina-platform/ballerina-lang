@@ -17,13 +17,14 @@
 */
 package org.ballerinalang.test.expressions.object;
 
-import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Test cases for object-constructor-expr types in ballerina.
@@ -80,24 +81,48 @@ public class ObjectConstructorTest {
     }
 
     @Test
+    public void testObjectConstructorExprWithReadOnlyCET() {
+        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorExprWithReadOnlyCET");
+    }
+
+    @Test
     public void testObjectConstructorNegative() {
 
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/expressions/object/object_constructor_expression_negative.bal");
         int index = 0;
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'SampleRec' is not an object", 19, 39);
-        BAssertUtil.validateError(negativeResult, index++, "a remote function in a non client object", 22, 5);
-        BAssertUtil.validateError(negativeResult, index++, "object constructor 'init' method cannot have parameters",
+        validateError(negativeResult, index++, "incompatible types: 'SampleRec' is not an object", 19, 39);
+        validateError(negativeResult, index++, "a remote function in a non client object", 22, 5);
+        validateError(negativeResult, index++, "object constructor 'init' method cannot have parameters",
                 26, 5);
-        BAssertUtil.validateError(negativeResult, index++, "object initializer function can not be declared as " +
+        validateError(negativeResult, index++, "object initializer function can not be declared as " +
                 "private", 30, 5);
-        BAssertUtil.validateError(negativeResult, index++, "invalid token 'public'", 34, 29);
-        BAssertUtil.validateError(negativeResult, index++, "type inclusions are not allowed in object constructor",
+        validateError(negativeResult, index++, "invalid token 'public'", 34, 29);
+        validateError(negativeResult, index++, "type inclusions are not allowed in object constructor",
                 40, 1);
-        BAssertUtil.validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +
+        validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +
                         "type 'any'", 42, 9);
-        BAssertUtil.validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +
+        validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +
                 "type '(DistinctFooA|DistinctFoo)'", 53, 47);
+        validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
+                      84, 22);
+        validateError(negativeResult, index++, "incompatible types: expected 'ReadOnlyClass', " +
+                              "found 'isolated object { final int a; final (string[] & readonly) s; } & readonly'",
+                      87, 24);
+        validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
+                      89, 22);
+        validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
+                      94, 22);
+        validateError(negativeResult, index++, "incompatible types: expected '()', found 'stream<string>'",
+                      95, 29);
+        validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
+                      104, 22);
+        validateError(negativeResult, index++, "incompatible types: expected '()', found 'stream<string>'",
+                      105, 22);
+        validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
+                      113, 22);
+        validateError(negativeResult, index++, "incompatible types: expected '()', found 'stream<string>'",
+                      117, 22);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }

@@ -20,11 +20,6 @@ jobs:
                 with:
                     java-version: 11
 
-            -   name: Setup Node.js
-                uses: actions/setup-node@v1
-                with:
-                    node-version: '8.x'
-
             -   name: Initialize Sub Modules
                 run: git submodule update --init
 

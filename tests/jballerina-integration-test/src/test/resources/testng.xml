@@ -17,7 +17,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="jBallerina-Test-Suite">
+<suite name="jBallerina-Test-Suite" time-out="120000">
     <listeners>
         <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
         <listener class-name="org.ballerinalang.test.listener.TestNGListener"/>
@@ -228,6 +228,7 @@
             </run>
         </groups>
         <classes>
+                <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests" />
 <!--            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>-->
@@ -287,6 +288,13 @@
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.identifier.IdentifierLiteralTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-configurables-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.configurables.ConfigurableTest"/>
         </classes>
     </test>
 

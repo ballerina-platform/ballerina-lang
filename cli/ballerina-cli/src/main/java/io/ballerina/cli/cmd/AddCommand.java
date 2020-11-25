@@ -30,9 +30,12 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Locale;
 
 import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
 /**
  * This class represents the "ballerina add" command.
@@ -53,7 +56,7 @@ public class AddCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--template", "-t"})
-    private String template = "main";
+    private String template = "lib";
 
     public AddCommand() {
         userDir = Paths.get(System.getProperty("user.dir"));
@@ -125,7 +128,7 @@ public class AddCommand implements BLauncherCmd {
 
         // Check if the provided arg a valid module name
         String moduleName = argList.get(0);
-        boolean matches = ProjectUtils.validatePkgName(moduleName);
+        boolean matches = ProjectUtils.validateModuleName(moduleName);
         if (!matches) {
             CommandUtil.printError(errStream,
                     "Invalid module name : '" + moduleName + "' :\n" +
@@ -148,7 +151,7 @@ public class AddCommand implements BLauncherCmd {
         }
 
         // Check if the template exists
-        if (!template.equalsIgnoreCase("main")) {
+        if (!(template.equalsIgnoreCase("service") || template.equalsIgnoreCase("lib"))) {
             CommandUtil.printError(errStream,
                     "Using Ballerina Central module templates is not yet supported.",
                     null,
@@ -209,6 +212,9 @@ public class AddCommand implements BLauncherCmd {
         // -- mymodule/
         // --- main.bal       <- Contains default main method.
         CommandUtil.applyTemplate(modulePath, template);
+        Path source = modulePath.resolve(template.toLowerCase(Locale.getDefault()) + ".bal");
+        Files.move(source, source.resolveSibling(guessPkgName(moduleName) + ".bal"),
+                StandardCopyOption.REPLACE_EXISTING);
     }
 
 //        private void applyBaloTemplate(Path modulePath, String template) {

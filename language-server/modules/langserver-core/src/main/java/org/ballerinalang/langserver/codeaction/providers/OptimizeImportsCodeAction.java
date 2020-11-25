@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.codeaction.providers;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -35,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -63,15 +61,11 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         String uri = context.fileUri();
-        Optional<SyntaxTree> syntaxTree = context.workspace().syntaxTree(context.filePath());
-        if (syntaxTree.isEmpty()) {
-            return Collections.emptyList();
-        }
-        NodeList<ImportDeclarationNode> fileImports = ((ModulePartNode) syntaxTree.get().rootNode()).imports();
+        SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
+        NodeList<ImportDeclarationNode> fileImports = ((ModulePartNode) syntaxTree.rootNode()).imports();
 
         if (fileImports == null || fileImports.isEmpty()) {
             return actions;
@@ -80,7 +74,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         List<String[]> toBeRemovedImports = new ArrayList<>();
 
         // Filter unused imports
-        for (Diagnostic diag : context.getAllDiagnostics()) {
+        for (Diagnostic diag : context.allDiagnostics()) {
             if (diag.getMessage().startsWith(UNUSED_IMPORT_MODULE)) {
                 Matcher matcher = CommandConstants.UNUSED_IMPORT_MODULE_PATTERN.matcher(diag.getMessage());
                 if (matcher.find()) {
@@ -107,7 +101,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         List<TextEdit> edits = new ArrayList<>();
 
         // Find the imports range
-        int importSLine = fileImports.get(0).lineRange().startLine().line() - 1;
+        int importSLine = fileImports.get(0).lineRange().startLine().line();
         List<Range> importLines = new ArrayList<>();
         for (int i = 0; i < fileImports.size(); i++) {
             ImportDeclarationNode importPkg = fileImports.get(i);
@@ -116,12 +110,12 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
 
             // Get imports starting line
             if (importSLine > pos.startLine().line()) {
-                importSLine = pos.startLine().line() - 1;
+                importSLine = pos.startLine().line();
             }
 
             // Mark locations of the imports
-            Range range = new Range(new Position(pos.startLine().line() - 1, pos.startLine().offset() - 1),
-                    new Position(pos.endLine().line() - 1, pos.endLine().offset() - 1));
+            Range range = new Range(new Position(pos.startLine().line(), pos.startLine().offset()),
+                                    new Position(pos.endLine().line(), pos.endLine().offset()));
             importLines.add(range);
 
             // Remove any matching imports on-the-go
@@ -166,7 +160,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         StringJoiner editText = new StringJoiner(System.lineSeparator());
         for (ImportDeclarationNode importPkg : orderedImports) {
             ImportModel importModel = ImportModel.from(importPkg);
-            String importText = IMPORT_KW + " " + importModel.orgName + ORG_SEPARATOR + importModel.moduleName;
+            String importText = IMPORT_KW + " " + importModel.orgName + importModel.moduleName;
             if (!importModel.version.isEmpty()) {
                 importText += " " + VERSION_KW + " " + importModel.version;
             }

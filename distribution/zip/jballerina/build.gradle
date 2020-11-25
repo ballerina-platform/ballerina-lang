@@ -76,6 +76,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:value', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:xml', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:bool', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:runtime', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:query', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:transaction', configuration: 'balSource')
 

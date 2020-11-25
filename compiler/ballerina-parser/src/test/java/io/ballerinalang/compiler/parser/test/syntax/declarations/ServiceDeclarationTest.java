@@ -38,6 +38,11 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
         test("service-decl/service_decl_source_02.bal", "service-decl/service_decl_assert_02.json");
     }
 
+    @Test
+    public void testServiceQualifiers() {
+        test("service-decl/service_decl_source_16.bal", "service-decl/service_decl_assert_16.json");
+    }
+
     // Recovery tests
 
     @Test

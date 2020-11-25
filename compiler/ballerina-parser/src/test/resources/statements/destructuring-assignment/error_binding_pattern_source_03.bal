@@ -23,4 +23,7 @@ function foo() {
     error({a:b}, error(a,b)) = "simpleError";
     error(simpleBP1, simpleBP2, simpleBP3) = "simpleError";
     error(simpleBP1, simpleBP2, error(a,b)) = "simpleError";
+
+    error(a, ... b, ... c) = "simpleError";
+    error(a, ... b, c = d, ... e) = "simpleError";
 }
