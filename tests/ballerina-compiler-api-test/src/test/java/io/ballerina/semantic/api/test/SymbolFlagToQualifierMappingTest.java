@@ -41,7 +41,6 @@ import static io.ballerina.compiler.api.symbols.Qualifier.LISTENER;
 import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.READONLY;
 import static io.ballerina.compiler.api.symbols.Qualifier.REMOTE;
-import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 

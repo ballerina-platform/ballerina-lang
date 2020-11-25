@@ -1001,5 +1001,7 @@ public abstract class BLangNodeVisitor {
         throw  new AssertionError();
     }
 
-    public void visit(BLangResourceFunction resourceFunction) { throw new AssertionError(); }
+    public void visit(BLangResourceFunction resourceFunction) {
+        throw new AssertionError();
+    }
 }

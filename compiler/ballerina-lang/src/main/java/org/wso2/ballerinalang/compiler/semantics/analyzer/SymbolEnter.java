@@ -2877,7 +2877,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             BResourceFunction resourceFunction = (BResourceFunction) referencedFunc;
             attachedFunc = new BResourceFunction(referencedFunc.funcName,
                     funcSymbol, (BInvokableType) funcSymbol.type, resourceFunction.resourcePath,
-                    resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam, referencedFunc.pos);
+                    resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
+                    referencedFunc.pos);
         } else {
             attachedFunc = new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
                     referencedFunc.pos);

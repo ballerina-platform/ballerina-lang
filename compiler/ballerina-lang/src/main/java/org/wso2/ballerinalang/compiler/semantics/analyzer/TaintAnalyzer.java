@@ -2049,7 +2049,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isMethodDeclaration(BLangInvokableNode invNode) {
-        return (invNode.getKind() == NodeKind.FUNCTION || invNode.getKind() == NodeKind.RESOURCE_FUNC) && ((BLangFunction) invNode).interfaceFunction;
+        return (invNode.getKind() == NodeKind.FUNCTION || invNode.getKind() == NodeKind.RESOURCE_FUNC)
+                && ((BLangFunction) invNode).interfaceFunction;
     }
 
     private void visitAttachedInvokable(BLangFunction invNode) {
