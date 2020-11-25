@@ -69,7 +69,7 @@ public class TestReportTest extends BaseTestCase {
         validateCoverage();
     }
 
-    @Test ()
+    @Test (enabled = false)
     public void testWithoutCoverage() throws BallerinaTestException, IOException {
         runCommand(false);
         validateStatuses();
