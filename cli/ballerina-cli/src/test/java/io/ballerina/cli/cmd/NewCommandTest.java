@@ -151,7 +151,8 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
-        Assert.assertTrue(readOutput().contains("warning: invalid package name. Modified package name :"));
+        Assert.assertTrue(readOutput().contains("Unallowed characters in the project name were replaced by " +
+                "underscores when deriving the package name. Edit the Ballerina.toml to change it."));
     }
 
     @Test(description = "Test new command with invalid template")
