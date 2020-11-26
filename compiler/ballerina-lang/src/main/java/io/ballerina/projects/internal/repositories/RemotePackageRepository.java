@@ -9,6 +9,7 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -78,7 +79,7 @@ public class RemotePackageRepository implements PackageRepository {
             for (String supportedPlatform : SUPPORTED_PLATFORMS) {
                 try {
                     this.client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform,
-                            RepoUtils.getBallerinaVersion(), true);
+                                            RepoUtils.getBallerinaVersion(), true);
                 } catch (CentralClientException e) {
                     // ignore when get package fail
                 }
@@ -99,8 +100,15 @@ public class RemotePackageRepository implements PackageRepository {
         }
 
         List<PackageVersion> packageVersions = new ArrayList<>();
-        for (String version : this.client.getPackageVersions(orgName, packageName)) {
-            packageVersions.add(PackageVersion.from(version));
+        try {
+            for (String version : this.client.getPackageVersions(orgName, packageName)) {
+                packageVersions.add(PackageVersion.from(version));
+            }
+        } catch (ConnectionErrorException e) {
+            // ignore connect to remote repo failure
+            return packageVersions;
+        } catch (CentralClientException e) {
+            throw new ProjectException(e.getMessage());
         }
         return packageVersions;
     }

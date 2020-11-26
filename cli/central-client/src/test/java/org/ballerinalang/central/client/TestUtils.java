@@ -69,7 +69,7 @@ public class TestUtils {
     }
 
     @Test(description = "Test writing balo file from http response")
-    public void testWriteBaloFile() throws IOException {
+    public void testWriteBaloFile() throws IOException, CentralClientException {
         final String baloName = "sf-any.balo";
         Path baloFile = UTILS_TEST_RESOURCES.resolve(baloName);
         File initialFile = new File(String.valueOf(baloFile));
@@ -86,7 +86,7 @@ public class TestUtils {
     }
 
     @Test(description = "Test validate package version", dataProvider = "validatePackageVersion")
-    public void testValidatePackageVersion(String version, boolean isValid) {
+    public void testValidatePackageVersion(String version, boolean isValid) throws CentralClientException {
         if (isValid) {
             Utils.validatePackageVersion(version, new LogFormatter());
         } else {
@@ -105,7 +105,7 @@ public class TestUtils {
     }
 
     @Test(description = "Test create balo in given directory")
-    public void testCreateBaloInHomeRepo() throws IOException {
+    public void testCreateBaloInHomeRepo() throws IOException, CentralClientException {
         final String baloName = "sf-any.balo";
         Path baloFile = UTILS_TEST_RESOURCES.resolve(baloName);
         File initialFile = new File(String.valueOf(baloFile));
