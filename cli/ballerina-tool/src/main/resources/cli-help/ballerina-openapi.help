@@ -13,7 +13,7 @@ DESCRIPTION
        service or a client stub) from the given OpenAPI definition file.
        An OpenAPI definition can also be exported from a Ballerina service.
     
-       Generated Ballerina sources will be written into a module with the provided name.
+       Generated Ballerina sources will be written into the provided output location.
 
        Note: This is an experimental tool, which only supports a limited
        set of functionality.
