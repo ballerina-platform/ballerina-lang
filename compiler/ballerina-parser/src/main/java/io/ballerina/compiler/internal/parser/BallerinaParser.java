@@ -804,7 +804,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 // fall through
             default:
-                if (isSyntaxKindInList(qualifiers, SyntaxKind.SERVICE_KEYWORD)) {
+                if (isPossibleServiceDecl(qualifiers)) {
                     reportInvalidQualifier(publicQualifier);
                     return parseServiceDeclOrVarDecl(metadata, qualifiers);
                 }
@@ -1865,6 +1865,23 @@ public class BallerinaParser extends AbstractParser {
             }
         }
         return false;
+    }
+
+    private boolean isPossibleServiceDecl(List<STNode> nodeList) {
+        if (nodeList.isEmpty()) {
+            return false;
+        }
+
+        // Check for [isolated] service match
+        STNode firstElement = nodeList.get(0);
+        switch (firstElement.kind) {
+            case SERVICE_KEYWORD:
+                return true;
+            case ISOLATED_KEYWORD:
+                return nodeList.size() > 1 && nodeList.get(1).kind == SyntaxKind.SERVICE_KEYWORD;
+            default:
+                return false;
+        }
     }
 
     private STNode parseParameterRhs() {

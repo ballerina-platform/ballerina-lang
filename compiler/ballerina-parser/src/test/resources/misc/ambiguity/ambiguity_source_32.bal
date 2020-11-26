@@ -4,6 +4,14 @@ isolated service object{ } obj;
 
 service isolated object{ } obj;
 
+final service object{ } dummyService1 = service object{ };
+
+configurable service object{ } dummyService2 = service object{ };
+
+configurable final service object{ } dummyService23 = service object{ };
+
+final configurable service object{ } dummyService23 = service object{ };
+
 service service object{ } on listner1 {
 
 }
