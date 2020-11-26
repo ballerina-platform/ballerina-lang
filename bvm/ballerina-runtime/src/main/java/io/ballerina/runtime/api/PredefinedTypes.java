@@ -172,7 +172,11 @@ public class PredefinedTypes {
             IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING);
 
     public static final RecordType XML_ITR_NEXT_RETURN_TYPE = IteratorUtils
-            .createIteratorNextReturnType(PredefinedTypes.TYPE_XML);
+            .createIteratorNextReturnType(new BUnionType(Arrays
+            .asList(PredefinedTypes.TYPE_XML, PredefinedTypes.TYPE_ELEMENT,
+                    PredefinedTypes.TYPE_COMMENT, PredefinedTypes.TYPE_TEXT,
+                    PredefinedTypes.TYPE_PROCESSING_INSTRUCTION)));
+
 
     private PredefinedTypes() {
     }
