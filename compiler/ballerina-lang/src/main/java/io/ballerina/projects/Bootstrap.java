@@ -73,7 +73,6 @@ public class Bootstrap {
         langLibLoaded = true;
 
         if (langLib.equals(ANNOTATIONS)) {
-//            symResolver.bootstrapCloneableType();
             return; // Nothing else to load.
         }
 
@@ -86,6 +85,7 @@ public class Bootstrap {
         symResolver.boostrapErrorType();
         symResolver.bootstrapAnydataType();
         symResolver.bootstrapJsonType();
+        symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
 
         if (langLib.equals(JAVA)) {
@@ -141,7 +141,6 @@ public class Bootstrap {
         symResolver.bootstrapJsonType();
         symResolver.bootstrapAnydataType();
         symResolver.boostrapErrorType();
-        symResolver.bootstrapIntRangeType();
         symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
         symbolTable.langArrayModuleSymbol = loadLangLibFromBalr(ARRAY, compilerContext);

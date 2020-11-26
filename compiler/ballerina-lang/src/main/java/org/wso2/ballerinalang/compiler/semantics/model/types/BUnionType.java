@@ -270,7 +270,7 @@ public class BUnionType extends BType implements UnionType {
         }
     }
 
-    protected void  resolveCyclicType(BUnionType unionType) {
+    protected void resolveCyclicType(BUnionType unionType) {
         if (!unionType.isCyclic) {
             for (BType member : unionType.getMemberTypes()) {
                 this.add(member);
@@ -307,8 +307,10 @@ public class BUnionType extends BType implements UnionType {
                     BMapType mapType = (BMapType) tableType.constraint;
                     if (mapType.constraint == unionType) {
                         BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
+                        BTableType newTableType = new BTableType(tableType.tag, newMapType, tableType.tsymbol,
+                                tableType.flags);
                         isCyclic = true;
-                        this.add(newMapType);
+                        this.add(newTableType);
                         continue;
                     }
                 }
