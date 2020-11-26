@@ -39,6 +39,6 @@ public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevel
 
     ClassDefinition getServiceClass();
 
-    List<String> getAbsolutePath();
+    List<IdentifierNode> getAbsolutePath();
 
 }

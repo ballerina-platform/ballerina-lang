@@ -41,8 +41,8 @@ public function main() returns error? {
         panic e;
     }
 
-    service testServiceInMain = service {
-        resource function resourceOne(testobserve:Caller caller, string body) {
+    service object {} testServiceInMain = service object {
+        resource function get resourceOne(testobserve:Caller caller, string body) {
             int numberCount = checkpanic 'int:fromString(body);
             var sum = 0;
             foreach var i in 1 ... numberCount {
