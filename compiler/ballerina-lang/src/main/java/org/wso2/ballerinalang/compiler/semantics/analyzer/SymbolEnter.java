@@ -982,6 +982,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // Recursively check all members.
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(unresolvedType, memberTypeNode, visitedNodes, fromStructuredType);
+                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
+                        break;
+                    }
                 }
                 break;
             case INTERSECTION_TYPE_NODE:
@@ -1290,13 +1293,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         unionType.isCyclic = true;
 
         var typeDefName = names.fromIdNode(typeDef.name);
-        var typeDefNameValue = typeDefName.value;
 
         BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
                 typeDefName, env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
                 typeDef.pos, SOURCE);
         typeDef.symbol = typeDefSymbol;
 
+        unionType.tsymbol = typeDefSymbol;
         // We define the unionType in the main scope here
         if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
             typeDefSymbol.origin = BUILTIN;
