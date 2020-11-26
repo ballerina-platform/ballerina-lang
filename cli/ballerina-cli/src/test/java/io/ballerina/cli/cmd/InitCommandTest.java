@@ -204,7 +204,8 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(projectPath));
         Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
 
-        Assert.assertTrue(readOutput().contains("warning: invalid package name. Modified package name :"));
+        Assert.assertTrue(readOutput().contains("Unallowed characters in the project name were replaced by " +
+                "underscores when deriving the package name. Edit the Ballerina.toml to change it."));
     }
 
     @Test(description = "Test init command with invalid project name")
