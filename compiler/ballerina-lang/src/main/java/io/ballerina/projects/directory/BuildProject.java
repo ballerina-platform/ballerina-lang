@@ -100,10 +100,9 @@ public class BuildProject extends Project {
                 }
             } else if (module.testDocumentIds().contains(documentId)) {
                 if (modulePath.isPresent()) {
-                    String pattern = System.getProperty("file.separator");
-                    String[] testFileName = module.document(documentId).name().split(pattern);
                     return Optional.of(modulePath.get()
-                            .resolve(ProjectConstants.TEST_DIR_NAME).resolve(testFileName[testFileName.length - 1]));
+                            .resolve(ProjectConstants.TEST_DIR_NAME).resolve(
+                                    module.document(documentId).name().split(ProjectConstants.TEST_DIR_NAME + "/")[1]));
                 }
             }
         }
