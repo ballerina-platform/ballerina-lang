@@ -65,6 +65,9 @@ public class BuildProject extends Project {
     }
 
     public static BuildProject load(Path projectPath, BuildOptions buildOptions) {
+        // todo this is an ugly hack to get the offline build working we need to refactor this later
+        System.setProperty(ProjectConstants.BALLERINA_OFFLINE_FLAG, String.valueOf(buildOptions.offlineBuild()));
+
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
         BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(projectPath, buildOptions);

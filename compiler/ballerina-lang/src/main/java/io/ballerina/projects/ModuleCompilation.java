@@ -112,10 +112,6 @@ public class ModuleCompilation {
     public DiagnosticResult diagnostics() {
         return diagnosticResult;
     }
-
-    public boolean entryPointExists() {
-        return this.moduleContext.bLangPackage().symbol.entryPointExists;
-    }
 }
 
 

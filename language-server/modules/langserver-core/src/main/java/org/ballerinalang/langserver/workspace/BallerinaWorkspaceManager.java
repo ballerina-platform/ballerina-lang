@@ -21,6 +21,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -205,9 +207,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             Path projectRoot = projectRoot(filePath);
             sourceRootToProject.remove(projectRoot);
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
-                                            "' {project: '" + projectRoot.toUri().toString() +
-                                            "' kind: '" + project.get().kind().name().toLowerCase(Locale.getDefault()) +
-                                            "'} removed}");
+                    "' {project: '" + projectRoot.toUri().toString() +
+                    "' kind: '" + project.get().kind().name().toLowerCase(Locale.getDefault()) +
+                    "'} removed}");
         }
     }
 
@@ -267,14 +269,15 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         ProjectKind projectKind = projectKindAndProjectRootPair.getLeft();
         Path projectRoot = projectKindAndProjectRootPair.getRight();
         Project project;
+        BuildOptions options = new BuildOptionsBuilder().offline(true).build();
         if (projectKind == ProjectKind.BUILD_PROJECT) {
-            project = BuildProject.load(projectRoot);
+            project = BuildProject.load(projectRoot, options);
         } else {
-            project = SingleFileProject.load(projectRoot);
+            project = SingleFileProject.load(projectRoot, options);
         }
         LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
-                                        "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
-                                        project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
+                "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
+                project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
         return project;
     }
 

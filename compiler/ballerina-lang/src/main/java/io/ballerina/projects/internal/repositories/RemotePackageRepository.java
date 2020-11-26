@@ -6,6 +6,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
@@ -33,10 +34,16 @@ public class RemotePackageRepository implements PackageRepository {
 
     private FileSystemRepository fileSystemRepo;
     private CentralAPIClient client;
+    private boolean isOffline;
 
     private RemotePackageRepository(FileSystemRepository fileSystemRepo, CentralAPIClient client) {
         this.fileSystemRepo = fileSystemRepo;
         this.client = client;
+
+        // todo this is an ugly hack to get the offline build working
+        // we need to properly refactor this later
+        String offlineFlag = System.getProperty(ProjectConstants.BALLERINA_OFFLINE_FLAG);
+        this.isOffline = (offlineFlag != null && offlineFlag.equals("true"));
     }
 
     public static RemotePackageRepository from(Environment environment, Path cacheDirectory, String repoUrl,
@@ -45,7 +52,6 @@ public class RemotePackageRepository implements PackageRepository {
             throw new ProjectException("cache directory does not exists: " + cacheDirectory);
         }
         FileSystemRepository fileSystemRepository = new FileSystemRepository(environment, cacheDirectory);
-
         Proxy proxy = initializeProxy(settings.getProxy());
         CentralAPIClient client = new CentralAPIClient(repoUrl, proxy);
 
@@ -69,12 +75,15 @@ public class RemotePackageRepository implements PackageRepository {
 
         Path packagePathInBaloCache = this.fileSystemRepo.balo.resolve(orgName).resolve(packageName);
 
-        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
-            try {
-                this.client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform,
-                                        RepoUtils.getBallerinaVersion(), true);
-            } catch (CentralClientException | PackageAlreadyExistsException | ConnectionErrorException e) {
-                // ignore when get package fail
+        // If environment is online pull from central
+        if (!isOffline) {
+            for (String supportedPlatform : SUPPORTED_PLATFORMS) {
+                try {
+                    this.client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform,
+                                            RepoUtils.getBallerinaVersion(), true);
+                } catch (CentralClientException | PackageAlreadyExistsException | ConnectionErrorException e) {
+                    // ignore when get package fail
+                }
             }
         }
 
@@ -86,8 +95,12 @@ public class RemotePackageRepository implements PackageRepository {
         String orgName = resolutionRequest.orgName().value();
         String packageName = resolutionRequest.packageName().value();
 
-        List<PackageVersion> packageVersions = new ArrayList<>();
+        //If environment is offline we return the local versions
+        if (isOffline) {
+            return fileSystemRepo.getPackageVersions(resolutionRequest);
+        }
 
+        List<PackageVersion> packageVersions = new ArrayList<>();
         try {
             for (String version : this.client.getPackageVersions(orgName, packageName)) {
                 packageVersions.add(PackageVersion.from(version));
@@ -102,6 +115,7 @@ public class RemotePackageRepository implements PackageRepository {
 
     @Override
     public Map<String, List<String>> getPackages() {
-        throw new UnsupportedOperationException();
+        // We only return locally cached packages
+        return fileSystemRepo.getPackages();
     }
 }

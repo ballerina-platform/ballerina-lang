@@ -71,9 +71,6 @@ public class RunExecutableTask implements Task {
         out.println("Running executable");
         out.println();
 
-        if (!project.currentPackage().getDefaultModule().getCompilation().entryPointExists()) {
-            throw createLauncherException("no entrypoint found in package: " + project.currentPackage().packageName());
-        }
         this.runGeneratedExecutable(project.currentPackage().getDefaultModule(), project);
     }
 
