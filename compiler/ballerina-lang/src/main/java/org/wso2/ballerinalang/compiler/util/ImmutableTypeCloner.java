@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.util;
 
-import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -421,10 +420,10 @@ public class ImmutableTypeCloner {
 
                     if (origUnionType.isCyclic) {
                         fixSelfReferencingSameUnion(memberType, origUnionType, immutableMemberType,
-                                (BUnionType) immutableType);
+                                (BUnionType) immutableType, readOnlyMemTypes);
+                    } else {
+                        readOnlyMemTypes.add(immutableMemberType);
                     }
-
-                    readOnlyMemTypes.add(immutableMemberType);
                 }
 
                 if (readOnlyMemTypes.size() == 1) {
@@ -452,29 +451,48 @@ public class ImmutableTypeCloner {
     }
 
     private static void fixSelfReferencingSameUnion(BType originalMemberType, BUnionType origUnionType,
-                                                    BType immutableMemberType, BUnionType newImmutableUnion) {
+                                                    BType immutableMemberType, BUnionType newImmutableUnion,
+                                                    LinkedHashSet<BType> readOnlyMemTypes) {
+        boolean sameMember = originalMemberType == immutableMemberType;
         if (originalMemberType.tag == TypeTags.ARRAY) {
             var arrayType = (BArrayType) originalMemberType;
             if (origUnionType == arrayType.eType) {
-                ((BArrayType) immutableMemberType).eType = newImmutableUnion;
+                if (sameMember) {
+                    BArrayType newArrayType = new BArrayType(newImmutableUnion, arrayType.tsymbol, arrayType.size,
+                            arrayType.state, arrayType.flags);
+                    readOnlyMemTypes.add(newArrayType);
+                } else {
+                    ((BArrayType) immutableMemberType).eType = newImmutableUnion;
+                    readOnlyMemTypes.add(immutableMemberType);
+                }
             }
-        }
-
-        if (originalMemberType.tag == TypeTags.MAP) {
+        } else if (originalMemberType.tag == TypeTags.MAP) {
             var mapType = (BMapType) originalMemberType;
             if (origUnionType == mapType.constraint) {
-                ((BMapType) immutableMemberType).constraint = newImmutableUnion;
+                if (sameMember) {
+                    BMapType newMapType = new BMapType(mapType.tag, newImmutableUnion, mapType.tsymbol, mapType.flags);
+                    readOnlyMemTypes.add(newMapType);
+                } else {
+                    ((BMapType) immutableMemberType).constraint = newImmutableUnion;
+                    readOnlyMemTypes.add(immutableMemberType);
+                }
             }
-        }
-
-        if (originalMemberType.tag == TypeTags.TABLE) {
+        } else if (originalMemberType.tag == TypeTags.TABLE) {
             var tableType = (BTableType) originalMemberType;
             if (origUnionType == tableType.constraint) {
-                ((BTableType) immutableMemberType).constraint = newImmutableUnion;
+                if (sameMember) {
+                    BTableType newTableType = new BTableType(tableType.tag, newImmutableUnion, tableType.tsymbol,
+                            tableType.flags);
+                    readOnlyMemTypes.add(newTableType);
+                } else {
+                    ((BTableType) immutableMemberType).constraint = newImmutableUnion;
+                    readOnlyMemTypes.add(immutableMemberType);
+                }
             }
-
             fixSelfReferencingSameUnion(tableType.constraint, origUnionType,
-                    ((BTableType) immutableMemberType).constraint, newImmutableUnion);
+                    ((BTableType) immutableMemberType).constraint, newImmutableUnion, readOnlyMemTypes);
+        } else {
+            readOnlyMemTypes.add(immutableMemberType);
         }
     }
 

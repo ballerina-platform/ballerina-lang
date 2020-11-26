@@ -1426,9 +1426,6 @@ public class BIRPackageSymbolEnter {
             for (int i = 0; i < unionMemberCount; i++) {
                 unionType.add(readTypeFromCp());
             }
-            if (unionType.isCyclic) {
-                symbolResolver.resolveCyclicUnionType(unionType);
-            }
             return unionType;
         }
     }

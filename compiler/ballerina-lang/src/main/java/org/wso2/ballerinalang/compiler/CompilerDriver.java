@@ -144,7 +144,7 @@ public class CompilerDriver {
 
     void loadLangModules(List<PackageID> pkgIdList) {
         // This logic interested in loading lang modules from source. For others we can load from balo.
-         if (!LOAD_BUILTIN_FROM_SOURCE) {
+        if (!LOAD_BUILTIN_FROM_SOURCE) {
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
             symbolTable.langJavaModuleSymbol = pkgLoader.loadPackageSymbol(JAVA, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
@@ -380,6 +380,14 @@ public class CompilerDriver {
         return this.compilerPluginRunner.runPlugins(pkgNode);
     }
 
+    public BLangPackage desugar(BLangPackage pkgNode) {
+        return this.desugar.perform(pkgNode);
+    }
+
+    public BLangPackage birGen(BLangPackage pkgNode) {
+        return this.birGenerator.genBIR(pkgNode);
+    }
+
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
@@ -408,15 +416,5 @@ public class CompilerDriver {
             return null;
         }
         return codeGen(birGen(desugar(pkg))).symbol;
-    }
-
-    // Public methods
-
-    public BLangPackage desugar(BLangPackage pkgNode) {
-        return this.desugar.perform(pkgNode);
-    }
-
-    public BLangPackage birGen(BLangPackage pkgNode) {
-        return this.birGenerator.genBIR(pkgNode);
     }
 }
