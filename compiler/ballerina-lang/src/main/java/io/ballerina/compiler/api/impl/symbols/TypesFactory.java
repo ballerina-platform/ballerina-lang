@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
@@ -178,6 +179,8 @@ public class TypesFactory {
                 return new BallerinaUnionTypeSymbol(this.context, moduleID, finiteType);
             case FUNCTION:
                 return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) bType.tsymbol);
+            case NEVER:
+                return new BallerinaNeverTypeSymbol(this.context, moduleID, (BNeverType) bType);
             default:
                 return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType);
         }

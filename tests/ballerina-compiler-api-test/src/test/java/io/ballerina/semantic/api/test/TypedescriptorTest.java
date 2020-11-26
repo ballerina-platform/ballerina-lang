@@ -68,6 +68,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NEVER;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.READONLY;
@@ -453,6 +454,13 @@ public class TypedescriptorTest {
         for (TypeSymbol memberType : ((UnionTypeSymbol) enumType).memberTypeDescriptors()) {
             assertEquals(memberType.typeKind(), SINGLETON);
         }
+    }
+
+    @Test
+    public void testNeverType() {
+        Symbol symbol = getSymbol(154, 9);
+        TypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor().get();
+        assertEquals(type.typeKind(), NEVER);
     }
 
     private Symbol getSymbol(int line, int column) {

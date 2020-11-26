@@ -160,3 +160,7 @@ function testEnumAsAType() {
     Colour c = "RED";
     string s = "Selected colour: " + c;
 }
+
+function neverReturns() returns never {
+    // do something
+}
