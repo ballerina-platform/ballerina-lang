@@ -145,7 +145,14 @@ class FormatUtil {
                     throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
                 }
 
-                BuildProject project = BuildProject.load(sourceRootPath, constructBuildOptions());
+                BuildProject project;
+
+                try {
+                    project = BuildProject.load(sourceRootPath, constructBuildOptions());
+                } catch (ProjectException e) {
+                    throw LauncherUtils.createLauncherException(Messages.getException() + e);
+                }
+
                 List<String> formattedFiles = new ArrayList<>();
                 // Iterate and format all the ballerina packages.
                 project.currentPackage().moduleIds().forEach(moduleId -> {
