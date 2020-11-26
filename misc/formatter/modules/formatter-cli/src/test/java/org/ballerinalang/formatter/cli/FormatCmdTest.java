@@ -80,8 +80,7 @@ public class FormatCmdTest {
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
-                Assert.assertEquals(exception.get(0), "error: " + Messages.getNotBallerinaProject(),
-                        "actual exception didn't match the expected.");
+                Assert.assertEquals(exception.get(0), "error: couldn't find an existing module by the name: pkg1");
             } else {
                 Assert.fail("failed the test with " + exception.size()
                         + " exceptions where there needs to be 1 exception");

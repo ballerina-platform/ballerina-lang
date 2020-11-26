@@ -22,6 +22,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
@@ -108,11 +109,6 @@ class FormatUtil {
                 } else {
                     moduleName = argList.get(0);
 
-                    // Check whether the given directory is not in a ballerina project.
-                    if (!FormatUtil.isBallerinaProject(sourceRootPath)) {
-                        throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
-                    }
-
                     // Check whether the module dir exists.
                     if (!FormatUtil.isModuleExist(moduleName, sourceRootPath)) {
                         // If module directory doesn't exist and contains a "."
@@ -126,7 +122,14 @@ class FormatUtil {
                         }
                     }
 
-                    BuildProject project = BuildProject.load(sourceRootPath, constructBuildOptions());
+                    BuildProject project;
+
+                    try {
+                        project = BuildProject.load(sourceRootPath, constructBuildOptions());
+                    } catch (ProjectException e) {
+                        throw LauncherUtils.createLauncherException(Messages.getException() + e);
+                    }
+
                     Package currentPackage = project.currentPackage();
                     Module module = currentPackage.module(ModuleName.from(currentPackage.packageName(),
                             getModuleName(moduleName)));
