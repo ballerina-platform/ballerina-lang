@@ -19,7 +19,6 @@
 package org.ballerinalang.central.client;
 
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -106,7 +105,7 @@ public class TestUtils {
     }
 
     @Test(description = "Test create balo in given directory")
-    public void testCreateBaloInHomeRepo() throws IOException, CentralClientException, PackageAlreadyExistsException {
+    public void testCreateBaloInHomeRepo() throws IOException, CentralClientException {
         final String baloName = "sf-any.balo";
         Path baloFile = UTILS_TEST_RESOURCES.resolve(baloName);
         File initialFile = new File(String.valueOf(baloFile));
@@ -127,7 +126,7 @@ public class TestUtils {
 
     @Test(description = "Test create balo when same balo exists in the given directory",
             dependsOnMethods = "testCreateBaloInHomeRepo")
-    public void testCreateBaloInHomeRepoWhenBaloExists() throws IOException, PackageAlreadyExistsException {
+    public void testCreateBaloInHomeRepoWhenBaloExists() throws IOException {
         final String baloName = "sf-any.balo";
         Path baloFile = UTILS_TEST_RESOURCES.resolve(baloName);
         File initialFile = new File(String.valueOf(baloFile));

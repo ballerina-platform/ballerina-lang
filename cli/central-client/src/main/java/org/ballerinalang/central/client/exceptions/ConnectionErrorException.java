@@ -21,9 +21,9 @@ package org.ballerinalang.central.client.exceptions;
 /**
  * Thrown to indicate connections errors to remote repository.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
-public class ConnectionErrorException extends Exception {
+public class ConnectionErrorException extends CentralClientException {
 
     public ConnectionErrorException(String message) {
         super(message);

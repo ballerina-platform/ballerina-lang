@@ -20,7 +20,6 @@ package io.ballerina.cli.cmd;
 
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -132,7 +131,7 @@ public class SearchCommand implements BLauncherCmd {
             } else {
                 outStream.println("no modules found");
             }
-        } catch (CentralClientException | ConnectionErrorException e) {
+        } catch (CentralClientException e) {
             String errorMessage = e.getMessage();
             if (null != errorMessage && !"".equals(errorMessage.trim())) {
                 // removing the error stack
@@ -140,7 +139,6 @@ public class SearchCommand implements BLauncherCmd {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                 }
                 CommandUtil.printError(this.errStream, errorMessage, null, false);
-                return;
             }
         }
     }

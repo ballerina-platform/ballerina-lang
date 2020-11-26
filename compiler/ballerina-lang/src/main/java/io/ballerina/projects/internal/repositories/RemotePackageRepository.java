@@ -10,7 +10,6 @@ import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
-import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -81,7 +80,7 @@ public class RemotePackageRepository implements PackageRepository {
                 try {
                     this.client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform,
                                             RepoUtils.getBallerinaVersion(), true);
-                } catch (CentralClientException | PackageAlreadyExistsException | ConnectionErrorException e) {
+                } catch (CentralClientException e) {
                     // ignore when get package fail
                 }
             }
@@ -105,10 +104,11 @@ public class RemotePackageRepository implements PackageRepository {
             for (String version : this.client.getPackageVersions(orgName, packageName)) {
                 packageVersions.add(PackageVersion.from(version));
             }
-        } catch (CentralClientException e) {
-            throw new ProjectException(e.getMessage());
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
+            return packageVersions;
+        } catch (CentralClientException e) {
+            throw new ProjectException(e.getMessage());
         }
         return packageVersions;
     }

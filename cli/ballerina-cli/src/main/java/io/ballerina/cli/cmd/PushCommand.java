@@ -29,7 +29,6 @@ import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -127,7 +126,7 @@ public class PushCommand implements BLauncherCmd {
 
             try {
                 pushPackage(project, client, settings);
-            } catch (ProjectException | CentralClientException | ConnectionErrorException e) {
+            } catch (ProjectException | CentralClientException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 return;
             }
@@ -160,13 +159,12 @@ public class PushCommand implements BLauncherCmd {
     }
 
     private void pushPackage(BuildProject project, CentralAPIClient client, Settings settings)
-            throws ConnectionErrorException, CentralClientException {
+            throws CentralClientException {
         Path baloFilePath = validateBalo(project, client);
         pushBaloToRemote(baloFilePath, client, settings);
     }
 
-    private static Path validateBalo(BuildProject project, CentralAPIClient client)
-            throws ConnectionErrorException, CentralClientException {
+    private static Path validateBalo(BuildProject project, CentralAPIClient client) throws CentralClientException {
         final PackageName pkgName = project.currentPackage().packageName();
         final PackageOrg orgName = project.currentPackage().packageOrg();
         final PackageVersion version = project.currentPackage().packageVersion();
@@ -208,8 +206,7 @@ public class PushCommand implements BLauncherCmd {
      *
      * @param baloPath Path to the balo file.
      */
-    private void pushBaloToRemote(Path baloPath, CentralAPIClient client, Settings settings)
-            throws ConnectionErrorException {
+    private void pushBaloToRemote(Path baloPath, CentralAPIClient client, Settings settings) {
         Path baloFileName = baloPath.getFileName();
         if (null != baloFileName) {
             ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
@@ -254,7 +251,7 @@ public class PushCommand implements BLauncherCmd {
      * @return is package available in the remote
      */
     private static boolean isPackageAvailableInRemote(PackageManifest.Dependency pkg, CentralAPIClient client)
-            throws ConnectionErrorException, CentralClientException {
+            throws CentralClientException {
         List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
         supportedPlatforms.add("any");
 

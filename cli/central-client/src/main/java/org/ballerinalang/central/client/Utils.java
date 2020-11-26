@@ -92,7 +92,7 @@ public class Utils {
      */
     public static void createBaloInHomeRepo(HttpURLConnection conn, Path pkgPathInBaloCache, String pkgNameWithOrg,
             boolean isNightlyBuild, String newUrl, String contentDisposition, PrintStream outStream,
-            LogFormatter logFormatter) throws CentralClientException, PackageAlreadyExistsException {
+            LogFormatter logFormatter) throws CentralClientException {
         long responseContentLength = conn.getContentLengthLong();
         if (responseContentLength <= 0) {
             throw new CentralClientException(

@@ -20,9 +20,7 @@ package org.ballerinalang.central.client;
 
 import org.awaitility.Duration;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
-import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.testng.Assert;
@@ -110,8 +108,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     }
 
     @Test(description = "Test pull package", enabled = false)
-    public void testPullPackage()
-            throws IOException, CentralClientException, ConnectionErrorException, PackageAlreadyExistsException {
+    public void testPullPackage() throws IOException, CentralClientException {
         final String baloUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.balo";
         Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
         File baloFile = new File(String.valueOf(baloPath));
@@ -143,8 +140,7 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test pull non existing package", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "error: package not found: foo/sf.*")
-    public void testPullNonExistingPackage()
-            throws IOException, CentralClientException, ConnectionErrorException, PackageAlreadyExistsException {
+    public void testPullNonExistingPackage() throws IOException, CentralClientException {
         String resString = "{\"message\": \"package not found: foo/sf:*_any\"}";
         InputStream resStream = new ByteArrayInputStream(resString.getBytes());
 
@@ -155,8 +151,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     }
 
     @Test(description = "Test get package")
-    public void testGetPackage()
-            throws IOException, NoPackageException, CentralClientException, ConnectionErrorException {
+    public void testGetPackage() throws IOException, CentralClientException {
         Path packageJsonPath = UTILS_TEST_RESOURCES.resolve("package.json");
         File packageJson = new File(String.valueOf(packageJsonPath));
 
@@ -172,8 +167,7 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test get non existing package", expectedExceptions = NoPackageException.class,
             expectedExceptionsMessageRegExp = "package not found for: bar/winery:2.0.0_any")
-    public void testGetNonExistingPackage()
-            throws IOException, NoPackageException, CentralClientException, ConnectionErrorException {
+    public void testGetNonExistingPackage() throws IOException, CentralClientException {
         String resString = "{\"message\": \"package not found for: bar/winery:2.0.0_any\"}";
 
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
@@ -184,8 +178,7 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test get package with bad request", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "invalid request received. invaild/unsupported semver version: v2")
-    public void testGetPackageWithBadRequest()
-            throws IOException, NoPackageException, CentralClientException, ConnectionErrorException {
+    public void testGetPackageWithBadRequest() throws IOException, CentralClientException {
         String resString = "{\"message\": \"invalid request received. invaild/unsupported semver version: v2\"}";
 
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
@@ -195,7 +188,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     }
 
     @Test(description = "Test push package", enabled = false)
-    public void testPushPackage() throws IOException, ConnectionErrorException, CentralClientException {
+    public void testPushPackage() throws IOException, CentralClientException {
         Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
         File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
 
@@ -216,7 +209,7 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test push existing package", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "package already exists: foo/github:1.8.3_2020r2_any")
-    public void testPushExistingPackage() throws IOException, ConnectionErrorException, CentralClientException {
+    public void testPushExistingPackage() throws IOException, CentralClientException {
         String resString = "{\"message\": \"package already exists: foo/github:1.8.3_2020r2_any\"}";
         Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
         File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
@@ -235,7 +228,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     @Test(description = "Test push package request failure", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "error: failed to push the package: "
                     + "'foo/sf:1.3.5' to the remote repository 'https://api.central.ballerina.io/registry'")
-    public void testPushPackageRequestFailure() throws IOException, ConnectionErrorException, CentralClientException {
+    public void testPushPackageRequestFailure() throws IOException, CentralClientException {
         Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
         File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
 
@@ -251,7 +244,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     }
 
     @Test(description = "Test search package")
-    public void testSearchPackage() throws IOException, ConnectionErrorException, CentralClientException {
+    public void testSearchPackage() throws IOException, CentralClientException {
         Path packageSearchJsonPath = UTILS_TEST_RESOURCES.resolve("packageSearch.json");
         File packageSearchJson = new File(String.valueOf(packageSearchJsonPath));
 
@@ -267,7 +260,7 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test search package with bad request", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "invalid request received. invaild/unsupported org name: foo-org")
-    public void testSearchPackageWithBadRequest() throws IOException, ConnectionErrorException, CentralClientException {
+    public void testSearchPackageWithBadRequest() throws IOException, CentralClientException {
         String resString = "{\"message\": \"invalid request received. invaild/unsupported org name: foo-org\"}";
 
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);

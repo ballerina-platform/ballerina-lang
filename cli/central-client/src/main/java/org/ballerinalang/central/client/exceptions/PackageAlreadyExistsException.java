@@ -23,7 +23,7 @@ package org.ballerinalang.central.client.exceptions;
  *
  * @since 2.0.0
  */
-public class PackageAlreadyExistsException extends Exception {
+public class PackageAlreadyExistsException extends CentralClientException {
 
     public PackageAlreadyExistsException(String message) {
         super(message);

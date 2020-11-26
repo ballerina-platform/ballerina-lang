@@ -21,7 +21,7 @@ package org.ballerinalang.central.client.exceptions;
 /**
  * Thrown to indicate that an exception occurred in the central client.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
 public class CentralClientException extends Exception {
 
