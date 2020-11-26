@@ -22,6 +22,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -142,7 +143,7 @@ public class PullCommand implements BLauncherCmd {
                 errStream.println(e.getMessage());
                 // Exit status, zero for OK, non-zero for error
                 Runtime.getRuntime().exit(0);
-            } catch (CentralClientException e) {
+            } catch (CentralClientException | ConnectionErrorException e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
                 // Exit status, zero for OK, non-zero for error
                 Runtime.getRuntime().exit(1);

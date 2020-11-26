@@ -19,17 +19,17 @@
 package org.ballerinalang.central.client.exceptions;
 
 /**
- * Thrown to indicate that an exception occurred in the central client.
+ * Thrown to indicate connections errors to remote repository.
  *
  * @since 1.2.0
  */
-public class CentralClientException extends Exception {
+public class ConnectionErrorException extends Exception {
 
-    public CentralClientException(String message) {
+    public ConnectionErrorException(String message) {
         super(message);
     }
 
-    public CentralClientException(String message, Throwable cause) {
+    public ConnectionErrorException(String message, Throwable cause) {
         super(message, cause);
     }
 }
