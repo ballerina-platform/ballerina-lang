@@ -40,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -109,6 +108,11 @@ class FormatUtil {
                 } else {
                     moduleName = argList.get(0);
 
+                    // Check whether the given directory is not in a ballerina project.
+                    if (!FormatUtil.isBallerinaProject(sourceRootPath)) {
+                        throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
+                    }
+
                     // Check whether the module dir exists.
                     if (!FormatUtil.isModuleExist(moduleName, sourceRootPath)) {
                         // If module directory doesn't exist and contains a "."
@@ -122,11 +126,6 @@ class FormatUtil {
                         }
                     }
 
-                    // Check whether the given directory is not in a ballerina project.
-                    if (!FormatUtil.isBallerinaProject(sourceRootPath)) {
-                        throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
-                    }
-
                     BuildProject project = BuildProject.load(sourceRootPath, constructBuildOptions());
                     Package currentPackage = project.currentPackage();
                     Module module = currentPackage.module(ModuleName.from(currentPackage.packageName(),
@@ -138,6 +137,11 @@ class FormatUtil {
                     generateChangeReport(formattedFiles, dryRun);
                 }
             } else {
+                // Check whether the given directory is not a ballerina project.
+                if (!FormatUtil.isBallerinaProject(sourceRootPath)) {
+                    throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
+                }
+
                 BuildProject project = BuildProject.load(sourceRootPath, constructBuildOptions());
                 List<String> formattedFiles = new ArrayList<>();
                 // Iterate and format all the ballerina packages.
