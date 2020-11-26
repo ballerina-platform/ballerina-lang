@@ -86,8 +86,17 @@ public class RemotePackageRepository implements PackageRepository {
 
         List<PackageVersion> packageVersions = new ArrayList<>();
 
-        for (String version : this.client.getPackageVersions(orgName, packageName)) {
-            packageVersions.add(PackageVersion.from(version));
+        try {
+            for (String version : this.client.getPackageVersions(orgName, packageName)) {
+                packageVersions.add(PackageVersion.from(version));
+            }
+        } catch (CentralClientException e) {
+            if (e.getMessage().contains("connection to the remote repository host failed")) {
+                // ignore connect to remote repo failure
+                return packageVersions;
+            } else {
+                throw new ProjectException(e.getMessage());
+            }
         }
         return packageVersions;
     }
