@@ -55,7 +55,6 @@ public class ProjectConstants {
     public static final String LIB_DIR = "lib";
 
     public static final String BALO_DIR_NAME = "balo";
-    public static final String BALO_CACHE_DIR_NAME = "balo_cache";
     public static final String BIR_CACHE_DIR_NAME = "bir_cache";
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
     public static final String JSON_CACHE_DIR_NAME = "json_cache";
