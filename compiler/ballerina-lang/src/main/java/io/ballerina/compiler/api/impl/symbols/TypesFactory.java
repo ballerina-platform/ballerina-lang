@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
@@ -181,6 +182,8 @@ public class TypesFactory {
                 return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) bType.tsymbol);
             case NEVER:
                 return new BallerinaNeverTypeSymbol(this.context, moduleID, (BNeverType) bType);
+            case INTERSECTION:
+                return new BallerinaIntersectionTypeSymbol(this.context, moduleID, (BIntersectionType) bType);
             default:
                 return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType);
         }

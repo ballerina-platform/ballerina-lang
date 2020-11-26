@@ -164,3 +164,10 @@ function testEnumAsAType() {
 function neverReturns() returns never {
     // do something
 }
+
+type ReadonlyFoo Foo & readonly;
+
+function testIntersectionType() {
+    map<json> & readonly m = {};
+    ReadonlyFoo rf = {a: 100};
+}

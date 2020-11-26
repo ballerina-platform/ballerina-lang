@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
+import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -66,6 +67,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NEVER;
@@ -461,6 +463,39 @@ public class TypedescriptorTest {
         Symbol symbol = getSymbol(154, 9);
         TypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor().get();
         assertEquals(type.typeKind(), NEVER);
+    }
+
+    @Test
+    public void testIntersectionType1() {
+        Symbol symbol = getSymbol(158, 6);
+        TypeSymbol type = ((TypeDefinitionSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), INTERSECTION);
+
+        List<TypeSymbol> members = ((IntersectionTypeSymbol) type).memberTypeDescriptors();
+
+        TypeSymbol mem1 = members.get(0);
+        assertEquals(mem1.name(), "Foo");
+        assertEquals(((TypeReferenceTypeSymbol) mem1).typeDescriptor().typeKind(), RECORD);
+
+        assertEquals(members.get(1).typeKind(), READONLY);
+    }
+
+    @Test
+    public void testIntersectionType2() {
+        Symbol symbol = getSymbol(161, 25);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), INTERSECTION);
+
+        List<TypeSymbol> members = ((IntersectionTypeSymbol) type).memberTypeDescriptors();
+        assertEquals(members.get(0).typeKind(), MAP);
+        assertEquals(members.get(1).typeKind(), READONLY);
+    }
+
+    @Test
+    public void testIntersectionType3() {
+        Symbol symbol = getSymbol(162, 16);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), INTERSECTION);
     }
 
     private Symbol getSymbol(int line, int column) {
