@@ -147,7 +147,6 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO (build projects only)
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
-//                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
                 .addTask(new RunExecutableTask(args, outStream, errStream))
                 .build();
 

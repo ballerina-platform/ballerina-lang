@@ -28,7 +28,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CopyExecutableTask;
-import org.ballerinalang.packerina.task.CopyObservabilitySymbolsTask;
 import org.ballerinalang.packerina.task.CopyResourcesTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
@@ -422,7 +421,6 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the BALOs for modules (projects only)
                 .addTask(new CreateJarTask())   // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
-                .addTask(new CopyObservabilitySymbolsTask())
                 .addTask(new RunTestsTask(testReport, coverage, args), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable.jar
