@@ -143,7 +143,8 @@ public class PackageResolutionTests {
         // package_missing_transitive_dep --> package_k --> package_z (this is missing)
         Path baloPath = RESOURCE_DIRECTORY.resolve("balos").resolve("missing_transitive_deps")
                 .resolve("samjs-package_k-any-1.0.0.balo");
-        BCompileUtil.copyBaloToDistRepository(baloPath, "samjs", "package_k", "1.0.0");
+        BCompileUtil.copyBaloToDistRepository(baloPath, "samjs", "package_k", "1.0.0",
+                                              JdkVersion.JAVA_11.code());
 
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_missing_transitive_dep");
         BuildProject buildProject = BuildProject.load(projectDirPath);

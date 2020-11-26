@@ -18,6 +18,7 @@
 package io.ballerina.projects.util;
 
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
@@ -182,10 +183,9 @@ public class ProjectUtils {
 
     public static String getBaloName(PackageManifest pkgDesc) {
         return ProjectUtils.getBaloName(pkgDesc.org().toString(),
-                pkgDesc.name().toString(),
-                pkgDesc.version().toString(),
-                null
-        );
+                                        pkgDesc.name().toString(),
+                                        pkgDesc.version().toString(),
+                                        JdkVersion.JAVA_11.code());
     }
 
     public static String getBaloName(String org, String pkgName, String version, String platform) {

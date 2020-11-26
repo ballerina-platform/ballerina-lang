@@ -64,7 +64,7 @@ public class CreateBaloTask implements Task {
                 project.currentPackage().packageOrg().toString(),
                 project.currentPackage().packageName().toString(),
                 project.currentPackage().packageVersion().toString(),
-                null);
+                JdkVersion.JAVA_11.code());
         try {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
