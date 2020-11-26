@@ -68,6 +68,12 @@ public class RemotePackageRepository implements PackageRepository {
 
     @Override
     public Optional<Package> getPackage(ResolutionRequest resolutionRequest) {
+        // Check if the package is in cache
+        Optional<Package> cachedPackage = this.fileSystemRepo.getPackage(resolutionRequest);
+        if (cachedPackage.isPresent()) {
+            return cachedPackage;
+        }
+
         String packageName = resolutionRequest.packageName().value();
         String orgName = resolutionRequest.orgName().value();
         String version = resolutionRequest.version().isPresent() ? resolutionRequest.version().get().toString() : null;
