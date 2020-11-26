@@ -44,7 +44,7 @@ public class ReceiveActionNodeContext extends AbstractCompletionProvider<Receive
     @Override
     public List<LSCompletionItem> getCompletions(CompletionContext context, ReceiveActionNode node)
             throws LSCompletionException {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredWorkers = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
                 .collect(Collectors.toList());

@@ -123,4 +123,14 @@ public class NativeConversionWithStampTypesTest {
         Assert.assertEquals(originalMap.get("school").toString(), "ABC College");
         Assert.assertEquals(convertedMap.get("school").stringValue(), "ABC College");
     }
+
+    @Test
+    public void testConvertMapJsonWithDecimalToOpenRecord() {
+        BRunUtil.invoke(compileResult, "testConvertMapJsonWithDecimalToOpenRecord");
+    }
+
+    @Test
+    public void testConvertMapJsonWithDecimalUnionTarget() {
+        BRunUtil.invoke(compileResult, "testConvertMapJsonWithDecimalUnionTarget");
+    }
 }

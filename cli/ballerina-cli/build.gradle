@@ -43,6 +43,8 @@ dependencies {
     implementation project(':testerina:testerina-runtime')
     testCompile 'org.testng:testng'
     testCompile 'org.mockito:mockito-all'
+    testImplementation 'org.powermock:powermock-mockito-release-full'
+    testImplementation 'org.powermock:powermock-module-testng-common'
 
     distributionBalo project(path: ':ballerina-langlib:test', configuration: 'distributionBalo')
     distributionBalo project(path: ':testerina:testerina-core', configuration: 'distributionBalo')

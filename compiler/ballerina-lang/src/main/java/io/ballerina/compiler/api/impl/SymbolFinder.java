@@ -22,6 +22,8 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotatableNode;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -192,7 +194,8 @@ class SymbolFinder extends BLangNodeVisitor {
         this.symbolAtCursor = null;
 
         for (TopLevelNode node : unit.topLevelNodes) {
-            if (!PositionUtil.withinBlock(this.cursorPos, node.getPosition()) || isLambdaFunction(node)) {
+            if ((!PositionUtil.withinBlock(this.cursorPos, node.getPosition()) && !isWithinNodeMetaData(node))
+                    || isLambdaFunction(node)) {
                 continue;
             }
 
@@ -779,7 +782,8 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-
+        lookupNode(xmlAttribute.name);
+        lookupNode(xmlAttribute.value);
     }
 
     @Override
@@ -1350,5 +1354,22 @@ class SymbolFinder extends BLangNodeVisitor {
 
         BLangFunction func = (BLangFunction) node;
         return func.flagSet.contains(Flag.LAMBDA);
+    }
+
+    private boolean isWithinNodeMetaData(TopLevelNode node) {
+        if (!(node instanceof AnnotatableNode)) {
+            return false;
+        }
+
+        List<AnnotationAttachmentNode> nodes =
+                (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
+
+        for (AnnotationAttachmentNode annotAttachment : nodes) {
+            if (PositionUtil.withinBlock(this.cursorPos, annotAttachment.getPosition())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

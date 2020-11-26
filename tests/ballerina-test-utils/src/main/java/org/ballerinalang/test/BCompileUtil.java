@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
@@ -87,7 +88,7 @@ public class BCompileUtil {
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        Project project = ProjectLoader.loadProject(projectPath, projectEnvironmentBuilder());
+        Project project = ProjectLoader.loadProject(projectPath, getTestProjectEnvironmentBuilder());
 
         if (isSingleFileProject(project)) {
             throw new RuntimeException("single file project is given for compilation at " + project.sourceRoot());
@@ -100,12 +101,36 @@ public class BCompileUtil {
             return new CompileResult(currentPackage, jBallerinaBackend);
         }
 
-        Path baloCachePath = baloCachePath(currentPackage);
+        Path baloCachePath = baloCachePath(currentPackage.packageOrg().toString(),
+                currentPackage.packageName().toString(), currentPackage.packageVersion().toString());
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloCachePath);
 
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
+    }
+
+    /**
+     * Copy the given balo to the distribution repository.
+     *
+     * @param srcPath Path of the source balo.
+     * @param org     organization name
+     * @param pkgName package name
+     * @param version Balo version
+     * @throws IOException is thrown if the file copy failed
+     */
+    public static void copyBaloToDistRepository(Path srcPath,
+                                                String org,
+                                                String pkgName,
+                                                String version) throws IOException {
+        Path targetPath = baloCachePath(org, pkgName, version);
+        Files.copy(srcPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    public static ProjectEnvironmentBuilder getTestProjectEnvironmentBuilder() {
+        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(
+                EnvironmentBuilder.buildDefault());
+        return environmentBuilder.addCompilationCacheFactory(TestCompilationCache::from);
     }
 
     private static void invokeModuleInit(CompileResult compileResult) {
@@ -124,23 +149,18 @@ public class BCompileUtil {
         return project instanceof SingleFileProject;
     }
 
-    private static ProjectEnvironmentBuilder projectEnvironmentBuilder() {
-        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(
-                EnvironmentBuilder.buildDefault());
-        return environmentBuilder.addCompilationCacheFactory(TestCompilationCache::from);
-    }
-
-    private static Path baloCachePath(Package pkg) {
+    private static Path baloCachePath(String org,
+                                      String pkgName,
+                                      String version) {
         try {
             Path distributionCache = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-            Path balos = distributionCache.resolve("balo")
-                    .resolve(pkg.packageOrg().toString())
-                    .resolve(pkg.packageName().value())
-                    .resolve(pkg.packageVersion().value().toString());
-            Files.createDirectories(balos);
-
-            String baloName = ProjectUtils.getBaloName(pkg.manifest());
-            return balos.resolve(baloName);
+            Path baloDirPath = distributionCache.resolve("balo")
+                    .resolve(org)
+                    .resolve(pkgName)
+                    .resolve(version);
+            Files.createDirectories(baloDirPath);
+            String baloFileName = ProjectUtils.getBaloName(org, pkgName, version, null);
+            return baloDirPath.resolve(baloFileName);
         } catch (IOException e) {
             throw new RuntimeException("error while creating the balo distribution cache directory at " +
                     testBuildDirectory, e);

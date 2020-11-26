@@ -2098,6 +2098,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
                 .collect(getFieldCollector());
 
+        List<BType> list = new ArrayList<>();
+        for (BLangType tRef : structureTypeNode.typeRefs) {
+            BType type = tRef.type;
+            list.add(type);
+        }
+        structureType.typeInclusions = list;
+
         // Resolve and add the fields of the referenced types to this object.
         resolveReferencedFields(structureTypeNode, typeDefEnv);
 
@@ -2388,19 +2395,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return;
             }
 
-            SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDef, objectType.tsymbol.scope, pkgEnv);
-            for (BField field : objectType.fields.values()) {
-                BType type = field.type;
-
-                if (!types.isInherentlyImmutableType(type)) {
-                    field.type = field.symbol.type = ImmutableTypeCloner.getImmutableIntersectionType(
-                            pos, types, (SelectivelyImmutableReferenceType) type, typeDefEnv, symTable,
-                            anonymousModelHelper, names, classDef.flagSet);
-
-                }
-
-                field.symbol.flags |= Flags.FINAL;
-            }
+            ImmutableTypeCloner.markFieldsAsImmutable(classDef, pkgEnv, objectType, types, anonymousModelHelper,
+                                                      symTable, names, pos);
         } else {
             Collection<BField> fields = objectType.fields.values();
             if (fields.isEmpty()) {

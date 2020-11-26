@@ -65,8 +65,10 @@ public class JarResolver {
         }
 
         allJarFilePaths = new ArrayList<>();
-        List<Package> sortedPackageIds = pkgResolution.dependencyGraph().toTopologicallySortedList();
-        for (Package pkg : sortedPackageIds) {
+        List<ResolvedPackageDependency> sortedPackageIds =
+                pkgResolution.dependencyGraph().toTopologicallySortedList();
+        for (ResolvedPackageDependency resolvedDep : sortedPackageIds) {
+            Package pkg = resolvedDep.packageInstance();
             PackageContext packageContext = pkg.packageContext();
             for (ModuleId moduleId : packageContext.moduleIds()) {
                 ModuleContext moduleContext = packageContext.moduleContext(moduleId);
@@ -86,6 +88,12 @@ public class JarResolver {
 
         // Add the runtime library path
         allJarFilePaths.add(jBalBackend.runtimeLibrary().path());
+
+        // copy Choreo extension if --observability-included flag is set to true
+        if (this.packageContext.compilationOptions().observabilityIncluded()) {
+            allJarFilePaths.add(ProjectUtils.getChoreoRuntimeJarPath());
+        }
+
         return allJarFilePaths;
     }
 

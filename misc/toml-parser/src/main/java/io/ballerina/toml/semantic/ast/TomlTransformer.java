@@ -38,7 +38,9 @@ import io.ballerina.toml.syntax.tree.StringLiteralNode;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 import io.ballerina.toml.syntax.tree.TableArrayNode;
 import io.ballerina.toml.syntax.tree.TableNode;
+import io.ballerina.toml.syntax.tree.Token;
 import io.ballerina.toml.syntax.tree.ValueNode;
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -337,9 +339,10 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     @Override
     public TomlNode transform(StringLiteralNode stringLiteralNode) {
         String valueString = stringLiteralNode.content().text();
+        String unescapedJava = StringEscapeUtils.unescapeJava(valueString);
         TomlNodeLocation position = getPosition(stringLiteralNode);
 
-        return new TomlStringValueNode(valueString, position);
+        return new TomlStringValueNode(unescapedJava, position);
     }
 
     @Override
@@ -348,7 +351,8 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         if (numericLiteralNode.sign().isPresent()) {
             sign = numericLiteralNode.sign().get().text();
         }
-        String value = sign + numericLiteralNode.value().text();
+        Token valueToken = numericLiteralNode.value();
+        String value = sign + valueToken.text();
         if (numericLiteralNode.kind() == SyntaxKind.DEC_INT) {
             return new TomlLongValueNode(Long.parseLong(value),
                     getPosition(numericLiteralNode));

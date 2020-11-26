@@ -104,9 +104,10 @@ public class InitMethodGen {
         // generate another lambda for start function as well
         generateLambdaForModuleFunction(cw, MODULE_START, initClass);
 
-        PackageID currentModId = MethodGenUtils.packageToModuleId(pkg);
+        MethodVisitor mv = visitFunction(cw, MethodGenUtils
+                .calculateLambdaStopFuncName(MethodGenUtils.packageToModuleId(pkg)));
 
-        generateLambdaForDepModStopFunc(cw, currentModId, initClass);
+        invokeStopFunction(initClass, mv);
 
         for (PackageID id : depMods) {
             String jvmClass = JvmCodeGenUtil.getPackageName(id) + MODULE_INIT_CLASS_NAME;
@@ -115,9 +116,7 @@ public class InitMethodGen {
     }
 
     private void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass) {
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC,
-                                          String.format("$lambda$%s$", funcName),
-                                          String.format("([L%s;)L%s;", OBJECT, OBJECT), null, null);
+        MethodVisitor mv = visitFunction(cw, String.format("$lambda$%s$", funcName));
         mv.visitCode();
 
         //load strand as first arg
@@ -132,21 +131,27 @@ public class InitMethodGen {
     }
 
     private void generateLambdaForDepModStopFunc(ClassWriter cw, PackageID pkgID, String initClass) {
-        MethodVisitor mv;
         String lambdaName = MethodGenUtils.calculateLambdaStopFuncName(pkgID);
-        String stopFuncName = MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.STOP_FUNCTION_SUFFIX);
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName, String.format("([L%s;)L%s;", OBJECT, OBJECT)
-                , null, null);
-        mv.visitCode();
+        MethodVisitor mv = visitFunction(cw, lambdaName);
+        invokeStopFunction(initClass, mv);
+    }
 
-        //load strand as first arg
+    private MethodVisitor visitFunction(ClassWriter cw, String funcName) {
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, funcName, String.format(
+                "([L%s;)L%s;", OBJECT, OBJECT), null, null);
+        mv.visitCode();
+        return mv;
+    }
+
+    private void invokeStopFunction(String initClass, MethodVisitor mv) {
         mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-
+        String stopFuncName = MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.STOP_FUNCTION_SUFFIX);
         mv.visitMethodInsn(INVOKESTATIC, initClass, stopFuncName, String.format("(L%s;)L%s;", STRAND_CLASS, OBJECT),
-                false);
+                           false);
         MethodGenUtils.visitReturn(mv);
     }
 

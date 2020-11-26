@@ -45,7 +45,7 @@ public class WhileStatementNodeContext extends AbstractCompletionProvider<WhileS
     public List<LSCompletionItem> getCompletions(CompletionContext context, WhileStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol instanceof VariableSymbol || symbol.kind() == SymbolKind.FUNCTION)
                 .collect(Collectors.toList());

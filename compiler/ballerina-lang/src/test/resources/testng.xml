@@ -41,4 +41,10 @@ under the License.
             <package name="org.ballerinalang.util.*"/>
         </packages>
     </test>
+
+    <test name="ballerina-project-api-test-suite" preserve-order="true" parallel="false">
+        <packages>
+            <package name="io.ballerina.projects.*"/>
+        </packages>
+    </test>
 </suite>

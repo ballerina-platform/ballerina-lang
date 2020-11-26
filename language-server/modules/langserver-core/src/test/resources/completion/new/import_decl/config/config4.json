@@ -6,6 +6,14 @@
   "source": "import_decl/source/source4.bal",
   "items": [
     {
+      "label": "lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'test;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -51,6 +59,14 @@
       "detail": "Module",
       "sortText": "C",
       "insertText": "lang.'query;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'runtime;",
       "insertTextFormat": "Snippet"
     }
   ]

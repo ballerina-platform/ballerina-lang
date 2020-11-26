@@ -89,7 +89,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     }
 
     private List<LSCompletionItem> getCurrentModuleAnnotations(CompletionContext ctx, SyntaxKind kind) {
-        List<Symbol> visibleSymbols = ctx.getVisibleSymbols(ctx.getCursorPosition());
+        List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
         return visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
                         && this.matchingAnnotation((AnnotationSymbol) symbol, kind)
