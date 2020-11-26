@@ -33,9 +33,15 @@ import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.ballerinalang.central.client.Utils.createBaloInHomeRepo;
+import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.writeBaloFile;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -66,6 +72,28 @@ public class TestUtils {
                 { "200", false },
                 { "2.2.2.2", false }
         };
+    }
+
+    @DataProvider(name = "versionsLists")
+    public Object[][] provideVersionLists() {
+        return new Object[][] {
+                { "[]", new ArrayList<>(Collections.emptyList()) },
+                { "[\"1.1.11\"]", Collections.singletonList("1.1.11") },
+                { "[\"1.0.0\", \"1.2.0\"]", Arrays.asList("1.0.0", "1.2.0") }
+        };
+    }
+
+    @Test(description = "Test get as list from array given as a string", dataProvider = "versionsLists")
+    public void testGetAsList(String versionList, List<String> expectedArray) {
+        List<String> versions = getAsList(versionList);
+        Assert.assertEquals(versions.size(), expectedArray.size());
+
+        Iterator<String> versionsItr = versions.iterator();
+        Iterator<String> expectedItr = expectedArray.iterator();
+
+        while (versionsItr.hasNext() && expectedItr.hasNext()) {
+            Assert.assertEquals(versionsItr.next(), expectedItr.next());
+        }
     }
 
     @Test(description = "Test writing balo file from http response")

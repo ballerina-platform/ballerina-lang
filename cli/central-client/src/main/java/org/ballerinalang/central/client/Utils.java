@@ -18,6 +18,8 @@
 
 package org.ballerinalang.central.client;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -37,7 +39,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -328,6 +329,6 @@ public class Utils {
      * @return converted list of strings
      */
     static List<String> getAsList(String arrayString) {
-        return Arrays.asList(arrayString.replaceAll("[\\[\\] \" ]", "").split("\\s*,\\s*"));
+        return new Gson().fromJson(arrayString, new TypeToken<List<String>>() { }.getType());
     }
 }
