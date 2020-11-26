@@ -37,11 +37,11 @@ BALLERINA COMMANDS
 
    Module Commands:
         pull            Pull a package from Ballerina Central
-        push            Upload package to the Ballerina Central
+        push            Upload a package to Ballerina Central
         search          Search Ballerina Central for packages
 
    Project Commands:
-        new             Create a new project and initializes a Ballerina package
+        new             Create a new project and initialize a Ballerina package
         init            Initialize a new Ballerina package in the current directory
         add             Create a new Ballerina module in the package
 

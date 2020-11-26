@@ -12,7 +12,7 @@ DESCRIPTION
 
        A template can also be specified when creating the new module.
 
-       There are two built-in templates named, 'lib' and 'service''.
+       There are two built-in templates named 'lib' and 'service''.
        The default template is 'lib'.
 
 OPTIONS
