@@ -131,9 +131,14 @@ public class ObserveUtils {
         }
         System.out.println("checkpointing in : " + pkg + " " + position);
 
-        Supplier<String> logPosition = position::getValue;
+//        Supplier<String> logPosition = position::getValue;
 
-        logMessageToActiveSpan("Position: " ,logPosition, false);
+        Supplier<String>  getPositionID = () -> {
+            String positionID = pkg.getValue() + "/" + position.getValue();
+            return positionID;
+        };
+
+        logMessageToActiveSpan("CHECKPOINT" ,getPositionID, false);
 
 
 
