@@ -23,7 +23,6 @@ import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
-import org.ballerinalang.central.client.exceptions.UnauthorizedException;
 import org.ballerinalang.central.client.model.Error;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.central.client.model.PackageSearchResult;
@@ -254,8 +253,6 @@ public class CentralAPIClient {
             // Other - Error occurred, json returned with the error message
             if (statusCode == HttpURLConnection.HTTP_NO_CONTENT) {
                 outStream.println(org + "/" + name + ":" + version + " pushed to central successfully");
-            } else if (statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                throw new UnauthorizedException("unauthorized access token for organization: " + org);
             } else if (statusCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(conn.getErrorStream(), Charset.defaultCharset()))) {

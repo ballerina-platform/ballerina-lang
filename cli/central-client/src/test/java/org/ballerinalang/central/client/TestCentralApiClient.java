@@ -21,7 +21,6 @@ package org.ballerinalang.central.client;
 import org.awaitility.Duration;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
-import org.ballerinalang.central.client.exceptions.UnauthorizedException;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.testng.Assert;
@@ -205,22 +204,6 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .with().pollDelay(Duration.ONE_SECOND)
                     .await().atMost(10, SECONDS)
                     .until(() -> buildLog.contains("foo/sf:1.3.5 pushed to central successfully"));
-        }
-    }
-
-    @Test(description = "Test push package with invalid access token", expectedExceptions = UnauthorizedException.class,
-            expectedExceptionsMessageRegExp = "unauthorized access token for organization: foo")
-    public void testPushPackageWithInvalidAccessToken() throws IOException {
-        Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
-        File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
-
-        setBallerinaHome();
-
-        try (FileOutputStream outputStream = new FileOutputStream(outputBalo)) {
-            when(connection.getOutputStream()).thenReturn(outputStream);
-            when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_UNAUTHORIZED);
-
-            this.pushPackage(baloPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
         }
     }
 

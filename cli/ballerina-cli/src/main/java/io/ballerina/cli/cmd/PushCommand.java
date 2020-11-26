@@ -210,21 +210,20 @@ public class PushCommand implements BLauncherCmd {
     private void pushBaloToRemote(Path baloPath, CentralAPIClient client, Settings settings) {
         Path baloFileName = baloPath.getFileName();
         if (null != baloFileName) {
+            ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+            defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
+
+            String org = baloProject.currentPackage().manifest().org().toString();
+            String name = baloProject.currentPackage().manifest().name().toString();
+            String version = baloProject.currentPackage().manifest().version().toString();
+
+            Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
+            Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
+            String accessToken = authenticate(errStream, getBallerinaCentralCliTokenUrl(), settings,
+                                              settingsTomlFilePath);
+
             try {
-
-                ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
-                defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
-
-                String org = baloProject.currentPackage().manifest().org().toString();
-                String name = baloProject.currentPackage().manifest().name().toString();
-                String version = baloProject.currentPackage().manifest().version().toString();
-
-                Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
-                Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
-                String accessToken = authenticate(errStream, getBallerinaCentralCliTokenUrl(), settings,
-                                                  settingsTomlFilePath);
-
                 client.pushPackage(baloPath, org, name, version, accessToken);
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
@@ -235,6 +234,11 @@ public class PushCommand implements BLauncherCmd {
                     }
 
                     errorMessage = errorMessage.replaceAll("error: ", "");
+
+                    // when unauthorized access token for organization is given
+                    if (errorMessage.contains("subject claims missing in the user info repsonse")) {
+                        errorMessage = "unauthorized access token for organization: " + org;
+                    }
                     throw createLauncherException(errorMessage);
                 }
             }
