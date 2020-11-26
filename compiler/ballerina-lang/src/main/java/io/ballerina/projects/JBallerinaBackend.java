@@ -122,7 +122,6 @@ public class JBallerinaBackend extends CompilerBackend {
                     = ObserverbilitySymbolCollectorRunner.getInstance(compilerContext);
             for (ModuleId moduleId : packageContext.moduleIds()) {
                 ModuleContext moduleContext = packageContext.moduleContext(moduleId);
-                packageContext.getModuleCompilation(moduleContext);     // Trigger Compilation
                 BLangPackage bLangPackage = moduleContext.bLangPackage();
                 observabilitySymbolCollector.process(bLangPackage);
             }
