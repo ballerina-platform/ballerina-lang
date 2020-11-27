@@ -80,7 +80,7 @@ public class RunCommand implements BLauncherCmd {
     private Boolean observabilityIncluded;
 
     private static final String runCmd = "ballerina run [--experimental] [--offline] \n" +
-            "<executable-jar | ballerina-file | . | package-path> [program-args] [(--key=value)...]";
+            "                  <executable-jar | ballerina-file | . | package-path> [program-args] [(--key=value)...]";
 
     public RunCommand() {
         this.outStream = System.err;
@@ -125,7 +125,7 @@ public class RunCommand implements BLauncherCmd {
             try {
                 project = SingleFileProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -134,7 +134,7 @@ public class RunCommand implements BLauncherCmd {
             try {
                 project = BuildProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
