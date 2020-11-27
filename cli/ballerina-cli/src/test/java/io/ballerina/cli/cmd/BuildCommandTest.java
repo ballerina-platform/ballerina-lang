@@ -427,7 +427,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 "\twinery\n" +
                 "\n" +
                 "Generating Test Report\n" +
-                "\t" + projectPath.resolve("target").resolve("test_results.json").toString() + "\n" +
+                "\t" + projectPath.resolve("target").resolve("report").resolve("test_results.json").toString() + "\n" +
                 "\n" +
                 "warning: Could not find the required HTML report tools for code coverage at " +
                 "<ballerina.home>/lib/tools/coverage/report.zip\n" +
@@ -448,7 +448,8 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.bir").toFile().exists());
 
-        Assert.assertTrue(projectPath.resolve("target").resolve("test_results.json").toFile().exists());
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("report").resolve("test_results.json").toFile().exists());
     }
 
     @Test(description = "Build a valid ballerina project with build options in toml")
@@ -470,7 +471,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 "\twinery\n" +
                 "\n" +
                 "Generating Test Report\n" +
-                "\t" + projectPath.resolve("target").resolve("test_results.json").toString() + "\n" +
+                "\t" + projectPath.resolve("target").resolve("report").resolve("test_results.json").toString() + "\n" +
                 "\n" +
                 "warning: Could not find the required HTML report tools for code coverage at " +
                 "<ballerina.home>/lib/tools/coverage/report.zip\n" +
@@ -491,7 +492,8 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.bir").toFile().exists());
 
-        Assert.assertTrue(projectPath.resolve("target").resolve("test_results.json").toFile().exists());
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("report").resolve("test_results.json").toFile().exists());
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

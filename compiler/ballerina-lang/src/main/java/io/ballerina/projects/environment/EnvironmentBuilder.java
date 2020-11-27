@@ -17,9 +17,8 @@
  */
 package io.ballerina.projects.environment;
 
-import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
+import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.internal.environment.EnvironmentPackageCache;
@@ -28,10 +27,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_API_INITIATED_COMPILATION;
@@ -45,6 +40,7 @@ public class EnvironmentBuilder {
 
     private PackageRepository ballerinaCentralRepo;
     private Path ballerinaHome;
+    private Path userHome;
 
     public static EnvironmentBuilder getBuilder() {
         return new EnvironmentBuilder();
@@ -52,6 +48,11 @@ public class EnvironmentBuilder {
 
     public static Environment buildDefault() {
         return new EnvironmentBuilder().build();
+    }
+
+    public EnvironmentBuilder setUserHome(Path userHome) {
+        this.userHome = userHome;
+        return this;
     }
 
     public EnvironmentBuilder setBallerinaHome(Path ballerinaHome) {
@@ -69,8 +70,8 @@ public class EnvironmentBuilder {
 
         // Environment creation logic needs to validate following things
         //    BallerinaDistribution
-        //    BallerinaHomeCache--> create if not exists get the .ballerina
-        //      centralRepo = BallerinaHomeCache.getCentralRepository()
+        //    BallerinaUserHome --> create if not exists get the .ballerina
+        //      centralRepo = BallerinaUserHome.getCentralRepository()
 
         // Creating a Ballerina distribution instance
         BallerinaDistribution ballerinaDistribution = getBallerinaDistribution(environment);
@@ -81,8 +82,9 @@ public class EnvironmentBuilder {
         environment.addService(PackageCache.class, packageCache);
 
         if (ballerinaCentralRepo == null) {
-            // TODO Creating a dummy impl for now
-            ballerinaCentralRepo = new DummyPackageRepository();
+            // Creating a Ballerina user home instance
+            BallerinaUserHome ballerinaUserHome = getBallerinaUserHome(environment);
+            ballerinaCentralRepo = ballerinaUserHome.remotePackageRepository();
         }
 
         PackageResolver packageResolver = new DefaultPackageResolver(distributionRepository,
@@ -101,6 +103,11 @@ public class EnvironmentBuilder {
                 BallerinaDistribution.from(environment);
     }
 
+    private BallerinaUserHome getBallerinaUserHome(DefaultEnvironment environment) {
+        return (userHome != null) ?
+                BallerinaUserHome.from(environment, userHome) :
+                BallerinaUserHome.from(environment);
+    }
 
     private static CompilerContext populateCompilerContext() {
         CompilerContext compilerContext = new CompilerContext();
@@ -110,22 +117,5 @@ public class EnvironmentBuilder {
         // TODO Remove the following line, once we fully migrate the old project structures
         options.put(PROJECT_API_INITIATED_COMPILATION, Boolean.toString(true));
         return compilerContext;
-    }
-
-    private static class DummyPackageRepository implements PackageRepository {
-        @Override
-        public Optional<Package> getPackage(ResolutionRequest resolutionRequest) {
-            return Optional.empty();
-        }
-
-        @Override
-        public List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest) {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public Map<String, List<String>> getPackages() {
-            return Collections.emptyMap();
-        }
     }
 }

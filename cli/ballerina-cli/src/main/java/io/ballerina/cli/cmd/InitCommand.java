@@ -131,8 +131,9 @@ public class InitCommand implements BLauncherCmd {
         }
 
         if (!ProjectUtils.validatePkgName(packageName)) {
-            errStream.println("warning: invalid package name. Modified package name : " +
-                    ProjectUtils.guessPkgName(packageName));
+            errStream.println("Unallowed characters in the project name were replaced by " +
+                    "underscores when deriving the package name. Edit the Ballerina.toml to change it.");
+            errStream.println();
         }
 
         try {

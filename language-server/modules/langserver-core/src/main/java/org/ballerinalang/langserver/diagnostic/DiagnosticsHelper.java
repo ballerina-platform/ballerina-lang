@@ -16,11 +16,13 @@
 package org.ballerinalang.langserver.diagnostic;
 
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
@@ -86,13 +88,16 @@ public class DiagnosticsHelper {
     }
 
     public Map<String, List<Diagnostic>> getBallerinaDiagnostics(DocumentServiceContext context) {
+        WorkspaceManager workspace = context.workspace();
         Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
 
-        Optional<Project> project = context.workspace().project(context.filePath());
+        Optional<Project> project = workspace.project(context.filePath());
         if (project.isEmpty()) {
             return diagnosticMap;
         }
-        Path projectRoot = context.workspace().projectRoot(context.filePath());
+        // NOTE: We are not using `project.sourceRoot()` since it provides the single file project uses a temp path and
+        // IDE requires the original path.
+        Path projectRoot = workspace.projectRoot(context.filePath());
         for (Module module : project.get().currentPackage().modules()) {
             Path modulePath;
             if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
@@ -102,7 +107,11 @@ public class DiagnosticsHelper {
                 modulePath = (moduleNamePart == null) ? projectRoot
                         : projectRoot.resolve("modules").resolve(moduleNamePart);
             }
-            diagnosticMap.putAll(toDiagnosticsMap(module.getCompilation().diagnostics().diagnostics(), modulePath));
+            Optional<ModuleCompilation> modCompilation = workspace.waitAndGetModuleCompilation(context.filePath());
+            if (modCompilation.isEmpty()) {
+                continue;
+            }
+            diagnosticMap.putAll(toDiagnosticsMap(modCompilation.get().diagnostics().diagnostics(), modulePath));
         }
 
         return diagnosticMap;

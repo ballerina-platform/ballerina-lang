@@ -75,20 +75,6 @@ public class RunCommandTest extends BaseCommandTest {
 
     }
 
-    @Test(description = "Run bal file with no entry")
-    public void testRunBalFileWithNoEntry() {
-        // valid source root path
-        Path projectPath = this.testResources.resolve("valid-bal-file-with-no-entry").resolve("hello_world.bal");
-        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
-        // non existing bal file
-        new CommandLine(runCommand).parse(projectPath.toString());
-        try {
-            runCommand.execute();
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getDetailedMessages().get(0).contains("no entrypoint found in package"));
-        }
-    }
-
     @Test(description = "Run bal file containing syntax error")
     public void testRunBalFileWithSyntaxError() {
         // valid source root path

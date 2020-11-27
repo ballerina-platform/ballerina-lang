@@ -18,41 +18,38 @@
 
 package org.ballerinalang.central.client;
 
-import org.ballerinalang.toml.model.Settings;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.testng.PowerMockTestCase;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.ballerinalang.central.client.Utils.createBaloInHomeRepo;
+import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.writeBaloFile;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.wso2.ballerinalang.util.TomlParserUtils.readSettings;
 
 /**
  * Test cases to test utilities.
  */
-@PrepareForTest({ RepoUtils.class, System.class })
-@PowerMockIgnore("jdk.internal.reflect.*")
-public class TestUtils extends PowerMockTestCase {
+public class TestUtils {
 
     private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
     private static final String TEMP_BALO_CACHE = "temp-test-utils-balo-cache";
@@ -77,40 +74,30 @@ public class TestUtils extends PowerMockTestCase {
         };
     }
 
-    @Test(description = "Test read settings")
-    public void testReadSettings() {
-        PowerMockito.mockStatic(RepoUtils.class);
-        PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(UTILS_TEST_RESOURCES);
-
-        Settings settings = readSettings();
-        Assert.assertEquals(settings.getCentral().getAccessToken(), "273cc9f6-c333-36ab-aa2q-f08e9513ff5y");
+    @DataProvider(name = "versionsLists")
+    public Object[][] provideVersionLists() {
+        return new Object[][] {
+                { "[]", new ArrayList<>(Collections.emptyList()) },
+                { "[\"1.1.11\"]", Collections.singletonList("1.1.11") },
+                { "[\"1.0.0\", \"1.2.0\"]", Arrays.asList("1.0.0", "1.2.0") }
+        };
     }
 
-    @Test(description = "Test initialize proxy")
-    public void testInitializeProxy() {
-        org.ballerinalang.toml.model.Proxy proxy = new org.ballerinalang.toml.model.Proxy();
-        proxy.setHost("http://localhost");
-        proxy.setPort(8080);
-        proxy.setUserName("pramodya");
-        proxy.setPassword("Welcome@123");
+    @Test(description = "Test get as list from array given as a string", dataProvider = "versionsLists")
+    public void testGetAsList(String versionList, List<String> expectedArray) {
+        List<String> versions = getAsList(versionList);
+        Assert.assertEquals(versions.size(), expectedArray.size());
 
-        Proxy netProxy = Utils.initializeProxy(proxy);
-        Assert.assertNotNull(netProxy);
-        Assert.assertEquals(netProxy.type().toString(), "HTTP");
-        Assert.assertEquals(netProxy.address().toString(), "http://localhost:8080");
-    }
+        Iterator<String> versionsItr = versions.iterator();
+        Iterator<String> expectedItr = expectedArray.iterator();
 
-    @Test(description = "Test get access token from Settings.toml")
-    public void testGetAccessTokenOfCliFromSettings() {
-        PowerMockito.mockStatic(RepoUtils.class);
-        PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(UTILS_TEST_RESOURCES);
-        Settings settings = Utils.readSettings();
-
-        Assert.assertEquals(Utils.getAccessTokenOfCLI(settings), "273cc9f6-c333-36ab-aa2q-f08e9513ff5y");
+        while (versionsItr.hasNext() && expectedItr.hasNext()) {
+            Assert.assertEquals(versionsItr.next(), expectedItr.next());
+        }
     }
 
     @Test(description = "Test writing balo file from http response")
-    public void testWriteBaloFile() throws IOException {
+    public void testWriteBaloFile() throws IOException, CentralClientException {
         final String baloName = "sf-any.balo";
         Path baloFile = UTILS_TEST_RESOURCES.resolve(baloName);
         File initialFile = new File(String.valueOf(baloFile));
@@ -127,7 +114,7 @@ public class TestUtils extends PowerMockTestCase {
     }
 
     @Test(description = "Test validate package version", dataProvider = "validatePackageVersion")
-    public void testValidatePackageVersion(String version, boolean isValid) {
+    public void testValidatePackageVersion(String version, boolean isValid) throws CentralClientException {
         if (isValid) {
             Utils.validatePackageVersion(version, new LogFormatter());
         } else {
@@ -146,7 +133,7 @@ public class TestUtils extends PowerMockTestCase {
     }
 
     @Test(description = "Test create balo in given directory")
-    public void testCreateBaloInHomeRepo() throws IOException {
+    public void testCreateBaloInHomeRepo() throws IOException, CentralClientException {
         final String baloName = "sf-any.balo";
         Path baloFile = UTILS_TEST_RESOURCES.resolve(baloName);
         File initialFile = new File(String.valueOf(baloFile));

@@ -1,6 +1,6 @@
 # Contributing to Ballerina
 
-Ballerina is an open source programming language and platform for cloud-era application programmers to easily write software. It is licensed under the [Apache license](https://www.apache.org/licenses/LICENSE-2.0) and is nurtured by all the contributors of the Ballerina community.
+Ballerina is an open source programming language and platform for cloud-era application programmers to easily write software. It is licensed under the [Apache License](https://www.apache.org/licenses/LICENSE-2.0) and is nurtured by all the contributors of the Ballerina community.
 
 We appreciate your help!
 

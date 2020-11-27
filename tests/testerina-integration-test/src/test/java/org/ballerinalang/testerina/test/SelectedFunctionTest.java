@@ -68,7 +68,7 @@ public class SelectedFunctionTest extends BaseTestCase {
 
     @Test
     public void testNonExistingFunctionExecution() throws BallerinaTestException {
-        String msg = "No tests found with the given name/s";
+        String msg = "No tests found";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--tests", "nonExistingFunc", "single-test-execution.bal"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
@@ -77,7 +77,7 @@ public class SelectedFunctionTest extends BaseTestCase {
 
     @Test
     public void testDisabledFunctionExecution() throws BallerinaTestException {
-        String msg = "No tests found with the given name/s";
+        String msg = "No tests found";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--tests", "testDisabledFunc", "single-test-execution.bal"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);

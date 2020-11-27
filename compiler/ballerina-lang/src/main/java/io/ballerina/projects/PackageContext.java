@@ -42,6 +42,7 @@ class PackageContext {
     private final PackageId packageId;
     private final PackageManifest packageManifest;
     private final BallerinaToml ballerinaToml;
+    private final CompilationOptions compilationOptions;
     private ModuleContext defaultModuleContext;
     /**
      * This variable holds the dependency graph cached in a project.
@@ -61,12 +62,14 @@ class PackageContext {
                    PackageId packageId,
                    PackageManifest packageManifest,
                    BallerinaToml ballerinaToml,
+                   CompilationOptions compilationOptions,
                    Map<ModuleId, ModuleContext> moduleContextMap,
                    DependencyGraph<PackageDescriptor> pkgDescDependencyGraph) {
         this.project = project;
         this.packageId = packageId;
         this.packageManifest = packageManifest;
         this.ballerinaToml = ballerinaToml;
+        this.compilationOptions = compilationOptions;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
         this.moduleContextMap = moduleContextMap;
         // TODO Try to reuse previous unaffected compilations
@@ -75,14 +78,15 @@ class PackageContext {
         this.pkgDescDependencyGraph = pkgDescDependencyGraph;
     }
 
-    static PackageContext from(Project project, PackageConfig packageConfig) {
+    static PackageContext from(Project project, PackageConfig packageConfig, CompilationOptions compilationOptions) {
         Map<ModuleId, ModuleContext> moduleContextMap = new HashMap<>();
         for (ModuleConfig moduleConfig : packageConfig.otherModules()) {
             moduleContextMap.put(moduleConfig.moduleId(), ModuleContext.from(project, moduleConfig));
         }
 
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
-                packageConfig.ballerinaToml(), moduleContextMap, packageConfig.packageDescDependencyGraph());
+                packageConfig.ballerinaToml(), compilationOptions,
+                moduleContextMap, packageConfig.packageDescDependencyGraph());
     }
 
     PackageId packageId() {
@@ -109,8 +113,12 @@ class PackageContext {
         return packageManifest;
     }
 
-    public Optional<BallerinaToml> ballerinaToml() {
+    Optional<BallerinaToml> ballerinaToml() {
         return Optional.ofNullable(ballerinaToml);
+    }
+
+    CompilationOptions compilationOptions() {
+        return compilationOptions;
     }
 
     Collection<ModuleId> moduleIds() {
@@ -154,9 +162,9 @@ class PackageContext {
                 moduleId -> new ModuleCompilation(this, moduleContext));
     }
 
-    PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
+    PackageCompilation getPackageCompilation() {
         if (packageCompilation == null) {
-            packageCompilation = PackageCompilation.from(this, compilationOptions);
+            packageCompilation = PackageCompilation.from(this);
         }
         return packageCompilation;
     }
