@@ -17,23 +17,31 @@
  */
 package io.ballerina.projects;
 
-import java.nio.file.Path;
-
 /**
- * Represents a platform-specific library.
+ * Represents the scope of the platform-specific library.
  *
  * @since 2.0.0
  */
-public abstract class PlatformLibrary {
-    private final PlatformLibraryScope scope;
+public enum PlatformLibraryScope {
+    /**
+     * Libraries marked with no scope in Ballerina.toml, get this value.
+     * Included phases: compilation, run tests, executable, included in the balr.
+     */
+    DEFAULT(""),
 
-    public PlatformLibrary(PlatformLibraryScope scope) {
-        this.scope = scope;
+    /**
+     * Libraries marked with scope="testOnly" in Ballerina.toml, get this value.
+     * Included phases: run tests.
+     */
+    TEST_ONLY("testOnly");
+
+    private final String strValue;
+
+    PlatformLibraryScope(String strValue) {
+        this.strValue = strValue;
     }
 
-    public abstract Path path();
-
-    public PlatformLibraryScope scope() {
-        return scope;
+    String getStringValue() {
+        return strValue;
     }
 }
