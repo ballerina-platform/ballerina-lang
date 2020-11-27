@@ -1,5 +1,6 @@
 package io.ballerina.projects.internal.repositories;
 
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
