@@ -768,22 +768,6 @@ class JMethodResolver {
         }
     }
 
-//    private JInteropException getMethodNotFoundError(JMethodKind kind,
-//                                                     Class<?> declaringClass,
-//                                                     String methodName,
-//                                                     int paramCount) {
-//
-//        if (kind == JMethodKind.CONSTRUCTOR) {
-//            return new JInteropException(DiagnosticCode.CONSTRUCTOR_NOT_FOUND,
-//                    "No such public constructor with '" + paramCount +
-//                            "' parameter(s) found in class '" + declaringClass + "'");
-//        } else {
-//            return new JInteropException(DiagnosticCode.METHOD_NOT_FOUND,
-//                    "No such public method '" + methodName + "' with '" + paramCount +
-//                            "' parameter(s) found in class '" + declaringClass + "'");
-//        }
-//    }
-
     private JInteropException getMethodNotFoundError(JMethodRequest jMethodRequest) {
 
         if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
