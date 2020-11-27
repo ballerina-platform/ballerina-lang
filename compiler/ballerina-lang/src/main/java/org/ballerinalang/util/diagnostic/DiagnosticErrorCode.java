@@ -147,7 +147,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INTEGER_TOO_SMALL("BCE2111", "integer.too.small"),
     HEXADECIMAL_TOO_LARGE("BCE2112", "hexadecimal.too.large"),
     HEXADECIMAL_TOO_SMALL("BCE2113", "hexadecimal.too.small"),
-    MISSING_REQUIRED_INCLUDED_RECORD_PARAMETER_FIELD("BCE2114", "missing.required.included.record.parameter.field"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),

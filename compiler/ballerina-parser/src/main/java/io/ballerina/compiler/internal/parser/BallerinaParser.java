@@ -1758,7 +1758,7 @@ public class BallerinaParser extends AbstractParser {
             STNode equal = parseAssignOp();
             STNode expr = parseExpression();
             if (inclusionSymbol != null) {
-                type = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(type, inclusionSymbol,
+                type = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(type, inclusionSymbol,
                                 DiagnosticErrorCode.ERROR_DEFAULTABLE_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER);
             }
             return STNodeFactory.createDefaultableParameterNode(annots, type, paramName, equal, expr);

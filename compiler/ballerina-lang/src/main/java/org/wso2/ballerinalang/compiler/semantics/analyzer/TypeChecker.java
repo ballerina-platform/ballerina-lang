@@ -5310,15 +5310,17 @@ public class TypeChecker extends BLangNodeVisitor {
         int parameterCountForNamedArgs = parameterCountForPositionalArgs + invokableSymbol.includedRecordParams.size();
         iExpr.requiredArgs = new ArrayList<>();
         for (BVarSymbol symbol : invokableSymbol.params) {
-            if (Symbols.isFlagOn(Flags.asMask(symbol.getFlags()), Flags.INCLUDED)) {
-                LinkedHashMap<String, BField> fields = ((BRecordType) symbol.type).fields;
-                if (!fields.isEmpty()) {
-                    for (String field : fields.keySet()) {
-                        if (fields.get(field).type.tag != TypeTags.NEVER) {
-                            parameterCountForNamedArgs = parameterCountForNamedArgs - 1;
-                            break;
-                        }
-                    }
+            if (!Symbols.isFlagOn(Flags.asMask(symbol.getFlags()), Flags.INCLUDED)) {
+                continue;
+            }
+            LinkedHashMap<String, BField> fields = ((BRecordType) symbol.type).fields;
+            if (fields.isEmpty()) {
+                continue;
+            }
+            for (String field : fields.keySet()) {
+                if (fields.get(field).type.tag != TypeTags.NEVER) {
+                    parameterCountForNamedArgs = parameterCountForNamedArgs - 1;
+                    break;
                 }
             }
         }
@@ -5386,10 +5388,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         for (BVarSymbol includedRecordParam : includedRecordParams) {
-            if (includedRecordParam.defaultableParam) {
-                continue;
+            if (Symbols.isFlagOn(Flags.asMask(includedRecordParam.getFlags()), Flags.REQUIRED)) {
+                requiredIncludedRecordParams.add(includedRecordParam);
             }
-            requiredIncludedRecordParams.add(includedRecordParam);
         }
 
         int i = 0;
@@ -5424,8 +5425,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 BLangIdentifier argName = ((NamedArgNode) arg).getName();
                 BVarSymbol varSym = checkParameterNameForDefaultArgument(argName, ((BLangNamedArgsExpression) arg).expr,
                                             nonRestParams, includedRecordParams, incRecordParamAllowAdditionalFields);
-
-
 
                 if (varSym == null) {
                     dlog.error(arg.pos, DiagnosticErrorCode.UNDEFINED_PARAMETER, argName);
@@ -5462,13 +5461,11 @@ public class TypeChecker extends BLangNodeVisitor {
             // Log errors if any non-defaultable required record fields of included record parameters are not given as
             // named args.
             for (BVarSymbol requiredIncludedRecordParam : requiredIncludedRecordParams) {
-                if (!Symbols.isFlagOn(Flags.asMask(requiredIncludedRecordParam.getFlags()), Flags.OPTIONAL)) {
-                    for (BVarSymbol requiredParam : requiredParams) {
-                        if (requiredParam.type == requiredIncludedRecordParam.owner.type) {
-                            dlog.error(iExpr.pos, DiagnosticErrorCode.MISSING_REQUIRED_INCLUDED_RECORD_PARAMETER_FIELD,
-                                    requiredIncludedRecordParam.name, iExpr.name.value);
-                            errored = true;
-                        }
+                for (BVarSymbol requiredParam : requiredParams) {
+                    if (requiredParam.type == requiredIncludedRecordParam.owner.type) {
+                        dlog.error(iExpr.pos, DiagnosticErrorCode.MISSING_REQUIRED_PARAMETER,
+                                requiredIncludedRecordParam.name, iExpr.name.value);
+                        errored = true;
                     }
                 }
             }
@@ -5626,8 +5623,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private BVarSymbol checkParameterNameForDefaultArgument(BLangIdentifier argName,
-                       BLangExpression expr, List<BVarSymbol> nonRestParams, List<BVarSymbol> includedRecordParams,
+    private BVarSymbol checkParameterNameForDefaultArgument(BLangIdentifier argName, BLangExpression expr,
+                                                            List<BVarSymbol> nonRestParams,
+                                                            List<BVarSymbol> includedRecordParams,
                                                             BVarSymbol incRecordParamAllowAdditionalFields) {
         for (BVarSymbol nonRestParam : nonRestParams) {
             if (nonRestParam.getName().value.equals(argName.value)) {

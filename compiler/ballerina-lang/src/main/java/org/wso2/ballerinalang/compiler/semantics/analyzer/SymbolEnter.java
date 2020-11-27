@@ -1544,9 +1544,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BVarSymbol varSymbol = defineVarSymbol(varNode.name.pos, varNode.flagSet, varNode.type, varName, env,
                                                varNode.internal);
-        if (varNode.expr != null) {
-            varSymbol.defaultableParam = true;
-        }
         if (isDeprecated(varNode.annAttachments)) {
             varSymbol.flags |= Flags.DEPRECATED;
         }
