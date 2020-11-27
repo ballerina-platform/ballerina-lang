@@ -135,7 +135,7 @@ public class NativeConversionWithStampTypesTest {
     }
 
     @Test
-    public void testConvertMapJsonWithFromJsonWithType() {
-        BRunUtil.invoke(compileResult, "testConvertMapJsonWithDecimalUnionTarget");
+    void testConvertUnion() {
+        BRunUtil.invoke(compileResult, "testConvertUnion");
     }
 }

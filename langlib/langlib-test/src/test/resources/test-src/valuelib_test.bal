@@ -1274,3 +1274,23 @@ function testEnsureTypeNegative() {
     assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: '()' cannot be cast to 'int'\")", e5.toString());
     assertEquality("error(\"{ballerina/lang.map}KeyNotFound\",message=\"Key 'children' not found in JSON mapping\")", e6.toString());
 }
+
+type OpenRecordWithUnionTarget record {|
+    string|decimal...;
+|};
+
+function tesFromJsonWithTypeMapWithDecimal() {
+    map<json> mp = {
+            name: "foo",
+            factor: 1.23d
+    };
+    var or = mp.fromJsonWithType(OpenRecordWithUnionTarget);
+
+    if (or is error) {
+        panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
+    }
+
+    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget>or;
+    assertEquality(castedValue["factor"], mp["factor"]);
+    assertEquality(castedValue["name"], mp["name"]);
+}

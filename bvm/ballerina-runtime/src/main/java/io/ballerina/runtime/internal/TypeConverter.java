@@ -355,7 +355,7 @@ public class TypeConverter {
             } else {
                 if (targetFieldTypes.containsKey(fieldName)) {
                     if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName),
-                            unresolvedValues).size() != 1) {
+                            unresolvedValues).size() == 0) {
                         return false;
                     }
                 } else if (!targetType.sealed) {

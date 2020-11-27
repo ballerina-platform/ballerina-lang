@@ -78,7 +78,7 @@ type OpenRecordWithUnionTarget record {|
 map<json> mp = {
         name: "foo",
         factor: 1.23d
-    };
+};
 
 function testConvertMapJsonWithDecimalToOpenRecord() {
     var or = mp.cloneWithType(OpenRecord);
@@ -104,16 +104,23 @@ function testConvertMapJsonWithDecimalUnionTarget() {
     assert(castedValue["name"], mp["name"]);
 }
 
-function testConvertMapJsonWithFromJsonWithType() {
-    var or = mp.fromJsonWithType(OpenRecordWithUnionTarget);
+public type Scalar int|string|float|boolean;
 
-    if (or is error) {
-        panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
+public type Argument record {|
+    Scalar value;
+|};
+
+public function testConvertUnion() {
+    json expectedJson = { "value": 132 };
+
+    Argument expected = { "value": 132 };
+    var actual = expectedJson.cloneWithType(Argument);
+
+    if (actual is error) {
+        panic error("`cloneWithType` returned an error.");
+    } else {
+        assert(actual, expected);
     }
-
-    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget>or;
-    assert(castedValue["factor"], mp["factor"]);
-    assert(castedValue["name"], mp["name"]);
 }
 
 function assert(anydata actual, anydata expected) {
