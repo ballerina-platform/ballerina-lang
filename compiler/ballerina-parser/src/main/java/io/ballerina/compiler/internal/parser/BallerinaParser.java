@@ -14876,6 +14876,7 @@ public class BallerinaParser extends AbstractParser {
             case REST_BINDING_PATTERN:
             case MAPPING_BINDING_PATTERN:
             case WILDCARD_BINDING_PATTERN:
+            case ERROR_BINDING_PATTERN:
                 return SyntaxKind.LIST_BINDING_PATTERN;
             case QUALIFIED_NAME_REFERENCE: // a qualified-name-ref can only be a type-ref
             case REST_TYPE:
@@ -16307,35 +16308,39 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case CLOSE_PAREN_TOKEN: // only error-binding-pattern can have no args.
-            case ELLIPSIS_TOKEN: // error (... a) i.e. rest-binding-pattern
+            case ELLIPSIS_TOKEN: // rest-binding-pattern
                 switchContext(ParserRuleContext.ERROR_BINDING_PATTERN);
                 return parseErrorBindingPattern(errorKeyword, typeRef, openParen);
             case IDENTIFIER_TOKEN:
                 STToken  nextNextToken = getNextNextToken();
                 switch (nextNextToken.kind) {
-                    case EQUAL_TOKEN: // error (a = b) i.e. named-arg-binding-pattern
-                    case CLOSE_PAREN_TOKEN: // error (a) is ambiguous. Treat as error binding pattern
+                    case EQUAL_TOKEN: // error [type-ref] (a = b) i.e. named-arg-binding-pattern
+                    case CLOSE_PAREN_TOKEN: // error [type-ref] (a) is ambiguous. Treat as error binding pattern
                         switchContext(ParserRuleContext.ERROR_BINDING_PATTERN);
                         return parseErrorBindingPattern(errorKeyword, typeRef, openParen);
-                    default:
+                    case COMMA_TOKEN:
                         break;
+                    default:
+                        // error [type-ref] (positional-arg ...
+                        switchContext(ParserRuleContext.ERROR_CONSTRUCTOR);
+                        return parseErrorConstructorExpr(errorKeyword, typeRef, openParen);
                 }
 
-                // We only reach here for "error (a,"
+                // We only reach here for "error [type-ref] (a,"
                 STToken nextArgStartingToken = peek(3);
                 switch (nextArgStartingToken.kind) {
                     case ELLIPSIS_TOKEN: // rest-binding-pattern
-                    case IDENTIFIER_TOKEN: // "error (a,b" is ambiguous. Treat as error binding pattern
-                    case ERROR_KEYWORD: // "error (a," error is ambiguous. Treat as error binding pattern
+                    case IDENTIFIER_TOKEN: // "error [type-ref] (a,b" is ambiguous. Treat as error binding pattern
+                    case ERROR_KEYWORD: // "error [type-ref] (a," error is ambiguous. Treat as error binding pattern
                         switchContext(ParserRuleContext.ERROR_BINDING_PATTERN);
                         return parseErrorBindingPattern(errorKeyword, typeRef, openParen);
                     default:
-                        // error [type-reference] (a, positional-arg ...
+                        // error [type-ref] (a, positional-arg ...
                         switchContext(ParserRuleContext.ERROR_CONSTRUCTOR);
                         return parseErrorConstructorExpr(errorKeyword, typeRef, openParen);
                 }
             default:
-                // error [type-reference] (positional-arg ...
+                // error [type-ref] (positional-arg ...
                 switchContext(ParserRuleContext.ERROR_CONSTRUCTOR);
                 return parseErrorConstructorExpr(errorKeyword, typeRef, openParen);
         }
