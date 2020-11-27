@@ -1,8 +1,8 @@
 NAME
-       ballerina-new - Create a new Ballerina project at <project-path>
+       ballerina-new - Create a new Ballerina package
 
 SYNOPSIS
-       ballerina new <project-path>
+       ballerina new <package-path>
 
 
 DESCRIPTION
@@ -13,15 +13,15 @@ DESCRIPTION
        are versioned and shared as a single unit. All modules of the package share the
        same 'Ballerina.toml' and the 'target' directory.
 
-       The project directory will have the following structure.
+       The package directory will have the following structure.
             .
             ├── Ballerina.toml
             └── main.bal
 
-       Any directory becomes a Ballerina project if that directory has a
+       Any directory becomes a Ballerina package if that directory has a
        'Ballerina.toml' file. It contains the organization name, package name,
-       and the version. It also enables dependency management across the project.
-       The project root directory also is the default module directory.
+       and the version. It also enables dependency management across the package.
+       The package root directory also is the default module directory.
 
        The 'modules' directory contains other non-default Ballerina modules. Use
        'ballerina add <module-name>' command to create modules.
@@ -29,7 +29,7 @@ DESCRIPTION
        The 'target' directory is created during the build process.
        The 'target' is the output directory that contains the build artifacts.
 
-       A template can also be specified when creating a new project.
+       A template can also be specified when creating a new package.
               If a template is not specified, this command creates a package
               with a 'main' template.
 

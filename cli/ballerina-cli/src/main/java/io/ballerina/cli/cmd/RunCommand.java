@@ -80,7 +80,7 @@ public class RunCommand implements BLauncherCmd {
     private Boolean observabilityIncluded;
 
     private static final String runCmd = "ballerina run [--experimental] [--offline] \n" +
-            "<executable-jar | ballerina-file | . | project-path> [program-args] [(--key=value)...]";
+            "<executable-jar | ballerina-file | . | package-path> [program-args] [(--key=value)...]";
 
     public RunCommand() {
         this.outStream = System.err;
@@ -109,7 +109,7 @@ public class RunCommand implements BLauncherCmd {
 
         String[] args;
         if (this.argList == null) {
-            CommandUtil.printError(this.errStream, "no project path provided.", runCmd, false);
+            CommandUtil.printError(this.errStream, "no package path provided.", runCmd, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         } else {

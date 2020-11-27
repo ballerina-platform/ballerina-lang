@@ -124,7 +124,7 @@ public class TestCommand implements BLauncherCmd {
     private boolean rerunTests;
 
     private static final String testCmd = "ballerina test [--offline] [--skip-tests]\n" +
-            "                    [<ballerina-file> | <project-path>] [(--key=value)...]";
+            "                    [<ballerina-file> | <package-path>] [(--key=value)...]";
 
     public void execute() {
         if (this.helpFlag) {
