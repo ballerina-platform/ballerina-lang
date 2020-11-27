@@ -12,14 +12,6 @@
       "sortText": "A",
       "insertText": "as ",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "version",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "A",
-      "insertText": "version",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

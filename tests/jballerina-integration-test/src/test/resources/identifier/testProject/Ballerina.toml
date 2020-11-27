@@ -1,3 +1,4 @@
-[project]
-org-name= "a_b"
-version= "0.1.0"
+[package]
+org = "a_b"
+name = "foo"
+version = "0.1.0"

@@ -185,6 +185,11 @@
                     "isOptional": true
                 },
                 {
+                    "name": "qualifiers",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
+                },
+                {
                     "name": "serviceKeyword",
                     "type": "Token"
                 },
@@ -4223,6 +4228,17 @@
                 },
                 {
                     "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "RequiredExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "REQUIRED_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "questionMarkToken",
                     "type": "Token"
                 }
             ]

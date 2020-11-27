@@ -1,29 +1,26 @@
 NAME
-       ballerina-test - Run module tests
+       ballerina-test - Run package tests
 
 SYNOPSIS
-       ballerina test [<options>] <module-name> [<config properties>]
-       ballerina test -a | --all [<options>] [--] [<config properties>]
-       ballerina test <balfile> [<config properties>]
+       ballerina test [<options>]
+                      [<ballerina-file-path> | <ballerina-project-directory>] [<config properties>]
 
 
 DESCRIPTION
-       Test compiles and executes Ballerina test sources and print a summary of
-       test results. You can execute tests in a module,
-       or an entire Ballerina project.
+       Test compiles and executes Ballerina test sources and prints a summary of
+       test results. You can execute tests in a Ballerina package or a standalone
+       Ballerina file.
     
-       Use 'ballerina test <module-name>' to execute tests in the
-       specified module, or '-a' or '-all' to execute tests in all modules.
+       Use 'ballerina test to execute tests in the current package.
 
        Use 'ballerina test <balfile>' to execute the given Ballerina test file.
-              Note that testing single bal files will not work within a Ballerina project.
-              Also, imports from other modules will not work for file executions.
+              Note that testing single BAL files will not work within a Ballerina project.
               File path can be relative or absolute.
 
 
 OPTIONS
        --offline
-           When building a module, the remote repository (Ballerina Central) is
+           When building a package, the remote repository (Ballerina Central) is
            always checked for latest artifacts of the dependencies. If the
            '--offline' option is specified, this remote check is not done and
            the local artifacts will be used instead.
@@ -57,13 +54,7 @@ OPTIONS
             test functions can be executed using this command.
 
        --rerun-failed
-            Executes only the previously failed test cases for the specified
-            module.
-
-       --sourceroot <path>
-           Location of the remote project root with source files. All
-           executions will be relative to the path provided for
-           sourceroot.
+            Executes only the previously-failed test cases in the package.
 
        --code-coverage
            Enables code coverage. This will analyze the line coverage of
@@ -78,9 +69,6 @@ OPTIONS
        --experimental
            Enable experimental language features.
 
-       --skip-lock
-           Build/Compile offline without downloading dependencies.
-
        --debug
            Run tests in remote debugging mode.
 
@@ -92,35 +80,32 @@ CONFIG PROPERTIES
            Set the Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter
            has to be prefixed with '--'. Details of the environment parameters
-           supported by the Ballerina standard library modules are specified
+           supported by the Ballerina standard library packages are specified
            in the relevant API documentation.
 
 
 EXAMPLES
-        Run all tests in the current project.
-           $ ballerina test --all
+        Run all tests in the current package.
+           $ ballerina test
 
-        Run tests in math module.
-           $ ballerina test math
+        List all test groups in the package.
+           $ ballerina test --list-groups
 
-        List all test groups in math module.
-           $ ballerina test --list-groups math
+        Run only the set of tests belonging to the `group_x` in the current package.
+           $ ballerina test --groups group_x
 
-        Run only the set of tests belonging to group_x in current project.
-           $ ballerina test --groups group_x  --all
+        Run only the given set of functions in the current package.
+            $ ballerina test --tests testFunction
 
-        Run only the given set of functions in current project.
-            $ ballerina test --tests testFunction --all
+        Run only the previously-failed test cases in the current package.
+            $ ballerina test --rerun-failed
 
-        Run only the previously failed test cases in math module.
-            $ ballerina test --rerun-failed math
-
-        Run tests in single bal file.
+        Run tests in a single BAL file.
            $ ballerina test main_test.bal
 
-        Run tests and generate a test report in addition.
-           $ ballerina test --test-report --all
+        Run tests and generate a test report.
+           $ ballerina test --test-report
 
         Run tests with code coverage. This will generate a test report
         with test statuses and code coverage information.
-           $ ballerina test --code-coverage --all
+           $ ballerina test --code-coverage

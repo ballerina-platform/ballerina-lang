@@ -218,6 +218,7 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BParameterizedType type) {
         writeTypeCpIndex(type.paramValueType);
+        buff.writeInt(type.paramIndex);
     }
 
     @Override
@@ -336,6 +337,8 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
         buff.writeLong(initializerFunc.symbol.flags);
         writeTypeCpIndex(initializerFunc.type);
+
+        writeTypeInclusions(bRecordType.typeInclusions);
     }
 
     @Override
@@ -395,6 +398,8 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BAttachedFunction attachedFunc : attachedFuncs) {
             writeAttachFunction(attachedFunc);
         }
+
+        writeTypeInclusions(bObjectType.typeInclusions);
     }
 
     private void writeAttachFunction(BAttachedFunction attachedFunc) {
@@ -512,5 +517,12 @@ public class BIRTypeWriter implements TypeVisitor {
         int length = byteBuf.nioBuffer().limit();
         buff.writeInt(length);
         buff.writeBytes(byteBuf.nioBuffer().array(), 0, length);
+    }
+
+    private void writeTypeInclusions(List<BType> inclusions) {
+        buff.writeInt(inclusions.size());
+        for (BType inclusion : inclusions) {
+            writeTypeCpIndex(inclusion);
+        }
     }
 }

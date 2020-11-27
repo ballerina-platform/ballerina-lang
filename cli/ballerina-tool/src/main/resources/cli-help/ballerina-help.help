@@ -36,13 +36,14 @@ BALLERINA COMMANDS
         format          Format Ballerina sources
 
    Module Commands:
-        pull            Pull a module from Ballerina Central
-        push            Upload module to the Ballerina Central
-        search          Search Ballerina Central for modules
+        pull            Pull a package from Ballerina Central
+        push            Upload a package to Ballerina Central
+        search          Search Ballerina Central for packages
 
    Project Commands:
-        new             Create a new Ballerina project
-        add             Create a new Ballerina module in a project
+        new             Create a new project and initialize a Ballerina package
+        init            Initialize a new Ballerina package in the current directory
+        add             Create a new Ballerina module in the package
 
    Other Commands:
         encrypt         Encrypt sensitive data

@@ -82,11 +82,10 @@ public abstract class ExpressionEvaluationBaseTest extends DebugAdapterBaseTestC
     protected static final String GLOBAL_VAR_11 = "'\\ \\/\\:\\@\\[\\`\\{\\~\\u{2324}_IL";
 
     protected void prepareForEvaluation() throws BallerinaTestException {
-        testProjectName = "basic-project";
-        testModuleName = "advanced";
+        testProjectName = "variable-tests";
         testModuleFileName = "main.bal";
         testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
-        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
+        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
 
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 182));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);

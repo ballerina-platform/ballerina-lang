@@ -20,9 +20,11 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents Table Array in TOML AST.
@@ -46,6 +48,15 @@ public class TomlTableArrayNode extends TopLevelNode {
 
     public void addChild(TomlTableNode topLevelNode) {
         children.add(topLevelNode);
+    }
+
+    @Override
+    public Set<Diagnostic> diagnostics() {
+        Set<Diagnostic> tomlDiagnostics = diagnostics;
+        for (TomlTableNode childTable : children) {
+            tomlDiagnostics.addAll(childTable.diagnostics());
+        }
+        return tomlDiagnostics;
     }
 
     @Override

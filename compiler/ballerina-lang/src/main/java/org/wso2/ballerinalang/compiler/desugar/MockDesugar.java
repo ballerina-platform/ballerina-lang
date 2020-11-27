@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -188,7 +189,8 @@ public class MockDesugar {
         // Loop through each BLangImportPackage
         for (BLangImportPackage importPkg : importList) {
             // If the import package name matches
-            if (importPkg.alias.getValue().equals(packageName)) {
+            if (importPkg.pkgNameComps.stream().map(BLangIdentifier::toString).collect(Collectors.joining("."))
+                    .equals(packageName)) {
                 // return the function name defined in the package entry map
                 return (BInvokableSymbol) importPkg.symbol.scope.entries.get(new Name(functionName)).symbol;
             }

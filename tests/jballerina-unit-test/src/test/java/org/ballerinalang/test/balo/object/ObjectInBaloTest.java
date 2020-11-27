@@ -22,14 +22,12 @@ import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -42,10 +40,9 @@ public class ObjectInBaloTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project_two", "testorgtwo", "foo");
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "utils");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_two");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_utils");
 
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_objects.bal");
     }
@@ -592,10 +589,4 @@ public class ObjectInBaloTest {
 //                                          "non-public fields or methods",
 //                                  42, 6);
 //    }
-
-    @AfterClass
-    public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "utils");
-    }
 }

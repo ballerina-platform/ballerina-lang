@@ -17,22 +17,18 @@
 
 package io.ballerina.semantic.api.test;
 
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for the looking up a symbol of an identifier at a given position.
@@ -41,14 +37,10 @@ import static org.testng.Assert.assertNull;
  */
 public class SymbolAtCursorTest {
 
-    private final Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
-
     @Test(dataProvider = "BasicsPosProvider")
     public void testBasics(int line, int column, String expSymbolName) {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/symbol_at_cursor_basic_test.bal", context);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/symbol_at_cursor_basic_test.bal");
 
         Optional<Symbol> symbol = model.symbol("symbol_at_cursor_basic_test.bal", LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
@@ -69,6 +61,7 @@ public class SymbolAtCursorTest {
                 {19, 9, "test"},
                 {19, 11, "test"},
                 {19, 13, null},
+                {22, 59, "HELLO"},
                 {26, 11, null},
                 {26, 12, "a"},
                 {26, 13, null},
@@ -99,10 +92,8 @@ public class SymbolAtCursorTest {
 
     @Test(dataProvider = "EnumPosProvider")
     public void testEnum(int line, int column, String expSymbolName) {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/symbol_at_cursor_enum_test.bal", context);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/symbol_at_cursor_enum_test.bal");
 
         Optional<Symbol> symbol = model.symbol("symbol_at_cursor_enum_test.bal", LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
@@ -126,10 +117,8 @@ public class SymbolAtCursorTest {
 
     @Test(dataProvider = "WorkerSymbolPosProvider")
     public void testWorkers(int line, int column, String expSymbolName) {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/symbol_lookup_with_workers_test.bal", context);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/symbol_lookup_with_workers_test.bal");
 
         Optional<Symbol> symbol = model.symbol("symbol_lookup_with_workers_test.bal", LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
@@ -152,10 +141,22 @@ public class SymbolAtCursorTest {
         };
     }
 
-    private CompileResult compile(String path, CompilerContext context) {
-        Path sourcePath = Paths.get(path);
-        String packageName = sourcePath.getFileName().toString();
-        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
-        return BCompileUtil.compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, false);
+    @Test(dataProvider = "MissingConstructPosProvider")
+    public void testMissingConstructs(int line, int column) {
+        SemanticModel model = SemanticAPITestUtils
+                .getDefaultModulesSemanticModel("test-src/symbol_at_cursor_undefined_constructs_test.bal");
+
+        Optional<Symbol> symbol = model.symbol("symbol_at_cursor_undefined_constructs_test.bal",
+                                               LinePosition.from(line, column));
+        symbol.ifPresent(value -> assertTrue(true, "Unexpected symbol: " + value.name()));
+    }
+
+    @DataProvider(name = "MissingConstructPosProvider")
+    public Object[][] getMissingConstructsPos() {
+        return new Object[][]{
+                {20, 3},
+                {21, 25},
+                {23, 3},
+        };
     }
 }

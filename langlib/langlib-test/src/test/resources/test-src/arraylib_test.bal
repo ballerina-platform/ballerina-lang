@@ -25,7 +25,7 @@ function testLength() returns int {
 function testIterator() returns string {
     string[] arr = ["Hello", "World!", "From", "Ballerina"];
     object {
-         public function next() returns record {| string value; |}?;
+         public isolated function next() returns record {| string value; |}?;
     } itr = arr.iterator();
 
     record {| string value; |}|() elem = itr.next();

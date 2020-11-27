@@ -181,6 +181,140 @@ function testObjectConstructorWithDefiniteTypeAndWithoutReference() {
     assertValueEquality(20, newDistinctRef.i);
 }
 
+//////  Test object-constructor-expr with `readonly` contextually expected type //////
+
+readonly class ReadOnlyClass {
+    int a;
+    string[] b;
+
+    function init(int a, string[] & readonly b) {
+        self.a = a;
+        self.b = b;
+    }
+}
+
+type Object object {
+    int a;
+    string[] b;
+};
+
+final string[] & readonly immutableStringArr = [];
+
+function testObjectConstructorExprWithReadOnlyCET() {
+    ReadOnlyClass v1 = object {
+        int a = 1;
+        string[] b = immutableStringArr;
+    };
+    Object ob1 = v1;
+    assertTrue(<any> v1 is readonly);
+    validateInvalidUpdateErrors(ob1);
+
+    ReadOnlyClass v2 = object {
+        int a;
+        string[] b;
+
+        function init() {
+            self.a = 2;
+            self.b = [];
+        }
+    };
+    validateInvalidUpdateErrors(v2);
+    assertTrue(<any> v2 is readonly);
+
+    Object & readonly v3 = object {
+        int a = 1;
+        string[] b = immutableStringArr;
+        stream<string>? c = ();
+    };
+    validateInvalidUpdateErrors(v3);
+    assertTrue(<any> v3 is readonly);
+
+    Object & readonly v4 = object {
+        int a = 1;
+        string[] b;
+        stream<string>? c;
+
+        function init() {
+            self.b = immutableStringArr;
+            self.c = ();
+        }
+    };
+    validateInvalidUpdateErrors(v4);
+    assertTrue(<any> v4 is readonly);
+
+    readonly & object {
+        string[] a;
+        stream<string>? b;
+    } v5 = object {
+        string[] a = immutableStringArr;
+        stream<string>? b;
+
+        function init() {
+            self.b = ();
+        }
+    };
+
+    object {
+        string[] a;
+        stream<string>? b;
+    } ob5 = v5;
+
+    var fn = function () {
+        ob5.b = ();
+    };
+
+    error? res = trap fn();
+    assertTrue(res is error);
+
+    error err = <error> res;
+    assertValueEquality("{ballerina/lang.object}InherentTypeViolation", err.message());
+    assertValueEquality("modification not allowed on readonly value", <string> err.detail()["message"]);
+
+    assertTrue(<any> v5 is readonly);
+}
+
+function validateInvalidUpdateErrors(Object ob) {
+    validateInvalidUpdateErrorForFieldA(ob);
+    validateInvalidUpdateErrorForFieldB(ob);
+}
+
+function validateInvalidUpdateErrorForFieldA(Object ob) {
+    var fn = function () {
+        ob.a = 2;
+    };
+
+    error? res = trap fn();
+    assertTrue(res is error);
+
+    error err = <error> res;
+    assertValueEquality("{ballerina/lang.object}InherentTypeViolation", err.message());
+    assertValueEquality("modification not allowed on readonly value", <string> err.detail()["message"]);
+}
+
+function validateInvalidUpdateErrorForFieldB(Object ob) {
+    var fn1 = function () {
+        ob.b[0] = "foo";
+    };
+
+    error? res1 = trap fn1();
+    assertTrue(res1 is error);
+
+    error err1 = <error> res1;
+    assertValueEquality("{ballerina/lang.array}InvalidUpdate", err1.message());
+    assertValueEquality("modification not allowed on readonly value", <string> err1.detail()["message"]);
+
+    var fn2 = function () {
+        ob.b = [];
+    };
+
+    error? res2 = trap fn2();
+    assertTrue(res2 is error);
+
+    error err2 = <error> res2;
+    assertValueEquality("{ballerina/lang.object}InherentTypeViolation", err2.message());
+    assertValueEquality("modification not allowed on readonly value", <string> err2.detail()["message"]);
+}
+
 // assertion helpers
 
 const ASSERTION_ERROR_REASON = "AssertionError";

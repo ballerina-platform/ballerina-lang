@@ -1,0 +1,25 @@
+{
+    "line": 7,
+    "character": 4,
+    "expected": [
+        {
+            "title": "Create Variable with 'int[][]'",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 7,
+                            "character": 4
+                        },
+                        "end": {
+                            "line": 7,
+                            "character": 4
+                        }
+                    },
+                    "newText": "int[][] listResult = "
+                }
+            ]
+        }
+    ]
+}
+

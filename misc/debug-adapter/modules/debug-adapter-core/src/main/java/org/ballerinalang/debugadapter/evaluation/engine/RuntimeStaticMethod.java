@@ -29,6 +29,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Ballerina JVM runtime static method representation.
@@ -45,7 +46,7 @@ public class RuntimeStaticMethod extends JvmMethod {
     }
 
     public RuntimeStaticMethod(SuspendedContext context, ReferenceType classRef, Method methodRef,
-                               List<Evaluator> argEvaluators, List<Value> argsList) {
+                               List<Map.Entry<String, Evaluator>> argEvaluators, List<Value> argsList) {
         super(context, methodRef, argEvaluators, argsList);
         this.classRef = classRef;
     }
@@ -83,8 +84,8 @@ public class RuntimeStaticMethod extends JvmMethod {
             }
             List<Value> argValueList = new ArrayList<>();
             // Evaluates all function argument expressions at first.
-            for (Evaluator argEvaluator : argEvaluators) {
-                argValueList.add(argEvaluator.evaluate().getJdiValue());
+            for (Map.Entry<String, Evaluator> argEvaluator : argEvaluators) {
+                argValueList.add(argEvaluator.getValue().evaluate().getJdiValue());
                 // Assuming all the arguments are positional args.
                 argValueList.add(EvaluationUtils.make(context, true).getJdiValue());
             }

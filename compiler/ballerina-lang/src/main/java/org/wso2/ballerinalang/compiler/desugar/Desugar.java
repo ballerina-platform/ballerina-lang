@@ -726,8 +726,23 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         pkgNode.globalVars.forEach(globalVar -> {
-            BLangAssignment assignment = createAssignmentStmt(globalVar);
-            if (assignment.expr != null) {
+            long globalVarFlags = globalVar.symbol.flags;
+            if (globalVar.expr != null || Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
+
+                if (Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
+                    if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
+                        // If it is required configuration get directly
+                        List<BLangExpression> args = getConfigurableLangLibInvocationParam(globalVar);
+                        BLangInvocation getValueInvocation = createLangLibInvocationNode("getConfigurableValue",
+                                args, symTable.anydataType, globalVar.pos);
+                        globalVar.expr = getValueInvocation;
+                    } else {
+                        // If it is optional configuration create if else
+                        globalVar.expr = createIfElseFromConfigurable(globalVar);
+                    }
+                }
+
+                BLangAssignment assignment = createAssignmentStmt(globalVar);
                 initFnBody.stmts.add(assignment);
             }
         });
@@ -770,6 +785,73 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
+    }
+    
+    private BLangStatementExpression createIfElseFromConfigurable(BLangSimpleVariable configurableVar) {
+
+        /*
+         * If else will be generated as follows:
+         *
+         * if (hasValue(key)) {
+         *    result = getValue(key);
+         * } else {
+         *    result = defaultValue;
+         * }
+         *
+         * key = orgName + "." + moduleName + "." + version + "." + configVarName
+         */
+
+        List<BLangExpression> args = getConfigurableLangLibInvocationParam(configurableVar);
+
+        // Check if value is configured
+        BLangInvocation hasValueInvocation = createLangLibInvocationNode("hasConfigurableValue",
+                args, symTable.booleanType, configurableVar.pos);
+        // Get value if configured else get default value provided
+        BLangInvocation getValueInvocation = createLangLibInvocationNode("getConfigurableValue",
+                args, symTable.anydataType, configurableVar.pos);
+
+        BLangBlockStmt thenBody = ASTBuilderUtil.createBlockStmt(configurableVar.pos);
+        BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(configurableVar.pos);
+
+        // Create then assignment
+        BLangSimpleVarRef thenResultVarRef =
+                ASTBuilderUtil.createVariableRef(configurableVar.pos, configurableVar.symbol);
+        BLangAssignment thenAssignment =
+                ASTBuilderUtil.createAssignmentStmt(configurableVar.pos, thenResultVarRef, getValueInvocation);
+        thenBody.addStatement(thenAssignment);
+
+        // Create else assignment
+        BLangSimpleVarRef elseResultVarRef =
+                ASTBuilderUtil.createVariableRef(configurableVar.pos, configurableVar.symbol);
+        BLangAssignment elseAssignment =
+                ASTBuilderUtil.createAssignmentStmt(configurableVar.pos, elseResultVarRef, configurableVar.expr);
+        elseBody.addStatement(elseAssignment);
+
+        BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(configurableVar.pos, hasValueInvocation, thenBody, elseBody);
+
+        // Then make it an expression-statement, since we need it to be an expression
+        BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(configurableVar.pos, configurableVar.symbol);
+        BLangStatementExpression stmtExpr = createStatementExpression(ifElse, resultVarRef);
+        stmtExpr.type = configurableVar.type;
+
+        return rewriteExpr(stmtExpr);
+    }
+
+    private List<BLangExpression> getConfigurableLangLibInvocationParam(BLangSimpleVariable configurableVar) {
+        // Prepare parameters
+        String orgName = env.enclPkg.packageID.orgName.getValue();
+        BLangLiteral orgLiteral = ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, orgName);
+        String moduleName = env.enclPkg.packageID.name.getValue();
+        BLangLiteral moduleNameLiteral =
+                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, moduleName);
+        String versionNumber = env.enclPkg.packageID.version.getValue();
+        BLangLiteral versionLiteral =
+                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, versionNumber);
+        String configVarName = configurableVar.name.getValue();
+        BLangLiteral configNameLiteral =
+                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, configVarName);
+
+        return new ArrayList<>(Arrays.asList(orgLiteral, moduleNameLiteral, versionLiteral, configNameLiteral));
     }
 
     private void desugarClassDefinitions(List<TopLevelNode> topLevelNodes) {
@@ -4440,7 +4522,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
-
         if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
             BType originalInvType = genIExpr.type;
             genIExpr.type = ((BInvokableSymbol) genIExpr.symbol).retType;
@@ -5195,11 +5276,11 @@ public class Desugar extends BLangNodeVisitor {
         BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) objectType.tsymbol;
         Name objectClassName = names.fromString(
                 anonModelHelper.getNextRawTemplateTypeKey(env.enclPkg.packageID, tSymbol.name));
-        tSymbol.flags |= Flags.CLASS;
 
         BObjectTypeSymbol classTSymbol = Symbols.createObjectSymbol(tSymbol.flags, objectClassName,
                                                                     env.enclPkg.packageID, null, env.enclPkg.symbol,
                                                                     pos, VIRTUAL);
+        classTSymbol.flags |= Flags.CLASS;
 
         // Create a new concrete, class type for the provided abstract object type
         BObjectType objectClassType = new BObjectType(classTSymbol, tSymbol.flags);
@@ -5924,6 +6005,31 @@ public class Desugar extends BLangNodeVisitor {
 
         ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
         requiredArgs.add(onExpr);
+        requiredArgs.addAll(args);
+        invocationNode.requiredArgs = requiredArgs;
+
+        invocationNode.type = retType != null ? retType : ((BInvokableSymbol) invocationNode.symbol).retType;
+        invocationNode.langLibInvocation = true;
+        return invocationNode;
+    }
+
+    private BLangInvocation createLangLibInvocationNode(String functionName,
+                                                        List<BLangExpression> args,
+                                                        BType retType,
+                                                        Location pos) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.setLiteral(false);
+        name.setValue(functionName);
+        name.pos = pos;
+        invocationNode.name = name;
+        invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        invocationNode.symbol = symResolver.lookupLangLibMethodInModule(symTable.langInternalModuleSymbol,
+                names.fromString(functionName));
+
+        ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
         requiredArgs.addAll(args);
         invocationNode.requiredArgs = requiredArgs;
 
@@ -7885,12 +7991,13 @@ public class Desugar extends BLangNodeVisitor {
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
             pkgNameComps.add(ASTBuilderUtil.createIdentifier(env.enclPkg.pos, Names.TRANSACTION.value));
             importDcl.pkgNameComps = pkgNameComps;
+            importDcl.pos = env.enclPkg.symbol.pos;
             importDcl.orgName = ASTBuilderUtil.createIdentifier(env.enclPkg.pos, Names.BALLERINA_INTERNAL_ORG.value);
             importDcl.alias = ASTBuilderUtil.createIdentifier(env.enclPkg.pos, "trx");
             importDcl.version = ASTBuilderUtil.createIdentifier(env.enclPkg.pos, "");
-            importDcl.symbol = new BPackageSymbol(packageID, env.enclPkg.symbol.owner,
-                    env.enclPkg.symbol.pos, env.enclPkg.symbol.origin);
+            importDcl.symbol = symTable.internalTransactionModuleSymbol;
             env.enclPkg.imports.add(importDcl);
+            env.enclPkg.symbol.imports.add(importDcl.symbol);
         }
     }
 }

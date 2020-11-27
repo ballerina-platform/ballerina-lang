@@ -26,7 +26,8 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface DiagnosticsExtension extends LanguageExtension<String, List<PublishDiagnosticsParams>> {
+public interface DiagnosticsExtension extends LanguageExtension<String, List<PublishDiagnosticsParams>,
+        DocumentServiceContext> {
 
     /**
      * {@inheritDoc}

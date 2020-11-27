@@ -1,5 +1,4 @@
-[project]
-org-name= "myOrg"
-version= "0.1.0"
-
-[dependencies]
+[package]
+org = "testerina_report"
+name = "foo"
+version = "0.0.0"

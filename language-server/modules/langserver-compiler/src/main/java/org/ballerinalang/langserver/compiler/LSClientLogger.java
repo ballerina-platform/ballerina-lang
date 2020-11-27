@@ -116,14 +116,14 @@ public class LSClientLogger {
         if (position != null && position[0] != null) {
             if (position.length == 2) {
                 // Range
-                result.append(", line: ").append(position[0].getLine() + 1)
-                        .append(", col: ").append(position[0].getCharacter() + 1);
-                result.append("- line: ").append(position[1].getLine() + 1)
-                        .append(", col: ").append(position[1].getCharacter() + 1);
+                result.append(", [").append(position[0].getLine() + 1)
+                        .append(":").append(position[0].getCharacter() + 1).append("]");
+                result.append("- [").append(position[1].getLine() + 1)
+                        .append(":").append(position[1].getCharacter() + 1).append("]");
             } else {
                 // Position
-                result.append(", line: ").append(position[0].getLine() + 1)
-                        .append(", col: ").append(position[0].getCharacter() + 1);
+                result.append(", [").append(position[0].getLine() + 1)
+                        .append(":").append(position[0].getCharacter() + 1).append("]");
             }
         }
         if (msg != null && !msg.isEmpty()) {

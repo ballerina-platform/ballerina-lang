@@ -34,7 +34,7 @@ public class DisableTestsTestCase extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = singleFilesProjectPath.resolve("disabled-tests").toString();
+        projectPath = singleFileTestsPath.resolve("disabled-tests").toString();
     }
 
     @Test

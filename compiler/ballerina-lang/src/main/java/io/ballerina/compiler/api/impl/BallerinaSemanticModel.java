@@ -19,6 +19,8 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -33,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -45,12 +46,16 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
 /**
  * Semantic model representation of a given syntax tree.
@@ -153,7 +158,44 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public Optional<TypeSymbol> getType(String fileName, LineRange range) {
+    public List<Location> references(Symbol symbol) {
+        Location symbolLocation = symbol.location();
+
+        // Assumption is that the location will be null for regular type symbols
+        if (symbolLocation == null) {
+            return Collections.unmodifiableList(new ArrayList<>());
+        }
+
+        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolLocation.lineRange());
+
+        ReferenceFinder refFinder = new ReferenceFinder();
+        return refFinder.findReferences(node, getInternalSymbol(symbol));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Location> references(String fileName, LinePosition position) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+        SymbolFinder symbolFinder = new SymbolFinder();
+        BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
+
+        if (symbolAtCursor == null) {
+            return Collections.unmodifiableList(new ArrayList<>());
+        }
+
+        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolAtCursor.pos.lineRange());
+
+        ReferenceFinder refFinder = new ReferenceFinder();
+        return refFinder.findReferences(node, symbolAtCursor);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<TypeSymbol> type(String fileName, LineRange range) {
         BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
         NodeFinder nodeFinder = new NodeFinder();
         BLangNode node = nodeFinder.lookup(compilationUnit, range);
@@ -235,7 +277,16 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private boolean isTypeSymbol(BSymbol symbol) {
-        return symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol);
+        return symbol instanceof BTypeSymbol && !Symbols.isTagOn(symbol, PACKAGE)
+                && !Symbols.isTagOn(symbol, ANNOTATION);
+    }
+
+    private BSymbol getInternalSymbol(Symbol symbol) {
+        if (symbol.kind() == TYPE) {
+            return ((AbstractTypeSymbol) symbol).getBType().tsymbol;
+        }
+
+        return ((BallerinaSymbol) symbol).getInternalSymbol();
     }
 
     private boolean withinRange(LineRange range, LineRange specifiedRange) {

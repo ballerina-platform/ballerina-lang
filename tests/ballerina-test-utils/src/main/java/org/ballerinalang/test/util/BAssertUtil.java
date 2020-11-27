@@ -25,7 +25,9 @@ import org.testng.Assert;
  * Utility methods for do result validations.
  *
  * @since 0.94
+ * @deprecated use {@link org.ballerinalang.test.BAssertUtil} instead.
  */
+@Deprecated
 public class BAssertUtil {
 
     private static final String CARRIAGE_RETURN_CHAR = "\\r";
