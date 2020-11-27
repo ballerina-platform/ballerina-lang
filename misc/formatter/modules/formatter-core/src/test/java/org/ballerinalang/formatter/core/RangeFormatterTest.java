@@ -18,6 +18,10 @@
 
 package org.ballerinalang.formatter.core;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -28,6 +32,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,46 +44,32 @@ import java.util.List;
 /**
  * The abstract class that is extended by all range formatting test classes.
  *
- * @since 1.2.10
+ * @since 2.0.0
  */
-public abstract class RangeFormatter {
+public abstract class RangeFormatterTest {
     private final Path resourceDirectory = Paths.get("src").resolve("test").resolve("resources").toAbsolutePath();
-    private Path buildDirectory = Paths.get("build").toAbsolutePath().normalize();
     private static final String ASSERT_DIR = "assert";
     private static final String SOURCE_DIR = "source";
 
+    private static final Gson gson = new Gson();
+
     @Test(dataProvider = "test-file-provider")
-    public void test(String source, int[][] positions)
+    public void test(String source, JsonArray positions)
             throws IOException, FormatterException {
         Path assertFilePath = Paths.get(resourceDirectory.toString(), this.getTestResourceDir(), ASSERT_DIR, source);
         Path sourceFilePath = Paths.get(resourceDirectory.toString(), this.getTestResourceDir(), SOURCE_DIR, source);
-
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument, sourceFilePath.toString());
-        for (int[] position : positions) {
-            LinePosition startPos = LinePosition.from(position[0], position[1]);
-            LinePosition endPos = LinePosition.from(position[2], position[3]);
-            LineRange lineRange = LineRange.from(null, startPos, endPos);
+        for (JsonElement position : positions) {
+            JsonObject start = position.getAsJsonObject().get("startPos").getAsJsonObject();
+            LinePosition startPos = LinePosition.from(start.get("lineNo").getAsInt(), start.get("colNo").getAsInt());
+            JsonObject end = position.getAsJsonObject().get("endPos").getAsJsonObject();
+            LinePosition endPos = LinePosition.from(end.get("lineNo").getAsInt(), end.get("colNo").getAsInt());
+            LineRange lineRange = LineRange.from(sourceFilePath.toString(), startPos, endPos);
             syntaxTree = Formatter.format(syntaxTree, lineRange);
         }
         Assert.assertEquals(syntaxTree.toSourceCode(), getSourceText(assertFilePath));
-    }
-
-    /**
-     * Test the formatting functionality for parser test cases.
-     *
-     * @param sourcePath Source path of the parser test
-     */
-    public void testParserResources(String sourcePath) throws IOException, FormatterException {
-        Path filePath = Paths.get(sourcePath);
-        String content = getSourceText(filePath);
-        TextDocument textDocument = TextDocuments.from(content);
-        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        if (!syntaxTree.hasDiagnostics()) {
-            SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
-            Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(filePath));
-        }
     }
 
     /**
@@ -113,21 +105,28 @@ public abstract class RangeFormatter {
      */
     public abstract String getTestResourceDir();
 
+    public abstract String getConfigJsonFileName();
+
     protected Object[][] getConfigsList() {
         if (this.testSubset().length != 0) {
             return this.testSubset();
         }
         List<String> skippedTests = this.skipList();
         try {
-            return Files.walk(this.resourceDirectory.resolve(this.getTestResourceDir()).resolve(ASSERT_DIR))
-                    .filter(path -> {
-                        File file = path.toFile();
-                        return file.isFile() && file.getName().endsWith(".bal")
-                                && !skippedTests.contains(file.getName());
-                    })
-                    .map(path -> new Object[]{path.toFile().getName(), this.getTestResourceDir()})
-                    .toArray(size -> new Object[size][2]);
-        } catch (IOException e) {
+            File jsonConfigFile = Paths.get(resourceDirectory.toString(), this.getTestResourceDir(),
+                    this.getConfigJsonFileName()).toFile();
+            JsonObject jsonObject = gson.fromJson(new FileReader(jsonConfigFile), JsonObject.class);
+            String[] fileNames = jsonObject.keySet().toArray(new String[0]);
+            int fileNameCount = fileNames.length;
+            Object[][] objects = new Object[fileNameCount][];
+            for (int i = 0; i < fileNameCount; i++) {
+                String fileName = fileNames[i];
+                if (!skippedTests.contains(fileName)) {
+                    objects[i] = new Object[] {fileName, jsonObject.getAsJsonArray(fileName)};
+                }
+            }
+            return objects;
+        } catch (FileNotFoundException e) {
             return new Object[0][];
         }
     }
