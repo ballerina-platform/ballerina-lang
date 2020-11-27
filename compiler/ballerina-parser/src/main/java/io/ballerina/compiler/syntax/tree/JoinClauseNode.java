@@ -134,7 +134,6 @@ public class JoinClauseNode extends IntermediateClauseNode {
 
         public JoinClauseNodeModifier withOuterKeyword(
                 Token outerKeyword) {
-            Objects.requireNonNull(outerKeyword, "outerKeyword must not be null");
             this.outerKeyword = outerKeyword;
             return this;
         }

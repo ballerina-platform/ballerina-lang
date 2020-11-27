@@ -115,7 +115,7 @@ function testTableLength() returns int {
 function testIterator() returns boolean {
     boolean testPassed = true;
     Person[] personList = getPersonList();
-    object { public function next() returns record {| Person value; |}?;} itr = tab.iterator();
+    object { public isolated function next() returns record {| Person value; |}?;} itr = tab.iterator();
 
     Person? person = getPerson(itr.next());
     testPassed = testPassed && person == personList[0];
@@ -190,7 +190,7 @@ function testChangeValueForAGivenKeyWhileIterating() returns boolean {
     var value = itr.next();
     value = itr.next();
     Person p = { name: "Gima", age: 50 };
-    tab["Gima"] = p;
+    tab.put(p);
     value = itr.next();
 
     return value?.value?.age == 50;

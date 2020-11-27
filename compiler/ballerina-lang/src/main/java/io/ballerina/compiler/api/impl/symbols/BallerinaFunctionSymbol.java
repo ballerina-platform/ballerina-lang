@@ -18,18 +18,17 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.FunctionTypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Represent Function Symbol.
@@ -39,17 +38,17 @@ import java.util.Set;
 public class BallerinaFunctionSymbol extends BallerinaSymbol implements FunctionSymbol {
 
     private final FunctionTypeSymbol typeDescriptor;
-    private final Set<Qualifier> qualifiers;
+    private final List<Qualifier> qualifiers;
     private final boolean isExternal;
     private final boolean deprecated;
 
     protected BallerinaFunctionSymbol(String name,
                                       PackageID moduleID,
-                                      Set<Qualifier> qualifiers,
+                                      List<Qualifier> qualifiers,
                                       FunctionTypeSymbol typeDescriptor,
                                       BInvokableSymbol invokableSymbol) {
         super(name, moduleID, SymbolKind.FUNCTION, invokableSymbol);
-        this.qualifiers = Collections.unmodifiableSet(qualifiers);
+        this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.isExternal = Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE);
         this.deprecated = Symbols.isFlagOn(invokableSymbol.flags, Flags.DEPRECATED);
@@ -61,7 +60,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
      * @return {@link List} of qualifiers
      */
     @Override
-    public Set<Qualifier> qualifiers() {
+    public List<Qualifier> qualifiers() {
         return qualifiers;
     }
 
@@ -85,7 +84,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
      */
     public static class FunctionSymbolBuilder extends SymbolBuilder<FunctionSymbolBuilder> {
 
-        protected Set<Qualifier> qualifiers = new HashSet<>();
+        protected List<Qualifier> qualifiers = new ArrayList<>();
         protected FunctionTypeSymbol typeDescriptor;
 
         public FunctionSymbolBuilder(String name, PackageID moduleID, BInvokableSymbol bSymbol) {
@@ -107,13 +106,15 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
             return this;
         }
 
+        public FunctionSymbolBuilder withQualifiers(List<Qualifier> qualifiers) {
+            this.qualifiers.addAll(qualifiers);
+            return this;
+        }
+
         @Override
         public BallerinaFunctionSymbol build() {
-            return new BallerinaFunctionSymbol(this.name,
-                    this.moduleID,
-                    this.qualifiers,
-                    this.typeDescriptor,
-                    (BInvokableSymbol) this.bSymbol);
+            return new BallerinaFunctionSymbol(this.name, this.moduleID, this.qualifiers, this.typeDescriptor,
+                                               (BInvokableSymbol) this.bSymbol);
         }
     }
 }

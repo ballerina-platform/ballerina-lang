@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.bir;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,7 +46,7 @@ public class BirVariableOptimizationTest {
     @BeforeClass
     public void setup() {
         birEmitter = BIREmitter.getInstance(new CompilerContext());
-        result = BCompileUtil.compileAndGetBIR("test-src/bir/biroptimizer.bal");
+        result = BCompileUtil.compile("test-src/bir/biroptimizer.bal");
     }
 
     @Test(description = "Test the liveness analysis on functions")

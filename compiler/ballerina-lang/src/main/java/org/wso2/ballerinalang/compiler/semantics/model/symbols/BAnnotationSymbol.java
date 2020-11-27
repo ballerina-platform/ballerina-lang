@@ -42,7 +42,7 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public Set<AttachPoint> points;
     public int maskedPoints;
 
-    public BAnnotationSymbol(Name name, int flags, Set<AttachPoint> points, PackageID pkgID,
+    public BAnnotationSymbol(Name name, long flags, Set<AttachPoint> points, PackageID pkgID,
                              BType type, BSymbol owner, Location pos, SymbolOrigin origin) {
         super(ANNOTATION, flags, name, pkgID, type, owner, pos, origin);
         this.points = points;

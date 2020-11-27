@@ -36,12 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,10 +47,8 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -166,38 +160,6 @@ public class BallerinaDocUtils {
         }
     }
 
-    /**
-     * Find a given resource and copy its content recursively to a given target path.
-     * @param resource name of the resource
-     * @param targetPath target directory path as a string.
-     * @throws IOException Failure to load the resources.
-     */
-    public static void copyResources(String resource, String targetPath) throws IOException {
-        URI uri;
-        try {
-            // load the resource from the Class path
-            URL url = BallerinaDocUtils.class.getClassLoader().getResource(resource);
-            if (url == null) {
-                return;
-            }
-            uri = url.toURI();
-        } catch (URISyntaxException e) {
-            throw new IOException("Failed to load resources: " + e.getMessage(), e);
-        }
-
-        Path source;
-        try {
-            source = Paths.get(uri);
-        } catch (FileSystemNotFoundException e) {
-            // this means the resource is in a jar file, hence we have to create a new File system for the jar
-            Map<String, String> env = new HashMap<>();
-            env.put("create", "true");
-            FileSystems.newFileSystem(uri, env);
-            source = Paths.get(uri);
-        }
-        Path target = Paths.get(targetPath, resource);
-        Files.walkFileTree(source, new RecursiveFileVisitor(source, target));
-    }
     
     public static boolean isDebugEnabled() {
         return debugEnabled;

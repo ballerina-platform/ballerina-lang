@@ -121,7 +121,6 @@ public class MatchClauseNode extends NonTerminalNode {
 
         public MatchClauseNodeModifier withMatchGuard(
                 MatchGuardNode matchGuard) {
-            Objects.requireNonNull(matchGuard, "matchGuard must not be null");
             this.matchGuard = matchGuard;
             return this;
         }

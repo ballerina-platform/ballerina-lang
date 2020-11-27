@@ -18,43 +18,40 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
-import io.ballerina.compiler.api.types.ArrayTypeSymbol;
-import io.ballerina.compiler.api.types.MapTypeSymbol;
-import io.ballerina.compiler.api.types.TupleTypeSymbol;
-import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeReferenceTypeSymbol;
-import io.ballerina.compiler.api.types.TypeSymbol;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 
-import static io.ballerina.compiler.api.types.TypeDescKind.ANYDATA;
-import static io.ballerina.compiler.api.types.TypeDescKind.ARRAY;
-import static io.ballerina.compiler.api.types.TypeDescKind.BOOLEAN;
-import static io.ballerina.compiler.api.types.TypeDescKind.BYTE;
-import static io.ballerina.compiler.api.types.TypeDescKind.DECIMAL;
-import static io.ballerina.compiler.api.types.TypeDescKind.FLOAT;
-import static io.ballerina.compiler.api.types.TypeDescKind.INT;
-import static io.ballerina.compiler.api.types.TypeDescKind.JSON;
-import static io.ballerina.compiler.api.types.TypeDescKind.MAP;
-import static io.ballerina.compiler.api.types.TypeDescKind.NIL;
-import static io.ballerina.compiler.api.types.TypeDescKind.OBJECT;
-import static io.ballerina.compiler.api.types.TypeDescKind.RECORD;
-import static io.ballerina.compiler.api.types.TypeDescKind.STRING;
-import static io.ballerina.compiler.api.types.TypeDescKind.TUPLE;
-import static io.ballerina.compiler.api.types.TypeDescKind.TYPE_REFERENCE;
-import static io.ballerina.compiler.api.types.TypeDescKind.UNION;
-import static io.ballerina.compiler.api.types.TypeDescKind.XML;
-import static org.ballerinalang.compiler.CompilerPhase.COMPILER_PLUGIN;
-import static org.ballerinalang.test.util.BCompileUtil.compile;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -64,14 +61,11 @@ import static org.testng.Assert.assertEquals;
  */
 public class ExpressionTypeTest {
 
-    SemanticModel model;
+    private SemanticModel model;
 
     @BeforeClass
     public void setup() {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/expressions_test.bal", context, COMPILER_PLUGIN);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        model = new BallerinaSemanticModel(pkg, context);
+        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/expressions_test.bal");
     }
 
     @Test(dataProvider = "LiteralPosProvider")
@@ -169,10 +163,7 @@ public class ExpressionTypeTest {
     @Test
     public void testInferredMappingConstructorType() {
         TypeSymbol type = getExprType(35, 13, 35, 43);
-        assertEquals(type.typeKind(), TYPE_REFERENCE);
-
-        TypeSymbol referredType = ((TypeReferenceTypeSymbol) type).typeDescriptor();
-        assertEquals(referredType.typeKind(), RECORD);
+        assertEquals(type.typeKind(), RECORD);
 
         assertType(35, 14, 35, 20, STRING);
         assertType(35, 22, 35, 31, STRING);
@@ -303,6 +294,17 @@ public class ExpressionTypeTest {
         };
     }
 
+    @Test
+    public void testInferredRecordTypeForInvalidExprs() {
+        assertType(97, 5, 97, 20, RECORD);
+    }
+
+    @Test
+    public void testStartAction() {
+        TypeSymbol type = getExprType(101, 4, 101, 21);
+        assertEquals(type.typeKind(), FUTURE);
+        assertEquals(((FutureTypeSymbol) type).typeParameter().get().typeKind(), NIL);
+    }
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
@@ -312,6 +314,6 @@ public class ExpressionTypeTest {
     private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {
         LinePosition start = LinePosition.from(sLine, sCol);
         LinePosition end = LinePosition.from(eLine, eCol);
-        return model.getType("expressions_test.bal", LineRange.from("expressions_test.bal", start, end)).get();
+        return model.type("expressions_test.bal", LineRange.from("expressions_test.bal", start, end)).get();
     }
 }

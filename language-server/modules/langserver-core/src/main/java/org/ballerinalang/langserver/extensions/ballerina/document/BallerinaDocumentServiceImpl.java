@@ -83,28 +83,28 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     @Override
     public CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request) {
         BallerinaASTResponse reply = new BallerinaASTResponse();
-        String fileUri = request.getDocumentIdentifier().getUri();
-        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
-        if (!filePath.isPresent()) {
-            return CompletableFuture.supplyAsync(() -> reply);
-        }
-        Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
-        Optional<Lock> lock = documentManager.lockFile(compilationPath);
-        try {
-            LSContext astContext = new DocumentOperationContext
-                    .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
-                    .withCommonParams(null, fileUri, documentManager)
-                    .build();
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
-            reply.setAst(getTreeForContent(astContext));
-            reply.setParseSuccess(isParseSuccess(astContext));
-        } catch (Throwable e) {
-            reply.setParseSuccess(false);
-            String msg = "Operation 'ballerinaDocument/ast' failed!";
-            logError(msg, e, request.getDocumentIdentifier(), (Position) null);
-        } finally {
-            lock.ifPresent(Lock::unlock);
-        }
+//        String fileUri = request.getDocumentIdentifier().getUri();
+//        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+//        if (!filePath.isPresent()) {
+//            return CompletableFuture.supplyAsync(() -> reply);
+//        }
+//        Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
+//        Optional<Lock> lock = documentManager.lockFile(compilationPath);
+//        try {
+//            LSContext astContext = new DocumentOperationContext
+//                    .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
+//                    .withCommonParams(null, fileUri, documentManager)
+//                    .build();
+//            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
+//            reply.setAst(getTreeForContent(astContext));
+//            reply.setParseSuccess(isParseSuccess(astContext));
+//        } catch (Throwable e) {
+//            reply.setParseSuccess(false);
+//            String msg = "Operation 'ballerinaDocument/ast' failed!";
+//            logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+//        } finally {
+//            lock.ifPresent(Lock::unlock);
+//        }
         return CompletableFuture.supplyAsync(() -> reply);
     }
 
@@ -118,14 +118,54 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
         String fileUri = request.getDocumentIdentifier().getUri();
         Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
-        if (!filePath.isPresent()) {
+        if (filePath.isEmpty()) {
             return CompletableFuture.supplyAsync(() -> reply);
         }
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
+            LSContext astContext = new DocumentOperationContext
+                    .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
+                    .withCommonParams(null, fileUri, documentManager)
+                    .build();
+            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
+                    false, false);
+            Map<String, JsonObject> typeInfo = new HashMap<>();
+//            TypeInfoExtractingVisitor typeInfoExtractingVisitor = new TypeInfoExtractingVisitor(typeInfo);
+//            bLangPackage.accept(typeInfoExtractingVisitor);
+
+            CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+            VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
+            bLangPackage.accept(visibleEndpointVisitor);
+            Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
+
+            for (Map.Entry<BLangNode, List<SymbolMetaInfo>> entry : visibleEPsByNode.entrySet()) {
+                JsonArray eps = new JsonArray();
+                for (SymbolMetaInfo symbolMetaInfo : entry.getValue()) {
+                    JsonObject endpoint = new JsonObject();
+                    endpoint.addProperty("isEndpoint", true);
+                    endpoint.addProperty("typeName", symbolMetaInfo.getTypeName());
+                    endpoint.addProperty("pkgAlias", symbolMetaInfo.getPkgAlias());
+                    endpoint.addProperty("pkgName", symbolMetaInfo.getPkgName());
+                    endpoint.addProperty("pkgOrgName", symbolMetaInfo.getPkgOrgName());
+                    endpoint.addProperty("kind", symbolMetaInfo.getKind());
+                    if (symbolMetaInfo.getPosition() != null) {
+                        eps.add(endpoint);
+                        typeInfo.put((symbolMetaInfo.getPosition().lineRange().startLine().line() - 1) + ":"
+                                        + (symbolMetaInfo.getPosition().lineRange().startLine().offset() - 1)
+                                , endpoint);
+                    } else {
+                        eps.add(endpoint);
+                    }
+                }
+                JsonObject endpoints = new JsonObject();
+                endpoints.add("visibleEndpoints", eps);
+                typeInfo.put((entry.getKey().pos.lineRange().startLine().line() - 1) + ":" + (entry.getKey().pos
+                        .lineRange().startLine().offset() - 1), endpoints);
+            }
+
             TextDocument doc = documentManager.getTree(compilationPath).textDocument();
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(typeInfo);
             SyntaxTree syntaxTree = SyntaxTree.from(doc, compilationPath.toString());
             ModulePartNode modulePartNode = syntaxTree.rootNode();
             reply.setSyntaxTree(mapGenerator.transform(modulePartNode));
@@ -154,7 +194,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         try {
             LSContext astContext = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(), fileUri,
                     compilationPath, documentManager);
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
+            Map<String, JsonObject> typeInfo = new HashMap<>();
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(typeInfo);
             String fileContent = astContext.get(UPDATED_SOURCE);
             TextDocument textDocument = TextDocuments.from(fileContent);
             SyntaxTree syntaxTree = SyntaxTree.from(textDocument, compilationPath.toString());
@@ -284,7 +325,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     Collections.singletonList(textEdit));
 
             WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(
-            Either.forLeft(txtDocumentEdit)));
+                    Either.forLeft(txtDocumentEdit)));
             applyWorkspaceEditParams.setEdit(workspaceEdit);
 
             // update the document
@@ -556,7 +597,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                                     int startIndex = FormattingSourceGen.extractWS(sourceKeyValue).get(0)
                                             .getAsJsonObject().get("i").getAsInt();
                                     FormattingSourceGen.addNewWS(matchedTargetRecord, tree, "", ",", true,
-                                    startIndex);
+                                            startIndex);
                                 }
                             }
                         }

@@ -17,9 +17,12 @@
  */
 package org.ballerinalang.langserver.completion.latest;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,8 +38,14 @@ public class AnnotationTest extends CompletionTestNew {
     }
 
     @Override
+    @Test(groups = "broken")
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
+    }
+
+    @Override
     public List<String> skipList() {
-        return Arrays.asList("anonFuncExprAnnotation5.json");
+        return Collections.singletonList("anonFuncExprAnnotation5.json");
     }
 
     @Override

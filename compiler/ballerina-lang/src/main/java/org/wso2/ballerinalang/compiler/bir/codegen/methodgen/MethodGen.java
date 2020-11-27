@@ -176,7 +176,7 @@ public class MethodGen {
             access += ACC_STATIC;
         }
 
-        String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
+        String funcName = func.name.value;
         BType retType = getReturnType(func);
         String desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
@@ -224,8 +224,7 @@ public class MethodGen {
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), labels.toArray(new Label[0]));
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                            stateVarIndex, localVarOffset, module, attachedType,
-                            moduleClassName, asyncDataCollector);
+                            stateVarIndex, localVarOffset, module, attachedType, moduleClassName, asyncDataCollector);
         mv.visitLabel(resumeLabel);
         String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module), funcName,
                                                             attachedType);
@@ -443,11 +442,12 @@ public class MethodGen {
     }
 
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
-                                    JvmInstructionGen instGen, JvmTerminatorGen termGen, BIRFunction func,
-                                    int returnVarRefIndex, int stateVarIndex, int localVarOffset, BIRPackage module,
-                                    BType attachedType, String moduleClassName, AsyncDataCollector asyncDataCollector) {
+                             JvmInstructionGen instGen, JvmTerminatorGen termGen, BIRFunction func,
+                             int returnVarRefIndex, int stateVarIndex, int localVarOffset, BIRPackage module,
+                             BType attachedType, String moduleClassName,
+                             AsyncDataCollector asyncDataCollector) {
 
-        String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
+        String funcName = func.name.value;
         BirScope lastScope = null;
         Set<BirScope> visitedScopesSet = new HashSet<>();
 
@@ -512,7 +512,7 @@ public class MethodGen {
     private boolean isModuleTestInitFunction(BIRPackage module, BIRFunction func) {
         return func.name.value.equals(
                 MethodGenUtils
-                        .calculateModuleSpecialFuncName(MethodGenUtils.packageToModuleId(module), "<testinit>"));
+                        .encodeModuleSpecialFuncName(".<testinit>"));
     }
 
     private void generateAnnotLoad(MethodVisitor mv, List<BIRTypeDefinition> typeDefs, String pkgName) {
@@ -547,9 +547,8 @@ public class MethodGen {
     }
 
     private boolean isModuleStartFunction(BIRPackage module, String functionName) {
-        return functionName.equals(JvmCodeGenUtil.cleanupFunctionName(
-                MethodGenUtils.calculateModuleSpecialFuncName(MethodGenUtils.packageToModuleId(module),
-                                                              MethodGenUtils.START_FUNCTION_SUFFIX)));
+        return functionName
+                .equals(MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.START_FUNCTION_SUFFIX));
     }
 
     private void genGetFrameOnResumeIndex(int localVarOffset, MethodVisitor mv, String frameName) {
@@ -913,7 +912,7 @@ public class MethodGen {
     private void createLocalVariableTable(BIRFunction func, BIRVarToJVMIndexMap indexMap, int localVarOffset,
                                           MethodVisitor mv, Label methodStartLabel, LabelGenerator labelGen,
                                           Label methodEndLabel) {
-        String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
+        String funcName = func.name.value;
         // Add strand variable to LVT
         mv.visitLocalVariable("__strand", String.format("L%s;", STRAND_CLASS), null, methodStartLabel, methodEndLabel,
                               localVarOffset);

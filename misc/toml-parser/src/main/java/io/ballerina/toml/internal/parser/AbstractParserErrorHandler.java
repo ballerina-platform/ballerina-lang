@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.ballerina.toml.internal.parser;
 
 import io.ballerina.toml.internal.parser.tree.STNode;
@@ -151,7 +152,6 @@ public abstract class AbstractParserErrorHandler {
      * @param fix Solution to recover from the missing token
      */
     private STNode handleMissingToken(ParserRuleContext currentCtx, Solution fix) {
-//        return SyntaxErrors.createMissingTokenWithDiagnostics(fix.tokenKind);
         return SyntaxErrors.createMissingTokenWithDiagnostics(fix.tokenKind, fix.ctx);
     }
 
@@ -484,4 +484,3 @@ public abstract class AbstractParserErrorHandler {
         INSERT, REMOVE, KEEP;
     }
 }
-

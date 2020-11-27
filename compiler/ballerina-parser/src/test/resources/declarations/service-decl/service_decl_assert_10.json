@@ -3,6 +3,10 @@
   "hasDiagnostics": true,
   "children": [
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "SERVICE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -161,10 +165,6 @@
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
-                        },
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
                         },
                         {
                           "kind": "END_OF_LINE_MINUTIAE",

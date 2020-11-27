@@ -18,11 +18,11 @@
 
 package org.ballerinalang.test.imports;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -34,7 +34,7 @@ public class ImportsNegativeTests {
 
     @Test(description = "Test invalid import on single file")
     public void testInvalidImportOnMultipleFiles() {
-        CompileResult result = BCompileUtil.compile("test-src/imports/invalid-import", "foo");
+        CompileResult result = BCompileUtil.compile("test-src/imports/InvalidImportTestProject");
         assertEquals(result.getErrorCount(), 2);
         validateError(result, 0, "cannot resolve module 'unknown/module'", 1, 1);
         validateError(result, 1, "cannot resolve module 'unknown/module'", 1, 1);
@@ -42,7 +42,7 @@ public class ImportsNegativeTests {
 
     @Test(description = "Test invalid autoimports")
     public void testInvalidAutoImports() {
-        CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports", "rpg");
+        CompileResult result = BCompileUtil.compile("test-src/imports/InvalidAutoImportsTestProject");
         int index = 0;
         validateError(result, index++, "undefined function 'max'", 18, 12);
         validateError(result, index++, "undefined function 'min'", 22, 12);

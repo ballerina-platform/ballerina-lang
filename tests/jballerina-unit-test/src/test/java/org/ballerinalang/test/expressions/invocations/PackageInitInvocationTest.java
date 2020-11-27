@@ -19,9 +19,9 @@ package org.ballerinalang.test.expressions.invocations;
 
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,7 +37,7 @@ public class PackageInitInvocationTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/packageinit", "expressions.invocations.pkg.c");
+        result = BCompileUtil.compile("test-src/packageinit");
     }
 
     @Test

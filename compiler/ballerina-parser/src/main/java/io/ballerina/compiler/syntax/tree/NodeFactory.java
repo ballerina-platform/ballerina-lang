@@ -78,7 +78,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token importKeyword,
             ImportOrgNameNode orgName,
             SeparatedNodeList<IdentifierToken> moduleName,
-            ImportVersionNode version,
             ImportPrefixNode prefix,
             Token semicolon) {
         Objects.requireNonNull(importKeyword, "importKeyword must not be null");
@@ -89,7 +88,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 importKeyword.internalNode(),
                 getOptionalSTNode(orgName),
                 moduleName.underlyingListNode().internalNode(),
-                getOptionalSTNode(version),
                 getOptionalSTNode(prefix),
                 semicolon.internalNode());
         return stImportDeclarationNode.createUnlinkedFacade();
@@ -147,11 +145,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ServiceDeclarationNode createServiceDeclarationNode(
             MetadataNode metadata,
+            NodeList<Token> qualifiers,
             Token serviceKeyword,
             IdentifierToken serviceName,
             Token onKeyword,
             SeparatedNodeList<ExpressionNode> expressions,
             Node serviceBody) {
+        Objects.requireNonNull(qualifiers, "qualifiers must not be null");
         Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
         Objects.requireNonNull(onKeyword, "onKeyword must not be null");
         Objects.requireNonNull(expressions, "expressions must not be null");
@@ -159,6 +159,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stServiceDeclarationNode = STNodeFactory.createServiceDeclarationNode(
                 getOptionalSTNode(metadata),
+                qualifiers.underlyingListNode().internalNode(),
                 serviceKeyword.internalNode(),
                 getOptionalSTNode(serviceName),
                 onKeyword.internalNode(),
@@ -749,18 +750,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stImportPrefixNode.createUnlinkedFacade();
     }
 
-    public static ImportVersionNode createImportVersionNode(
-            Token versionKeyword,
-            SeparatedNodeList<Token> versionNumber) {
-        Objects.requireNonNull(versionKeyword, "versionKeyword must not be null");
-        Objects.requireNonNull(versionNumber, "versionNumber must not be null");
-
-        STNode stImportVersionNode = STNodeFactory.createImportVersionNode(
-                versionKeyword.internalNode(),
-                versionNumber.underlyingListNode().internalNode());
-        return stImportVersionNode.createUnlinkedFacade();
-    }
-
     public static SpecificFieldNode createSpecificFieldNode(
             Token readonlyKeyword,
             Node fieldName,
@@ -1073,17 +1062,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ModuleVariableDeclarationNode createModuleVariableDeclarationNode(
             MetadataNode metadata,
-            Token finalKeyword,
+            NodeList<Token> qualifiers,
             TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
             ExpressionNode initializer,
             Token semicolonToken) {
+        Objects.requireNonNull(qualifiers, "qualifiers must not be null");
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
         STNode stModuleVariableDeclarationNode = STNodeFactory.createModuleVariableDeclarationNode(
                 getOptionalSTNode(metadata),
-                getOptionalSTNode(finalKeyword),
+                qualifiers.underlyingListNode().internalNode(),
                 typedBindingPattern.internalNode(),
                 getOptionalSTNode(equalsToken),
                 getOptionalSTNode(initializer),
@@ -3068,6 +3058,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 members.underlyingListNode().internalNode(),
                 closeBrace.internalNode());
         return stClassDefinitionNode.createUnlinkedFacade();
+    }
+
+    public static RequiredExpressionNode createRequiredExpressionNode(
+            Token questionMarkToken) {
+        Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
+
+        STNode stRequiredExpressionNode = STNodeFactory.createRequiredExpressionNode(
+                questionMarkToken.internalNode());
+        return stRequiredExpressionNode.createUnlinkedFacade();
     }
 }
 

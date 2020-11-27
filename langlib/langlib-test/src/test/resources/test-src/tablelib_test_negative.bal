@@ -74,7 +74,7 @@ function testFilterNegative() returns boolean {
 function testIteratorNegative() returns boolean {
     boolean testPassed = true;
     Person[] personList = getPersonList();
-    object { public function next() returns record {| Employee value; |}?;} itr = tab.iterator();
+    object { public isolated function next() returns record {| Employee value; |}?;} itr = tab.iterator();
     Employee? emp = getEmployee(itr.next());
     testPassed = testPassed && emp?.name == personList[0].name;
     return testPassed;
@@ -164,4 +164,15 @@ function testAddIncompatibleTypesWithKeyLessTbl()  {
     ];
     var person = { name: "Chiran", age: 33 };
     employeeTbl.add(person);
+}
+
+function testTableMemberAccess()  {
+    PersonalTable tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Granier", age: 34 }
+    ];
+
+    Person person = { name: "Gima", age: 38 };
+    tab["Gima"] = person;
 }

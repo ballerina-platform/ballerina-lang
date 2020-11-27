@@ -203,10 +203,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(importPrefixNode);
     }
 
-    public void visit(ImportVersionNode importVersionNode) {
-        visitSyntaxNode(importVersionNode);
-    }
-
     public void visit(SpecificFieldNode specificFieldNode) {
         visitSyntaxNode(specificFieldNode);
     }
@@ -809,6 +805,10 @@ public abstract class NodeVisitor {
 
     public void visit(ClassDefinitionNode classDefinitionNode) {
         visitSyntaxNode(classDefinitionNode);
+    }
+
+    public void visit(RequiredExpressionNode requiredExpressionNode) {
+        visitSyntaxNode(requiredExpressionNode);
     }
 
     // Tokens

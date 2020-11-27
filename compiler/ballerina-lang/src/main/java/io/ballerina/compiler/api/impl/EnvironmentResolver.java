@@ -683,7 +683,16 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLetExpression letExpr) {
+        if (PositionUtil.withinBlock(this.linePosition, letExpr.getPosition())) {
+            SymbolEnv letExprEnv = letExpr.env.createClone();
+            this.scope = letExprEnv;
 
+            for (BLangLetVariable letVarDecl : letExpr.letVarDeclarations) {
+                this.acceptNode((BLangNode) letVarDecl.definitionNode, letExprEnv);
+            }
+
+            this.acceptNode(letExpr.expr, letExprEnv);
+        }
     }
 
     @Override

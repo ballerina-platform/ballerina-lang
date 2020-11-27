@@ -28,7 +28,8 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.StatementNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -119,6 +120,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -412,6 +414,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        visit(objectConstructorExpression.typeInit);
+    }
+
+    @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
 
         analyzeNode(bLangTupleVariableDef.var, this.env);
@@ -497,7 +504,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
             if (!isNeverOrNilableReturn && !this.statementReturns) {
-                this.dlog.error(funcNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
+                this.dlog.error(funcNode.pos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
             }
         }
@@ -543,7 +550,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangForkJoin forkJoin) {
         if (forkJoin.workers.isEmpty()) {
-            dlog.error(forkJoin.pos, DiagnosticCode.INVALID_FOR_JOIN_SYNTAX_EMPTY_FORK);
+            dlog.error(forkJoin.pos, DiagnosticErrorCode.INVALID_FOR_JOIN_SYNTAX_EMPTY_FORK);
         }
     }
 
@@ -557,7 +564,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction statement occurred in a transactional scope
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
-            this.dlog.error(transactionNode.pos, DiagnosticCode.TRANSACTION_CANNOT_BE_USED_WITHIN_TRANSACTIONAL_SCOPE);
+            this.dlog.error(transactionNode.pos,
+                            DiagnosticErrorCode.TRANSACTION_CANNOT_BE_USED_WITHIN_TRANSACTIONAL_SCOPE);
             return;
         }
 
@@ -594,7 +602,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeNode(transactionNode.transactionBody, env);
         this.failureHandled = failureHandled;
         if (commitCount < 1) {
-            this.dlog.error(transactionNode.pos, DiagnosticCode.INVALID_COMMIT_COUNT);
+            this.dlog.error(transactionNode.pos, DiagnosticErrorCode.INVALID_COMMIT_COUNT);
         }
 
         transactionNode.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
@@ -640,15 +648,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.commitCount++;
         this.commitCountWithinBlock++;
         if (this.transactionCount == 0) {
-            this.dlog.error(commitExpr.pos, DiagnosticCode.COMMIT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
+            this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
         if (!this.transactionalFuncCheckStack.empty() && this.transactionalFuncCheckStack.peek()) {
-            this.dlog.error(commitExpr.pos, DiagnosticCode.COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
+            this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
         if (!withinTransactionScope || !commitRollbackAllowed) {
-            this.dlog.error(commitExpr.pos, DiagnosticCode.COMMIT_NOT_ALLOWED);
+            this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_NOT_ALLOWED);
             return;
         }
         withinTransactionScope = false;
@@ -659,15 +667,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         rollbackCount++;
         this.rollbackCountWithinBlock++;
         if (this.transactionCount == 0 && !withinTransactionScope) {
-            this.dlog.error(rollbackNode.pos, DiagnosticCode.ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
+            this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
         if (!this.transactionalFuncCheckStack.empty() && this.transactionalFuncCheckStack.peek()) {
-            this.dlog.error(rollbackNode.pos, DiagnosticCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
+            this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
         if (!withinTransactionScope || !commitRollbackAllowed) {
-            this.dlog.error(rollbackNode.pos, DiagnosticCode.ROLLBACK_NOT_ALLOWED);
+            this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_NOT_ALLOWED);
             return;
         }
         this.withinTransactionScope = false;
@@ -714,7 +722,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     .scope.lookup(names.fromString("RetryManager")).symbol;
             BType abstractRetryManagerType = retryManagerTypeSymbol.type;
             if (!types.isAssignable(retrySpec.retryManagerType.type, abstractRetryManagerType)) {
-                dlog.error(retrySpec.pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT,
+                dlog.error(retrySpec.pos, DiagnosticErrorCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT,
                         RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC, retrySpec.retryManagerType.type);
             }
         }
@@ -728,14 +736,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void checkUnreachableCode(BLangStatement stmt) {
         if (this.statementReturns) {
-            this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
+            this.dlog.error(stmt.pos, DiagnosticErrorCode.UNREACHABLE_CODE);
             this.resetStatementReturns();
         } else if (errorThrown) {
-            this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
+            this.dlog.error(stmt.pos, DiagnosticErrorCode.UNREACHABLE_CODE);
             this.resetErrorThrown();
         }
         if (lastStatement) {
-            this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
+            this.dlog.error(stmt.pos, DiagnosticErrorCode.UNREACHABLE_CODE);
             this.resetLastStatement();
         }
     }
@@ -755,7 +763,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(e, blockEnv);
         });
         if (commitCountWithinBlock > 1 || rollbackCountWithinBlock > 1) {
-            this.dlog.error(blockNode.pos, DiagnosticCode.MAX_ONE_COMMIT_ROLLBACK_ALLOWED_WITHIN_A_BRANCH);
+            this.dlog.error(blockNode.pos, DiagnosticErrorCode.MAX_ONE_COMMIT_ROLLBACK_ALLOWED_WITHIN_A_BRANCH);
         }
         this.commitCountWithinBlock = prevCommitCount;
         this.rollbackCountWithinBlock = prevRollbackCount;
@@ -767,7 +775,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(returnStmt);
 
         if (checkReturnValidityInTransaction()) {
-            this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            this.dlog.error(returnStmt.pos, DiagnosticErrorCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
         if (!this.returnWithinLambdaWrappingCheckStack.empty()) {
@@ -864,17 +872,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         for (int i = 0; i < matchPatterns.size(); i++) {
             BLangMatchPattern matchPattern = matchPatterns.get(i);
             if (this.hasLastPatternInClause && matchClause.matchGuard == null) {
-                dlog.error(matchPattern.pos, DiagnosticCode.MATCH_STMT_PATTERN_UNREACHABLE);
+                dlog.error(matchPattern.pos, DiagnosticErrorCode.MATCH_STMT_PATTERN_UNREACHABLE);
             }
             if (matchPattern.type == symTable.noType) {
-                dlog.error(matchPattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
+                dlog.error(matchPattern.pos, DiagnosticErrorCode.MATCH_STMT_UNMATCHED_PATTERN);
             }
             if (patternListContainsSameVars) {
                 patternListContainsSameVars = compareVariables(variablesInMatchPattern, matchPattern);
             }
             for (int j = i; j > 0; j--) {
                 if (checkSimilarMatchPatterns(matchPatterns.get(j - 1), matchPattern)) {
-                    dlog.error(matchPattern.pos, DiagnosticCode.MATCH_STMT_PATTERN_UNREACHABLE);
+                    dlog.error(matchPattern.pos, DiagnosticErrorCode.MATCH_STMT_PATTERN_UNREACHABLE);
                 }
             }
 
@@ -884,7 +892,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!patternListContainsSameVars) {
-            dlog.error(matchClause.pos, DiagnosticCode.MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES);
+            dlog.error(matchClause.pos, DiagnosticErrorCode.MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES);
         }
         matchClause.declaredVars.putAll(matchClause.matchPatterns.get(0).declaredVars);
 
@@ -896,7 +904,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         for (BLangMatchPattern firstMatchPattern : firstClause.matchPatterns) {
             for (BLangMatchPattern secondMatchPattern : secondClause.matchPatterns) {
                 if (checkSimilarMatchPatterns(firstMatchPattern, secondMatchPattern)) {
-                    dlog.error(secondMatchPattern.pos, DiagnosticCode.MATCH_STMT_PATTERN_UNREACHABLE);
+                    dlog.error(secondMatchPattern.pos, DiagnosticErrorCode.MATCH_STMT_PATTERN_UNREACHABLE);
                 }
             }
         }
@@ -1133,12 +1141,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void analyzeMatchedPatterns(BLangMatch matchStmt, boolean staticLastPattern,
                                         boolean structuredLastPattern) {
         if (staticLastPattern && structuredLastPattern) {
-            dlog.error(matchStmt.pos, DiagnosticCode.MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS);
+            dlog.error(matchStmt.pos, DiagnosticErrorCode.MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS);
         }
         // Execute the following block if there are no unmatched expression types
         if ((staticLastPattern && !hasErrorType(matchStmt.exprTypes)) || structuredLastPattern) {
             if (matchStmt.getPatternClauses().size() == 1) {
-                dlog.error(matchStmt.getPatternClauses().get(0).pos, DiagnosticCode.MATCH_STMT_PATTERN_ALWAYS_MATCHES);
+                dlog.error(matchStmt.getPatternClauses().get(0).pos,
+                           DiagnosticErrorCode.MATCH_STMT_PATTERN_ALWAYS_MATCHES);
             }
             this.checkStatementExecutionValidity(matchStmt);
             boolean matchStmtReturns = true;
@@ -1209,12 +1218,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         if (emptyLists.size() > 1) {
             for (int i = 1; i < emptyLists.size(); i++) {
-                dlog.error(emptyLists.get(i).pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                dlog.error(emptyLists.get(i).pos, DiagnosticErrorCode.MATCH_STMT_UNREACHABLE_PATTERN);
             }
         }
         if (emptyRecords.size() > 1) {
             for (int i = 1; i < emptyRecords.size(); i++) {
-                dlog.error(emptyRecords.get(i).pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                dlog.error(emptyRecords.get(i).pos, DiagnosticErrorCode.MATCH_STMT_UNREACHABLE_PATTERN);
             }
         }
     }
@@ -1240,7 +1249,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             if (matchedExpTypes.isEmpty()) {
                 // log error if a pattern will not match to any of the expected types
-                dlog.error(patternClause.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
+                dlog.error(patternClause.pos, DiagnosticErrorCode.MATCH_STMT_UNMATCHED_PATTERN);
                 continue;
             }
 
@@ -1270,7 +1279,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             for (int j = i + 1; j < matchedPatterns.size(); j++) {
                 BLangExpression pattern = matchedPatterns.get(j).literal;
                 if (checkLiteralSimilarity(precedingPattern, pattern)) {
-                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                    dlog.error(pattern.pos, DiagnosticErrorCode.MATCH_STMT_UNREACHABLE_PATTERN);
                     matchedPatterns.remove(j--);
                 }
             }
@@ -1302,7 +1311,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                 if (checkStructuredPatternSimilarity(precedingVar, currentVar, errorTypeInMatchExpr) &&
                         checkTypeGuardSimilarity(precedingPattern.typeGuardExpr, currentPattern.typeGuardExpr)) {
-                    dlog.error(currentVar.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                    dlog.error(currentVar.pos, DiagnosticErrorCode.MATCH_STMT_UNREACHABLE_PATTERN);
                     clauses.remove(j--);
                 }
             }
@@ -1787,7 +1796,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             BType exprType = env.enclInvokable.getReturnTypeNode().type;
             this.returnTypes.peek().add(exprType);
             if (!types.isAssignable(getErrorTypes(failNode.expr.type), exprType)) {
-                dlog.error(failNode.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+                dlog.error(failNode.pos, DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
             }
         }
     }
@@ -1814,11 +1823,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangContinue continueNode) {
         this.checkStatementExecutionValidity(continueNode);
         if (this.loopCount == 0) {
-            this.dlog.error(continueNode.pos, DiagnosticCode.CONTINUE_CANNOT_BE_OUTSIDE_LOOP);
+            this.dlog.error(continueNode.pos, DiagnosticErrorCode.CONTINUE_CANNOT_BE_OUTSIDE_LOOP);
             return;
         }
         if (checkNextBreakValidityInTransaction()) {
-            this.dlog.error(continueNode.pos, DiagnosticCode.CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            this.dlog.error(continueNode.pos, DiagnosticErrorCode.CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
         this.lastStatement = true;
@@ -1918,16 +1927,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             // TODO : Add support for other types. such as union and objects
         }
         if (!Symbols.isPublic(symbol)) {
-            dlog.error(pos, DiagnosticCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
+            dlog.error(pos, DiagnosticErrorCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
         }
     }
 
     public void visit(BLangLetExpression letExpression) {
         int ownerSymTag = this.env.scope.owner.tag;
         if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
-            dlog.error(letExpression.pos, DiagnosticCode.LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD);
+            dlog.error(letExpression.pos, DiagnosticErrorCode.LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD);
         } else if ((ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
-            dlog.error(letExpression.pos, DiagnosticCode.LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD);
+            dlog.error(letExpression.pos, DiagnosticErrorCode.LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD);
         }
 
         // This is to support when let expressions are used in return statements
@@ -1974,7 +1983,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (referingForkedWorkerOutOfFork(symbol, env)) {
                     return;
                 }
-                dlog.error(pos, DiagnosticCode.INVALID_WORKER_REFERRENCE, symbol.name);
+                dlog.error(pos, DiagnosticErrorCode.INVALID_WORKER_REFERRENCE, symbol.name);
             }
         }
     }
@@ -2053,7 +2062,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(annAttachmentNode.expr);
         BAnnotationSymbol annotationSymbol = annAttachmentNode.annotationSymbol;
         if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(annAttachmentNode.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+            dlog.warning(annAttachmentNode.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
         }
     }
 
@@ -2128,7 +2137,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             BLangVariableReference varRefExpr = (BLangVariableReference) varRef;
             if (varRefExpr.symbol != null && !symbols.add(varRefExpr.symbol)) {
-                this.dlog.error(varRef.pos, DiagnosticCode.DUPLICATE_VARIABLE_IN_BINDING_PATTERN,
+                this.dlog.error(varRef.pos, DiagnosticErrorCode.DUPLICATE_VARIABLE_IN_BINDING_PATTERN,
                         varRefExpr.symbol);
             }
         }
@@ -2163,11 +2172,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangBreak breakNode) {
         this.checkStatementExecutionValidity(breakNode);
         if (this.loopCount == 0) {
-            this.dlog.error(breakNode.pos, DiagnosticCode.BREAK_CANNOT_BE_OUTSIDE_LOOP);
+            this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_CANNOT_BE_OUTSIDE_LOOP);
             return;
         }
         if (checkNextBreakValidityInTransaction()) {
-            this.dlog.error(breakNode.pos, DiagnosticCode.BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
         this.lastStatement = true;
@@ -2217,7 +2226,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         // For other expressions, error is logged already.
         if (expr.type == symTable.nilType) {
-            dlog.error(exprStmtNode.pos, DiagnosticCode.INVALID_EXPR_STATEMENT);
+            dlog.error(exprStmtNode.pos, DiagnosticErrorCode.INVALID_EXPR_STATEMENT);
         }
     }
 
@@ -2266,13 +2275,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         verifyPeerCommunication(workerSendNode.pos, receiver, workerSendNode.workerIdentifier.value);
 
         this.checkStatementExecutionValidity(workerSendNode);
-        if (workerSendNode.isChannel) {
-            analyzeExpr(workerSendNode.expr);
-            if (workerSendNode.keyExpr != null) {
-                analyzeExpr(workerSendNode.keyExpr);
-            }
-            return;
-        }
 
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
@@ -2281,20 +2283,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             // Error of this is already printed as undef-var
             was.hasErrors = true;
         } else if (workerSendNode.expr instanceof ActionNode) {
-            this.dlog.error(workerSendNode.expr.pos, DiagnosticCode.INVALID_SEND_EXPR);
+            this.dlog.error(workerSendNode.expr.pos, DiagnosticErrorCode.INVALID_SEND_EXPR);
         } else if (!type.isAnydata()) {
-            this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, type);
+            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_SEND, type);
         }
 
         String workerName = workerSendNode.workerIdentifier.getValue();
         boolean allowedLocation = isCommunicationAllowedLocation(workerName);
         if (!allowedLocation) {
-            this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
+            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.INVALID_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
 
         if (!this.workerExists(workerSendNode.type, workerName)) {
-            this.dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
 
@@ -2315,7 +2317,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (returnType.tag == TypeTags.ERROR) {
                 returnTypeAndSendType.add(returnType);
             } else {
-                this.dlog.error(pos, DiagnosticCode.WORKER_SEND_AFTER_RETURN);
+                this.dlog.error(pos, DiagnosticErrorCode.WORKER_SEND_AFTER_RETURN);
             }
         }
         returnTypeAndSendType.add(exprType);
@@ -2341,12 +2343,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         boolean allowedLocation = isCommunicationAllowedLocation(workerName);
         if (!allowedLocation) {
-            this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
+            this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.INVALID_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
 
         if (!this.workerExists(syncSendExpr.workerType, workerName)) {
-            this.dlog.error(syncSendExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+            this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
         syncSendExpr.type = createAccumulatedErrorTypeForMatchingRecive(syncSendExpr.pos, syncSendExpr.expr.type);
@@ -2364,23 +2366,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         verifyPeerCommunication(workerReceiveNode.pos, sender, workerReceiveNode.workerIdentifier.value);
 
-        if (workerReceiveNode.isChannel) {
-            if (workerReceiveNode.keyExpr != null) {
-                analyzeExpr(workerReceiveNode.keyExpr);
-            }
-            return;
-        }
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
         boolean allowedLocation = isCommunicationAllowedLocation(workerName);
         if (!allowedLocation) {
-            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
+            this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
 
         if (!this.workerExists(workerReceiveNode.workerType, workerName)) {
-            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+            this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
 
@@ -2402,7 +2398,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             // Interacting with default worker from a worker within a fork.
             if (otherWorkerName.equals(DEFAULT_WORKER_NAME)) {
                 if (flagSet.contains(Flag.FORKED)) {
-                    dlog.error(pos, DiagnosticCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
+                    dlog.error(pos, DiagnosticErrorCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
                 }
                 return;
             }
@@ -2412,13 +2408,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             // Interactions across fork
             if (wLambda != null && funcNode.anonForkName != null
                     && !funcNode.anonForkName.equals(wLambda.enclForkName)) {
-                dlog.error(pos, DiagnosticCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
+                dlog.error(pos, DiagnosticErrorCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
             }
         } else {
             // Worker interactions outside of worker constructs (in default worker)
             BInvokableSymbol wLambda = (BInvokableSymbol) env.scope.lookup(workerDerivedName).symbol;
             if (wLambda != null && wLambda.enclForkName != null) {
-                dlog.error(pos, DiagnosticCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
+                dlog.error(pos, DiagnosticErrorCode.WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS);
             }
         }
     }
@@ -2430,7 +2426,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (returnType.tag == TypeTags.ERROR) {
                 returnTypeAndSendType.add(returnType);
             } else {
-                this.dlog.error(workerReceiveNode.pos, DiagnosticCode.WORKER_RECEIVE_AFTER_RETURN);
+                this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.WORKER_RECEIVE_AFTER_RETURN);
             }
         }
         returnTypeAndSendType.add(symTable.nilType);
@@ -2445,7 +2441,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (literalExpr.type.tag == TypeTags.NIL &&
                 NULL_LITERAL.equals(literalExpr.originalValue) &&
                 !literalExpr.isJSONContext && !this.isJSONContext) {
-            dlog.error(literalExpr.pos, DiagnosticCode.INVALID_USE_OF_NULL_LITERAL);
+            dlog.error(literalExpr.pos, DiagnosticErrorCode.INVALID_USE_OF_NULL_LITERAL);
         }
     }
 
@@ -2498,7 +2494,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 int spreadFieldTypeTag = spreadOpExprType.tag;
                 if (spreadFieldTypeTag == TypeTags.MAP) {
                     if (inclusiveTypeSpreadField != null) {
-                        this.dlog.error(spreadOpExpr.pos, DiagnosticCode.MULTIPLE_INCLUSIVE_TYPES);
+                        this.dlog.error(spreadOpExpr.pos, DiagnosticErrorCode.MULTIPLE_INCLUSIVE_TYPES);
                         continue;
                     }
                     inclusiveTypeSpreadField = spreadOpField;
@@ -2506,7 +2502,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     if (fields.size() > 1) {
                         if (names.size() > 0) {
                             this.dlog.error(spreadOpExpr.pos,
-                                            DiagnosticCode.SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS,
+                                            DiagnosticErrorCode.SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS,
                                             spreadOpExpr);
                         }
                         // Skipping to avoid multiple error messages
@@ -2523,7 +2519,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (!isSpreadExprRecordTypeSealed) {
                     // More than one spread-field with inclusive-type-descriptors are not allowed.
                     if (inclusiveTypeSpreadField != null) {
-                        this.dlog.error(spreadOpExpr.pos, DiagnosticCode.MULTIPLE_INCLUSIVE_TYPES);
+                        this.dlog.error(spreadOpExpr.pos, DiagnosticErrorCode.MULTIPLE_INCLUSIVE_TYPES);
                     } else {
                         inclusiveTypeSpreadField = spreadOpField;
                     }
@@ -2533,7 +2529,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 for (Object fieldName : names) {
                     if (!fieldsInRecordType.containsKey(fieldName) && !isSpreadExprRecordTypeSealed) {
                         this.dlog.error(spreadOpExpr.pos,
-                                DiagnosticCode.SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS,
+                                DiagnosticErrorCode.SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS,
                                 spreadOpExpr);
                         break;
                     }
@@ -2543,8 +2539,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     String name = bField.name.value;
                     if (names.contains(name)) {
                         if (bField.type.tag != TypeTags.NEVER) {
-                            this.dlog.error(spreadOpExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
-                                    recordLiteral.type.getKind().typeName(), name, spreadOpField);
+                            this.dlog.error(spreadOpExpr.pos,
+                                            DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
+                                            recordLiteral.type.getKind().typeName(), name, spreadOpField);
                         }
                         continue;
                     }
@@ -2557,7 +2554,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     if (!neverTypedKeys.remove(name) &&
                             inclusiveTypeSpreadField != null && isSpreadExprRecordTypeSealed) {
                         this.dlog.error(spreadOpExpr.pos,
-                                        DiagnosticCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
+                                        DiagnosticErrorCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
                                         recordLiteral.expectedType.getKind().typeName(), name, spreadOpField);
                     }
                     names.add(name);
@@ -2579,25 +2576,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     String name = ((BLangSimpleVarRef) keyExpr).variableName.value;
 
                     if (names.contains(name)) {
-                        this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                        this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
                                         recordLiteral.expectedType.getKind().typeName(), name);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(name)) {
-                        this.dlog.error(keyExpr.pos, DiagnosticCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
+                        this.dlog.error(keyExpr.pos,
+                                        DiagnosticErrorCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
                                         name, inclusiveTypeSpreadField);
                     }
 
                     if (!isInferredRecordForMapCET && isOpenRecord && !((BRecordType) type).fields.containsKey(name)) {
-                        dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, name);
+                        dlog.error(keyExpr.pos, DiagnosticErrorCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, name);
                     }
 
                     names.add(name);
                 } else if (keyExpr.getKind() == NodeKind.LITERAL || keyExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                     Object name = ((BLangLiteral) keyExpr).value;
                     if (names.contains(name)) {
-                        this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                        this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
                                         recordLiteral.parent.type.getKind().typeName(), name);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(name)) {
-                        this.dlog.error(keyExpr.pos, DiagnosticCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
+                        this.dlog.error(keyExpr.pos,
+                                        DiagnosticErrorCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
                                         name, inclusiveTypeSpreadField);
                     }
                     names.add(name);
@@ -2623,7 +2622,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
         }
         if (varRefExpr.symbol != null && Symbols.isFlagOn(varRefExpr.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(varRefExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, varRefExpr);
+            dlog.warning(varRefExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, varRefExpr);
         }
     }
 
@@ -2643,7 +2642,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(fieldAccessExpr.expr);
         BSymbol symbol = fieldAccessExpr.symbol;
         if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(fieldAccessExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, fieldAccessExpr);
+            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, fieldAccessExpr);
         }
     }
 
@@ -2664,17 +2663,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BSymbol funcSymbol = invocationExpr.symbol;
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.TRANSACTIONAL) && !withinTransactionScope) {
-                dlog.error(invocationExpr.pos, DiagnosticCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED, invocationExpr);
+                dlog.error(invocationExpr.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED,
+                           invocationExpr);
                 return;
             }
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
-                dlog.warning(invocationExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, invocationExpr);
+                dlog.warning(invocationExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
+                             invocationExpr);
             }
 
             if (((BInvokableSymbol) funcSymbol).getReturnType().tag == TypeTags.NEVER &&
                     invocationExpr.parent.getKind() != NodeKind.EXPRESSION_STATEMENT) {
                 // Log an error if the function returns never and invoked invalidly.
-                dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION,
+                dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION,
                         funcSymbol.name);
             }
         }
@@ -2683,13 +2684,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
         if (!actionInvocation.async && !this.withinTransactionScope &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
-            dlog.error(actionInvocation.pos, DiagnosticCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED, actionInvocation);
+            dlog.error(actionInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED,
+                       actionInvocation);
             return;
         }
 
         if (actionInvocation.async && this.withinTransactionScope &&
                 !Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
-            dlog.error(actionInvocation.pos, DiagnosticCode.USAGE_OF_START_WITHIN_TRANSACTION_IS_PROHIBITED);
+            dlog.error(actionInvocation.pos, DiagnosticErrorCode.USAGE_OF_START_WITHIN_TRANSACTION_IS_PROHIBITED);
             return;
         }
 
@@ -2699,24 +2701,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (actionInvocation.symbol.kind == SymbolKind.FUNCTION &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(actionInvocation.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, actionInvocation);
+            dlog.warning(actionInvocation.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, actionInvocation);
         }
 
         if (actionInvocation.flagSet.contains(Flag.TRANSACTIONAL) && !withinTransactionScope) {
-            dlog.error(actionInvocation.pos, DiagnosticCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
+            dlog.error(actionInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
             return;
         }
 
 
         if (actionInvocation.async && this.withinLockBlock) {
             dlog.error(actionInvocation.pos, actionInvocation.functionPointerInvocation ?
-                    DiagnosticCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED :
-                    DiagnosticCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED);
+                    DiagnosticErrorCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED :
+                    DiagnosticErrorCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED);
             return;
         }
 
         if ((actionInvocation.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
-            dlog.error(actionInvocation.pos, DiagnosticCode.INVALID_FUNCTIONAL_CONSTRUCTOR_INVOCATION,
+            dlog.error(actionInvocation.pos, DiagnosticErrorCode.INVALID_FUNCTIONAL_CONSTRUCTOR_INVOCATION,
                        actionInvocation.symbol.name);
             return;
         }
@@ -2729,15 +2731,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             final NodeKind clientNodeKind = iExpr.expr.getKind();
             // Validation against node kind.
             if (clientNodeKind != NodeKind.SIMPLE_VARIABLE_REF && clientNodeKind != NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+                dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
             } else if (clientNodeKind == NodeKind.FIELD_BASED_ACCESS_EXPR) {
                 final BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) iExpr.expr;
                 if (fieldBasedAccess.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                    dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+                    dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
                 } else {
                     final BLangSimpleVarRef selfName = (BLangSimpleVarRef) fieldBasedAccess.expr;
                     if (!Names.SELF.equals(selfName.symbol.name)) {
-                        dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+                        dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
                     }
                 }
             }
@@ -2769,7 +2771,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             break;
         }
-        dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
+        dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
     }
 
     public void visit(BLangTypeInit cIExpr) {
@@ -2777,7 +2779,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(cIExpr.initInvocation);
         BType type = cIExpr.type;
         if (cIExpr.userDefinedType != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(cIExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, type);
+            dlog.warning(cIExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, type);
         }
     }
 
@@ -2810,11 +2812,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     // wait-future-expr := expression but not mapping-constructor-expr
     private void validateWaitFutureExpr(BLangExpression expr) {
         if (expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-            dlog.error(expr.pos, DiagnosticCode.INVALID_WAIT_MAPPING_CONSTRUCTORS);
+            dlog.error(expr.pos, DiagnosticErrorCode.INVALID_WAIT_MAPPING_CONSTRUCTORS);
         }
 
         if (expr instanceof ActionNode) {
-            dlog.error(expr.pos, DiagnosticCode.INVALID_WAIT_ACTIONS);
+            dlog.error(expr.pos, DiagnosticErrorCode.INVALID_WAIT_ACTIONS);
         }
     }
 
@@ -2829,7 +2831,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (xmlNavigation.childIndex != null) {
             if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS
                     || xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
-                dlog.error(xmlNavigation.pos, DiagnosticCode.UNSUPPORTED_INDEX_IN_XML_NAVIGATION);
+                dlog.error(xmlNavigation.pos, DiagnosticErrorCode.UNSUPPORTED_INDEX_IN_XML_NAVIGATION);
             }
             analyzeExpr(xmlNavigation.childIndex);
         }
@@ -2845,7 +2847,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return;
             }
 
-            dlog.error(invocation.pos, DiagnosticCode.UNSUPPORTED_METHOD_INVOCATION_XML_NAV);
+            dlog.error(invocation.pos, DiagnosticErrorCode.UNSUPPORTED_METHOD_INVOCATION_XML_NAV);
         }
         expression.methodInvocationAnalyzed = true;
     }
@@ -2865,15 +2867,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                                                       (flushWrkIdentifier))
                                                               .collect(Collectors.toList());
             if (sendsToGivenWrkr.size() == 0) {
-                this.dlog.error(workerFlushExpr.pos, DiagnosticCode.INVALID_WORKER_FLUSH_FOR_WORKER, flushWrkIdentifier,
-                                currentWrkerAction.currentWorkerId());
+                this.dlog.error(workerFlushExpr.pos, DiagnosticErrorCode.INVALID_WORKER_FLUSH_FOR_WORKER,
+                                flushWrkIdentifier, currentWrkerAction.currentWorkerId());
                 return;
             } else {
                 sendStmts = sendsToGivenWrkr;
             }
         } else {
             if (sendStmts.size() == 0) {
-                this.dlog.error(workerFlushExpr.pos, DiagnosticCode.INVALID_WORKER_FLUSH,
+                this.dlog.error(workerFlushExpr.pos, DiagnosticErrorCode.INVALID_WORKER_FLUSH,
                                 currentWrkerAction.currentWorkerId());
                 return;
             }
@@ -2927,7 +2929,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // So check if immediate parent is a binary expression and if the current binary expression operator kind
         // is bitwise OR
         if (parentNode.getKind() != NodeKind.BINARY_EXPR && binaryExpr.opKind == OperatorKind.BITWISE_OR) {
-            dlog.error(binaryExpr.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED, OperatorKind.BITWISE_OR,
+            dlog.error(binaryExpr.pos, DiagnosticErrorCode.OPERATOR_NOT_SUPPORTED, OperatorKind.BITWISE_OR,
                        symTable.futureType);
                 return false;
         }
@@ -3008,7 +3010,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (bLangLambdaFunction.function.flagSet.contains(Flag.TRANSACTIONAL) &&
                 bLangLambdaFunction.function.flagSet.contains(Flag.WORKER) && !withinTransactionScope) {
-            dlog.error(bLangLambdaFunction.pos, DiagnosticCode.TRANSACTIONAL_WORKER_OUT_OF_TRANSACTIONAL_SCOPE,
+            dlog.error(bLangLambdaFunction.pos, DiagnosticErrorCode.TRANSACTIONAL_WORKER_OUT_OF_TRANSACTIONAL_SCOPE,
                     bLangLambdaFunction);
             return;
         }
@@ -3121,7 +3123,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangUserDefinedType userDefinedType) {
         BTypeSymbol typeSymbol = userDefinedType.type.tsymbol;
         if (typeSymbol != null && Symbols.isFlagOn(typeSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(userDefinedType.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, userDefinedType);
+            dlog.warning(userDefinedType.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, userDefinedType);
         }
     }
 
@@ -3184,7 +3186,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
 
         if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
-            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+            dlog.error(checkedExpr.pos, DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
         if (!this.errorTypes.empty()) {
             this.errorTypes.peek().add(getErrorTypes(checkedExpr.expr.type));
@@ -3212,7 +3214,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangExpression collection = (BLangExpression) fromClause.getCollection();
                 if (fromCount > 1) {
                     if (TypeTags.STREAM == collection.type.tag) {
-                        this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+                        this.dlog.error(collection.pos, DiagnosticErrorCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
                     }
                 }
             }
@@ -3230,7 +3232,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangExpression collection = (BLangExpression) fromClause.getCollection();
                 if (fromCount > 1) {
                     if (TypeTags.STREAM == collection.type.tag) {
-                        this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+                        this.dlog.error(collection.pos, DiagnosticErrorCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
                     }
                 }
             }
@@ -3284,7 +3286,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangOnConflictClause onConflictClause) {
         analyzeExpr(onConflictClause.expression);
         if (!queryToTableWithKey) {
-            dlog.error(onConflictClause.pos, DiagnosticCode.ON_CONFLICT_ONLY_WORKS_WITH_TABLES_WITH_KEY_SPECIFIER);
+            dlog.error(onConflictClause.pos, DiagnosticErrorCode.ON_CONFLICT_ONLY_WORKS_WITH_TABLES_WITH_KEY_SPECIFIER);
         }
     }
 
@@ -3303,7 +3305,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
         for (BType errorType : errorTypes.peek()) {
             if (!types.isAssignable(errorType, onFailVarNode.type)) {
-                dlog.error(onFailVarNode.pos, DiagnosticCode.INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION, errorType,
+                dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION, errorType,
                         onFailVarNode.type);
             }
         }
@@ -3330,7 +3332,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // Check whether the condition is always true. If the variable type is assignable to target type,
         // then type check will always evaluate to true.
         if (types.isAssignable(typeTestExpr.expr.type, typeTestExpr.typeNode.type)) {
-            dlog.error(typeTestExpr.pos, DiagnosticCode.UNNECESSARY_CONDITION);
+            dlog.error(typeTestExpr.pos, DiagnosticErrorCode.UNNECESSARY_CONDITION);
             return;
         }
 
@@ -3340,7 +3342,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // to the type of the source variable.
         if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type) &&
                 !indirectIntersectionExists(typeTestExpr.expr, typeTestExpr.typeNode.type)) {
-            dlog.error(typeTestExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
+            dlog.error(typeTestExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
                        typeTestExpr.typeNode.type);
         }
     }
@@ -3350,7 +3352,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(annotAccessExpr.expr);
         BAnnotationSymbol annotationSymbol = annotAccessExpr.annotationSymbol;
         if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(annotAccessExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+            dlog.warning(annotAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
         }
     }
 
@@ -3445,7 +3447,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (env.enclPkg.symbol.pkgID != symbol.pkgID && !Symbols.isPublic(symbol)) {
-            dlog.error(position, DiagnosticCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, symbol.name);
+            dlog.error(position, DiagnosticErrorCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, symbol.name);
         }
     }
 
@@ -3523,7 +3525,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void reportInvalidWorkerInteractionDiagnostics(WorkerActionSystem workerActionSystem) {
-        this.dlog.error(workerActionSystem.getRootPosition(), DiagnosticCode.INVALID_WORKER_INTERACTION,
+        this.dlog.error(workerActionSystem.getRootPosition(), DiagnosticErrorCode.INVALID_WORKER_INTERACTION,
                 workerActionSystem.toString());
     }
 
@@ -3558,9 +3560,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (receive.matchingSendsError != symTable.nilType && parentNodeKind == NodeKind.EXPRESSION_STATEMENT) {
-            dlog.error(send.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
+            dlog.error(send.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED);
         } else {
-            types.checkType(send.pos, receive.matchingSendsError, send.expectedType, DiagnosticCode.INCOMPATIBLE_TYPES);
+            types.checkType(send.pos, receive.matchingSendsError, send.expectedType,
+                            DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
 
         types.checkType(receive, send.type, receive.type);
@@ -3595,21 +3598,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!Symbols.isPublic(funcNode.symbol)) {
-            this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_SHOULD_BE_PUBLIC);
+            this.dlog.error(funcNode.pos, DiagnosticErrorCode.MAIN_SHOULD_BE_PUBLIC);
         }
 
         funcNode.requiredParams.forEach(param -> {
             if (!param.type.isAnydata()) {
-                this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.type);
+                this.dlog.error(param.pos, DiagnosticErrorCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.type);
             }
         });
 
         if (funcNode.restParam != null && !funcNode.restParam.type.isAnydata()) {
-            this.dlog.error(funcNode.restParam.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA,
+            this.dlog.error(funcNode.restParam.pos, DiagnosticErrorCode.MAIN_PARAMS_SHOULD_BE_ANYDATA,
                             funcNode.restParam.type);
         }
 
-        types.validateErrorOrNilReturn(funcNode, DiagnosticCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL);
+        types.validateErrorOrNilReturn(funcNode, DiagnosticErrorCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL);
     }
 
     private void validateModuleInitFunction(BLangFunction funcNode) {
@@ -3618,14 +3621,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (Symbols.isPublic(funcNode.symbol)) {
-            this.dlog.error(funcNode.pos, DiagnosticCode.MODULE_INIT_CANNOT_BE_PUBLIC);
+            this.dlog.error(funcNode.pos, DiagnosticErrorCode.MODULE_INIT_CANNOT_BE_PUBLIC);
         }
 
         if (!funcNode.requiredParams.isEmpty() || funcNode.restParam != null) {
-            this.dlog.error(funcNode.pos, DiagnosticCode.MODULE_INIT_CANNOT_HAVE_PARAMS);
+            this.dlog.error(funcNode.pos, DiagnosticErrorCode.MODULE_INIT_CANNOT_HAVE_PARAMS);
         }
 
-        types.validateErrorOrNilReturn(funcNode, DiagnosticCode.MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL);
+        types.validateErrorOrNilReturn(funcNode, DiagnosticErrorCode.MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL);
     }
 
     private boolean getIsJSONContext(BType... arg) {
@@ -3776,7 +3779,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        dlog.error(pos, DiagnosticCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, constructName.value);
+        dlog.error(pos, DiagnosticErrorCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, constructName.value);
     }
 
     public static String generateChannelName(String source, String target) {

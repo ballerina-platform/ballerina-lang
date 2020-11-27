@@ -17,17 +17,19 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.values.XMLValue;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.core.model.values.BXMLItem;
 import org.ballerinalang.core.model.values.BXMLSequence;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.util.BFileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -122,8 +124,7 @@ public class XMLLiteralWithNamespacesTest {
     public void testComplexXMLLiteral() throws IOException {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
-        Assert.assertEquals(returns[0].stringValue(),
-                BCompileUtil.readFileAsString("test-src/types/xml/sampleXML.txt"));
+        Assert.assertEquals(returns[0].stringValue(), BFileUtil.readFileAsString("test-src/types/xml/sampleXML.txt"));
     }
 
     @Test
@@ -192,7 +193,7 @@ public class XMLLiteralWithNamespacesTest {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "getXML");
         Assert.assertTrue(returns[0] instanceof BXML);
 
-        XMLValue xmlItem = (XMLValue) XMLFactory.parse(returns[0].stringValue());
+        XmlValue xmlItem = (XmlValue) XmlFactory.parse(returns[0].stringValue());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         xmlItem.serialize(baos);
         Assert.assertEquals(new String(baos.toByteArray()),
@@ -201,7 +202,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testXMLToString() {
-        io.ballerina.runtime.api.values.BXML xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+        BXml xml = XmlFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }

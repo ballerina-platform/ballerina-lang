@@ -18,9 +18,9 @@
 
 package org.ballerinalang.test.annotations;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,7 +35,7 @@ public class DeprecationAnnotationTest {
     @Test(description = "Test the deprecation annotation")
     public void testDeprecationAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/deprecation_annotation.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 35);
+        Assert.assertEquals(compileResult.getWarnCount(), 36);
 
         int i = 0;
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 24, 5);
@@ -72,7 +72,8 @@ public class DeprecationAnnotationTest {
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'z' is deprecated", 213, 13);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 216, 38);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 217, 5);
-        BAssertUtil.validateWarning(compileResult, i, "usage of construct 'Foo' is deprecated", 222, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 222, 5);
+        BAssertUtil.validateWarning(compileResult, i, "usage of construct '$anonType$_4()' is deprecated", 230, 27);
     }
 
     @Test(description = "Test the deprecation annotation")

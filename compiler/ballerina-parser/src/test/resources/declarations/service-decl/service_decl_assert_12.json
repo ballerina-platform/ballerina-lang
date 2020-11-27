@@ -139,8 +139,16 @@
           "hasDiagnostics": true,
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "SERVICE_KEYWORD",
               "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                },
                 {
                   "kind": "END_OF_LINE_MINUTIAE",
                   "value": "\n"
@@ -304,15 +312,15 @@
           "kind": "SERVICE_DECLARATION",
           "children": [
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "SERVICE_KEYWORD",
               "leadingMinutiae": [
                 {
                   "kind": "END_OF_LINE_MINUTIAE",
                   "value": "\n"
-                },
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": "    "
                 },
                 {
                   "kind": "END_OF_LINE_MINUTIAE",

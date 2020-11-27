@@ -94,6 +94,18 @@ function testCastingExprs() {
     int x = <@untainted int>ad;
 }
 
+function testIneferredRecordType() {
+    {"name" : "foo"};
+}
+
+function testStartAction() {
+    start testAsync();
+}
+
+public function testAsync() {
+    // do something
+}
+
 // utils
 
 class PersonObj {

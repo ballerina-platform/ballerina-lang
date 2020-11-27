@@ -21,9 +21,9 @@ import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,8 +40,7 @@ public class FunctionPointersTest {
     @BeforeClass
     public void setup() {
         fpProgram = BCompileUtil.compile("test-src/expressions/lambda/function-pointers.bal");
-        privateFPProgram = BCompileUtil.compile(this, "test-src/expressions/lambda/FunctionPointersProject",
-                "private-function-pointers");
+        privateFPProgram = BCompileUtil.compile("test-src/expressions/lambda/function_pointers_project");
         globalProgram = BCompileUtil.compile("test-src/expressions/lambda/global-function-pointers.bal");
         structProgram = BCompileUtil.compile("test-src/expressions/lambda/struct-function-pointers.bal");
         closureFPProgram =
@@ -238,7 +237,7 @@ public class FunctionPointersTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "1500526800000");
+        Assert.assertEquals(returns[0].stringValue(), "foobar");
     }
 
     @Test

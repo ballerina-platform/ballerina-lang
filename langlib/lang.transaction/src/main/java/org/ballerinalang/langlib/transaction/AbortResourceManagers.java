@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.transaction;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.transactions.TransactionResourceManager;
 
 /**
@@ -30,7 +29,7 @@ import io.ballerina.runtime.transactions.TransactionResourceManager;
 public class AbortResourceManagers {
 
     public static boolean abortResourceManagers(BString transactionId, BString transactionBlockId) {
-        return TransactionResourceManager.getInstance().notifyAbort(Scheduler.getStrand(), transactionId.getValue(),
+        return TransactionResourceManager.getInstance().notifyAbort(transactionId.getValue(),
                 transactionBlockId.getValue(), null);
     }
 }

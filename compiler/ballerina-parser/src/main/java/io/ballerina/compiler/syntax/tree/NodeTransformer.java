@@ -204,10 +204,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(importPrefixNode);
     }
 
-    public T transform(ImportVersionNode importVersionNode) {
-        return transformSyntaxNode(importVersionNode);
-    }
-
     public T transform(SpecificFieldNode specificFieldNode) {
         return transformSyntaxNode(specificFieldNode);
     }
@@ -810,6 +806,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ClassDefinitionNode classDefinitionNode) {
         return transformSyntaxNode(classDefinitionNode);
+    }
+
+    public T transform(RequiredExpressionNode requiredExpressionNode) {
+        return transformSyntaxNode(requiredExpressionNode);
     }
 
     // Tokens

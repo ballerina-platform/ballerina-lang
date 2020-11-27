@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completions.builder;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.MarkupContent;
@@ -41,10 +40,9 @@ public class ConstantCompletionItemBuilder {
      * Build the constant {@link CompletionItem}.
      *
      * @param constantSymbol constant symbol
-     * @param context        Language server operation context
      * @return {@link CompletionItem} generated completion item
      */
-    public static CompletionItem build(ConstantSymbol constantSymbol, LSContext context) {
+    public static CompletionItem build(ConstantSymbol constantSymbol) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(constantSymbol.name());
         completionItem.setInsertText(constantSymbol.name());

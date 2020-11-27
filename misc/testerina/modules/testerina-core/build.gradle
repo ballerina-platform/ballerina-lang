@@ -15,8 +15,8 @@
  *
  */
 
-apply from: "$rootDir/gradle/balNativeLibProject.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
+
 
 configurations {
     dist {
@@ -25,39 +25,27 @@ configurations {
 }
 
 dependencies {
-    baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
     implementation project(':testerina:testerina-runtime')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-runtime-api')
+//    implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-lang:java')
     implementation 'org.testng:testng'
     implementation 'com.google.guava:guava:23.0'
 
-    dist 'io.github.java-diff-utils:java-diff-utils:4.5'
+    interopImports 'io.github.java-diff-utils:java-diff-utils:4.5'
 
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.swagger.core.v3:swagger-models'
     testCompile 'io.swagger.parser.v3:swagger-parser'
     testCompile 'com.github.jknack:handlebars'
 
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
-
-    interopImports project(':ballerina-reflect')
-
     compile group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: '4.5'
 }
 
 jar.archiveName("${project.name}-${project.version}.jar")
-
-jar {
-    from {
-        configurations.dist.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}
 
 task updateVersion {
     ant.replaceregexp(
@@ -66,21 +54,9 @@ task updateVersion {
             replace: "${project.name}-${project.version}.jar"
     )
 }
-createBalo {
-    dependsOn "updateVersion"
-    jvmTarget = 'true'
+
+ballerinaLangLibBuild {
+    skipBootstrap = 'true'
 }
 
 description = 'Ballerina - Testerina - Core'
-
-//ext.moduleName = 'testerina-core'
-//
-//compileJava {
-//    inputs.property("moduleName", moduleName)
-//    doFirst {
-//        options.compilerArgs = [
-//                '--module-path', classpath.asPath,
-//        ]
-//        classpath = files()
-//    }
-//}

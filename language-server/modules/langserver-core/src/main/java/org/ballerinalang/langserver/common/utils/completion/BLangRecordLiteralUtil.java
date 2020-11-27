@@ -17,19 +17,18 @@
  */
 package org.ballerinalang.langserver.common.utils.completion;
 
+import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.types.FieldSymbol;
-import io.ballerina.compiler.api.types.FunctionTypeSymbol;
-import io.ballerina.compiler.api.types.MapTypeSymbol;
-import io.ballerina.compiler.api.types.RecordTypeSymbol;
-import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.TypeSymbol;
-import io.ballerina.compiler.api.types.UnionTypeSymbol;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
@@ -52,10 +51,10 @@ public class BLangRecordLiteralUtil {
     private BLangRecordLiteralUtil() {
     }
 
-    public static List<LSCompletionItem> getSpreadCompletionItems(LSContext context, TypeSymbol evalType) {
+    public static List<LSCompletionItem> getSpreadCompletionItems(CompletionContext context, TypeSymbol evalType) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<TypeSymbol> typeList = getTypeListForMapAndRecords(evalType);
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
 
         for (Symbol symbol : visibleSymbols) {
             getSpreadableCompletionItem(context, symbol, typeList).ifPresent(completionItems::add);
@@ -64,7 +63,7 @@ public class BLangRecordLiteralUtil {
         return completionItems;
     }
 
-    private static Optional<LSCompletionItem> getSpreadableCompletionItem(LSContext context, Symbol symbol,
+    private static Optional<LSCompletionItem> getSpreadableCompletionItem(CompletionContext context, Symbol symbol,
                                                                           List<TypeSymbol> refTypeList) {
         Optional<TypeSymbol> typeDescriptor = Optional.empty();
         if (symbol.kind() == SymbolKind.FUNCTION) {
@@ -117,7 +116,7 @@ public class BLangRecordLiteralUtil {
         return new ArrayList<>();
     }
 
-    private static void modifySpreadCompletionItem(LSContext context, CompletionItem cItem) {
+    private static void modifySpreadCompletionItem(CompletionContext context, CompletionItem cItem) {
         // TODO: Fix 
 //        List<CommonToken> commonTokens = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
 //        String lastToken = (commonTokens.isEmpty()) ? "" : commonTokens.get(commonTokens.size() - 1).getText();

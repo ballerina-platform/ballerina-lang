@@ -193,10 +193,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(importPrefixNode);
     }
 
-    public void visit(STImportVersionNode importVersionNode) {
-        visitSyntaxNode(importVersionNode);
-    }
-
     public void visit(STSpecificFieldNode specificFieldNode) {
         visitSyntaxNode(specificFieldNode);
     }
@@ -799,6 +795,10 @@ public abstract class STNodeVisitor {
 
     public void visit(STClassDefinitionNode classDefinitionNode) {
         visitSyntaxNode(classDefinitionNode);
+    }
+
+    public void visit(STRequiredExpressionNode requiredExpressionNode) {
+        visitSyntaxNode(requiredExpressionNode);
     }
 
     // STNodeList

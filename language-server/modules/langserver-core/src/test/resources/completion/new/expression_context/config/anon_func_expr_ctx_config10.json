@@ -13,13 +13,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "on fail clause",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "on fail ${1:var} ${2:varName} {\n\t${3}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "xmlns",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -181,6 +174,28 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'test;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -287,6 +302,28 @@
             }
           },
           "newText": "import ballerina/lang.'query;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'runtime;\n"
         }
       ]
     },

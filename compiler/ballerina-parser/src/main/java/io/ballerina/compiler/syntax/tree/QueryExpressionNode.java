@@ -114,7 +114,6 @@ public class QueryExpressionNode extends ExpressionNode {
 
         public QueryExpressionNodeModifier withQueryConstructType(
                 QueryConstructTypeNode queryConstructType) {
-            Objects.requireNonNull(queryConstructType, "queryConstructType must not be null");
             this.queryConstructType = queryConstructType;
             return this;
         }
@@ -135,7 +134,6 @@ public class QueryExpressionNode extends ExpressionNode {
 
         public QueryExpressionNodeModifier withOnConflictClause(
                 OnConflictClauseNode onConflictClause) {
-            Objects.requireNonNull(onConflictClause, "onConflictClause must not be null");
             this.onConflictClause = onConflictClause;
             return this;
         }

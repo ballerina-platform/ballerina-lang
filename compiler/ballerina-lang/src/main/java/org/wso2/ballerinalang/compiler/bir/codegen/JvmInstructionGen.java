@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.IdentifierUtils;
+import io.ballerina.runtime.internal.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
@@ -437,8 +437,7 @@ public class JvmInstructionGen {
         switch (varDcl.kind) {
             case GLOBAL: {
                 BIRNode.BIRGlobalVariableDcl globalVar = (BIRNode.BIRGlobalVariableDcl) varDcl;
-                PackageID modId = globalVar.pkgId;
-                String moduleName = JvmCodeGenUtil.getPackageName(modId);
+                String moduleName = JvmCodeGenUtil.getPackageName(globalVar.pkgId);
 
                 String varName = varDcl.name.value;
                 String className = jvmPackageGen.lookupGlobalVarClassName(moduleName, varName);
@@ -1642,7 +1641,7 @@ public class JvmInstructionGen {
         this.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         this.mv.visitInsn(DUP);
 
-        String lambdaName = IdentifierUtils.encodeIdentifier(inst.funcName.value) + "$lambda" +
+        String lambdaName = IdentifierUtils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" +
                 asyncDataCollector.getLambdaIndex() + "$";
         asyncDataCollector.incrementLambdaIndex();
         String pkgName = JvmCodeGenUtil.getPackageName(inst.pkgId);
@@ -1677,7 +1676,7 @@ public class JvmInstructionGen {
 
         // Set annotations if available.
         this.mv.visitInsn(DUP);
-        String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
+        String pkgClassName = pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
                 jvmPackageGen.lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
         this.mv.visitLdcInsn(inst.funcName.value);

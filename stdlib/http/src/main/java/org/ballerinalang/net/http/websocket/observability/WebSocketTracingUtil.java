@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http.websocket.observability;
 
+import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
-import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 
 import java.util.Optional;

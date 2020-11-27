@@ -22,10 +22,10 @@ import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -82,7 +82,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertNull(returns[11]);
     }
 
-    @Test(description = "Test simple error var def with string and map declared with var")
+    @Test(description = "Test simple error var def with string and map declared with var", groups = {
+            "brokenOnSpecDeviation" })
     public void testVarBasicErrorVariableWithMapDetails() {
         BValue[] returns = BRunUtil.invoke(result, "testVarBasicErrorVariableWithMapDetails");
         Assert.assertEquals(returns.length, 12);
@@ -101,7 +102,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertNull(returns[11]);
     }
 
-    @Test(description = "Test simple error var def with const and map declared with var")
+    @Test(description = "Test simple error var def with const and map declared with var", groups = {
+            "brokenOnSpecDeviation" })
     public void testVarBasicErrorVariableWithConstAndMap() {
         BValue[] returns = BRunUtil.invoke(result, "testVarBasicErrorVariableWithConstAndMap");
         Assert.assertEquals(returns.length, 12);
@@ -164,7 +166,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    @Test(description = "Test simple error var def inside tuple with destructuring error", groups = {
+            "brokenOnSpecDeviation" })
     public void testErrorInTupleWithDestructure2() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
         Assert.assertEquals(returns.length, 5);
@@ -184,7 +187,8 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[2].stringValue(), "Something Wrong3");
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    @Test(description = "Test simple error var def inside tuple with destructuring error", groups = {
+            "brokenOnSpecDeviation" })
     public void testErrorWithAnonErrorType() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorWithAnonErrorType");
         Assert.assertEquals(returns.length, 2);

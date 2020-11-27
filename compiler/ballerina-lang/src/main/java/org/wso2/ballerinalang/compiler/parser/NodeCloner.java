@@ -905,7 +905,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.workerIdentifier = source.workerIdentifier;
-        clone.keyExpr = clone(source.keyExpr);
     }
 
     @Override
@@ -915,8 +914,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
 
         clone.workerIdentifier = source.workerIdentifier;
-        clone.keyExpr = clone(source.keyExpr);
-        clone.isChannel = source.isChannel;
     }
 
     @Override
@@ -2154,10 +2151,11 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangObjectConstructorExpression source) {
         BLangObjectConstructorExpression clone = new BLangObjectConstructorExpression();
 
-        clone.classNode = clone(source.classNode);
         clone.pos = source.pos;
-        clone.referenceType = clone(source.referenceType);
+        clone.classNode = clone(source.classNode);
         clone.typeInit = clone(source.typeInit);
+        clone.referenceType = clone(source.referenceType);
+        clone.isClient = source.isClient;
 
         source.cloneRef = clone;
     }

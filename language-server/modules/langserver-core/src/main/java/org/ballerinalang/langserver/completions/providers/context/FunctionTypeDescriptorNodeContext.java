@@ -25,9 +25,8 @@ import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -51,8 +50,8 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, FunctionTypeDescriptorNode node) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+    public List<LSCompletionItem> getCompletions(CompletionContext context, FunctionTypeDescriptorNode node) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onSuggestionsAfterQualifiers(context, node)) {
             // Currently we consider the isolated qualifier only
@@ -81,24 +80,24 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
         return new ArrayList<>();
     }
 
-    private boolean withinParameterContext(LSContext context, FunctionTypeDescriptorNode node) {
+    private boolean withinParameterContext(CompletionContext context, FunctionTypeDescriptorNode node) {
         FunctionSignatureNode functionSignatureNode = node.functionSignature();
         if (functionSignatureNode.isMissing()) {
             return false;
         }
-        Integer txtPosInTree = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int txtPosInTree = context.getCursorPositionInTree();
         TextRange openParanRange = functionSignatureNode.openParenToken().textRange();
         TextRange closeParanRange = functionSignatureNode.closeParenToken().textRange();
 
         return openParanRange.endOffset() <= txtPosInTree && txtPosInTree <= closeParanRange.startOffset();
     }
 
-    private boolean withinReturnKWContext(LSContext context, FunctionTypeDescriptorNode node) {
+    private boolean withinReturnKWContext(CompletionContext context, FunctionTypeDescriptorNode node) {
         FunctionSignatureNode functionSignatureNode = node.functionSignature();
         if (functionSignatureNode.isMissing()) {
             return false;
         }
-        Integer txtPosInTree = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int txtPosInTree = context.getCursorPositionInTree();
         TextRange closeParanRange = functionSignatureNode.closeParenToken().textRange();
         Optional<ReturnTypeDescriptorNode> returnTypeDescNode = functionSignatureNode.returnTypeDesc();
 
@@ -106,8 +105,8 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
                 || returnTypeDescNode.get().returnsKeyword().isMissing());
     }
 
-    private boolean onSuggestionsAfterQualifiers(LSContext context, FunctionTypeDescriptorNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onSuggestionsAfterQualifiers(CompletionContext context, FunctionTypeDescriptorNode node) {
+        int cursor = context.getCursorPositionInTree();
         NodeList<Token> qualifiers = node.qualifierList();
         Token functionKeyword = node.functionKeyword();
 

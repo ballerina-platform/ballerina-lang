@@ -77,10 +77,6 @@ public class BallerinaServerAgent {
     private static String agentHost = DEFAULT_AGENT_HOST;
     private static int agentPort = DEFAULT_AGENT_PORT;
 
-    public BallerinaServerAgent() {
-
-    }
-
     /**
      * This method will be called before invoking ballerina Main method.
      *
@@ -111,14 +107,14 @@ public class BallerinaServerAgent {
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                                     ProtectionDomain protectionDomain, byte[] classfileBuffer) {
-                if ("io/ballerina/runtime/scheduling/Scheduler".equals(className)) {
+                if ("io/ballerina/runtime/internal/scheduling/Scheduler".equals(className)) {
                     try {
                         ClassPool cp = ClassPool.getDefault();
-                        CtClass cc = cp.get("io.ballerina.runtime.scheduling.Scheduler");
+                        CtClass cc = cp.get("io.ballerina.runtime.internal.scheduling.Scheduler");
                         cc.addField(CtField.make("boolean agentStarted;", cc));
 
                         CtMethod m = cc.getDeclaredMethod("start");
-                        m.insertBefore("if (!agentStarted && immortal) {" +
+                        m.insertBefore("if (!agentStarted) {" +
                                 "org.ballerinalang.test.agent.BallerinaServerAgent.startAgentServer();" +
                                 "agentStarted = true;" +
                                 " }");
