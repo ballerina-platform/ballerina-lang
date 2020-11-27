@@ -101,12 +101,14 @@ public class RemotePackageRepository implements PackageRepository {
         String orgName = resolutionRequest.orgName().value();
         String packageName = resolutionRequest.packageName().value();
 
-        //If environment is offline we return the local versions
+        // First, Get local versions
+        List<PackageVersion> packageVersions = new ArrayList<>(fileSystemRepo.getPackageVersions(resolutionRequest));
+
+        // If environment is offline we return the local versions
         if (isOffline) {
-            return fileSystemRepo.getPackageVersions(resolutionRequest);
+            return packageVersions;
         }
 
-        List<PackageVersion> packageVersions = new ArrayList<>();
         try {
             for (String version : this.client.getPackageVersions(orgName, packageName, JdkVersion.JAVA_11.code())) {
                 packageVersions.add(PackageVersion.from(version));
