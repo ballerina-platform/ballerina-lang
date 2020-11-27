@@ -188,9 +188,54 @@ function testLastIndexOf() {
     }
 }
 
-function testReverse() returns [int[], int[]] {
+function testReverseInt() {
     int[] arr = [10, 20, 30, 40, 50];
-    return [arr, arr.reverse()];
+    assertValueEquality(arr.reverse(), [50, 40, 30, 20, 10]);
+}
+
+function testReverseFloat() {
+    float[] arr = [10.5, 20.6, 30.7, 40.8, 50.9];
+    assertValueEquality(arr.reverse(), [50.9, 40.8, 30.7, 20.6, 10.5]);
+}
+
+function testReverseStr() {
+    string[] arr = ["hello", "A", "Ballerina"];
+    assertValueEquality(arr.reverse(), ["Ballerina", "A", "hello"]);
+}
+
+function testReverseBool() {
+    boolean[] arr = [true, false, true, true, false];
+    assertValueEquality(arr.reverse(), [false, true, true, false, true]);
+}
+
+function testReverseByte() {
+    byte[] arr = [2, 4, 6, 8, 10];
+    assertValueEquality(arr.reverse(), [10, 8, 6, 4, 2]);
+}
+
+function testReverseMap() {
+    map<string>[] arr = [{line1: "a", line2: "b"}, {line3: "c", line4: "d"}];
+    assertValueEquality(arr.reverse(), [{line3: "c", line4: "d"}, {line1: "a", line2: "b"}]);
+}
+
+type Employee record {
+    string name;
+    int age;
+    string designation;
+};
+
+function testReverseRecord() {
+    Employee[] arr = [{name: "John Doe", age: 25, designation: "Software Engineer"},
+        {name: "Jane Doe", age: 27, designation: "UX Engineer"}];
+    assertValueEquality(arr.reverse(), [{name: "Jane Doe", age: 27, designation: "UX Engineer"},
+        {name: "John Doe", age: 25, designation: "Software Engineer"}]);
+}
+
+function testArrayReverseEquality() {
+    int[] x = [1, 2, 3, 4, 5];
+    int[] y = x.reverse();
+    assertValueEquality(x == y, true);
+    assertValueEquality(x === y, true);
 }
 
 type Person record {|
