@@ -164,7 +164,7 @@ public class CentralAPIClient {
      * @param packageNamePath The name of the package. (required)
      * @return PackageJsonSchema
      */
-    public List<String> getPackageVersions(String orgNamePath, String packageNamePath)
+    public List<String> getPackageVersions(String orgNamePath, String packageNamePath, String supportedPlatform)
             throws CentralClientException {
         initializeSsl();
         String url = PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
@@ -172,6 +172,9 @@ public class CentralAPIClient {
         HttpURLConnection conn = createHttpUrlConnection(url);
         conn.setInstanceFollowRedirects(false);
         setRequestMethod(conn, Utils.RequestMethod.GET);
+
+        // Set headers
+        conn.setRequestProperty(BALLERINA_PLATFORM, supportedPlatform);
 
         // status code and meaning
         //// 200 - list of versions
