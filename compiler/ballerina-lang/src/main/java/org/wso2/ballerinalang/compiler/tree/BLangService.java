@@ -57,7 +57,7 @@ public class BLangService extends BLangNode implements ServiceNode {
 
 
     public BLangSimpleVariable serviceVariable;
-    public List<String> absoluteResourcePath;
+    public List<IdentifierNode> absoluteResourcePath;
 
     public BLangService() {
         this.flagSet = EnumSet.noneOf(Flag.class);
@@ -95,7 +95,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public List<String> getAbsolutePath() {
+    public List<IdentifierNode> getAbsolutePath() {
         return this.absoluteResourcePath;
     }
 

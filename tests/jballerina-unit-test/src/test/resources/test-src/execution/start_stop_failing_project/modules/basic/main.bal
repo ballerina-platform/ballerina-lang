@@ -57,7 +57,7 @@ public class TestListener {
         return ();
     }
 
-    public function __attach(service object {} s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string[]? name = ()) returns error? {
         io:println("basic:TestListener listener __attach called, service name - " + self.name);
     }
 

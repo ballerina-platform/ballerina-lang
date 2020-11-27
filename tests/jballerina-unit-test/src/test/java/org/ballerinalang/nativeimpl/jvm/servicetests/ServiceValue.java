@@ -42,6 +42,7 @@ public class ServiceValue {
     private static BObject service;
     private static BObject listener;
     private static boolean started;
+    private static String[] names;
 
     public static BFuture callMethod(Environment env, BObject l, BString name) {
         BFuture k = env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
@@ -83,8 +84,17 @@ public class ServiceValue {
         return null;
     }
 
-    public static Object attach(BObject servObj) {
+    public static Object attach(BObject servObj, Object name) {
         ServiceValue.service = servObj;
+        if (name == null) {
+            names = null;
+        } else {
+            BArray array = (BArray) name;
+            names = new String[array.size()];
+            for(int i = 0; i < array.size(); i++) {
+                names[i] = array.getBString(i).getValue();
+            }
+        }
         return null;
     }
 
@@ -102,6 +112,7 @@ public class ServiceValue {
         ServiceValue.service = null;
         ServiceValue.listener = null;
         ServiceValue.started = false;
+        ServiceValue.names = new String[0];
     }
 
     public static BObject getListener() {

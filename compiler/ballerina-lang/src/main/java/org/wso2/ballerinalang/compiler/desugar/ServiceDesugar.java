@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.BlockNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -167,6 +169,14 @@ public class ServiceDesugar {
             // Create method invocation
             List<BLangExpression> args = new ArrayList<>();
             args.add(ASTBuilderUtil.createVariableRef(pos, service.serviceVariable.symbol));
+
+            BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
+                    ASTBuilderUtil.createEmptyArrayLiteral(service.getPosition(), symTable.arrayStringType);
+            for (IdentifierNode path : service.getAbsolutePath()) {
+                var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType, path.getValue());
+                arrayLiteral.exprs.add(literal);
+            }
+            args.add(arrayLiteral);
 
             addMethodInvocation(pos, listenerVarRef, methodRef, args, attachments);
         }

@@ -31,7 +31,7 @@ public class ABC {
         return ();
     }
 
-    public function __attach(service object {} s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string[]? name = ()) returns error? {
         io:println("a:ABC listener __attach called, service name - " + self.name);
     }
 

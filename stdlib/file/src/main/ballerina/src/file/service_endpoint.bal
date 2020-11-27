@@ -64,7 +64,7 @@ public class Listener {
     # + s - Type descriptor of the service
     # + name - Name of the service
     # + return - () or else error upon failure to attach to the service
-    public function __attach(service object {} s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string[]? name = ()) returns error? {
         return register(self, s, name);
     }
 

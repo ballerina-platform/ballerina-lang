@@ -31,7 +31,7 @@ public class ABC {
         return ();
     }
 
-    public function __attach(service object {} s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string[]? name = ()) returns error? {
         attachCount += 1;
     }
 
@@ -58,7 +58,7 @@ public class PQR {
         return ();
     }
 
-    public function __attach(service object {} s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string[]? name = ()) returns error? {
         attachCount += 1;
     }
 

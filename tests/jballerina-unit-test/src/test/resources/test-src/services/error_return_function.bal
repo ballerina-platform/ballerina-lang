@@ -27,10 +27,10 @@ public class Listener {
     }
     public isolated function __detach(service object {} s) returns error? {
     }
-     public isolated function __attach(service object {} s, string? name = ()) returns error? {
+    public isolated function __attach(service object {} s, string[]? name = ()) returns error? {
         return self.register(s, name);
     }
-    isolated function register(service object {} s, string? name) returns error? {
+    isolated function register(service object {} s, string[]? name) returns error? {
         return externAttach(s);
     }
 }

@@ -10,7 +10,7 @@ public function main(string... args) {
 class CustomListener {
     *lang:Listener;
 
-    public function __attach(service object {} s, string? name) returns error? {
+    public function __attach(service object {} s, string[]? name) returns error? {
         io:println("running __attach");
     }
 

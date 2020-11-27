@@ -3668,15 +3668,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         annonClassDef.pos = pos;
         annonClassDef.flagSet.add(SERVICE);
 
-        List<String> absResourcePathPath = new ArrayList<>();
+        List<IdentifierNode> absResourcePathPath = new ArrayList<>();
         NodeList<Token> pathList = serviceDeclarationNode.absoluteResourcePath();
         for (Token token : pathList) {
             String text = token.text();
             // if it's a single '/' then add, else ignore '/' chars and only add other pieces.
             if (pathList.size() == 1 && text.equals("/")) {
-                absResourcePathPath.add(text);
+                absResourcePathPath.add(createIdentifier(token));
             } else if (!text.equals("/")) {
-                absResourcePathPath.add(text);
+                absResourcePathPath.add(createIdentifier(token));
             }
         }
 

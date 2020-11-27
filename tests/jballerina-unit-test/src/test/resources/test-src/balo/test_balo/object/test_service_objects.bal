@@ -31,11 +31,11 @@ public class Listener {
     }
     public isolated function __detach(service object {} s) returns error? {
     }
-     public isolated function __attach(service object {} s, string? name = ()) returns error? {
+     public isolated function __attach(service object {} s, string[]? name = ()) returns error? {
         return self.register(s, name);
     }
-    isolated function register(service object {} s, string? name) returns error? {
-        return externAttach(s);
+    isolated function register(service object {} s, string[]? name) returns error? {
+        return externAttach(s, name);
     }
 
     public function init() {
@@ -44,7 +44,7 @@ public class Listener {
     }
 }
 
-isolated function externAttach(service object {} s) returns error? = @java:Method {
+isolated function externAttach(service object {} s, string[]? name) returns error? = @java:Method {
     'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name: "attach"
 } external;
