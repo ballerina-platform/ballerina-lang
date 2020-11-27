@@ -4,7 +4,7 @@ NAME
 SYNOPSIS
        ballerina run [<options>]
                      <ballerina-file-path> | <executable-jar> [<arguments>] [<config properties>]
-       ballerina run [<options>] <.> [<arguments>] [<config properties>]
+       ballerina run [<options>] <.> | <project-path> [<arguments>] [<config properties>]
 
 
 DESCRIPTION

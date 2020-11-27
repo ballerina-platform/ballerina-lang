@@ -79,8 +79,8 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
 
-    private static final String runCmd = "ballerina run {<ballerina-file | project-name> | <executable-jar>} " +
-            "[--] [(--key=value)...]";
+    private static final String runCmd = "ballerina run [--experimental] [--offline] \n" +
+            "<executable-jar | ballerina-file | . | project-path> [program-args] [(--key=value)...]";
 
     public RunCommand() {
         this.outStream = System.err;
