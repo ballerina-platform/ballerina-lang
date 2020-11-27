@@ -1318,6 +1318,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 unionType.add(member);
             }
         }
+        typeDef.typeNode.type = unionType;
+        typeDef.typeNode.type.tsymbol.type = unionType;
+        typeDef.symbol.type = unionType;
         return unionType;
     }
 

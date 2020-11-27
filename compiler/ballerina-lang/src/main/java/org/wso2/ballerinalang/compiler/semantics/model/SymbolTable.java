@@ -747,7 +747,7 @@ public class SymbolTable {
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);
         errorType = new BErrorType(null, detailType);
         errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
-                rootPkgSymbol.pkgID, errorType, rootPkgSymbol, this.builtinPos, BUILTIN);
+                rootPkgSymbol.pkgID, errorType, rootPkgSymbol, builtinPos, BUILTIN);
 
         errorOrNilType = BUnionType.create(null, errorType, nilType);
         anyOrErrorType = BUnionType.create(null, anyType, errorType);
@@ -777,7 +777,7 @@ public class SymbolTable {
 
         jsonType = new BJSONType(jsonInternal);
         jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, PackageID.ANNOTATIONS, jsonType,
-                langAnnotationModuleSymbol, this.builtinPos, BUILTIN);
+                langAnnotationModuleSymbol, builtinPos, BUILTIN);
 
         arrayJsonType = new BArrayType(jsonType);
         mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);

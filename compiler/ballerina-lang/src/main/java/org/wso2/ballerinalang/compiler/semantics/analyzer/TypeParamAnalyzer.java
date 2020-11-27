@@ -269,10 +269,9 @@ public class TypeParamAnalyzer {
                 return new BReadonlyType(type.tag, null, name, flags);
             case TypeTags.UNION:
                 BUnionType unionType = new BUnionType((BUnionType) type);
-                unionType.flags = flags;
                 unionType.name = name;
+                unionType.flags |= flags;
                 return unionType;
-
         }
         // For others, we will use TSymbol.
         return type;
@@ -654,6 +653,14 @@ public class TypeParamAnalyzer {
                 constraint = ((BTypedescType) expType).constraint;
                 return new BTypedescType(getMatchingBoundType(constraint, env, resolvedTypes),
                         symTable.typeDesc.tsymbol);
+            case TypeTags.INTERSECTION:
+                BType effectiveType = ((BIntersectionType) expType).effectiveType;
+                LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>();
+                for (BType type : ((BIntersectionType) expType).getConstituentTypes()) {
+                    constituentTypes.add(type);
+                }
+                return new BIntersectionType(symTable.typeDesc.tsymbol, constituentTypes,
+                                             getMatchingBoundType(effectiveType, env, resolvedTypes), Flags.READONLY);
             default:
                 return expType;
         }

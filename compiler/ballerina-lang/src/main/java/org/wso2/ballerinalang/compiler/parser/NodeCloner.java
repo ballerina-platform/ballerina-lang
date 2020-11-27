@@ -488,6 +488,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.precedence = source.precedence;
+        clone.hasCyclicReference = source.hasCyclicReference;
     }
 
     @Override

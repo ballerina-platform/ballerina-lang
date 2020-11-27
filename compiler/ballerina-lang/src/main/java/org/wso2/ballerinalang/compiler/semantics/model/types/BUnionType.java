@@ -229,7 +229,43 @@ public class BUnionType extends BType implements UnionType {
             this.flags ^= Flags.READONLY;
         }
 
+        checkCyclicReference(type);
+
         this.nullable = this.nullable || type.isNullable();
+    }
+
+    private void checkCyclicReference(BType type) {
+        if (isCyclic) {
+            return;
+        }
+
+        if (type.tag == TypeTags.ARRAY) {
+            var arrayType = (BArrayType) type;
+            if (arrayType.eType == this) {
+                isCyclic = true;
+            }
+        }
+
+        if (type.tag == TypeTags.MAP) {
+            var mapType = (BMapType) type;
+            if (mapType.constraint == this) {
+                isCyclic = true;
+            }
+        }
+
+        if (type.tag == TypeTags.TABLE) {
+            var tableType = (BTableType) type;
+            if (tableType.constraint == this) {
+                isCyclic = true;
+            }
+
+            if (tableType.constraint.tag == TypeTags.MAP) {
+                var mapType = (BMapType) tableType.constraint;
+                if (mapType.constraint == this) {
+                    isCyclic = true;
+                }
+            }
+        }
     }
 
     /**
@@ -283,8 +319,8 @@ public class BUnionType extends BType implements UnionType {
                 if (arrayType.eType == unionType) {
                     BArrayType newArrayType = new BArrayType(this, arrayType.tsymbol, arrayType.size,
                             arrayType.state, arrayType.flags);
-                    this.add(newArrayType);
                     this.isCyclic = true;
+                    this.add(newArrayType);
                     continue;
                 }
             } else if (member instanceof BMapType) {
@@ -300,8 +336,8 @@ public class BUnionType extends BType implements UnionType {
                 if (tableType.constraint == unionType) {
                     BTableType newTableType = new BTableType(tableType.tag, this, tableType.tsymbol,
                             tableType.flags);
-                    this.add(newTableType);
                     isCyclic = true;
+                    this.add(newTableType);
                     continue;
                 } else if (tableType.constraint instanceof BMapType) {
                     BMapType mapType = (BMapType) tableType.constraint;

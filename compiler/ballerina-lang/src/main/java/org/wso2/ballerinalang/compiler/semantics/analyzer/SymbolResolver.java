@@ -903,7 +903,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 foundCloneableType = true;
 
                 symTable.cloneableType = (BUnionType) entry.symbol.type;
-                symTable.cloneableType.isCyclic = true;
                 symTable.cloneableType.tsymbol =
                         new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
                                 symTable.cloneableType, symTable.langValueModuleSymbol, symTable.builtinPos, BUILTIN);

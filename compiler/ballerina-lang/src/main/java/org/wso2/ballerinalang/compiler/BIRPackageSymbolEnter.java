@@ -1418,6 +1418,7 @@ public class BIRPackageSymbolEnter {
 
             int unionMemberCount = inputStream.readInt();
             BUnionType unionType = BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(unionMemberCount));
+            unionType.name = unionNameValue;
             if (isCyclic) {
                 addShapeCP(unionType, cpI);
             }

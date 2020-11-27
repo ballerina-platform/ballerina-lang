@@ -400,12 +400,13 @@ public class ImmutableTypeCloner {
                 BUnionType origUnionType = (BUnionType) type;
                 BType immutableType;
 
-                LinkedHashSet<BType> readOnlyMemTypes = new LinkedHashSet<>();
+                var originalMemberList = origUnionType.getMemberTypes();
+                LinkedHashSet<BType> readOnlyMemTypes = new LinkedHashSet<>(originalMemberList.size());
                 immutableType = BUnionType.create(null);
                 var unionImmutableType = (BUnionType) immutableType;
                 unionImmutableType.setMemberTypes(readOnlyMemTypes);
 
-                for (BType memberType : origUnionType.getMemberTypes()) {
+                for (BType memberType : originalMemberList) {
                     if (types.isInherentlyImmutableType(memberType)) {
                         readOnlyMemTypes.add(memberType);
                         continue;
@@ -440,7 +441,6 @@ public class ImmutableTypeCloner {
                     immutableType = BUnionType.create(null, readOnlyMemTypes);
                     immutableType.flags |= (origUnionType.flags | Flags.READONLY);
                 }
-
 
                 BIntersectionType immutableUnionIntersectionType = createImmutableIntersectionType(env, origUnionType,
                                                                                                    immutableType,

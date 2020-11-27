@@ -60,8 +60,9 @@ public class BAnydataType extends BUnionType {
         this.immutableType = type.immutableType;
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
-        resolveCyclicType(type);
+        this.name = type.name;
         this.flags = type.flags;
+        resolveCyclicType(type);
     }
 
     public BAnydataType(BAnydataType type, boolean nullable) {

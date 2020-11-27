@@ -1642,7 +1642,6 @@ public class JvmTypeGen {
         mv.visitInsn(unionType.isCyclic ? ICONST_1 : ICONST_0);
     }
 
-    // TODO: cleanup and fix cyclic loading
     private static void createMembersArray(MethodVisitor mv, BUnionType unionType) {
         Set<BType> members = unionType.getMemberTypes();
 
