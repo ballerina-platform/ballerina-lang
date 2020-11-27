@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -45,13 +44,8 @@ public class BIRVarToJVMIndexMap {
 
     private final Map<String, Integer> jvmLocalVarIndexMap = new HashMap<>();
 
-    private void add(BIRNode.BIRVariableDcl varDcl) {
-
-        String varRefName = this.getVarRefName(varDcl);
+    private void add(String varRefName, BType bType) {
         this.jvmLocalVarIndexMap.put(varRefName, this.localVarIndex);
-
-        BType bType = varDcl.type;
-
         if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.FLOAT) {
             this.localVarIndex = this.localVarIndex + 2;
         } else if (bType.tag == JTypeTags.JTYPE) {
@@ -66,18 +60,14 @@ public class BIRVarToJVMIndexMap {
         }
     }
 
-    private String getVarRefName(BIRNode.BIRVariableDcl varDcl) {
-
-        return varDcl.name.value;
+    public int addIfNotExists(String varRefName, BType bType) {
+        if (!(this.jvmLocalVarIndexMap.containsKey(varRefName))) {
+            this.add(varRefName, bType);
+        }
+        return get(varRefName);
     }
 
-    public int addToMapIfNotFoundAndGetIndex(BIRNode.BIRVariableDcl varDcl) {
-
-        String varRefName = this.getVarRefName(varDcl);
-        if (!(this.jvmLocalVarIndexMap.containsKey(varRefName))) {
-            this.add(varDcl);
-        }
-
+    public int get(String varRefName) {
         Integer index = this.jvmLocalVarIndexMap.get(varRefName);
         return index != null ? index : -1;
     }

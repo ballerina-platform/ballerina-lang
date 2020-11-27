@@ -24,16 +24,12 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
-import org.wso2.ballerinalang.compiler.bir.model.VarKind;
-import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -115,7 +111,6 @@ public class JvmCastGen {
 
     static void generatePlatformCheckCast(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, BType sourceType,
                                           BType targetType) {
-
         if (sourceType.tag == JTypeTags.JTYPE) {
             // If a target type is bir type, then we can guarantee source type is a jvm type, hence the cast
             generateJToBCheckCast(mv, indexMap, (JType) sourceType, targetType);
@@ -401,7 +396,6 @@ public class JvmCastGen {
 
     private static void generateJToBCheckCast(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JType sourceType,
                                               BType targetType) {
-
         if (TypeTags.isIntegerTypeTag(targetType.tag)) {
             generateCheckCastJToBInt(mv, sourceType);
             return;
@@ -596,12 +590,10 @@ public class JvmCastGen {
 
     private static void generateCheckCastJToBUnionType(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JType sourceType,
                                                        BUnionType targetType) {
-
         generateJCastToBAny(mv, indexMap, sourceType, targetType);
     }
 
     private static void generateCheckCastJToBAnyData(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JType sourceType) {
-
         if (!(sourceType.jTag == JTypeTags.JREF || sourceType.jTag == JTypeTags.JARRAY)) {
             // if value types, then ad box instruction
             generateJCastToBAny(mv, indexMap, sourceType, symbolTable.anydataType);
@@ -625,7 +617,6 @@ public class JvmCastGen {
 
     private static void generateJCastToBAny(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JType sourceType,
                                             BType targetType) {
-
         switch (sourceType.jTag) {
             case JTypeTags.JBOOLEAN:
                 mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, String.format("(Z)L%s;",
@@ -684,9 +675,7 @@ public class JvmCastGen {
                 mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
                 mv.visitJumpInsn(IFNE, afterHandle);
 
-                BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(null, symbolTable.anyType,
-                        new Name("$_ret_jobject_val_$"), VarScope.FUNCTION, VarKind.LOCAL, "");
-                int returnJObjectVarRefIndex = indexMap.addToMapIfNotFoundAndGetIndex(retJObjectVarDcl);
+                int returnJObjectVarRefIndex = indexMap.addIfNotExists("$_ret_jobject_val_$", symbolTable.anyType);
                 mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
                 mv.visitTypeInsn(NEW, HANDLE_VALUE);
                 mv.visitInsn(DUP);
@@ -723,7 +712,6 @@ public class JvmCastGen {
     }
 
     private static void generateCheckCastJToBJSON(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JType sourceType) {
-
         if (sourceType.jTag == JTypeTags.JREF || sourceType.jTag == JTypeTags.JARRAY) {
             return;
         }
@@ -734,7 +722,6 @@ public class JvmCastGen {
 
     private static void generateCheckCastJToBReadOnly(MethodVisitor mv, BIRVarToJVMIndexMap indexMap,
                                                       JType sourceType) {
-
         if (sourceType.jTag == JTypeTags.JREF || sourceType.jTag == JTypeTags.JARRAY) {
             return;
         }
@@ -753,7 +740,6 @@ public class JvmCastGen {
     }
 
     static void generateCheckCast(MethodVisitor mv, BType sourceType, BType targetType, BIRVarToJVMIndexMap indexMap) {
-
         if (TypeTags.isXMLTypeTag(sourceType.tag) && targetType.tag == TypeTags.MAP) {
             generateXMLToAttributesMap(mv);
             return;
@@ -1130,7 +1116,6 @@ public class JvmCastGen {
     }
 
     private static void generateCheckCastToString(MethodVisitor mv, BType sourceType, BIRVarToJVMIndexMap indexMap) {
-
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             return;
         } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
@@ -1170,17 +1155,13 @@ public class JvmCastGen {
     }
 
     private static void generateNonBMPStringValue(MethodVisitor mv, BIRVarToJVMIndexMap indexMap) {
-
-        BIRVariableDcl strVar = new BIRVariableDcl(null, symbolTable.anyType,
-                new Name("str"), VarScope.FUNCTION, VarKind.LOCAL, "");
-        int tmpVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(strVar);
-
+        int tmpVarIndex = indexMap.addIfNotExists("str", symbolTable.anyType);
         mv.visitVarInsn(ASTORE, tmpVarIndex);
         mv.visitTypeInsn(NEW, BMP_STRING_VALUE);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, tmpVarIndex);
         mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, JVM_INIT_METHOD,
-                String.format("(L%s;)V", STRING_VALUE), false);
+                           String.format("(L%s;)V", STRING_VALUE), false);
     }
 
     private static void generateCheckCastToChar(MethodVisitor mv, BType sourceType) {
