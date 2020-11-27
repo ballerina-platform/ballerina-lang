@@ -58,7 +58,7 @@ public class ModuleVariableTest {
         validateError(compileResultNegative, index++, "redeclared symbol 'b'", 20, 7);
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 23, 12);
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 24, 9);
-        validateError(compileResultNegative, index++, "only simple variables are allowed to be isolated", 31, 1);
+        validateError(compileResultNegative, index++, "only a simple variable can be marked as 'isolated'", 31, 1);
         assertEquals(compileResultNegative.getErrorCount(), index);
     }
 

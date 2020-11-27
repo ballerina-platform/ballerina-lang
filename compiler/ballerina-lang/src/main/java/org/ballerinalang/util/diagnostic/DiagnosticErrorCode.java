@@ -634,8 +634,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     INVALID_ISOLATED_QUALIFIER_ON_MODULE_NO_INIT_VAR_DECL(
             "BCE3961", "invalid.isolated.qualifier.on.module.no.init.var.decl"),
-    ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_ISOLATED(
-            "BCE3962", "only.simple.variables.are.allowed.to.be.isolated"),
+    ONLY_A_SIMPLE_VARIABLE_CAN_BE_MARKED_AS_ISOLATED(
+            "BCE3962", "only.a.simple.variable.can.be.marked.as.isolated"),
     BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL(
             "BCE3963", "binding.pattern.not.yet.supported.in.module.var.decl"),
 

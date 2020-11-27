@@ -785,7 +785,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (isIsolated(varNode)) {
-            dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_ISOLATED);
+            dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_A_SIMPLE_VARIABLE_CAN_BE_MARKED_AS_ISOLATED);
         }
 
         if (varNode.isDeclaredWithVar) {
@@ -821,7 +821,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (isIsolated(varNode)) {
-            dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_ISOLATED);
+            dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_A_SIMPLE_VARIABLE_CAN_BE_MARKED_AS_ISOLATED);
         }
 
         if (varNode.isDeclaredWithVar) {
@@ -874,7 +874,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (isIsolated(varNode)) {
-            dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_ISOLATED);
+            dlog.error(varNode.pos, DiagnosticErrorCode.ONLY_A_SIMPLE_VARIABLE_CAN_BE_MARKED_AS_ISOLATED);
         }
         // Error variable declarations (destructuring etc.)
         if (varNode.isDeclaredWithVar) {
@@ -3520,16 +3520,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isConfigurable(BLangVariable varNode) {
-        if (varNode.flagSet.contains(Flag.CONFIGURABLE)) {
-            return true;
-        }
-        return false;
+        return varNode.flagSet.contains(Flag.CONFIGURABLE);
     }
 
     private boolean isIsolated(BLangVariable varNode) {
-        if (varNode.flagSet.contains(Flag.ISOLATED)) {
-            return true;
-        }
-        return false;
+        return varNode.flagSet.contains(Flag.ISOLATED);
     }
 }
