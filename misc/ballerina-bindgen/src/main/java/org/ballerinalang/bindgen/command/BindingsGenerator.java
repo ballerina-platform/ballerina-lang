@@ -49,7 +49,6 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getExistingBindings;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getUpdatedConstantsList;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.notifyExistingDependencies;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
 
 /**
@@ -206,7 +205,6 @@ public class BindingsGenerator {
         Set<String> names = new HashSet<>(allClasses);
         if (constantsPath.toFile().exists()) {
             getUpdatedConstantsList(constantsPath, names);
-            notifyExistingDependencies(classNames, dependenciesPath.toFile());
         }
         if (!names.isEmpty()) {
             writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);

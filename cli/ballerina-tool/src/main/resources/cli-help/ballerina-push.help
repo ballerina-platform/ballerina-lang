@@ -1,37 +1,32 @@
 NAME
-       ballerina-push - Push modules to Ballerina Central
+       ballerina-push - Push packages to Ballerina Central
 
 SYNOPSIS
-       ballerina push <module-name>
-       ballerina push (-a | --all)
+       ballerina push
 
 
 DESCRIPTION
-       Push command pushes the specified module to Ballerina Central repository or
-       if '-a' or '--all' option is specified, then push all the modules
-       in the current project.
+       The push command pushes the current project's package to Ballerina
+       Central.
 
        By default, the push command builds the sources before pushing
-       the module to Ballerina Central.
+       the package to Ballerina Central.
 
-       Before pushing modules to Ballerina Central:
+       Before pushing the package to Ballerina Central:
        1) Create an organization by registering with Ballerina Central at
           https://central.ballerina.io/.
-       2) You will receive an access token with the registration, add it to
-          the 'Settings.toml' in home repository (<USER_HOME>/.ballerina/).
-       3) Add the created organization name and the version to the
+       2) Add the access token with the registration you receive  to the
+          'Settings.toml' file in the home repository (<USER_HOME>/.ballerina/).
+       3) Add the created organization name and version to the
           'Ballerina.toml' file in the project directory.
 
-             [project]
-             org-name= "abc"
+             [package]
+             org= "abc"
+             name= "foo"
              version= "1.0.0"
 
 
-OPTIONS
-       -a, --all
-           Push all the modules in the project.
-
-
 EXAMPLES
-       Push the 'math' module to Ballerina Central after building it.
-          $ ballerina push math
+       Push the package of the current project to Ballerina Central after
+       building it.
+          $ ballerina push

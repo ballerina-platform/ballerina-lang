@@ -34,6 +34,8 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.ObserverbilitySymbolCollectorRunner;
+import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -61,6 +63,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
@@ -84,10 +87,10 @@ public class JBallerinaBackend extends CompilerBackend {
     private final PackageCache packageCache;
     private final CompilerContext compilerContext;
     private final CodeGenerator jvmCodeGenerator;
-    private DiagnosticResult diagnosticResult;
-    private boolean codeGenCompleted;
     private final JarResolver jarResolver;
     private final CompilerOptions compilerOptions;
+    private DiagnosticResult diagnosticResult;
+    private boolean codeGenCompleted;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
         return packageCompilation.getCompilerBackend(jdkVersion,
@@ -160,40 +163,56 @@ public class JBallerinaBackend extends CompilerBackend {
 
     @Override
     public Collection<PlatformLibrary> platformLibraryDependencies(PackageId packageId) {
+        return getPlatformLibraries(packageId);
+    }
+
+    @Override
+    public Collection<PlatformLibrary> platformLibraryDependencies(PackageId packageId,
+                                                                   PlatformLibraryScope scope) {
+
+        return getPlatformLibraries(packageId)
+                .stream()
+                .filter(platformLibrary -> platformLibrary.scope() == scope)
+                .collect(Collectors.toList());
+    }
+
+    private List<PlatformLibrary> getPlatformLibraries(PackageId packageId) {
         Package pkg = packageCache.getPackageOrThrow(packageId);
         PackageManifest.Platform javaPlatform = pkg.manifest().platform(jdkVersion.code());
         if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
             return Collections.emptyList();
         }
 
-        Collection<PlatformLibrary> platformLibraries = new ArrayList<>();
+        List<PlatformLibrary> platformLibraries = new ArrayList<>();
         for (Map<String, Object> dependency : javaPlatform.dependencies()) {
             String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
-            // if the path is relative we will covert to absolute relative to Ballerina.toml file
+            // If the path is relative we will covert to absolute relative to Ballerina.toml file
             Path jarPath = Paths.get(dependencyFilePath);
             if (!jarPath.isAbsolute()) {
                 jarPath = pkg.project().sourceRoot().resolve(jarPath);
             }
-            platformLibraries.add(new JarLibrary(jarPath));
+
+            PlatformLibraryScope scope = getPlatformLibraryScope(dependency);
+            platformLibraries.add(new JarLibrary(jarPath, scope));
         }
 
-        // TODO Where can we cache this collection
         return platformLibraries;
     }
 
     @Override
     public PlatformLibrary codeGeneratedLibrary(PackageId packageId, ModuleName moduleName) {
-        return codeGeneratedLibrary(packageId, moduleName, JAR_FILE_NAME_SUFFIX);
+        return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT, JAR_FILE_NAME_SUFFIX);
     }
 
     @Override
     public PlatformLibrary codeGeneratedTestLibrary(PackageId packageId, ModuleName moduleName) {
-        return codeGeneratedLibrary(packageId, moduleName, TEST_JAR_FILE_NAME_SUFFIX + JAR_FILE_NAME_SUFFIX);
+        return codeGeneratedLibrary(packageId, moduleName, PlatformLibraryScope.DEFAULT,
+                TEST_JAR_FILE_NAME_SUFFIX + JAR_FILE_NAME_SUFFIX);
     }
 
     @Override
     public PlatformLibrary runtimeLibrary() {
-        return new JarLibrary(ProjectUtils.getBallerinaRTJarPath());
+        return new JarLibrary(ProjectUtils.getBallerinaRTJarPath(), PlatformLibraryScope.DEFAULT);
     }
 
     @Override
@@ -471,6 +490,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private PlatformLibrary codeGeneratedLibrary(PackageId packageId,
                                                  ModuleName moduleName,
+                                                 PlatformLibraryScope scope,
                                                  String fileNameSuffix) {
         Package pkg = packageCache.getPackageOrThrow(packageId);
         ProjectEnvironment projectEnvironment = pkg.project().projectEnvironmentContext();
@@ -479,24 +499,44 @@ public class JBallerinaBackend extends CompilerBackend {
         Optional<Path> platformSpecificLibrary = compilationCache.getPlatformSpecificLibrary(
                 this, jarFileName);
         return new JarLibrary(platformSpecificLibrary.orElseThrow(
-                () -> new IllegalStateException("Cannot find the generated jar library for module: " + moduleName)));
+                () -> new IllegalStateException("Cannot find the generated jar library for module: " + moduleName)),
+                scope);
     }
 
     private void emitExecutable(Path executableFilePath) {
-        if (!this.packageContext.defaultModuleContext().entryPointExists()) {
-            // TODO Improve error handling
-            throw new ProjectException("no entrypoint found in package: " + this.packageContext.packageName());
-        }
-
         Manifest manifest = createManifest();
         Collection<Path> jarLibraryPaths = jarResolver.getJarFilePathsRequiredForExecution();
 
         try {
             assembleExecutableJar(executableFilePath, manifest, jarLibraryPaths);
+
+            // TODO: Move to a compiler extension once Compiler revamp is complete
+            ObservabilitySymbolCollector observabilitySymbolCollector
+                    = ObserverbilitySymbolCollectorRunner.getInstance(compilerContext);
+            for (ModuleId moduleId : packageContext.moduleIds()) {
+                ModuleContext moduleContext = packageContext.moduleContext(moduleId);
+                BLangPackage bLangPackage = moduleContext.bLangPackage();
+                observabilitySymbolCollector.process(bLangPackage);
+            }
+            observabilitySymbolCollector.writeCollectedSymbols(executableFilePath);
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package: " +
                     this.packageContext.packageName(), e);
         }
+    }
+
+    private PlatformLibraryScope getPlatformLibraryScope(Map<String, Object> dependency) {
+        PlatformLibraryScope scope;
+        String scopeValue = (String) dependency.get(JarLibrary.KEY_SCOPE);
+        if (scopeValue == null || scopeValue.isEmpty()) {
+            scope = PlatformLibraryScope.DEFAULT;
+        } else if (scopeValue.equals(PlatformLibraryScope.TEST_ONLY.getStringValue())) {
+            scope = PlatformLibraryScope.TEST_ONLY;
+        } else {
+            throw new ProjectException("Invalid scope '" + scopeValue + "' is defined with the " +
+                    "platform-specific library path: " + dependency.get(JarLibrary.KEY_PATH));
+        }
+        return scope;
     }
 
     /**

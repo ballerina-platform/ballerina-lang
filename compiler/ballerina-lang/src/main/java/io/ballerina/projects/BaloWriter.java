@@ -286,6 +286,10 @@ public abstract class BaloWriter {
             List<Dependency> dependencyList = new ArrayList<>();
             Collection<ResolvedPackageDependency> pkgDependencies = dependencyGraph.getDirectDependencies(resolvedDep);
             for (ResolvedPackageDependency resolvedTransitiveDep : pkgDependencies) {
+                if (resolvedTransitiveDep.scope() == PackageDependencyScope.TEST_ONLY) {
+                    // We don't add the test dependencies to the balr file.
+                    continue;
+                }
                 PackageContext dependencyPkgContext = resolvedTransitiveDep.packageInstance().packageContext();
                 Dependency dep = new Dependency(dependencyPkgContext.packageOrg().toString(),
                         dependencyPkgContext.packageName().toString(),
@@ -304,6 +308,10 @@ public abstract class BaloWriter {
             Module module = pkg.module(moduleId);
             List<ModuleDependency> moduleDependencies = new ArrayList<>();
             for (io.ballerina.projects.ModuleDependency moduleDependency : module.moduleDependencies()) {
+                if (moduleDependency.packageDependency().scope() == PackageDependencyScope.TEST_ONLY) {
+                    // Do not test_only scope dependencies
+                    continue;
+                }
                 Package pkgDependency = packageCache.getPackageOrThrow(
                         moduleDependency.packageDependency().packageId());
                 Module moduleInPkgDependency = pkgDependency.module(moduleDependency.moduleId());

@@ -27,7 +27,6 @@ import com.google.gson.JsonElement;
  */
 public class CUnitASTHolder {
     private String name;
-    private String uri;
     private JsonElement ast;
 
     public String getName() {
@@ -36,14 +35,6 @@ public class CUnitASTHolder {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
     }
 
     public JsonElement getAst() {

@@ -77,7 +77,7 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
             "when run is used with a source file or a module.")
-    private boolean observabilityIncluded;
+    private Boolean observabilityIncluded;
 
     private static final String runCmd = "ballerina run {<ballerina-file | project-name> | <executable-jar>} " +
             "[--] [(--key=value)...]";
@@ -147,7 +147,6 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO (build projects only)
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
-//                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
                 .addTask(new RunExecutableTask(args, outStream, errStream))
                 .build();
 

@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.VirtualMachine;
+import io.ballerina.projects.Project;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
 /**
@@ -27,6 +28,7 @@ public class DebugContext {
     private Process launchedProcess;
     private VirtualMachine debuggee;
     private IDebugProtocolClient client;
+    private Project sourceProject;
 
     public void setLaunchedProcess(Process launchedProcess) {
         this.launchedProcess = launchedProcess;
@@ -50,5 +52,13 @@ public class DebugContext {
 
     public IDebugProtocolClient getClient() {
         return client;
+    }
+
+    public Project getSourceProject() {
+        return sourceProject;
+    }
+
+    public void setSourceProject(Project sourceProject) {
+        this.sourceProject = sourceProject;
     }
 }

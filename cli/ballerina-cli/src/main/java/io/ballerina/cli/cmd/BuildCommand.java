@@ -233,7 +233,6 @@ public class BuildCommand implements BLauncherCmd {
                                                             // the given skipLock flag does not exist(projects only)
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
-//                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
                 .addTask(new RunTestsTask(outStream, errStream, args),
                         project.buildOptions().skipTests() || isSingleFileBuild)
                     // run tests (projects only)
