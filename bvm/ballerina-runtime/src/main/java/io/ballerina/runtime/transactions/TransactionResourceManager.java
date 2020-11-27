@@ -511,7 +511,7 @@ public class TransactionResourceManager {
                             }
                         } catch (Throwable e) {
                             throw new BallerinaException(
-                                    "error in ending the XA transaction: id: " + combinedId + " error:" + e.getMessage());
+                              "error in ending the XA transaction: id: " + combinedId + " error:" + e.getMessage());
                         }
                     }
                 }
@@ -529,7 +529,7 @@ public class TransactionResourceManager {
                             }
                         } catch (Throwable e) {
                             throw new BallerinaException(
-                                    "error in ending the XA transaction: id: " + combinedId + " error:" + e.getMessage());
+                              "error in ending the XA transaction: id: " + combinedId + " error:" + e.getMessage());
                         }
                     }
                 }
