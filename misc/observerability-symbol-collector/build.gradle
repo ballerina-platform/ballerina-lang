@@ -20,6 +20,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':language-server:language-server-core')
     implementation project(':language-server:language-server-compiler')
@@ -28,3 +29,15 @@ dependencies {
 }
 
 description = 'Ballerina - Observability Symbol Collector'
+
+ext.moduleName = 'observability-symbol-collector'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

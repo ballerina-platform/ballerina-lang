@@ -34,6 +34,8 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.ObserverbilitySymbolCollectorRunner;
+import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -507,6 +509,16 @@ public class JBallerinaBackend extends CompilerBackend {
 
         try {
             assembleExecutableJar(executableFilePath, manifest, jarLibraryPaths);
+
+            // TODO: Move to a compiler extension once Compiler revamp is complete
+            ObservabilitySymbolCollector observabilitySymbolCollector
+                    = ObserverbilitySymbolCollectorRunner.getInstance(compilerContext);
+            for (ModuleId moduleId : packageContext.moduleIds()) {
+                ModuleContext moduleContext = packageContext.moduleContext(moduleId);
+                BLangPackage bLangPackage = moduleContext.bLangPackage();
+                observabilitySymbolCollector.process(bLangPackage);
+            }
+            observabilitySymbolCollector.writeCollectedSymbols(executableFilePath);
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package: " +
                     this.packageContext.packageName(), e);

@@ -19,13 +19,17 @@
 package org.ballerinalang.central.client.exceptions;
 
 /**
- * Thrown to indicate that given package already exists in the home repo.
+ * Thrown to indicate connections errors to remote repository.
  *
  * @since 2.0.0
  */
-public class PackageAlreadyExistsException extends CentralClientException {
+public class ConnectionErrorException extends CentralClientException {
 
-    public PackageAlreadyExistsException(String message) {
+    public ConnectionErrorException(String message) {
         super(message);
+    }
+
+    public ConnectionErrorException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
