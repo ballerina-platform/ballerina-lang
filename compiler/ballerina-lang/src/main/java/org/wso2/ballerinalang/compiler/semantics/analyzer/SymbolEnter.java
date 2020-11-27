@@ -1590,9 +1590,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         // If this is module level tuple variable define each member inside here since they are global variables
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE) {
-            varNode.memberVariables.forEach(member -> {
+            List<BLangVariable> memberVariables = new ArrayList<>(varNode.memberVariables);
+            if (varNode.restVariable != null) {
+                memberVariables.add(varNode.restVariable);
+            }
+            for (int i = 0; i < memberVariables.size(); i++) {
+                BLangVariable member = memberVariables.get(i);
+                if (member.getKind() == NodeKind.VARIABLE) {
+                    BLangSimpleVariable simpleVar = (BLangSimpleVariable) member;
+                    Name varName = names.fromIdNode(simpleVar.name);
+                    if (varName == Names.IGNORE) {
+                        continue;
+                    }
+                }
                 defineNode(member, env);
-            });
+            }
         }
     }
 

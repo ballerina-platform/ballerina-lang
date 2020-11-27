@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//Test module level list binding pattern
+// Test module level list binding pattern
 [int ,float] [a, b] = [1, 2.5];
 [boolean, float, string] [c, d, e] = [true, 2.25, "Jhone"];
 public function testBasic() {
@@ -26,7 +26,7 @@ public function testBasic() {
     assertEquality("Jhone", e);
 }
 
-//Recursive list binding pattern with objects
+// Recursive list binding pattern with objects
 Foo foo = {name:"Test", age:23};
 Bar bar = {id:34, flag:true};
 FooObj fooObj = new ("Fooo", 3.7, 23);
@@ -45,6 +45,18 @@ function testTupleBindingWithRecordsAndObjects() {
     assertTrue(c2.b);
     assertEquality(56, c2.i);
     assertEquality(56, f2);
+}
+
+// Test tuple binding pattern with rest binding pattren
+[int, string...] [Id, ...FullName] = [1002, "Peter", "Parker"];
+[int, string...] [Id2, ...FullName2] = [1003, "Jhone", "Anistine"];
+function testTupleBindingPatternWithRestBindingPattern() {
+    assertEquality(1002, Id);
+    assertEquality("Peter", FullName[0]);
+    assertEquality("Parker", FullName[1]);
+    assertEquality(1003, Id2);
+    assertEquality("Jhone", FullName2[0]);
+    assertEquality("Anistine", FullName2[1]);
 }
 
 type Foo record {

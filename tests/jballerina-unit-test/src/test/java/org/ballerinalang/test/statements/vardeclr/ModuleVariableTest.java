@@ -48,6 +48,7 @@ public class ModuleVariableTest {
     @Test
     public void testComlexModuleLevelTupleVarDecl() {
         BRunUtil.invoke(compileResult, "testTupleBindingWithRecordsAndObjects");
+        BRunUtil.invoke(compileResult, "testTupleBindingPatternWithRestBindingPattern");
     }
 
     @Test
@@ -58,7 +59,7 @@ public class ModuleVariableTest {
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 23, 12);
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 24, 9);
         validateError(compileResultNegative, index++, "only simple variables are allowed to be isolated", 31, 1);
-        assertEquals(compileResultNegative.getErrorCount(), index++);
+        assertEquals(compileResultNegative.getErrorCount(), index);
     }
 
     @Test
@@ -69,6 +70,6 @@ public class ModuleVariableTest {
         validateError(compileResult, index++, "uninitialized variable 'a'", 17, 13);
         validateError(compileResult, index++, "uninitialized variable 'b'", 17, 16);
         validateError(compileResult, index++, "variable 'a' is not initialized", 20, 13);
-        assertEquals(compileResult.getErrorCount(), index++);
+        assertEquals(compileResult.getErrorCount(), index);
     }
 }
