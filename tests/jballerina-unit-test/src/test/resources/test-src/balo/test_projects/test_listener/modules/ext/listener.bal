@@ -35,7 +35,7 @@ public class ABCD {
 
     public function __immediateStop() returns error? {}
 
-    public function __attach(service object {} s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string[]? name = ()) returns error? {
         attachCount += 1;
     }
 

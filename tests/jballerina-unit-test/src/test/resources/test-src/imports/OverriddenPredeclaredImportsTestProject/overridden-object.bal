@@ -19,7 +19,7 @@ import ballerina/lang.'object as obj;
 class CustomListener {
     *obj:Listener;
 
-    public function __attach(service object {} s, string? name) returns error? {
+    public function __attach(service object {} s, string[]? name) returns error? {
         // do nothing
     }
 
@@ -43,7 +43,7 @@ class CustomListener {
 class CustomListenerWithAutoImports {
     *obj:Listener;
 
-    public function __attach(service object {} s, string? name) returns error? {
+    public function __attach(service object {} s, string[]? name) returns error? {
         // do nothing
     }
 

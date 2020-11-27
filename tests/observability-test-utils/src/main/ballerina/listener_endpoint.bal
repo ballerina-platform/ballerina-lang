@@ -25,7 +25,7 @@ public class Listener {
         externInitEndpoint(self, port);
     }
 
-    public isolated function __attach(service object {} s, string? name = ()) returns error? {
+    public isolated function __attach(service object {} s, string[]? name = ()) returns error? {
         return externAttach(self, s);
     }
 

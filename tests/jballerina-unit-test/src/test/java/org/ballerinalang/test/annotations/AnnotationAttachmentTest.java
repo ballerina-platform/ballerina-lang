@@ -139,7 +139,8 @@ public class AnnotationAttachmentTest {
     public void testAnnotOnServiceOne() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
                 compileResult.getAST().getServices().stream()
-                        .filter(serviceNode -> serviceNode.getAbsolutePath().contains("ser"))
+                        .filter(serviceNode ->
+                                serviceNode.getAbsolutePath().stream().anyMatch(p -> p.getValue().contains("ser")))
                         .findFirst()
                         .get().getServiceClass().getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);

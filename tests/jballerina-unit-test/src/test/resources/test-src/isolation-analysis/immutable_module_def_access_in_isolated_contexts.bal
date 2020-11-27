@@ -34,7 +34,7 @@ service /MyService on lstnr {
 }
 
 readonly class Listener {
-    public isolated function __attach(service object {} s, string? name = ()) returns error? {
+    public isolated function __attach(service object {} s, string[]? name = ()) returns error? {
     }
 
     public isolated function __detach(service object {} s) returns error? {

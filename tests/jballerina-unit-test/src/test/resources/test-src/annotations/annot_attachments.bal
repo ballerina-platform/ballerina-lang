@@ -128,7 +128,7 @@ class Listener {
     public function init() {
     }
 
-    public function __attach(service object {} s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string[]? name = ()) returns error? {
     }
 
     public function __detach(service object {} s) returns error? {

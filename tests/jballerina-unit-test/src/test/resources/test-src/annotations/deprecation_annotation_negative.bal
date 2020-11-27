@@ -197,7 +197,7 @@ int i = 0;
 
 class Listener {
 
-    public function __attach(service object {} s, string? name) returns error? {
+    public function __attach(service object {} s, string[]? name) returns error? {
 
     }
 

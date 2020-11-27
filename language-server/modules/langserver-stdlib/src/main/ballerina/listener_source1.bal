@@ -19,7 +19,7 @@ public class Listener {
         return err;
     }
 
-    public function __attach(service object {} s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string[]? name = ()) returns error? {
         return self.register(s, name);
     }
 
