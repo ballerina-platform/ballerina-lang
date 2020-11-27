@@ -3,7 +3,7 @@ NAME
 
 SYNOPSIS
        ballerina build [<options>]
-                       [<ballerina-file-path> | <ballerina-project-directory>] [<config properties>]
+                       [<ballerina-file-path> | <ballerina-package-path>] [<config properties>]
 
 
 DESCRIPTION
@@ -12,7 +12,7 @@ DESCRIPTION
        JAR file, which can be used in another package/program.
 
        Building a Ballerina package creates the executable .jar file
-       in the <project-root>/target/bin directory.
+       in the <package-root>/target/bin directory.
 
        Building a single Ballerina file will create an executable .jar file in the
        current directory. The name of the executable file will be
@@ -42,7 +42,7 @@ OPTIONS
 
        --code-coverage
            Enables code coverage. This will analyze the line coverage of
-           source .bal files in the Ballerina project and add a section
+           source .bal files in the Ballerina package and add a section
            to the testerina report with code coverage details.
            This feature is not supported with single file executions.
 
@@ -70,11 +70,11 @@ EXAMPLES
           $ ballerina build hello.bal
 
        Build the 'hello' package that has an entry point. This will generate a
-        `hello.jar` file in the '<project-root>/target/bin' directory.
+        `hello.jar` file in the '<package-root>/target/bin' directory.
           $ ballerina build
 
        Build the 'hello' package from a different directory location.
-          $ ballerina build `<hello-project-path>`
+          $ ballerina build `<hello-package-path>`
 
        Build the current package and generate the test report. This will generate an
        html test report in addition to the executable jar files.
