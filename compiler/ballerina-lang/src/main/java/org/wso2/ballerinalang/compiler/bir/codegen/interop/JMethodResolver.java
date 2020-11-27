@@ -117,8 +117,6 @@ class JMethodResolver {
 
         // 4) If the above list is zero then throw an error
         if (jMethods.isEmpty()) {
-//            throw getMethodNotFoundError(jMethodRequest.kind, jMethodRequest.declaringClass,
-//                                         jMethodRequest.methodName, jMethodRequest.bFuncParamCount);
             throw getMethodNotFoundError(jMethodRequest);
         }
 
