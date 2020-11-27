@@ -729,43 +729,8 @@ public class Desugar extends BLangNodeVisitor {
                 initFnBody.stmts.add(constInit);
             }
         }
-        List<BLangVariable> desugaredGlobalVarList = new ArrayList<>();
 
-        pkgNode.globalVars.forEach(globalVar -> {
-            // This will convert complex variables to simple variable
-            if (globalVar.getKind() == NodeKind.TUPLE_VARIABLE) {
-                BLangNode blockStatementNode = rewrite(globalVar, env);
-                // Add each desugared simple variable to global variables
-                ((BLangBlockStmt) blockStatementNode).stmts.forEach(bLangStatement -> {
-                    if (bLangStatement.getKind() == NodeKind.FOREACH) {
-                        initFnBody.stmts.add(rewrite(bLangStatement, this.initFunctionEnv));
-                    } else {
-                        rewrite(bLangStatement, env);
-                        BLangSimpleVariableDef simpleVarDef = (BLangSimpleVariableDef) bLangStatement;
-                        addToInitFunction(simpleVarDef.var, initFnBody);
-                        desugaredGlobalVarList.add(simpleVarDef.var);
-                    }
-                });
-            } else {
-                long globalVarFlags = globalVar.symbol.flags;
-                BLangSimpleVariable simpleGlobalVar = (BLangSimpleVariable) globalVar;
-                if (Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
-                    if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
-                        // If it is required configuration get directly
-                        List<BLangExpression> args = getConfigurableLangLibInvocationParam(simpleGlobalVar);
-                        BLangInvocation getValueInvocation = createLangLibInvocationNode("getConfigurableValue",
-                                args, symTable.anydataType, simpleGlobalVar.pos);
-                        simpleGlobalVar.expr = getValueInvocation;
-                    } else {
-                        // If it is optional configuration create if else
-                        simpleGlobalVar.expr  = createIfElseFromConfigurable(simpleGlobalVar);
-                    }
-                }
-                addToInitFunction(simpleGlobalVar, initFnBody);
-                desugaredGlobalVarList.add(simpleGlobalVar);
-            }
-        });
-        pkgNode.globalVars = desugaredGlobalVarList;
+        pkgNode.globalVars = desugarGlobalVariables(pkgNode.globalVars, initFnBody);
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
@@ -871,6 +836,50 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, configVarName);
 
         return new ArrayList<>(Arrays.asList(orgLiteral, moduleNameLiteral, versionLiteral, configNameLiteral));
+    }
+
+    private List<BLangVariable> desugarGlobalVariables(List<BLangVariable> globalVars,
+                                                       BLangBlockFunctionBody initFnBody) {
+        List<BLangVariable> desugaredGlobalVarList = new ArrayList<>();
+
+        globalVars.forEach(globalVar -> {
+            // This will convert complex variables to simple variables
+            switch (globalVar.getKind()) {
+                case TUPLE_VARIABLE:
+                    BLangNode blockStatementNode = rewrite(globalVar, env);
+                    ((BLangBlockStmt) blockStatementNode).stmts.forEach(bLangStatement -> {
+                        if (bLangStatement.getKind() == NodeKind.FOREACH) {
+                            initFnBody.stmts.add(rewrite(bLangStatement, this.initFunctionEnv));
+                        } else {
+                            rewrite(bLangStatement, env);
+                            BLangSimpleVariableDef simpleVarDef = (BLangSimpleVariableDef) bLangStatement;
+                            addToInitFunction(simpleVarDef.var, initFnBody);
+                            desugaredGlobalVarList.add(simpleVarDef.var);
+                        }
+                    });
+                    break;
+                default:
+                    long globalVarFlags = globalVar.symbol.flags;
+                    BLangSimpleVariable simpleGlobalVar = (BLangSimpleVariable) globalVar;
+                    if (Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
+                        if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
+                            // If it is required configuration get directly
+                            List<BLangExpression> args = getConfigurableLangLibInvocationParam(simpleGlobalVar);
+                            BLangInvocation getValueInvocation = createLangLibInvocationNode("getConfigurableValue",
+                                    args, symTable.anydataType, simpleGlobalVar.pos);
+                            simpleGlobalVar.expr = getValueInvocation;
+                        } else {
+                            // If it is optional configuration create if else
+                            simpleGlobalVar.expr = createIfElseFromConfigurable(simpleGlobalVar);
+                        }
+                    }
+                    addToInitFunction(simpleGlobalVar, initFnBody);
+                    desugaredGlobalVarList.add(simpleGlobalVar);
+                    break;
+            }
+        });
+
+        return desugaredGlobalVarList;
     }
 
     private void addToInitFunction(BLangSimpleVariable globalVar, BLangBlockFunctionBody initFnBody) {
