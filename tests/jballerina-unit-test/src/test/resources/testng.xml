@@ -338,11 +338,6 @@
                     <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.error.ErrorTest">
-                <methods>
-                    <exclude name="testStackOverFlow"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.object.ObjectTest">
                 <methods>
                     <exclude name="testObjectAttachFuncReturningTuple"/>
