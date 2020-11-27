@@ -511,14 +511,16 @@ public class JBallerinaBackend extends CompilerBackend {
             assembleExecutableJar(executableFilePath, manifest, jarLibraryPaths);
 
             // TODO: Move to a compiler extension once Compiler revamp is complete
-            ObservabilitySymbolCollector observabilitySymbolCollector
-                    = ObserverbilitySymbolCollectorRunner.getInstance(compilerContext);
-            for (ModuleId moduleId : packageContext.moduleIds()) {
-                ModuleContext moduleContext = packageContext.moduleContext(moduleId);
-                BLangPackage bLangPackage = moduleContext.bLangPackage();
-                observabilitySymbolCollector.process(bLangPackage);
+            if (packageContext.compilationOptions().observabilityIncluded()) {
+                ObservabilitySymbolCollector observabilitySymbolCollector
+                        = ObserverbilitySymbolCollectorRunner.getInstance(compilerContext);
+                for (ModuleId moduleId : packageContext.moduleIds()) {
+                    ModuleContext moduleContext = packageContext.moduleContext(moduleId);
+                    BLangPackage bLangPackage = moduleContext.bLangPackage();
+                    observabilitySymbolCollector.process(bLangPackage);
+                }
+                observabilitySymbolCollector.writeCollectedSymbols(executableFilePath);
             }
-            observabilitySymbolCollector.writeCollectedSymbols(executableFilePath);
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package: " +
                     this.packageContext.packageName(), e);
