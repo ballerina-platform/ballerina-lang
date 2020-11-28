@@ -49,6 +49,7 @@ public class ModuleVariableTest {
     public void testComlexModuleLevelTupleVarDecl() {
         BRunUtil.invoke(compileResult, "testTupleBindingWithRecordsAndObjects");
         BRunUtil.invoke(compileResult, "testTupleBindingPatternWithRestBindingPattern");
+        BRunUtil.invoke(compileResult, "testDeclaredWithVar");
     }
 
     @Test

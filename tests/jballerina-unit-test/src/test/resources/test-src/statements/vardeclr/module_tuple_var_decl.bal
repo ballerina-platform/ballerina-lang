@@ -59,6 +59,14 @@ function testTupleBindingPatternWithRestBindingPattern() {
     assertEquality("Anistine", FullName2[1]);
 }
 
+// Tuple variable declared with 'var'
+[int, string] g = [1, ""];
+var [h, i] = g;
+function testDeclaredWithVar() {
+    assertEquality(1, h);
+    assertEquality("", i);
+}
+
 type Foo record {
     string name;
     int age;

@@ -1000,9 +1000,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     tupleVariable.type = symTable.semanticError;
                     return;
                 }
-
-                symbolEnter.defineNode(tupleVariable, env);
-
                 break;
             case RECORD_VARIABLE:
                 if (varRefExpr == null) {
