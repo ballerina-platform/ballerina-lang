@@ -40,11 +40,10 @@ public class LanguageConstructDebugTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
     public void setup() {
-        testProjectName = "breakpoint-tests";
-        testModuleName = "languageConstruct";
-        testModuleFileName = "mainLangConstruct.bal";
+        testProjectName = "language-construct-tests";
+        testModuleFileName = "main.bal";
         testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
-        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
+        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
     }
 
     @Test
@@ -111,9 +110,10 @@ public class LanguageConstructDebugTest extends DebugAdapterBaseTestCase {
 
     @Test
     public void testWorkerScenarios() throws BallerinaTestException {
-        testModuleName = "languageConstruct";
-        testModuleFileName = "mainLangConstruct.bal";
-        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
+        testModuleName = "worker-tests";
+        testModuleFileName = "main.bal";
+        testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
+        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
 
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 19));
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 25));

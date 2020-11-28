@@ -68,7 +68,6 @@ public class JvmErrorGen {
     }
 
     void genPanic(BIRTerminator.Panic panicTerm) {
-
         BIRNode.BIRVariableDcl varDcl = panicTerm.errorOp.variableDcl;
         int errorIndex = this.getJVMIndexOfVarRef(varDcl);
         jvmInstructionGen.generateVarLoad(this.mv, varDcl, errorIndex);
@@ -92,7 +91,7 @@ public class JvmErrorGen {
         if (currentEE instanceof JErrorEntry) {
             JErrorEntry jCurrentEE = ((JErrorEntry) currentEE);
             BIRNode.BIRVariableDcl retVarDcl = currentEE.errorOp.variableDcl;
-            int retIndex = this.indexMap.addToMapIfNotFoundAndGetIndex(retVarDcl);
+            int retIndex = this.indexMap.addIfNotExists(retVarDcl.name.value, retVarDcl.type);
             boolean exeptionExist = false;
             for (CatchIns catchIns : jCurrentEE.catchIns) {
                 if (ERROR_VALUE.equals(catchIns.errorClass)) {
@@ -135,7 +134,7 @@ public class JvmErrorGen {
         this.mv.visitLabel(errorValueLabel);
 
         BIRNode.BIRVariableDcl varDcl = currentEE.errorOp.variableDcl;
-        int lhsIndex = this.indexMap.addToMapIfNotFoundAndGetIndex(varDcl);
+        int lhsIndex = this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
         jvmInstructionGen.generateVarStore(this.mv, varDcl, lhsIndex);
         this.mv.visitJumpInsn(GOTO, jumpLabel);
         this.mv.visitLabel(otherErrorLabel);
@@ -146,6 +145,6 @@ public class JvmErrorGen {
     }
 
     private int getJVMIndexOfVarRef(BIRNode.BIRVariableDcl varDcl) {
-        return this.indexMap.addToMapIfNotFoundAndGetIndex(varDcl);
+        return this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
     }
 }

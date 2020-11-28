@@ -21,10 +21,9 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -45,7 +44,7 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ForEachStatementNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ForEachStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -63,7 +62,7 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
         return completionItems;
     }
 
-    private boolean withinTypeDescContext(LSContext context, ForEachStatementNode node) {
+    private boolean withinTypeDescContext(CompletionContext context, ForEachStatementNode node) {
         /*
         Check whether the following is satisfied
         (1) foreach <cursor>typedesc ...
@@ -76,12 +75,12 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
         }
         TypeDescriptorNode typeDescriptorNode = typedBindingPatternNode.typeDescriptor();
         LinePosition typeDescEnd = typeDescriptorNode.lineRange().endLine();
-        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position cursor = context.getCursorPosition();
         return (cursor.getLine() < typeDescEnd.line())
                 || (cursor.getLine() == typeDescEnd.line() && cursor.getCharacter() <= typeDescEnd.offset());
     }
 
-    private boolean withinActionOrExpressionContext(LSContext context, ForEachStatementNode node) {
+    private boolean withinActionOrExpressionContext(CompletionContext context, ForEachStatementNode node) {
         /*
         Check whether the following is satisfied
         (1) foreach typedesc name in <cursor> ...
@@ -92,7 +91,7 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
             return false;
         }
         LinePosition inKWEnd = inKeyword.lineRange().endLine();
-        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position cursor = context.getCursorPosition();
         return (cursor.getLine() < inKWEnd.line())
                 || (cursor.getLine() == inKWEnd.line() && cursor.getCharacter() > inKWEnd.offset());
     }

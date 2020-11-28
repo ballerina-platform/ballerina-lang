@@ -1,0 +1,20 @@
+{
+  "line": 45,
+  "character": 17,
+  "expected": [
+    {
+      "title": "Document This",
+      "command": "ADD_DOC",
+      "arguments": [
+        {
+          "argumentK": "node.line",
+          "argumentV": "45"
+        }
+      ]
+    },
+    {
+      "title": "Document All",
+      "command": "ADD_ALL_DOC"
+    }
+  ]
+}

@@ -55,7 +55,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -66,6 +68,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -108,6 +111,31 @@ public class ImmutableTypeCloner {
                                                                  Names names, Set<Flag> origObjFlagSet) {
         return getImmutableIntersectionType(pos, types, type, env, env.enclPkg.packageID, env.scope.owner,
                                             symTable, anonymousModelHelper, names, origObjFlagSet, new HashSet<>());
+    }
+
+    public static void markFieldsAsImmutable(BLangClassDefinition classDef, SymbolEnv pkgEnv, BObjectType objectType,
+                                             Types types, BLangAnonymousModelHelper anonymousModelHelper,
+                                             SymbolTable symbolTable, Names names, Location pos) {
+        SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDef, objectType.tsymbol.scope, pkgEnv);
+
+        Iterator<BField> objectTypeFieldIterator = objectType.fields.values().iterator();
+        Iterator<BLangSimpleVariable> classFieldIterator = classDef.fields.iterator();
+
+        while (objectTypeFieldIterator.hasNext()) {
+            BField typeField = objectTypeFieldIterator.next();
+            BLangSimpleVariable classField = classFieldIterator.next();
+
+            BType type = typeField.type;
+
+            if (!types.isInherentlyImmutableType(type)) {
+                BType immutableFieldType = typeField.symbol.type = ImmutableTypeCloner.getImmutableIntersectionType(
+                        pos, types, (SelectivelyImmutableReferenceType) type, typeDefEnv, symbolTable,
+                        anonymousModelHelper, names, classDef.flagSet);
+                classField.type = typeField.type = immutableFieldType;
+            }
+
+            typeField.symbol.flags |= Flags.FINAL;
+        }
     }
 
     private static BType getImmutableType(Location pos, Types types, BType type, SymbolEnv env,

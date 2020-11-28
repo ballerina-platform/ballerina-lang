@@ -48,12 +48,10 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
-import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -158,9 +156,7 @@ public class MethodGen {
                                    BType attachedType, AsyncDataCollector asyncDataCollector) {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-        BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.stringType, new Name(STRAND), VarScope.FUNCTION,
-                                                      VarKind.ARG);
-        indexMap.addToMapIfNotFoundAndGetIndex(strandVar);
+        indexMap.addIfNotExists(STRAND, symbolTable.stringType);
 
         // generate method desc
         int access = Opcodes.ACC_PUBLIC;
@@ -168,9 +164,7 @@ public class MethodGen {
         if (attachedType != null) {
             localVarOffset = 1;
             // add the self as the first local var
-            BIRVariableDcl selfVar = new BIRVariableDcl(symbolTable.anyType, new Name("self"), VarScope.FUNCTION,
-                                                        VarKind.ARG);
-            indexMap.addToMapIfNotFoundAndGetIndex(selfVar);
+            indexMap.addIfNotExists("self", symbolTable.anyType);
         } else {
             localVarOffset = 0;
             access += ACC_STATIC;
@@ -224,8 +218,7 @@ public class MethodGen {
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), labels.toArray(new Label[0]));
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                            stateVarIndex, localVarOffset, module, attachedType,
-                            moduleClassName, asyncDataCollector);
+                            stateVarIndex, localVarOffset, module, attachedType, moduleClassName, asyncDataCollector);
         mv.visitLabel(resumeLabel);
         String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module), funcName,
                                                             attachedType);
@@ -269,7 +262,7 @@ public class MethodGen {
     }
 
     private void visitModuleStartFunction(BIRPackage module, String funcName, MethodVisitor mv) {
-        if (!isModuleStartFunction(module, funcName)) {
+        if (!isModuleStartFunction(funcName)) {
             return;
         }
         mv.visitInsn(ICONST_1);
@@ -305,7 +298,7 @@ public class MethodGen {
         localVars.sort(new FunctionParamComparator());
         for (int i = 1; i < localVars.size(); i++) {
             BIRVariableDcl localVar = localVars.get(i);
-            int index = indexMap.addToMapIfNotFoundAndGetIndex(localVar);
+            int index = indexMap.addIfNotExists(localVar.name.value, localVar.type);
             if (localVar.kind != VarKind.ARG) {
                 BType bType = localVar.type;
                 genDefaultValue(mv, bType, index);
@@ -315,7 +308,7 @@ public class MethodGen {
 
     private int getReturnVarRefIndex(BIRFunction func, BIRVarToJVMIndexMap indexMap, BType retType, MethodVisitor mv) {
         BIRVariableDcl varDcl = func.localVars.get(0);
-        int returnVarRefIndex = indexMap.addToMapIfNotFoundAndGetIndex(varDcl);
+        int returnVarRefIndex = indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
         genDefaultValue(mv, retType, returnVarRefIndex);
         return returnVarRefIndex;
     }
@@ -410,9 +403,7 @@ public class MethodGen {
     }
 
     private int getStateVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
-        BIRVariableDcl stateVar = new BIRVariableDcl(symbolTable.stringType, //should  be javaInt
-                                                     new Name(STATE), null, VarKind.TEMP);
-        int stateVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(stateVar);
+        int stateVarIndex = indexMap.addIfNotExists(STATE, symbolTable.stringType);
         mv.visitInsn(ICONST_0);
         mv.visitVarInsn(ISTORE, stateVarIndex);
         return stateVarIndex;
@@ -443,9 +434,10 @@ public class MethodGen {
     }
 
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
-                                    JvmInstructionGen instGen, JvmTerminatorGen termGen, BIRFunction func,
-                                    int returnVarRefIndex, int stateVarIndex, int localVarOffset, BIRPackage module,
-                                    BType attachedType, String moduleClassName, AsyncDataCollector asyncDataCollector) {
+                             JvmInstructionGen instGen, JvmTerminatorGen termGen, BIRFunction func,
+                             int returnVarRefIndex, int stateVarIndex, int localVarOffset, BIRPackage module,
+                             BType attachedType, String moduleClassName,
+                             AsyncDataCollector asyncDataCollector) {
 
         String funcName = func.name.value;
         BirScope lastScope = null;
@@ -496,12 +488,12 @@ public class MethodGen {
     private void processTerminator(MethodVisitor mv, BIRFunction func, BIRPackage module, String funcName,
                                    BIRTerminator terminator) {
         JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
-        if ((MethodGenUtils.isModuleInitFunction(module, func) || isModuleTestInitFunction(module, func)) &&
+        if ((MethodGenUtils.isModuleInitFunction(func) || isModuleTestInitFunction(func)) &&
                 terminator instanceof Return) {
             generateAnnotLoad(mv, module.typeDefs, JvmCodeGenUtil.getPackageName(module));
         }
         //set module start success to true for $_init class
-        if (isModuleStartFunction(module, funcName) && terminator.kind == InstructionKind.RETURN) {
+        if (isModuleStartFunction(funcName) && terminator.kind == InstructionKind.RETURN) {
             mv.visitInsn(ICONST_1);
             mv.visitFieldInsn(PUTSTATIC,
                               JvmCodeGenUtil.getModuleLevelClassName(module, MODULE_INIT_CLASS_NAME),
@@ -509,7 +501,7 @@ public class MethodGen {
         }
     }
 
-    private boolean isModuleTestInitFunction(BIRPackage module, BIRFunction func) {
+    private boolean isModuleTestInitFunction(BIRFunction func) {
         return func.name.value.equals(
                 MethodGenUtils
                         .encodeModuleSpecialFuncName(".<testinit>"));
@@ -546,7 +538,7 @@ public class MethodGen {
         JvmTypeGen.loadType(mv, typeDefinition.type);
     }
 
-    private boolean isModuleStartFunction(BIRPackage module, String functionName) {
+    private boolean isModuleStartFunction(String functionName) {
         return functionName
                 .equals(MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.START_FUNCTION_SUFFIX));
     }
@@ -568,8 +560,8 @@ public class MethodGen {
     private void generateFrameClassFieldLoad(List<BIRVariableDcl> localVars, MethodVisitor mv,
                                              BIRVarToJVMIndexMap indexMap, String frameName) {
         for (BIRVariableDcl localVar : localVars) {
-            int index = indexMap.addToMapIfNotFoundAndGetIndex(localVar);
             BType bType = localVar.type;
+            int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 
             if (TypeTags.isIntegerTypeTag(bType.tag)) {
@@ -726,10 +718,10 @@ public class MethodGen {
     private void generateFrameClassFieldUpdate(List<BIRVariableDcl> localVars, MethodVisitor mv,
                                                BIRVarToJVMIndexMap indexMap, String frameName) {
         for (BIRVariableDcl localVar : localVars) {
-            int index = indexMap.addToMapIfNotFoundAndGetIndex(localVar);
+            BType bType = localVar.type;
+            int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 
-            BType bType = localVar.type;
             if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 mv.visitVarInsn(LLOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
@@ -893,8 +885,7 @@ public class MethodGen {
     }
 
     private void generateGetFrame(BIRVarToJVMIndexMap indexMap, int localVarOffset, MethodVisitor mv) {
-        BIRVariableDcl frameVar = new BIRVariableDcl(symbolTable.stringType, new Name("frame"), null, VarKind.TEMP);
-        int frameVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(frameVar);
+        int frameVarIndex = indexMap.addIfNotExists("frame", symbolTable.stringType);
         mv.visitVarInsn(ASTORE, frameVarIndex);
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, "[Ljava/lang/Object;");
@@ -936,7 +927,8 @@ public class MethodGen {
             String metaVarName = localVar.metaVarName;
             if (isCompilerAddedVars(metaVarName)) {
                 mv.visitLocalVariable(metaVarName, getJVMTypeSign(localVar.type), null,
-                                      startLabel, endLabel, indexMap.addToMapIfNotFoundAndGetIndex(localVar));
+                                      startLabel, endLabel,
+                                      indexMap.addIfNotExists(localVar.name.value, localVar.type));
             }
         }
     }

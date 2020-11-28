@@ -18,18 +18,12 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 configurations {
-    birJar
-    bir
-    birJarCompile { transitive false }
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 dependencies {
-
-    bir project(path: ':ballerina-io',  configuration: 'bir')
-    bir project(path: ':testerina:testerina-core',  configuration: 'bir')
 
     implementation project(':ballerina-runtime')
     implementation 'com.moandjiezana.toml:toml4j'
@@ -44,32 +38,11 @@ dependencies {
 
 }
 
-task createBirCache {
-    dependsOn configurations.bir
-
-    doLast {
-        configurations.bir.each { artifact ->
-            copy {
-                from artifact
-                into "$buildDir/bir-cache/"
-            }
-        }
-    }
-
-    inputs.files configurations.bir
-    outputs.dir "$buildDir/bir-cache"
-    outputs.cacheIf { false }
-}
-
 checkstyleMain {
     exclude 'org/ballerinalang/packerina/model/BaloToml.java'
 }
 
 test {
-    dependsOn createBirCache
-    dependsOn configurations.birJar
-    dependsOn configurations.birJarCompile
-
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     useTestNG() {
         suites 'src/test/resources/testng.xml'

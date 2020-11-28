@@ -20,6 +20,7 @@ package io.ballerina.toml.internal.parser;
 import io.ballerina.toml.internal.diagnostics.DiagnosticCode;
 import io.ballerina.toml.internal.parser.tree.STNode;
 import io.ballerina.toml.internal.parser.tree.STNodeDiagnostic;
+import io.ballerina.toml.internal.parser.tree.STNodeFactory;
 import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.tools.text.CharReader;
 
@@ -35,7 +36,8 @@ import java.util.List;
  */
 public abstract class AbstractLexer {
 
-    protected List<STNode> leadingTriviaList;
+    protected static final int INITIAL_TRIVIA_CAPACITY = 10;
+    protected List<STNode> leadingTriviaList = new ArrayList<>(INITIAL_TRIVIA_CAPACITY);
     private Collection<STNodeDiagnostic> diagnostics = new ArrayList<>();
     protected CharReader reader;
     protected ParserMode mode;
@@ -116,5 +118,11 @@ public abstract class AbstractLexer {
 
     protected void reportLexerError(DiagnosticCode diagnosticCode, Object... args) {
         diagnostics.add(SyntaxErrors.createDiagnostic(diagnosticCode, args));
+    }
+
+    protected STNode getLeadingTrivia() {
+        STNode trivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        this.leadingTriviaList = new ArrayList<>(INITIAL_TRIVIA_CAPACITY);
+        return trivia;
     }
 }

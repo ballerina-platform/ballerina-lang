@@ -15,17 +15,19 @@
  */
 package org.ballerinalang.formatter.cli;
 
-import org.ballerinalang.compiler.CompilerPhase;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.directory.BuildProject;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
-import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,22 +44,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-
 /**
  * Util class for compilation and format execution for formatting CLI tool.
  */
 class FormatUtil {
     static final String CMD_NAME = "format";
     private static final PrintStream outStream = System.err;
-    private static EmptyPrintStream emptyPrintStream;
 
     /**
      * Execute formatter.
@@ -94,7 +86,7 @@ class FormatUtil {
                         throw LauncherUtils.createLauncherException(Messages.getNoBallerinaFile(ballerinaFilePath));
                     }
 
-                    String source = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+                    String source = Files.readString(filePath);
                     // Format and get the generated formatted source code content.
                     String formattedSourceCode = Formatter.format(source);
 
@@ -130,30 +122,67 @@ class FormatUtil {
                         }
                     }
 
-                    // Check whether the given directory is not in a ballerina project.
-                    if (!FormatUtil.isBallerinaProject(sourceRootPath)) {
-                        throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
+                    BuildProject project;
+
+                    try {
+                        project = BuildProject.load(sourceRootPath, constructBuildOptions());
+                    } catch (ProjectException e) {
+                        throw LauncherUtils.createLauncherException(Messages.getException() + e);
                     }
-                    BLangPackage bLangPackage = FormatUtil
-                            .compileModule(sourceRootPath, getModuleName(moduleName));
+
+                    Package currentPackage = project.currentPackage();
+                    Module module = currentPackage.module(ModuleName.from(currentPackage.packageName(),
+                            getModuleName(moduleName)));
 
                     // Iterate and format the ballerina package.
-                    List<String> formattedFiles = iterateAndFormat(bLangPackage, sourceRootPath, dryRun);
+                    List<String> formattedFiles = iterateAndFormat(getDocumentPaths(project, module.moduleId()),
+                            sourceRootPath, dryRun);
                     generateChangeReport(formattedFiles, dryRun);
                 }
             } else {
-                List<BLangPackage> packages = FormatUtil.compileProject(sourceRootPath);
-                List<String> formattedFiles = new ArrayList<>();
-                // Iterate and format all the ballerina packages.
-                for (BLangPackage bLangPackage : packages) {
-                    formattedFiles.addAll(iterateAndFormat(bLangPackage, sourceRootPath, dryRun));
+                // Check whether the given directory is not a ballerina project.
+                if (!FormatUtil.isBallerinaProject(sourceRootPath)) {
+                    throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
                 }
 
+                BuildProject project;
+
+                try {
+                    project = BuildProject.load(sourceRootPath, constructBuildOptions());
+                } catch (ProjectException e) {
+                    throw LauncherUtils.createLauncherException(Messages.getException() + e);
+                }
+
+                List<String> formattedFiles = new ArrayList<>();
+                // Iterate and format all the ballerina packages.
+                project.currentPackage().moduleIds().forEach(moduleId -> {
+                    try {
+                        formattedFiles.addAll(iterateAndFormat(getDocumentPaths(project, moduleId),
+                                sourceRootPath, dryRun));
+                    } catch (IOException | FormatterException e) {
+                        throw LauncherUtils.createLauncherException(Messages.getException() + e);
+                    }
+                });
                 generateChangeReport(formattedFiles, dryRun);
             }
         } catch (IOException | NullPointerException | FormatterException e) {
             throw LauncherUtils.createLauncherException(Messages.getException() + e);
         }
+    }
+
+    private static List<Path> getDocumentPaths(BuildProject project, ModuleId moduleId) {
+        List<Path> documentPaths = new ArrayList<>();
+        Module module = project.currentPackage().module(moduleId);
+        List<DocumentId> documentIds = new ArrayList<>();
+
+        documentIds.addAll(module.documentIds());
+        documentIds.addAll(module.testDocumentIds());
+        documentIds.forEach(documentId -> {
+            if (project.documentPath(documentId).isPresent()) {
+                documentPaths.add(project.documentPath(documentId).get());
+            }
+        });
+        return documentPaths;
     }
 
     private static void generateChangeReport(List<String> formattedFiles, boolean dryRun) {
@@ -182,44 +211,11 @@ class FormatUtil {
         return splitedTokens[splitedTokens.length - 1];
     }
 
-    /**
-     * Compile whole ballerina project.
-     *
-     * @param sourceRoot source root
-     * @return {@link List<BLangPackage>} list of BLangPackages
-     */
-    private static List<BLangPackage> compileProject(Path sourceRoot) throws UnsupportedEncodingException {
-        emptyPrintStream = new EmptyPrintStream();
-        CompilerContext context = getCompilerContext(sourceRoot);
-        Compiler compiler = Compiler.getInstance(context);
-        // Set an EmptyPrintStream to hide unnecessary outputs from compiler.
-        compiler.setOutStream(emptyPrintStream);
-        return compiler.compilePackages(false);
-    }
-
-    /**
-     * Compile only a ballerina module.
-     *
-     * @param sourceRoot source root
-     * @param moduleName name of the module to be compiled
-     * @return {@link BLangPackage} ballerina package
-     */
-    private static BLangPackage compileModule(Path sourceRoot, String moduleName) throws UnsupportedEncodingException {
-        emptyPrintStream = new EmptyPrintStream();
-        CompilerContext context = getCompilerContext(sourceRoot);
-        Compiler compiler = Compiler.getInstance(context);
-        // Set an EmptyPrintStream to hide unnecessary outputs from compiler.
-        compiler.setOutStream(emptyPrintStream);
-        return compiler.compile(moduleName);
-    }
-
-    private static void formatAndWrite(BLangCompilationUnit compilationUnit, Path sourceRootPath,
+    private static void formatAndWrite(Path documentPath, Path sourceRootPath,
                                List<String> formattedFiles, boolean dryRun) throws IOException, FormatterException {
-        String fileName = Paths.get(sourceRootPath.toString()).resolve("src")
-                .resolve(compilationUnit.getPackageID().getName().value)
-                .resolve(compilationUnit.getName()).toString();
+        String fileName = Paths.get(sourceRootPath.toString()).resolve("modules").resolve(documentPath).toString();
 
-        String originalSource = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
+        String originalSource = Files.readString(Paths.get(fileName));
         // Format and get the formatted source.
         String formattedSource = Formatter.format(originalSource);
 
@@ -232,45 +228,27 @@ class FormatUtil {
         }
     }
 
-    private static List<String> iterateAndFormat(BLangPackage bLangPackage, Path sourceRootPath, boolean dryRun)
+    private static List<String> iterateAndFormat(List<Path> documentPaths, Path sourceRootPath, boolean dryRun)
             throws IOException, FormatterException {
         List<String> formattedFiles = new ArrayList<>();
 
         // Iterate compilation units and format.
-        for (BLangCompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
-            formatAndWrite(compilationUnit, sourceRootPath, formattedFiles, dryRun);
-        }
-
-        // Iterate testable packages and format.
-        for (BLangTestablePackage testablePackage : bLangPackage.getTestablePkgs()) {
-            for (BLangCompilationUnit compilationUnit : testablePackage.getCompilationUnits()) {
-                formatAndWrite(compilationUnit, sourceRootPath, formattedFiles, dryRun);
-            }
+        for (Path path : documentPaths) {
+            formatAndWrite(path, sourceRootPath, formattedFiles, dryRun);
         }
 
         return formattedFiles;
     }
 
-    /**
-     * Get prepared compiler context.
-     *
-     * @param sourceRootPath ballerina compilable source root path
-     * @return {@link CompilerContext} compiler context
-     */
-    private static CompilerContext getCompilerContext(Path sourceRootPath) {
-        CompilerPhase compilerPhase = CompilerPhase.DEFINE;
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRootPath.toString());
-        options.put(OFFLINE, Boolean.toString(false));
-        options.put(COMPILER_PHASE, compilerPhase.toString());
-        options.put(SKIP_TESTS, Boolean.toString(false));
-        options.put(TEST_ENABLED, "true");
-        options.put(LOCK_ENABLED, Boolean.toString(false));
-        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(true));
-        options.put(PRESERVE_WHITESPACE, Boolean.toString(true));
-
-        return context;
+    private static BuildOptions constructBuildOptions() {
+        return new BuildOptionsBuilder()
+                .codeCoverage(false)
+                .experimental(true)
+                .offline(false)
+                .skipTests(false)
+                .testReport(false)
+                .observabilityIncluded(false)
+                .build();
     }
 
     /**
@@ -282,10 +260,10 @@ class FormatUtil {
      */
     private static boolean isModuleExist(String module, Path projectRoot) {
         Path modulePath;
-        if (module.startsWith("src/")) {
+        if (module.startsWith("modules/")) {
             modulePath = projectRoot.resolve(module);
         } else {
-            modulePath = projectRoot.resolve("src").resolve(module);
+            modulePath = projectRoot.resolve("modules").resolve(module);
         }
 
         return modulePath.toFile().isDirectory();
