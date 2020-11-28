@@ -431,8 +431,11 @@ public class ImmutableTypeCloner {
                     immutableType = readOnlyMemTypes.iterator().next();
                 } else if (origUnionType.tsymbol != null) {
                     BTypeSymbol immutableUnionTSymbol = getReadonlyTSymbol(names, origUnionType.tsymbol, env, pkgId,
-                                                                           owner);
+                                                                               owner);
                     immutableType.tsymbol = immutableUnionTSymbol;
+                    if (origUnionType.isCyclic) {
+                        immutableUnionTSymbol.name = origUnionType.tsymbol.name;
+                    }
                     immutableType.flags |= (origUnionType.flags | Flags.READONLY);
                     if (immutableUnionTSymbol != null) {
                         immutableUnionTSymbol.type = immutableType;
