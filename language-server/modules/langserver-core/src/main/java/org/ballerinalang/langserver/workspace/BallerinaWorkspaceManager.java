@@ -184,6 +184,33 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     /**
+     * Returns module compilation from the file path provided.
+     *
+     * @param module {@link Module}
+     * @return {@link ModuleCompilation}
+     */
+    @Override
+    public Optional<ModuleCompilation> waitAndGetModuleCompilation(Module module) {
+        // TODO: Remove this once singleProject.sourceRoot is tempDir issue fixed
+        Optional<ProjectPair> projectPair = sourceRootToProject.entrySet().stream()
+                .filter(e -> e.getValue().project().equals(module.project()))
+                .findFirst()
+                .map(Map.Entry::getValue);
+        // Get Project and Lock
+        if (projectPair.isEmpty()) {
+            return Optional.empty();
+        }
+        // Lock Project Instance
+        projectPair.get().locker().lock();
+        try {
+            return Optional.of(module.getCompilation());
+        } finally {
+            // Unlock Project Instance
+            projectPair.get().locker().unlock();
+        }
+    }
+
+    /**
      * The document open notification is sent from the client to the server to signal newly opened text documents.
      *
      * @param filePath {@link Path} of the document
