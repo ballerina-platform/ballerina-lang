@@ -97,7 +97,6 @@ public class EnvironmentBuilder {
         return environment;
     }
 
-    // this
     private BallerinaDistribution getBallerinaDistribution(DefaultEnvironment environment) {
         return (ballerinaHome != null) ?
                 BallerinaDistribution.from(environment, ballerinaHome) :

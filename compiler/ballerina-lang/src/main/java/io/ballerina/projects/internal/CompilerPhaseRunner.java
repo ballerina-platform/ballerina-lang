@@ -149,11 +149,6 @@ public class CompilerPhaseRunner {
     }
 
     public void performBirGenPhases(BLangPackage pkgNode) {
-        if (this.stopCompilation(pkgNode, CompilerPhase.OBSERVABILITY_DATA_GEN)) {
-            return;
-        }
-
-//        generateObservabilityData(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
             return;
         }
@@ -200,10 +195,6 @@ public class CompilerPhaseRunner {
         }
 
         birGen(pkgNode);
-    }
-
-    private void generateObservabilityData(BLangPackage pkgNode) {
-        this.observabilitySymbolCollector.process(pkgNode);
     }
 
     public BLangPackage define(BLangPackage pkgNode) {

@@ -33,6 +33,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
 /**
  * New command for creating a ballerina project.
@@ -126,8 +127,9 @@ public class NewCommand implements BLauncherCmd {
         }
 
         if (!ProjectUtils.validatePkgName(packageName)) {
-            errStream.println("warning: invalid package name. Modified package name : " +
-                    ProjectUtils.guessPkgName(packageName));
+            errStream.println("Unallowed characters in the project name were replaced by " +
+                    "underscores when deriving the package name. Edit the Ballerina.toml to change it.");
+            errStream.println();
         }
 
         // Check if the template exists
@@ -150,11 +152,9 @@ public class NewCommand implements BLauncherCmd {
             errStream.println("error: Error occurred while creating project : " + e.getMessage());
             return;
         }
-        errStream.println("Created new Ballerina project at " + userDir.relativize(path));
+        errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
+                + "' at " + userDir.relativize(path) + ".");
         errStream.println();
-        errStream.println("Next:");
-        errStream.println("    Move into the project directory and use `ballerina add <module-name>` to");
-        errStream.println("    add a new Ballerina module.");
     }
 
     @Override

@@ -26,9 +26,11 @@ import java.nio.file.Path;
  */
 public class JarLibrary extends PlatformLibrary {
     static final String KEY_PATH = "path";
+    static final String KEY_SCOPE = "scope";
     private final Path path;
 
-    public JarLibrary(Path path) {
+    public JarLibrary(Path path, PlatformLibraryScope scope) {
+        super(scope);
         this.path = path;
     }
 
