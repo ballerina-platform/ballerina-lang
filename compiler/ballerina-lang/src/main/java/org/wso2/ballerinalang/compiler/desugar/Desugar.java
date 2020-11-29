@@ -3246,6 +3246,8 @@ public class Desugar extends BLangNodeVisitor {
 
         rewrite(matchBlockStmt, this.env);
         result = matchBlockStmt;
+        this.onFailClause = currentOnFailClause;
+        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     @Override
@@ -3273,6 +3275,8 @@ public class Desugar extends BLangNodeVisitor {
         rewrite(matchBlockStmt, this.env);
 
         result = matchBlockStmt;
+        this.onFailClause = currentOnFailClause;
+        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     private BLangStatement convertMatchClausesToIfElseStmt(List<BLangMatchClause> matchClauses,
@@ -3560,9 +3564,12 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangForeach foreach) {
         BLangOnFailClause currentOnFailClause = this.onFailClause;
         BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
-        if (foreach.onFailClause != null) {
-            rewrite(foreach.onFailClause, env);
-        }
+        analyzeOnFailClause(foreach.onFailClause, foreach.body);
+//        BLangOnFailClause currentOnFailClause = this.onFailClause;
+//        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+//        if (foreach.onFailClause != null) {
+//            rewrite(foreach.onFailClause, env);
+//        }
         BLangBlockStmt blockNode;
         // We need to create a new variable for the expression as well. This is needed because integer ranges can be
         // added as the expression so we cannot get the symbol in such cases.
@@ -3600,8 +3607,7 @@ public class Desugar extends BLangNodeVisitor {
         // Rewrite the block.
         rewrite(blockNode, this.env);
         result = blockNode;
-        this.onFailClause = currentOnFailClause;
-        this.onFailCallFuncDef = currentOnFailCallDef;
+        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
     }
 
     @Override
@@ -3881,8 +3887,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
-//        BLangOnFailClause currentOnFailClause = this.onFailClause;
-//        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         if (whileNode.onFailClause != null) {
             BLangOnFailClause onFailClause = whileNode.onFailClause;
             whileNode.onFailClause = null;
@@ -3894,8 +3898,6 @@ public class Desugar extends BLangNodeVisitor {
             whileNode.body = rewrite(whileNode.body, env);
             result = whileNode;
         }
-//        this.onFailClause = currentOnFailClause;
-//        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     private BLangDo wrapStatementWithinDo(Location location, BLangStatement statement,
@@ -3976,6 +3978,8 @@ public class Desugar extends BLangNodeVisitor {
         blockStmt.addStatement(ifelse);
         result = rewrite(blockStmt, env);
         enclLocks.pop();
+        this.onFailClause = currentOnFailClause;
+        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     @Override
