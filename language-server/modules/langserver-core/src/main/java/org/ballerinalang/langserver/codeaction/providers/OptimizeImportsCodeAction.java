@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.eclipse.lsp4j.CodeAction;
@@ -71,34 +72,12 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
             return actions;
         }
 
-        List<String[]> toBeRemovedImports = new ArrayList<>();
-
-        // Filter unused imports
-        for (Diagnostic diag : context.allDiagnostics()) {
-            if (diag.getMessage().startsWith(UNUSED_IMPORT_MODULE)) {
-                Matcher matcher = CommandConstants.UNUSED_IMPORT_MODULE_PATTERN.matcher(diag.getMessage());
-                if (matcher.find()) {
-                    String pkgName = matcher.group(1).trim();
-                    String version = matcher.groupCount() > 1 && matcher.group(2) != null ? matcher.group(2) : "";
-                    String alias = matcher.groupCount() > 2 && matcher.group(3) != null
-                            ? matcher.group(3).replace(ALIAS_SEPARATOR + " ", "")
-                            : "";
-                    int aliasIndex = version.indexOf(" " + ALIAS_SEPARATOR + " ");
-                    if (aliasIndex > 0) {
-                        alias = version.substring(aliasIndex + 1).replace(ALIAS_SEPARATOR + " ", "");
-                        version = version.substring(0, aliasIndex);
-                    }
-                    toBeRemovedImports.add(new String[]{pkgName, version, alias});
-                }
-            }
-        }
+        List<String[]> toBeRemovedImports = extractToBeRemovedImports(context.allDiagnostics());
 
         // Skip, when nothing to remove and only single import pending
         if (fileImports.size() <= 1 && toBeRemovedImports.size() == 0) {
             return actions;
         }
-
-        List<TextEdit> edits = new ArrayList<>();
 
         // Find the imports range
         int importSLine = fileImports.get(0).lineRange().startLine().line();
@@ -114,9 +93,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
             }
 
             // Mark locations of the imports
-            Range range = new Range(new Position(pos.startLine().line(), pos.startLine().offset()),
-                                    new Position(pos.endLine().line(), pos.endLine().offset()));
-            importLines.add(range);
+            importLines.add(CommonUtil.toRange(pos));
 
             // Remove any matching imports on-the-go
             boolean rmMatched = toBeRemovedImports.stream()
@@ -124,7 +101,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
                             rmImport[1].equals(importModel.version) && rmImport[2].equals(importModel.alias)
                     );
             if (rmMatched) {
-                fileImports.remove(i);
+                fileImports = fileImports.remove(i);
                 i--;
             }
         }
@@ -135,10 +112,12 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         final List<ImportDeclarationNode> orderedImports = allImports.stream()
                 .sorted(Comparator.comparing((Function<ImportDeclarationNode, String>) o -> o.orgName().isPresent() ?
                         o.orgName().get().orgName().text() : "")
-                        .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
+                                .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
                 .collect(Collectors.toList());
 
         // Mark import removal ranges
+        List<TextEdit> edits = new ArrayList<>();
+
         Range txtTange = null;
         for (Range importRange : importLines) {
             if (txtTange != null && importRange.getStart().getLine() != txtTange.getEnd().getLine() + 1) {
@@ -176,8 +155,29 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    @Override
-    public boolean isEnabled() {
-        return false;
+    private List<String[]> extractToBeRemovedImports(List<Diagnostic> allDiagnotics) {
+        List<String[]> toBeRemovedImports = new ArrayList<>();
+
+        // Filter unused imports
+        for (Diagnostic diag : allDiagnotics) {
+            if (diag.getMessage().startsWith(UNUSED_IMPORT_MODULE)) {
+                Matcher matcher = CommandConstants.UNUSED_IMPORT_MODULE_PATTERN.matcher(diag.getMessage());
+                if (matcher.find()) {
+                    String pkgName = matcher.group(1).trim();
+                    String version = matcher.groupCount() > 1 && matcher.group(2) != null ? matcher.group(2) : "";
+                    String alias = matcher.groupCount() > 2 && matcher.group(3) != null
+                            ? matcher.group(3).replace(ALIAS_SEPARATOR + " ", "")
+                            : "";
+                    int aliasIndex = version.indexOf(" " + ALIAS_SEPARATOR + " ");
+                    if (aliasIndex > 0) {
+                        alias = version.substring(aliasIndex + 1).replace(ALIAS_SEPARATOR + " ", "");
+                        version = version.substring(0, aliasIndex);
+                    }
+                    toBeRemovedImports.add(new String[]{pkgName, version, alias});
+                }
+            }
+        }
+
+        return toBeRemovedImports;
     }
 }
