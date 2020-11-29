@@ -15,61 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.observability.metrics.noop;
+package org.ballerinalang.observe.noop;
 
 import io.ballerina.runtime.observability.metrics.AbstractMetric;
-import io.ballerina.runtime.observability.metrics.Gauge;
+import io.ballerina.runtime.observability.metrics.Counter;
 import io.ballerina.runtime.observability.metrics.MetricId;
-import io.ballerina.runtime.observability.metrics.Snapshot;
-import io.ballerina.runtime.observability.metrics.StatisticConfig;
 
 /**
- * Implementation of No-Op {@link Gauge}.
+ * Implementation of No-Op {@link Counter}.
  */
-public class NoOpGauge extends AbstractMetric implements Gauge {
+public class NoOpCounter extends AbstractMetric implements Counter {
 
-    public NoOpGauge(MetricId id) {
-        super(id);
+    public NoOpCounter(MetricId metricId) {
+        super(metricId);
     }
 
+    @Override
+    public void reset() {
+        //no nothing.
+    }
 
     @Override
-    public void increment(double amount) {
+    public void increment(long amount) {
         // Do nothing
     }
 
     @Override
-    public void decrement(double amount) {
-        // Do nothing
-    }
-
-    @Override
-    public void setValue(double value) {
-        // Do nothing
-    }
-
-    @Override
-    public double getValue() {
+    public long getValue() {
         return 0;
     }
 
     @Override
-    public long getCount() {
+    public long getValueThenReset() {
         return 0;
-    }
-
-    @Override
-    public double getSum() {
-        return 0;
-    }
-
-    @Override
-    public Snapshot[] getSnapshots() {
-        return new Snapshot[0];
-    }
-
-    @Override
-    public StatisticConfig[] getStatisticsConfig() {
-        return new StatisticConfig[0];
     }
 }

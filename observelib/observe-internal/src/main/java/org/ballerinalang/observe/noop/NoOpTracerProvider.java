@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,23 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.observability.metrics.noop;
+package org.ballerinalang.observe.noop;
 
-import io.ballerina.runtime.observability.metrics.AbstractMetric;
-import io.ballerina.runtime.observability.metrics.MetricId;
-import io.ballerina.runtime.observability.metrics.PolledGauge;
+import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
+import io.opentracing.Tracer;
+import io.opentracing.noop.NoopTracerFactory;
 
 /**
- * Implementation of No-Op {@link PolledGauge}.
+ * Implementation of No-Op {@link TracerProvider}.
  */
-public class NoOpPolledGauge extends AbstractMetric implements PolledGauge {
-
-    public NoOpPolledGauge(MetricId id) {
-        super(id);
-    }
+public class NoOpTracerProvider implements TracerProvider {
 
     @Override
-    public double getValue() {
-        return 0;
+    public Tracer getTracer(String serviceName) {
+        return NoopTracerFactory.create();
     }
 }
