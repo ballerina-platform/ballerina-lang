@@ -1122,6 +1122,7 @@ function testReadOnlyArrayFilter() {
         assertValueEquality(count * 2, number);
         count += 1;
     }
+    assertFalse(evenNumbers.isReadOnly());
 }
 
 function getRandomNumber(int i) returns int {

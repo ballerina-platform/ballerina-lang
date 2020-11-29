@@ -109,12 +109,17 @@ function testReadOnlyRecordFilter() {
     filteredGrades.forEach(function(int value) {
         assertTrue(value > 50);
     });
+    assertFalse(filteredGrades.isReadOnly());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(boolean actual) {
     assertEquals(true, actual);
+}
+
+function assertFalse(boolean actual) {
+    assertEquals(false, actual);
 }
 
 function assertEquals(anydata expected, anydata actual) {

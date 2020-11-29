@@ -51,10 +51,10 @@ public class Filter {
                                                                       TABLE_VERSION, "filter");
 
     public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
-        TableType newTableType = (TableType) tbl.getType();
+        TableType tableType = (TableType) tbl.getType();
         BTable newTable =
-                ValueCreator.createTableValue(TypeCreator.createTableType(newTableType.getConstrainedType(),
-                        newTableType.getFieldNames(), false));
+                ValueCreator.createTableValue(TypeCreator.createTableType(tableType.getConstrainedType(),
+                        tableType.getFieldNames(), false));
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         // accessing the parent strand here to use it with each iteration

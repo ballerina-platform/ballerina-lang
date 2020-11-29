@@ -697,13 +697,19 @@ function testReadOnlyTableFilter() {
     assertEquals(children.length(), 2);
     children.forEach(function(Person person) {
         assertTrue(person.age < 18);
+        assertTrue(person.isReadOnly());
     });
+    assertFalse(children.isReadOnly());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(boolean actual) {
     assertEquals(true, actual);
+}
+
+function assertFalse(boolean actual) {
+    assertEquals(false, actual);
 }
 
 function assertEquals(anydata expected, anydata actual) {

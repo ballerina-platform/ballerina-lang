@@ -52,21 +52,19 @@ public class Filter {
 
     public static BMap filter(BMap<?, ?> m, BFunctionPointer<Object, Boolean> func) {
         Type mapType = m.getType();
-        Type newMapType;
-        Type newConstraint;
+        Type constraint;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 MapType type = (MapType) mapType;
-                newConstraint = type.getConstrainedType();
+                constraint = type.getConstrainedType();
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                newConstraint = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
+                constraint = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
                 break;
             default:
                 throw createOpNotSupportedError(mapType, "filter()");
         }
-        newMapType = TypeCreator.createMapType(newConstraint);
-        BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);
+        BMap<BString, Object> newMap = ValueCreator.createMapValue(TypeCreator.createMapType(constraint));
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();

@@ -246,6 +246,10 @@ function assertTrue(boolean actual) {
     assert(true, actual);
 }
 
+function assertFalse(boolean actual) {
+    assert(false, actual);
+}
+
 function assert(anydata expected, anydata actual) {
     if (expected == actual) {
         return;
@@ -314,4 +318,5 @@ function testReadOnlyMapFilter() {
     passed.forEach(function(int value) {
         assertTrue(value > 50);
     });
+    assertFalse(passed.isReadOnly());
 }
