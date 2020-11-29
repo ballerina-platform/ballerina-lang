@@ -33,6 +33,7 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.observability.metrics;
     exports io.ballerina.runtime.observability.metrics.spi;
     exports io.ballerina.runtime.observability.tracer;
+    exports io.ballerina.runtime.observability.tracer.spi;
     exports io.ballerina.runtime.transactions;
 
     // export only for Langlib , Cli and Testerina

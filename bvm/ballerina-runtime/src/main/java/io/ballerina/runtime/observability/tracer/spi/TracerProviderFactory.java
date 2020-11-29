@@ -15,37 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.observability.tracer;
+package io.ballerina.runtime.observability.tracer.spi;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.opentracing.Tracer;
 
 /**
- * This represents the Java SPI interface that OpenTracerManager will be using
+ * This represents the Java SPI interface that OpenTracerManager will be used
  * to obtain the {@link Tracer} implementation.
  */
-public interface OpenTracer {
+public interface TracerProviderFactory {
 
     /**
-     * Initializes the {@link Tracer} implementation with configurations.
+     * Returns the name of the Tracer Provider produced by this factory.
      *
-     * @throws InvalidConfigurationException if the configurations are invalid.
-     */
-    void init() throws InvalidConfigurationException;
-
-    /**
-     * Returns the specific tracer implementation of the analytics engine based
-     * on the configuration provided.
-     *
-     * @param serviceName name of the service of the trace
-     * @return Specific {@link Tracer} instance
-     * if the configuration or tracer name is invalid.
-     */
-    Tracer getTracer(String serviceName);
-
-    /**
-     * Returns the name of the tracer. This will be used when loading the tracer by name.
-     *
-     * @return tracer name.
+     * @return The name of the provider
      */
     String getName();
+
+    /**
+     * Returns the TracerProvider Ballerina Object.
+     *
+     * @return Specific {@link Tracer} instance
+     */
+    BObject getProviderBObject();
+
+    /**
+     * Returns an implementation of {@link TracerProvider} interface.
+     *
+     * @return the tracer provider
+     */
+    TracerProvider getProvider();
 }

@@ -15,30 +15,26 @@
  * under the License.
  *
  */
-
 package io.ballerina.runtime.observability.metrics.spi;
 
-import io.ballerina.runtime.observability.tracer.InvalidConfigurationException;
+import io.ballerina.runtime.api.values.BObject;
 
 /**
- * Metrics Reporter interface that needs to be implemented by external metric reporters from Ballerina.
- *
- * @since 0.980.0
+ * This represents the Java SPI interface for the factory of a metric reporter.
  */
-public interface MetricReporter {
+public interface MetricReporterFactory {
 
     /**
-     * Initializes the {@link MetricReporter} implementation with configurations.
+     * Returns the name of the Metric Reporter produced by this factory.
      *
-     * @throws InvalidConfigurationException if the configurations are invalid.
-     */
-    void init() throws InvalidConfigurationException;
-
-    /**
-     * Returns the name of the tracer. This will be used when loading the tracer by name.
-     *
-     * @return tracer name.
+     * @return The name of the reporter
      */
     String getName();
 
+    /**
+     * Returns the MetricReporter Ballerina Object.
+     *
+     * @return tracer name.
+     */
+    BObject getReporterBObject();
 }
