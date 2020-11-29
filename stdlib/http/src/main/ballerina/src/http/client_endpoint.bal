@@ -260,10 +260,18 @@ public type ClientConfiguration record {|
 # + keepAlive - Specifies whether to reuse a connection for multiple requests
 # + chunking - The chunking behaviour of the request
 # + proxy - Proxy server related options
+# + maxStatusLineLength - Maximum allowed length for response status line(`HTTP/1.0 200 OK`). Exceeding this limit will
+#                          result in an error response
+# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in an error response
+# + maxEntityBodySize - Maximum allowed size for the entity body. By default it is set to -1 which means there is no
+#                       restriction `maxEntityBodySize`, On the Exceeding this limit will result in an error response
 public type ClientHttp1Settings record {|
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     Chunking chunking = CHUNKING_AUTO;
     ProxyConfig? proxy = ();
+    int maxStatusLineLength = 4096;
+    int maxHeaderSize = 8192;
+    int maxEntityBodySize = -1;
 |};
 
 function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolConfig) = @java:Method {

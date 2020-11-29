@@ -224,7 +224,7 @@ public type ListenerConfiguration record {|
 # + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a
 #                  `414 - URI Too Long` response.
 # + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
-#                   `413 - Payload Too Large` response.
+#                   `431 - Request Header Fields Too Large` response.
 # + maxEntityBodySize - Maximum allowed size for the entity body. By default it is set to -1 which means there
 #                       is no restriction `maxEntityBodySize`, On the Exceeding this limit will result in a
 #                       `413 - Payload Too Large` response.
