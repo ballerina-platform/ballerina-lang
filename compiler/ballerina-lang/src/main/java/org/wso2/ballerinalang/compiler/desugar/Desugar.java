@@ -352,8 +352,6 @@ public class Desugar extends BLangNodeVisitor {
     private BType forceCastReturnType = null;
     private boolean addCheckExpression;
     private boolean shouldReturnErrors;
-//    private boolean skipFailDesugaring = false;
-    private BLangNode exisitngFailExprStmt;
     private int transactionBlockCount;
     private BLangLiteral trxBlockId;
     private List<BLangOnFailClause> enclosingOnFailClause = new ArrayList<>();
@@ -371,7 +369,6 @@ public class Desugar extends BLangNodeVisitor {
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
-//    private BLangSimpleVarRef forceJumpRef;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -2728,7 +2725,6 @@ public class Desugar extends BLangNodeVisitor {
             //           $continueLoop$ = true;
             //      }
             //
-            //
             //      if($returnErrorResult$) {
             //           return $retryResult$;
             //      }
@@ -3565,11 +3561,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangOnFailClause currentOnFailClause = this.onFailClause;
         BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         analyzeOnFailClause(foreach.onFailClause, foreach.body);
-//        BLangOnFailClause currentOnFailClause = this.onFailClause;
-//        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
-//        if (foreach.onFailClause != null) {
-//            rewrite(foreach.onFailClause, env);
-//        }
         BLangBlockStmt blockNode;
         // We need to create a new variable for the expression as well. This is needed because integer ranges can be
         // added as the expression so we cannot get the symbol in such cases.
@@ -3606,8 +3597,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // Rewrite the block.
         rewrite(blockNode, this.env);
-        result = blockNode;
         swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
+        result = blockNode;
     }
 
     @Override
@@ -4012,11 +4003,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangGroupExpr shouldNotPanic = new BLangGroupExpr();
         shouldNotPanic.type = symTable.booleanType;
         shouldNotPanic.expression = createNotBinaryExpression(pos, shouldPanicRef);
-
-//        BLangGroupExpr exitCheck = new BLangGroupExpr();
-//        exitCheck.type = symTable.booleanType;
-//        exitCheck.expression =  ASTBuilderUtil.createBinaryExpr(pos, shouldNotRetryCheck, forceJumpRef,
-//                symTable.booleanType, OperatorKind.OR, null);
 
         BLangSimpleVarRef caughtError =  ASTBuilderUtil.createVariableRef(pos, trxOnFailErrorSym);
 
