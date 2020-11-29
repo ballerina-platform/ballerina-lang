@@ -44,6 +44,7 @@ import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
@@ -406,6 +407,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
         // Build Project
         Path parent = documentFilePath.getParent();
+        String filePathDocName = documentFilePath.getFileName().toString();
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             // TODO: Check whether this logic also works for Single File projects
             Optional<Path> modulePath = modulePath(moduleId, project);
@@ -414,15 +416,14 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                         || parent.equals(modulePath.get().resolve(ProjectConstants.TEST_DIR_NAME))) {
                     Module module = project.currentPackage().module(moduleId);
                     for (DocumentId documentId : module.documentIds()) {
-                        if (module.document(documentId).name().equals(
-                                documentFilePath.getFileName().toString())) {
+                        if (module.document(documentId).name().equals(filePathDocName)) {
                             return Optional.of(documentId);
                         }
                     }
 
                     for (DocumentId documentId : module.testDocumentIds()) {
-                        if (module.document(documentId).name().equals(
-                                documentFilePath.getFileName().toString())) {
+                        String docName = module.document(documentId).name();
+                        if (docName.equals(ProjectConstants.TEST_DIR_NAME + File.separator + filePathDocName)) {
                             return Optional.of(documentId);
                         }
                     }
