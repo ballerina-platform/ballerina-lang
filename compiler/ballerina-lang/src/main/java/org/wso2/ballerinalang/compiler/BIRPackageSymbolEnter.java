@@ -1423,7 +1423,7 @@ public class BIRPackageSymbolEnter {
         byte[] docBytes = new byte[docLength];
         int noOfBytesRead = inputStream.read(docBytes);
         if (docLength != noOfBytesRead) {
-            throw new RuntimeException("Failed to read Markdown Documenation");
+            throw new RuntimeException("Failed to read Markdown Documentation");
         }
         return docBytes;
     }
