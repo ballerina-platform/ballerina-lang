@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
  * @since 0.94
  */
 @JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
-public class ObservabilitySystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
+public class ObservabilityInternalSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
     @Override
     public Repo loadRepository() {

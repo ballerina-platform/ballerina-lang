@@ -23,3 +23,12 @@ public isolated function getMetrics() returns json = @java:Method {
     name: "getMetrics",
     'class: "org.ballerina.testobserve.metrics.extension.MetricsUtils"
 } external;
+
+public class MockMetricReporter {
+    # Handle Metrics Reporter start.
+    #
+    # + return - `()` if no error occurred, and an error otherwise
+    public isolated function initialize() returns error? {
+        // Do Nothing
+    }
+}

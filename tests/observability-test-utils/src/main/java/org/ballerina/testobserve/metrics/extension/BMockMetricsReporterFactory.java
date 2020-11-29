@@ -15,29 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerina.testobserve.metrics.extension;
 
-import io.ballerina.runtime.observability.metrics.spi.MetricReporter;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.metrics.spi.MetricReporterFactory;
 
-import java.io.PrintStream;
+import static org.ballerina.testobserve.Constants.OBSERVE_MODULE;
 
 /**
  * Mock metrics reporter.
+ *
  * This does not do anything and is only created as a reporter type is required by Ballerina Observability configs.
+ * This is mainly used in test cases. The metrics are read by writing an API which exposes the metrics from the
+ * Metrics Registry.
  */
-public class BMockMetricsReporter implements MetricReporter {
-
-    private static final PrintStream out = System.out;
-    private static final String NAME = "BMockMetricsReporter";
-
-    @Override
-    public void init() {
-        out.println("Initialized Mock Metrics Reporter");
-    }
+public class BMockMetricsReporterFactory implements MetricReporterFactory {
+    private static final BObject BOBJECT_INSTANCE =
+            ValueCreator.createObjectValue(OBSERVE_MODULE, "MockMetricReporter");
 
     @Override
     public String getName() {
-        return NAME;
+        return "mock";
+    }
+
+    @Override
+    public BObject getReporterBObject() {
+        return BOBJECT_INSTANCE;
     }
 }
