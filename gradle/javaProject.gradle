@@ -121,6 +121,7 @@ dependencies {
         implementation 'io.netty:netty-tcnative-boringssl-static:2.0.25.Final'
         implementation 'io.netty:netty-transport:4.1.39.Final'
         implementation 'io.opentracing:opentracing-api:0.31.0'
+        implementation 'io.opentracing:opentracing-noop:0.31.0'
         implementation 'io.opentracing:opentracing-util:0.31.0'
         implementation 'io.opentracing:opentracing-mock:0.31.0'
         implementation 'io.swagger.core.v3:swagger-models:1.5.18'
