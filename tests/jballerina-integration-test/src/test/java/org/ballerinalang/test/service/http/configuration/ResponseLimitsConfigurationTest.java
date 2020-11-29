@@ -78,7 +78,7 @@ public class ResponseLimitsConfigurationTest extends HttpBaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(X_TEST_TYPE, ERROR);
         HttpResponse response = HttpClientRequest.doGet(
-                serverInstance.getServiceURLHttp(9261,"responseLimit/header"), headers);
+                serverInstance.getServiceURLHttp(9261, "responseLimit/header"), headers);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
         Assert.assertEquals(response.getData(), "error {ballerina/http}GenericClientError message=Response max " +
                 "header size exceeds: HTTP header is larger than 1024 bytes.", "Header content mismatched");

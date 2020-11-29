@@ -1530,7 +1530,8 @@ public class HttpUtil {
         return listenerConfiguration;
     }
 
-    public static void setInboundMgsSizeValidationConfig(long maxInitialLineLength, long maxHeaderSize, long maxEntityBodySize,
+    public static void setInboundMgsSizeValidationConfig(long maxInitialLineLength, long maxHeaderSize,
+                                                         long maxEntityBodySize,
                                                          InboundMsgSizeValidationConfig sizeValidationConfig) {
         if (maxInitialLineLength >= 0) {
             sizeValidationConfig.setMaxInitialLineLength(Math.toIntExact(maxInitialLineLength));
