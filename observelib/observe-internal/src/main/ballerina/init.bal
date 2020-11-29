@@ -14,6 +14,78 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+import ballerina/observe;
+
 function init() {
-    // Initialize extensions
+    if (externIsMetricsEnabled()) {
+        var metricReporter = initializeMetricReporter();
+        if (metricReporter is observe:MetricReporter) {
+            var err = externEnableMetrics(metricReporter);
+            if (err is error) {
+                externPrintError("failed to enable metrics");
+            }
+        } else {
+            externPrintError("failed to initialize metric reporter");
+        }
+    }
+
+    if (externIsTracingEnabled()) {
+        var tracerProvider = initializeTracerProvider();
+        if (tracerProvider is observe:TracerProvider) {
+            var err = externEnableTracing(tracerProvider);
+            if (err is error) {
+                externPrintError("failed to enable tracing");
+            }
+        } else {
+            externPrintError("failed to initialize tracer provider");
+        }
+    }
 }
+
+function initializeMetricReporter() returns observe:MetricReporter|error {
+    var metricReporter = externGetMetricReporter();
+    check metricReporter.initialize();
+    return metricReporter;
+}
+
+function initializeTracerProvider() returns observe:TracerProvider|error {
+    var tracerProvider = externGetTracerProvider();
+    check tracerProvider.initialize();
+    return tracerProvider;
+}
+
+function externIsMetricsEnabled() returns boolean = @java:Method {
+    'class: "org.ballerinalang.observe.NativeFunctions",
+    name: "isMetricsEnabled"
+} external;
+
+function externIsTracingEnabled() returns boolean = @java:Method {
+    'class: "org.ballerinalang.observe.NativeFunctions",
+    name: "isTracingEnabled"
+} external;
+
+function externGetMetricReporter() returns observe:MetricReporter = @java:Method {
+    'class: "org.ballerinalang.observe.NativeFunctions",
+    name: "getMetricReporter"
+} external;
+
+function externGetTracerProvider() returns observe:TracerProvider = @java:Method {
+    'class: "org.ballerinalang.observe.NativeFunctions",
+    name: "getTracerProvider"
+} external;
+
+function externEnableMetrics(observe:MetricReporter metricReporter) returns error? = @java:Method {
+    'class: "org.ballerinalang.observe.NativeFunctions",
+    name: "enableMetrics"
+} external;
+
+function externEnableTracing(observe:TracerProvider tracerProvider) returns error? = @java:Method {
+    'class: "org.ballerinalang.observe.NativeFunctions",
+    name: "enableTracing"
+} external;
+
+function externPrintError(string message) = @java:Method {
+    'class: "org.ballerinalang.observe.NativeFunctions",
+    name: "printError"
+} external;
