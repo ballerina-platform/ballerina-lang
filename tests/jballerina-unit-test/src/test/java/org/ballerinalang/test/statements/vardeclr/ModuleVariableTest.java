@@ -67,7 +67,7 @@ public class ModuleVariableTest {
 
     @Test
     public void testTaintAnalysisWithModuleLevelTupleVar() {
-        CompileResult compileResult =BCompileUtil.compile(
+        CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/vardeclr/module_tuple_var_decl_taint_analysis_negetive.bal");
         int index = 0;
         validateError(compileResult, index++, "tainted value passed to global variable 'p'", 21, 5);
