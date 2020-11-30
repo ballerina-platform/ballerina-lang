@@ -57,7 +57,7 @@ public class ResolvingMavenDependenciesTest extends CommandTest {
         }
     }
 
-    @Test(description = "Test the project with Maven dependencies", enabled = false)
+    @Test(description = "Test the project with Maven dependencies")
     public void testBuildWithMavenDependencies() {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("project-with-maven-dependencies");
@@ -76,8 +76,7 @@ public class ResolvingMavenDependenciesTest extends CommandTest {
                 "wso2-cassandra", cassandraVersion)));
     }
 
-    @Test(description = "Test the project without listing the custom maven repos to [platform.repositories]",
-            enabled = false)
+    @Test(description = "Test the project without listing the custom maven repos to [platform.repositories]")
     public void testWithoutCustomMavenDependencies() throws IOException {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("project-without-custom-maven-dependencies");
@@ -89,16 +88,16 @@ public class ResolvingMavenDependenciesTest extends CommandTest {
     }
 
     @Test(description = "Test the project with adding invalid maven dependencies",
-            dependsOnMethods = {"testWithoutCustomMavenDependencies"}, enabled = false)
+            dependsOnMethods = {"testWithoutCustomMavenDependencies"})
     public void testWithInvalidMavenDependencies() throws IOException {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("project-without-custom-maven-dependencies");
-        String tomlContent = "[project]\n" +
-                "org-name=\"foo\"\n" +
+        String tomlContent = "[package]\n" +
+                "org=\"foo\"\n" +
                 "version=\"0.1.0\"\n\n" +
-                "[platform]\n" +
-                "target=\"java\"\n\n\t" +
-                "[[platform.libraries]]\n\t" +
+                "[[platform.java11.dependency]]\n\t" +
+                "path=\"java\"\n\n\t" +
+                "[[platform.java11.dependency]]\n\t" +
                 "artifactId=\"maven-artifact\"\n\t" +
                 "groupId=\"org.apche.maven\"\n\t" +
                 "version=\"" + mavenArtifactVersion + "\"";
@@ -111,17 +110,16 @@ public class ResolvingMavenDependenciesTest extends CommandTest {
                 "maven-artifact:jar:" + mavenArtifactVersion + " in central (https://repo.maven.apache.org/maven2/)");
     }
 
-    @Test(description = "Validate the maven dependencies", dependsOnMethods = {"testWithInvalidMavenDependencies"}
-    , enabled = false)
+    @Test(description = "Validate the maven dependencies", dependsOnMethods = {"testWithInvalidMavenDependencies"})
     public void validateMavenDependencies() throws IOException {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("project-without-custom-maven-dependencies");
-        String tomlContent = "[project]\n" +
-                "org-name=\"foo\"\n" +
+        String tomlContent = "[package]\n" +
+                "org=\"foo\"\n" +
                 "version=\"0.1.0\"\n\n" +
-                "[platform]\n" +
-                "target=\"java\"\n\n\t" +
-                "[[platform.libraries]]\n\t" +
+                "[[platform.java11.dependency]]\n\t" +
+                "path=\"java\"\n\n\t" +
+                "[[platform.java11.dependency]]\n\t" +
                 "artifactId=\"maven-artifact\"\n\t" +
                 "groupId=\"org.apache.maven\"\n\t";
         Files.write(validBalFilePath.resolve("Ballerina.toml"), tomlContent.getBytes(),
