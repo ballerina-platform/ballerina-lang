@@ -133,15 +133,39 @@ public class ObserveUtils {
 
 //        Supplier<String> logPosition = position::getValue;
 
-        Supplier<String>  getPositionID = () -> {
-            String positionID = pkg.getValue() + "/" + position.getValue();
-            return positionID;
-        };
+//        Supplier<String>  getPositionID = () -> {
+//            String positionID = pkg.getValue() + "/" + position.getValue();
+//            return positionID;
+//        };
+//
+//        logMessageToActiveSpan("CHECKPOINT" ,getPositionID, false);
 
-        logMessageToActiveSpan("CHECKPOINT" ,getPositionID, false);
+        // Adding Position and Module ID to the Jaeger Span
 
+        Map<String, String> eventAttributes = new HashMap<>(2);
+        eventAttributes.put(TAG_KEY_MODULE, pkg.getValue());
+        eventAttributes.put(TAG_KEY_INVOCATION_POSITION, position.getValue());
 
+        addEventToActiveSpan("CHECKPOINT",eventAttributes);
 
+    }
+
+    private static void addEventToActiveSpan(String checkpoint, Map<String, String> eventAttributes) {
+        if (!tracingEnabled) {
+            return;
+        }
+        Environment balEnv = new Environment(Scheduler.getStrand());
+        ObserverContext observerContext = (ObserverContext) balEnv.getStrandLocal(KEY_OBSERVER_CONTEXT);
+        if (observerContext == null) {
+            return;
+        }
+        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
+        if (span == null) {
+            return;
+        }
+        HashMap<String, Object> events = new HashMap<>(1);
+        events.put(checkpoint, eventAttributes);
+        span.log(events);
     }
 
     /**
