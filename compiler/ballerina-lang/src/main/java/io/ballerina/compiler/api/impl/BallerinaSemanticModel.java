@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
@@ -50,6 +51,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
@@ -270,7 +272,13 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private BLangCompilationUnit getCompilationUnit(String srcFile) {
-        return bLangPackage.compUnits.stream()
+        List<BLangCompilationUnit> testSrcs = new ArrayList<>();
+        for (BLangTestablePackage pkg : bLangPackage.testablePkgs) {
+            testSrcs.addAll(pkg.compUnits);
+        }
+
+        Stream<BLangCompilationUnit> units = Stream.concat(bLangPackage.compUnits.stream(), testSrcs.stream());
+        return units
                 .filter(unit -> unit.name.equals(srcFile))
                 .findFirst()
                 .get();
