@@ -316,9 +316,10 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
     public static final String ENDPOINT_CONFIG_VERSION = "httpVersion";
     public static final String ENDPOINT_REQUEST_LIMITS = "requestLimits";
-    public static final String REQUEST_LIMITS_MAXIMUM_URL_LENGTH = "maxUriLength";
-    public static final String REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
-    public static final String REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
+    public static final String MAX_URI_LENGTH = "maxUriLength";
+    public static final String MAX_STATUS_LINE_LENGTH = "maxStatusLineLength";
+    public static final String MAX_HEADER_SIZE = "maxHeaderSize";
+    public static final String MAX_ENTITY_BODY_SIZE = "maxEntityBodySize";
     public static final String ENDPOINT_CONFIG_PIPELINING = "pipelining";
     public static final String ENABLE_PIPELINING = "enable";
     public static final String PIPELINING_REQUEST_LIMIT = "maxPipelinedRequests";

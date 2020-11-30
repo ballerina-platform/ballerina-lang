@@ -81,7 +81,7 @@ public class RequestLimitsConfigurationTest extends HttpBaseTest {
 
     @Test(description = "Tests the behaviour when header size is greater than the configured threshold")
     public void testInvalidHeaderLength() {
-        String expectedMessage = "413 Request Entity Too Large";
+        String expectedMessage = "431 Request Header Fields Too Large";
         HttpClient httpClient = new HttpClient(TEST_HOST, 9236);
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
                                             "/lowRequestHeaderLimit/invalidHeaderSize");
