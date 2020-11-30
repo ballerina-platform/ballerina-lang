@@ -2360,7 +2360,19 @@ public class Types {
 
         @Override
         public Boolean visit(BTableType t, BType s) {
-            return t == s;
+            if (t == s) {
+                return true;
+            }
+            if (s.tag == TypeTags.TABLE) {
+                BTableType sTable = (BTableType) s;
+                if (isSameType(t.constraint, sTable.constraint, this.unresolvedTypes)) {
+                    if (t.keyTypeConstraint != null && sTable.keyTypeConstraint != null) {
+                        return isSameType(t.keyTypeConstraint, sTable.keyTypeConstraint, this.unresolvedTypes);
+                    }
+                }
+                return false;
+            }
+            return false;
         }
 
         @Override
@@ -2381,8 +2393,13 @@ public class Types {
                 return false;
             }
 
-            Set<BType> sourceTypes = new LinkedHashSet<>(sUnionType.getMemberTypes());
-            Set<BType> targetTypes = new LinkedHashSet<>(tUnionType.getMemberTypes());
+            Set<BType> sourceTypes = new LinkedHashSet<>(sUnionType.getMemberTypes().size());
+            Set<BType> targetTypes = new LinkedHashSet<>(tUnionType.getMemberTypes().size());
+
+            sourceTypes.add(sUnionType);
+            sourceTypes.addAll(sUnionType.getMemberTypes());
+            targetTypes.add(tUnionType);
+            targetTypes.addAll(tUnionType.getMemberTypes());
 
             boolean notSameType = sourceTypes
                     .stream()
@@ -2652,7 +2669,7 @@ public class Types {
         return true;
     }
 
-    private boolean isSelfReferencedStructuredType(BType source, BType s) {
+    public boolean isSelfReferencedStructuredType(BType source, BType s) {
         if (source == s) {
             return true;
         }
@@ -2666,6 +2683,92 @@ public class Types {
             return isSelfReferencedStructuredType(source, ((BTableType) s).constraint);
         }
         return false;
+    }
+
+    public BType updateSelfReferencedWithNewType(BType source, BType s, BType target) {
+        if (s.tag == TypeTags.ARRAY) {
+            BArrayType arrayType = (BArrayType) s;
+            if (arrayType.eType == source) {
+                return new BArrayType(target, arrayType.tsymbol, arrayType.size,
+                        arrayType.state, arrayType.flags);
+            }
+        }
+        if (s.tag == TypeTags.MAP) {
+            BMapType mapType = (BMapType) s;
+            if (mapType.constraint == source) {
+                return new BMapType(mapType.tag, target, mapType.tsymbol, mapType.flags);
+            }
+        }
+        if (s.tag == TypeTags.TABLE) {
+            BTableType tableType = (BTableType) s;
+            if (tableType.constraint == source) {
+                return new BTableType(tableType.tag, target, tableType.tsymbol,
+                        tableType.flags);
+            } else if (tableType.constraint instanceof BMapType) {
+                return updateSelfReferencedWithNewType(source, (BMapType) tableType.constraint, target);
+            }
+        }
+        return s;
+    }
+
+    public static void fixSelfReferencingSameUnion(BType originalMemberType, BUnionType origUnionType,
+                                                    BType immutableMemberType, BUnionType newImmutableUnion,
+                                                    LinkedHashSet<BType> readOnlyMemTypes) {
+        boolean sameMember = originalMemberType == immutableMemberType;
+        if (originalMemberType.tag == TypeTags.ARRAY) {
+            var arrayType = (BArrayType) originalMemberType;
+            if (origUnionType == arrayType.eType) {
+                if (sameMember) {
+                    BArrayType newArrayType = new BArrayType(newImmutableUnion, arrayType.tsymbol, arrayType.size,
+                            arrayType.state, arrayType.flags);
+                    readOnlyMemTypes.add(newArrayType);
+                } else {
+                    ((BArrayType) immutableMemberType).eType = newImmutableUnion;
+                    readOnlyMemTypes.add(immutableMemberType);
+                }
+            }
+        } else if (originalMemberType.tag == TypeTags.MAP) {
+            var mapType = (BMapType) originalMemberType;
+            if (origUnionType == mapType.constraint) {
+                if (sameMember) {
+                    BMapType newMapType = new BMapType(mapType.tag, newImmutableUnion, mapType.tsymbol, mapType.flags);
+                    readOnlyMemTypes.add(newMapType);
+                } else {
+                    ((BMapType) immutableMemberType).constraint = newImmutableUnion;
+                    readOnlyMemTypes.add(immutableMemberType);
+                }
+            }
+        } else if (originalMemberType.tag == TypeTags.TABLE) {
+            var tableType = (BTableType) originalMemberType;
+            if (origUnionType == tableType.constraint) {
+                if (sameMember) {
+                    BTableType newTableType = new BTableType(tableType.tag, newImmutableUnion, tableType.tsymbol,
+                            tableType.flags);
+                    readOnlyMemTypes.add(newTableType);
+                } else {
+                    ((BTableType) immutableMemberType).constraint = newImmutableUnion;
+                    readOnlyMemTypes.add(immutableMemberType);
+                }
+                return;
+            }
+
+            var immutableConstraint = ((BTableType) immutableMemberType).constraint;
+            if (tableType.constraint.tag == TypeTags.MAP) {
+                sameMember = tableType.constraint == immutableConstraint;
+                var mapType = (BMapType) tableType.constraint;
+                if (origUnionType == mapType.constraint) {
+                    if (sameMember) {
+                        BMapType newMapType = new BMapType(mapType.tag, newImmutableUnion, mapType.tsymbol, mapType.flags);
+                        ((BTableType) immutableMemberType).constraint = newMapType;
+                    } else {
+                        ((BTableType) immutableMemberType).constraint = newImmutableUnion;
+                    }
+                    readOnlyMemTypes.add(immutableMemberType);
+                }
+            }
+        } else {
+            readOnlyMemTypes.add(immutableMemberType);
+        }
     }
 
     private Set<BType> getEffectiveMemberTypes(BUnionType unionType) {

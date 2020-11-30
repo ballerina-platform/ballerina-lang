@@ -71,7 +71,7 @@ public class BUnionType extends BType implements UnionType {
         resolveCyclicType(type);
         this.name = type.name;
         this.isCyclic = type.isCyclic;
-        this.flags = type.flags;
+        this.flags |= type.flags;
         this.immutableType = type.immutableType;
     }
 
@@ -314,6 +314,52 @@ public class BUnionType extends BType implements UnionType {
             return;
         }
         for (BType member : unionType.getMemberTypes()) {
+            if (member instanceof BArrayType) {
+                BArrayType arrayType = (BArrayType) member;
+                if (arrayType.eType == unionType) {
+                    BArrayType newArrayType = new BArrayType(this, arrayType.tsymbol, arrayType.size,
+                            arrayType.state, arrayType.flags);
+                    this.isCyclic = true;
+                    this.add(newArrayType);
+                    continue;
+                }
+            } else if (member instanceof BMapType) {
+                BMapType mapType = (BMapType) member;
+                if (mapType.constraint == unionType) {
+                    BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
+                    isCyclic = true;
+                    this.add(newMapType);
+                    continue;
+                }
+            } else if (member instanceof BTableType) {
+                BTableType tableType = (BTableType) member;
+                if (tableType.constraint == unionType) {
+                    BTableType newTableType = new BTableType(tableType.tag, this, tableType.tsymbol,
+                            tableType.flags);
+                    isCyclic = true;
+                    this.add(newTableType);
+                    continue;
+                } else if (tableType.constraint instanceof BMapType) {
+                    BMapType mapType = (BMapType) tableType.constraint;
+                    if (mapType.constraint == unionType) {
+                        BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
+                        BTableType newTableType = new BTableType(tableType.tag, newMapType, tableType.tsymbol,
+                                tableType.flags);
+                        isCyclic = true;
+                        this.add(newTableType);
+                        continue;
+                    }
+                }
+            }
+            this.add(member);
+        }
+    }
+
+    protected void fixCyclicType(BUnionType unionType) {
+        if (!unionType.isCyclic) {
+            return;
+        }
+        for (BType member : memberTypes) {
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;
                 if (arrayType.eType == unionType) {

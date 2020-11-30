@@ -398,13 +398,16 @@ public class ImmutableTypeCloner {
                 return (BIntersectionType) type;
             default:
                 BUnionType origUnionType = (BUnionType) type;
-                BType immutableType;
 
-                var originalMemberList = origUnionType.getMemberTypes();
+                BType immutableEffectiveType;
+                LinkedHashSet<BType> originalMemberList = origUnionType.getMemberTypes();
                 LinkedHashSet<BType> readOnlyMemTypes = new LinkedHashSet<>(originalMemberList.size());
-                immutableType = BUnionType.create(null);
-                var unionImmutableType = (BUnionType) immutableType;
-                unionImmutableType.setMemberTypes(readOnlyMemTypes);
+                immutableEffectiveType = BUnionType.create(origUnionType.tsymbol);
+
+                BUnionType unionEffectiveImmutableType = (BUnionType) immutableEffectiveType;
+                unionEffectiveImmutableType.name = origUnionType.name;
+                unionEffectiveImmutableType.isCyclic = origUnionType.isCyclic;
+                unionEffectiveImmutableType.setMemberTypes(readOnlyMemTypes);
 
                 for (BType memberType : originalMemberList) {
                     if (types.isInherentlyImmutableType(memberType)) {
@@ -420,82 +423,34 @@ public class ImmutableTypeCloner {
                             anonymousModelHelper, names, unresolvedTypes);
 
                     if (origUnionType.isCyclic) {
-                        fixSelfReferencingSameUnion(memberType, origUnionType, immutableMemberType,
-                                (BUnionType) immutableType, readOnlyMemTypes);
+                        types.fixSelfReferencingSameUnion(memberType, origUnionType, immutableMemberType,
+                                (BUnionType) immutableEffectiveType, readOnlyMemTypes);
                     } else {
                         readOnlyMemTypes.add(immutableMemberType);
                     }
                 }
 
                 if (readOnlyMemTypes.size() == 1) {
-                    immutableType = readOnlyMemTypes.iterator().next();
+                    immutableEffectiveType = readOnlyMemTypes.iterator().next();
                 } else if (origUnionType.tsymbol != null) {
                     BTypeSymbol immutableUnionTSymbol = getReadonlyTSymbol(names, origUnionType.tsymbol, env, pkgId,
-                                                                               owner);
-                    immutableType.tsymbol = immutableUnionTSymbol;
-                    if (origUnionType.isCyclic) {
-                        immutableUnionTSymbol.name = origUnionType.tsymbol.name;
-                    }
-                    immutableType.flags |= (origUnionType.flags | Flags.READONLY);
+                                                                                owner);
+                    immutableEffectiveType.tsymbol = immutableUnionTSymbol;
+                    immutableUnionTSymbol.name = origUnionType.tsymbol.name;
+
                     if (immutableUnionTSymbol != null) {
-                        immutableUnionTSymbol.type = immutableType;
+                        immutableUnionTSymbol.type = immutableEffectiveType;
                     }
                 } else {
-                    immutableType = BUnionType.create(null, readOnlyMemTypes);
-                    immutableType.flags |= (origUnionType.flags | Flags.READONLY);
+                    immutableEffectiveType = BUnionType.create(null, readOnlyMemTypes);
                 }
 
+                immutableEffectiveType.flags |= (origUnionType.flags | Flags.READONLY);
                 BIntersectionType immutableUnionIntersectionType = createImmutableIntersectionType(env, origUnionType,
-                                                                                                   immutableType,
+                                                                                                   immutableEffectiveType,
                                                                                                    symTable);
                 origUnionType.immutableType = immutableUnionIntersectionType;
                 return immutableUnionIntersectionType;
-        }
-    }
-
-    private static void fixSelfReferencingSameUnion(BType originalMemberType, BUnionType origUnionType,
-                                                    BType immutableMemberType, BUnionType newImmutableUnion,
-                                                    LinkedHashSet<BType> readOnlyMemTypes) {
-        boolean sameMember = originalMemberType == immutableMemberType;
-        if (originalMemberType.tag == TypeTags.ARRAY) {
-            var arrayType = (BArrayType) originalMemberType;
-            if (origUnionType == arrayType.eType) {
-                if (sameMember) {
-                    BArrayType newArrayType = new BArrayType(newImmutableUnion, arrayType.tsymbol, arrayType.size,
-                            arrayType.state, arrayType.flags);
-                    readOnlyMemTypes.add(newArrayType);
-                } else {
-                    ((BArrayType) immutableMemberType).eType = newImmutableUnion;
-                    readOnlyMemTypes.add(immutableMemberType);
-                }
-            }
-        } else if (originalMemberType.tag == TypeTags.MAP) {
-            var mapType = (BMapType) originalMemberType;
-            if (origUnionType == mapType.constraint) {
-                if (sameMember) {
-                    BMapType newMapType = new BMapType(mapType.tag, newImmutableUnion, mapType.tsymbol, mapType.flags);
-                    readOnlyMemTypes.add(newMapType);
-                } else {
-                    ((BMapType) immutableMemberType).constraint = newImmutableUnion;
-                    readOnlyMemTypes.add(immutableMemberType);
-                }
-            }
-        } else if (originalMemberType.tag == TypeTags.TABLE) {
-            var tableType = (BTableType) originalMemberType;
-            if (origUnionType == tableType.constraint) {
-                if (sameMember) {
-                    BTableType newTableType = new BTableType(tableType.tag, newImmutableUnion, tableType.tsymbol,
-                            tableType.flags);
-                    readOnlyMemTypes.add(newTableType);
-                } else {
-                    ((BTableType) immutableMemberType).constraint = newImmutableUnion;
-                    readOnlyMemTypes.add(immutableMemberType);
-                }
-            }
-            fixSelfReferencingSameUnion(tableType.constraint, origUnionType,
-                    ((BTableType) immutableMemberType).constraint, newImmutableUnion, readOnlyMemTypes);
-        } else {
-            readOnlyMemTypes.add(immutableMemberType);
         }
     }
 
