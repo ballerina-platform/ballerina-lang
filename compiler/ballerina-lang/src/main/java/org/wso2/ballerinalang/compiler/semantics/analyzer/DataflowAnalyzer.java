@@ -344,6 +344,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkForUninitializedGlobalVars(List<BLangVariable> globalVars) {
+        // TODO: remove unwanted cases after disallowing uninitialized tuple variables from parser
         for (BLangVariable globalVar : globalVars) {
             switch (globalVar.getKind()) {
                 case VARIABLE:

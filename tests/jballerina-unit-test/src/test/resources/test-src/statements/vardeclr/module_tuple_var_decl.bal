@@ -47,7 +47,7 @@ function testTupleBindingWithRecordsAndObjects() {
     assertEquality(56, f2);
 }
 
-// Test tuple binding pattern with rest binding pattren
+// Test tuple binding pattern with rest binding pattern
 [int, string...] [Id, ...FullName] = [1002, "Peter", "Parker"];
 [int, string...] [Id2, ...FullName2] = [1003, "Jhone", "Anistine"];
 function testTupleBindingPatternWithRestBindingPattern() {
@@ -65,6 +65,25 @@ var [h, i] = g;
 function testDeclaredWithVar() {
     assertEquality(1, h);
     assertEquality("", i);
+}
+
+// Test tuple var declaration with annotations
+const annotation annot on source var;
+
+@annot
+[int, int] [j, k] = [1, 2];
+public function testTupleVarWithAnnotations() {
+    assertEquality(1, j);
+    assertEquality(2, k);
+}
+
+// Test tuple variable reordering/forward referencing
+[decimal, byte] [l, m] = [n ,o];
+decimal n = 2.25;
+byte o = 20;
+public function testVariableForwardReferencing() {
+    assertEquality(<decimal> 2.25, l);
+    assertEquality(20, m);
 }
 
 type Foo record {
@@ -96,12 +115,6 @@ class BarObj {
         self.i = i;
     }
 }
-
-const annotation annot on source var;
-
-@annot
-[int, int] [j, k] = [1, 2];
-
 
 type AssertionError error;
 

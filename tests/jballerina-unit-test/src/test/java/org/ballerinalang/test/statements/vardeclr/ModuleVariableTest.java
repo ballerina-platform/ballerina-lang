@@ -50,6 +50,8 @@ public class ModuleVariableTest {
         BRunUtil.invoke(compileResult, "testTupleBindingWithRecordsAndObjects");
         BRunUtil.invoke(compileResult, "testTupleBindingPatternWithRestBindingPattern");
         BRunUtil.invoke(compileResult, "testDeclaredWithVar");
+        BRunUtil.invoke(compileResult, "testTupleVarWithAnnotations");
+        BRunUtil.invoke(compileResult, "testVariableForwardReferencing");
     }
 
     @Test
@@ -64,7 +66,17 @@ public class ModuleVariableTest {
     }
 
     @Test
+    public void testTaintAnalysisWithModuleLevelTupleVar() {
+        CompileResult compileResult =BCompileUtil.compile(
+                "test-src/statements/vardeclr/module_tuple_var_decl_taint_analysis_negetive.bal");
+        int index = 0;
+        validateError(compileResult, index++, "tainted value passed to global variable 'p'", 21, 5);
+        assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @Test
     public void testUninitializedModuleLevelTupleVar() {
+        // TODO: disallow uninitialized tuple variables from parser and update this test
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_tuple_var_decl.bal");
         int index = 0;
