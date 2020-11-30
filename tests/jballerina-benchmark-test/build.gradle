@@ -73,6 +73,7 @@ jar {
 test {
     dependsOn ':jballerina-tools:build'
     dependsOn(copyToLib)
+    dependsOn(jar)
     maxParallelForks = 1
 
     def warmupIterations = 20000
