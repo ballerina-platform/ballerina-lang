@@ -72,7 +72,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
             return actions;
         }
 
-        List<String[]> toBeRemovedImports = extractToBeRemovedImports(context.allDiagnostics());
+        List<String[]> toBeRemovedImports = extractImportsToBeRemoved(context.allDiagnostics());
 
         // Skip, when nothing to remove and only single import pending
         if (fileImports.size() <= 1 && toBeRemovedImports.size() == 0) {
@@ -155,8 +155,8 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    private List<String[]> extractToBeRemovedImports(List<Diagnostic> allDiagnotics) {
-        List<String[]> toBeRemovedImports = new ArrayList<>();
+    private List<String[]> extractImportsToBeRemoved(List<Diagnostic> allDiagnotics) {
+        List<String[]> importsToBeRemoved = new ArrayList<>();
 
         // Filter unused imports
         for (Diagnostic diag : allDiagnotics) {
@@ -173,11 +173,11 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
                         alias = version.substring(aliasIndex + 1).replace(ALIAS_SEPARATOR + " ", "");
                         version = version.substring(0, aliasIndex);
                     }
-                    toBeRemovedImports.add(new String[]{pkgName, version, alias});
+                    importsToBeRemoved.add(new String[]{pkgName, version, alias});
                 }
             }
         }
 
-        return toBeRemovedImports;
+        return importsToBeRemoved;
     }
 }
