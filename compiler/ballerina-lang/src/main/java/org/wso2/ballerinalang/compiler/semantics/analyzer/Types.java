@@ -2360,19 +2360,7 @@ public class Types {
 
         @Override
         public Boolean visit(BTableType t, BType s) {
-            if (t == s) {
-                return true;
-            }
-            if (s.tag == TypeTags.TABLE) {
-                BTableType sTable = (BTableType) s;
-                if (isSameType(t.constraint, sTable.constraint, this.unresolvedTypes)) {
-                    if (t.keyTypeConstraint != null && sTable.keyTypeConstraint != null) {
-                        return isSameType(t.keyTypeConstraint, sTable.keyTypeConstraint, this.unresolvedTypes);
-                    }
-                }
-                return false;
-            }
-            return false;
+            return t == s;
         }
 
         @Override
