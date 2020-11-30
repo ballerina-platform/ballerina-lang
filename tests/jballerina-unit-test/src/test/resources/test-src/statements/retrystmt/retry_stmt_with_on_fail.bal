@@ -60,6 +60,21 @@ function testRetryStatement() {
     string appendOnFailErrorResult = testAppendOnFailError();
     assertEquality("-> Before failure throw-> Before failure throw-> Before failure throw-> Before failure throw " +
     "-> Error caught: custom error -> Execution continues...", appendOnFailErrorResult);
+
+    string nestedRetryOnFailJumpRes = testNestedRetryOnFailJump();
+    assertEquality("start -> within retry block 1 -> within retry block 2 -> within retry block 2 " +
+    "-> within retry block 2 -> within retry block 1 -> within retry block 2 -> within retry block 2 " +
+    "-> within retry block 2 -> within retry block 1 -> within retry block 2 -> within retry block 2 " +
+    "-> within retry block 2 -> within retry block 1 -> within retry block 2 -> within retry block 2 " +
+    "-> within retry block 2 -> error handled", nestedRetryOnFailJumpRes);
+
+    string nestedRetryOnFailJump2Res = testNestedRetryOnFailJump2();
+    assertEquality("start -> within retry block 1 -> within retry block 2 -> within retry block 3 " +
+    "-> within retry block 3 -> within retry block 2 -> within retry block 3 -> within retry block 3 " +
+    "-> within retry block 1 -> within retry block 2 -> within retry block 3 -> within retry block 3 " +
+    "-> within retry block 2 -> within retry block 3 -> within retry block 3 -> within retry block 1 " +
+    "-> within retry block 2 -> within retry block 3 -> within retry block 3 -> within retry block 2 " +
+    "-> within retry block 3 -> within retry block 3 -> error handled", nestedRetryOnFailJump2Res);
 }
 
 function retryErrorWithFail() returns string|error {
