@@ -24,8 +24,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
@@ -44,8 +48,8 @@ public class TestSourcesTest {
         model = SemanticAPITestUtils.getSemanticModelOf("test-src/test-project", "baz");
     }
 
-    @Test(dataProvider = "PositionProvider")
-    public void testSymbolPositions(int sLine, int sCol, String expSymbolName) {
+    @Test(dataProvider = "SymbolPosProvider")
+    public void testSymbolAtCursor(int sLine, int sCol, String expSymbolName) {
         Optional<Symbol> symbol = model.symbol("tests/test1.bal", from(sLine, sCol));
 
         if (symbol.isEmpty()) {
@@ -55,12 +59,36 @@ public class TestSourcesTest {
         assertEquals(symbol.get().name(), expSymbolName);
     }
 
-    @DataProvider(name = "PositionProvider")
-    public Object[][] getPositions() {
+    @DataProvider(name = "SymbolPosProvider")
+    public Object[][] getSymbolPos() {
         return new Object[][]{
                 {18, 7, "Config"},
                 {20, 9, "assertEquals"},
                 {20, 22, "PI"},
         };
     }
+
+    @Test(dataProvider = "VisibleSymbolPosProvider")
+    public void testVisibleSymbols(int line, int col, List<String> expSymbols) {
+        List<Symbol> symbols = model.visibleSymbols("tests/test1.bal", from(line, col)).stream()
+                .filter(sym -> sym.moduleID().moduleName().equals("semapi.baz") ||
+                        !sym.moduleID().moduleName().startsWith("lang."))
+                .collect(Collectors.toList());
+
+        assertEquals(symbols.size(), expSymbols.size());
+        assertList(symbols, expSymbols);
+    }
+
+    @DataProvider(name = "VisibleSymbolPosProvider")
+    public Object[][] getVisibleSymbolPos() {
+        List<String> moduleSymbols = List.of("PI", "ZERO", "add", "concat", "newPerson", "Person", "Employee",
+                                             "BasicType", "PersonObj", "Digit", "FileNotFoundError", "EofError",
+                                             "Error", "Address");
+        return new Object[][]{
+                {17, 0, getSymbolNames(moduleSymbols, "testConstUse", "testAdd", "test")},
+                {26, 31, getSymbolNames(moduleSymbols, "testConstUse", "testAdd", "test", "sum")},
+        };
+    }
+
+
 }
