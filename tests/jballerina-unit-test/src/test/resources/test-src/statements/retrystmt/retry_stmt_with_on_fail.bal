@@ -191,6 +191,46 @@ function trxErrorOrString()  returns string|error {
     return "Custom String";
 }
 
+function testNestedRetryOnFailJump() returns string {
+    string str = "start";
+    int count1 = 0;
+    error err = error("custom error", message = "error value");
+    retry<MyRetryManager> (3) {
+        count1 += 1;
+        str = str + " -> within retry block 1";
+        int count2 = 0;
+        retry<MyRetryManager> (2) {
+           count2 += 1;
+           str = str + " -> within retry block 2";
+           fail err;
+        }
+        str = str + " -> should not reach here";
+    } on fail error e {
+        str += " -> error handled";
+    }
+    return str;
+}
+
+function testNestedRetryOnFailJump2() returns string {
+    string str = "start";
+    error err = error("custom error", message = "error value");
+    retry<MyRetryManager> (2) {
+        str = str + " -> within retry block 1";
+        retry<MyRetryManager> (1) {
+            str = str + " -> within retry block 2";
+            retry<MyRetryManager> (1) {
+                str = str + " -> within retry block 3";
+                fail err;
+            }
+            str = str + " -> should not reach here L2";
+        }
+        str = str + " -> should not reach here L1";
+    } on fail error e {
+        str += " -> error handled";
+    }
+    return str;
+}
+
 type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

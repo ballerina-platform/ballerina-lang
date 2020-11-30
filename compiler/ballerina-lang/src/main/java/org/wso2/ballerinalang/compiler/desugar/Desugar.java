@@ -359,7 +359,7 @@ public class Desugar extends BLangNodeVisitor {
     private List<BLangOnFailClause> enclosingOnFailClause = new ArrayList<>();
     private Map<BLangOnFailClause, BLangSimpleVarRef> enclosingForceJump = new HashMap<>();
     private Map<BLangOnFailClause, BLangSimpleVarRef> enclosingShouldPanic = new HashMap<>();
-    private Map<BLangOnFailClause, BLangSimpleVarRef> continueLoopList = new HashMap<>();
+    private List<BLangSimpleVarRef> enclosingShouldContinue = new ArrayList<>();
     private List<BLangSimpleVariableDef> enclosingOnFailCallFunc = new ArrayList<>();
 
     private SymbolEnv env;
@@ -2697,6 +2697,19 @@ public class Desugar extends BLangNodeVisitor {
                     shouldRetryRef, false);
             retryBlockStmt.stmts.add(whileLoop);
 
+            if (!enclosingShouldContinue.isEmpty() && enclosingShouldContinue.size() > 1) {
+                BLangSimpleVarRef nestedLoopShouldContinue =
+                        enclosingShouldContinue.get(enclosingShouldContinue.size() - 2);
+                BLangBlockStmt shouldContinueBlock = createBlockStmt(pos);
+                BLangContinue loopContinueStmt = (BLangContinue) TreeBuilder.createContinueNode();
+                loopContinueStmt.pos = pos;
+                shouldContinueBlock.stmts.add(loopContinueStmt);
+
+                BLangIf shouldContinue = ASTBuilderUtil.createIfElseStmt(pos, nestedLoopShouldContinue,
+                        shouldContinueBlock, null);
+                retryBlockStmt.stmts.add(shouldContinue);
+            }
+
             //at this point:
             // RetryManagerType> $retryManager$ = new();
             // error? $retryResult$ = ();
@@ -2740,6 +2753,7 @@ public class Desugar extends BLangNodeVisitor {
             //      }
             // }
             result = rewrite(retryBlockStmt, env);
+            enclosingShouldContinue.remove(enclosingShouldContinue.size() - 1);
             this.addCheckExpression = currentAddCheckExpr;
         }
     }
@@ -2802,7 +2816,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangOnFailClause internalOnFail = createRetryInternalOnFail(pos, retryResultRef,
                 retryManagerRef, shouldRetryRef, forceJumpRef, continueLoopRef, returnResultRef, shouldRollback);
         enclosingForceJump.put(internalOnFail, forceJumpRef);
-//            continueLoopList.put(internalOnFail, continueLoopRef);
+        enclosingShouldContinue.add(continueLoopRef);
 
         BLangDo retryDo = wrapStatementWithinDo(pos, retryBody, internalOnFail);
 
@@ -4127,6 +4141,11 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment errorAssignment = ASTBuilderUtil.createAssignmentStmt(pos, retryResultRef, caughtErrorRef);
         internalOnFail.body.stmts.add(errorAssignment);
 
+        //$continueLoop$ = true;
+        BLangAssignment continueLoopTrue = ASTBuilderUtil.createAssignmentStmt(pos, continueLoopRef,
+                ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
+        internalOnFail.body.stmts.add(continueLoopTrue);
+
         if (shouldRollback) {
             transactionDesugar.createRollbackIfFailed(pos, internalOnFail.body, caughtErrorSym, trxBlockId);
         }
@@ -4162,11 +4181,6 @@ public class Desugar extends BLangNodeVisitor {
             internalOnFail.bodyContainsFail = true;
             internalOnFail.body.stmts.add(exitIf);
 
-            //$continueLoop$ = true;
-            BLangAssignment continueLoopTrue = ASTBuilderUtil.createAssignmentStmt(pos, continueLoopRef,
-                    ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
-            internalOnFail.body.stmts.add(continueLoopTrue);
-
             //continue;
             BLangContinue loopContinueStmt = (BLangContinue) TreeBuilder.createContinueNode();
             loopContinueStmt.pos = pos;
@@ -4175,20 +4189,15 @@ public class Desugar extends BLangNodeVisitor {
             // if (!$shouldRetry$ || $forceJump$) {
             //      fail $retryResult$;
             // }
-            // $continueLoop$ = true;
             // continue;
         } else {
             BLangAssignment returnErrorTrue = ASTBuilderUtil.createAssignmentStmt(pos, returnResult,
                     ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
             exitLogicBlock.stmts.add(returnErrorTrue);
             internalOnFail.body.stmts.add(exitIf);
-            BLangAssignment continueLoopTrue = ASTBuilderUtil.createAssignmentStmt(pos, continueLoopRef,
-                    ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
-            internalOnFail.body.stmts.add(continueLoopTrue);
             // if (!$shouldRetry$ || $forceJump$) {
             //      $returnErrorResult$ = true;
             // }
-            // $continueLoop$ = true;
         }
         return internalOnFail;
     }
