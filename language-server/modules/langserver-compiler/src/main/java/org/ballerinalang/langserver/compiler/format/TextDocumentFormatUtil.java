@@ -22,12 +22,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.tools.text.TextDocument;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
@@ -58,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.File;
@@ -129,6 +135,39 @@ public class TextDocumentFormatUtil {
         JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>(), new HashMap<>());
         result.add("model", modelElement);
         return result;
+    }
+
+    /**
+     * Get the Modified JSON ST with type info.
+     *
+     * @param syntaxTree       SyntaxTree to be modified and in need to convert to JSON.
+     * @param node             Ballerina Node for the syntax tree to extract type from.
+     * @param visibleEPsByNode Visible endpoints.
+     * @return {@link JsonObject}   ST as a Json Object
+     */
+    public static JsonElement getSyntaxTreeJSON(SyntaxTree syntaxTree, BLangNode node, Map<BLangNode,
+            List<SymbolMetaInfo>> visibleEPsByNode) {
+        // Extract type information from the BLangNode and store them with the line range as key.
+        Map<String, JsonObject> typeInfo = new HashMap<>();
+        TypeInfoExtractingVisitor typeInfoExtractingVisitor = new TypeInfoExtractingVisitor(typeInfo,
+                visibleEPsByNode);
+        node.accept(typeInfoExtractingVisitor);
+
+        // Attach all visible endpoints to FunctionBodyBlock
+        for (Map.Entry<BLangNode, List<SymbolMetaInfo>> entry : visibleEPsByNode.entrySet()) {
+            JsonArray eps = new JsonArray();
+            for (SymbolMetaInfo symbolMetaInfo : entry.getValue()) {
+                eps.add(symbolMetaInfo.getJson());
+            }
+            JsonObject endpoints = new JsonObject();
+            endpoints.add("VisibleEndpoints", eps);
+            typeInfo.put("FunctionBodyBlock", endpoints);
+        }
+
+        // Map each type data by looking at the line ranges and prepare the SyntaxTree JSON.
+        SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(typeInfo);
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+        return mapGenerator.transform(modulePartNode);
     }
 
     private static boolean isTestablePackage(String relativeFilePath) {
@@ -361,6 +400,133 @@ public class TextDocumentFormatUtil {
     }
 
     /**
+     * Generate json representation of types for the given node.
+     *
+     * @param node             Node to get the json representation
+     * @param visibleEPsByNode Visible endpoints by node map
+     * @return {@link JsonElement}          Json Representation of the node
+     * @throws JSONGenerationException when Json error occurs
+     */
+    public static JsonElement generateTypeInfoJSON(Node node, Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode)
+            throws JSONGenerationException {
+        if (node == null) {
+            return JsonNull.INSTANCE;
+        }
+        Set<Method> methods = ClassUtils.getAllInterfaces(node.getClass()).stream()
+                .flatMap(aClass -> Arrays.stream(aClass.getMethods()))
+                .collect(Collectors.toSet());
+        JsonObject nodeJson = new JsonObject();
+
+        for (Map.Entry<BLangNode, List<SymbolMetaInfo>> entry : visibleEPsByNode.entrySet()) {
+            JsonArray eps = new JsonArray();
+            for (SymbolMetaInfo symbolMetaInfo : entry.getValue()) {
+                if (node.getPosition().getStartColumn() == symbolMetaInfo.getPosition().getStartColumn()
+                        && node.getPosition().getStartLine() == symbolMetaInfo.getPosition().getStartLine()) {
+                    eps.add(symbolMetaInfo.getJson());
+                }
+            }
+            nodeJson.add("VisibleEndpoints", eps);
+        }
+
+        JsonArray type = getType(node);
+        if (type != null) {
+            nodeJson.add(SYMBOL_TYPE, type);
+        }
+        JsonObject typeInfo = getTypeInfo(node);
+        if (typeInfo != null) {
+            nodeJson.add("typeInfo", typeInfo);
+        }
+        if (node.getKind() == NodeKind.INVOCATION) {
+
+            assert node instanceof BLangInvocation : node.getClass();
+            BLangInvocation invocation = (BLangInvocation) node;
+            if (invocation.symbol != null && invocation.symbol.kind != null) {
+                nodeJson.addProperty(INVOCATION_TYPE, invocation.symbol.kind.toString());
+                JsonArray defLink = new JsonArray();
+                getDefinitionLink(invocation.symbol, defLink);
+                nodeJson.add("definition", defLink);
+            }
+        }
+
+        //
+        for (Method m : methods) {
+            String name = m.getName();
+
+            if (name.equals("getWS") || name.equals("getPosition")) {
+                continue;
+            }
+
+            String jsonName;
+            if (name.startsWith("get")) {
+                jsonName = toJsonName(name, 3);
+            } else if (name.startsWith("is")) {
+                jsonName = toJsonName(name, 2);
+            } else {
+                continue;
+            }
+
+            Object prop = null;
+            try {
+                prop = m.invoke(node);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new JSONGenerationException("Error occurred while generating JSON", e);
+            }
+
+            if (prop instanceof List && jsonName.equals("types")) {
+                // Currently we don't need any Symbols for the UI. So skipping for now.
+                continue;
+            }
+
+            if (prop instanceof Node) {
+                nodeJson.add(jsonName, generateTypeInfoJSON((Node) prop, visibleEPsByNode));
+            } else if (prop instanceof List) {
+                List listProp = (List) prop;
+                JsonArray listPropJson = new JsonArray();
+                nodeJson.add(jsonName, listPropJson);
+                for (Object listPropItem : listProp) {
+                    if (listPropItem instanceof Node) {
+                        /* Remove top level anon func and struct */
+                        if (node.getKind() == NodeKind.COMPILATION_UNIT) {
+                            if (listPropItem instanceof BLangFunction
+                                    && (((BLangFunction) listPropItem)).name.value.startsWith("$lambda$")) {
+                                continue;
+                            }
+                        }
+                        listPropJson.add(generateTypeInfoJSON((Node) listPropItem, visibleEPsByNode));
+                    } else if (listPropItem instanceof BLangRecordVarRef.BLangRecordVarRefKeyValue) {
+                        listPropJson.add(generateTypeInfoJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
+                                .getVariableName(), visibleEPsByNode));
+                        listPropJson.add(generateTypeInfoJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
+                                .getBindingPattern(), visibleEPsByNode));
+                    } else if (listPropItem instanceof BLangRecordVariable.BLangRecordVariableKeyValue) {
+                        listPropJson.add(generateTypeInfoJSON(((BLangRecordVariable.BLangRecordVariableKeyValue) listPropItem)
+                                .getKey(), visibleEPsByNode));
+                        listPropJson.add(generateTypeInfoJSON(((BLangRecordVariable.BLangRecordVariableKeyValue) listPropItem)
+                                .getValue(), visibleEPsByNode));
+                    } else if (listPropItem instanceof BLangErrorVariable.BLangErrorDetailEntry) {
+                        listPropJson.add(generateTypeInfoJSON(((BLangErrorVariable.BLangErrorDetailEntry) listPropItem)
+                                .getKey(), visibleEPsByNode));
+                        listPropJson.add(generateTypeInfoJSON(((BLangErrorVariable.BLangErrorDetailEntry) listPropItem)
+                                .getValue(), visibleEPsByNode));
+                    } else if (listPropItem instanceof String) {
+                        listPropJson.add((String) listPropItem);
+                    } else if (listPropItem instanceof BLangLetVariable) {
+                        // TODO: check with language team whether this is the correct way to handle LetVariable.
+                        BLangLetVariable variable = (BLangLetVariable) listPropItem;
+                        listPropJson.add(generateTypeInfoJSON(variable.definitionNode, visibleEPsByNode));
+                    } else {
+                        logger.debug("Can't serialize " + jsonName + ", has a an array of " + listPropItem);
+                    }
+                }
+                /* Runtime model classes */
+            }
+        }
+
+        return nodeJson;
+    }
+
+
+    /**
      * Get a list of names of the owners of the invocation node.
      *
      * @param symbol The symbol of which the owners are found
@@ -433,7 +599,7 @@ public class TextDocumentFormatUtil {
         BType type = ((BLangNode) node).type;
         if (node instanceof BLangInvocation) {
             return null;
-        } else if (type != null &&  type.tsymbol != null &&  type.tsymbol.pkgID != null) {
+        } else if (type != null && type.tsymbol != null && type.tsymbol.pkgID != null) {
             PackageID pkgID = type.tsymbol.pkgID;
             JsonObject typeObj = new JsonObject();
             typeObj.addProperty("orgName", pkgID.getOrgName().value);

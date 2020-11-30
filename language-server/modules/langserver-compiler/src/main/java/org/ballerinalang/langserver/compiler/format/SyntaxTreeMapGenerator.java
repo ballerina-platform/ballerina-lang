@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.document;
+package org.ballerinalang.langserver.compiler.format;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -62,6 +62,16 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         nodeJson.addProperty("source", node.toSourceCode());
         nodeJson.addProperty("kind", prettifyKind(node.kind().toString()));
 
+        if (nodeJson.get("kind").getAsString().equals("FunctionBodyBlock") && typeInfo.size() > 0
+                && typeInfo.get("FunctionBodyBlock") != null) {
+            JsonObject visibleEndpoints = typeInfo.get("FunctionBodyBlock");
+            if (visibleEndpoints.getAsJsonArray("VisibleEndpoints") != null) {
+                nodeJson.add("VisibleEndpoints",
+                        visibleEndpoints.getAsJsonArray("VisibleEndpoints"));
+                typeInfo.remove("FunctionBodyBlock");
+            }
+        }
+
         if (node.lineRange() != null) {
             LineRange lineRange = node.lineRange();
             LinePosition startLine = lineRange.startLine();
@@ -72,8 +82,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             position.addProperty("endLine", endLine.line());
             position.addProperty("endColumn", endLine.offset());
             nodeJson.add("position", position);
+
             if (typeInfo.size() > 0 && typeInfo.get(startLine.line() + ":" + startLine.offset()) != null) {
                 nodeJson.add("typeData", typeInfo.get(startLine.line() + ":" + startLine.offset()));
+                if (nodeJson.get("typeData").getAsJsonObject().getAsJsonArray("VisibleEndpoints") != null
+                        && nodeJson.get("typeData").getAsJsonObject()
+                        .getAsJsonArray("VisibleEndpoints").size() > 0) {
+                    nodeJson.getAsJsonObject("typeData").addProperty("isEndpoint", true);
+                }
                 //typeInfo.remove(startLine.line() + ":" + startLine.offset());
             }
         }

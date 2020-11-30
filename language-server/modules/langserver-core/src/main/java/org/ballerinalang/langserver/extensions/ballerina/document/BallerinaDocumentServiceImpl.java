@@ -18,10 +18,8 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.LSGlobalContext;
@@ -304,47 +302,24 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .build();
             BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(astContext, this.documentManager, true,
                     false);
-            Map<String, JsonObject> typeInfo = new HashMap<>();
-//            TypeInfoExtractingVisitor typeInfoExtractingVisitor = new TypeInfoExtractingVisitor(typeInfo);
-//            bLangPackage.accept(typeInfoExtractingVisitor);
 
+            // Get the Visible endpoints.
             CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
             bLangPackage.accept(visibleEndpointVisitor);
             Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
 
-            for (Map.Entry<BLangNode, List<SymbolMetaInfo>> entry : visibleEPsByNode.entrySet()) {
-                JsonArray eps = new JsonArray();
-                for (SymbolMetaInfo symbolMetaInfo : entry.getValue()) {
-                    JsonObject endpoint = new JsonObject();
-                    endpoint.addProperty("isEndpoint", true);
-                    endpoint.addProperty("typeName", symbolMetaInfo.getTypeName());
-                    endpoint.addProperty("pkgAlias", symbolMetaInfo.getPkgAlias());
-                    endpoint.addProperty("pkgName", symbolMetaInfo.getPkgName());
-                    endpoint.addProperty("pkgOrgName", symbolMetaInfo.getPkgOrgName());
-                    endpoint.addProperty("kind", symbolMetaInfo.getKind());
-                    endpoint.addProperty("name", symbolMetaInfo.getName());
-                    endpoint.addProperty("isLocal", symbolMetaInfo.isLocal());
-                    endpoint.addProperty("caller", symbolMetaInfo.isCaller());
-                    if (symbolMetaInfo.getPosition() != null) {
-                        eps.add(endpoint);
-                        typeInfo.put((symbolMetaInfo.getPosition().sLine) + ":"
-                                        + (symbolMetaInfo.getPosition().sCol)
-                                , endpoint);
-                    } else {
-                        eps.add(endpoint);
-                    }
-                }
-                JsonObject endpoints = new JsonObject();
-                endpoints.add("visibleEndpoints", eps);
-                typeInfo.put((entry.getKey().pos.sLine) + ":" + (entry.getKey().pos.sCol), endpoints);
-            }
-
+            // Get the syntax tree for the document.
             TextDocument doc = documentManager.getTree(compilationPath).textDocument();
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(typeInfo);
             SyntaxTree syntaxTree = SyntaxTree.from(doc, compilationPath.toString());
-            ModulePartNode modulePartNode = syntaxTree.rootNode();
-            reply.setSyntaxTree(mapGenerator.transform(modulePartNode));
+
+            // Get the generated syntax tree JSON with type info.
+            JsonElement jsonSyntaxTree = TextDocumentFormatUtil.getSyntaxTreeJSON(syntaxTree, bLangPackage,
+                    visibleEPsByNode);
+
+            // Preparing the response.
+            reply.setSource(syntaxTree.toSourceCode());
+            reply.setSyntaxTree(jsonSyntaxTree);
             reply.setParseSuccess(reply.getSyntaxTree() != null);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
@@ -368,51 +343,30 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
+
+            // Apply modifications.
             LSContext astContext = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(), fileUri,
                     compilationPath, documentManager);
             BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(astContext, this.documentManager, true,
                     false);
-            Map<String, JsonObject> typeInfo = new HashMap<>();
-//            TypeInfoExtractingVisitor typeInfoExtractingVisitor = new TypeInfoExtractingVisitor(typeInfo);
-//            bLangPackage.accept(typeInfoExtractingVisitor);
 
+            // Get the Visible endpoints.
             CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
             bLangPackage.accept(visibleEndpointVisitor);
             Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
 
-            for (Map.Entry<BLangNode, List<SymbolMetaInfo>> entry : visibleEPsByNode.entrySet()) {
-                JsonArray eps = new JsonArray();
-                for (SymbolMetaInfo symbolMetaInfo : entry.getValue()) {
-                    JsonObject endpoint = new JsonObject();
-                    endpoint.addProperty("isEndpoint", true);
-                    endpoint.addProperty("typeName", symbolMetaInfo.getTypeName());
-                    endpoint.addProperty("pkgAlias", symbolMetaInfo.getPkgAlias());
-                    endpoint.addProperty("pkgName", symbolMetaInfo.getPkgName());
-                    endpoint.addProperty("pkgOrgName", symbolMetaInfo.getPkgOrgName());
-                    endpoint.addProperty("kind", symbolMetaInfo.getKind());
-                    endpoint.addProperty("name", symbolMetaInfo.getName());
-                    endpoint.addProperty("isLocal", symbolMetaInfo.isLocal());
-                    endpoint.addProperty("caller", symbolMetaInfo.isCaller());
-                    if (symbolMetaInfo.getPosition() != null) {
-                        eps.add(endpoint);
-                        typeInfo.put((symbolMetaInfo.getPosition().sLine) + ":"
-                                        + (symbolMetaInfo.getPosition().sCol)
-                                , endpoint);
-                    } else {
-                        eps.add(endpoint);
-                    }
-                }
-                JsonObject endpoints = new JsonObject();
-                endpoints.add("visibleEndpoints", eps);
-                typeInfo.put((entry.getKey().pos.sLine) + ":" + (entry.getKey().pos.sCol), endpoints);
-            }
-
+            // Get the syntax tree for the document.
             TextDocument textDocument = documentManager.getTree(compilationPath).textDocument();
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(typeInfo);
             SyntaxTree syntaxTree = SyntaxTree.from(textDocument, compilationPath.toString());
-            ModulePartNode modulePartNode = syntaxTree.rootNode();
-            reply.setSyntaxTree(mapGenerator.transform(modulePartNode));
+
+            // Get the generated syntax tree JSON with type info.
+            JsonElement jsonSyntaxTree = TextDocumentFormatUtil.getSyntaxTreeJSON(syntaxTree, bLangPackage,
+                    visibleEPsByNode);
+
+            // Preparing the response.
+            reply.setSource(syntaxTree.toSourceCode());
+            reply.setSyntaxTree(jsonSyntaxTree);
             reply.setParseSuccess(reply.getSyntaxTree() != null);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
@@ -464,8 +418,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
-    public CompletableFuture<BallerinaASTResponse> triggerModify(BallerinaTriggerModifyRequest request) {
-        BallerinaASTResponse reply = new BallerinaASTResponse();
+    public CompletableFuture<BallerinaSyntaxTreeResponse> triggerModify(BallerinaTriggerModifyRequest request) {
+        BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
         String fileUri = request.getDocumentIdentifier().getUri();
 
         Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
@@ -476,12 +430,32 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         String oldContent = "";
         try {
+            // Apply modifications to the trigger
             oldContent = documentManager.getFileContent(compilationPath);
             LSContext astContext = BallerinaTriggerModifyUtil.modifyTrigger(request.getType(), request.getConfig(),
                     fileUri, compilationPath, documentManager);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
-            reply.setSource(astContext.get(UPDATED_SOURCE));
-            reply.setAst(getTreeForContent(astContext));
+
+            // Get the BLang Package.
+            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(astContext, this.documentManager, true,
+                    false);
+
+            // Get the Visible endpoints.
+            CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+            VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
+            bLangPackage.accept(visibleEndpointVisitor);
+            Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
+
+            // Get the syntax tree for the document.
+            TextDocument textDocument = documentManager.getTree(compilationPath).textDocument();
+            SyntaxTree syntaxTree = SyntaxTree.from(textDocument, compilationPath.toString());
+
+            // Get the generated syntax tree JSON with type info.
+            JsonElement jsonSyntaxTree = TextDocumentFormatUtil.getSyntaxTreeJSON(syntaxTree, bLangPackage,
+                    visibleEPsByNode);
+
+            // Preparing the response.
+            reply.setSource(syntaxTree.toSourceCode());
+            reply.setSyntaxTree(jsonSyntaxTree);
             reply.setParseSuccess(isParseSuccess(astContext));
         } catch (Throwable e) {
             reply.setParseSuccess(false);

@@ -15,9 +15,11 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.document.visitor;
+package org.ballerinalang.langserver.compiler.format;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -30,6 +32,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -149,21 +153,25 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  * Extract type information and fill a Map<String, JsonObject> for a given Old AST.
  */
-public class TypeInfoExtractingVisitor extends BaseNodeVisitor {
-//    private Map<String, JsonObject> typeInfo = new HashMap<>();
+public class TypeInfoExtractingVisitor extends BLangNodeVisitor {
+    private Map<String, JsonObject> typeInfo;
+    private Map<BLangNode, List<SymbolMetaInfo>> visibleEPs;
 
-    public TypeInfoExtractingVisitor(Map<String, JsonObject> typeInfo) {
-//        this.typeInfo = typeInfo;
+    public TypeInfoExtractingVisitor(Map<String, JsonObject> typeInfo, Map<BLangNode,
+            List<SymbolMetaInfo>> visibleEPs) {
+        this.typeInfo = typeInfo;
+        this.visibleEPs = visibleEPs;
     }
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        // No implementation
+        pkgNode.getCompilationUnits().forEach(compilationUnit -> compilationUnit.accept(this));
     }
 
     @Override
@@ -173,7 +181,7 @@ public class TypeInfoExtractingVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangCompilationUnit compUnit) {
-        // No implementation
+        compUnit.getTopLevelNodes().forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
     }
 
     @Override
@@ -188,12 +196,15 @@ public class TypeInfoExtractingVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        // No implementation
+        funcNode.getParameters().forEach(parm -> parm.accept(this));
+        funcNode.getBody().accept(this);
     }
 
     @Override
     public void visit(BLangService serviceNode) {
-        // No implementation
+        serviceNode.getServiceClass().accept(this);
+        serviceNode.getResources().forEach(resource -> resource.accept(this));
+        serviceNode.getAttachedExprs().forEach(expr -> expr.accept(this));
     }
 
     @Override
@@ -213,18 +224,14 @@ public class TypeInfoExtractingVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-//        if (varNode.getTypeNode() != null) {
-//            try {
-//                JsonElement typeNode = TextDocumentFormatUtil.generateJSON(varNode.getTypeNode(), new HashMap<>(),
-//                        new HashMap<>());
-//            } catch (JSONGenerationException e) {
-//                // Ignore
-//            }
-//        }
-
-//        if (varNode.getInitialExpression() != null) {
-//            varNode.getInitialExpression().accept(this);
-//        }
+        try {
+            JsonElement typeNode = TextDocumentFormatUtil.generateTypeInfoJSON(varNode, this.visibleEPs);
+            if(varNode.pos != null) {
+                this.typeInfo.put((varNode.pos.sLine) + ":" + (varNode.pos.sCol), typeNode.getAsJsonObject());
+            }
+        } catch (JSONGenerationException e) {
+            // Ignore
+        }
     }
 
     @Override
@@ -250,12 +257,12 @@ public class TypeInfoExtractingVisitor extends BaseNodeVisitor {
     // Statements
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        // No implementation
+        blockNode.getStatements().forEach(s -> s.accept(this));
     }
 
     @Override
     public void visit(BLangBlockFunctionBody blockFuncBody) {
-        // No implementation
+        blockFuncBody.getStatements().forEach(s -> s.accept(this));
     }
 
     @Override
@@ -295,12 +302,21 @@ public class TypeInfoExtractingVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
-        // No implementation
+        varDefNode.var.accept(this);
     }
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        // No implementation
+        //assignNode.getExpression().accept(this);
+        //((BLangExpression) assignNode.getVariable()).accept(this);
+        try {
+            JsonElement typeNode = TextDocumentFormatUtil.generateTypeInfoJSON(assignNode, this.visibleEPs);
+            if(assignNode.pos != null) {
+                this.typeInfo.put((assignNode.pos.sLine) + ":" + (assignNode.pos.sCol), typeNode.getAsJsonObject());
+            }
+        } catch (JSONGenerationException e) {
+            // Ignore
+        }
     }
 
     @Override
@@ -350,7 +366,11 @@ public class TypeInfoExtractingVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
-        // No implementation
+        ifNode.getCondition().accept(this);
+        ifNode.getBody().accept(this);
+        if (ifNode.getElseStatement() != null) {
+            ifNode.getElseStatement().accept(this);
+        }
     }
 
     @Override
@@ -365,12 +385,14 @@ public class TypeInfoExtractingVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        // No implementation
+        foreach.body.accept(this);
+        foreach.collection.accept(this);
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        // No implementation
+        whileNode.getBody().accept(this);
+        whileNode.getCondition().accept(this);
     }
 
     @Override

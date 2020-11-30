@@ -105,13 +105,6 @@ public class BallerinaTriggerModifyUtil {
                     .singletonList(new TextDocumentContentChangeEvent(newTextDoc.toString())));
         }
 
-        //Format bal file code
-//        JsonObject jsonAST = TextDocumentFormatUtil.getAST(compilationPath, documentManager, astContext);
-//        JsonObject model = jsonAST.getAsJsonObject("model");
-//        FormattingSourceGen.build(model, "CompilationUnit");
-//        FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
-//        formattingUtil.accept(model);
-
         // Use formatter to format the source document.
         SyntaxTree syntaxTree = SyntaxTree.from(newTextDoc, compilationPath.toString());
         String formattedSource = Formatter.format(syntaxTree).toSourceCode();

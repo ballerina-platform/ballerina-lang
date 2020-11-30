@@ -104,6 +104,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             String msg = "Operation 'ballerinaConnector/connectors' failed!";
             logError(msg, e, null, (Position) null);
         }
+
         return CompletableFuture.supplyAsync(BallerinaConnectorsResponse::new);
     }
 
