@@ -40,8 +40,6 @@ import java.util.Set;
 public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
 
     public List<BVarSymbol> params;
-    public List<BVarSymbol> includedRecordParams;
-    public BVarSymbol incRecordParamAllowAdditionalFields;
     public BVarSymbol restParam;
     public BType retType;
     public Map<Integer, TaintRecord> taintTable;
@@ -72,7 +70,6 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         super(flags, name, pkgID, type, owner, pos, origin);
         this.tag = tag;
         this.params = new ArrayList<>();
-        this.includedRecordParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.dependentGlobalVars = new HashSet<>();
         this.paramDefaultValTypes = new HashMap<>();
