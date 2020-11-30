@@ -6455,6 +6455,8 @@ public class Desugar extends BLangNodeVisitor {
                 .forEach(expr -> namedArgs.put(((NamedArgNode) expr).getName().value, expr));
 
         List<BVarSymbol> params = invokableSymbol.params;
+        List<BLangRecordLiteral> incRecordLiterals = new ArrayList<>();
+        BLangRecordLiteral incRecordParamAllowAdditionalFields = null;
 
         int varargIndex = 0;
 
@@ -6474,9 +6476,16 @@ public class Desugar extends BLangNodeVisitor {
                 args.add(iExpr.requiredArgs.get(i));
             } else if (namedArgs.containsKey(param.name.value)) {
                 // Else check if named arg is given.
-                args.add(namedArgs.get(param.name.value));
+                args.add(namedArgs.remove(param.name.value));
             } else if (param.getFlags().contains(Flag.INCLUDED)) {
-                createIncludedRecordLiteral(iExpr, param, namedArgs, args);
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+                BType paramType = param.type;
+                recordLiteral.type = paramType;
+                args.add(recordLiteral);
+                incRecordLiterals.add(recordLiteral);
+                if (((BRecordType) paramType).restFieldType != symTable.noType) {
+                    incRecordParamAllowAdditionalFields = recordLiteral;
+                }
             } else if (varargRef == null) {
                 // Else create a dummy expression with an ignore flag.
                 BLangExpression expr = new BLangIgnoreExpr();
@@ -6496,36 +6505,34 @@ public class Desugar extends BLangNodeVisitor {
                 args.add(addConversionExprIfRequired(memberAccessExpr, param.type));
             }
         }
+        if (namedArgs.size() > 0) {
+            setFieldsForIncRecordLiterals(namedArgs, incRecordLiterals, incRecordParamAllowAdditionalFields);
+        }
         iExpr.requiredArgs = args;
     }
 
-    private void createIncludedRecordLiteral(BLangInvocation iExpr, BVarSymbol param,
-                                             Map<String, BLangExpression> namedArgs, List<BLangExpression> args) {
-        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
-        BType paramType = param.type;
-        recordLiteral.type = paramType;
-        if (param == ((BInvokableSymbol) iExpr.symbol).incRecordParamAllowAdditionalFields) {
-            for (String name : namedArgs.keySet()) {
-                BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
-                if (!((BRecordType) paramType).fields.containsKey(name)) {
-                    createAndAddRecordFieldForIncludedRecordLiteral(recordLiteral, expr);
+    private void setFieldsForIncRecordLiterals(Map<String, BLangExpression> namedArgs,
+                                               List<BLangRecordLiteral> incRecordLiterals,
+                                               BLangRecordLiteral incRecordParamAllowAdditionalFields) {
+        for (String name : namedArgs.keySet()) {
+            boolean isAdditionalField = true;
+            BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
+            for (BLangRecordLiteral recordLiteral : incRecordLiterals) {
+                LinkedHashMap<String, BField> fields = ((BRecordType) recordLiteral.type).fields;
+                if (fields.containsKey(name) && fields.get(name).type.tag != TypeTags.NEVER) {
+                    isAdditionalField = false;
+                    createAndAddRecordFieldForIncRecordLiteral(recordLiteral, expr);
+                    break;
                 }
             }
-        } else {
-            for (String name : namedArgs.keySet()) {
-                BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
-                LinkedHashMap<String, BField> fields = ((BRecordType) paramType).fields;
-                if (fields.containsKey(name) && ((BInvokableSymbol) iExpr.symbol).includedRecordParams.
-                        contains(fields.get(name).symbol) && fields.get(name).type.tag != TypeTags.NEVER) {
-                    createAndAddRecordFieldForIncludedRecordLiteral(recordLiteral, expr);
-                }
+            if (isAdditionalField) {
+                createAndAddRecordFieldForIncRecordLiteral(incRecordParamAllowAdditionalFields, expr);
             }
         }
-        args.add(recordLiteral);
     }
 
-    private void createAndAddRecordFieldForIncludedRecordLiteral(BLangRecordLiteral recordLiteral,
-                                                                 BLangNamedArgsExpression expr) {
+    private void createAndAddRecordFieldForIncRecordLiteral(BLangRecordLiteral recordLiteral,
+                                                            BLangNamedArgsExpression expr) {
         BLangSimpleVarRef varRef = new BLangSimpleVarRef();
         varRef.variableName = expr.name;
         BLangRecordLiteral.BLangRecordKeyValueField recordKeyValueField = ASTBuilderUtil.

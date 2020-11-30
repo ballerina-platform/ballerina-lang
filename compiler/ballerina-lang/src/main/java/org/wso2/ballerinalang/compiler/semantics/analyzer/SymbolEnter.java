@@ -2361,8 +2361,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                                              SymbolEnv invokableEnv) {
         boolean foundDefaultableParam = false;
         List<BVarSymbol> paramSymbols = new ArrayList<>();
-        List<BVarSymbol> includedRecordParams = new ArrayList<>();
-        List<BVarSymbol> openIncludedRecordParams = new ArrayList<>();
         Set<String> requiredParamNames = new HashSet<>();
         invokableNode.clonedEnv = invokableEnv.shallowClone();
         for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
@@ -2379,36 +2377,26 @@ public class SymbolEnter extends BLangNodeVisitor {
                 symbol.defaultableParam = true;
             }
             if (varNode.flagSet.contains(Flag.INCLUDED) && varNode.type.getKind() == TypeKind.RECORD) {
-                boolean fieldDescWithDisallowFieldsOnly = true;
                 symbol.flags |= Flags.INCLUDED;
                 LinkedHashMap<String, BField> fields = ((BRecordType) varNode.type).fields;
                 for (String fieldName : fields.keySet()) {
                     BField field = fields.get(fieldName);
                     if (field.symbol.type.tag != TypeTags.NEVER) {
-                        fieldDescWithDisallowFieldsOnly = false;
-                        includedRecordParams.add(field.symbol);
                         if (!requiredParamNames.add(fieldName)) {
                             dlog.error(varNode.pos, REDECLARED_SYMBOL, fieldName);
                         }
                     }
-                }
-                if (fieldDescWithDisallowFieldsOnly && ((BRecordType) varNode.type).restFieldType != symTable.noType) {
-                    openIncludedRecordParams.add(symbol);
                 }
             } else {
                 requiredParamNames.add(symbol.name.value);
             }
             paramSymbols.add(symbol);
         }
-        if (isIncRecordParamAllowAdditionalFields(openIncludedRecordParams, requiredParamNames)) {
-            invokableSymbol.incRecordParamAllowAdditionalFields = openIncludedRecordParams.get(0);
-        }
 
         if (!invokableNode.desugaredReturnType) {
             symResolver.resolveTypeNode(invokableNode.returnTypeNode, invokableEnv);
         }
         invokableSymbol.params = paramSymbols;
-        invokableSymbol.includedRecordParams = includedRecordParams;
         invokableSymbol.retType = invokableNode.returnTypeNode.type;
 
         // Create function type
@@ -2434,20 +2422,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         invokableSymbol.type = new BInvokableType(paramTypes, restType, invokableNode.returnTypeNode.type, null);
         invokableSymbol.type.tsymbol = functionTypeSymbol;
-    }
-
-    private boolean isIncRecordParamAllowAdditionalFields(List<BVarSymbol> inclusiveIncludedRecordParams,
-                                                          Set<String> requiredParamNames) {
-        if (inclusiveIncludedRecordParams.size() != 1) {
-            return false;
-        }
-        LinkedHashMap<String, BField> fields = ((BRecordType) inclusiveIncludedRecordParams.get(0).type).fields;
-        for (String paramName : requiredParamNames) {
-            if (!fields.containsKey(paramName)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private void defineSymbol(Location pos, BSymbol symbol) {
