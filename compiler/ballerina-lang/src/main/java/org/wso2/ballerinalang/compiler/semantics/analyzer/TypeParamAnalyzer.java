@@ -396,16 +396,6 @@ public class TypeParamAnalyzer {
                     findTypeParam(loc, ((BTypedescType) expType).constraint, ((BTypedescType) actualType).constraint,
                                   env, resolvedTypes, result);
                 }
-                return;
-            case TypeTags.INTERSECTION:
-                if (actualType.tag == TypeTags.INTERSECTION) {
-                    findTypeParamInIntersection(loc, expType,
-                            ((BIntersectionType) actualType), env, resolvedTypes, result);
-                }
-                if (actualType.tag == TypeTags.INTERSECTION) {
-                    findTypeParam(loc, ((BIntersectionType) expType).effectiveType,
-                            ((BIntersectionType) actualType).effectiveType, env, resolvedTypes, result);
-                }
         }
     }
 
@@ -475,36 +465,6 @@ public class TypeParamAnalyzer {
         }
         BUnionType tupleElementType = BUnionType.create(null, tupleTypes);
         findTypeParam(loc, expType.eType, tupleElementType, env, resolvedTypes, result);
-    }
-
-
-    private void findTypeParamInIntersection(Location loc, BType expType, BIntersectionType intersectionType,
-                                             SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-        LinkedHashSet<BType> members = new LinkedHashSet<>();
-        for (BType type : intersectionType.getConstituentTypes()) {
-            if (type.tag == TypeTags.ARRAY) {
-                members.add(((BArrayType) type).eType);
-            }
-            if (type.tag == TypeTags.MAP) {
-                members.add(((BMapType) type).constraint);
-            }
-            if (type.tag == TypeTags.RECORD) {
-                for (BField field : ((BRecordType) type).fields.values()) {
-                    members.add(field.type);
-                }
-            }
-            if (type.tag == TypeTags.TUPLE) {
-                members.addAll(((BTupleType) type).getTupleTypes());
-            }
-            if (type.tag == TypeTags.UNION) {
-                members.addAll(((BUnionType) type).getMemberTypes());
-            }
-        }
-
-        findTypeParam(loc, expType, intersectionType.effectiveType, env, resolvedTypes, result);
-
-        BUnionType unionType = BUnionType.create(null, members);
-        findTypeParam(loc, expType, unionType, env, resolvedTypes, result);
     }
 
     private void findTypeParamInUnion(Location loc, BType expType, BUnionType actualType,
@@ -634,7 +594,7 @@ public class TypeParamAnalyzer {
     private BType getMatchingBoundType(BType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         if (isTypeParam(expType)) {
             for (SymbolEnv.TypeParamEntry typeParamEntry : env.typeParamsEntries) {
-                if (types.isSameType(typeParamEntry.typeParam, expType)) {
+                if (typeParamEntry.typeParam == expType) {
                     return typeParamEntry.boundType;
                 }
             }
@@ -687,30 +647,6 @@ public class TypeParamAnalyzer {
                 constraint = ((BTypedescType) expType).constraint;
                 return new BTypedescType(getMatchingBoundType(constraint, env, resolvedTypes),
                         symTable.typeDesc.tsymbol);
-            case TypeTags.INTERSECTION:
-                BType effectiveType = ((BIntersectionType) expType).effectiveType;
-                BType effectiveBoundType = getMatchingBoundType(effectiveType, env, resolvedTypes);
-                if (effectiveBoundType == symTable.noType) {
-                    boolean readOnlyTypeAdded = false;
-                    LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>();
-                    for (BType type : ((BIntersectionType) expType).getConstituentTypes()) {
-                        if (type == symTable.readonlyType) {
-                            readOnlyTypeAdded = true;
-                            continue;
-                        }
-                        BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
-                        if (matchingBoundType != symTable.noType) {
-                            constituentTypes.add(matchingBoundType);
-                        }
-                    }
-
-                    effectiveBoundType = BUnionType.create(null, constituentTypes);
-                    if (readOnlyTypeAdded) {
-                        effectiveBoundType.flags |= Flags.READONLY;
-                    }
-                    return effectiveBoundType;
-                }
-                return effectiveType;
             default:
                 return expType;
         }
