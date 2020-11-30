@@ -175,4 +175,9 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         actions.add(createQuickFixCodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE, edits, uri));
         return actions;
     }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
 }

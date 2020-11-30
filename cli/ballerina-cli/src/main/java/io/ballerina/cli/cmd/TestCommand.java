@@ -124,7 +124,7 @@ public class TestCommand implements BLauncherCmd {
     private boolean rerunTests;
 
     private static final String testCmd = "ballerina test [--offline] [--skip-tests]\n" +
-            "                    [<ballerina-file> | <ballerina-project>] [(--key=value)...]";
+            "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
     public void execute() {
         if (this.helpFlag) {
@@ -170,7 +170,7 @@ public class TestCommand implements BLauncherCmd {
             try {
                 project = SingleFileProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), testCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -179,7 +179,7 @@ public class TestCommand implements BLauncherCmd {
             try {
                 project = BuildProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), testCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }

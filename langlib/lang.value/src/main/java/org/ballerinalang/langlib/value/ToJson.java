@@ -22,10 +22,12 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
@@ -99,10 +101,16 @@ public class ToJson {
                 newValue = convertArrayToJson((BArray) value, unresolvedValues);
                 break;
             case TypeTags.TABLE_TAG:
-                try {
-                    newValue = JsonUtils.toJSON((BTable) value);
-                } catch (Exception e) {
-                    throw createConversionError(value, jsonType, e.getMessage());
+                BTable bTable = (BTable) value;
+                Type constrainedType = ((TableType) bTable.getType()).getConstrainedType();
+                if (constrainedType.getTag() == TypeTags.MAP_TAG) {
+                    newValue = convertMapConstrainedTableToJson((BTable) value, unresolvedValues);
+                } else {
+                    try {
+                        newValue = JsonUtils.toJSON(bTable);
+                    } catch (Exception e) {
+                        throw createConversionError(value, jsonType, e.getMessage());
+                    }
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
@@ -116,6 +124,18 @@ public class ToJson {
 
         unresolvedValues.remove(typeValuePair);
         return newValue;
+    }
+
+    private static Object convertMapConstrainedTableToJson(BTable value, List<TypeValuePair> unresolvedValues) {
+        BArray membersArray = ValueCreator.createArrayValue(PredefinedTypes.TYPE_JSON_ARRAY);
+        BIterator itr = value.getIterator();
+        while (itr.hasNext()) {
+            BArray tupleValue = (BArray) itr.next();
+            BMap mapValue = ((BMap) tupleValue.get(0));
+            Object member = convertMapToJson(mapValue, unresolvedValues);
+            membersArray.append(member);
+        }
+        return membersArray;
     }
 
     private static Object convertMapToJson(BMap<?, ?> map, List<TypeValuePair> unresolvedValues) {

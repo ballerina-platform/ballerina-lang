@@ -29,9 +29,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
-import org.wso2.ballerinalang.compiler.bir.model.VarKind;
-import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -63,7 +60,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -446,7 +442,7 @@ public class JvmTypeGen {
         for (NamedNode node : nodes) {
             if (node != null) {
                 labels.add(i, new Label());
-                String name = node.getName().value;;
+                String name = node.getName().value;
                 hashCodes[i] = name.hashCode();
                 i += 1;
             }
@@ -504,7 +500,7 @@ public class JvmTypeGen {
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.OBJECT &&
-                    Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.CLASS)) {
+                    Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 objectTypeDefs.add(i, optionalTypeDef);
                 i += 1;
             }
@@ -586,30 +582,12 @@ public class JvmTypeGen {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
 
-        BIRVariableDcl selfVar = new BIRVariableDcl(symbolTable.anyType, new Name("self"), VarScope.FUNCTION,
-                VarKind.ARG);
-
-        BIRVariableDcl var1 = new BIRVariableDcl(symbolTable.stringType, new Name("var1"), VarScope.FUNCTION,
-                VarKind.ARG);
-
-        BIRVariableDcl scheduler = new BIRVariableDcl(symbolTable.anyType, new Name("scheduler"), VarScope.FUNCTION,
-                VarKind.ARG);
-
-        BIRVariableDcl parent = new BIRVariableDcl(symbolTable.anyType, new Name("parent"), VarScope.FUNCTION,
-                VarKind.ARG);
-
-        BIRVariableDcl properties = new BIRVariableDcl(symbolTable.anyType, new Name("properties"), VarScope.FUNCTION,
-                VarKind.ARG);
-
-        BIRVariableDcl args = new BIRVariableDcl(symbolTable.anyType, new Name("args"), VarScope.FUNCTION, VarKind.ARG);
-
-        indexMap.addToMapIfNotFoundAndGetIndex(selfVar);
-
-        int var1Index = indexMap.addToMapIfNotFoundAndGetIndex(var1);
-        int schedulerIndex = indexMap.addToMapIfNotFoundAndGetIndex(scheduler);
-        int parentIndex = indexMap.addToMapIfNotFoundAndGetIndex(parent);
-        int propertiesIndex = indexMap.addToMapIfNotFoundAndGetIndex(properties);
-        int argsIndex = indexMap.addToMapIfNotFoundAndGetIndex(args);
+        indexMap.addIfNotExists("self", symbolTable.anyType);
+        int var1Index = indexMap.addIfNotExists("var1", symbolTable.stringType);
+        int schedulerIndex = indexMap.addIfNotExists("scheduler", symbolTable.anyType);
+        int parentIndex = indexMap.addIfNotExists("parent", symbolTable.anyType);
+        int propertiesIndex = indexMap.addIfNotExists("properties", symbolTable.anyType);
+        int argsIndex = indexMap.addIfNotExists("args", symbolTable.anyType);
 
         mv.visitCode();
 
@@ -637,14 +615,9 @@ public class JvmTypeGen {
             mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE_IMPL),
                                false);
 
-            BIRVariableDcl tempVar = new BIRVariableDcl(optionalTypeDef.type, new Name("tempVar"), VarScope.FUNCTION,
-                                                        VarKind.LOCAL);
-
-            int tempVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(tempVar);
+            int tempVarIndex = indexMap.addIfNotExists("tempVar", optionalTypeDef.type);
             mv.visitVarInsn(ASTORE, tempVarIndex);
-            BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.anyType, new Name("strandVar"), VarScope.FUNCTION,
-                    VarKind.LOCAL);
-            int strandVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(strandVar);
+            int strandVarIndex = indexMap.addIfNotExists("strandVar", symbolTable.anyType);
 
             mv.visitVarInsn(ALOAD, parentIndex);
             Label parentNonNullLabel = new Label();
@@ -681,10 +654,7 @@ public class JvmTypeGen {
             String methodDesc = String.format("(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT);
             mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "call", methodDesc, true);
 
-            BIRVariableDcl tempResult = new BIRVariableDcl(symbolTable.anyType, new Name("tempResult"),
-                    VarScope.FUNCTION, VarKind.LOCAL);
-
-            int tempResultIndex = indexMap.addToMapIfNotFoundAndGetIndex(tempResult);
+            int tempResultIndex = indexMap.addIfNotExists("tempResult", symbolTable.anyType);
             mv.visitVarInsn(ASTORE, tempResultIndex);
             mv.visitVarInsn(ALOAD, tempResultIndex);
             mv.visitTypeInsn(INSTANCEOF, BERROR);
@@ -1072,10 +1042,8 @@ public class JvmTypeGen {
             }
             // create and load attached function
             createObjectAttachedFunction(mv, attachedFunc, objType);
-            BIRVariableDcl attachedFuncVar = new BIRVariableDcl(symbolTable.anyType,
-                    new Name(toNameString(objType) + attachedFunc.funcName.value), VarScope.FUNCTION,
-                    VarKind.LOCAL);
-            int attachedFunctionVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(attachedFuncVar);
+            int attachedFunctionVarIndex = indexMap.addIfNotExists(toNameString(objType) + attachedFunc.funcName.value,
+                                                                   symbolTable.anyType);
             mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
 
             mv.visitInsn(DUP);
@@ -1103,10 +1071,8 @@ public class JvmTypeGen {
 
         mv.visitInsn(DUP);
         createObjectAttachedFunction(mv, initFunction, objType);
-        BType anyType = symbolTable.anyType;
-        BIRVariableDcl attachedFuncVar = new BIRVariableDcl(anyType,
-                new Name(objType.name + initFunction.funcName.value), VarScope.FUNCTION, VarKind.LOCAL);
-        int attachedFunctionVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(attachedFuncVar);
+        int attachedFunctionVarIndex = indexMap.addIfNotExists(objType.name + initFunction.funcName.value,
+                                                               symbolTable.anyType);
         mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
         mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
         mv.visitInsn(DUP);
