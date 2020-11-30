@@ -188,9 +188,9 @@ function testLastIndexOf() {
     }
 }
 
-function testReverse() returns [int[], int[]] {
+function testReverse() returns [int[]] {
     int[] arr = [10, 20, 30, 40, 50];
-    return [arr, arr.reverse()];
+    return [arr.reverse()];
 }
 
 type Person record {|

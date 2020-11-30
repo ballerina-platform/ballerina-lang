@@ -229,17 +229,6 @@ public class LangLibArrayTest {
 
         assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
         assertEquals(arr.size(), 5);
-        assertEquals(arr.getInt(0), 10);
-        assertEquals(arr.getInt(1), 20);
-        assertEquals(arr.getInt(2), 30);
-        assertEquals(arr.getInt(3), 40);
-        assertEquals(arr.getInt(4), 50);
-
-        assertEquals(returns[1].getType().getTag(), TypeTags.ARRAY_TAG);
-        arr = (BValueArray) returns[1];
-
-        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
-        assertEquals(arr.size(), 5);
         assertEquals(arr.getInt(0), 50);
         assertEquals(arr.getInt(1), 40);
         assertEquals(arr.getInt(2), 30);
