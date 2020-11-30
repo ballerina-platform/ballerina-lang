@@ -661,7 +661,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.TYPE_DESC_IN_SERVICE, ParserRuleContext.OPTIONAL_ABSOLUTE_PATH };
 
     private static final ParserRuleContext[] OPTIONAL_ABSOLUTE_PATH =
-            { ParserRuleContext.ABSOLUTE_RESOURCE_PATH, ParserRuleContext.ON_KEYWORD };
+            { ParserRuleContext.ABSOLUTE_RESOURCE_PATH, ParserRuleContext.STRING_LITERAL_TOKEN,
+                    ParserRuleContext.ON_KEYWORD };
 
     private static final ParserRuleContext[] ABSOLUTE_RESOURCE_PATH_START =
             { ParserRuleContext.SLASH, ParserRuleContext.ABSOLUTE_PATH_SINGLE_SLASH };
@@ -2564,8 +2565,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case COLON:
                 return getNextRuleForColon();
             case STRING_LITERAL_TOKEN:
-                // We assume string literal is specifically used only in the mapping constructor key.
-                return ParserRuleContext.COLON;
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.SERVICE_DECL) {
+                    return ParserRuleContext.ON_KEYWORD;
+                }
+                return ParserRuleContext.COLON; // mapping constructor key
             case COMPUTED_FIELD_NAME:
                 return ParserRuleContext.OPEN_BRACKET;
             case LISTENERS_LIST:
