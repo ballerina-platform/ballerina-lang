@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.FileUtils;
+import io.ballerina.projects.CompilationCache;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JdkVersion;
@@ -27,6 +28,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.io.File;
@@ -37,6 +39,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ServiceLoader;
 
+import static io.ballerina.cli.utils.FileUtils.geFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
@@ -49,6 +52,7 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 public class CreateExecutableTask implements Task {
     private final transient PrintStream out;
     private Path output;
+    private Path currentDir;
 
     public CreateExecutableTask(PrintStream out, String output) {
         this.out = out;
@@ -61,47 +65,9 @@ public class CreateExecutableTask implements Task {
     public void execute(Project project) {
         this.out.println();
         this.out.println("Generating executable");
+        this.currentDir = Paths.get(System.getProperty(USER_DIR));
 
-        Target target;
-        Path currentDir = Paths.get(System.getProperty(USER_DIR));
-        try {
-            target = new Target(project.sourceRoot());
-            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                Path outputPath;
-                DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
-                String documentName = project.currentPackage().getDefaultModule().document(documentId).name();
-                String executableName = FileUtils.geFileNameWithoutExtension(Paths.get(documentName));
-                if (executableName == null) {
-                    throw createLauncherException("unable to determine executable name");
-                }
-                if (output != null) {
-                    if (Files.isDirectory(output)) {
-                        outputPath = output.resolve(executableName + BLANG_COMPILED_JAR_EXT);
-                    } else {
-                        if (!FileUtils.hasExtension(output)) {
-                            outputPath = Paths.get(output.toString() + BLANG_COMPILED_JAR_EXT);
-                        } else {
-                            outputPath = output;
-                        }
-                    }
-                    if (!outputPath.isAbsolute()) {
-                        outputPath = currentDir.resolve(outputPath);
-                    }
-                } else {
-                    outputPath = currentDir.resolve(executableName + BLANG_COMPILED_JAR_EXT);
-                }
-                target.setOutputPath(outputPath);
-            }
-        } catch (IOException e) {
-            throw createLauncherException("unable to set executable path: " + e.getMessage());
-        }
-
-        Path executablePath;
-        try {
-            executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
-        } catch (IOException e) {
-            throw createLauncherException(e.getMessage());
-        }
+        Path executablePath = getExecutablePath(project).toAbsolutePath().normalize();
 
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
@@ -113,7 +79,8 @@ public class CreateExecutableTask implements Task {
 
         // notify plugin
         // todo following call has to be refactored after introducing new plugin architecture
-        notifyPlugins(project, target);
+
+        notifyPlugins(project, executablePath);
 
         // Print the path of the executable
         Path relativePathToExecutable = currentDir.relativize(executablePath);
@@ -125,10 +92,40 @@ public class CreateExecutableTask implements Task {
         }
     }
 
-    private void notifyPlugins(Project project, Target target) {
+    private void notifyPlugins(Project project, Path executablePath) {
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         for (CompilerPlugin plugin : processorServiceLoader) {
-            plugin.codeGenerated(project, target);
+            plugin.codeGenerated(project, executablePath);
         }
+    }
+
+    private Path getExecutablePath(Project project) {
+        if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
+            try {
+                Target target = new Target(project.sourceRoot());
+                return target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
+            } catch (IOException e) {
+                throw createLauncherException("unable to get executable path:" + e.getMessage());
+            }
+        }
+
+        Path fileName = project.sourceRoot().getFileName();
+
+        // If the --output flag is not create the executable in the current directory
+        if (this.output == null) {
+            return this.currentDir.resolve(geFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
+        }
+
+        // If the --output is a directory create the executable in the given directory
+        if (Files.isDirectory(this.output)) {
+            return output.resolve(geFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
+        }
+
+        // If the --output does not have an extension, append the .jar extension
+        if (!FileUtils.hasExtension(this.output)) {
+            return Paths.get(this.output.toString() + BLANG_COMPILED_JAR_EXT);
+        }
+
+        return this.output;
     }
 }

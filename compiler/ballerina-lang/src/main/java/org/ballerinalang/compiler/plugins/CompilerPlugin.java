@@ -137,9 +137,9 @@ public interface CompilerPlugin {
      * Notifies when the code generated phase is completed.
      *
      * @param project Project instance
-     * @param target Target directory
+     * @param executablePath path of the executable jar
      */
-    default void codeGenerated(Project project, Target target) {
+    default void codeGenerated(Project project, Path executablePath) {
 
     }
 

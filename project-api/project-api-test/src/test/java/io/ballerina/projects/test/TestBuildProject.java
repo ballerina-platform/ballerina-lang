@@ -319,6 +319,12 @@ public class TestBuildProject {
         // Update the document
         Document updatedDoc = oldDocument.modify().withContent(dummyContent).apply();
 
+        oldDocument.textDocument(); // old content
+        updatedDoc.textDocument(); // new content
+
+        buildProject.currentPackage().module(oldModule.moduleId());
+        updatedDoc.module().packageInstance();
+
         Assert.assertEquals(oldDocument.module().documentIds().size(), updatedDoc.module().documentIds().size());
         Assert.assertEquals(oldDocument.module().testDocumentIds().size(),
                 updatedDoc.module().testDocumentIds().size());

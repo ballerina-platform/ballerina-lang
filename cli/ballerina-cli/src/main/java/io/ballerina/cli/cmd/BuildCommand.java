@@ -226,7 +226,7 @@ public class BuildCommand implements BLauncherCmd {
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
-                .addTask(new CreateTargetDirTask()) // create target directory
+//                .addTask(new CreateTargetDirTask(), isSingleFileBuild) // create target directory
 //                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
 //                .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
@@ -237,7 +237,7 @@ public class BuildCommand implements BLauncherCmd {
                         project.buildOptions().skipTests() || isSingleFileBuild)
                     // run tests (projects only)
                 .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
-                .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
+//                .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();
 
         taskExecutor.executeTasks(project);
