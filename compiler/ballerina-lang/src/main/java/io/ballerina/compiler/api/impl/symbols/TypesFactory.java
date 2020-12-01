@@ -114,6 +114,8 @@ public class TypesFactory {
         }
 
         switch (bType.getKind()) {
+            case BOOLEAN:
+                return new BallerinaBooleanTypeSymbol(this.context, moduleID, bType);
             case INT:
                 if (bType instanceof BIntSubType) {
                     return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType.name.getValue(), bType);
