@@ -27,7 +27,6 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -45,7 +44,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -400,20 +398,21 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     // Extract mock function information
     @Override
-    public void process(VariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
-        parent = (BLangPackage) ((BLangVariable) variableNode).parent;
+    public void process(SimpleVariableNode simpleVariableNode, List<AnnotationAttachmentNode> annotations) {
+        parent = (BLangPackage) ((BLangSimpleVariable) simpleVariableNode).parent;
         String packageName = getPackageName(parent);
+
         annotations = annotations.stream().distinct().collect(Collectors.toList());
         // Iterate through all the annotations
         for (AnnotationAttachmentNode attachmentNode : annotations) {
             String annotationName = attachmentNode.getAnnotationName().getValue();
 
             if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
-                String type = ((BLangUserDefinedType) ((BLangSimpleVariable) variableNode).typeNode).
+                String type = ((BLangUserDefinedType) ((BLangSimpleVariable) simpleVariableNode).typeNode).
                         typeName.getValue();
                 // Check if the simpleVariableNode that the annotation is attached to is in fact the MockFunction object
-                if (type.equals("MockFunction") && variableNode.getKind() == NodeKind.VARIABLE) {
-                    String mockFnObjectName = ((SimpleVariableNode) variableNode).getName().getValue();
+                if (type.equals("MockFunction")) {
+                    String mockFnObjectName = simpleVariableNode.getName().getValue();
                     String[] annotationValues = new String[2]; // [0] - moduleName, [1] - functionName
                     annotationValues[0] = packageName; // Set default value of the annotation as the current package
 
@@ -429,7 +428,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         validateFunctionName(annotationValues[1], functionToMockID, attachmentNode);
 
                         BLangTestablePackage bLangTestablePackage =
-                                (BLangTestablePackage) ((BLangSimpleVariable) variableNode).parent;
+                                (BLangTestablePackage) ((BLangSimpleVariable) simpleVariableNode).parent;
 
                         // Value added to the map '<packageId> # <functionToMock> --> <MockFnObjectName>`
                         bLangTestablePackage.addMockFunction(
