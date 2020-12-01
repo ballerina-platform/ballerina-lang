@@ -1483,7 +1483,7 @@ public class BallerinaLexer extends AbstractLexer {
      * <code>
      * QuotedIdentifierChar := IdentifierFollowingChar | QuotedIdentifierEscape | StringNumericEscape
      * </code>
-     * 
+     * @param initialEscape Denotes whether <code>\</code> is at the beginning of the identifier
      * @return Quoted identifier token
      */
     private STToken processQuotedIdentifier(boolean initialEscape) {
