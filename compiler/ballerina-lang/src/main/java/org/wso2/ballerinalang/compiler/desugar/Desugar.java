@@ -3022,7 +3022,6 @@ public class Desugar extends BLangNodeVisitor {
                     if (types.isSameType(returnNode.expr.type, symTable.errorType)) {
                         BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
                         failStmt.pos = returnNode.pos;
-                        failStmt.desugaredToFail = true;
                         failStmt.expr = returnNode.expr;
                         if (this.shouldReturnErrors) {
                             BLangReturn returnStmt =
@@ -4029,14 +4028,12 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf exitIf = ASTBuilderUtil.createIfElseStmt(pos, shouldNotPanic, failBlock, panicNode);
         trxOnFailClause.body.stmts.add(exitIf);
 
-        if (this.onFailClause != null) {
-            BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
-            failStmt.desugaredToFail = true;
-            failStmt.pos = pos;
-            failStmt.expr = caughtError;
-            failBlock.stmts.add(failStmt);
-            trxOnFailClause.bodyContainsFail = true;
-        }
+        BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
+        failStmt.pos = pos;
+        failStmt.expr = caughtError;
+        failBlock.stmts.add(failStmt);
+        trxOnFailClause.bodyContainsFail = true;
+
         return trxOnFailClause;
     }
 
@@ -4052,8 +4049,7 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             BLangLiteral currentTrxBlockId = this.trxBlockId;
             String uniqueId = String.valueOf(++transactionBlockCount);
-            this.trxBlockId = ASTBuilderUtil.createLiteral(transactionNode.pos, symTable.stringType,
-                    uniqueId);
+            this.trxBlockId = ASTBuilderUtil.createLiteral(transactionNode.pos, symTable.stringType, uniqueId);
             boolean currentAddCheckExpr = this.addCheckExpression;
             boolean currShouldReturnErrors = this.shouldReturnErrors;
             this.addCheckExpression = true;
@@ -4159,7 +4155,6 @@ public class Desugar extends BLangNodeVisitor {
             //adding fail statement to jump to enclosing on fail clause
             // fail $retryResult$;
             BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
-            failStmt.desugaredToFail = true;
             failStmt.pos = pos;
             failStmt.expr = retryResultRef;
 
@@ -5867,8 +5862,9 @@ public class Desugar extends BLangNodeVisitor {
                 result = failNode;
             }
         } else {
-            BLangReturn stmt = ASTBuilderUtil.createReturnStmt(failNode.pos, failNode.expr);
-            result = rewrite(stmt, env);
+            BLangReturn stmt = ASTBuilderUtil.createReturnStmt(failNode.pos, rewrite(failNode.expr, env));
+            stmt.desugared = true;
+            result = stmt;
         }
     }
 
@@ -6961,7 +6957,6 @@ public class Desugar extends BLangNodeVisitor {
         if (!isCheckPanicExpr && (returnOnError || this.onFailClause != null)) {
             //fail e;
             BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
-            failStmt.desugaredToFail = true;
             failStmt.pos = location;
             failStmt.expr = patternFailureCaseVarRef;
             patternBlockFailureCase.stmts.add(failStmt);
