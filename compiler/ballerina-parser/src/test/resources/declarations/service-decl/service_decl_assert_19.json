@@ -1,6 +1,5 @@
 {
   "kind": "MODULE_PART",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -8,18 +7,16 @@
     },
     {
       "kind": "LIST",
-      "hasDiagnostics": true,
       "children": [
         {
-          "kind": "FUNCTION_DEFINITION",
-          "hasDiagnostics": true,
+          "kind": "SERVICE_DECLARATION",
           "children": [
             {
               "kind": "LIST",
               "children": []
             },
             {
-              "kind": "FUNCTION_KEYWORD",
+              "kind": "SERVICE_KEYWORD",
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -28,97 +25,83 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "hello"
-            },
-            {
-              "kind": "LIST",
-              "children": []
-            },
-            {
-              "kind": "FUNCTION_SIGNATURE",
+              "kind": "SINGLETON_TYPE_DESC",
               "children": [
                 {
-                  "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "CLOSE_PAREN_TOKEN",
-                  "trailingMinutiae": [
+                  "kind": "STRING_LITERAL",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "value": "sample.demo.foo",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 }
               ]
             },
             {
-              "kind": "EXTERNAL_FUNCTION_BODY",
-              "hasDiagnostics": true,
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "ON_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
               "children": [
                 {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "LIST",
-                  "hasDiagnostics": true,
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
-                      "kind": "ANNOTATION",
-                      "hasDiagnostics": true,
-                      "children": [
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "listner1",
+                      "trailingMinutiae": [
                         {
-                          "kind": "AT_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_AT_TOKEN"
-                          ]
-                        },
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "e",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
-                              ]
-                            }
-                          ]
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ]
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "kind": "OPEN_BRACE_TOKEN",
+              "trailingMinutiae": [
                 {
-                  "kind": "EXTERNAL_KEYWORD",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_EXTERNAL_KEYWORD"
-                  ]
-                },
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN",
+              "leadingMinutiae": [
                 {
-                  "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_SEMICOLON_TOKEN"
-                  ]
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ],
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
                 }
               ]
             }
@@ -151,7 +134,7 @@
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "testService",
+                  "value": "serviceType",
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
@@ -162,8 +145,19 @@
               ]
             },
             {
-              "kind": "LIST",
-              "children": []
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "sample.demo.foo",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "ON_KEYWORD",
@@ -182,7 +176,7 @@
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "value": "l1",
+                      "value": "listner1",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -209,6 +203,12 @@
             },
             {
               "kind": "CLOSE_BRACE_TOKEN",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ],
               "trailingMinutiae": [
                 {
                   "kind": "END_OF_LINE_MINUTIAE",

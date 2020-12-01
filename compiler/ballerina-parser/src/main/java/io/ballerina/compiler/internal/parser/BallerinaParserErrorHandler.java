@@ -278,7 +278,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.BASE64_KEYWORD, ParserRuleContext.BASE64_KEYWORD,
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
-            ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD,
+            ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.OBJECT_CONSTRUCTOR,
             ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.ISOLATED_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
@@ -654,11 +654,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] NAMED_WORKER_DECL_START =
             { ParserRuleContext.WORKER_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
+    private static final ParserRuleContext[] SERVICE_DECL_START =
+            { ParserRuleContext.SERVICE_KEYWORD, ParserRuleContext.SERVICE_DECL_QUALIFIER };
+
     private static final ParserRuleContext[] OPTIONAL_SERVICE_DECL_TYPE =
             { ParserRuleContext.TYPE_DESC_IN_SERVICE, ParserRuleContext.OPTIONAL_ABSOLUTE_PATH };
 
     private static final ParserRuleContext[] OPTIONAL_ABSOLUTE_PATH =
-            { ParserRuleContext.ABSOLUTE_RESOURCE_PATH, ParserRuleContext.ON_KEYWORD };
+            { ParserRuleContext.ABSOLUTE_RESOURCE_PATH, ParserRuleContext.STRING_LITERAL_TOKEN,
+                    ParserRuleContext.ON_KEYWORD };
 
     private static final ParserRuleContext[] ABSOLUTE_RESOURCE_PATH_START =
             { ParserRuleContext.SLASH, ParserRuleContext.ABSOLUTE_PATH_SINGLE_SLASH };
@@ -1100,6 +1104,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.TRANSACTIONAL_KEYWORD;
                     break;
                 case ISOLATED_KEYWORD:
+                case SERVICE_DECL_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.ISOLATED_KEYWORD;
                     break;
                 case MODULE_ENUM_NAME:
@@ -1486,6 +1491,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PATH_PARAM_ELLIPSIS:
             case OBJECT_CONS_WITHOUT_FIRST_QUALIFIER:
             case CONFIG_VAR_DECL_RHS:
+            case SERVICE_DECL_START:
                 return true;
             default:
                 return false;
@@ -1737,6 +1743,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case RELATIVE_RESOURCE_PATH_END:
                 alternativeRules = RELATIVE_RESOURCE_PATH_END;
+                break;
+            case SERVICE_DECL_START:
+                alternativeRules = SERVICE_DECL_START;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2556,13 +2565,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case COLON:
                 return getNextRuleForColon();
             case STRING_LITERAL_TOKEN:
-                // We assume string literal is specifically used only in the mapping constructor key.
-                return ParserRuleContext.COLON;
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.SERVICE_DECL) {
+                    return ParserRuleContext.ON_KEYWORD;
+                }
+                return ParserRuleContext.COLON; // mapping constructor key
             case COMPUTED_FIELD_NAME:
                 return ParserRuleContext.OPEN_BRACKET;
             case LISTENERS_LIST:
                 return ParserRuleContext.EXPRESSION;
             case SERVICE_DECL:
+                return ParserRuleContext.SERVICE_DECL_START;
+            case SERVICE_DECL_QUALIFIER:
                 return ParserRuleContext.SERVICE_KEYWORD;
             case LISTENER_DECL:
                 return ParserRuleContext.LISTENER_KEYWORD;

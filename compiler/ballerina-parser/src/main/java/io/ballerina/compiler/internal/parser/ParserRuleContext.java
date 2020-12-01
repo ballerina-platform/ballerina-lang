@@ -112,6 +112,8 @@ public enum ParserRuleContext {
     AFTER_IMPORT_MODULE_NAME("after-import-module-name"),
     MAJOR_MINOR_VERSION_END("major-minor-version-end"),
     SERVICE_DECL("service-decl"),
+    SERVICE_DECL_START("service-decl-start"),
+    SERVICE_DECL_QUALIFIER("service-decl-qualifier"),
     SERVICE_DECL_OR_VAR_DECL("service-decl-or-var-decl"),
     SERVICE_VAR_DECL_RHS("service-var-decl-rhs"),
     OPTIONAL_SERVICE_DECL_TYPE("optional-service-decl-type"),
