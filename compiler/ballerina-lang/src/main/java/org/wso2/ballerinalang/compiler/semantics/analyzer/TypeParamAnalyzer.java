@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -593,12 +592,11 @@ public class TypeParamAnalyzer {
 
     private BType getMatchingBoundType(BType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         if (isTypeParam(expType)) {
-            for (SymbolEnv.TypeParamEntry typeParamEntry : env.typeParamsEntries) {
-                if (typeParamEntry.typeParam == expType) {
-                    return typeParamEntry.boundType;
-                }
-            }
-            return symTable.noType;
+            return env.typeParamsEntries.stream().filter(typeParamEntry -> typeParamEntry.typeParam == expType)
+                    .findFirst()
+                    .map(typeParamEntry -> typeParamEntry.boundType)
+                    // Else, this need to be inferred from the context.
+                    .orElse(symTable.noType);
         }
 
         if (resolvedTypes.contains(expType)) {
@@ -755,18 +753,9 @@ public class TypeParamAnalyzer {
 
     private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
-        BUnionType unionType = BUnionType.create(null);
-        for (var member : expType.getMemberTypes()) {
-            BType boundMemberType = getMatchingBoundType(member, env, resolvedTypes);
-            if (expType.isCyclic) {
-                BType referenceFixedType = types.updateSelfReferencedWithNewType(expType, boundMemberType, unionType);
-                members.add(referenceFixedType);
-                continue;
-            }
-            members.add(boundMemberType);
-        }
-        unionType.setMemberTypes(members);
-        return unionType;
+        expType.getMemberTypes()
+                .forEach(type -> members.add(getMatchingBoundType(type, env, resolvedTypes)));
+        return BUnionType.create(null, members);
     }
 
     private BType getMatchingErrorBoundType(BErrorType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
