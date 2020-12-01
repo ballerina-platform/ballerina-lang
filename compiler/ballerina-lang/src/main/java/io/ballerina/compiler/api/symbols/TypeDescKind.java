@@ -50,9 +50,9 @@ public enum TypeDescKind {
     TABLE("table"),
     SINGLETON("singleton"),
     READONLY("readonly"),
-    NEVER("never");
+    NEVER("never"),
+    COMPILATION_ERROR("CompilationError");
 
-    
     private final String name;
 
     TypeDescKind(String name) {

@@ -63,6 +63,7 @@ import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
@@ -508,6 +509,19 @@ public class TypedescriptorTest {
         assertEquals(type.typeKind(), OBJECT);
         // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/27279
 //        assertTrue(((ObjectTypeSymbol) type).qualifiers().contains(Qualifier.DISTINCT));
+    }
+
+    @Test
+    public void testCompileErrorType1() {
+        LineRange range = LineRange.from("typedesc_test.bal", from(172, 12), from(172, 17));
+        Optional<TypeSymbol> type = model.type("typedesc_test.bal", range);
+        assertEquals(type.get().typeKind(), COMPILATION_ERROR);
+    }
+
+    @Test
+    public void testCompileErrorType2() {
+        Symbol symbol = getSymbol(173, 18);
+        assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), COMPILATION_ERROR);
     }
 
     private Symbol getSymbol(int line, int column) {
