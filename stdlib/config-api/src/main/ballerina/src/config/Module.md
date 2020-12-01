@@ -74,7 +74,7 @@ A set of configurations belonging to a particular namespace can be retrieved as 
 [b7a.http.tracelog]
 console=true
 path="./trace.log"
-host="@env:{TRACE_LOG_READER_HOST}"
+host="localhost"
 port=5757
 
 [b7a.http.accesslog]
@@ -89,10 +89,6 @@ The configurations for HTTP trace logs can be retrieved as a `map` as follows:
 // Here, the map’s key-value pairs represent config key-value pairs.
 map<anydata> serverAlphaMap  = config:getAsMap("b7a.http.tracelog");
 ```
-
-In the above configuration file, the `host` is specified as `@env:{TRACE_LOG_READER_HOST}`. When resolving the configurations, Ballerina looks for a variable named `TRACE_LOG_READER_HOST` in the environment variables and maps `b7a.http.tracelog.host` to its value.
-
-If the specified environment variable does not exist, it will will treat `@env:{TRACE_LOG_READER_HOST}` as a normal string value.
 
 ### Securing configuration values
 
