@@ -211,6 +211,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getBacktickToken();
                 break;
             case LexerTerminals.SINGLE_QUOTE:
+            case LexerTerminals.BACKSLASH:
                 token = processQuotedIdentifier();
                 break;
 
@@ -781,6 +782,10 @@ public class BallerinaLexer extends AbstractLexer {
     private STToken processIdentifierOrKeyword() {
         while (isIdentifierFollowingChar(peek())) {
             reader.advance();
+        }
+
+        if (peek() == '\\') {
+            return processQuotedIdentifier();
         }
 
         String tokenText = getLexeme();
