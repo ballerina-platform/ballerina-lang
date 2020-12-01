@@ -212,12 +212,8 @@ public class TypesFactory {
                     return new BallerinaCompilationErrorTypeSymbol(this.context, moduleID, bType);
                 }
 
-                return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType);
+                return new BallerinaTypeSymbol(this.context, moduleID, bType);
         }
-    }
-
-    private BallerinaSimpleTypeSymbol createSimpleTypedesc(ModuleID moduleID, BType internalType) {
-        return new BallerinaSimpleTypeSymbol(this.context, moduleID, internalType);
     }
 
     private IntTypeSymbol createIntSubType(BIntSubType internalType) {

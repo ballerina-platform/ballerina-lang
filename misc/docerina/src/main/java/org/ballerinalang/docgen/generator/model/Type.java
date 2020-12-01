@@ -20,7 +20,6 @@ import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
-import io.ballerina.compiler.api.symbols.SimpleTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -288,9 +287,8 @@ public class Type {
             } else {
                 return "classes";
             }
-        } else if (typeDescriptor instanceof SimpleTypeSymbol && typeDescriptor.signature().equals("finite")) {
-            return "types";
         }
+
         return "not_found";
     }
 
