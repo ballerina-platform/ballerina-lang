@@ -973,6 +973,9 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.NEVER:
                     return symTable.neverType;
                 case TypeTags.ANYDATA:
+                    if (name.getValue().equals(Names.ANYDATA.getValue())) {
+                        name = Names.EMPTY;
+                    }
                     BType anydataNominalType = typeParamAnalyzer.getNominalType(symTable.anydataType, name, flags);
                     return isImmutable(flags) ? getEffectiveImmutableType(anydataNominalType,
                             symTable.anydataType.tsymbol.pkgID,
