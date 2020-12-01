@@ -53,6 +53,11 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
         test("service-decl/service_decl_source_18.bal", "service-decl/service_decl_assert_18.json");
     }
 
+    @Test
+    public void testServiceDeclStringLiteral() {
+        testFile("service-decl/service_decl_source_19.bal", "service-decl/service_decl_assert_19.json");
+    }
+
     // Valid service function syntax tests
 
     @Test

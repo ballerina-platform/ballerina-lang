@@ -6708,7 +6708,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse service declaration.
      * <p>
      * <code>
-     * service-decl := metadata `service` [type-descriptor] [absolute-resource-path]
+     * service-decl := metadata `service` [type-descriptor] [absolute-resource-path | string-literal]
      * `on` expression-list object-constructor-block
      * <br/>
      * absolute-resource-path := "/" | ("/" identifier)+
@@ -6725,7 +6725,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseServiceDecl(STNode metadata, STNode qualNodeList, STNode serviceKeyword, STNode serviceType) {
-        STNode resourcePath = parseOptionalAbsolutePath();
+        STNode resourcePath = parseOptionalAbsolutePathOrStringLiteral();
         STNode onKeyword = parseOnKeyword();
         STNode expressionList = parseListeners();
         STNode openBrace = parseOpenBrace();
@@ -6764,20 +6764,23 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse optional absolute resource path.
+     * Parse optional absolute resource path or string literal.
      *
      * @return Parsed node
      */
-    private STNode parseOptionalAbsolutePath() {
+    private STNode parseOptionalAbsolutePathOrStringLiteral() {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case SLASH_TOKEN:
                 return parseAbsoluteResourcePath();
+            case STRING_LITERAL_TOKEN:
+                STToken stringLiteralToken = consume();
+                return parseBasicLiteral(stringLiteralToken);
             case ON_KEYWORD:
                 return STNodeFactory.createEmptyNodeList();
             default:
                 recover(nextToken, ParserRuleContext.OPTIONAL_ABSOLUTE_PATH);
-                return parseOptionalAbsolutePath();
+                return parseOptionalAbsolutePathOrStringLiteral();
         }
     }
 
