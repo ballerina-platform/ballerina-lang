@@ -30,20 +30,18 @@ BALLERINA COMMANDS
    Core Commands:
         build           Compile Ballerina program into an executable
         run             Build and run Ballerina program
-        test            Run module tests
+        test            Run package tests
         doc             Generate API documentation
         clean           Clean artifacts generated during the build
         format          Format Ballerina sources
 
-   Module Commands:
+   Package Commands:
+        new             Create a new Ballerina package
+        init            Create a new Ballerina package in the current directory
+        add             Create a new Ballerina module in the package
         pull            Pull a package from Ballerina Central
         push            Upload a package to Ballerina Central
         search          Search Ballerina Central for packages
-
-   Project Commands:
-        new             Create a new project and initialize a Ballerina package
-        init            Initialize a new Ballerina package in the current directory
-        add             Create a new Ballerina module in the package
 
    Other Commands:
         encrypt         Encrypt sensitive data

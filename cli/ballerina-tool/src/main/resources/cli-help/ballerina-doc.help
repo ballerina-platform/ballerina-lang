@@ -8,7 +8,7 @@ DESCRIPTION
        Doc command builds the documentation for a Ballerina package.
 
        This command writes the module documentation to the 'target/apidocs'
-       directory inside the project.
+       directory inside the package.
 
 OPTIONS
        -o <output>, --output <output>
@@ -28,4 +28,4 @@ EXAMPLES
           $ ballerina doc
 
        Generate API documentation for a Ballerina package in a given path.
-          $ ballerina doc /path/to/project
+          $ ballerina doc /path/to/package

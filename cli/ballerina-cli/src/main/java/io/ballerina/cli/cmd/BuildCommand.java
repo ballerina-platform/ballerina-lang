@@ -131,7 +131,7 @@ public class BuildCommand implements BLauncherCmd {
     private String debugPort;
 
     private static final String buildCmd = "ballerina build [-o <output>] [--offline] [--skip-tests]\n" +
-            "                    [<ballerina-file | ballerina-project>] [(--key=value)...]";
+            "                    [<ballerina-file | package-path>] [(--key=value)...]";
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
     private Boolean testReport;
@@ -194,7 +194,7 @@ public class BuildCommand implements BLauncherCmd {
             try {
                 project = SingleFileProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), buildCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -213,7 +213,7 @@ public class BuildCommand implements BLauncherCmd {
             try {
                 project = BuildProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), buildCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }

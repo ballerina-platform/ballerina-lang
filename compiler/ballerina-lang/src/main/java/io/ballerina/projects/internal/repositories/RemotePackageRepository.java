@@ -18,9 +18,11 @@ import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
@@ -101,23 +103,25 @@ public class RemotePackageRepository implements PackageRepository {
         String orgName = resolutionRequest.orgName().value();
         String packageName = resolutionRequest.packageName().value();
 
-        //If environment is offline we return the local versions
+        // First, Get local versions
+        Set<PackageVersion> packageVersions = new HashSet<>(fileSystemRepo.getPackageVersions(resolutionRequest));
+
+        // If environment is offline we return the local versions
         if (isOffline) {
-            return fileSystemRepo.getPackageVersions(resolutionRequest);
+            return new ArrayList<>(packageVersions);
         }
 
-        List<PackageVersion> packageVersions = new ArrayList<>();
         try {
             for (String version : this.client.getPackageVersions(orgName, packageName, JdkVersion.JAVA_11.code())) {
                 packageVersions.add(PackageVersion.from(version));
             }
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
-            return packageVersions;
+            return new ArrayList<>(packageVersions);
         } catch (CentralClientException e) {
             throw new ProjectException(e.getMessage());
         }
-        return packageVersions;
+        return new ArrayList<>(packageVersions);
     }
 
     @Override
