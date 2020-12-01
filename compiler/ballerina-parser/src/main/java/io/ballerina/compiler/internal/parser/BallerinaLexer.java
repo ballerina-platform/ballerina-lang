@@ -211,8 +211,10 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getBacktickToken();
                 break;
             case LexerTerminals.SINGLE_QUOTE:
+                token = processQuotedIdentifier(false);
+                break;
             case LexerTerminals.BACKSLASH:
-                token = processQuotedIdentifier();
+                token = processQuotedIdentifier(true);
                 break;
 
             // Numbers
@@ -785,7 +787,7 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         if (peek() == '\\') {
-            return processQuotedIdentifier();
+            return processQuotedIdentifier(false);
         }
 
         String tokenText = getLexeme();
@@ -1484,21 +1486,26 @@ public class BallerinaLexer extends AbstractLexer {
      * 
      * @return Quoted identifier token
      */
-    private STToken processQuotedIdentifier() {
+    private STToken processQuotedIdentifier(boolean initialEscape) {
         while (!reader.isEOF()) {
+            int k = 1;
             int nextChar = reader.peek();
             if (isIdentifierFollowingChar(nextChar)) {
                 reader.advance();
                 continue;
             }
 
-            if (nextChar != '\\') {
+            if (nextChar != '\\' && !initialEscape) {
                 break;
+            }
+            if (initialEscape) {
+                k = 0;
+                initialEscape = false;
             }
 
             // QuotedIdentifierEscape | StringNumericEscape
 
-            nextChar = reader.peek(1);
+            nextChar = reader.peek(k);
             switch (nextChar) {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
@@ -1506,10 +1513,10 @@ public class BallerinaLexer extends AbstractLexer {
                     break;
                 case 'u':
                     // StringNumericEscape
-                    if (reader.peek(2) == '{') {
+                    if (reader.peek(k + 1) == '{') {
                         processStringNumericEscape();
                     } else {
-                        reader.advance(2);
+                        reader.advance(k + 1);
                     }
                     continue;
                 default:
@@ -1518,7 +1525,7 @@ public class BallerinaLexer extends AbstractLexer {
                         reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
                     }
 
-                    reader.advance(2);
+                    reader.advance(k + 1);
                     continue;
             }
             break;
