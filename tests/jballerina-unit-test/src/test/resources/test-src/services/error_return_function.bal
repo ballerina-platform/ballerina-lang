@@ -15,10 +15,8 @@
 // under the License.
 
 import ballerina/java;
-import ballerina/lang.'object as lang;
 
 public class Listener {
-    *lang:Listener;
     public isolated function 'start() returns error? {
     }
     public isolated function gracefulStop() returns error? {

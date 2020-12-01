@@ -14,10 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object as obj;
-
 class CustomListener {
-    *obj:Listener;
 
     public function attach(service object {} s, string[]|string? name) returns error? {
         // do nothing
@@ -41,7 +38,6 @@ class CustomListener {
 }
 
 class CustomListenerWithAutoImports {
-    *obj:Listener;
 
     public function attach(service object {} s, string[]|string? name) returns error? {
         // do nothing

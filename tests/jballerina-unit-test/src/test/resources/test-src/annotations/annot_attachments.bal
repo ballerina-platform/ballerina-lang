@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object as lang;
+
 
 type Annot record {
     string val;
@@ -123,7 +123,7 @@ service object {} serTwo = @v8 {
 };
 
 class Listener {
-    *lang:Listener;
+
 
     public function init() {
     }
