@@ -735,10 +735,6 @@ public class Types {
             if (isAnydata(source)) {
                 return true;
             }
-
-            if (isAssignableToUnionType(source, target, unresolvedTypes)) {
-                return true;
-            }
         }
 
         if (targetTag == TypeTags.READONLY &&
@@ -2593,8 +2589,6 @@ public class Types {
             }
         }
 
-        Set<BType> selfReferences = new HashSet<>();
-
         // check the structural values for similarity
         sourceIterator = sourceTypes.iterator();
         while (sourceIterator.hasNext()) {
@@ -2602,17 +2596,13 @@ public class Types {
             boolean sourceTypeIsNotAssignableToAnyTargetType = true;
             var targetIterator = targetTypes.iterator();
 
-            boolean selfReferencedSource = isSelfReferencedStructuredType(source, s);
-            if (selfReferencedSource) {
-                selfReferences.add(s);
-            }
+            boolean selfReferencedSource = (s != source) && isSelfReferencedStructuredType(source, s);
 
             while (targetIterator.hasNext()) {
                 BType t = targetIterator.next();
 
                 boolean selfReferencedTarget = isSelfReferencedStructuredType(target, t);
                 if (selfReferencedTarget) {
-                    selfReferences.add(t);
                     if (selfReferencedSource) {
                         if (s.tag == t.tag) {
                             sourceTypeIsNotAssignableToAnyTargetType = false;
@@ -2631,29 +2621,6 @@ public class Types {
             }
         }
 
-//
-//for (BType s : sourceTypes) {
-//    if (s.tag == TypeTags.NEVER) {
-//        continue;
-//    }
-//    if (s.tag == TypeTags.FINITE && isAssignable(s, target, unresolvedTypes)) {
-//        continue;
-//    }
-//    if (s.tag == TypeTags.XML && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
-//        continue;
-//    }
-//
-//    boolean sourceTypeIsNotAssignableToAnyTargetType = true;
-//    for (BType t : targetTypes) {
-//        if (isAssignable(s, t, unresolvedTypes)) {
-//            sourceTypeIsNotAssignableToAnyTargetType = false;
-//            break;
-//        }
-//    }
-//    if (sourceTypeIsNotAssignableToAnyTargetType) {
-//        return false;
-//    }
-//}
         return true;
     }
 
@@ -2746,7 +2713,8 @@ public class Types {
                 var mapType = (BMapType) tableType.constraint;
                 if (origUnionType == mapType.constraint) {
                     if (sameMember) {
-                        BMapType newMapType = new BMapType(mapType.tag, newImmutableUnion, mapType.tsymbol, mapType.flags);
+                        BMapType newMapType = new BMapType(mapType.tag, newImmutableUnion, mapType.tsymbol,
+                                mapType.flags);
                         ((BTableType) immutableMemberType).constraint = newMapType;
                     } else {
                         ((BTableType) immutableMemberType).constraint = newImmutableUnion;

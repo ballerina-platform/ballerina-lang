@@ -447,8 +447,8 @@ public class ImmutableTypeCloner {
 
                 immutableEffectiveType.flags |= (origUnionType.flags | Flags.READONLY);
                 BIntersectionType immutableUnionIntersectionType = createImmutableIntersectionType(env, origUnionType,
-                                                                                                   immutableEffectiveType,
-                                                                                                   symTable);
+                        immutableEffectiveType,
+                        symTable);
                 origUnionType.immutableType = immutableUnionIntersectionType;
                 return immutableUnionIntersectionType;
         }
