@@ -41,7 +41,7 @@ public class NullObservabiltySymbolCollector implements ObservabilitySymbolColle
     }
 
     @Override
-    public void writeCollectedSymbols(BLangPackage module, Path destination) {
+    public void writeCollectedSymbols(Path executableFile) {
         // Do nothing
     }
 }

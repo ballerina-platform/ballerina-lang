@@ -26,10 +26,12 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Resolves dependencies and handles version conflicts in the dependency graph.
@@ -44,6 +46,7 @@ public class PackageResolution {
     private final CompilationOptions compilationOptions;
 
     private List<ModuleContext> topologicallySortedModuleList;
+    private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
 
     private PackageResolution(PackageContext rootPackageContext) {
         this.rootPackageContext = rootPackageContext;
@@ -70,6 +73,24 @@ public class PackageResolution {
      */
     public DependencyGraph<ResolvedPackageDependency> dependencyGraph() {
         return dependencyGraph;
+    }
+
+    /**
+     * Returns all the dependencies of this package including it's transitive dependencies.
+     *
+     * @return all the dependencies of this package including it's transitive dependencies
+     */
+    public Collection<ResolvedPackageDependency> allDependencies() {
+        if (dependenciesWithTransitives != null) {
+            return dependenciesWithTransitives;
+        }
+
+        dependenciesWithTransitives = dependencyGraph.toTopologicallySortedList()
+                .stream()
+                // Remove root package from this list.
+                .filter(resolvedPkg -> resolvedPkg.packageId() != rootPackageContext.packageId())
+                .collect(Collectors.toList());
+        return dependenciesWithTransitives;
     }
 
     /**

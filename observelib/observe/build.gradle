@@ -51,6 +51,14 @@ configurations {
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
+task updateVersion {
+    ant.replaceregexp(
+            file: "${projectDir}/src/main/ballerina/Ballerina.toml",
+            match: "${project.name}-(.*).jar",
+            replace: "${project.name}-${project.version}.jar"
+    )
+}
+
 ballerinaLangLibBuild {
     skipBootstrap = 'true'
 }

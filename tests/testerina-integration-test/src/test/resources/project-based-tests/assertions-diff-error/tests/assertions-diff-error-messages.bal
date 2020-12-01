@@ -183,7 +183,7 @@ function testAssertObjects() {
     error? err = trap test:assertExactEquals(person, person2);
     error result = <error>err;
     test:assertEquals(result.message().toString(), "Assertion Failed!\n \n" +
-    "expected: 'object assertions-error-messages:Person'\nactual\t: 'object assertions-error-messages:Person'");
+    "expected: 'object assertions:Person'\nactual\t: 'object assertions:Person'");
 }
 
 @test:Config {}

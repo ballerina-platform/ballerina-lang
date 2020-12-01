@@ -70,6 +70,8 @@ public class CentralUtils {
                 pause();
                 long modifiedTimeOfFileAfter = getLastModifiedTimeOfFile(settingsTomlFilePath);
                 if (modifiedTimeOfFileAtStart != modifiedTimeOfFileAfter) {
+                    // read updated Settings.toml file to get the token
+                    settings = readSettings();
                     accessToken = getAccessTokenOfCLI(settings);
                     if (accessToken.isEmpty()) {
                         throw createLauncherException(

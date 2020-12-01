@@ -55,7 +55,7 @@ public class InitCommandTest extends BaseCommandTest {
         Path resourcePath = projectPath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
         Assert.assertFalse(Files.exists(resourcePath));
 
-        Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
+        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
 
     @Test(description = "Test init command with main template")
@@ -84,7 +84,7 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
 
-        Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
+        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
 
     @Test(description = "Test init command with service template")
@@ -111,10 +111,9 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("service.bal")));
 
-        Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
+        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
 
     @Test(description = "Test init command with lib template")
@@ -141,10 +140,9 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("myproject.bal")));
 
-        Assert.assertTrue(readOutput().contains("Ballerina project initialised "));
+        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
 
     @Test(description = "Test init command with invalid template")
@@ -176,8 +174,8 @@ public class InitCommandTest extends BaseCommandTest {
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("ballerina-init - Create a new Ballerina project inside current " +
-                "directory."));
+        Assert.assertTrue(readOutput().contains(
+                "ballerina-init - Create a new Ballerina package inside the current directory."));
     }
 
     @Test(description = "Test init command with help flag")
@@ -188,8 +186,8 @@ public class InitCommandTest extends BaseCommandTest {
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("ballerina-init - Create a new Ballerina project inside current " +
-                "directory."));
+        Assert.assertTrue(readOutput().contains(
+                "ballerina-init - Create a new Ballerina package inside the current directory."));
     }
 
     @Test(description = "Test init command inside a directory with invalid package name")
@@ -204,7 +202,8 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(projectPath));
         Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
 
-        Assert.assertTrue(readOutput().contains("warning: invalid package name. Modified package name :"));
+        Assert.assertTrue(readOutput().contains("Unallowed characters in the project name were replaced by " +
+                "underscores when deriving the package name. Edit the Ballerina.toml to change it."));
     }
 
     @Test(description = "Test init command with invalid project name")

@@ -155,6 +155,7 @@ public class RunTestsTask implements Task {
         this.out.println();
 
         int result = 0;
+        boolean hasTests = false;
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
@@ -183,6 +184,10 @@ public class RunTestsTask implements Task {
             } else if (isSingleTestExecution && suite.getTests().isEmpty()) {
                 out.println("\t" + "No tests found with the given name/s");
                 continue;
+            }
+            //Set 'hasTests' flag if there are any tests available in the package
+            if (!hasTests) {
+                hasTests = true;
             }
 
             if (isRerunTestExecution) {
@@ -217,8 +222,10 @@ public class RunTestsTask implements Task {
         }
 
         try {
-            generateCoverage(project);
-            generateHtmlReport(project, this.out, testReport, target);
+            if (hasTests) {
+                generateCoverage(project);
+                generateHtmlReport(project, this.out, testReport, target);
+            }
         } catch (IOException e) {
             throw createLauncherException("error while generating test report :", e);
         }

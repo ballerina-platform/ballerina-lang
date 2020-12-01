@@ -82,7 +82,7 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
             "dependencies.")
-    private boolean offline;
+    private Boolean offline;
 
 //    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
 //    private boolean skipLock;
@@ -94,7 +94,7 @@ public class TestCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private boolean experimentalFlag;
+    private Boolean experimentalFlag;
 
     @CommandLine.Option(names = "--debug", description = "start in remote debugging mode")
     private String debugPort;
@@ -109,13 +109,13 @@ public class TestCommand implements BLauncherCmd {
     private List<String> disableGroupList;
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
-    private boolean testReport;
+    private Boolean testReport;
 
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
-    private boolean coverage;
+    private Boolean coverage;
 
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
-    private boolean observabilityIncluded;
+    private Boolean observabilityIncluded;
 
     @CommandLine.Option(names = "--tests", split = ",", description = "Test functions to be executed")
     private List<String> testList;
@@ -124,7 +124,7 @@ public class TestCommand implements BLauncherCmd {
     private boolean rerunTests;
 
     private static final String testCmd = "ballerina test [--offline] [--skip-tests]\n" +
-            "                    [<ballerina-file> | <ballerina-project>] [(--key=value)...]";
+            "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
     public void execute() {
         if (this.helpFlag) {
@@ -132,8 +132,6 @@ public class TestCommand implements BLauncherCmd {
             this.errStream.println(commandUsageInfo);
             return;
         }
-
-        BuildOptions buildOptions = constructBuildOptions();
 
         String[] args;
         if (this.argList == null) {
@@ -155,21 +153,24 @@ public class TestCommand implements BLauncherCmd {
             return;
         }
 
-        // Skip code coverage for single bal files if option is set
-        if (FileUtils.hasExtension(this.projectPath) && coverage) {
-            coverage = false;
-            this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
-                    "and continuing the test run...");
-        }
-
         // load project
         Project project;
+
+        // Skip code coverage for single bal files if option is set
+        if (FileUtils.hasExtension(this.projectPath)) {
+            if (coverage != null && coverage) {
+                this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
+                        "and continuing the test run...");
+            }
+            coverage = false;
+        }
+        BuildOptions buildOptions = constructBuildOptions();
         boolean isSingleFile = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
                 project = SingleFileProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), testCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -178,7 +179,7 @@ public class TestCommand implements BLauncherCmd {
             try {
                 project = BuildProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), testCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }

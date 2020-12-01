@@ -18,9 +18,12 @@
 
 package org.ballerinalang.central.client;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 
 import java.io.FileOutputStream;
@@ -36,7 +39,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -91,7 +93,7 @@ public class Utils {
      */
     public static void createBaloInHomeRepo(HttpURLConnection conn, Path pkgPathInBaloCache, String pkgNameWithOrg,
             boolean isNightlyBuild, String newUrl, String contentDisposition, PrintStream outStream,
-            LogFormatter logFormatter) {
+            LogFormatter logFormatter) throws CentralClientException {
         long responseContentLength = conn.getContentLengthLong();
         if (responseContentLength <= 0) {
             throw new CentralClientException(
@@ -127,7 +129,7 @@ public class Utils {
      * @param pkgVersion   package version
      * @param logFormatter log formatter
      */
-    static void validatePackageVersion(String pkgVersion, LogFormatter logFormatter) {
+    static void validatePackageVersion(String pkgVersion, LogFormatter logFormatter) throws CentralClientException {
         if (!pkgVersion.matches(VERSION_REGEX)) {
             throw new CentralClientException(logFormatter.formatLog("package version could not be detected"));
         }
@@ -155,7 +157,8 @@ public class Utils {
      *                            <user.home>.ballerina/balo_cache/<org-name>/<pkg-name>/<pkg-version>
      * @param logFormatter        log formatter
      */
-    private static void createBaloFileDirectory(Path fullPathToStoreBalo, LogFormatter logFormatter) {
+    private static void createBaloFileDirectory(Path fullPathToStoreBalo, LogFormatter logFormatter)
+            throws CentralClientException {
         try {
             Files.createDirectories(fullPathToStoreBalo);
         } catch (IOException e) {
@@ -174,7 +177,7 @@ public class Utils {
      * @param logFormatter     log formatter
      */
     static void writeBaloFile(HttpURLConnection conn, Path baloPath, String fullPkgName, long resContentLength,
-            PrintStream outStream, LogFormatter logFormatter) {
+            PrintStream outStream, LogFormatter logFormatter) throws CentralClientException {
         try (InputStream inputStream = conn.getInputStream();
                 FileOutputStream outputStream = new FileOutputStream(baloPath.toString())) {
             writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName, outStream,
@@ -193,7 +196,7 @@ public class Utils {
      * @param logFormatter         log formatter
      */
     private static void handleNightlyBuild(boolean isNightlyBuild, Path baloCacheWithPkgPath,
-            LogFormatter logFormatter) {
+            LogFormatter logFormatter) throws CentralClientException {
         if (isNightlyBuild) {
             // If its a nightly build tag the file as a module from nightly
             Path nightlyBuildMetaFile = Paths.get(baloCacheWithPkgPath.toString(), "nightly.build");
@@ -238,7 +241,8 @@ public class Utils {
      * @param nightlyBuildMetaFilePath nightly build meta file path
      * @param logFormatter             log formatter
      */
-    private static void createNightlyBuildMetaFile(Path nightlyBuildMetaFilePath, LogFormatter logFormatter) {
+    private static void createNightlyBuildMetaFile(Path nightlyBuildMetaFilePath, LogFormatter logFormatter)
+            throws CentralClientException {
         try {
             Files.createFile(nightlyBuildMetaFilePath);
         } catch (Exception e) {
@@ -253,18 +257,18 @@ public class Utils {
      * @param url string URL
      * @return URL
      */
-    static URL convertToUrl(String url) {
+    static URL convertToUrl(String url) throws ConnectionErrorException {
         try {
             return new URL(url);
         } catch (MalformedURLException e) {
-            throw new CentralClientException("malformed url:" + url, e);
+            throw new ConnectionErrorException("malformed url:" + url, e);
         }
     }
 
     /**
      * Initialize SSL.
      */
-    static void initializeSsl() {
+    static void initializeSsl() throws CentralClientException {
         try {
             SSLContext sc = SSLContext.getInstance(SSL);
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
@@ -280,7 +284,7 @@ public class Utils {
      * @param conn   http connection
      * @param method request method
      */
-    static void setRequestMethod(HttpURLConnection conn, RequestMethod method) {
+    static void setRequestMethod(HttpURLConnection conn, RequestMethod method) throws CentralClientException {
         try {
             conn.setRequestMethod(method.name());
         } catch (ProtocolException e) {
@@ -294,11 +298,11 @@ public class Utils {
      * @param conn http connection
      * @return status code
      */
-    static int getStatusCode(HttpURLConnection conn) {
+    static int getStatusCode(HttpURLConnection conn) throws ConnectionErrorException {
         try {
             return conn.getResponseCode();
         } catch (IOException e) {
-            throw new CentralClientException("connection to the remote repository host failed: " + e.getMessage());
+            throw new ConnectionErrorException("connection to the remote repository host failed: " + e.getMessage());
         }
     }
 
@@ -308,7 +312,7 @@ public class Utils {
      * @param filePath path to the file
      * @return size of the file in kb
      */
-    static long getTotalFileSizeInKB(Path filePath) {
+    static long getTotalFileSizeInKB(Path filePath) throws CentralClientException {
         byte[] baloContent;
         try {
             baloContent = Files.readAllBytes(filePath);
@@ -325,6 +329,6 @@ public class Utils {
      * @return converted list of strings
      */
     static List<String> getAsList(String arrayString) {
-        return Arrays.asList(arrayString.replaceAll("[\\[\\] \" ]", "").split("\\s*,\\s*"));
+        return new Gson().fromJson(arrayString, new TypeToken<List<String>>() { }.getType());
     }
 }
