@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -43,33 +44,31 @@ import java.util.StringJoiner;
  */
 public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements ObjectTypeSymbol {
 
-    private List<TypeQualifier> typeQualifiers;
+    private List<Qualifier> qualifiers;
     private List<FieldSymbol> objectFields;
     private List<MethodSymbol> methods;
     private List<TypeSymbol> typeInclusions;
 
     public BallerinaObjectTypeSymbol(CompilerContext context, ModuleID moduleID, BObjectType objectType) {
         super(context, TypeDescKind.OBJECT, moduleID, objectType);
-        // TODO: Fix this
-        // objectTypeReference = null;
     }
 
     @Override
-    public List<TypeQualifier> typeQualifiers() {
-        if (this.typeQualifiers != null) {
-            return this.typeQualifiers;
+    public List<Qualifier> qualifiers() {
+        if (this.qualifiers != null) {
+            return this.qualifiers;
         }
 
-        this.typeQualifiers = new ArrayList<>();
+        this.qualifiers = new ArrayList<>();
         BObjectType objectType = (BObjectType) getBType();
 
         if ((objectType.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT) {
-            this.typeQualifiers.add(TypeQualifier.CLIENT);
+            this.qualifiers.add(Qualifier.CLIENT);
         }
 
         // TODO: Check whether we can identify the listeners as well
 
-        return this.typeQualifiers;
+        return this.qualifiers;
     }
 
     @Override
@@ -88,7 +87,6 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
      *
      * @return {@link List} of object methods
      */
-    // TODO: Rename to method declarations
     public List<MethodSymbol> methods() {
         if (this.methods == null) {
             SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
@@ -134,7 +132,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         StringJoiner fieldJoiner = new StringJoiner(";");
         StringJoiner methodJoiner = new StringJoiner(" ");
 
-        for (TypeQualifier typeQualifier : this.typeQualifiers()) {
+        for (Qualifier typeQualifier : this.qualifiers()) {
             String value = typeQualifier.getValue();
             qualifierJoiner.add(value);
         }

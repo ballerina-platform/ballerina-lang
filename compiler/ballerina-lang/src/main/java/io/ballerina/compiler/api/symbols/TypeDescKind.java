@@ -37,7 +37,6 @@ public enum TypeDescKind {
     MAP("map"),
     ERROR("error"),
     FUNCTION("function"),
-    BUILTIN("builtin"),
     TUPLE("tuple"),
     STREAM("stream"),
     FUTURE("future"),
