@@ -143,7 +143,8 @@ public class TypesFactory {
                 return new BallerinaDecimalTypeSymbol(this.context, moduleID, bType);
             case STRING:
                 if (bType instanceof BStringSubType) {
-                    return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType.name.getValue(), bType);
+                    moduleID = new BallerinaModuleID(symbolTable.langStringModuleSymbol.pkgID);
+                    return new BallerinaCharTypeSymbol(this.context, moduleID, (BStringSubType) bType);
                 }
                 return new BallerinaStringTypeSymbol(this.context, moduleID, bType);
             case ANY:
