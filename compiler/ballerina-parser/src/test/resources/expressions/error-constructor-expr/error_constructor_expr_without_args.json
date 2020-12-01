@@ -9,7 +9,7 @@
       "kind": "OPEN_PAREN_TOKEN",
       "hasDiagnostics": true,
       "diagnostics": [
-        "ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR"
+        "ERROR_MISSING_ARG_WITHIN_PARENTHESIS"
       ]
     },
     {

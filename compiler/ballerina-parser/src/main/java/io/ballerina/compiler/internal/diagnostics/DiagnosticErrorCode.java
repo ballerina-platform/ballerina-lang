@@ -231,6 +231,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED("BCE0516",
             "error.configurable.variable.must.be.initialized"),
     ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0517", "error.missing.positional.arg.in.error.constructor"),
+    ERROR_MISSING_ARG_WITHIN_PARENTHESIS("BCE0518", "error.missing.arg.within.parenthesis"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
