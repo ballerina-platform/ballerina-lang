@@ -120,7 +120,7 @@ public class TypesFactory {
                 if (bType instanceof BIntSubType) {
                     return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType.name.getValue(), bType);
                 }
-                return createSimpleTypedesc(moduleID, bType);
+                return new BallerinaIntTypeSymbol(this.context, moduleID, bType);
             case STRING:
                 if (bType instanceof BStringSubType) {
                     return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType.name.getValue(), bType);
