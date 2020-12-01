@@ -19,11 +19,13 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.IntTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -73,12 +75,14 @@ public class TypesFactory {
 
     private final CompilerContext context;
     private final SymbolFactory symbolFactory;
+    private final SymbolTable symbolTable;
 
     private TypesFactory(CompilerContext context) {
         context.put(TYPES_FACTORY_KEY, this);
 
         this.context = context;
         this.symbolFactory = SymbolFactory.getInstance(context);
+        this.symbolTable = SymbolTable.getInstance(context);
     }
 
     public static TypesFactory getInstance(CompilerContext context) {
@@ -118,7 +122,7 @@ public class TypesFactory {
                 return new BallerinaBooleanTypeSymbol(this.context, moduleID, bType);
             case INT:
                 if (bType instanceof BIntSubType) {
-                    return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType.name.getValue(), bType);
+                    return createIntSubType((BIntSubType) bType);
                 }
                 return new BallerinaIntTypeSymbol(this.context, moduleID, bType);
             case FLOAT:
@@ -201,6 +205,27 @@ public class TypesFactory {
 
     private BallerinaSimpleTypeSymbol createSimpleTypedesc(ModuleID moduleID, BType internalType) {
         return new BallerinaSimpleTypeSymbol(this.context, moduleID, internalType);
+    }
+
+    private IntTypeSymbol createIntSubType(BIntSubType internalType) {
+        ModuleID moduleID = new BallerinaModuleID(symbolTable.langIntModuleSymbol.pkgID);
+
+        switch (internalType.tag) {
+            case TypeTags.UNSIGNED8_INT:
+                return new BallerinaIntUnsigned8TypeSymbol(this.context, moduleID, internalType);
+            case TypeTags.SIGNED8_INT:
+                return new BallerinaIntSigned8TypeSymbol(this.context, moduleID, internalType);
+            case TypeTags.UNSIGNED16_INT:
+                return new BallerinaIntUnsigned16TypeSymbol(this.context, moduleID, internalType);
+            case TypeTags.SIGNED16_INT:
+                return new BallerinaIntSigned16TypeSymbol(this.context, moduleID, internalType);
+            case TypeTags.UNSIGNED32_INT:
+                return new BallerinaIntUnsigned32TypeSymbol(this.context, moduleID, internalType);
+            case TypeTags.SIGNED32_INT:
+                return new BallerinaIntSigned32TypeSymbol(this.context, moduleID, internalType);
+        }
+
+        throw new IllegalStateException("Invalid integer subtype type tag: " + internalType.tag);
     }
 
     private static boolean isTypeReference(BType bType, boolean rawTypeOnly) {
