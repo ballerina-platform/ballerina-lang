@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -115,7 +116,7 @@ public interface CompilerPlugin {
      * @param variableNode the variable node being annotated
      * @param annotations  a list of annotations attached to the variable node
      */
-    void process(VariableNode variableNode, List<AnnotationAttachmentNode> annotations);
+    void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations);
 
     /**
      * Processes a list of annotations attached to an annotation node.

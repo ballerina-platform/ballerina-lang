@@ -236,8 +236,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariable tupleVariableNode) {
-        List<BLangAnnotationAttachment> attachmentList = tupleVariableNode.getAnnotationAttachments();
-        notifyProcessors(attachmentList, (processor, list) -> processor.process(tupleVariableNode, list));
+        /* ignore */
     }
 
     public void visit(BLangXMLNS xmlnsNode) {

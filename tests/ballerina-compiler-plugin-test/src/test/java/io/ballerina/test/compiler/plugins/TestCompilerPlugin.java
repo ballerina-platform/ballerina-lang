@@ -78,9 +78,8 @@ public class TestCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(VariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.VARIAVLE_ANN, ((SimpleVariableNode) variableNode).getName().getValue(),
-                annotations.size());
+    public void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
+        addEvent(TestEvent.Kind.VARIAVLE_ANN, variableNode.getName().getValue(), annotations.size());
     }
 
     @Override
