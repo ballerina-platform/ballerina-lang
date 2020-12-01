@@ -1,5 +1,3 @@
-import ballerina/lang.'object;
-
 int startCount = 0;
 int attachCount = 0;
 
@@ -8,8 +6,6 @@ public function getStartAndAttachCount() returns string {
 }
 
 public class ABC {
-
-    *'object:Listener;
 
     public function init(){
     }

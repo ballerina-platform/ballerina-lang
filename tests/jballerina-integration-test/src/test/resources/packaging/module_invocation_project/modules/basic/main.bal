@@ -34,7 +34,6 @@ public function getInitCount() returns int {
 
 public class TestListener {
 
-    *'object:Listener;
     private string name = "";
 
     public function init(string name){

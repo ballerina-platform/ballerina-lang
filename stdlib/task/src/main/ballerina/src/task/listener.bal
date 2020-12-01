@@ -19,7 +19,6 @@ import ballerina/java;
 
 # Represents a ballerina task listener, which can be used to schedule and execute tasks periodically.
 public class Listener {
-    *'object:Listener;
     boolean started = false;
 
     private TimerConfiguration|AppointmentConfiguration listenerConfiguration;

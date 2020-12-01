@@ -25,14 +25,13 @@ const DETACH_METHOD_INCREMENT_VALUE = 5;
 // The Listener type is defined as follows.
 //
 // abstract object {
-//    function __attach (service s, string? name = ()) returns error?;
-//    function __detach (service s) returns error?;
-//    function __start () returns error?;
+//    function attach (service s, string? name = ()) returns error?;
+//    function detach (service s) returns error?;
+//    function start () returns error?;
 //    function gracefulStop() returns error?;
 //    function immediateStop() returns error?;
 // }
 type CustomListener object {
-    *'object:Listener;
 
     private string listenerName;
 

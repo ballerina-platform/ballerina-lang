@@ -18,7 +18,6 @@
 listener  CustomListener lstnr = new CustomListener();
 
 class CustomListener {
-    *'object:Listener;
 
     public function attach(service object {} s, string[]|string? name) returns error? {
         // do nothing

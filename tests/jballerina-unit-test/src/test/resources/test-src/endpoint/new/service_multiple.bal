@@ -1,5 +1,3 @@
-import ballerina/lang.'object;
-
 listener ABC ep = new;
 
 int startCount = 0;
@@ -16,8 +14,6 @@ service on ep, new PQR("pqr") {
 }
 
 public class ABC {
-
-    *'object:Listener;
 
     public function 'start() returns error? {
         startCount += 1;
@@ -40,8 +36,6 @@ public class ABC {
 }
 
 public class PQR {
-
-    *'object:Listener;
 
     public function init(string name){
     }

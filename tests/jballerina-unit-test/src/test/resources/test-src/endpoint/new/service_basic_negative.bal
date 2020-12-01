@@ -1,5 +1,3 @@
-import ballerina/lang.'object;
-
 listener ABC ex = new;
 
 service name1 on ex {
@@ -32,8 +30,6 @@ service MyService on ex {
 }
 
 public class ABC {
-
-    *'object:Listener;
 
     public function 'start() returns error?{
         return;

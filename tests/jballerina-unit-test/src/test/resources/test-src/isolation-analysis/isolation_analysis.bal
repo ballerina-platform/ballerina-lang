@@ -73,8 +73,6 @@ isolated function testIsolatedObjectMethods() {
 
 public class Listener {
 
-    *'object:Listener;
-
     public function attach(service object {} s, string[]|string? name = ()) returns error? { }
 
     public function detach(service object {} s) returns error? { }

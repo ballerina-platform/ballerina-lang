@@ -19,8 +19,6 @@ import ballerina/lang.'object;
 listener CustomListener listen = new CustomListener();
 
 class CustomListener {
-    *'object:Listener;
-
     public function attach(service object {} s, string[]? name) returns error? {
     }
 

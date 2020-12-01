@@ -78,8 +78,6 @@ type Person record {
 // ---- Helper definitions.
 public class ABC {
 
-    *'object:Listener;
-
     public function init() {
     }
 

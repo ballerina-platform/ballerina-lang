@@ -26,7 +26,6 @@ public function main() {
 
 public class TestListener {
 
-    *'object:Listener;
     private string name = "";
 
     public function init(string name){

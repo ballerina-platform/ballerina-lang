@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/lang.'object;
 
 function init() {
 	io:println("Initializing module a");
@@ -10,7 +9,6 @@ public function main() {
 
 public class ABC {
 
-    *'object:Listener;
     private string name = "";
 
     public function init(string name){

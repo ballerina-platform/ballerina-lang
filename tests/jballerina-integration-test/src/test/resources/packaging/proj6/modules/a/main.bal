@@ -12,7 +12,6 @@ public function main() {
 
 public class ABC {
 
-    *'object:Listener;
     private string name = "";
 
     public function init(string name){

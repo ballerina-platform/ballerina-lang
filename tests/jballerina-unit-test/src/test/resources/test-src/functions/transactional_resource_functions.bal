@@ -13,8 +13,6 @@ service on ep {
 
 public class ABC {
 
-    *'object:Listener;
-
     public function 'start() returns error? {
         startCount += 1;
     }
