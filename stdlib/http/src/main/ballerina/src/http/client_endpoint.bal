@@ -261,10 +261,10 @@ public type ClientConfiguration record {|
 # + chunking - The chunking behaviour of the request
 # + proxy - Proxy server related options
 # + maxStatusLineLength - Maximum allowed length for response status line(`HTTP/1.0 200 OK`). Exceeding this limit will
-#                          result in an error response
-# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in an error response
+#                         result in an error
+# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in an error
 # + maxEntityBodySize - Maximum allowed size for the entity body. By default it is set to -1 which means there is no
-#                       restriction `maxEntityBodySize`, On the Exceeding this limit will result in an error response
+#                       restriction `maxEntityBodySize`, On the Exceeding this limit will result in an error
 public type ClientHttp1Settings record {|
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     Chunking chunking = CHUNKING_AUTO;
