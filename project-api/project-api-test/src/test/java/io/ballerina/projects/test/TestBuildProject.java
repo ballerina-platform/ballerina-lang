@@ -40,6 +40,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.PlatformLibrary;
+import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
@@ -157,9 +158,16 @@ public class TestBuildProject {
 
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
 
-        Collection<PlatformLibrary> platformLibraries = jBallerinaBackend
-                                                            .platformLibraryDependencies(currentPackage.packageId());
+        Collection<PlatformLibrary> platformLibraries = jBallerinaBackend.platformLibraryDependencies(
+                currentPackage.packageId(), PlatformLibraryScope.DEFAULT);
         Assert.assertEquals(platformLibraries.size(), 1);
+
+        platformLibraries = jBallerinaBackend.platformLibraryDependencies(
+                currentPackage.packageId(), PlatformLibraryScope.TEST_ONLY);
+        Assert.assertEquals(platformLibraries.size(), 3);
+
+        platformLibraries = jBallerinaBackend.platformLibraryDependencies(currentPackage.packageId());
+        Assert.assertEquals(platformLibraries.size(), 4);
     }
 
     @Test(description = "tests package compilation with errors in test source files")

@@ -18,6 +18,7 @@
 
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
@@ -33,21 +34,15 @@ import java.util.Optional;
  */
 public final class ResolutionRequest {
     private final PackageDescriptor packageDesc;
+    private final PackageDependencyScope scope;
 
-    private ResolutionRequest(PackageDescriptor packageDescriptor) {
+    private ResolutionRequest(PackageDescriptor packageDescriptor, PackageDependencyScope scope) {
         this.packageDesc = packageDescriptor;
+        this.scope = scope;
     }
 
-    public static ResolutionRequest from(PackageDescriptor packageDescriptor) {
-        return new ResolutionRequest(packageDescriptor);
-    }
-
-    public static ResolutionRequest from(PackageOrg org, PackageName name, PackageVersion version) {
-        return new ResolutionRequest(PackageDescriptor.from(org, name, version));
-    }
-
-    public static ResolutionRequest from(PackageOrg org, PackageName name) {
-        return ResolutionRequest.from(org, name, null);
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor, PackageDependencyScope scope) {
+        return new ResolutionRequest(packageDescriptor, scope);
     }
 
     public PackageOrg orgName() {
@@ -64,6 +59,10 @@ public final class ResolutionRequest {
 
     public PackageDescriptor packageDescriptor() {
         return packageDesc;
+    }
+
+    public PackageDependencyScope scope() {
+        return scope;
     }
 
     @Override

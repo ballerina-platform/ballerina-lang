@@ -21,8 +21,12 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageDependencyScope;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageResolution;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.balo.BaloProject;
@@ -38,6 +42,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 
 /**
  * Contains cases to test package resolution logic.
@@ -177,5 +182,57 @@ public class PackageResolutionTests {
         // Dependency graph should contain only one entry
         DependencyGraph<ResolvedPackageDependency> depGraphOfBalr = resolution.dependencyGraph();
         Assert.assertEquals(depGraphOfBalr.getNodes().size(), 1);
+    }
+
+    @Test(description = "Ultimate test case")
+    public void testProjectWithManyDependencies() {
+        BCompileUtil.compileAndCacheBalo(
+                "projects_for_resolution_tests/ultimate_package_resolution/package_runtime");
+        BCompileUtil.compileAndCacheBalo(
+                "projects_for_resolution_tests/ultimate_package_resolution/package_jsonutils");
+        BCompileUtil.compileAndCacheBalo(
+                "projects_for_resolution_tests/ultimate_package_resolution/package_io_1_4_2");
+        BCompileUtil.compileAndCacheBalo(
+                "projects_for_resolution_tests/ultimate_package_resolution/package_io_1_5_0");
+        BCompileUtil.compileAndCacheBalo(
+                "projects_for_resolution_tests/ultimate_package_resolution/package_cache");
+
+        Project project = BCompileUtil.loadProject(
+                "projects_for_resolution_tests/ultimate_package_resolution/package_http");
+
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JdkVersion.JAVA_11);
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
+        diagnosticResult.errors().forEach(out::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+
+
+        Package currentPkg = project.currentPackage();
+        Assert.assertEquals(currentPkg.packageDependencies().size(), 3);
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
+
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            Collection<ResolvedPackageDependency> directDeps = dependencyGraph.getDirectDependencies(graphNode);
+            PackageManifest manifest = graphNode.packageInstance().manifest();
+            switch (manifest.name().value()) {
+                case "io":
+                    // Version conflict resolution has happened
+                    Assert.assertEquals(manifest.version().toString(), "1.5.0");
+                    break;
+                case "http":
+                    Assert.assertEquals(directDeps.size(), 3);
+                    break;
+                case "cache":
+                    // No test dependencies are available in the graph
+                    Assert.assertEquals(directDeps.size(), 1);
+                    break;
+                case "jsonutils":
+                    Assert.assertEquals(graphNode.scope(), PackageDependencyScope.TEST_ONLY);
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected dependency");
+            }
+        }
     }
 }

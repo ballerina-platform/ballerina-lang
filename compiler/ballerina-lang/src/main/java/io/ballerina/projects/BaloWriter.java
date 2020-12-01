@@ -123,40 +123,17 @@ public abstract class BaloWriter {
         }
     }
 
-    private void addPackageJson(ZipOutputStream baloOutputStream,
-                                Package pkg, Optional<JsonArray> platformLibs) {
-        //        io.ballerina.projects.internal.model.Package pkg = ballerinaToml.getPackage();
-        PackageJson packageJson = new PackageJson(pkg.packageOrg().toString(), pkg.packageName().toString(),
-                pkg.packageVersion().toString());
+    private void addPackageJson(ZipOutputStream baloOutputStream, Package pkg, Optional<JsonArray> platformLibs) {
+        PackageJson packageJson = new PackageJson(pkg.packageOrg().toString(),
+                                                  pkg.packageName().toString(),
+                                                  pkg.packageVersion().toString());
 
-        //        // Information extracted from Ballerina.toml
-        //        packageJson.setLicenses(pkg.getLicense());
-        //        packageJson.setAuthors(pkg.getAuthors());
-        //        packageJson.setSourceRepository(pkg.getRepository());
-        //        packageJson.setKeywords(pkg.getKeywords());
-        //        packageJson.setExported(pkg.getExported());
-        //
-        //        // Distribution details
-        //        packageJson.setBallerinaVersion(getBallerinaVersion());
-        //        // TODO Need to set platform, implementation_vendor & spec
-        //
-        //        // Dependencies and platform libraries
-        //        List<Dependency> dependencies = new ArrayList<>();
-        //        List<PlatformLibrary> platformLibraries = new ArrayList<>();
-        //
-        //        // TODO Need to get all the dependencies (Not mentioned in the toml)
-        //        Map<String, Object> tomlDependencies = ballerinaToml.getDependencies();
-        //        for (String key : tomlDependencies.keySet()) {
-        //            Object dependency = tomlDependencies.get(key);
-        //            // if String, then Dependency
-        //            if (dependency instanceof String) {
-        //                String[] keyParts = key.split("/");
-        //                Dependency dep = new Dependency(keyParts[0], keyParts[1], (String) dependency);
-        //                dependencies.add(dep);
-        //            } else { // else, PlatformLibrary
-        //                // TODO Need to set platform libraries
-        //            }
-        //        }
+        PackageManifest packageManifest = pkg.manifest();
+        packageJson.setLicenses((List<String>) packageManifest.getValue("license"));
+        packageJson.setAuthors((List<String>) packageManifest.getValue("authors"));
+        packageJson.setSourceRepository((String) packageManifest.getValue("repository"));
+        packageJson.setKeywords((List<String>) packageManifest.getValue("keywords"));
+
         packageJson.setPlatform(target);
         packageJson.setLanguageSpecVersion(langSpecVersion);
         packageJson.setBallerinaVersion(ballerinaVersion);
@@ -286,6 +263,10 @@ public abstract class BaloWriter {
             List<Dependency> dependencyList = new ArrayList<>();
             Collection<ResolvedPackageDependency> pkgDependencies = dependencyGraph.getDirectDependencies(resolvedDep);
             for (ResolvedPackageDependency resolvedTransitiveDep : pkgDependencies) {
+                if (resolvedTransitiveDep.scope() == PackageDependencyScope.TEST_ONLY) {
+                    // We don't add the test dependencies to the balr file.
+                    continue;
+                }
                 PackageContext dependencyPkgContext = resolvedTransitiveDep.packageInstance().packageContext();
                 Dependency dep = new Dependency(dependencyPkgContext.packageOrg().toString(),
                         dependencyPkgContext.packageName().toString(),
@@ -304,6 +285,10 @@ public abstract class BaloWriter {
             Module module = pkg.module(moduleId);
             List<ModuleDependency> moduleDependencies = new ArrayList<>();
             for (io.ballerina.projects.ModuleDependency moduleDependency : module.moduleDependencies()) {
+                if (moduleDependency.packageDependency().scope() == PackageDependencyScope.TEST_ONLY) {
+                    // Do not test_only scope dependencies
+                    continue;
+                }
                 Package pkgDependency = packageCache.getPackageOrThrow(
                         moduleDependency.packageDependency().packageId());
                 Module moduleInPkgDependency = pkgDependency.module(moduleDependency.moduleId());

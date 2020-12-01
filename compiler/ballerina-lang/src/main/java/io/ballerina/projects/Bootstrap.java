@@ -27,8 +27,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
 import static org.ballerinalang.model.elements.PackageID.ARRAY;
@@ -160,7 +160,7 @@ public class Bootstrap {
     }
 
     private void loadLangLibFromBalr(ResolutionRequest packageLoadRequest) {
-        Collection<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
+        List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
                 Collections.singletonList(packageLoadRequest));
         resolutionResponses.forEach(pkgLoadResp -> {
             Package pkg = pkgLoadResp.resolvedPackage();
@@ -177,7 +177,7 @@ public class Bootstrap {
         PackageName pkgName = PackageName.from(packageID.name.getValue());
         PackageVersion pkgVersion = PackageVersion.from(packageID.getPackageVersion().toString());
         PackageDescriptor packageDescriptor = PackageDescriptor.from(pkgOrg, pkgName, pkgVersion);
-        return ResolutionRequest.from(packageDescriptor);
+        return ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT);
     }
 
     private BPackageSymbol getSymbolFromCache(CompilerContext context, PackageID packageID) {

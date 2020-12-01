@@ -84,10 +84,10 @@ public class PackageDescriptor {
 
     @Override
     public String toString() {
-        return "PackageDescriptor{" +
-                "packageName=" + packageName +
-                ", packageOrg=" + packageOrg +
-                ", packageVersion=" + packageVersion +
-                '}';
+        String pkgStr = packageOrg + ":" + packageName;
+        if (packageVersion == null) {
+            return pkgStr;
+        }
+        return pkgStr + ":" + packageVersion;
     }
 }
