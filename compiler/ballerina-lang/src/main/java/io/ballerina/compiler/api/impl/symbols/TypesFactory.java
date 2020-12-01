@@ -121,6 +121,8 @@ public class TypesFactory {
                     return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType.name.getValue(), bType);
                 }
                 return new BallerinaIntTypeSymbol(this.context, moduleID, bType);
+            case FLOAT:
+                return new BallerinaFloatTypeSymbol(this.context, moduleID, bType);
             case STRING:
                 if (bType instanceof BStringSubType) {
                     return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType.name.getValue(), bType);
