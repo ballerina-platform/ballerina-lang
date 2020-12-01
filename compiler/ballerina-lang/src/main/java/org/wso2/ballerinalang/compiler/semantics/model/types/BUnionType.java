@@ -239,28 +239,28 @@ public class BUnionType extends BType implements UnionType {
             return;
         }
 
-        if (type.tag == TypeTags.ARRAY) {
-            var arrayType = (BArrayType) type;
+        if (type instanceof BArrayType) {
+            BArrayType arrayType = (BArrayType) type;
             if (arrayType.eType == this) {
                 isCyclic = true;
             }
         }
 
-        if (type.tag == TypeTags.MAP) {
-            var mapType = (BMapType) type;
+        if (type instanceof BMapType) {
+            BMapType mapType = (BMapType) type;
             if (mapType.constraint == this) {
                 isCyclic = true;
             }
         }
 
-        if (type.tag == TypeTags.TABLE) {
-            var tableType = (BTableType) type;
+        if (type instanceof BTableType) {
+            BTableType tableType = (BTableType) type;
             if (tableType.constraint == this) {
                 isCyclic = true;
             }
 
-            if (tableType.constraint.tag == TypeTags.MAP) {
-                var mapType = (BMapType) tableType.constraint;
+            if (tableType.constraint instanceof BMapType) {
+                BMapType mapType = (BMapType) tableType.constraint;
                 if (mapType.constraint == this) {
                     isCyclic = true;
                 }
