@@ -19,7 +19,10 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.tools.text.LineRange;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -28,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
 import static io.ballerina.tools.text.LinePosition.from;
@@ -90,5 +95,20 @@ public class TestSourcesTest {
         };
     }
 
+    @Test(dataProvider = "ExprPosProvider")
+    public void testType(int sLine, int sCol, int eLine, int eCol, TypeDescKind expKind) {
+        LineRange exprRange = LineRange.from("tests/test1.bal", from(sLine, sCol), from(eLine, eCol));
+        Optional<TypeSymbol> type = model.type("tests/test1.bal", exprRange);
 
+        assertEquals(type.get().typeKind(), expKind);
+    }
+
+    @DataProvider(name = "ExprPosProvider")
+    public Object[][] getExprPos() {
+        return new Object[][]{
+                {20, 22, 20, 24, FLOAT},
+                {20, 26, 20, 30, FLOAT},
+                {26, 22, 26, 25, INT},
+        };
+    }
 }
