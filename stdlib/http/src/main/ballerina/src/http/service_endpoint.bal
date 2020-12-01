@@ -37,21 +37,21 @@ public class Listener {
     # Starts the registered service programmatically.
     #
     # + return - An `error` if an error occurred during the listener starting process
-    public function __start() returns error? {
+    public function 'start() returns error? {
         return self.startEndpoint();
     }
 
     # Stops the service listener gracefully. Already-accepted requests will be served before connection closure.
     #
     # + return - An `error` if an error occurred during the listener stopping process
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         return self.gracefulStop();
     }
 
     # Stops the service listener immediately. It is not implemented yet.
     #
     # + return - An `error` if an error occurred during the listener stop process
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         error err = error("not implemented");
         return err;
     }
@@ -61,7 +61,7 @@ public class Listener {
     # + s - The service that needs to be attached
     # + name - Name of the service
     # + return - An `error` an error occurred during the service attachment process or else nil
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
     }
 

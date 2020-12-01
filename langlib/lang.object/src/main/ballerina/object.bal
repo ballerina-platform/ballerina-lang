@@ -21,26 +21,26 @@ public type Listener object {
     # + s - the service to attach
     # + name - optionally a name associated with the service
     # + return - `()` if no error occurred, and an error otherwise
-    public function __attach(service object {} s, string[]? name = ()) returns error?;
+    public function attach(service object {} s, string[]|string? name = ()) returns error?;
 
     # Handle service detachment from the listener.
     #
     # + s - the service to detach
     # + return - `()` if no error occurred, and an error otherwise
 
-    public function __detach(service object {} s) returns error?;
+    public function detach(service object {} s) returns error?;
     # Handle listener start.
     #
     # + return - `()` if no error occurred, and an error otherwise
-    public function __start() returns error?;
+    public function 'start() returns error?;
 
     # Handle listener graceful stop.
     #
     # + return - `()` if no error occurred, and an error otherwise
-    public function __gracefulStop() returns error?;
+    public function gracefulStop() returns error?;
 
     # Handle listener immediate stop.
     #
     # + return - `()` if no error occurred, and an error otherwise
-    public function __immediateStop() returns error?;
+    public function immediateStop() returns error?;
 };

@@ -35,19 +35,19 @@ public class ABC {
 
     *'object:Listener;
 
-    public function __start() returns error?{
+    public function 'start() returns error?{
         return;
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         return ();
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         return ();
     }
 
-    public function __attach(service object {} s, string[]? name)string? name = ()) returns error? {
+    public function attach(service object {} s, string[]? name)string? name = ()) returns error? {
         return ();
     }
 

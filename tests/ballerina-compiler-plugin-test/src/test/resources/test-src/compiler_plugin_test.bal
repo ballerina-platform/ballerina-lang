@@ -83,16 +83,16 @@ public class ABC {
     public function init() {
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service s, string? name = ()) returns error? {
     }
 
     public function __detach(service s) returns error? {

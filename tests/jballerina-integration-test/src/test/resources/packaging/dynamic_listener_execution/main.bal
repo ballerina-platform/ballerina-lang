@@ -32,18 +32,18 @@ public class ABC {
         self.name = name;
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
        incrementCount();
        assertCount(2);
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
        incrementCount();
        assertCount(3);
        panic error("Stopped module A");
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
     }
 }
 

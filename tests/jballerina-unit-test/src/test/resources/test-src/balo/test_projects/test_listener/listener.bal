@@ -14,23 +14,23 @@ public class ABC {
     public function init() {
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
         startCount += 1;
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         return ();
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         return ();
     }
 
-    public function __attach(service object {} s, string[]? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
         attachCount += 1;
     }
 
-    public function __detach(service object {} s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 }
 

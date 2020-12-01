@@ -18,9 +18,9 @@ import ballerina/java;
 
 # A listener that is dynamically registered with a module.
 public type DynamicListener object {
-    public function __start() returns error?;
-    public function __gracefulStop() returns error?;
-    public function __immediateStop() returns error?;
+    public function 'start() returns error?;
+    public function gracefulStop() returns error?;
+    public function immediateStop() returns error?;
 };
 
 # Register a listener object with a module.

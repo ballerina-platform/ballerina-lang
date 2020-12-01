@@ -17,7 +17,7 @@ public class ABC {
         self.name = name;
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
         io:println("a:ABC listener __start called, service name - " + self.name);
         if (self.name == "ModB") {
             error sampleErr = error("panicked while starting module B");
@@ -25,21 +25,21 @@ public class ABC {
         }
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         io:println("a:ABC listener __gracefulStop called, service name - " + self.name);
         return ();
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         io:println("a:ABC listener __immediateStop called, service name - " + self.name);
         return ();
     }
 
-    public function __attach(service object {} s, string[]? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
         io:println("a:ABC listener __attach called, service name - " + self.name);
     }
 
-    public function __detach(service object {} s) returns error? {
+    public function detach(service object {} s) returns error? {
         io:println("a:ABC listener __detach called, service name - " + self.name);
     }
 }
