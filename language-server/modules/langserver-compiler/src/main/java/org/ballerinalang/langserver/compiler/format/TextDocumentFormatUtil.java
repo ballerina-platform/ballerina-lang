@@ -420,7 +420,8 @@ public class TextDocumentFormatUtil {
         for (Map.Entry<BLangNode, List<SymbolMetaInfo>> entry : visibleEPsByNode.entrySet()) {
             JsonArray eps = new JsonArray();
             for (SymbolMetaInfo symbolMetaInfo : entry.getValue()) {
-                if (node.getPosition().getStartColumn() == symbolMetaInfo.getPosition().getStartColumn()
+                if (node.getPosition() != null && symbolMetaInfo.getPosition() != null &&
+                        node.getPosition().getStartColumn() == symbolMetaInfo.getPosition().getStartColumn()
                         && node.getPosition().getStartLine() == symbolMetaInfo.getPosition().getStartLine()) {
                     eps.add(symbolMetaInfo.getJson());
                 }
