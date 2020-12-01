@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,7 +75,7 @@ class ModuleContext {
     private byte[] birBytes = new byte[0];
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
-    private Set<ModuleLoadRequest> moduleLoadRequests;
+    private Set<ModuleLoadRequest> allModuleLoadRequests;
 
     ModuleContext(Project project,
                   ModuleId moduleId,
@@ -157,28 +158,25 @@ class ModuleContext {
         return moduleDescDependencies;
     }
 
-    Set<ModuleLoadRequest> moduleLoadRequests() {
-        if (moduleLoadRequests != null) {
-            return moduleLoadRequests;
-        }
-
-        moduleLoadRequests = new HashSet<>();
+    Set<ModuleLoadRequest> populateModuleLoadRequests() {
+        allModuleLoadRequests = new LinkedHashSet<>();
+        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : srcDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests());
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(PackageDependencyScope.DEFAULT));
         }
 
-        if (!this.project.buildOptions().skipTests() && !testSrcDocIds.isEmpty()) {
-            for (DocumentContext docContext : testDocContextMap.values()) {
-                moduleLoadRequests.addAll(docContext.moduleLoadRequests());
-            }
-        }
+        allModuleLoadRequests.addAll(moduleLoadRequests);
         return moduleLoadRequests;
     }
 
-    boolean entryPointExists() {
-        // TODO this is temporary method. We should remove this ASAP
-        BLangPackage bLangPackage = getBLangPackageOrThrow();
-        return bLangPackage.symbol.entryPointExists;
+    Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
+        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
+        for (DocumentContext docContext : testDocContextMap.values()) {
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(PackageDependencyScope.TEST_ONLY));
+        }
+
+        allModuleLoadRequests.addAll(moduleLoadRequests);
+        return moduleLoadRequests;
     }
 
     BLangPackage bLangPackage() {
@@ -249,10 +247,16 @@ class ModuleContext {
     }
 
     void resolveDependencies(DependencyResolution dependencyResolution) {
-        ModuleCompilationState moduleState = currentCompilationState();
         Set<ModuleDependency> moduleDependencies = new HashSet<>();
-        if (moduleState == ModuleCompilationState.LOADED_FROM_SOURCES) {
-            Set<ModuleLoadRequest> moduleLoadRequests = moduleLoadRequests();
+        if (this.project.kind() == ProjectKind.BALR_PROJECT) {
+            for (ModuleDescriptor dependencyModDesc : moduleDescDependencies) {
+                // Dependencies loaded from cache should not contain test dependencies
+                addModuleDependency(dependencyModDesc.org(), dependencyModDesc.packageName(),
+                        dependencyModDesc.name(), PackageDependencyScope.DEFAULT,
+                        moduleDependencies, dependencyResolution);
+            }
+        } else {
+            Set<ModuleLoadRequest> moduleLoadRequests = this.allModuleLoadRequests;
             for (ModuleLoadRequest modLoadRequest : moduleLoadRequests) {
                 PackageOrg packageOrg;
                 if (modLoadRequest.orgName().isEmpty()) {
@@ -262,12 +266,7 @@ class ModuleContext {
                 }
 
                 addModuleDependency(packageOrg, modLoadRequest.packageName(), modLoadRequest.moduleName(),
-                        moduleDependencies, dependencyResolution);
-            }
-        } else if (moduleState == ModuleCompilationState.LOADED_FROM_CACHE) {
-            for (ModuleDescriptor dependencyModDesc : moduleDescDependencies) {
-                addModuleDependency(dependencyModDesc.org(), dependencyModDesc.packageName(),
-                        dependencyModDesc.name(), moduleDependencies, dependencyResolution);
+                        modLoadRequest.scope(), moduleDependencies, dependencyResolution);
             }
         }
 
@@ -277,6 +276,7 @@ class ModuleContext {
     private void addModuleDependency(PackageOrg org,
                                      PackageName packageName,
                                      ModuleName moduleName,
+                                     PackageDependencyScope scope,
                                      Set<ModuleDependency> moduleDependencies,
                                      DependencyResolution dependencyResolution) {
         Optional<Module> resolvedModuleOptional = dependencyResolution.getModule(org, packageName, moduleName);
@@ -286,7 +286,7 @@ class ModuleContext {
 
         Module resolvedModule = resolvedModuleOptional.get();
         ModuleDependency moduleDependency = new ModuleDependency(
-                new PackageDependency(resolvedModule.packageInstance().packageId(), PackageDependencyScope.DEFAULT),
+                new PackageDependency(resolvedModule.packageInstance().packageId(), scope),
                 resolvedModule.moduleId());
         moduleDependencies.add(moduleDependency);
     }

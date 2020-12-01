@@ -29,6 +29,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
+import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -37,6 +38,9 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -237,6 +241,12 @@ public class ProjectUtils {
     public static Path getBallerinaRTJarPath() {
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
         String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
+    }
+
+    public static Path getChoreoRuntimeJarPath() {
+        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
+        String runtimeJarName = "ballerina-choreo-extension-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
     }
 
@@ -441,4 +451,22 @@ public class ProjectUtils {
         return Files.exists(modulePath);
     }
 
+    /**
+     * Initialize proxy if proxy is available in settings.toml.
+     *
+     * @param proxy toml model proxy
+     * @return proxy
+     */
+    public static Proxy initializeProxy(org.ballerinalang.toml.model.Proxy proxy) {
+        if (!"".equals(proxy.getHost())) {
+            InetSocketAddress proxyInet = new InetSocketAddress(proxy.getHost(), proxy.getPort());
+            if (!"".equals(proxy.getUserName()) && "".equals(proxy.getPassword())) {
+                Authenticator authenticator = new URIDryConverter.RemoteAuthenticator();
+                Authenticator.setDefault(authenticator);
+            }
+            return new Proxy(Proxy.Type.HTTP, proxyInet);
+        }
+
+        return null;
+    }
 }

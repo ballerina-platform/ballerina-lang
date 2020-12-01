@@ -15,22 +15,20 @@
 // under the License.
 
 import ballerina/java;
-import ballerina/lang.'object as lang;
 
 public class Listener {
-    *lang:Listener;
-    public isolated function __start() returns error? {
+    public isolated function 'start() returns error? {
     }
-    public isolated function __gracefulStop() returns error? {
+    public isolated function gracefulStop() returns error? {
     }
-    public isolated function __immediateStop() returns error? {
+    public isolated function immediateStop() returns error? {
     }
-    public isolated function __detach(service object {} s) returns error? {
+    public isolated function detach(service object {} s) returns error? {
     }
-    public isolated function __attach(service object {} s, string[]? name = ()) returns error? {
+    public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
         return self.register(s, name);
     }
-    isolated function register(service object {} s, string[]? name) returns error? {
+    isolated function register(service object {} s, string[]|string? name) returns error? {
         return externAttach(s);
     }
 }

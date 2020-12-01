@@ -205,7 +205,7 @@
                 },
                 {
                     "name": "absoluteResourcePath",
-                    "type": "Token",
+                    "type": "Node",
                     "occurrences": "MULTIPLE"
                 },
                 {

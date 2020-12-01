@@ -12,4 +12,5 @@ module io.ballerina.cli {
     requires org.jacoco.core;
     requires io.ballerina.central.client;
     requires io.ballerina.docerina;
+    requires jdk.httpserver;
 }

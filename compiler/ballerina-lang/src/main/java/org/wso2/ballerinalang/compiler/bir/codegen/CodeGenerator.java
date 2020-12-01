@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import io.ballerina.projects.CompilerBackend;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PlatformLibrary;
+import io.ballerina.projects.PlatformLibraryScope;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.JarResolver;
@@ -126,27 +127,27 @@ public class CodeGenerator {
         }
 
         // find module dependencies path
-        // TODO Implement the scope support properly
-        Set<Path> moduleDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, null);
+        Set<Path> moduleDependencyPaths = getPlatformDependencyPaths(
+                moduleId, compilerBackend, PlatformLibraryScope.DEFAULT);
 
         // Add runtime library
         Path runtimeJar = compilerBackend.runtimeLibrary().path();
         // We check if the runtime jar exist to support bootstrap
         if (Files.exists(runtimeJar)) {
-            moduleDependencies.add(runtimeJar);
+            moduleDependencyPaths.add(runtimeJar);
         }
 
         // generate module
-        return generate(bLangPackage.symbol, moduleDependencies);
+        return generate(bLangPackage.symbol, moduleDependencyPaths);
     }
 
     public CompiledJarFile generateTestModule(ModuleId moduleId,
                                               CompilerBackend compilerBackend,
                                               BLangPackage bLangTestablePackage) {
-
-        Set<Path> moduleDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, null);
-        Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend, "testOnly");
-        testDependencies.addAll(moduleDependencies);
+        Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend,
+                PlatformLibraryScope.DEFAULT);
+        testDependencies.addAll(getPlatformDependencyPaths(moduleId, compilerBackend,
+                PlatformLibraryScope.TEST_ONLY));
 
         // Add runtime library
         Path runtimeJar = compilerBackend.runtimeLibrary().path();
@@ -159,10 +160,12 @@ public class CodeGenerator {
 
     private Set<Path> getPlatformDependencyPaths(ModuleId moduleId,
                                                  CompilerBackend compilerBackend,
-                                                 String scope) {
-        Collection<PlatformLibrary> platformLibraries =
-                compilerBackend.platformLibraryDependencies(moduleId.packageId());
-        // Add the runtime jar to the platforms
+                                                 PlatformLibraryScope scope) {
+        return getPlatformDependencyPaths(
+                compilerBackend.platformLibraryDependencies(moduleId.packageId(), scope));
+    }
+
+    public Set<Path> getPlatformDependencyPaths(Collection<PlatformLibrary> platformLibraries) {
         return platformLibraries.stream().map(PlatformLibrary::path)
                 .collect(Collectors.toSet());
     }

@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.Project;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
@@ -83,6 +84,14 @@ public interface WorkspaceManager {
      * @return project of applicable type
      */
     Optional<SemanticModel> semanticModel(Path filePath);
+
+    /**
+     * Returns module compilation from the file path provided.
+     *
+     * @param filePath file path of the document
+     * @return {@link ModuleCompilation}
+     */
+    Optional<ModuleCompilation> waitAndGetModuleCompilation(Path filePath);
 
     /**
      * The document open notification is sent from the client to the server to signal newly opened text documents.

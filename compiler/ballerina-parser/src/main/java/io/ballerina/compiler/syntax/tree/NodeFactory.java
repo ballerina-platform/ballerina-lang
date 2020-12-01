@@ -151,7 +151,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             NodeList<Token> qualifiers,
             Token serviceKeyword,
             TypeDescriptorNode typeDescriptor,
-            NodeList<Token> absoluteResourcePath,
+            NodeList<Node> absoluteResourcePath,
             Token onKeyword,
             SeparatedNodeList<ExpressionNode> expressions,
             Token openBraceToken,

@@ -49,7 +49,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(3);
     }
 
-    public NodeList<Token> absoluteResourcePath() {
+    public NodeList<Node> absoluteResourcePath() {
         return new NodeList<>(childInBucket(4));
     }
 
@@ -103,7 +103,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             NodeList<Token> qualifiers,
             Token serviceKeyword,
             TypeDescriptorNode typeDescriptor,
-            NodeList<Token> absoluteResourcePath,
+            NodeList<Node> absoluteResourcePath,
             Token onKeyword,
             SeparatedNodeList<ExpressionNode> expressions,
             Token openBraceToken,
@@ -151,7 +151,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         private NodeList<Token> qualifiers;
         private Token serviceKeyword;
         private TypeDescriptorNode typeDescriptor;
-        private NodeList<Token> absoluteResourcePath;
+        private NodeList<Node> absoluteResourcePath;
         private Token onKeyword;
         private SeparatedNodeList<ExpressionNode> expressions;
         private Token openBraceToken;
@@ -199,7 +199,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         }
 
         public ServiceDeclarationNodeModifier withAbsoluteResourcePath(
-                NodeList<Token> absoluteResourcePath) {
+                NodeList<Node> absoluteResourcePath) {
             Objects.requireNonNull(absoluteResourcePath, "absoluteResourcePath must not be null");
             this.absoluteResourcePath = absoluteResourcePath;
             return this;

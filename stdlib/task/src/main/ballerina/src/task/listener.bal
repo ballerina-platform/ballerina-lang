@@ -19,7 +19,6 @@ import ballerina/java;
 
 # Represents a ballerina task listener, which can be used to schedule and execute tasks periodically.
 public class Listener {
-    *'object:Listener;
     boolean started = false;
 
     private TimerConfiguration|AppointmentConfiguration listenerConfiguration;
@@ -47,7 +46,7 @@ public class Listener {
     # + s - Service to attach to the listener
     # + name - Name of the service
     # + return - () or else a `task:ListenerError` upon failure to attach the service
-    public function __attach(service object { } s, string[]? name = ()) returns error? {
+    public function attach(service object { } s, string[]? name = ()) returns error? {
         // ignore param 'name'
         var result = attachExternal(self, s);
         if (result is error) {
@@ -67,7 +66,7 @@ public class Listener {
     # any error.
     #
     # + return - () or else a `task:ListenerError` upon failure to start the listener
-    public function __start() returns error? {
+    public function 'start() returns error? {
         var result = startExternal(self);
         if (result is error) {
             panic result;
@@ -81,7 +80,7 @@ public class Listener {
     # completed. This may panic if the stopping causes any error.
     #
     # + return - () or else a `task:ListenerError` upon failure to stop the listener
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         var result = stopExternal(self);
         if (result is error) {
             panic result;
@@ -95,7 +94,7 @@ public class Listener {
     # panic if the stopping causes any error.
     #
     # + return - () or else a `task:ListenerError` upon failure to stop the listener
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         var result = stopExternal(self);
         if (result is error) {
             panic result;

@@ -34,19 +34,19 @@ service /MyService on lstnr {
 }
 
 readonly class Listener {
-    public isolated function __attach(service object {} s, string[]? name = ()) returns error? {
+    public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
     }
 
-    public isolated function __detach(service object {} s) returns error? {
+    public isolated function detach(service object {} s) returns error? {
     }
 
-    public isolated function __start() returns error? {
+    public isolated function 'start() returns error? {
     }
 
-    public isolated function __gracefulStop() returns error? {
+    public isolated function gracefulStop() returns error? {
     }
 
-    public isolated function __immediateStop() returns error? {
+    public isolated function immediateStop() returns error? {
     }
 }
 

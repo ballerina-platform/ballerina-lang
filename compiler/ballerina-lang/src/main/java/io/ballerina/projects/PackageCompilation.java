@@ -54,8 +54,7 @@ public class PackageCompilation {
     private boolean compiled;
 
     private PackageCompilation(PackageContext rootPackageContext,
-                               PackageResolution packageResolution,
-                               CompilationOptions compilationOptions) {
+                               PackageResolution packageResolution) {
         this.rootPackageContext = rootPackageContext;
         this.packageResolution = packageResolution;
 
@@ -63,7 +62,7 @@ public class PackageCompilation {
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
 
         // Set compilation options retrieved from the build options
-        setCompilerOptions(compilationOptions);
+        setCompilerOptions(rootPackageContext.compilationOptions());
 
         // We have only the jvm backend for now.
         this.compilerBackends = new HashMap<>(1);
@@ -77,9 +76,9 @@ public class PackageCompilation {
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
     }
 
-    static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
+    static PackageCompilation from(PackageContext rootPackageContext) {
         PackageResolution packageResolution = rootPackageContext.getResolution();
-        return new PackageCompilation(rootPackageContext, packageResolution, compilationOptions);
+        return new PackageCompilation(rootPackageContext, packageResolution);
     }
 
     public PackageResolution getResolution() {

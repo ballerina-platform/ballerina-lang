@@ -1,5 +1,5 @@
 NAME
-       ballerina-build - Build the Ballerina package and generate executables
+       ballerina-build - Build the Ballerina package and generate an executable
 
 SYNOPSIS
        ballerina build [<options>]
@@ -11,7 +11,7 @@ DESCRIPTION
        if the package does not contain an entry point, it will produce a non-executable
        JAR file, which can be used in another package/program.
 
-       Building a Ballerina package creates the executable .jar files
+       Building a Ballerina package creates the executable .jar file
        in the <project-root>/target/bin directory.
 
        Building a single Ballerina file will create an executable .jar file in the

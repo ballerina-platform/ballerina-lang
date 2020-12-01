@@ -71,6 +71,7 @@ import io.ballerina.tools.text.CharReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -6775,7 +6776,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseAbsoluteResourcePath();
             case STRING_LITERAL_TOKEN:
                 STToken stringLiteralToken = consume();
-                return parseBasicLiteral(stringLiteralToken);
+                STNode stringLiteralNode = parseBasicLiteral(stringLiteralToken);
+                return STNodeFactory.createNodeList(Collections.singletonList(stringLiteralNode));
             case ON_KEYWORD:
                 return STNodeFactory.createEmptyNodeList();
             default:

@@ -25,23 +25,23 @@ public class Listener {
         externInitEndpoint(self, port);
     }
 
-    public isolated function __attach(service object {} s, string[]? name = ()) returns error? {
+    public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
         return externAttach(self, s);
     }
 
-    public isolated function __detach(service object {} s) returns error? {
+    public isolated function detach(service object {} s) returns error? {
         return externDetach(self, s);
     }
 
-    public isolated function __start() returns error? {
+    public isolated function 'start() returns error? {
         externStart(self);
     }
 
-    public isolated function __gracefulStop() returns error? {
+    public isolated function gracefulStop() returns error? {
         return externShutdownGracefully(self);
     }
 
-    public isolated function __immediateStop() returns error? {
+    public isolated function immediateStop() returns error? {
         return externShutdownNow(self);
     }
 }
