@@ -2797,6 +2797,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         analyzeDef(serviceNode.serviceVariable, env);
+        if (serviceNode.serviceNameLiteral != null) {
+            typeChecker.checkExpr(serviceNode.serviceNameLiteral, env, symTable.stringType);
+        }
 
         for (BLangExpression attachExpr : serviceNode.attachedExprs) {
             final BType exprType = typeChecker.checkExpr(attachExpr, env);

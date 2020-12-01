@@ -170,13 +170,17 @@ public class ServiceDesugar {
             List<BLangExpression> args = new ArrayList<>();
             args.add(ASTBuilderUtil.createVariableRef(pos, service.serviceVariable.symbol));
 
-            BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
-                    ASTBuilderUtil.createEmptyArrayLiteral(service.getPosition(), symTable.arrayStringType);
-            for (IdentifierNode path : service.getAbsolutePath()) {
-                var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType, path.getValue());
-                arrayLiteral.exprs.add(literal);
+            if (service.getServiceNameLiteral() == null) {
+                BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
+                        ASTBuilderUtil.createEmptyArrayLiteral(service.getPosition(), symTable.arrayStringType);
+                for (IdentifierNode path : service.getAbsolutePath()) {
+                    var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType, path.getValue());
+                    arrayLiteral.exprs.add(literal);
+                }
+                args.add(arrayLiteral);
+            } else {
+                args.add((BLangExpression) service.getServiceNameLiteral());
             }
-            args.add(arrayLiteral);
 
             addMethodInvocation(pos, listenerVarRef, methodRef, args, attachments);
         }

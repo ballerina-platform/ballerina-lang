@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
 
 import java.util.HashMap;
 
@@ -88,6 +89,9 @@ public class ServiceValue {
         ServiceValue.service = servObj;
         if (name == null) {
             names = null;
+        } else if (name instanceof BString) {
+            names = new String[1];
+            names[0] = ((BString) name).getValue();
         } else {
             BArray array = (BArray) name;
             names = new String[array.size()];
@@ -121,5 +125,10 @@ public class ServiceValue {
 
     public static BObject getService() {
         return ServiceValue.service;
+    }
+
+    public static BArray getServicePath() {
+        BArray ar = new ArrayValueImpl(names);
+        return ar;
     }
 }

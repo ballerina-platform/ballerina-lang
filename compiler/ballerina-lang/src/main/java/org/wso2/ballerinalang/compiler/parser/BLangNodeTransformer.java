@@ -3669,14 +3669,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         annonClassDef.flagSet.add(SERVICE);
 
         List<IdentifierNode> absResourcePathPath = new ArrayList<>();
-        NodeList<Token> pathList = serviceDeclarationNode.absoluteResourcePath();
-        for (Token token : pathList) {
-            String text = token.text();
-            // if it's a single '/' then add, else ignore '/' chars and only add other pieces.
-            if (pathList.size() == 1 && text.equals("/")) {
-                absResourcePathPath.add(createIdentifier(token));
-            } else if (!text.equals("/")) {
-                absResourcePathPath.add(createIdentifier(token));
+        NodeList<Node> pathList = serviceDeclarationNode.absoluteResourcePath();
+        BLangLiteral serviceNameLiteral = null;
+        if (pathList.size() == 1 && pathList.get(0).kind() == SyntaxKind.STRING_LITERAL) {
+            serviceNameLiteral = (BLangLiteral) createExpression(pathList.get(0));
+        } else {
+            for (var token : pathList) {
+                String text = ((Token) token).text();
+                // if it's a single '/' then add, else ignore '/' chars and only add other pieces.
+                if (pathList.size() == 1 && text.equals("/")) {
+                    absResourcePathPath.add(createIdentifier((Token) token));
+                } else if (!text.equals("/")) {
+                    absResourcePathPath.add(createIdentifier((Token) token));
+                }
             }
         }
 
@@ -3728,6 +3733,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         service.attachedExprs = exprs;
         service.serviceClass = annonClassDef;
         service.absoluteResourcePath = absResourcePathPath;
+        service.serviceNameLiteral = serviceNameLiteral;
         service.pos = pos;
         service.name = createIdentifier(pos, anonymousModelHelper.getNextAnonymousServiceVarKey(packageID));
         return service;

@@ -17,12 +17,7 @@
 import ballerina/java;
 
 public class Listener {
-    boolean initialized = false;
-    boolean started = false;
-
     public isolated function 'start() returns error? {
-        self.started = true;
-        return externStart(self);
     }
     public isolated function gracefulStop() returns error? {
     }
@@ -31,15 +26,10 @@ public class Listener {
     public isolated function detach(service object {} s) returns error? {
     }
     public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
-        return self.register(s, name);
-    }
-    isolated function register(service object {} s, string[]|string? name) returns error? {
         return externAttach(s, name);
     }
 
     public function init() {
-        var x = externLInit(self);
-        self.initialized = true;
     }
 }
 
@@ -48,29 +38,15 @@ isolated function externAttach(service object {} s, string[]|string? name) retur
     name: "attach"
 } external;
 
-isolated function externStart(object {} o) returns error? = @java:Method {
-    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
-    name: "start"
-} external;
-
-isolated function externLInit(object {} o) returns error? = @java:Method {
-    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
-    name: "listenerInit"
-} external;
-
-function getListener() returns object {} = @java:Method {
-    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
-    name: "getListener"
-} external;
-
-function getService() returns object {} = @java:Method {
-    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
-    name: "getService"
-} external;
-
 function reset() = @java:Method {
     'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name: "reset"
+} external;
+
+
+function getServicePath() returns string[] = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "getServicePath"
 } external;
 
 listener Listener lsn = new();
@@ -79,8 +55,7 @@ type S service object {
     resource function get processRequest() returns json;
 };
 
-service S / on lsn {
-    public string magic = "The Somebody Else's Problem field";
+service S "service-name" on lsn {
 
     resource function get processRequest() returns json {
         return { output: "Hello" };
@@ -91,15 +66,9 @@ service S / on lsn {
     }
 }
 
-type MagicField object { public string magic; };
-
-function testServiceDecl() {
-    Listener l = <Listener> getListener(); // get the listener
-    assertEquality(true, l.initialized);
-    assertEquality(true, l.started);
-
-    MagicField o = <MagicField> getService(); // get service attached to the listener
-    assertEquality("The Somebody Else's Problem field", o.magic);
+function testServiceName() {
+    string[] s = ["service-name"];
+    assertEquality(s, getServicePath());
     reset();
 }
 
