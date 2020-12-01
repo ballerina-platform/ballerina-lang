@@ -256,7 +256,7 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), TYPEDESC);
 
-        List<String> expFunctions = List.of("toString", "toBalString", "ensureType");
+        List<String> expFunctions = List.of("toString", "toBalString", "ensureType", "clone");
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
 
@@ -280,7 +280,7 @@ public class LangLibFunctionTest {
         assertEquals(type.typeKind(), ERROR);
 
         List<String> expFunctions = List.of("message", "cause", "detail", "stackTrace", "toString", "toBalString",
-                                            "ensureType");
+                                            "ensureType", "clone");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
