@@ -45,7 +45,6 @@ public class ServiceBodyNodeContext extends AbstractCompletionProvider<ServiceBo
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RESOURCE.get()));
-        completionItems.addAll(this.getResourceSnippets(context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
 
         return completionItems;

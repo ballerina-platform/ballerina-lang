@@ -15,22 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completion.latest;
+package org.ballerinalang.langserver.completion;
 
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
- * Expression Context tests.
+ * Statement Context tests.
  *
  * @since 2.0.0
  */
-public class AnnotationTest extends CompletionTestNew {
+public class StatementContextTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -38,18 +35,17 @@ public class AnnotationTest extends CompletionTestNew {
     }
 
     @Override
-    @Test(groups = "broken")
-    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
-        super.test(config, configPath);
-    }
-
-    @Override
     public List<String> skipList() {
-        return Collections.singletonList("anonFuncExprAnnotation5.json");
+        return Arrays.asList(
+                "if_stmt_ctx_config3.json",
+                "elseif_stmt_ctx_config3.json",
+                "if_stmt_ctx_config3.json", // Blocked By #26317
+                "match_stmt_ctx_config1.json" // Blocked by #26455
+        );
     }
 
     @Override
     public String getTestResourceDir() {
-        return "annotation_ctx";
+        return "statement_context";
     }
 }

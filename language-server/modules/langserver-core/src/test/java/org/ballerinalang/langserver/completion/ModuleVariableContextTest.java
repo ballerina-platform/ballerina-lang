@@ -15,19 +15,17 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completion.latest;
+package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
- * Expression Context tests.
+ * Module Variable Declaration Context tests.
  *
  * @since 2.0.0
  */
-public class ClassDefContextTest extends CompletionTestNew {
+public class ModuleVariableContextTest extends CompletionTestNew {
+    
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -36,11 +34,6 @@ public class ClassDefContextTest extends CompletionTestNew {
 
     @Override
     public String getTestResourceDir() {
-        return "class_def";
-    }
-
-    @Override
-    public List<String> skipList() {
-        return Arrays.asList("config3.json", "config8.json", "config12.json", "config13.json");
+        return "module_var_context";
     }
 }

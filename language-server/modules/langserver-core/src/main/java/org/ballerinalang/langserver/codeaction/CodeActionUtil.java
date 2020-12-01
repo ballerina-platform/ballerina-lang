@@ -18,15 +18,11 @@ package org.ballerinalang.langserver.codeaction;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -62,6 +58,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -232,13 +229,13 @@ public class CodeActionUtil {
             case TYPE_DEFINITION:
                 TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node;
                 return isWithinRange(positionOffset,
-                                     typeDefinitionNode.typeDescriptor().textRange().startOffset(),
-                                     typeDefinitionNode.semicolonToken().textRange().startOffset());
+                        typeDefinitionNode.typeDescriptor().textRange().startOffset(),
+                        typeDefinitionNode.semicolonToken().textRange().startOffset());
             case IMPORT_DECLARATION:
                 ImportDeclarationNode importDeclarationNode = (ImportDeclarationNode) node;
                 return isWithinRange(positionOffset,
-                                     importDeclarationNode.textRange().startOffset(),
-                                     importDeclarationNode.semicolon().textRange().startOffset());
+                        importDeclarationNode.textRange().startOffset(),
+                        importDeclarationNode.semicolon().textRange().startOffset());
             default:
                 return false;
         }
@@ -297,7 +294,7 @@ public class CodeActionUtil {
                 ImportDeclarationNode importDeclarationNode = (ImportDeclarationNode) node;
                 int importStartOffset = importDeclarationNode.textRange().startOffset() - 1;
                 return isWithinRange(positionOffset, importStartOffset,
-                                     importDeclarationNode.semicolon().textRange().endOffset());
+                        importDeclarationNode.semicolon().textRange().endOffset());
             default:
                 return false;
         }
@@ -443,11 +440,15 @@ public class CodeActionUtil {
     public static PositionDetails findCursorDetails(Range range, SyntaxTree syntaxTree, CodeActionContext context) {
         // Find Cursor node
         NonTerminalNode cursorNode = CommonUtil.findNode(range.getStart(), syntaxTree);
-        String relPath = context.filePath().getFileName().toString();
+        Path fileName = context.filePath().getFileName();
+        if (fileName == null) {
+            throw new RuntimeException("File path cannot be null");
+        }
+        String relPath = fileName.toString();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
 
         Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode, range,
-                                                                                        semanticModel, relPath);
+                semanticModel, relPath);
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
         Optional<TypeSymbol> matchedExprTypeSymbol;
@@ -500,29 +501,5 @@ public class CodeActionUtil {
         Symbol matchedSymbol = optMatchedSymbol.get();
         NonTerminalNode matchedNode = scopedSymbolFinder.node().get();
         return Optional.of(new ImmutablePair<>(matchedNode, matchedSymbol));
-    }
-
-    private static Optional<TypeSymbol> getTypeDescriptor(Symbol matchedSymbol) {
-        switch (matchedSymbol.kind()) {
-            case FUNCTION: {
-                FunctionSymbol functionSymbol = (FunctionSymbol) matchedSymbol;
-                FunctionTypeSymbol funTypeDesc = functionSymbol.typeDescriptor();
-                return funTypeDesc.returnTypeDescriptor();
-            }
-            case METHOD: {
-                MethodSymbol methodSymbol = (MethodSymbol) matchedSymbol;
-                FunctionTypeSymbol funTypeDesc = methodSymbol.typeDescriptor();
-                return funTypeDesc.returnTypeDescriptor();
-            }
-            case VARIABLE: {
-                return Optional.of(((VariableSymbol) matchedSymbol).typeDescriptor());
-            }
-            default: {
-                if (matchedSymbol instanceof TypeSymbol) {
-                    return Optional.of((TypeSymbol) matchedSymbol);
-                }
-            }
-        }
-        return Optional.empty();
     }
 }

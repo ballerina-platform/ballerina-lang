@@ -15,19 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completion.latest;
+package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
- * Statement Context tests.
+ * Function Body Context tests.
  *
  * @since 2.0.0
  */
-public class StatementContextTest extends CompletionTestNew {
+public class FunctionBodyTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -35,17 +32,7 @@ public class StatementContextTest extends CompletionTestNew {
     }
 
     @Override
-    public List<String> skipList() {
-        return Arrays.asList(
-                "if_stmt_ctx_config3.json",
-                "elseif_stmt_ctx_config3.json",
-                "if_stmt_ctx_config3.json", // Blocked By #26317
-                "match_stmt_ctx_config1.json" // Blocked by #26455
-        );
-    }
-
-    @Override
     public String getTestResourceDir() {
-        return "statement_context";
+        return "function_body";
     }
 }

@@ -15,16 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completion.latest;
+package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
- * Record Type Descriptor Context tests.
+ * Type Definition Context tests.
  *
  * @since 2.0.0
  */
-public class RecordTypeDescriptorTest extends CompletionTestNew {
+public class TypeDefinitionTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -32,7 +35,12 @@ public class RecordTypeDescriptorTest extends CompletionTestNew {
     }
 
     @Override
+    public List<String> skipList() {
+        return Collections.singletonList("config2.json");
+    }
+
+    @Override
     public String getTestResourceDir() {
-        return "record_type_desc";
+        return "type_def";
     }
 }

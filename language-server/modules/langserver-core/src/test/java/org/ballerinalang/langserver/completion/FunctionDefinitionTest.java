@@ -15,17 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completion.latest;
+package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
 /**
- * Module Variable Declaration Context tests.
+ * Function Definition Context tests.
  *
  * @since 2.0.0
  */
-public class ModuleVariableContextTest extends CompletionTestNew {
-    
+public class FunctionDefinitionTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -34,6 +33,6 @@ public class ModuleVariableContextTest extends CompletionTestNew {
 
     @Override
     public String getTestResourceDir() {
-        return "module_var_context";
+        return "function_def";
     }
 }

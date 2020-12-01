@@ -15,19 +15,29 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completion.latest;
+package org.ballerinalang.langserver.completion;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Import declaration Context tests.
+ * Service Body Context tests.
  *
  * @since 2.0.0
  */
-public class ImportDeclarationTest extends CompletionTestNew {
+public class ServiceBodyTest extends CompletionTestNew {
+
+    @Override
+    @Test(groups = {"broken"})
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
+    }
+    
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -35,12 +45,12 @@ public class ImportDeclarationTest extends CompletionTestNew {
     }
 
     @Override
-    public List<String> skipList() {
-        return Collections.singletonList("config6.json");
+    public String getTestResourceDir() {
+        return "service_body";
     }
 
     @Override
-    public String getTestResourceDir() {
-        return "import_decl";
+    public List<String> skipList() {
+        return Collections.singletonList("config3.json");
     }
 }

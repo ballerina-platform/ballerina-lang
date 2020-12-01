@@ -15,16 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completion.latest;
+package org.ballerinalang.langserver.completion;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * Service Declaration Context tests.
+ * Expression Context tests.
  *
  * @since 2.0.0
  */
-public class ServiceDeclarationTest extends CompletionTestNew {
+public class AnnotationTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -32,7 +38,18 @@ public class ServiceDeclarationTest extends CompletionTestNew {
     }
 
     @Override
+    @Test(groups = "broken")
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
+    }
+
+    @Override
+    public List<String> skipList() {
+        return Collections.singletonList("anonFuncExprAnnotation5.json");
+    }
+
+    @Override
     public String getTestResourceDir() {
-        return "service_decl";
+        return "annotation_ctx";
     }
 }

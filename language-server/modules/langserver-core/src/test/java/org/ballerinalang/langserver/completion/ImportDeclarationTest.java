@@ -15,16 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completion.latest;
+package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
- * Function Definition Context tests.
+ * Import declaration Context tests.
  *
  * @since 2.0.0
  */
-public class FunctionDefinitionTest extends CompletionTestNew {
+public class ImportDeclarationTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -32,7 +35,12 @@ public class FunctionDefinitionTest extends CompletionTestNew {
     }
 
     @Override
+    public List<String> skipList() {
+        return Collections.singletonList("config6.json");
+    }
+
+    @Override
     public String getTestResourceDir() {
-        return "function_def";
+        return "import_decl";
     }
 }

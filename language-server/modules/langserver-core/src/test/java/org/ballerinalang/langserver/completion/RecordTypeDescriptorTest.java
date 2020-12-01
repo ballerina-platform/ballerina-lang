@@ -15,27 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completion.latest;
+package org.ballerinalang.langserver.completion;
 
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import java.io.IOException;
 
 /**
- * Expression Context tests.
+ * Record Type Descriptor Context tests.
  *
  * @since 2.0.0
  */
-public class XMLTypeDescContextTest extends CompletionTestNew {
-
-    @Override
-    @Test(groups = {"broken"})
-    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
-        super.test(config, configPath);
-    }
-
+public class RecordTypeDescriptorTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -44,6 +33,6 @@ public class XMLTypeDescContextTest extends CompletionTestNew {
 
     @Override
     public String getTestResourceDir() {
-        return "xml_typedesc_context";
+        return "record_type_desc";
     }
 }

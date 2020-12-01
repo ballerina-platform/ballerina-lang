@@ -15,16 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completion.latest;
+package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
 /**
- * Function Body Context tests.
+ * Service Declaration Context tests.
  *
  * @since 2.0.0
  */
-public class FunctionBodyTest extends CompletionTestNew {
+public class ServiceDeclarationTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -33,6 +33,6 @@ public class FunctionBodyTest extends CompletionTestNew {
 
     @Override
     public String getTestResourceDir() {
-        return "function_body";
+        return "service_decl";
     }
 }
