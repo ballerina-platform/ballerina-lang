@@ -28,7 +28,6 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 
 import java.nio.file.Path;
