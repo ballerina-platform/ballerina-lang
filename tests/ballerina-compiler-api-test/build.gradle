@@ -15,9 +15,8 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
-apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
-apply from: "$rootDir/gradle/birTestableProject.gradle"
+apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 dependencies {
     implementation project(':ballerina-lang')
@@ -27,15 +26,6 @@ dependencies {
 
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-io')
-
-    baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - Compiler API'
-
-test {
-    useTestNG() {
-//        suites 'src/test/resources/testng.xml'
-    }
-}

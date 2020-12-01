@@ -17,11 +17,13 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -57,18 +59,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -100,7 +98,7 @@ public class SymbolTable {
     public static final Integer UNSIGNED16_MAX_VALUE = 65535;
     public static final Integer UNSIGNED8_MAX_VALUE = 255;
 
-    public final DiagnosticPos builtinPos;
+    public final Location builtinPos;
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
     public final BSymbol notFoundSymbol;
@@ -191,7 +189,9 @@ public class SymbolTable {
     public BPackageSymbol langXmlModuleSymbol;
     public BPackageSymbol langBooleanModuleSymbol;
     public BPackageSymbol langQueryModuleSymbol;
+    public BPackageSymbol langRuntimeModuleSymbol;
     public BPackageSymbol langTransactionModuleSymbol;
+    public BPackageSymbol internalTransactionModuleSymbol;
 
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
@@ -213,7 +213,7 @@ public class SymbolTable {
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null, null, BUILTIN);
-        this.builtinPos = new DiagnosticPos(new BDiagnosticSource(rootPkgSymbol.pkgID, Names.EMPTY.value), -1, -1,
+        this.builtinPos = new BLangDiagnosticLocation(Names.EMPTY.value, -1, -1,
                                             -1, -1);
         this.rootPkgNode.pos = this.builtinPos;
         this.rootPkgNode.symbol = this.rootPkgSymbol;
@@ -268,7 +268,7 @@ public class SymbolTable {
                                                                 names.fromString("$anonType$TRUE"),
                                                                 rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
                                                                 this.builtinPos, VIRTUAL);
-        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{
+        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<>() {{
             add(trueLiteral);
         }});
     }
@@ -358,22 +358,19 @@ public class SymbolTable {
     }
 
     public void loadPredeclaredModules() {
-        Map<Name, BPackageSymbol> modules = new HashMap<>();
-        modules.put(Names.BOOLEAN, this.langBooleanModuleSymbol);
-        modules.put(Names.DECIMAL, this.langDecimalModuleSymbol);
-        modules.put(Names.ERROR, this.langErrorModuleSymbol);
-        modules.put(Names.FLOAT, this.langFloatModuleSymbol);
-        modules.put(Names.FUTURE, this.langFutureModuleSymbol);
-        modules.put(Names.INT, this.langIntModuleSymbol);
-        modules.put(Names.MAP, this.langMapModuleSymbol);
-        modules.put(Names.OBJECT, this.langObjectModuleSymbol);
-        modules.put(Names.STREAM, this.langStreamModuleSymbol);
-        modules.put(Names.STRING, this.langStringModuleSymbol);
-        modules.put(Names.TABLE, this.langTableModuleSymbol);
-        modules.put(Names.TYPEDESC, this.langTypedescModuleSymbol);
-        modules.put(Names.XML, this.langXmlModuleSymbol);
-
-        this.predeclaredModules = Collections.unmodifiableMap(modules);
+        this.predeclaredModules = Map.ofEntries(Map.entry(Names.BOOLEAN, this.langBooleanModuleSymbol),
+                                                Map.entry(Names.DECIMAL, this.langDecimalModuleSymbol),
+                                                Map.entry(Names.ERROR, this.langErrorModuleSymbol),
+                                                Map.entry(Names.FLOAT, this.langFloatModuleSymbol),
+                                                Map.entry(Names.FUTURE, this.langFutureModuleSymbol),
+                                                Map.entry(Names.INT, this.langIntModuleSymbol),
+                                                Map.entry(Names.MAP, this.langMapModuleSymbol),
+                                                Map.entry(Names.OBJECT, this.langObjectModuleSymbol),
+                                                Map.entry(Names.STREAM, this.langStreamModuleSymbol),
+                                                Map.entry(Names.STRING, this.langStringModuleSymbol),
+                                                Map.entry(Names.TABLE, this.langTableModuleSymbol),
+                                                Map.entry(Names.TYPEDESC, this.langTypedescModuleSymbol),
+                                                Map.entry(Names.XML, this.langXmlModuleSymbol));
     }
 
     private void initializeType(BType type, String name, SymbolOrigin origin) {

@@ -133,12 +133,12 @@ public class MetricRegistry {
     }
 
     private <M extends Metric> M getOrCreate(MetricId id, Class<M> metricClass, Supplier<M> metricSupplier) {
-        Metric metric = readMetric(id, metricClass);
+        M metric = readMetric(id, metricClass);
         if (metric == null) {
-            Metric newMetric = metricSupplier.get();
+            M newMetric = metricSupplier.get();
             return writeMetricIfNotExists(newMetric, metricClass);
         } else {
-            return (M) metric;
+            return metric;
         }
     }
 
@@ -155,7 +155,7 @@ public class MetricRegistry {
         return null;
     }
 
-    private <M extends Metric> M writeMetricIfNotExists(Metric metric, Class<M> metricClass) {
+    private <M extends Metric> M writeMetricIfNotExists(M metric, Class<M> metricClass) {
         final Metric existing = metrics.putIfAbsent(metric.getId(), metric);
         if (existing != null) {
             if (metricClass.isInstance(existing)) {
@@ -165,19 +165,19 @@ public class MetricRegistry {
                         + metricClass.getSimpleName());
             }
         }
-        return (M) metric;
+        return metric;
     }
 
-    private <M extends Metric> M register(Metric registerMetric, Class<M> metricClass) {
-        Metric metric = readMetric(registerMetric.getId(), metricClass);
+    private <M extends Metric> M register(M registerMetric, Class<M> metricClass) {
+        M metric = readMetric(registerMetric.getId(), metricClass);
         if (metric == null) {
             return writeMetricIfNotExists(registerMetric, metricClass);
         } else {
-            return (M) metric;
+            return metric;
         }
     }
 
-    private void unregister(Metric registerMetric, Class metricClass) {
+    private <M extends Metric> void unregister(Metric registerMetric, Class<M> metricClass) {
         Metric metric = readMetric(registerMetric.getId(), metricClass);
         if (metric != null) {
             metrics.remove(registerMetric.getId());

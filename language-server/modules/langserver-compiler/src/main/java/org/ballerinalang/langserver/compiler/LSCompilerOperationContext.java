@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  *
  * @since 1.2.0
  */
+@Deprecated(forRemoval = true)
 public class LSCompilerOperationContext extends LSContextImpl {
     protected LSCompilerOperationContext(LSOperation operation) {
         super(operation);

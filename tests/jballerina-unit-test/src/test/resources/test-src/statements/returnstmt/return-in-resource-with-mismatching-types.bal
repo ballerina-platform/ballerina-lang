@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
+import ballerina/lang.test;
 
-service helloWorld on new http:Listener(9090) {
+service helloWorld on new test:MockListener(9090) {
 
     resource function sayHelloWithString(int x) returns error? {
         return x;

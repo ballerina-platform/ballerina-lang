@@ -18,8 +18,8 @@ package org.ballerinalang.test.object;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,7 +39,7 @@ public class ObjectDocumentationTest {
     public void setup() {
     }
 
-    @Test(description = "Test doc annotation.", groups = { "disableOnOldParser" })
+    @Test(description = "Test doc annotation.")
     public void testDocAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_annotation.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 3);

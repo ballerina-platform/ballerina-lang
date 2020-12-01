@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -38,7 +38,7 @@ public class TypedBindingPatternNodeContext extends AbstractCompletionProvider<T
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, TypedBindingPatternNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, TypedBindingPatternNode node)
             throws LSCompletionException {
         /*
         When comes to the typed binding pattern we route to the type descriptors to check whether there are resolvers

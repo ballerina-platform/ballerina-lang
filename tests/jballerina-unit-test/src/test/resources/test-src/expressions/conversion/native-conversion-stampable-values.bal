@@ -66,3 +66,51 @@ function testConvertStampTupleToMap() returns [[string, Employee], [string, Empl
     tupleValue[0] = "Vinod";
     return [tupleValue, returnValue];
 }
+
+type OpenRecord record {
+
+};
+
+type OpenRecordWithUnionTarget record {|
+    string|decimal...;
+|};
+
+map<json> mp = {
+        name: "foo",
+        factor: 1.23d
+    };
+
+function testConvertMapJsonWithDecimalToOpenRecord() {
+    var or = mp.cloneWithType(OpenRecord);
+
+    if (or is error) {
+        panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
+    }
+
+    OpenRecord castedValue = <OpenRecord>or;
+    assert(castedValue["factor"], mp["factor"]);
+    assert(castedValue["name"], mp["name"]);
+}
+
+function testConvertMapJsonWithDecimalUnionTarget() {
+    var or = mp.cloneWithType(OpenRecordWithUnionTarget);
+
+    if (or is error) {
+        panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
+    }
+
+    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget>or;
+    assert(castedValue["factor"], mp["factor"]);
+    assert(castedValue["name"], mp["name"]);
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+
+        panic error(reason);
+    }
+}

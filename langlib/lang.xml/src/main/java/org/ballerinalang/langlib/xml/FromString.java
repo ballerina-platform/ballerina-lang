@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.XMLFactory;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.XmlFactory;
 
 /**
  * Converts a XML to the corresponding JSON representation.
@@ -37,7 +37,7 @@ public class FromString {
 
     public static Object fromString(BString string) {
         try {
-            return XMLFactory.parse(string.getValue());
+            return XmlFactory.parse(string.getValue());
         } catch (BError BError) {
             return BError;
         }

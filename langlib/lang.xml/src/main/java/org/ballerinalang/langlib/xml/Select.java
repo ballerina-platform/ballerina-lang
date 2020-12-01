@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 /**
  * Get all the elements-type items in the given sequence, that matches a given qualified name.
@@ -38,9 +38,9 @@ public class Select {
 
     private static final String OPERATION = "select elements from xml";
 
-    public static BXML select(Strand strand, BXML xml, String qname) {
+    public static BXml select(Strand strand, BXml xml, String qname) {
         try {
-            return (BXML) xml.elements(qname);
+            return (BXml) xml.elements(qname);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

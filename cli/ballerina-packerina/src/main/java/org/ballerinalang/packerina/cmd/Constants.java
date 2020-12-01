@@ -23,20 +23,19 @@ package org.ballerinalang.packerina.cmd;
  * @since 0.982.0
  */
 public class Constants {
-    static final String RUN_COMMAND = "run";
-    static final String BUILD_COMMAND = "build";
-    static final String COMPILE_COMMAND = "compile";
-    static final String DOC_COMMAND = "doc";
-    static final String TEST_COMMAND = "test";
-    static final String INIT_COMMAND = "init";
-    static final String NEW_COMMAND = "new";
-    static final String ADD_COMMAND = "add";
-    static final String LIST_COMMAND = "list";
-    static final String PULL_COMMAND = "pull";
-    static final String PUSH_COMMAND = "push";
-    static final String SEARCH_COMMAND = "search";
-    static final String CLEAN_COMMAND = "clean";
-    static final String UNINSTALL_COMMAND = "uninstall";
+    static final String RUN_COMMAND = "runOld";
+    static final String BUILD_COMMAND = "buildOld";
+    static final String COMPILE_COMMAND = "compileOld";
+    static final String TEST_COMMAND = "testOld";
+    static final String INIT_COMMAND = "initOld";
+    static final String NEW_COMMAND = "newOld";
+    static final String ADD_COMMAND = "addOld";
+    static final String LIST_COMMAND = "listOld";
+    static final String PULL_COMMAND = "pullOld";
+    static final String PUSH_COMMAND = "pushOld";
+    static final String SEARCH_COMMAND = "searchOld";
+    static final String CLEAN_COMMAND = "cleanOld";
+    static final String UNINSTALL_COMMAND = "uninstallOld";
 
     //module name format : <org-name>/<module-name> | <org-name>/<module-name>:<version>
     //version format : 1, 1.*, 1.*.*

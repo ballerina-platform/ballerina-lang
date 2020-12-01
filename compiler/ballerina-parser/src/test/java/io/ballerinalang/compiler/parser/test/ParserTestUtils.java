@@ -646,6 +646,8 @@ public class ParserTestUtils {
                 return SyntaxKind.EQUALS_KEYWORD;
             case "OUTER_KEYWORD":
                 return SyntaxKind.OUTER_KEYWORD;
+            case "CONFIGURABLE_KEYWORD":
+                return SyntaxKind.CONFIGURABLE_KEYWORD;
 
             // Documentation reference
             case "TYPE_DOC_REFERENCE_TOKEN":
@@ -884,6 +886,8 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_NAME_PATTERN_CHAIN;
             case "XML_ATOMIC_NAME_PATTERN":
                 return SyntaxKind.XML_ATOMIC_NAME_PATTERN;
+            case "REQUIRED_EXPRESSION":
+                return SyntaxKind.REQUIRED_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":

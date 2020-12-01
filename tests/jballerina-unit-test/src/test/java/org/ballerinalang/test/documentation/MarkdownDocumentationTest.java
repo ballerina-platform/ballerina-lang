@@ -18,16 +18,15 @@
 
 package org.ballerinalang.test.documentation;
 
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -366,7 +365,7 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(5).identifier, "baz");
     }
 
-    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" }, enabled = false)
+    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -416,18 +415,18 @@ public class MarkdownDocumentationTest {
                 "invalid usage of parameter reference outside of function definition 'invalidParameter'", 87, 3);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'conn'", 88, 5);
         BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 89, 1);
-        BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 97, 9);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 98, 9);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 109, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 110, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 94, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 95, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 102, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 103, 1);
         BAssertUtil.validateWarning(compileResult, index++,
-                "invalid identifier in documentation reference '9function'", 115, 13);
+                "invalid identifier in documentation reference '9function'", 108, 13);
         BAssertUtil.validateWarning(compileResult, index++,
-                "invalid reference in documentation 'filePath1' for type 'parameter'", 116, 3);
-        BAssertUtil.validateWarning(compileResult, index, "undocumented parameter 'filePath'", 117, 22);
+                "invalid reference in documentation 'filePath1' for type 'parameter'", 109, 3);
+        BAssertUtil.validateWarning(compileResult, index, "undocumented parameter 'filePath'", 110, 22);
     }
 
-    @Test(description = "Test doc service", enabled = false)
+    @Test(description = "Test doc service")
     public void testDocService() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_service.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -624,7 +623,7 @@ public class MarkdownDocumentationTest {
                 "    # ```");
     }
 
-    @Test(description = "Test doc multiple.", groups = { "disableOnOldParser" }, enabled = false)
+    @Test(description = "Test doc multiple.", groups = { "disableOnOldParser" })
     public void testMultiple() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_multiple.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -653,26 +652,27 @@ public class MarkdownDocumentationTest {
     // Stopping on arbitrary compiler phase is not supported.
     @Test(description = "Test doc native function")
     public void testDocNativeFunction() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_native_function.bal",
-                CompilerPhase.TYPE_CHECK);
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_native_function.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
         Assert.assertEquals(compileResult.getWarnCount(), 0);
 
         PackageNode packageNode = compileResult.getAST();
-        BLangMarkdownDocumentation documentationAttachment =
-                packageNode.getFunctions().get(0).getMarkdownDocumentationAttachment();
+        BLangMarkdownDocumentation documentationAttachment = packageNode.getFunctions().get(0)
+                .getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
-        Assert.assertEquals(documentationAttachment.getDocumentation(), "Gets a access parameter value (`true` or " +
-                "`false`) for a given key. Please note that `foo` will always be bigger than `bar`.\n" +
-                "Example:\n" +
-                "`SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`");
+        Assert.assertEquals(documentationAttachment.getDocumentation(), "Gets a access parameter value (`true` or "
+                + "`false`) for a given key. Please note that `foo` will always be bigger than `bar`.\n" + "Example:\n"
+                + "`SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);`");
 
         LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
-        Assert.assertEquals(parameters.size(), 2);
+        Assert.assertEquals(parameters.size(), 1);
         Assert.assertEquals(parameters.get(0).getParameterName().getValue(), "accessMode");
         Assert.assertEquals(parameters.get(0).getParameterDocumentation(), "read or write mode");
-        Assert.assertEquals(parameters.get(1).getParameterName().getValue(), "successful");
-        Assert.assertEquals(parameters.get(1).getParameterDocumentation(), "boolean `true` or `false`");
+
+        BLangMarkdownReturnParameterDocumentation returnParameter = documentationAttachment.getReturnParameter();
+        Assert.assertEquals(returnParameter.type.toString(), "handle");
+        Assert.assertEquals(documentationAttachment.getReturnParameterDocumentation(),
+                "The `fieldTwo` field of the record value passed as an argument");
     }
 
     @Test(description = "Test multiline docs")

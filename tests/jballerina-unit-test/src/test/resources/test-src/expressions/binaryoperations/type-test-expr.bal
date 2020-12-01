@@ -1049,7 +1049,7 @@ public function testMapAsRecord() {
     }
     assertTrue(det is map<anydata|readonly>);
     assertTrue(det is 'error:Detail);
-    assertFalse(det is record {| string message; |});
+    assertTrue(det is record {| string message; |});
 }
 
 function assertTrue(anydata actual) {

@@ -221,3 +221,15 @@ public function typeReturn() returns Foo { // Compile warning because 'Foo' is d
 public function getType() {
     Foo f = typeReturn();
 }
+
+class SimpleClass {
+    int i = 0;
+}
+
+function testObjectConstructorWithCodeAnalyzer() {
+    SimpleClass|float x = object SimpleClass {
+        @deprecated
+        function init() {
+        }
+    };
+}

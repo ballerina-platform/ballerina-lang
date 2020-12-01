@@ -128,7 +128,6 @@ public class MappingBindingPatternNode extends BindingPatternNode {
 
         public MappingBindingPatternNodeModifier withRestBindingPattern(
                 RestBindingPatternNode restBindingPattern) {
-            Objects.requireNonNull(restBindingPattern, "restBindingPattern must not be null");
             this.restBindingPattern = restBindingPattern;
             return this;
         }

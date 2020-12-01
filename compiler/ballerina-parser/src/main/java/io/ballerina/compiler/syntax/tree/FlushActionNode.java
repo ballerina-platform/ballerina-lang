@@ -101,7 +101,6 @@ public class FlushActionNode extends ExpressionNode {
 
         public FlushActionNodeModifier withPeerWorker(
                 NameReferenceNode peerWorker) {
-            Objects.requireNonNull(peerWorker, "peerWorker must not be null");
             this.peerWorker = peerWorker;
             return this;
         }

@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 // The `main` function, which acts as the entry point.
 public function main() {
     int a = 10;
@@ -23,14 +21,14 @@ public function main() {
     int c = a + b;
 
     if (c == 15) {
-        io:println("c is equal to 15");
+        a = 1;
     } else {
-        io:println("c is not equal to 15");
+        a = 2;
     }
 
     sayHello();
 }
 
 function sayHello() {
-    io:println("Hello, World!");
+    int x = 0;
 }

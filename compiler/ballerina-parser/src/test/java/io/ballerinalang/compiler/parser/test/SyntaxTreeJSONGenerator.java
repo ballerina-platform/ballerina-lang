@@ -72,7 +72,7 @@ public class SyntaxTreeJSONGenerator {
         // generateJSON("a 7", ParserRuleContext.EXPRESSION);
 
         // Using a file source as input
-        String path = "test1.bal";
+        String path = "test_parser.bal";
         String jsonString = generateJSON(Paths.get(path), PARSER_CONTEXT);
         STANDARD_OUT.println(jsonString);
     }

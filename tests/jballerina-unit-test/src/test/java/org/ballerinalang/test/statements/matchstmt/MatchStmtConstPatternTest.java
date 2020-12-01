@@ -16,10 +16,10 @@
 
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -27,17 +27,19 @@ import org.testng.annotations.Test;
 /**
  * Test cases to verify the behaviour of the const-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 @Test(groups = { "disableOnOldParser" })
 public class MatchStmtConstPatternTest {
 
-    private CompileResult result, resultNegative;
+    private CompileResult result, resultNegative, resultNegativeSemantics;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/const-pattern.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/const-pattern-negative.bal");
+        resultNegativeSemantics = BCompileUtil.compile("test-src/statements/matchstmt/const-pattern-negative" +
+                "-semantics.bal");
     }
 
     @Test
@@ -139,5 +141,11 @@ public class MatchStmtConstPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 94, 9);
         BAssertUtil.validateError(resultNegative, ++i, "variable 's' may not have been initialized", 107, 12);
         BAssertUtil.validateError(resultNegative, ++i, "variable 's' may not have been initialized", 125, 12);
+    }
+
+    @Test(description = "Test negative semantics")
+    public void testConstPatternNegativeSemantics() {
+        Assert.assertEquals(resultNegativeSemantics.getErrorCount(), 1);
+        BAssertUtil.validateError(resultNegativeSemantics, 0, "variable 'a' should be declared as constant", 22, 9);
     }
 }

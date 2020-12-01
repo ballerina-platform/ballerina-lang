@@ -31,15 +31,13 @@ import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.math.BigDecimal;
 
 /**
@@ -778,11 +776,6 @@ public class TypesTest {
 
     @Test
     public void testTypeDescValuePrint() {
-        PrintStream tempOut = System.out;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(baos));
         BRunUtil.invoke(compileResult, "testTypeDescValuePrint");
-        Assert.assertEquals(new String(baos.toByteArray()), "typedesc map<int|string>");
-        System.setOut(tempOut);
     }
 }

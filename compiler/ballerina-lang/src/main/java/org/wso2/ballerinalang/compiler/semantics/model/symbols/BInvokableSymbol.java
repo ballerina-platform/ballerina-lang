@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.InvokableSymbol;
@@ -25,7 +26,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,12 +60,12 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public Set<BVarSymbol> dependentGlobalVars;
 
     public BInvokableSymbol(int tag,
-                            int flags,
+                            long flags,
                             Name name,
                             PackageID pkgID,
                             BType type,
                             BSymbol owner,
-                            DiagnosticPos pos,
+                            Location pos,
                             SymbolOrigin origin) {
         super(flags, name, pkgID, type, owner, pos, origin);
         this.tag = tag;

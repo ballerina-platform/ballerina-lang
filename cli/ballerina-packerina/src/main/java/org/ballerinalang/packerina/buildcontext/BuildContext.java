@@ -18,7 +18,7 @@
 
 package org.ballerinalang.packerina.buildcontext;
 
-import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
@@ -234,12 +234,12 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                                       sourceRootPath.toAbsolutePath().resolve(source);
             
             if (Files.isRegularFile(absoluteSourcePath) &&
-                source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+                source.toString().endsWith(RuntimeConstants.BLANG_SRC_FILE_SUFFIX)) {
                 
                 this.put(BuildContextField.SOURCE_CONTEXT, new SingleFileContext(source));
                 this.srcType = SourceType.SINGLE_BAL_FILE;
             } else if (Files.isDirectory(absoluteSourcePath) &&
-                       !source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+                       !source.toString().endsWith(RuntimeConstants.BLANG_SRC_FILE_SUFFIX)) {
                 
                 // this 'if' is to avoid spotbugs
                 Path moduleNameAsPath = source.getFileName();

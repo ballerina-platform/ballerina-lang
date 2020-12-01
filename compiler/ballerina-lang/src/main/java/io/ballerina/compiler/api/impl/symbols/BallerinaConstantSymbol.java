@@ -20,11 +20,11 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * Represent Constant Symbol.
@@ -37,8 +37,8 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
 
     private BallerinaConstantSymbol(String name,
                                     PackageID moduleID,
-                                    Set<Qualifier> qualifiers,
-                                    BallerinaTypeDescriptor typeDescriptor,
+                                    List<Qualifier> qualifiers,
+                                    TypeSymbol typeDescriptor,
                                     Object constValue,
                                     BSymbol bSymbol) {
         super(name, moduleID, SymbolKind.CONSTANT, qualifiers, typeDescriptor, bSymbol);
@@ -81,7 +81,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
         }
 
         @Override
-        public ConstantSymbolBuilder withTypeDescriptor(BallerinaTypeDescriptor typeDescriptor) {
+        public ConstantSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
             super.withTypeDescriptor(typeDescriptor);
             return this;
         }

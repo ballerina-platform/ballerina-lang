@@ -17,18 +17,13 @@
 
 package io.ballerina.semantic.api.test;
 
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
@@ -40,14 +35,10 @@ import static org.testng.Assert.assertEquals;
  */
 public class DiagnosticsTest {
 
-    private final Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
-
     @Test
     public void testAllDiagnostics() {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/test-project/", "bar", context);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/testerrorproject/");
 
         List<Diagnostic> diagnostics = model.diagnostics();
         Object[][] expErrs = getExpectedErrors();
@@ -59,10 +50,8 @@ public class DiagnosticsTest {
 
     @Test
     public void testDiagnosticsInARange() {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/test-project/", "bar", context);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/testerrorproject/");
 
         LineRange range = LineRange.from("type_checking_errors.bal", LinePosition.from(1, 0),
                                          LinePosition.from(18, 19));
@@ -88,10 +77,5 @@ public class DiagnosticsTest {
         assertEquals(diagnostic.message(), expected[0]);
         assertEquals(diagnostic.location().lineRange().startLine().line(), expected[1]);
         assertEquals(diagnostic.location().lineRange().startLine().offset(), expected[2]);
-    }
-
-    private CompileResult compile(String sourceRoot, String module, CompilerContext context) {
-        String sourceRootAbsolute = BCompileUtil.concatFileName(sourceRoot, resourceDir.toAbsolutePath());
-        return BCompileUtil.compileOnJBallerina(context, sourceRootAbsolute, module, false, true, false);
     }
 }

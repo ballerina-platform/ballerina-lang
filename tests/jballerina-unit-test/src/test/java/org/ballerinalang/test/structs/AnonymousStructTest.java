@@ -20,9 +20,9 @@ package org.ballerinalang.test.structs;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,7 +38,7 @@ public class AnonymousStructTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/structs/proj/src/default/anon-struct.bal");
+        compileResult = BCompileUtil.compile("test-src/structs/ObjectWithPrivateFieldsTestProject/anon-struct.bal");
     }
 
     @Test(description = "Test Anonymous struct in a function parameter declaration")

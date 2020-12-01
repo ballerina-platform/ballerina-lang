@@ -169,7 +169,6 @@ public class MatchStatementNode extends StatementNode {
 
         public MatchStatementNodeModifier withOnFailClause(
                 OnFailClauseNode onFailClause) {
-            Objects.requireNonNull(onFailClause, "onFailClause must not be null");
             this.onFailClause = onFailClause;
             return this;
         }

@@ -141,7 +141,6 @@ public class VariableDeclarationNode extends StatementNode {
 
         public VariableDeclarationNodeModifier withFinalKeyword(
                 Token finalKeyword) {
-            Objects.requireNonNull(finalKeyword, "finalKeyword must not be null");
             this.finalKeyword = finalKeyword;
             return this;
         }
@@ -155,14 +154,12 @@ public class VariableDeclarationNode extends StatementNode {
 
         public VariableDeclarationNodeModifier withEqualsToken(
                 Token equalsToken) {
-            Objects.requireNonNull(equalsToken, "equalsToken must not be null");
             this.equalsToken = equalsToken;
             return this;
         }
 
         public VariableDeclarationNodeModifier withInitializer(
                 ExpressionNode initializer) {
-            Objects.requireNonNull(initializer, "initializer must not be null");
             this.initializer = initializer;
             return this;
         }

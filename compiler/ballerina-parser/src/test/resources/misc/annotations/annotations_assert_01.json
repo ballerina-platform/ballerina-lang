@@ -914,6 +914,10 @@
               ]
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "SERVICE_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -1466,6 +1470,10 @@
                   ]
                 }
               ]
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "TYPED_BINDING_PATTERN",

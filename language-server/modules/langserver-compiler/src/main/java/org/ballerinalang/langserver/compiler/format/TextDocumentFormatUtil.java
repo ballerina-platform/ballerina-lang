@@ -24,15 +24,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
@@ -45,7 +44,6 @@ import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -63,7 +61,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.File;
@@ -207,13 +204,13 @@ public class TextDocumentFormatUtil {
             }
             nodeJson.add("ws", wsJsonArray);
         }
-        Diagnostic.DiagnosticPosition position = node.getPosition();
+        Location position = node.getPosition();
         if (position != null) {
             JsonObject positionJson = new JsonObject();
-            positionJson.addProperty("startColumn", position.getStartColumn());
-            positionJson.addProperty("startLine", position.getStartLine());
-            positionJson.addProperty("endColumn", position.getEndColumn());
-            positionJson.addProperty("endLine", position.getEndLine());
+            positionJson.addProperty("startColumn", position.lineRange().startLine().offset());
+            positionJson.addProperty("startLine", position.lineRange().startLine().line());
+            positionJson.addProperty("endColumn", position.lineRange().endLine().offset());
+            positionJson.addProperty("endLine", position.lineRange().endLine().line());
             nodeJson.add("position", positionJson);
         }
 
@@ -420,8 +417,9 @@ public class TextDocumentFormatUtil {
         for (Map.Entry<BLangNode, List<SymbolMetaInfo>> entry : visibleEPsByNode.entrySet()) {
             JsonArray eps = new JsonArray();
             for (SymbolMetaInfo symbolMetaInfo : entry.getValue()) {
-                if (node.getPosition().getStartColumn() == symbolMetaInfo.getPosition().getStartColumn()
-                        && node.getPosition().getStartLine() == symbolMetaInfo.getPosition().getStartLine()) {
+                if (node.getPosition().lineRange().startLine().offset() == symbolMetaInfo.getPosition()
+                        .lineRange().startLine().offset() && node.getPosition().lineRange().startLine().line()
+                        == symbolMetaInfo.getPosition().lineRange().startLine().line()) {
                     eps.add(symbolMetaInfo.getJson());
                 }
             }
@@ -494,17 +492,22 @@ public class TextDocumentFormatUtil {
                         }
                         listPropJson.add(generateTypeInfoJSON((Node) listPropItem, visibleEPsByNode));
                     } else if (listPropItem instanceof BLangRecordVarRef.BLangRecordVarRefKeyValue) {
-                        listPropJson.add(generateTypeInfoJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
+                        listPropJson.add(generateTypeInfoJSON(((BLangRecordVarRef
+                                .BLangRecordVarRefKeyValue) listPropItem)
                                 .getVariableName(), visibleEPsByNode));
-                        listPropJson.add(generateTypeInfoJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
+                        listPropJson.add(generateTypeInfoJSON(((BLangRecordVarRef
+                                .BLangRecordVarRefKeyValue) listPropItem)
                                 .getBindingPattern(), visibleEPsByNode));
                     } else if (listPropItem instanceof BLangRecordVariable.BLangRecordVariableKeyValue) {
-                        listPropJson.add(generateTypeInfoJSON(((BLangRecordVariable.BLangRecordVariableKeyValue) listPropItem)
+                        listPropJson.add(generateTypeInfoJSON(((BLangRecordVariable
+                                .BLangRecordVariableKeyValue) listPropItem)
                                 .getKey(), visibleEPsByNode));
-                        listPropJson.add(generateTypeInfoJSON(((BLangRecordVariable.BLangRecordVariableKeyValue) listPropItem)
+                        listPropJson.add(generateTypeInfoJSON(((BLangRecordVariable
+                                .BLangRecordVariableKeyValue) listPropItem)
                                 .getValue(), visibleEPsByNode));
                     } else if (listPropItem instanceof BLangErrorVariable.BLangErrorDetailEntry) {
-                        listPropJson.add(generateTypeInfoJSON(((BLangErrorVariable.BLangErrorDetailEntry) listPropItem)
+                        listPropJson.add(generateTypeInfoJSON(((BLangErrorVariable
+                                .BLangErrorDetailEntry) listPropItem)
                                 .getKey(), visibleEPsByNode));
                         listPropJson.add(generateTypeInfoJSON(((BLangErrorVariable.BLangErrorDetailEntry) listPropItem)
                                 .getValue(), visibleEPsByNode));

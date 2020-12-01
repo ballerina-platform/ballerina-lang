@@ -16,19 +16,14 @@
 package org.ballerinalang.langserver.util;
 
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.Position;
 
-import java.nio.file.Path;
 import java.util.Optional;
 
 
@@ -45,22 +40,17 @@ public class TokensUtil {
      * Find the token at position.
      *
      * @return Token at position
-     * @throws WorkspaceDocumentException while retrieving the syntax tree from the document manager
      */
-    public static Token findTokenAtPosition(LSContext context, Position position)
-            throws WorkspaceDocumentException, TokenOrSymbolNotFoundException {
-        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
-        if (!filePath.isPresent()) {
-            throw new WorkspaceDocumentException("File " + filePath.toString() + " does not exists.");
+    public static Token findTokenAtPosition(DocumentServiceContext context, Position position)
+            throws TokenOrSymbolNotFoundException {
+        Optional<Document> document = context.workspace().document(context.filePath());
+        if (document.isEmpty()) {
+            throw new TokenOrSymbolNotFoundException("Couldn't find a valid document!");
         }
-        SyntaxTree syntaxTree = docManager.getTree(filePath.get());
-        TextDocument textDocument = syntaxTree.textDocument();
+        TextDocument textDocument = document.get().textDocument();
 
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
-        Token tokenAtPosition =
-                ((ModulePartNode) syntaxTree.rootNode()).findToken(
-                        txtPos);
+        Token tokenAtPosition = ((ModulePartNode) document.get().syntaxTree().rootNode()).findToken(txtPos);
 
         if (tokenAtPosition == null) {
             throw new TokenOrSymbolNotFoundException("Couldn't find a valid identifier token at position!");

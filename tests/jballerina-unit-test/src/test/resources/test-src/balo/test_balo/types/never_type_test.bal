@@ -1,5 +1,5 @@
 import testorg/foo;
-import testorg/records;
+import testorg/foo.records;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

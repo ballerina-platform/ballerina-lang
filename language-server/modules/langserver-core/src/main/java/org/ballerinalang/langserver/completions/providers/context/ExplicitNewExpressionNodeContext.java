@@ -18,19 +18,18 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -52,22 +51,22 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ExplicitNewExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ExplicitNewExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         TypeDescriptorNode typeDescriptor = node.typeDescriptor();
 
         if (typeDescriptor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
             /*
             Supports the following
             (1) public listener mod:Listener test = new <cursor>
             (2) public listener mod:Listener test = new a<cursor>
              */
-            List<ObjectTypeDescriptor> filteredList = visibleSymbols.stream()
+            List<ObjectTypeSymbol> filteredList = visibleSymbols.stream()
                     .filter(SymbolUtil::isListener)
-                    .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor())
+                    .map(symbol -> (ObjectTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor())
                     .collect(Collectors.toList());
-            for (ObjectTypeDescriptor objectTypeDesc : filteredList) {
+            for (ObjectTypeSymbol objectTypeDesc : filteredList) {
                 completionItems.add(this.getExplicitNewCompletionItem(objectTypeDesc, context));
             }
             completionItems.addAll(this.getModuleCompletionItems(context));
@@ -78,11 +77,11 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
             if (module.isEmpty()) {
                 return completionItems;
             }
-            List<ObjectTypeDescriptor> filteredList = module.get().allSymbols().stream()
+            List<ObjectTypeSymbol> filteredList = module.get().allSymbols().stream()
                     .filter(SymbolUtil::isListener)
-                    .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor())
+                    .map(symbol -> (ObjectTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor())
                     .collect(Collectors.toList());
-            for (ObjectTypeDescriptor objectTypeDesc : filteredList) {
+            for (ObjectTypeSymbol objectTypeDesc : filteredList) {
                 completionItems.add(this.getExplicitNewCompletionItem(objectTypeDesc, context));
             }
         }

@@ -90,11 +90,6 @@
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
-                    "name": "version",
-                    "type": "ImportVersionNode",
-                    "isOptional": true
-                },
-                {
                     "name": "prefix",
                     "type": "ImportPrefixNode",
                     "isOptional": true
@@ -188,6 +183,11 @@
                     "name": "metadata",
                     "type": "MetadataNode",
                     "isOptional": true
+                },
+                {
+                    "name": "qualifiers",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "serviceKeyword",
@@ -1000,22 +1000,6 @@
             ]
         },
         {
-            "name": "ImportVersionNode",
-            "base": "Node",
-            "kind": "IMPORT_VERSION",
-            "attributes": [
-                {
-                    "name": "versionKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "versionNumber",
-                    "type": "Token",
-                    "occurrences": "MULTIPLE_SEPARATED"
-                }
-            ]
-        },
-        {
             "name": "MappingFieldNode",
             "base": "Node",
             "isAbstract": true
@@ -1479,9 +1463,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "finalKeyword",
+                    "name": "qualifiers",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "typedBindingPattern",
@@ -1922,7 +1906,8 @@
                 },
                 {
                     "name": "type",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 }
             ]
         },
@@ -2173,7 +2158,7 @@
                 },
                 {
                     "name": "content",
-                    "type": "TemplateMemberNode",
+                    "type": "Node",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -2183,13 +2168,8 @@
             ]
         },
         {
-            "name": "TemplateMemberNode",
-            "base": "Node",
-            "isAbstract": true
-        },
-        {
             "name": "XMLItemNode",
-            "base": "TemplateMemberNode",
+            "base": "Node",
             "isAbstract": true
         },
         {
@@ -4128,7 +4108,7 @@
         },
         {
             "name": "OrderByClauseNode",
-            "base": "ClauseNode",
+            "base": "IntermediateClauseNode",
             "kind": "ORDER_BY_CLAUSE",
             "attributes": [
                 {
@@ -4248,6 +4228,17 @@
                 },
                 {
                     "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "RequiredExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "REQUIRED_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "questionMarkToken",
                     "type": "Token"
                 }
             ]

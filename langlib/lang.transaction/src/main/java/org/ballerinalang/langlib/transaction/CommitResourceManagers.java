@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.transaction;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.transactions.TransactionResourceManager;
 
 /**
@@ -30,7 +29,7 @@ import io.ballerina.runtime.transactions.TransactionResourceManager;
 public class CommitResourceManagers {
 
     public static boolean commitResourceManagers(BString transactionId, BString transactionBlockId) {
-        return TransactionResourceManager.getInstance().notifyCommit(Scheduler.getStrand(), transactionId.getValue(),
+        return TransactionResourceManager.getInstance().notifyCommit(transactionId.getValue(),
                                                                      transactionBlockId.getValue());
     }
 }

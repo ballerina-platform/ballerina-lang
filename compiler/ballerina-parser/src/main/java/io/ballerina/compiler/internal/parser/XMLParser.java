@@ -79,7 +79,7 @@ public class XMLParser extends AbstractParser {
             case BACKTICK_TOKEN:
                 return true;
             case LT_TOKEN:
-                STToken nextNextToken = getNextNextToken(kind);
+                STToken nextNextToken = getNextNextToken();
                 if (nextNextToken.kind == SyntaxKind.SLASH_TOKEN || nextNextToken.kind == SyntaxKind.LT_TOKEN) {
                     return true;
                 }

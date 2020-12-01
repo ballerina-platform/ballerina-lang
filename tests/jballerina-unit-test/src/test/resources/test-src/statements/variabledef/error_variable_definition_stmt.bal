@@ -130,7 +130,7 @@ function testErrorInRecordWithDestructure() returns [int, string, anydata|readon
 
 function testErrorWithAnonErrorType() returns [string, anydata|readonly] {
     error err = error("Error Code", message = "Fatal");
-    error <record {| (anydata|readonly)...; |}> error(reason, message = message) = err;
+    error <simpleError> error(reason, message = message) = err;
     return [reason, message];
 }
 
@@ -170,14 +170,14 @@ type BeeError distinct error<Bee>;
 
 function testIndirectErrorDestructuring() returns [string?, boolean, map<anydata|error>] {
     BeeError e = BeeError(R, message="Msg", fatal=false, other="k");
-    var BeeError(_, message=m, fatal=f, ...rest) = e;
+    var error(_, message=m, fatal=f, ...rest) = e;
     return [m, f, rest];
 }
 
-type SealedErrorDetail record {|
+type SealedErrorDetail record {
     string message;
     error cause?;
-|};
+};
 
 type SealedError error<SealedErrorDetail>;
 
@@ -186,3 +186,5 @@ function testSealedDetailDestructuring() returns [string, map<anydata|readonly>]
     var error(reason, ...rest) = e;
     return [reason, rest];
 }
+
+type simpleError record {| (anydata|readonly)...; |};

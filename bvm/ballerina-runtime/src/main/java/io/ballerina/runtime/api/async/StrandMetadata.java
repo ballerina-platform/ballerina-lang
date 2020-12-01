@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.api.async;
 
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 /**
  * Holds metadata of the @{@link Strand}.

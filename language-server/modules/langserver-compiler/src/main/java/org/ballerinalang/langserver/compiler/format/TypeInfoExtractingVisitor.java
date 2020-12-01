@@ -226,8 +226,9 @@ public class TypeInfoExtractingVisitor extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         try {
             JsonElement typeNode = TextDocumentFormatUtil.generateTypeInfoJSON(varNode, this.visibleEPs);
-            if(varNode.pos != null) {
-                this.typeInfo.put((varNode.pos.sLine) + ":" + (varNode.pos.sCol), typeNode.getAsJsonObject());
+            if (varNode.pos != null) {
+                this.typeInfo.put(varNode.getPosition().lineRange().startLine().line() + ":"
+                        + varNode.getPosition().lineRange().startLine().offset(), typeNode.getAsJsonObject());
             }
         } catch (JSONGenerationException e) {
             // Ignore
@@ -311,8 +312,9 @@ public class TypeInfoExtractingVisitor extends BLangNodeVisitor {
         //((BLangExpression) assignNode.getVariable()).accept(this);
         try {
             JsonElement typeNode = TextDocumentFormatUtil.generateTypeInfoJSON(assignNode, this.visibleEPs);
-            if(assignNode.pos != null) {
-                this.typeInfo.put((assignNode.pos.sLine) + ":" + (assignNode.pos.sCol), typeNode.getAsJsonObject());
+            if (assignNode.pos != null) {
+                this.typeInfo.put(assignNode.getPosition().lineRange().startLine().line() + ":"
+                        + assignNode.getPosition().lineRange().startLine().offset(), typeNode.getAsJsonObject());
             }
         } catch (JSONGenerationException e) {
             // Ignore

@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 /**
  * Language Server Path Converter.
  */
+@Deprecated(forRemoval = true)
 public class LSPathConverter extends PathConverter {
     private WorkspaceDocumentManager documentManager;
 
