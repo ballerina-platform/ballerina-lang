@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -59,15 +60,17 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
             return this.qualifiers;
         }
 
-        this.qualifiers = new ArrayList<>();
+        List<Qualifier> qualifiers = new ArrayList<>();
         BObjectType objectType = (BObjectType) getBType();
+        final long mask = objectType.tsymbol.flags;
 
-        if ((objectType.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT) {
-            this.qualifiers.add(Qualifier.CLIENT);
-        }
+        // distinct has to come first because we are modeling the distinct-type-descriptor here.
+        addIfFlagSet(qualifiers, mask, Flags.DISTINCT, Qualifier.DISTINCT);
+        addIfFlagSet(qualifiers, mask, Flags.ISOLATED, Qualifier.ISOLATED);
+        addIfFlagSet(qualifiers, mask, Flags.CLIENT, Qualifier.CLIENT);
+        addIfFlagSet(qualifiers, mask, Flags.SERVICE, Qualifier.SERVICE);
 
-        // TODO: Check whether we can identify the listeners as well
-
+        this.qualifiers = Collections.unmodifiableList(qualifiers);
         return this.qualifiers;
     }
 
@@ -148,5 +151,11 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
                 .append(methodJoiner.toString())
                 .append("}")
                 .toString();
+    }
+
+    private void addIfFlagSet(List<Qualifier> quals, final long mask, final long flag, Qualifier qualifier) {
+        if (Symbols.isFlagOn(mask, flag)) {
+            quals.add(qualifier);
+        }
     }
 }
