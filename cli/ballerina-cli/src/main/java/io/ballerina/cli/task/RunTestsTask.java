@@ -90,7 +90,9 @@ public class RunTestsTask implements Task {
     private boolean coverage;
     private boolean isSingleTestExecution;
     private boolean isRerunTestExecution;
+    private boolean isModuleTestExecution;
     private List<String> singleExecTests;
+    private List<String> moduleExecTests;
     TestReport testReport;
 
     public RunTestsTask(PrintStream out, PrintStream err, String[] args) {
@@ -100,15 +102,19 @@ public class RunTestsTask implements Task {
     }
 
     public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList) {
+                        List<String> disableGroupList, List<String> testList, List<String> moduleList) {
         this.out = out;
         this.err = err;
         this.args = Lists.of(args);
         this.isSingleTestExecution = false;
 
+        if (moduleList != null) {
+            isModuleTestExecution = true;
+            moduleExecTests = moduleList;
+        }
+
         this.isRerunTestExecution = rerunTests;
 
-        // If rerunTests is true, we get the rerun test list and assign it to 'testList'
         if (this.isRerunTestExecution) {
             testList = new ArrayList<>();
         }
@@ -168,6 +174,14 @@ public class RunTestsTask implements Task {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
 
+            if (isModuleTestExecution) {
+                if (!moduleExecTests.contains(moduleName.moduleNamePart())) {
+                    continue;
+                } else {
+                    moduleExecTests.remove(moduleName.moduleNamePart());
+                }
+            }
+
             TestSuite suite = jBallerinaBackend.testSuite(module).orElse(null);
             Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
 
@@ -197,6 +211,7 @@ public class RunTestsTask implements Task {
             if (isSingleTestExecution || isRerunTestExecution) {
                 suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
             }
+
             suite.setReportRequired(report || coverage);
             Collection<Path> dependencies = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
@@ -219,6 +234,10 @@ public class RunTestsTask implements Task {
                     throw createLauncherException("error while generating test report", e);
                 }
             }
+        }
+
+        if (isModuleTestExecution) {
+            out.println("The following modules were not found in the modules directory : " + moduleExecTests);
         }
 
         try {

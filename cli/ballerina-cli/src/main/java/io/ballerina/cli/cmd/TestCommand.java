@@ -120,6 +120,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--tests", split = ",", description = "Test functions to be executed")
     private List<String> testList;
 
+    @CommandLine.Option(names = "--modules", split = ",", description = "Modules to be tested")
+    private List<String> moduleList;
+
     @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
     private boolean rerunTests;
 
@@ -199,7 +202,7 @@ public class TestCommand implements BLauncherCmd {
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream), !listGroups) // list the available test groups
                 .addTask(new RunTestsTask(outStream, errStream, args, rerunTests, groupList, disableGroupList,
-                        testList), listGroups)
+                        testList, moduleList), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);
