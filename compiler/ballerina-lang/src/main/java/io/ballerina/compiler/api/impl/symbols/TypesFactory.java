@@ -123,7 +123,7 @@ public class TypesFactory {
                 if (bType instanceof BStringSubType) {
                     return new BallerinaSimpleTypeSymbol(this.context, moduleID, bType.name.getValue(), bType);
                 }
-                return createSimpleTypedesc(moduleID, bType);
+                return new BallerinaStringTypeSymbol(this.context, moduleID, bType);
             case ANY:
                 return new BallerinaAnyTypeSymbol(this.context, moduleID, (BAnyType) bType);
             case ANYDATA:
