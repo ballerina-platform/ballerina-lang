@@ -145,6 +145,7 @@ public class Bootstrap {
         symResolver.defineOperators();
         symbolTable.langArrayModuleSymbol = loadLangLibFromBalr(ARRAY, compilerContext);
         symbolTable.langDecimalModuleSymbol = loadLangLibFromBalr(DECIMAL, compilerContext);
+        symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
         symbolTable.langErrorModuleSymbol = loadLangLibFromBalr(ERROR, compilerContext);
         symbolTable.langFloatModuleSymbol = loadLangLibFromBalr(FLOAT, compilerContext);
         symbolTable.langFutureModuleSymbol = loadLangLibFromBalr(FUTURE, compilerContext);
@@ -156,7 +157,6 @@ public class Bootstrap {
         symbolTable.langTableModuleSymbol = loadLangLibFromBalr(TABLE, compilerContext);
         symbolTable.langStringModuleSymbol = loadLangLibFromBalr(STRING, compilerContext);
         symbolTable.langTypedescModuleSymbol = loadLangLibFromBalr(TYPEDESC, compilerContext);
-        symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
         symbolTable.langXmlModuleSymbol = loadLangLibFromBalr(XML, compilerContext);
         symbolTable.langBooleanModuleSymbol = loadLangLibFromBalr(BOOLEAN, compilerContext);
         symbolTable.langQueryModuleSymbol = loadLangLibFromBalr(QUERY, compilerContext);
