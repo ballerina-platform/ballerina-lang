@@ -171,3 +171,9 @@ function testIntersectionType() {
     map<json> & readonly m = {};
     ReadonlyFoo rf = {a: 100};
 }
+
+public type DistinctPerson distinct object {
+    string name;
+
+    function getName() returns string;
+};

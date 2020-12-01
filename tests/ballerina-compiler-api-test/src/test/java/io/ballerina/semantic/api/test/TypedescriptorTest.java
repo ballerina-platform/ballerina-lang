@@ -32,6 +32,7 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -496,6 +497,17 @@ public class TypedescriptorTest {
         Symbol symbol = getSymbol(162, 16);
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), INTERSECTION);
+    }
+
+    @Test
+    public void testDistinctObjects() {
+        Symbol symbol = getSymbol(165, 12);
+        TypeSymbol type = ((TypeDefinitionSymbol) symbol).typeDescriptor();
+
+        assertTrue(((TypeDefinitionSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC));
+        assertEquals(type.typeKind(), OBJECT);
+        // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/27279
+//        assertTrue(((ObjectTypeSymbol) type).qualifiers().contains(Qualifier.DISTINCT));
     }
 
     private Symbol getSymbol(int line, int column) {
