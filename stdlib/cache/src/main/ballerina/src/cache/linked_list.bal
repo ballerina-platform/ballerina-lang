@@ -43,77 +43,94 @@ public type LinkedList object {
     #
     # + node - The node, which should be added to the provided linked list
     public function addLast(Node node) {
-        if (self.tail is ()) {
-            self.head = node;
-            self.tail = self.head;
-            return;
+        if (tryLock()) {
+            if (self.tail is ()) {
+                self.head = node;
+                self.tail = self.head;
+                releaseLock();
+                return;
+            }
+            Node tempNode = node;
+            Node tailNode = <Node>self.tail;
+            tempNode.prev = tailNode;
+            tailNode.next = tempNode;
+            self.tail = tempNode;
+            releaseLock();
         }
-        Node tempNode = node;
-        Node tailNode = <Node>self.tail;
-        tempNode.prev = tailNode;
-        tailNode.next = tempNode;
-        self.tail = tempNode;
     }
 
     # Adds a node to the start of the provided linked list.
     #
     # + node - The node, which should be added to the provided linked list
     public function addFirst(Node node) {
-        if (self.head is ()) {
-            self.head = node;
-            self.tail = self.head;
-            return;
+        if (tryLock()) {
+            if (self.head is ()) {
+                self.head = node;
+                self.tail = self.head;
+                releaseLock();
+                return;
+            }
+            Node tempNode = node;
+            Node headNode = <Node>self.head;
+            tempNode.next = headNode;
+            headNode.prev = tempNode;
+            self.head = tempNode;
+            releaseLock();
         }
-        Node tempNode = node;
-        Node headNode = <Node>self.head;
-        tempNode.next = headNode;
-        headNode.prev = tempNode;
-        self.head = tempNode;
     }
 
     # Removes a node from the provided linked list.
     #
     # + node - The node, which should be removed from the provided linked list
     public function remove(Node node) {
-        if (tryLock()) {
-            if (node.prev is ()) {
-                self.head = node.next;
-            } else {
-                Node prev = <Node>node.prev;
-                prev.next = node.next;
-            }
-            if (node.next is ()) {
-                self.tail = node.prev;
-            } else {
-                Node next = <Node>node.next;
-                next.prev = node.prev;
-            }
-            node.next = ();
-            node.prev = ();
-            releaseLock();
+        if (node.prev is ()) {
+            self.head = node.next;
+        } else {
+            Node prev = <Node>node.prev;
+            prev.next = node.next;
         }
+        if (node.next is ()) {
+            self.tail = node.prev;
+        } else {
+            Node next = <Node>node.next;
+            next.prev = node.prev;
+        }
+        node.next = ();
+        node.prev = ();
     }
 
     # Removes the last node from the provided linked list.
     #
+    # + node - The node, which should be removed from the provided linked list
     # + return - Last node of the provided linked list or `()` if the last node is empty
-    public function removeLast() returns Node? {
-        if (self.tail is ()) {
-            return ();
+    public function removeLast(Node? node = ()) returns Node? {
+        if (tryLock()) {
+            if (node is Node) {
+                self.remove(node);
+                releaseLock();
+            } else {
+               if (self.tail is ()) {
+                   releaseLock();
+                   return ();
+               }
+               Node tail = <Node>self.tail;
+               Node predecessorOfTail = <Node>tail.prev;
+               self.tail = predecessorOfTail;
+               predecessorOfTail.next = ();
+               tail.prev = ();
+               releaseLock();
+               return tail;
+            }
         }
-        Node tail = <Node>self.tail;
-        Node predecessorOfTail = <Node>tail.prev;
-        self.tail = predecessorOfTail;
-        predecessorOfTail.next = ();
-        tail.prev = ();
-
-        return tail;
     }
 
     # Clears the provided linked list.
     public function clear() {
-        self.head = ();
-        self.tail = ();
+        if (tryLock()) {
+            self.head = ();
+            self.tail = ();
+            releaseLock();
+        }
     }
 };
 

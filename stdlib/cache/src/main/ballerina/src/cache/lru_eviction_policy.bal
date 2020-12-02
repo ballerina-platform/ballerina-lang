@@ -30,7 +30,7 @@ public type LruEvictionPolicy object {
     #
     # + node - Node of the linked list, which is retrieved
     public function get(Node node) {
-        self.linkedList.remove(node);
+        var output = self.linkedList.removeLast(node);
         self.linkedList.addFirst(node);
     }
 
@@ -45,7 +45,7 @@ public type LruEvictionPolicy object {
     #
     # + node - Node of the linked list, which is deleted
     public function remove(Node node) {
-        self.linkedList.remove(node);
+        var output = self.linkedList.removeLast(node);
     }
 
     # Updates the linked list based on the replace operation related to the LRU eviction algorithm.
@@ -53,7 +53,7 @@ public type LruEvictionPolicy object {
     # + newNode - Node of the linked list, which will be replacing the `oldNode`
     # + oldNode - Node of the linked list, which will be replaced by the `newNode`
     public function replace(Node newNode, Node oldNode) {
-        self.linkedList.remove(oldNode);
+        var output = self.linkedList.removeLast(oldNode);
         self.linkedList.addFirst(newNode);
     }
 
