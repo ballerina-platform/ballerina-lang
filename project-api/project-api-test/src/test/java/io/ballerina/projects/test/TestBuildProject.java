@@ -643,7 +643,7 @@ public class TestBuildProject {
 
         // Load the project from document filepath
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        ProjectLoader.getDocument(filePath, buildProject);// get the document ID
+        ProjectLoader.getDocument(filePath, buildProject); // get the document ID
     }
 
     @Test
