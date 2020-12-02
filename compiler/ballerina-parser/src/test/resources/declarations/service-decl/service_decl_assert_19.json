@@ -145,15 +145,20 @@
               ]
             },
             {
-              "kind": "STRING_LITERAL",
+              "kind": "LIST",
               "children": [
                 {
-                  "kind": "STRING_LITERAL_TOKEN",
-                  "value": "sample.demo.foo",
-                  "trailingMinutiae": [
+                  "kind": "STRING_LITERAL",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "STRING_LITERAL_TOKEN",
+                      "value": "sample.demo.foo",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 }
