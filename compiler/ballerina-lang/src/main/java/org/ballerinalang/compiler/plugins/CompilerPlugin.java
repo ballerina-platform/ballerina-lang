@@ -18,7 +18,6 @@
 package org.ballerinalang.compiler.plugins;
 
 import io.ballerina.projects.Project;
-import io.ballerina.projects.internal.model.Target;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;

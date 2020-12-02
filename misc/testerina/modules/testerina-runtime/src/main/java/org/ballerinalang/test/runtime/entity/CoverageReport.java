@@ -21,6 +21,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
@@ -58,16 +59,19 @@ public class CoverageReport {
 
     private final String title;
     private final Path coverageDir;
-    private Path executionDataFile;
-    private Path classesDirectory;
-    private ExecFileLoader execFileLoader;
+    private final Path executionDataFile;
+    private final Path classesDirectory;
+    private final ExecFileLoader execFileLoader;
 
-    private Module module;
-    private Target target;
+    private final Module module;
+    private final Target target;
 
     public CoverageReport(Module module) throws IOException {
         this.module = module;
-        this.target = new Target(module.project().sourceRoot());
+        if (module.project().target().isEmpty()) {
+            throw new ProjectException("unable to get the target directory");
+        }
+        this.target = module.project().target().get();
 
         this.coverageDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR);
         this.title = coverageDir.toFile().getName();

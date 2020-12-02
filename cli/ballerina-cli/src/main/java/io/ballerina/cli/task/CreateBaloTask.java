@@ -23,7 +23,6 @@ import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.File;
@@ -50,11 +49,12 @@ public class CreateBaloTask implements Task {
         this.out.println();
         this.out.println("Creating balos");
 
-        Target target;
         Path baloPath;
         try {
-            target = new Target(project.sourceRoot());
-            baloPath = target.getBaloPath();
+            if (project.target().isEmpty()) {
+                throw createLauncherException("unable to get target directory fo project");
+            }
+            baloPath = project.target().get().getBaloPath();
         } catch (IOException e) {
             throw createLauncherException(e.getMessage());
         }

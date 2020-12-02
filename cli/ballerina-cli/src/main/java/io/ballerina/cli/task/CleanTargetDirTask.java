@@ -19,7 +19,6 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.projects.Project;
-import io.ballerina.projects.internal.model.Target;
 
 import java.io.IOException;
 
@@ -34,8 +33,10 @@ public class CleanTargetDirTask implements Task {
     @Override
     public void execute(Project project) {
         try {
-            Target target = new Target(project.sourceRoot());
-            target.clean();
+            if (project.target().isEmpty()) {
+                throw createLauncherException("unable to get target directory fo project");
+            }
+            project.target().get().clean();
         } catch (IOException e) {
             throw createLauncherException("Unable to clean the target directory: " + e.getMessage());
         }

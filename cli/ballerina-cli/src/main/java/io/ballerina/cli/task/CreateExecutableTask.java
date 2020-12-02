@@ -19,16 +19,12 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.FileUtils;
-import io.ballerina.projects.CompilationCache;
-import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.io.File;
@@ -102,8 +98,11 @@ public class CreateExecutableTask implements Task {
     private Path getExecutablePath(Project project) {
         if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
             try {
-                Target target = new Target(project.sourceRoot());
-                return target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
+                if (project.target().isEmpty()) {
+                    throw createLauncherException("unable to get target directory fo project");
+                }
+                return project.target().get().getExecutablePath(
+                        project.currentPackage()).toAbsolutePath().normalize();
             } catch (IOException e) {
                 throw createLauncherException("unable to get executable path:" + e.getMessage());
             }
@@ -114,6 +113,10 @@ public class CreateExecutableTask implements Task {
         // If the --output flag is not create the executable in the current directory
         if (this.output == null) {
             return this.currentDir.resolve(geFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
+        }
+
+        if (!this.output.isAbsolute()) {
+            this.output = currentDir.resolve(this.output);
         }
 
         // If the --output is a directory create the executable in the given directory

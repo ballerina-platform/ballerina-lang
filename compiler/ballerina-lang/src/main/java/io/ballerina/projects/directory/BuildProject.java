@@ -25,11 +25,14 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -48,8 +51,14 @@ public class BuildProject extends Project {
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
+        Target target;
+        try {
+            target = new Target(projectPath);
+        } catch (IOException e) {
+            throw new ProjectException("unable to set target path to project:", e);
+        }
         BuildProject buildProject = new BuildProject(
-                environmentBuilder, projectPath, new BuildOptionsBuilder().build());
+                environmentBuilder, projectPath, target, new BuildOptionsBuilder().build());
         buildProject.addPackage(packageConfig);
         return buildProject;
     }
@@ -71,13 +80,20 @@ public class BuildProject extends Project {
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
         BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(projectPath, buildOptions);
-        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions);
+        Target target;
+        try {
+            target = new Target(projectPath);
+        } catch (IOException e) {
+            throw new ProjectException("unable to set target path to project:", e);
+        }
+        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, target, mergedBuildOptions);
         buildProject.addPackage(packageConfig);
         return buildProject;
     }
 
-    private BuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions buildOptions) {
-        super(ProjectKind.BUILD_PROJECT, projectPath, environmentBuilder, buildOptions);
+    private BuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath, Target target,
+                         BuildOptions buildOptions) {
+        super(ProjectKind.BUILD_PROJECT, projectPath, environmentBuilder, target, buildOptions);
         populateCompilerContext();
     }
 

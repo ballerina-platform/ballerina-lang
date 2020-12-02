@@ -18,7 +18,6 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.projects.Project;
-import io.ballerina.projects.internal.model.Target;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
 import java.io.IOException;
@@ -45,11 +44,12 @@ public class CreateDocsTask implements Task {
     @Override
     public void execute(Project project) {
         Path sourceRootPath = project.sourceRoot();
-        Target target;
         if (outputPath == null) {
             try {
-                target = new Target(sourceRootPath);
-                outputPath = target.getDocPath();
+                if (project.target().isEmpty()) {
+                    throw createLauncherException("unable to get target directory of project");
+                }
+                outputPath = project.target().get().getDocPath();
             } catch (IOException e) {
                 throw createLauncherException("error occurred while generating docs: " + e.getMessage());
             }

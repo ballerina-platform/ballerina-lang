@@ -18,10 +18,12 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.internal.model.Target;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
@@ -36,14 +38,18 @@ public abstract class Project {
     private final BuildOptions buildOptions;
     private final ProjectEnvironment projectEnvironment;
     private final ProjectKind projectKind;
+    private final Target target;
 
     protected Project(ProjectKind projectKind,
                       Path projectPath,
-                      ProjectEnvironmentBuilder projectEnvironmentBuilder, BuildOptions buildOptions) {
+                      ProjectEnvironmentBuilder projectEnvironmentBuilder,
+                      Target target,
+                      BuildOptions buildOptions) {
         this.projectKind = projectKind;
         this.sourceRoot = projectPath;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
         this.buildOptions = buildOptions;
+        this.target = target;
     }
 
     protected Project(ProjectKind projectKind,
@@ -53,6 +59,7 @@ public abstract class Project {
         this.sourceRoot = projectPath;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
         this.buildOptions = new BuildOptionsBuilder().build();
+        this.target = null;
     }
 
     public ProjectKind kind() {
@@ -84,6 +91,10 @@ public abstract class Project {
 
     public BuildOptions buildOptions() {
         return buildOptions;
+    }
+
+    public Optional<Target> target() {
+        return Optional.ofNullable(this.target);
     }
 
     // Following project path was added to support old compiler extensions.

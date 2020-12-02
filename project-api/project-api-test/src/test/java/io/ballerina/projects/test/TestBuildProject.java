@@ -311,10 +311,10 @@ public class TestBuildProject {
 
         // Load the project from document filepath
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        Optional<DocumentId> oldDocumentId = ProjectLoader.getDocumentId(filePath, buildProject); // get the document ID
-        Assert.assertTrue(oldDocumentId.isPresent());
-        Module oldModule = buildProject.currentPackage().module(oldDocumentId.get().moduleId());
-        Document oldDocument = oldModule.document(oldDocumentId.get());
+        Document oldDocument = ProjectLoader.getDocument(filePath, buildProject);
+
+        DocumentId oldDocumentId = oldDocument.documentId(); // get the document ID
+        Module oldModule = buildProject.currentPackage().module(oldDocumentId.moduleId());
 
         // Update the document
         Document updatedDoc = oldDocument.modify().withContent(dummyContent).apply();
@@ -339,7 +339,7 @@ public class TestBuildProject {
 
         Package updatedPackage = buildProject.currentPackage();
         Assert.assertNotEquals(oldModule.packageInstance(), buildProject.currentPackage());
-        Assert.assertEquals(updatedPackage.module(oldDocument.module().moduleId()).document(oldDocumentId.get()),
+        Assert.assertEquals(updatedPackage.module(oldDocument.module().moduleId()).document(oldDocumentId),
                 updatedDoc);
         Assert.assertEquals(updatedPackage, updatedDoc.module().packageInstance());
     }
@@ -352,10 +352,10 @@ public class TestBuildProject {
 
         // Load the project from document filepath
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        Optional<DocumentId> oldDocumentId = ProjectLoader.getDocumentId(filePath, buildProject); // get the document ID
-        Assert.assertTrue(oldDocumentId.isPresent());
-        Module oldModule = buildProject.currentPackage().module(oldDocumentId.get().moduleId());
-        Document oldDocument = oldModule.document(oldDocumentId.get());
+        Document oldDocument = ProjectLoader.getDocument(filePath, buildProject);
+
+        DocumentId oldDocumentId = oldDocument.documentId(); // get the document ID
+        Module oldModule = buildProject.currentPackage().module(oldDocumentId.moduleId());
 
         // Update the document
         Document updatedDoc = oldDocument.modify().withContent(dummyContent).apply();
@@ -374,7 +374,7 @@ public class TestBuildProject {
 
         Package updatedPackage = buildProject.currentPackage();
         Assert.assertNotEquals(oldModule.packageInstance(), buildProject.currentPackage());
-        Assert.assertEquals(updatedPackage.module(oldDocument.module().moduleId()).document(oldDocumentId.get()),
+        Assert.assertEquals(updatedPackage.module(oldDocument.module().moduleId()).document(oldDocumentId),
                 updatedDoc);
         Assert.assertEquals(updatedPackage, updatedDoc.module().packageInstance());
     }
@@ -468,19 +468,21 @@ public class TestBuildProject {
     public void testRemoveDocument() {
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("utils.bal").toAbsolutePath();
 
-        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        Optional<DocumentId> removeDocumentId = ProjectLoader.getDocumentId(filePath, buildProject);
-        Assert.assertTrue(removeDocumentId.isPresent());
-        Module oldModule = buildProject.currentPackage().module(removeDocumentId.get().moduleId());
 
-        Module newModule = oldModule.modify().removeDocument(removeDocumentId.get()).apply();
+        // Load the project from document filepath
+        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
+        Document oldDocument = ProjectLoader.getDocument(filePath, buildProject);
+
+        DocumentId removeDocumentId = oldDocument.documentId(); // get the document ID
+        Module oldModule = buildProject.currentPackage().module(removeDocumentId.moduleId());
+        Module newModule = oldModule.modify().removeDocument(removeDocumentId).apply();
 
         Assert.assertEquals((oldModule.documentIds().size() - 1), newModule.documentIds().size());
         Assert.assertEquals(oldModule.testDocumentIds().size(), newModule.testDocumentIds().size());
-        Assert.assertTrue(oldModule.documentIds().contains(removeDocumentId.get()));
-        Assert.assertFalse(newModule.documentIds().contains(removeDocumentId.get()));
+        Assert.assertTrue(oldModule.documentIds().contains(removeDocumentId));
+        Assert.assertFalse(newModule.documentIds().contains(removeDocumentId));
         for (DocumentId documentId : oldModule.documentIds()) {
-            if (documentId == removeDocumentId.get()) {
+            if (documentId == removeDocumentId) {
                 Assert.assertFalse(newModule.documentIds().contains(documentId));
             } else {
                 Assert.assertTrue(newModule.documentIds().contains(documentId));
@@ -497,19 +499,21 @@ public class TestBuildProject {
                 RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("services")
                         .resolve(ProjectConstants.TEST_DIR_NAME).resolve("svc_tests.bal").toAbsolutePath();
 
+        // Load the project from document filepath
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        Optional<DocumentId> removeDocumentId = ProjectLoader.getDocumentId(filePath, buildProject);
-        Assert.assertTrue(removeDocumentId.isPresent());
-        Module oldModule = buildProject.currentPackage().module(removeDocumentId.get().moduleId());
+        Document oldDocument = ProjectLoader.getDocument(filePath, buildProject);
 
-        Module newModule = oldModule.modify().removeDocument(removeDocumentId.get()).apply();
+        DocumentId removeDocumentId = oldDocument.documentId(); // get the document ID
+        Module oldModule = buildProject.currentPackage().module(removeDocumentId.moduleId());
+
+        Module newModule = oldModule.modify().removeDocument(removeDocumentId).apply();
 
         Assert.assertEquals((oldModule.testDocumentIds().size() - 1), newModule.testDocumentIds().size());
         Assert.assertEquals(oldModule.documentIds().size(), newModule.documentIds().size());
-        Assert.assertTrue(oldModule.testDocumentIds().contains(removeDocumentId.get()));
-        Assert.assertFalse(newModule.testDocumentIds().contains(removeDocumentId.get()));
+        Assert.assertTrue(oldModule.testDocumentIds().contains(removeDocumentId));
+        Assert.assertFalse(newModule.testDocumentIds().contains(removeDocumentId));
         for (DocumentId documentId : oldModule.testDocumentIds()) {
-            if (documentId == removeDocumentId.get()) {
+            if (documentId == removeDocumentId) {
                 Assert.assertFalse(newModule.testDocumentIds().contains(documentId));
             } else {
                 Assert.assertTrue(newModule.testDocumentIds().contains(documentId));
@@ -633,14 +637,13 @@ public class TestBuildProject {
         }
     }
 
-    @Test
+    @Test (expectedExceptions = ProjectException.class)
     public void testAccessNonExistingDocument() {
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("db.bal").toAbsolutePath();
 
         // Load the project from document filepath
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        Optional<DocumentId> oldDocumentId = ProjectLoader.getDocumentId(filePath, buildProject); // get the document ID
-        Assert.assertFalse(oldDocumentId.isPresent());
+        ProjectLoader.getDocument(filePath, buildProject);// get the document ID
     }
 
     @Test
