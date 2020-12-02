@@ -18,7 +18,7 @@
 package org.ballerinalang.observability.anaylze.model;
 
 import com.google.gson.JsonElement;
-import org.ballerinalang.model.elements.PackageID;
+import io.ballerina.projects.ModuleDescriptor;
 
 import java.util.Collections;
 import java.util.Map;
@@ -33,14 +33,17 @@ public class PackageHolder {
 
     private static final PackageHolder INSTANCE = new PackageHolder();
 
+    private String org;
+    private String name;
+    private String version;
     private final Map<String, ModuleHolder> modulesMap = new ConcurrentHashMap<>();
 
     private PackageHolder() {   // Prevent initialization
     }
 
-    public void addSyntaxTree(PackageID moduleId, String documentName, JsonElement syntaxTreeJson) {
-        ModuleHolder moduleHolder = this.modulesMap.computeIfAbsent(moduleId.toString(), k ->
-                new ModuleHolder(moduleId.orgName.value, moduleId.name.value, moduleId.version.value));
+    public void addSyntaxTree(ModuleDescriptor moduleDescriptor, String documentName, JsonElement syntaxTreeJson) {
+        String moduleName = moduleDescriptor.name().toString();
+        ModuleHolder moduleHolder = this.modulesMap.computeIfAbsent(moduleName, k -> new ModuleHolder(moduleName));
         moduleHolder.addSyntaxTree(documentName, syntaxTreeJson);
     }
 
@@ -50,5 +53,29 @@ public class PackageHolder {
 
     public Map<String, ModuleHolder> getModules() {
         return Collections.unmodifiableMap(modulesMap);
+    }
+
+    public String getOrg() {
+        return org;
+    }
+
+    public void setOrg(String org) {
+        this.org = org;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

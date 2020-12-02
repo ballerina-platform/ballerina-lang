@@ -523,7 +523,7 @@ public class JBallerinaBackend extends CompilerBackend {
                     for (DocumentId documentId : moduleContext.srcDocumentIds()) {
                         DocumentContext documentContext = moduleContext.documentContext(documentId);
                         SyntaxTree syntaxTree = documentContext.syntaxTree();
-                        observabilitySymbolCollector.process(moduleContext.descriptor().moduleCompilationId(),
+                        observabilitySymbolCollector.process(packageContext.descriptor(), moduleContext.descriptor(),
                                 semanticModel, documentContext.name(), syntaxTree, bLangPackage);
                     }
                 }

@@ -29,31 +29,19 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class ModuleHolder {
-    private final String orgName;
     private final String name;
-    private final String version;
     private final Map<String, DocumentHolder> documentsMap = new HashMap<>();
 
-    ModuleHolder(String orgName, String name, String version) {
-        this.orgName = orgName;
+    ModuleHolder(String name) {
         this.name = name;
-        this.version = version;
     }
 
-    public void addSyntaxTree(String cUnitName, JsonElement syntaxTree) {
-        this.documentsMap.put(cUnitName, new DocumentHolder(cUnitName, syntaxTree));
-    }
-
-    public String getOrgName() {
-        return orgName;
+    public void addSyntaxTree(String documentName, JsonElement syntaxTree) {
+        this.documentsMap.put(documentName, new DocumentHolder(documentName, syntaxTree));
     }
 
     public String getName() {
         return name;
-    }
-
-    public String getVersion() {
-        return version;
     }
 
     public Map<String, DocumentHolder> getDocuments() {
