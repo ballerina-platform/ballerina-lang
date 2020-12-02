@@ -16,6 +16,8 @@
 
 package org.ballerinalang.observe.trace.extension.choreo.model;
 
+import io.jaegertracing.internal.LogData;
+
 import java.util.List;
 import java.util.Map;
 
@@ -33,9 +35,12 @@ public class ChoreoTraceSpan {
     private long duration;
     private Map<String, String> tags;
     private List<Reference> references;
+    private List<SpanEvent> events;
+//    private List<LogData> events;
 
     public ChoreoTraceSpan(long traceId, long spanId, String serviceName, String operationName,
-                           long timestamp, long duration, Map<String, String> tags, List<Reference> references) {
+                           long timestamp, long duration, Map<String, String> tags, List<Reference> references,
+                           List<SpanEvent> events) {
         this.traceId = traceId;
         this.spanId = spanId;
         this.serviceName = serviceName;
@@ -44,6 +49,7 @@ public class ChoreoTraceSpan {
         this.duration = duration;
         this.tags = tags;
         this.references = references;
+        this.events = events;
     }
 
     public long getTraceId() {
@@ -76,6 +82,10 @@ public class ChoreoTraceSpan {
 
     public List<Reference> getReferences() {
         return references;
+    }
+
+    public List<SpanEvent> getEvents() {
+        return events;
     }
 
     /**
@@ -112,4 +122,36 @@ public class ChoreoTraceSpan {
             FOLLOWS_FROM
         }
     }
+
+    /**
+    * Trace Span Event
+    */
+    public static class SpanEvent {
+        private long time;
+        private String moduleID;
+        private String positionID;
+
+
+        public SpanEvent(long time, String moduleID, String positionID) {
+            this.time = time;
+            this.moduleID = moduleID;
+            this.positionID = positionID;
+
+        }
+
+        public long getTime() {
+            return time;
+        }
+
+        public String getModuleID() {
+            return moduleID;
+        }
+
+        public String getPositionID() {
+            return positionID;
+        }
+
+    }
+
+
 }
