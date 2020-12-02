@@ -17,13 +17,17 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.ProjectConstants;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -87,6 +91,43 @@ public class ProjectLoader {
         return SingleFileProject.load(projectEnvironmentBuilder, absProjectPath);
     }
 
+    public static Optional<Path> findProjectRoot(Path filepath) throws ProjectException, IllegalArgumentException {
+        if (!Files.isRegularFile(filepath) || !filepath.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
+            throw new IllegalArgumentException("provided path is not a valid ballerina file");
+        }
+        Path absProjectPath = filepath.toAbsolutePath();
+
+        // check if the file is a source file in the default module
+        if (hasBallerinaToml(Optional.of(absProjectPath.getParent()).get())) {
+            return Optional.of(absProjectPath.getParent());
+        }
+
+        Path projectRoot;
+        // check if the file is a test file in the default module
+        Path testsRoot = Optional.of(absProjectPath.getParent()).get();
+        projectRoot = Optional.of(testsRoot.getParent()).get();
+        if (ProjectConstants.TEST_DIR_NAME.equals(testsRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
+            return Optional.of(projectRoot);
+        }
+
+        // check if the file is a source file in a non-default module
+        Path modulesRoot = Optional.of(Optional.of(absProjectPath.getParent()).get().getParent()).get();
+        projectRoot = modulesRoot.getParent();
+        if (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
+            return Optional.of(projectRoot);
+        }
+
+        // check if the file is a test file in a non-default module
+        modulesRoot = Optional.of(Optional.of(testsRoot.getParent()).get().getParent()).get();
+        projectRoot = modulesRoot.getParent();
+
+        if (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) && hasBallerinaToml(projectRoot)) {
+            return Optional.of(projectRoot);
+        }
+
+        return Optional.empty();
+    }
+
     /**
      * Returns the documentId of the provided file path.
      *
@@ -95,31 +136,41 @@ public class ProjectLoader {
      * @return documentId of the document
      */
 
-    public static Optional<DocumentId> getDocumentId(Path documentFilePath, BuildProject project) {
+    public static Document getDocument(Path documentFilePath, Project project) {
+        if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+            DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
+            return project.currentPackage().getDefaultModule().document(documentId);
+        }
+        if (!(project instanceof BuildProject)) {
+            throw new ProjectException("unsupported project type:" + project.kind());
+        }
+        BuildProject buildProject = (BuildProject) project;
         Path parent = Optional.of(documentFilePath.getParent()).get();
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Optional<Path> modulePath = project.modulePath(moduleId);
-            if (modulePath.isPresent()) {
-                if (parent.equals(modulePath.get())
-                        || parent.equals(modulePath.get().resolve(ProjectConstants.TEST_DIR_NAME))) {
-                    Module module = project.currentPackage().module(moduleId);
-                    for (DocumentId documentId : module.documentIds()) {
-                        if (module.document(documentId).name().equals(
-                                Optional.of(documentFilePath.getFileName()).get().toString())) {
-                            return Optional.of(documentId);
-                        }
-                    }
 
-                    for (DocumentId documentId : module.testDocumentIds()) {
-                        if (module.document(documentId).name().equals(ProjectConstants.TEST_DIR_NAME + "/"
-                                + Optional.of(documentFilePath.getFileName()).get().toString())) {
-                            return Optional.of(documentId);
-                        }
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Optional<Path> modulePath = buildProject.modulePath(moduleId);
+            if (modulePath.isEmpty()) {
+                throw new ProjectException("document path does to belong to any module");
+            }
+            if (parent.equals(modulePath.get())
+                    || parent.equals(modulePath.get().resolve(ProjectConstants.TEST_DIR_NAME))) {
+                Module module = project.currentPackage().module(moduleId);
+                for (DocumentId documentId : module.documentIds()) {
+                    if (module.document(documentId).name().equals(
+                            Optional.of(documentFilePath.getFileName()).get().toString())) {
+                        return module.document(documentId);
+                    }
+                }
+
+                for (DocumentId documentId : module.testDocumentIds()) {
+                    if (module.document(documentId).name().equals(ProjectConstants.TEST_DIR_NAME + "/"
+                            + Optional.of(documentFilePath.getFileName()).get().toString())) {
+                        return module.document(documentId);
                     }
                 }
             }
         }
-        return Optional.empty();
+        throw new ProjectException("document path does to belong to the project");
     }
 
     private static boolean hasBallerinaToml(Path filePath) {

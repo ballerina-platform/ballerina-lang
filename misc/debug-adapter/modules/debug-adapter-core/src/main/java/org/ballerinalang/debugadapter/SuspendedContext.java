@@ -165,19 +165,10 @@ public class SuspendedContext {
     }
 
     private void loadDocument() {
-        if (project instanceof BuildProject) {
-            BuildProject prj = (BuildProject) project;
-            Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
-            if (breakPointSourcePath.isEmpty()) {
-                return;
-            }
-            Optional<DocumentId> docId = ProjectLoader.getDocumentId(breakPointSourcePath.get(), prj);
-            Module module = prj.currentPackage().module(docId.get().moduleId());
-            document = module.document(docId.get());
-        } else {
-            SingleFileProject prj = (SingleFileProject) project;
-            DocumentId docId = prj.currentPackage().getDefaultModule().documentIds().iterator().next();
-            document = prj.currentPackage().getDefaultModule().document(docId);
+        Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
+        if (breakPointSourcePath.isEmpty()) {
+            return;
         }
+        document = ProjectLoader.getDocument(breakPointSourcePath.get(), project);
     }
 }
