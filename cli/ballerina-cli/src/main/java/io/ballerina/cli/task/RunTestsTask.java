@@ -236,7 +236,7 @@ public class RunTestsTask implements Task {
             }
         }
 
-        if (isModuleTestExecution) {
+        if (isModuleTestExecution && !moduleExecTests.isEmpty()) {
             out.println("The following modules were not found in the modules directory : " + moduleExecTests);
         }
 
