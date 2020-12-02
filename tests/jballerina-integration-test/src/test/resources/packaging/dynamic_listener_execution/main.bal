@@ -56,7 +56,7 @@ public function assertCount(int val) {
 
 public function main() {
     ABC ep = new ABC("ModA");
-    checkpanic ep.__start();
+    checkpanic ep.start();
     runtime:registerListener(ep);
 }
 

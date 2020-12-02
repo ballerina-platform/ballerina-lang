@@ -174,7 +174,8 @@ public class ServiceDesugar {
                 BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
                         ASTBuilderUtil.createEmptyArrayLiteral(service.getPosition(), symTable.arrayStringType);
                 for (IdentifierNode path : service.getAbsolutePath()) {
-                    var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType, path.getValue());
+                    var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType,
+                            path.getValue());
                     arrayLiteral.exprs.add(literal);
                 }
                 args.add(arrayLiteral);

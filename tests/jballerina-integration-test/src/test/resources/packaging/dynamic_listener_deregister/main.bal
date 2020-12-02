@@ -25,9 +25,9 @@ function init() {
 
 public function main() {
     ABC ep = new ABC("ModDynA");
-    checkpanic ep.__start();
+    checkpanic ep.start();
     runtime:registerListener(ep);
-    checkpanic ep.__gracefulStop();
+    checkpanic ep.gracefulStop();
     runtime:deregisterListener(ep);
 }
 

@@ -15,11 +15,8 @@
 // under the License.
 
 import ballerina/java;
-import ballerina/lang.'object as lang;
 
 public class Listener {
-
-    *lang:Listener;
 
     public isolated function init(int port) {
         externInitEndpoint(self, port);

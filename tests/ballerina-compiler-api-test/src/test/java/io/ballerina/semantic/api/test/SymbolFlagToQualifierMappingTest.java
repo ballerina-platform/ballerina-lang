@@ -71,14 +71,14 @@ public class SymbolFlagToQualifierMappingTest {
     @DataProvider(name = "QualifierProvider")
     public Object[][] getPositionsAndQualifiers() {
         return new Object[][]{
-                {18, 27, getQualifiers(LISTENER, FINAL)},
-                {20, 13, Collections.EMPTY_SET},
-                {23, 25, getQualifiers(PUBLIC)},
-                {39, 19, getQualifiers(READONLY)},
-                {53, 20, getQualifiers(ISOLATED)},
-                {56, 22, getQualifiers(READONLY)},
-                {60, 16, getQualifiers(CLIENT)},
-                {61, 22, getQualifiers(REMOTE, PUBLIC)},
+                {17, 27, getQualifiers(LISTENER, FINAL)},
+                {19, 13, Collections.EMPTY_SET},
+                {20, 25, getQualifiers(PUBLIC)},
+                {36, 19, getQualifiers(READONLY)},
+                {50, 20, getQualifiers(ISOLATED)},
+                {53, 22, getQualifiers(READONLY)},
+                {57, 16, getQualifiers(CLIENT)},
+                {58, 22, getQualifiers(REMOTE, PUBLIC)},
 //                {70, 24, getQualifiers(RESOURCE)}, // TODO: enable after fixing #26890
 //                {75, 13, getQualifiers(DISTINCT)}, // TODO: enable once issue #26212 is fixed
         };
@@ -95,9 +95,9 @@ public class SymbolFlagToQualifierMappingTest {
     @DataProvider(name = "SymbolKindProvider")
     public Object[][] getSymbolKinds() {
         return new Object[][]{
-                {23, 25, SymbolKind.METHOD},
+                {20, 25, SymbolKind.METHOD},
                 // {69, 10, SymbolKind.SERVICE}, // TODO: enable after fixing #26890
-                {85, 7, SymbolKind.CONSTANT},
+                {82, 7, SymbolKind.CONSTANT},
         };
     }
 

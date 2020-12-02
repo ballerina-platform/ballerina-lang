@@ -95,7 +95,7 @@ public class ServiceValue {
         } else {
             BArray array = (BArray) name;
             names = new String[array.size()];
-            for(int i = 0; i < array.size(); i++) {
+            for (int i = 0; i < array.size(); i++) {
                 names[i] = array.getBString(i).getValue();
             }
         }
