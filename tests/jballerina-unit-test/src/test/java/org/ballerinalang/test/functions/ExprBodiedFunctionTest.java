@@ -43,7 +43,7 @@ public class ExprBodiedFunctionTest {
         compileResult = BCompileUtil.compile("test-src/functions/expr_bodied_functions.bal");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testSyntaxErrors() {
         CompileResult result = BCompileUtil.compile("test-src/functions/expr_bodied_functions_negative.bal");
         int index = 0;
@@ -60,7 +60,6 @@ public class ExprBodiedFunctionTest {
         validateError(result, index++, "invalid token ';'", 20, 1);
         validateError(result, index++, "missing close brace token", 21, 1);
         validateError(result, index++, "missing semicolon token", 21, 1);
-
         validateError(result, index++,
                 "incompatible types: expected 'int', found 'function (int,int) returns (int)'", 26, 1);
         validateError(result, index++, "invalid token 'external'", 26, 1);

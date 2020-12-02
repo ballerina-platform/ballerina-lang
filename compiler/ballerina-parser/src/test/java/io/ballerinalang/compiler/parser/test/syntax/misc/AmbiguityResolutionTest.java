@@ -116,6 +116,11 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
         testFile("ambiguity/ambiguity_source_31.bal", "ambiguity/ambiguity_assert_31.json");
     }
 
+    @Test
+    public void testAmbiguousServiceDeclStarts() {
+        testFile("ambiguity/ambiguity_source_32.bal", "ambiguity/ambiguity_assert_32.json");
+    }
+
     // Recovery tests
 
     @Test

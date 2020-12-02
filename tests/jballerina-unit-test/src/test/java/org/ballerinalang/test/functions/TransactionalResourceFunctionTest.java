@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 /**
  * This class contains tests that are related to resource function with transactional keyword.
  */
+@Test(groups = "disabledOnServiceChange")
 public class TransactionalResourceFunctionTest {
 
     private CompileResult compileResult;

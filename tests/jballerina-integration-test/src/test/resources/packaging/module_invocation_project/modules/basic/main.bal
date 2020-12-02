@@ -34,34 +34,33 @@ public function getInitCount() returns int {
 
 public class TestListener {
 
-    *'object:Listener;
     private string name = "";
 
     public function init(string name){
         self.name = name;
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
         incrementAndAssert(self.name, "basic", 6, false);
         incrementAndAssert(self.name, "first dependent", 7, false);
         incrementAndAssert(self.name, "second dependent", 8, false);
         incrementAndAssert(self.name, "current", 9, false);
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         incrementAndAssert(self.name, "current", 10, true);
         incrementAndAssert(self.name, "second dependent", 11, true);
         incrementAndAssert(self.name, "first dependent", 12, true);
         incrementAndAssert(self.name, "basic", 13, true);
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 }
 

@@ -29,6 +29,10 @@
       "value": "test"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {

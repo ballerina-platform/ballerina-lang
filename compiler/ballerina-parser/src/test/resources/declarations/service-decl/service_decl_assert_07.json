@@ -16,12 +16,42 @@
       ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "echoService",
-      "trailingMinutiae": [
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
         {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "echoService",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "SLASH_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
+        },
+        {
+          "kind": "SLASH_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "bar",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -39,29 +69,24 @@
       "children": []
     },
     {
-      "kind": "SERVICE_BODY",
-      "children": [
+      "kind": "OPEN_BRACE_TOKEN",
+      "trailingMinutiae": [
         {
-          "kind": "OPEN_BRACE_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ]
-        },
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN",
+      "trailingMinutiae": [
         {
-          "kind": "LIST",
-          "children": []
-        },
-        {
-          "kind": "CLOSE_BRACE_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ]
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
         }
       ]
     }

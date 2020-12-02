@@ -17,9 +17,9 @@
 import ballerina/testobserve;
 import intg_tests/tracing_tests.utils as utils;
 
-service testServiceOne on new testobserve:Listener(9092) {
+service /testServiceOne on new testobserve:Listener(9092) {
     # Resource function for testing whether no return functions are instrumented properly.
-    resource function resourceOne(testobserve:Caller caller, string body) {
+    resource function get resourceOne(testobserve:Caller caller, string body) {
         int numberCount = checkpanic 'int:fromString(body);
         var sum = 0;
         foreach var i in 1 ... numberCount {
@@ -29,7 +29,7 @@ service testServiceOne on new testobserve:Listener(9092) {
     }
 
     # Resource function for testing whether optional error return functions are instrumented properly.
-    resource function resourceTwo(testobserve:Caller caller, string body) returns error? {
+    resource function get resourceTwo(testobserve:Caller caller, string body) returns error? {
         int numberCount = checkpanic 'int:fromString(body);
         var sum = 0;
         foreach var i in 1 ... numberCount {
@@ -39,7 +39,7 @@ service testServiceOne on new testobserve:Listener(9092) {
     }
 
     # Resource function for testing whether returning errors from the resource functions are handled properly.
-    resource function resourceThree(testobserve:Caller caller) returns error? {
+    resource function get resourceThree(testobserve:Caller caller) returns error? {
         var sum = 0;
         foreach var i in 1 ... 10 {
             sum = sum + i;
@@ -55,7 +55,7 @@ service testServiceOne on new testobserve:Listener(9092) {
     }
 
     # Resource function for testing whether panicking from within resource function body is handled properly.
-    resource function resourceFour(testobserve:Caller caller) returns error? {
+    resource function get resourceFour(testobserve:Caller caller) returns error? {
         var sum = 0;
         foreach var i in 1 ... 10 {
             sum = sum + i;
@@ -72,20 +72,20 @@ service testServiceOne on new testobserve:Listener(9092) {
     }
 
     # Resource function for testing whether panicking from within a function call is handled properly.
-    resource function resourceFive(testobserve:Caller caller) returns error? {
+    resource function get resourceFive(testobserve:Caller caller) returns error? {
         var sum = panicAfterCalculatingSum(13);
         checkpanic caller->respond("Sum of numbers: " + sum.toString());
     }
 
     # Resource function for testing whether panicking from within a function pointer is handled properly.
-    resource function resourceSix(testobserve:Caller caller) returns error? {
+    resource function get resourceSix(testobserve:Caller caller) returns error? {
         var calFunc = panicAfterCalculatingSum;
         var sum = calFunc(17);
         checkpanic caller->respond("Sum of numbers: " + sum.toString());
     }
 
     # Resource function for testing calling an observable function from within resource
-    resource function resourceSeven(testobserve:Caller caller) {
+    resource function get resourceSeven(testobserve:Caller caller) {
         utils:MockClient testClient1 = new();
         var ret = checkpanic testClient1->callWithReturn(5, 7);
         var expectedSum = 12;
@@ -98,7 +98,7 @@ service testServiceOne on new testobserve:Listener(9092) {
     }
 
     # Resource function for testing early return is handled properly.
-    resource function resourceEight(testobserve:Caller caller) returns error? {
+    resource function get resourceEight(testobserve:Caller caller) returns error? {
         var sum = trap testClient->callWithReturn(3, 13);
         if (sum is int && sum == 16) {
             checkpanic caller->respond("Successfully executed");

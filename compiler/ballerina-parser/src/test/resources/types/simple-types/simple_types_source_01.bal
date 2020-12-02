@@ -9,7 +9,6 @@ public function foo() {
     handle h;
     any i;
     anydata j;
-    service k;
     var l;
     never m;
     readonly n;

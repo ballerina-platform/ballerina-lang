@@ -230,6 +230,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_ERROR_MESSAGE_BINDING_PATTERN("BCE0515", "error.missing.error.message.binding.pattern"),
     ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED("BCE0516",
             "error.configurable.variable.must.be.initialized"),
+    ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION("BCE0517",
+            "error.missing.resource.path.in.resource.accessor.definition"),
+    ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION("BCE0518",
+            "error.missing.resource.path.in.resource.accessor.declaration"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -298,6 +302,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_DOUBLE_HYPHEN_NOT_ALLOWED_WITHIN_XML_COMMENT("BCE0655", "error.double.hyphen.not.allowed.within.xml.comment"),
     ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED("BCE0656",
             "error.version.in.import.declaration.no.longer.supported"),
+    ERROR_MORE_THAN_ONE_OBJECT_NETWORK_QUALIFIERS("BCE657", "error.more.than.one.object.network.qualifiers"),
+    ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER("BCE658", "error.remote.method.has.a.visibility.qualifier"),
+    ERROR_PRIVATE_QUALIFIER_IN_OBJECT_MEMBER_DESCRIPTOR("BCE659",
+            "error.private.qualifier.in.object.member.descriptor"),
+    ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION("BCE660", "error.resource.path.in.function.definition"),
+    ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH("BCE0661",
+            "error.rest.param.must.be.the.last.segment.of.resource.path"),
     ;
 
     String diagnosticId;

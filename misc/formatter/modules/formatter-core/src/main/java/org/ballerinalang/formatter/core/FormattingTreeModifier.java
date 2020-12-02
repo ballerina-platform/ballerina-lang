@@ -171,8 +171,6 @@ import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RollbackStatementNode;
 import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerina.compiler.syntax.tree.ServiceBodyNode;
-import io.ballerina.compiler.syntax.tree.ServiceConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
@@ -598,19 +596,19 @@ public class FormattingTreeModifier extends TreeModifier {
     public ServiceDeclarationNode transform(ServiceDeclarationNode serviceDeclarationNode) {
         MetadataNode metadata = formatNode(serviceDeclarationNode.metadata().orElse(null), 0, 1);
         Token serviceKeyword = formatToken(serviceDeclarationNode.serviceKeyword(), 1, 0);
-        IdentifierToken serviceName = formatToken(serviceDeclarationNode.serviceName().orElse(null), 1, 0);
+        //IdentifierToken serviceName = formatToken(serviceDeclarationNode.serviceName().orElse(null), 1, 0);
         Token onKeyword = formatToken(serviceDeclarationNode.onKeyword(), 1, 0);
         SeparatedNodeList<ExpressionNode> expressions =
                 formatSeparatedNodeList(serviceDeclarationNode.expressions(), 0, 0, 1, 0);
-        Node serviceBody = formatNode(serviceDeclarationNode.serviceBody(), env.trailingWS, env.trailingNL);
+        //Node serviceBody = formatNode(serviceDeclarationNode.serviceBody(), env.trailingWS, env.trailingNL);
 
         return serviceDeclarationNode.modify()
                 .withMetadata(metadata)
                 .withServiceKeyword(serviceKeyword)
-                .withServiceName(serviceName)
+                //.withServiceName(serviceName)
                 .withOnKeyword(onKeyword)
                 .withExpressions(expressions)
-                .withServiceBody(serviceBody)
+                //.withServiceBody(serviceBody)
                 .apply();
     }
 
@@ -639,24 +637,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOpenParenToken(openParenToken)
                 .withArguments(arguments)
                 .withCloseParenToken(closeParenToken)
-                .apply();
-    }
-
-    @Override
-    public ServiceBodyNode transform(ServiceBodyNode serviceBodyNode) {
-        Token openBraceToken = formatToken(serviceBodyNode.openBraceToken(), 0, 1);
-        indent(); // increase indentation for the statements to follow.
-        NodeList<Node> resources = formatNodeList(serviceBodyNode.resources(), 0, 1, 0, 1, true);
-        unindent(); // reset the indentation
-
-        if (serviceBodyNode.resources().isEmpty()) {
-            env.preserveNewlines = true;
-        }
-        Token closeBraceToken = formatToken(serviceBodyNode.closeBraceToken(), env.trailingWS, env.trailingNL);
-        return serviceBodyNode.modify()
-                .withOpenBraceToken(openBraceToken)
-                .withResources(resources)
-                .withCloseBraceToken(closeBraceToken)
                 .apply();
     }
 
@@ -2239,7 +2219,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public ObjectFieldNode transform(ObjectFieldNode objectFieldNode) {
         MetadataNode metadata = formatNode(objectFieldNode.metadata().orElse(null), 0, 1);
         Token visibilityQualifier = formatToken(objectFieldNode.visibilityQualifier().orElse(null), 1, 0);
-        Token finalKeyword = formatToken(objectFieldNode.finalKeyword().orElse(null), 1, 0);
+        //Token finalKeyword = formatToken(objectFieldNode.finalKeyword().orElse(null), 1, 0);
         Node typeName = formatNode(objectFieldNode.typeName(), 1, 0);
         Token fieldName;
         Token equalsToken = formatToken(objectFieldNode.equalsToken().orElse(null), 1, 0);
@@ -2254,7 +2234,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return objectFieldNode.modify()
                 .withMetadata(metadata)
                 .withVisibilityQualifier(visibilityQualifier)
-                .withFinalKeyword(finalKeyword)
+                //.withFinalKeyword(finalKeyword)
                 .withTypeName(typeName)
                 .withFieldName(fieldName)
                 .withEqualsToken(equalsToken)
@@ -2313,19 +2293,19 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public AnnotationAttachPointNode transform(AnnotationAttachPointNode annotationAttachPointNode) {
         Token sourceKeyword = formatToken(annotationAttachPointNode.sourceKeyword().orElse(null), 1, 0);
-        Token firstIdent;
-        if (annotationAttachPointNode.secondIdent().isPresent()) {
-            firstIdent = formatToken(annotationAttachPointNode.firstIdent(), 1, 0);
-        } else {
-            firstIdent = formatToken(annotationAttachPointNode.firstIdent(), env.trailingWS, env.trailingNL);
-        }
-
-        Token secondIdent = formatToken(annotationAttachPointNode.secondIdent().orElse(null), env.trailingWS,
-                env.trailingNL);
+//        Token firstIdent;
+//        if (annotationAttachPointNode.secondIdent().isPresent()) {
+//            firstIdent = formatToken(annotationAttachPointNode.firstIdent(), 1, 0);
+//        } else {
+//            firstIdent = formatToken(annotationAttachPointNode.firstIdent(), env.trailingWS, env.trailingNL);
+//        }
+//
+//        Token secondIdent = formatToken(annotationAttachPointNode.secondIdent().orElse(null), env.trailingWS,
+//                env.trailingNL);
         return annotationAttachPointNode.modify()
                 .withSourceKeyword(sourceKeyword)
-                .withFirstIdent(firstIdent)
-                .withSecondIdent(secondIdent)
+//                .withFirstIdent(firstIdent)
+//                .withSecondIdent(secondIdent)
                 .apply();
     }
 
@@ -3037,33 +3017,33 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
-    @Override
-    public ServiceConstructorExpressionNode transform(
-            ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        NodeList<AnnotationNode> annots = serviceConstructorExpressionNode.annotations();
-        NodeList<AnnotationNode> annotations;
-        if (annots.size() <= 1) {
-            annotations = formatNodeList(serviceConstructorExpressionNode.annotations(), 1, 0, 1,
-                    0);
-        } else {
-            annotations = formatNodeList(serviceConstructorExpressionNode.annotations(), 0, 1, 0,
-                    1);
-        }
-
-        Token serviceKeyword = formatToken(serviceConstructorExpressionNode.serviceKeyword(), 1, 0);
-        int prevIndentation = env.currentIndentation;
-        // Set indentation for braces.
-        int fieldIndentation = env.lineLength - serviceKeyword.text().length() - 1;
-        setIndentation(fieldIndentation);
-        Node serviceBody = formatNode(serviceConstructorExpressionNode.serviceBody(), env.trailingWS, env.trailingNL);
-        setIndentation(prevIndentation);
-
-        return serviceConstructorExpressionNode.modify()
-                .withAnnotations(annotations)
-                .withServiceKeyword(serviceKeyword)
-                .withServiceBody(serviceBody)
-                .apply();
-    }
+//    @Override
+//    public ServiceConstructorExpressionNode transform(
+//            ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+//        NodeList<AnnotationNode> annots = serviceConstructorExpressionNode.annotations();
+//        NodeList<AnnotationNode> annotations;
+//        if (annots.size() <= 1) {
+//            annotations = formatNodeList(serviceConstructorExpressionNode.annotations(), 1, 0, 1,
+//                    0);
+//        } else {
+//            annotations = formatNodeList(serviceConstructorExpressionNode.annotations(), 0, 1, 0,
+//                    1);
+//        }
+//
+//        Token serviceKeyword = formatToken(serviceConstructorExpressionNode.serviceKeyword(), 1, 0);
+//        int prevIndentation = env.currentIndentation;
+//        // Set indentation for braces.
+//        int fieldIndentation = env.lineLength - serviceKeyword.text().length() - 1;
+//        setIndentation(fieldIndentation);
+//        Node serviceBody = formatNode(serviceConstructorExpressionNode.serviceBody(), env.trailingWS, env.trailingNL);
+//        setIndentation(prevIndentation);
+//
+//        return serviceConstructorExpressionNode.modify()
+//                .withAnnotations(annotations)
+//                .withServiceKeyword(serviceKeyword)
+//                .withServiceBody(serviceBody)
+//                .apply();
+//    }
 
     @Override
     public TypeReferenceTypeDescNode transform(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
