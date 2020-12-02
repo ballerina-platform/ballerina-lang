@@ -83,10 +83,10 @@ public class TestBaloWriter {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
         String baloName = ProjectUtils.getBaloName(
+                project.currentPackage().manifest().platform(JdkVersion.JAVA_11.code()),
                 project.currentPackage().packageOrg().toString(),
                 project.currentPackage().packageName().toString(),
-                project.currentPackage().packageVersion().toString(),
-                null);
+                project.currentPackage().packageVersion().toString());
         Path baloPath = target.getBaloPath().resolve(baloName);
         // balo name
         Assert.assertEquals(baloName, "foo-winery-any-0.1.0.balo");
@@ -213,10 +213,10 @@ public class TestBaloWriter {
         Target target = new Target(project.sourceRoot());
 
         String baloName = ProjectUtils.getBaloName(
+                project.currentPackage().manifest().platform(JdkVersion.JAVA_11.code()),
                 project.currentPackage().packageOrg().toString(),
                 project.currentPackage().packageName().toString(),
-                project.currentPackage().packageVersion().toString(),
-                null);
+                project.currentPackage().packageVersion().toString());
         Path baloPath = target.getBaloPath().resolve(baloName);
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
@@ -270,9 +270,11 @@ public class TestBaloWriter {
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
-        String baloName = ProjectUtils.getBaloName(project.currentPackage().packageOrg().toString(),
-                project.currentPackage().packageName().toString(), project.currentPackage().packageVersion().toString(),
-                null);
+        String baloName = ProjectUtils.getBaloName(
+                project.currentPackage().manifest().platform(JdkVersion.JAVA_11.code()),
+                project.currentPackage().packageOrg().toString(),
+                project.currentPackage().packageName().toString(),
+                project.currentPackage().packageVersion().toString());
         Path baloPath = target.getBaloPath().resolve(baloName);
         // balo name
         Assert.assertEquals(baloName, "samjs-package_d-any-0.1.0.balo");

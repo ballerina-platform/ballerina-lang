@@ -18,6 +18,7 @@
 package io.ballerina.projects.util;
 
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
@@ -181,11 +182,10 @@ public class ProjectUtils {
     }
 
     public static String getBaloName(PackageManifest pkgDesc) {
-        return ProjectUtils.getBaloName(pkgDesc.org().toString(),
-                pkgDesc.name().toString(),
-                pkgDesc.version().toString(),
-                null
-        );
+        return ProjectUtils.getBaloName(pkgDesc.platform(JdkVersion.JAVA_11.code()),
+                                        pkgDesc.org().toString(),
+                                        pkgDesc.name().toString(),
+                                        pkgDesc.version().toString());
     }
 
     public static String getBaloName(String org, String pkgName, String version, String platform) {
@@ -194,6 +194,17 @@ public class ProjectUtils {
             platform = "any";
         }
         return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
+    }
+
+    public static String getBaloName(PackageManifest.Platform platform, String org, String pkgName, String version) {
+        // <org-name>-<package-name>-<platform>-<version>.balo
+        String platformStr;
+        if (platform == null || platform.dependencies() == null || platform.dependencies().isEmpty()) {
+            platformStr = "any";
+        } else {
+            platformStr = JdkVersion.JAVA_11.code();
+        }
+        return org + "-" + pkgName + "-" + platformStr + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
     public static String getJarFileName(Package pkg) {

@@ -21,6 +21,7 @@ package io.ballerina.cli.task;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.model.Target;
@@ -60,11 +61,12 @@ public class CreateBaloTask implements Task {
         }
 
         JBallerinaBackend jBallerinaBackend;
+        PackageManifest.Platform platform = project.currentPackage().manifest().platform(JdkVersion.JAVA_11.code());
         String baloName = ProjectUtils.getBaloName(
+                platform,
                 project.currentPackage().packageOrg().toString(),
                 project.currentPackage().packageName().toString(),
-                project.currentPackage().packageVersion().toString(),
-                null);
+                project.currentPackage().packageVersion().toString());
         try {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);

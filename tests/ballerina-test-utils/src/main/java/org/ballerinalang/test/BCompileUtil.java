@@ -21,6 +21,7 @@ import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.ProjectLoader;
@@ -101,8 +102,10 @@ public class BCompileUtil {
             return new CompileResult(currentPackage, jBallerinaBackend);
         }
 
+        PackageManifest.Platform platform = currentPackage.manifest().platform(JdkVersion.JAVA_11.code());
+
         Path baloCachePath = baloCachePath(currentPackage.packageOrg().toString(),
-                currentPackage.packageName().toString(), currentPackage.packageVersion().toString());
+                currentPackage.packageName().toString(), currentPackage.packageVersion().toString(), platform);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloCachePath);
 
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
@@ -122,8 +125,9 @@ public class BCompileUtil {
     public static void copyBaloToDistRepository(Path srcPath,
                                                 String org,
                                                 String pkgName,
-                                                String version) throws IOException {
-        Path targetPath = baloCachePath(org, pkgName, version);
+                                                String version,
+                                                PackageManifest.Platform platform) throws IOException {
+        Path targetPath = baloCachePath(org, pkgName, version, platform);
         Files.copy(srcPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
@@ -151,7 +155,8 @@ public class BCompileUtil {
 
     private static Path baloCachePath(String org,
                                       String pkgName,
-                                      String version) {
+                                      String version,
+                                      PackageManifest.Platform platform) {
         try {
             Path distributionCache = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
             Path baloDirPath = distributionCache.resolve("balo")
@@ -159,7 +164,7 @@ public class BCompileUtil {
                     .resolve(pkgName)
                     .resolve(version);
             Files.createDirectories(baloDirPath);
-            String baloFileName = ProjectUtils.getBaloName(org, pkgName, version, null);
+            String baloFileName = ProjectUtils.getBaloName(platform, org, pkgName, version);
             return baloDirPath.resolve(baloFileName);
         } catch (IOException e) {
             throw new RuntimeException("error while creating the balo distribution cache directory at " +
