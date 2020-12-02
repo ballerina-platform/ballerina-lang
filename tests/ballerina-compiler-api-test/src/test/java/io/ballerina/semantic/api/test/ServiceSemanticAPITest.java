@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -31,7 +32,10 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
 import static io.ballerina.compiler.api.symbols.Qualifier.LISTENER;
@@ -122,5 +126,33 @@ public class ServiceSemanticAPITest {
                 {70, 22, "$get$processRequest", List.of(RESOURCE)},
                 {72, 13, "createError", new ArrayList<Qualifier>()}
         };
+    }
+
+    @Test(dataProvider = "LookupPosProvider")
+    public void testInScopeSymbolLookup(int line, int col, List<String> expSymNames) {
+        List<Symbol> inscopeSymbols = model.visibleSymbols("service_symbol_test.bal", from(line, col));
+        List<Symbol> sourceFileSymbols = getFilteredSymbolNames(inscopeSymbols);
+
+        assertEquals(sourceFileSymbols.size(), expSymNames.size());
+        assertList(sourceFileSymbols, expSymNames);
+    }
+
+    @DataProvider(name = "LookupPosProvider")
+    public Object[][] getLookupPos() {
+        List<String> moduleSymbols = List.of("AServiceType", "Listener", "lsn", "ProcessingService", "AServiceClass");
+        return new Object[][]{
+                {68, 26, concatSymbols(moduleSymbols, "magic")},
+//                {70, 59, concatSymbols(moduleSymbols, "magic", "createError")} // TODO: Fix #27314
+        };
+    }
+
+    private List<Symbol> getFilteredSymbolNames(List<Symbol> symbols) {
+        return symbols.stream()
+                .filter(s -> !"ballerina".equals(s.moduleID().orgName()))
+                .collect(Collectors.toList());
+    }
+
+    private List<String> concatSymbols(List<String> moduleSymbols, String... symbols) {
+        return Stream.concat(moduleSymbols.stream(), Arrays.stream(symbols)).collect(Collectors.toList());
     }
 }
