@@ -207,7 +207,7 @@ public class SortingUtil {
         Optional<Node> typeDesc;
         switch (owner.kind()) {
             case LISTENER_DECLARATION:
-                typeDesc = Optional.ofNullable(((ListenerDeclarationNode) owner).typeDescriptor());
+                typeDesc = Optional.ofNullable(((ListenerDeclarationNode) owner).typeDescriptor().orElse(null));
                 break;
             case LOCAL_VAR_DECL:
                 typeDesc = Optional.ofNullable(((VariableDeclarationNode) owner).typedBindingPattern()

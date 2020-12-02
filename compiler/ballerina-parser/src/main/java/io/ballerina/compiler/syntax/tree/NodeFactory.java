@@ -97,13 +97,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             MetadataNode metadata,
             Token visibilityQualifier,
             Token listenerKeyword,
-            Node typeDescriptor,
+            TypeDescriptorNode typeDescriptor,
             Token variableName,
             Token equalsToken,
             Node initializer,
             Token semicolonToken) {
         Objects.requireNonNull(listenerKeyword, "listenerKeyword must not be null");
-        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
         Objects.requireNonNull(variableName, "variableName must not be null");
         Objects.requireNonNull(equalsToken, "equalsToken must not be null");
         Objects.requireNonNull(initializer, "initializer must not be null");
@@ -113,7 +112,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 getOptionalSTNode(metadata),
                 getOptionalSTNode(visibilityQualifier),
                 listenerKeyword.internalNode(),
-                typeDescriptor.internalNode(),
+                getOptionalSTNode(typeDescriptor),
                 variableName.internalNode(),
                 equalsToken.internalNode(),
                 initializer.internalNode(),

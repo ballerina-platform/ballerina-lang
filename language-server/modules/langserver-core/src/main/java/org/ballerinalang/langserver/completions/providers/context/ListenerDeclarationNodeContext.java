@@ -245,9 +245,14 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     }
 
     private Optional<ObjectTypeSymbol> getListenerTypeDesc(CompletionContext context, ListenerDeclarationNode node) {
-        Node typeDescriptor = node.typeDescriptor();
         Optional<ObjectTypeSymbol> typeSymbol = Optional.empty();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+
+        if (node.typeDescriptor().isEmpty()) {
+            return typeSymbol;
+        }
+
+        Node typeDescriptor = node.typeDescriptor().get();
         if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
             Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context,

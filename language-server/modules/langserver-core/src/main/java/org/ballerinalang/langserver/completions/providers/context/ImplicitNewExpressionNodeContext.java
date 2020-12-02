@@ -70,7 +70,11 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
 
         switch (node.parent().kind()) {
             case LISTENER_DECLARATION:
-                typeDescriptor = ((ListenerDeclarationNode) node.parent()).typeDescriptor();
+                ListenerDeclarationNode listenerDeclarationNode = (ListenerDeclarationNode) node.parent();
+                if (listenerDeclarationNode.typeDescriptor().isEmpty()) {
+                    return Optional.empty();
+                }
+                typeDescriptor = listenerDeclarationNode.typeDescriptor().get();
                 break;
             case LOCAL_VAR_DECL:
                 typeDescriptor = ((VariableDeclarationNode) node.parent()).typedBindingPattern().typeDescriptor();
