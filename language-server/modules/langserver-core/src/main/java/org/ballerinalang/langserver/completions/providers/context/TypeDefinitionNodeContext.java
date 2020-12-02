@@ -62,10 +62,6 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         List<LSCompletionItem> completionItems = this.getTypeItems(context);
         completionItems.addAll(this.getModuleCompletionItems(context));
         completionItems.addAll(this.getObjectTypeQualifierItems(context));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR_TYPE_DESC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
 
         return completionItems;
     }
