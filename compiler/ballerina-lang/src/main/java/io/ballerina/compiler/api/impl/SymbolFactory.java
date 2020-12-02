@@ -25,7 +25,6 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.impl.symbols.BallerinaParameterSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaServiceSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
@@ -47,7 +46,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -116,9 +114,7 @@ public class SymbolFactory {
             if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
                 return createWorkerSymbol((BVarSymbol) symbol, name);
             }
-            if (symbol instanceof BServiceSymbol) {
-                return createServiceSymbol((BServiceSymbol) symbol, name);
-            }
+
             // return the variable symbol
             return createVariableSymbol((BVarSymbol) symbol, name);
         }
@@ -228,10 +224,6 @@ public class SymbolFactory {
         return new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol.pkgID, symbol)
                 .withReturnType(typesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint))
                 .build();
-    }
-
-    public BallerinaServiceSymbol createServiceSymbol(BServiceSymbol symbol, String name) {
-        return new BallerinaServiceSymbol.ServiceSymbolBuilder(this.context, name, symbol.pkgID, symbol).build();
     }
 
     /**
