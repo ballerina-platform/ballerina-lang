@@ -41,6 +41,7 @@ import static io.ballerina.compiler.api.symbols.Qualifier.LISTENER;
 import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.READONLY;
 import static io.ballerina.compiler.api.symbols.Qualifier.REMOTE;
+import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -71,16 +72,16 @@ public class SymbolFlagToQualifierMappingTest {
     @DataProvider(name = "QualifierProvider")
     public Object[][] getPositionsAndQualifiers() {
         return new Object[][]{
-                {17, 27, getQualifiers(LISTENER, FINAL)},
-                {19, 13, Collections.EMPTY_SET},
-                {20, 25, getQualifiers(PUBLIC)},
-                {36, 19, getQualifiers(READONLY)},
-                {50, 20, getQualifiers(ISOLATED)},
-                {53, 22, getQualifiers(READONLY)},
-                {57, 16, getQualifiers(CLIENT)},
-                {58, 22, getQualifiers(REMOTE, PUBLIC)},
-//                {70, 24, getQualifiers(RESOURCE)}, // TODO: enable after fixing #26890
-//                {75, 13, getQualifiers(DISTINCT)}, // TODO: enable once issue #26212 is fixed
+                {18, 27, getQualifiers(LISTENER, FINAL)},
+                {20, 13, Collections.EMPTY_SET},
+                {21, 20, getQualifiers(PUBLIC)},
+                {37, 19, getQualifiers(READONLY)},
+                {51, 20, getQualifiers(ISOLATED)},
+                {54, 22, getQualifiers(READONLY)},
+                {58, 16, getQualifiers(CLIENT)},
+                {59, 22, getQualifiers(REMOTE)},
+                {67, 17, getQualifiers(LISTENER, FINAL)},
+                {68, 24, getQualifiers(RESOURCE)}
         };
     }
 
@@ -95,9 +96,8 @@ public class SymbolFlagToQualifierMappingTest {
     @DataProvider(name = "SymbolKindProvider")
     public Object[][] getSymbolKinds() {
         return new Object[][]{
-                {20, 25, SymbolKind.METHOD},
-                // {69, 10, SymbolKind.SERVICE}, // TODO: enable after fixing #26890
-                {82, 7, SymbolKind.CONSTANT},
+                {21, 20, SymbolKind.METHOD},
+                {77, 7, SymbolKind.CONSTANT},
         };
     }
 

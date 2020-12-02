@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -238,6 +239,22 @@ public class ReferenceFinder extends BaseVisitor {
 
         if (funcNode.symbol.origin != VIRTUAL) {
             addIfSameSymbol(funcNode.symbol, funcNode.name.pos);
+        }
+    }
+
+    @Override
+    public void visit(BLangResourceFunction resourceFunction) {
+        find(resourceFunction.annAttachments);
+        find(resourceFunction.requiredParams);
+        find(resourceFunction.restParam);
+        find(resourceFunction.returnTypeAnnAttachments);
+        find(resourceFunction.returnTypeNode);
+        find(resourceFunction.body);
+        find(resourceFunction.pathParams);
+        find(resourceFunction.restPathParam);
+
+        if (resourceFunction.symbol.origin != VIRTUAL) {
+            addIfSameSymbol(resourceFunction.symbol, resourceFunction.name.pos);
         }
     }
 

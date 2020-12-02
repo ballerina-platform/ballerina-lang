@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -258,6 +259,20 @@ class SymbolFinder extends BLangNodeVisitor {
         lookupNode(funcNode.restParam);
         lookupNode(funcNode.returnTypeNode);
         lookupNode(funcNode.body);
+    }
+
+    @Override
+    public void visit(BLangResourceFunction resourceFunction) {
+        if (setEnclosingNode(resourceFunction.symbol, resourceFunction.name.pos)) {
+            return;
+        }
+
+        lookupNodes(resourceFunction.requiredParams);
+        lookupNode(resourceFunction.restParam);
+        lookupNode(resourceFunction.returnTypeNode);
+        lookupNode(resourceFunction.body);
+        lookupNode(resourceFunction.restPathParam);
+        lookupNodes(resourceFunction.pathParams);
     }
 
     @Override
