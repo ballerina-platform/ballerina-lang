@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -375,7 +377,12 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
 
         BLangTypeTestExpr errorCheck = desugar.createTypeCheckExpr(pos, trxResultRef, desugar.getErrorOrNillTypeNode());
-        rollbackCheck.expr = ASTBuilderUtil.createBinaryExpr(pos, errorCheck, transactionErrorCheckGroupExpr,
+        BLangBinaryExpr isErrorCheck = ASTBuilderUtil.createBinaryExpr(pos, errorCheck, transactionErrorCheckGroupExpr,
+                symTable.booleanType, OperatorKind.AND, null);
+
+        BLangTransactionalExpr isTransactionalCheck = TreeBuilder.createTransactionalExpressionNode();
+        isTransactionalCheck.pos = pos;
+        rollbackCheck.expr = ASTBuilderUtil.createBinaryExpr(pos, isErrorCheck, isTransactionalCheck,
                 symTable.booleanType, OperatorKind.AND, null);
         rollbackCheck.body = ASTBuilderUtil.createBlockStmt(pos);
 
