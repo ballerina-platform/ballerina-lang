@@ -18,27 +18,34 @@ import ballerina/http;
 import ballerina/log;
 
 http:ClientConfiguration statusLineLimitConfig = {
-    http1Settings: {
+    responseLimits: {
         maxStatusLineLength: 1024
     }
 };
 
 http:ClientConfiguration headerLimitConfig = {
-    http1Settings: {
+    responseLimits: {
         maxHeaderSize: 1024
     }
 };
 
 http:ClientConfiguration  entityBodyLimitConfig = {
-    http1Settings: {
+    responseLimits: {
         maxEntityBodySize: 1024
+    }
+};
+
+http:ClientConfiguration http2headerLimitConfig = {
+    httpVersion: "2.0",
+    responseLimits: {
+        maxHeaderSize: 1024
     }
 };
 
 http:Client statusLimitClient = new("http://localhost:9262/backend/statustest", statusLineLimitConfig);
 http:Client headerLimitClient = new("http://localhost:9263/backend/headertest", headerLimitConfig);
 http:Client entityBodyLimitClient = new("http://localhost:9264/backend/entitybodytest", entityBodyLimitConfig);
-
+http:Client http2headerLimitClient = new("http://localhost:9263/backend/headertest", http2headerLimitConfig);
 
 @http:ServiceConfig {basePath:"/responseLimit"}
 service passthruLimitService on new http:Listener(9261) {
@@ -53,6 +60,8 @@ service passthruLimitService on new http:Listener(9261) {
             clientEP = statusLimitClient;
         } else if (clientType == "header") {
             clientEP = headerLimitClient;
+        } else if (clientType == "http2") {
+            clientEP = http2headerLimitClient;
         }
 
         var clientResponse = clientEP->forward("/", <@untainted>req);
@@ -75,7 +84,6 @@ service passthruLimitService on new http:Listener(9261) {
 
 @http:ServiceConfig {basePath:"/backend"}
 service statusBackendService on new http:Listener(9262) {
-
     resource function statustest(http:Caller caller, http:Request req) {
         http:Response res = new;
         string testType = req.getHeader("x-test-type");
@@ -87,8 +95,8 @@ service statusBackendService on new http:Listener(9262) {
         res.setTextPayload("Hello World!!!");
         sendResponse(caller, res);
     }
-
 }
+
 @http:ServiceConfig {basePath:"/backend"}
 service headertBackendService on new http:Listener(9263) {
     resource function headertest(http:Caller caller, http:Request req) {
@@ -103,6 +111,7 @@ service headertBackendService on new http:Listener(9263) {
         sendResponse(caller, res);
     }
 }
+
 @http:ServiceConfig {basePath:"/backend"}
 service entitybodyBackendService on new http:Listener(9264) {
     resource function entitybodytest(http:Caller caller, http:Request req) {
@@ -113,6 +122,22 @@ service entitybodyBackendService on new http:Listener(9264) {
         } else {
             res.setTextPayload("Small payload");
         }
+        sendResponse(caller, res);
+    }
+}
+
+
+@http:ServiceConfig {basePath:"/backend"}
+service headertBackendService on new http:Listener(9263) {
+    resource function headertest(http:Caller caller, http:Request req) {
+        http:Response res = new;
+        string testType = req.getHeader("x-test-type");
+        if (testType == "error") {
+            res.setHeader("x-header", getStringLengthOf(2048));
+        } else {
+            res.setHeader("x-header", "Validated");
+        }
+        res.setTextPayload("Hello World!!!");
         sendResponse(caller, res);
     }
 }
