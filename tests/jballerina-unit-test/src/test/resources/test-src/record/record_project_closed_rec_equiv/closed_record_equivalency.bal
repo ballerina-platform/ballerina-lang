@@ -173,7 +173,7 @@ function testRuntimeEqPublicStructsInSamePackage () returns string|error {
 
     userPA uA = uFoo;
 
-    var uB = <userPB> uA.cloneWithType(userPB);
+    var uB = <userPB> check uA.cloneWithType(userPB);
     return uB.name;
 }
 
@@ -193,7 +193,7 @@ function testRuntimeEqPublicStructs1 () returns string|error {
     userPA uA = uFoo;
 
     // This is a unsafe cast
-    var uB  = <req2:closedUserPB> uA.cloneWithType(req2:closedUserPB);
+    var uB  = <req2:closedUserPB> check uA.cloneWithType(req2:closedUserPB);
     return uB.name;
 }
 

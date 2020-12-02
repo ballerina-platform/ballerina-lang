@@ -89,22 +89,25 @@ public class ForeachJSONTypedBindingPatternsTests {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'json'.*")
+            expectedExceptionsMessageRegExp =
+                    ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible types: '\\(\\)' cannot be cast" +
+                            " to 'map<json>'.*")
     public void testDirectAccessInvalidElementWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}ConversionError {\"message\":\"cannot convert " 
-                + "'null' value to type 'map<json>'\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types: '" +
+                "()' cannot be cast to 'map<json>'\"}");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'json'.*")
+            expectedExceptionsMessageRegExp =
+                    ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible types: '\\(\\)' cannot be cast" +
+                            " to 'map<json>'.*")
     public void testDirectAccessInvalidElementWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}ConversionError {\"message\":\"cannot convert 'null'" 
-                + " " +
-                "value to type 'map<json>'\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types: '" +
+                "()' cannot be cast to 'map<json>'\"}");
     }
 
     @Test

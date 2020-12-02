@@ -94,15 +94,6 @@ public class ForeachJSONTests {
         Assert.assertEquals(returns[0].stringValue(), result);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'map<json>'.*")
-    public void testJSONNull() {
-        String result = "{ballerina}ConversionError {\"message\":\"cannot convert 'null' value to type 'map<json>'\"}";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONNull");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
-    }
-
     @Test(enabled = false)
     public void testJSONToStructCast() {
         String result = "a-h1 b-h2 ";

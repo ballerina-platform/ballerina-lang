@@ -13,8 +13,16 @@ function testTypeOfNeverReturnTypedFunction() {
     if (actualFunctionType is typedesc<function () returns (never)>) {
         return;
     }
+
+    string expectedValAsString = "";
+    if (expectedFunctionType is error) {
+        expectedValAsString = expectedFunctionType.toString();
+    } else {
+        expectedValAsString = expectedFunctionType.toString();
+    }
+
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expectedFunctionType.toString() + "', found '" + actualFunctionType.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualFunctionType.toString() + "'");
 }
 
 function testNeverReturnTypedFunctionCall() {

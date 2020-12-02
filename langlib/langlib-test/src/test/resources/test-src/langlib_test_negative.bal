@@ -38,6 +38,24 @@ function testEnsureTypeWithUnion1() returns error? {
     int|string|float[] name = check j.name;
 }
 
+function testToStringNegative() {
+    json j = {
+        name : "Name",
+        address : {
+            country : "Country",
+            city : "City"
+        }
+    };
+
+    var x1 = j.age.toString();
+    var x2 = j.address.town.toString();
+    var x3 = foo().toString();
+}
+
+function foo() returns int|error {
+    return error("Error");
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
@@ -47,5 +65,19 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = "";
+    string actualValAsString = "";
+    if (expected is error) {
+        expectedValAsString = expected.toString();
+    } else {
+        expectedValAsString = expected.toString();
+    }
+
+    if (actual is error) {
+        actualValAsString = actual.toString();
+    } else {
+        actualValAsString = actual.toString();
+    }
+
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

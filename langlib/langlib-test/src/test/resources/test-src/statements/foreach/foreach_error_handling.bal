@@ -24,7 +24,10 @@ function testArrayForeachAndTrap() returns int {
     string[] validArray = ["2", "5", "7"];
     result = trap convertAndGetSumFromArray(validArray);
     assertTrue(result is int);
-    return <int>result;
+    if (result is int) {
+        return result;
+    }
+    return -1;
 }
 
 function testArrayForeachAndPanic() {
@@ -38,17 +41,25 @@ function testArrayForeachAndPanic() {
 function convertAndGetSumFromArray(string[] stringNumbers) returns int {
     int sum = 0;
     stringNumbers.forEach(function (string s) {
-	    int val = <int>ints:fromString(s);
+	    int val = checkpanic ints:fromString(s);
         sum = sum + val;
     });
     return sum;
 }
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
     if actual is boolean && actual {
         return;
     }
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'true', found '" + actual.toString () + "'");
+
+    string actualValAsString = "";
+    if (actual is error) {
+        actualValAsString = actual.toString();
+    } else {
+        actualValAsString = actual.toString();
+    }
+
+    panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found '" + actualValAsString + "'");
 }

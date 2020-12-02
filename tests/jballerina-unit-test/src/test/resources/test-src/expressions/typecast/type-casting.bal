@@ -493,7 +493,7 @@ function testJSONValueCasting() returns [string|error, int|error, float|error, b
     return [s, i, f, b];
 }
 
-function testAnyToTable(){
+function testAnyToTable() {
     table<Employee> tb = table [
                     {id:1, name:"Jane"},
                     {id:2, name:"Anne"}
@@ -501,7 +501,7 @@ function testAnyToTable(){
 
     any anyValue = tb;
     var casted = <table<Employee>> anyValue;
-    table<Employee>|error  castedValue = casted;
+    table<Employee>  castedValue = casted;
     assertEquality("[{\"id\":1,\"name\":\"Jane\"},{\"id\":2,\"name\":\"Anne\"}]", castedValue.toString());
 }
 
@@ -528,5 +528,20 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = "";
+    string actualValAsString = "";
+    if (expected is error) {
+        expectedValAsString = expected.toString();
+    } else {
+        expectedValAsString = expected.toString();
+    }
+
+    if (actual is error) {
+        actualValAsString = actual.toString();
+    } else {
+        actualValAsString = actual.toString();
+    }
+
+    panic AssertionError(ASSERTION_ERROR_REASON,
+                        message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

@@ -88,7 +88,7 @@ function testSimpleAssignmentForInherentlyImmutableBasicTypes() {
 
     readonly j = assertTrue;
     assertTrue(j is function (any|error actual));
-    function (any|error actual) trueFunc = <function (any|error actual)> j;
+    function (any|error actual) trueFunc = <function (any|error actual)> checkpanic j;
     trueFunc(true);
 
     Employee employee = {name: "Jo"};
@@ -199,5 +199,20 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = "";
+    string actualValAsString = "";
+    if (expected is error) {
+        expectedValAsString = expected.toString();
+    } else {
+        expectedValAsString = expected.toString();
+    }
+
+    if (actual is error) {
+        actualValAsString = actual.toString();
+    } else {
+        actualValAsString = actual.toString();
+    }
+
+    panic AssertionError(ASSERTION_ERROR_REASON,
+                            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

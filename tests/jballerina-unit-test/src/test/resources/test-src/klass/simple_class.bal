@@ -79,6 +79,20 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = "";
+    string actualValAsString = "";
+    if (expected is error) {
+        expectedValAsString = expected.toString();
+    } else {
+        expectedValAsString = expected.toString();
+    }
+
+    if (actual is error) {
+        actualValAsString = actual.toString();
+    } else {
+        actualValAsString = actual.toString();
+    }
+
     panic error("AssertionError",
-            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

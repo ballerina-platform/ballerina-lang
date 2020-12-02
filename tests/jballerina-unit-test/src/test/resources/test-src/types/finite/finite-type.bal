@@ -494,8 +494,15 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
     typedesc<any|error> tActual = typeof actual;
+
+    string expectedValAsString = "";
+    if (expected is error) {
+        expectedValAsString = expected.toString();
+    } else {
+        expectedValAsString = expected.toString();
+    }
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + tActual.toString() + "'");
+                message = "expected '" + expectedValAsString + "', found '" + tActual.toString() + "'");
 }
 
 //public const '\- = "-";

@@ -140,6 +140,21 @@ function assertEquality(any|error expected, any|error actual) {
     if expected === actual {
         return;
     }
+
+    string expectedValAsString = "";
+    string actualValAsString = "";
+    if (expected is error) {
+        expectedValAsString = expected.toString();
+    } else {
+        expectedValAsString = expected.toString();
+    }
+
+    if (actual is error) {
+        actualValAsString = actual.toString();
+    } else {
+        actualValAsString = actual.toString();
+    }
+
     panic error(ASSERTION_ERROR_REASON,
-                message = "found '" + expected.toString() + "', expected '" + actual.toString () + "'");
+                message = "found '" + expectedValAsString + "', expected '" + actualValAsString + "'");
 }

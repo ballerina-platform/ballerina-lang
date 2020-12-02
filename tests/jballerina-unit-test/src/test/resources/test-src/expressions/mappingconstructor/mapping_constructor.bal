@@ -112,11 +112,11 @@ function testTypeWithReadOnlyInUnionCET() {
         b: {}
     };
 
-    assertEquality(true, <any> mr is map<map<json>>);
+    assertEquality(true, <any> checkpanic mr is map<map<json>>);
     assertEquality(false, mr is map<map<json>> & readonly);
 
     // Updates should be allowed.
-    map<map<json>> mj = <map<map<json>>> mr;
+    map<map<json>> mj = <map<map<json>>> checkpanic mr;
     mj["a"]["z"] = "z";
     assertEquality(true, mj["b"] is map<json>);
     mj["b"]["a"] = 1;
@@ -144,6 +144,20 @@ function assertEquality(any|error expected, any|error actual) {
 }
 
 function getFailureError(any|error expected, any|error actual) returns error {
+    string expectedValAsString = "";
+    string actualValAsString = "";
+    if (expected is error) {
+        expectedValAsString = expected.toString();
+    } else {
+        expectedValAsString = expected.toString();
+    }
+
+    if (actual is error) {
+        actualValAsString = actual.toString();
+    } else {
+        actualValAsString = actual.toString();
+    }
+
     return  error(ASSERTION_ERROR_REASON,
-                    message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                    message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
