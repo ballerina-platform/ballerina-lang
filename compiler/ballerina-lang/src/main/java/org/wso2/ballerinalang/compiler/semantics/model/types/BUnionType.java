@@ -125,7 +125,7 @@ public class BUnionType extends BType implements UnionType {
 
         String typeStr;
         // improve readability of cyclic union types
-        if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
+        if (isCyclic && (tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
             typeStr = this.tsymbol.getName().getValue();
         } else {
             typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();

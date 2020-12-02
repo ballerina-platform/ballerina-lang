@@ -1152,8 +1152,7 @@ public class BIRPackageSymbolEnter {
                     bArrayType.eType = readTypeFromCp();
                     return bArrayType;
                 case TypeTags.UNION:
-                    BUnionType unionType = readUnionType(flags, cpI);
-                    return unionType;
+                    return readUnionType(flags, cpI);
                 case TypeTags.INTERSECTION:
                     BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
                                                                                   Flags.asMask(EnumSet.of(Flag.PUBLIC)),
@@ -1407,11 +1406,16 @@ public class BIRPackageSymbolEnter {
             return typeInclusions;
         }
 
-        private BUnionType readUnionType(long flags, int cpI) throws IOException {
+        private BType readUnionType(long flags, int cpI) throws IOException {
             boolean isCyclic = inputStream.readBoolean();
             Name unionNameValue;
+            PackageID pkgId = null;
+            String unionName = null;
             if (isCyclic) {
-                unionNameValue = names.fromString(getStringCPEntryValue(inputStream));
+                int pkgCpIndex = inputStream.readInt();
+                pkgId = getPackageId(pkgCpIndex);
+                unionName = getStringCPEntryValue(inputStream);
+                unionNameValue = names.fromString(unionName);
             } else {
                 unionNameValue = Names.EMPTY;
             }
@@ -1422,11 +1426,30 @@ public class BIRPackageSymbolEnter {
             int unionMemberCount = inputStream.readInt();
             BUnionType unionType = BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(unionMemberCount));
             unionType.name = unionNameValue;
-                addShapeCP(unionType, cpI);
+            addShapeCP(unionType, cpI);
+            compositeStack.push(unionType);
             unionType.flags = flags;
             unionType.isCyclic = isCyclic;
             for (int i = 0; i < unionMemberCount; i++) {
                 unionType.add(readTypeFromCp());
+            }
+
+            var poppedUnionType = compositeStack.pop();
+            assert poppedUnionType == unionType;
+
+            if (isCyclic && (pkgId != null)) {
+                if (pkgId.equals(env.pkgSymbol.pkgID)) {
+                    return unionType;
+                } else if (unionName != null) {
+                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
+                    if (pkgEnv != null) {
+                        BType existingUnionType = symbolResolver.lookupSymbolInMainSpace(pkgEnv,
+                                names.fromString(unionName)).type;
+                        if (existingUnionType != symTable.noType) {
+                            return existingUnionType;
+                        }
+                    }
+                }
             }
             return unionType;
         }

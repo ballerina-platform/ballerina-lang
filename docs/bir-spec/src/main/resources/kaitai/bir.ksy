@@ -273,6 +273,8 @@ types:
         type: s4
   type_union:
     seq:
+      - id: pkd_id_cp_index
+        type: s4
       - id: name_cp_index
         type: s4
       - id: is_cyclic

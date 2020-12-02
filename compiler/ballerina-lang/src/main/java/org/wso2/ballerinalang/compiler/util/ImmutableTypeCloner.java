@@ -437,15 +437,16 @@ public class ImmutableTypeCloner {
                                                                                 owner);
                     immutableEffectiveType.tsymbol = immutableUnionTSymbol;
                     immutableUnionTSymbol.name = origUnionType.tsymbol.name;
+                    immutableEffectiveType.flags |= (origUnionType.flags | Flags.READONLY);
 
                     if (immutableUnionTSymbol != null) {
                         immutableUnionTSymbol.type = immutableEffectiveType;
                     }
                 } else {
                     immutableEffectiveType = BUnionType.create(null, readOnlyMemTypes);
+                    immutableEffectiveType.flags |= (origUnionType.flags | Flags.READONLY);
                 }
 
-                immutableEffectiveType.flags |= (origUnionType.flags | Flags.READONLY);
                 BIntersectionType immutableUnionIntersectionType = createImmutableIntersectionType(env, origUnionType,
                         immutableEffectiveType,
                         symTable);
@@ -481,7 +482,7 @@ public class ImmutableTypeCloner {
                                                              BLangAnonymousModelHelper anonymousModelHelper,
                                                              Names names) {
         BRecordType origRecordType = immutableRecordType.mutableType;
-        if (origRecordType != null && origRecordType.fields.size() != immutableRecordType.fields.size()) {
+        if (origRecordType.fields.size() != immutableRecordType.fields.size()) {
 
             populateImmutableStructureFields(types, symTable, anonymousModelHelper, names,
                                              (BLangRecordTypeNode) immutableTypeDefinition.typeNode,

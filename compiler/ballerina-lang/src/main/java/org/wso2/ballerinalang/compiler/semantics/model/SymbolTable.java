@@ -741,8 +741,8 @@ public class SymbolTable {
         cloneableType.add(mapCloneableType);
         cloneableType.add(tableMapCloneableType);
 
-        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
-                cloneableType, langValueModuleSymbol, builtinPos, BUILTIN);
+        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, rootPkgSymbol.pkgID,
+                cloneableType, rootPkgSymbol, builtinPos, BUILTIN);
 
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);
         errorType = new BErrorType(null, detailType);

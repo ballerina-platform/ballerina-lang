@@ -228,7 +228,7 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String toString() {
-        if (resolving) {
+        if (isCyclic && resolving) {
             // show name when visited repeatedly
             if (this.typeName != null) {
                 return this.typeName;
