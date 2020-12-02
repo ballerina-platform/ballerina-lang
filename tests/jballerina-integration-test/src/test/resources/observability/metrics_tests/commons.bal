@@ -16,7 +16,7 @@
 
 import ballerina/testobserve;
 
-service metricsRegistry on new testobserve:Listener(10090) {
+service "metricsRegistry" on new testobserve:Listener(10090) {
     resource function getMetrics(testobserve:Caller caller) {
         json metrics = testobserve:getMetrics();
         checkpanic caller->respond(metrics.toJsonString());

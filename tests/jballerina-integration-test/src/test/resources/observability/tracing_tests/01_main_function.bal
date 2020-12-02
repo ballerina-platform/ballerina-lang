@@ -52,6 +52,6 @@ public function main() returns error? {
         }
     };
     var testObserveListener = new testobserve:Listener(9091);
-    check testObserveListener.__attach(testServiceInMain);
-    check testObserveListener.__start();
+    check testObserveListener.attach(testServiceInMain);
+    check testObserveListener.start();
 }
