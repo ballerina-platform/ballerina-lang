@@ -370,6 +370,8 @@ public class HttpConstants {
     public static final String HTTP2_PRIOR_KNOWLEDGE = "http2PriorKnowledge";
     public static final String HTTP1_SETTINGS = "http1Settings";
     public static final String HTTP2_SETTINGS = "http2Settings";
+    public static final String REQUEST_LIMITS = "requestLimits";
+    public static final String RESPONSE_LIMITS = "responseLimits";
 
     //Connection Throttling field names
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";
