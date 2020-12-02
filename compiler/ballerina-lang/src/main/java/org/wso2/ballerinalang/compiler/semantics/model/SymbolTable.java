@@ -133,6 +133,7 @@ public class SymbolTable {
     public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
     public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
     public final BType anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
+    public final BType intStringFloatOrBoolean = BUnionType.create(null, intType, stringType, floatType, booleanType);
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);

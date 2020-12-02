@@ -36,6 +36,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
@@ -82,6 +83,8 @@ public class Type {
     public boolean isTuple;
     @Expose
     public boolean isIntersectionType;
+    @Expose
+    public boolean isParenthesisedType;
     @Expose
     public boolean isRestParam;
     @Expose
@@ -219,6 +222,10 @@ public class Type {
             SingletonTypeDescriptorNode singletonTypeDesc = (SingletonTypeDescriptorNode) node;
             type.name = singletonTypeDesc.simpleContExprNode().toString();
             type.category = "builtin";
+        } else if (node instanceof ParenthesisedTypeDescriptorNode) {
+            ParenthesisedTypeDescriptorNode parenthesisedNode = (ParenthesisedTypeDescriptorNode) node;
+            type.elementType = fromNode(parenthesisedNode.typedesc(), semanticModel, fileName);
+            type.isParenthesisedType = true;
         } else {
             type.category = "UNKNOWN";
         }

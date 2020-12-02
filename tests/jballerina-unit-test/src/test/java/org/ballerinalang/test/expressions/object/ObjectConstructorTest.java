@@ -99,10 +99,7 @@ public class ObjectConstructorTest {
                 26, 5);
         validateError(negativeResult, index++, "object initializer function can not be declared as " +
                 "private", 30, 5);
-        validateError(negativeResult, index++, "missing identifier", 34, 22);
-        validateError(negativeResult, index++, "missing semicolon token", 34, 22);
-        validateError(negativeResult, index++, "invalid qualifier 'public'", 34, 29);
-        validateError(negativeResult, index++, "missing identifier", 34, 38);
+        validateError(negativeResult, index++, "invalid token 'public'", 34, 29);
         validateError(negativeResult, index++, "type inclusions are not allowed in object constructor",
                 40, 1);
         validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +

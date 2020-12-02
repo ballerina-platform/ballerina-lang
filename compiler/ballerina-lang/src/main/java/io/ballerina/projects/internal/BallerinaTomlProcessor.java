@@ -91,6 +91,13 @@ public class BallerinaTomlProcessor {
         Map<String, Object> otherEntries = toml.toMap();
         Map<String, Object> packageEntry = (Map<String, Object>) otherEntries.remove("package");
 
+        // TODO add package properties which is not available in the `PackageDescriptor` to `otherEntries`
+        // TODO we need to fix this properly later
+        otherEntries.put("license", packageEntry.get("license"));
+        otherEntries.put("authors", packageEntry.get("authors"));
+        otherEntries.put("repository", packageEntry.get("repository"));
+        otherEntries.put("keywords", packageEntry.get("keywords"));
+
         PackageOrg packageOrg = PackageOrg.from((String) packageEntry.get("org"));
         PackageName packageName = PackageName.from((String) packageEntry.get("name"));
         PackageVersion packageVersion = PackageVersion.from((String) packageEntry.get("version"));

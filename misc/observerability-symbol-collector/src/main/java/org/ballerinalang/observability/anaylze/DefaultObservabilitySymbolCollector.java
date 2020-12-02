@@ -19,6 +19,7 @@
 package org.ballerinalang.observability.anaylze;
 
 import com.google.gson.JsonElement;
+import io.ballerina.projects.ProjectException;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
@@ -151,7 +152,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);
             cUnitASTHolder.setAst(jsonAST);
         } catch (JSONGenerationException e) {
-            out.println("ballerina: error while generating json AST for " + cUnit.name + ". " + e.getMessage());
+            throw new ProjectException("failed to generate json AST for " + cUnit.name, e);
         }
         return cUnitASTHolder;
     }

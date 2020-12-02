@@ -113,24 +113,24 @@ public class TestBaloWriter {
 
         try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
             PackageJson packageJson = gson.fromJson(reader, PackageJson.class);
-//            Assert.assertEquals(packageJson.getOrganization(), "foo");
-//            Assert.assertEquals(packageJson.getName(), "winery");
-//            Assert.assertEquals(packageJson.getVersion(), "0.1.0");
+            Assert.assertEquals(packageJson.getOrganization(), "foo");
+            Assert.assertEquals(packageJson.getName(), "winery");
+            Assert.assertEquals(packageJson.getVersion(), "0.1.0");
 
-//            Assert.assertFalse(packageJson.getLicenses().isEmpty());
-//            Assert.assertEquals(packageJson.getLicenses().get(0), "MIT");
-//            Assert.assertEquals(packageJson.getLicenses().get(1), "Apache-2.0");
-//
-//            Assert.assertFalse(packageJson.getAuthors().isEmpty());
-//            Assert.assertEquals(packageJson.getAuthors().get(0), "jo@wso2.com");
-//            Assert.assertEquals(packageJson.getAuthors().get(1), "pramodya@wso2.com");
-//
-//            Assert.assertEquals(packageJson.getSourceRepository(), "https://github.com/ballerinalang/ballerina");
-//
-//            Assert.assertFalse(packageJson.getKeywords().isEmpty());
-//            Assert.assertEquals(packageJson.getKeywords().get(0), "ballerina");
-//            Assert.assertEquals(packageJson.getKeywords().get(1), "security");
-//            Assert.assertEquals(packageJson.getKeywords().get(2), "crypto");
+            Assert.assertFalse(packageJson.getLicenses().isEmpty());
+            Assert.assertEquals(packageJson.getLicenses().get(0), "MIT");
+            Assert.assertEquals(packageJson.getLicenses().get(1), "Apache-2.0");
+
+            Assert.assertFalse(packageJson.getAuthors().isEmpty());
+            Assert.assertEquals(packageJson.getAuthors().get(0), "jo@wso2.com");
+            Assert.assertEquals(packageJson.getAuthors().get(1), "pramodya@wso2.com");
+
+            Assert.assertEquals(packageJson.getSourceRepository(), "https://github.com/ballerinalang/ballerina");
+
+            Assert.assertFalse(packageJson.getKeywords().isEmpty());
+            Assert.assertEquals(packageJson.getKeywords().get(0), "ballerina");
+            Assert.assertEquals(packageJson.getKeywords().get(1), "security");
+            Assert.assertEquals(packageJson.getKeywords().get(2), "crypto");
 //
 //            Assert.assertFalse(packageJson.getExported().isEmpty());
 //            Assert.assertEquals(packageJson.getExported().get(0), "winery");

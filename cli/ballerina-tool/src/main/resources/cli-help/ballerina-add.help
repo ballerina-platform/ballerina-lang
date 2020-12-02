@@ -7,8 +7,8 @@ SYNOPSIS
 
 DESCRIPTION
        Add creates a new directory and initializes a Ballerina module inside
-       the 'modules' directory of the project. The command should be run inside
-       the project root.
+       the 'modules' directory of the package. The command should be run inside
+       the package root.
 
        A template can also be specified when creating the new module.
 
