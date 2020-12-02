@@ -219,7 +219,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangSimpleVarRef trapResultRef = ASTBuilderUtil.createVariableRef(pos, nillableErrorVarSymbol);
 
         BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
-        failStmt.desugaredToFail = true;
         failStmt.pos = pos;
         failStmt.expr = desugar.addConversionExprIfRequired(trapResultRef, symTable.errorType);
 
