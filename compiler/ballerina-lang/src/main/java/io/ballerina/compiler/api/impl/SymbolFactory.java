@@ -42,9 +42,11 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -57,6 +59,8 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.String.format;
 
 /**
  * Represents a set of factory methods to generate the {@link Symbol}s.
@@ -101,7 +105,7 @@ public class SymbolFactory {
         if (symbol instanceof BVarSymbol) {
             if (symbol.kind == SymbolKind.FUNCTION) {
                 if (Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)) {
-                    return createMethodSymbol((BInvokableSymbol) symbol, name);
+                    return createMethodSymbol((BInvokableSymbol) symbol);
                 }
                 return createFunctionSymbol((BInvokableSymbol) symbol, name);
             }
@@ -195,6 +199,17 @@ public class SymbolFactory {
     }
 
     /**
+     * Create a Method Symbol.
+     *
+     * @param invokableSymbol {@link BInvokableSymbol} to convert
+     * @return {@link Symbol} generated
+     */
+    private BallerinaMethodSymbol createMethodSymbol(BInvokableSymbol invokableSymbol) {
+        String name = getMethodName(invokableSymbol, (BObjectTypeSymbol) invokableSymbol.owner);
+        return createMethodSymbol(invokableSymbol, name);
+    }
+
+    /**
      * Create a generic variable symbol.
      *
      * @param symbol {@link BVarSymbol} to convert
@@ -215,6 +230,10 @@ public class SymbolFactory {
         if (isFlagOn(symbol.flags, Flags.READONLY)) {
             symbolBuilder.withQualifier(Qualifier.READONLY);
         }
+        if (isFlagOn(symbol.flags, Flags.PUBLIC)) {
+            symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+
         return symbolBuilder
                 .withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.type))
                 .build();
@@ -361,5 +380,19 @@ public class SymbolFactory {
     // Private methods
     public static boolean isFlagOn(long mask, long flags) {
         return (mask & flags) == flags;
+    }
+
+    private String getMethodName(BInvokableSymbol method, BObjectTypeSymbol owner) {
+        List<BAttachedFunction> methods = new ArrayList<>(owner.attachedFuncs);
+        methods.add(owner.initializerFunc);
+
+        for (BAttachedFunction mthd : methods) {
+            if (method == mthd.symbol) {
+                return mthd.funcName.value;
+            }
+        }
+
+        throw new IllegalStateException(
+                format("Method symbol for '%s' not found in owner symbol '%s'", method.name, owner.name));
     }
 }
