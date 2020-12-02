@@ -140,6 +140,8 @@ public class JvmConstants {
     public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFutureType";
     public static final String MODULE = "io/ballerina/runtime/api/Module";
     public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
+    public static final String CONFIG_VARIABLE = "io/ballerina/runtime/api/internal/configurable/ConfigurableVariable";
+    public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/internal/types/BTypeIdSet$TypeId";
 
@@ -174,6 +176,8 @@ public class JvmConstants {
     public static final String BLANG_EXCEPTION_HELPER =
             "io/ballerina/runtime/internal/util/exceptions/BLangExceptionHelper";
     public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
+    public static final String LISTENER_REGISTRY_CLASS =
+            "io/ballerina/runtime/internal/scheduling/Scheduler$ListenerRegistry";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -264,6 +268,10 @@ public class JvmConstants {
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
     public static final String LOCK_STORE_VAR_NAME = "$LOCK_STORE";
     public static final String RECORD_INIT_WRAPPER_NAME = "$init";
+    public static final String LISTENER_REGISTRY_VARIABLE = "$listenerRegistry";
+    public static final String CONFIGURE_INIT = "$configureInit";
+    public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
+    public static final String POPULATE_CONFIG_DATA_METHOD = "$populateConfigurationData";
 
 
     // scheduler related constants

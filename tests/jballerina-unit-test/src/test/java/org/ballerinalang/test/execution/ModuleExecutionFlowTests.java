@@ -32,25 +32,6 @@ import org.testng.annotations.Test;
 public class ModuleExecutionFlowTests {
 
     @Test
-    public void testModuleExecutionOrder() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj1");
-        ExitDetails output = run(compileResult, new String[]{});
-
-        String expectedString = "Initializing module a\n" +
-                "Initializing module b\n" +
-                "Initializing module c\n" +
-                "Module c main function invoked\n" +
-                "a:ABC listener __start called, service name - ModA\n" +
-                "a:ABC listener __start called, service name - ModB\n" +
-                "a:ABC listener __start called, service name - ModC\n" +
-                "a:ABC listener __gracefulStop called, service name - ModC\n" +
-                "a:ABC listener __gracefulStop called, service name - ModB\n" +
-                "a:ABC listener __gracefulStop called, service name - ModA";
-
-        Assert.assertEquals(output.consoleOutput, expectedString, "evaluated to invalid value");
-    }
-
-    @Test
     public void testModuleInitReturningError() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj2");
         ExitDetails output = run(compileResult, new String[]{});
@@ -115,25 +96,6 @@ public class ModuleExecutionFlowTests {
     }
 
     @Test
-    public void testModuleImmediateStopPanic() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj6");
-        ExitDetails output = run(compileResult, new String[]{});
-
-        String expectedConsoleString = "Initializing module a\n" +
-                "Initializing module b\n" +
-                "Initializing module c\n" +
-                "Module c main function invoked\n" +
-                "a:ABC listener __start called, service name - ModA\n" +
-                "a:ABC listener __start called, service name - ModB\n" +
-                "a:ABC listener __start called, service name - ModC\n" +
-                "a:ABC listener __gracefulStop called, service name - ModC\n" +
-                "a:ABC listener __gracefulStop called, service name - ModB\n" +
-                "a:ABC listener __gracefulStop called, service name - ModA";
-
-        Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
-    }
-
-    @Test
     public void testModuleMainReturnError() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj7");
         ExitDetails output = run(compileResult, new String[]{});
@@ -183,76 +145,6 @@ public class ModuleExecutionFlowTests {
                 "\tat test.basic.0_1_0.TestListener:__start(main.bal:40)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
-    }
-
-    @Test
-    public void testModuleStopPanic() {
-        CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/module_stop_failing_project");
-        ExitDetails output = run(compileResult, new String[]{});
-
-        String expectedConsoleString = "Initializing module 'basic'\n" +
-                "Initializing module 'dependent'\n" +
-                "Initializing module 'current'\n" +
-                "main function invoked for current module\n" +
-                "basic:TestListener listener __start called, service name - basic\n" +
-                "basic:TestListener listener __start called, service name - dependent\n" +
-                "basic:TestListener listener __start called, service name - current\n" +
-                "basic:TestListener listener __gracefulStop called, service name - current\n" +
-                "basic:TestListener listener __gracefulStop called, service name - dependent\n" +
-                "listener __gracefulStop panicked, service name - dependent\n" +
-                "basic:TestListener listener __gracefulStop called, service name - basic";
-        String expectedErrorString = "error: panicked while stopping module 'dependent'\n" +
-                "\tat testorg.module_stop_failing_project$0046basic.0_1_0.TestListener:__gracefulStop(main.bal:44)";
-
-        Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
-        Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
-    }
-
-    @Test(description = "Test 'init' is called only once for each module at runtime")
-    public void testModuleDependencyChainForInit() {
-        CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/module_invocation_project");
-        ExitDetails output = run(compileResult, new String[]{});
-
-        String expectedConsoleString = "Initializing module 'basic'\n" +
-                "Initializing module 'dependent1'\n" +
-                "Initializing module 'dependent2'\n" +
-                "Initializing module 'current'\n" +
-                "main function invoked for current module\n" +
-                "basic:TestListener listener __start called, service name - basic\n" +
-                "basic:TestListener listener __start called, service name - first dependent\n" +
-                "basic:TestListener listener __start called, service name - second dependent\n" +
-                "basic:TestListener listener __start called, service name - current\n" +
-                "basic:TestListener listener __gracefulStop called, service name - current\n" +
-                "basic:TestListener listener __gracefulStop called, service name - second dependent\n" +
-                "basic:TestListener listener __gracefulStop called, service name - first dependent\n" +
-                "basic:TestListener listener __gracefulStop called, service name - basic";
-
-        Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
-    }
-
-    @Test(description = "Test 'start' is called only once for each module at runtime")
-    public void testModuleDependencyChainForStart() {
-        CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/module_start_invocation_project");
-        ExitDetails output = run(compileResult, new String[]{});
-
-        String expectedConsoleString = "Initializing module 'basic'\n" +
-                "Initializing module 'dependent1'\n" +
-                "Initializing module 'dependent2'\n" +
-                "Initializing module 'current'\n" +
-                "main function invoked for current module\n" +
-                "basic:TestListener listener __start called, service name - basic\n" +
-                "basic:TestListener listener __start called, service name - first dependent\n" +
-                "basic:TestListener listener __start called, service name - second dependent\n" +
-                "basic:TestListener listener __start called, service name - current\n" +
-                "basic:TestListener listener __gracefulStop called, service name - current\n" +
-                "basic:TestListener listener __gracefulStop called, service name - second dependent\n" +
-                "basic:TestListener listener __gracefulStop called, service name - first dependent\n" +
-                "basic:TestListener listener __gracefulStop called, service name - basic";
-
-        Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
     }
 
     private ExitDetails run(CompileResult compileResult, String[] args) {

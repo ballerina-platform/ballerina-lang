@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.utils;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
+import com.sun.jdi.ReferenceType;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -25,17 +26,16 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.debugadapter.DebugContext;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -117,65 +117,62 @@ public class PackageUtils {
     }
 
     /**
-     * Returns all the module file names which belong to the current module that is being debugged.
+     * Returns all the module class names which belong to the current module that is being debugged.
      *
-     * @param entryFilePath Current module file where the debug hit is occurred.
-     * @return All the module file names which belong to the current module that is being debugged.
+     * @param context Suspended context
+     * @return All the module class names which belong to the current module that is being debugged.
      */
-    public static List<String> getAllModuleFileNames(String entryFilePath) throws EvaluationException {
+    public static List<String> getModuleClassNames(SuspendedContext context) throws EvaluationException {
         try {
-            // Gets path of the module directory.
-            Path moduleDirPath = null;
-            String[] split = entryFilePath.split(SEPARATOR_REGEX);
-            for (int index = 0; index < split.length; index++) {
-                if (split[index].equals(MODULE_DIR_NAME)) {
-                    String join = String.join(File.separator, Arrays.copyOfRange(split, index + 2, split.length));
-                    moduleDirPath = Paths.get(entryFilePath.replace(join, ""));
-                    break;
-                }
-            }
-            List<String> moduleFileNames = new ArrayList<>();
-            if (moduleDirPath == null) {
-                return moduleFileNames;
-            }
-            // Traverses the file system and retrieve all the bal source files available in the module directory.
-            String moduleDirPathString = moduleDirPath.toString();
-            Files.walk(moduleDirPath).filter(Files::isRegularFile).forEach(path ->
-                    moduleFileNames.add(path.toAbsolutePath().toString().replace(moduleDirPathString, "")));
-            return moduleFileNames;
+            // Todo - use balo reader to derive module class names by accessing module balo files.
+            return new ArrayList<>();
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to retrieve source file names of the current module."));
         }
     }
 
-    public static String[] getNameParts(String path) {
-        String[] srcNames;
-        if (path.contains("/")) {
-            srcNames = path.split("/");
-        } else if (path.contains("\\")) {
-            srcNames = path.split("\\\\");
-        } else {
-            srcNames = new String[]{path};
-        }
-        return srcNames;
-    }
-
-    public static String getFileNameFrom(String filePath) {
+    public static String getFileNameFrom(Path filePath) {
         try {
-            String[] split = filePath.split(SEPARATOR_REGEX);
+            String[] split = filePath.toString().split(SEPARATOR_REGEX);
             String fileName = split[split.length - 1];
-            if (fileName.endsWith(".bal")) {
-                return fileName.replace(".bal", "");
+            if (fileName.endsWith(BAL_FILE_EXT)) {
+                return fileName.replace(BAL_FILE_EXT, "");
             }
             return fileName;
         } catch (Exception e) {
-            return "";
+            return null;
         }
     }
 
     public static boolean isBlank(String str) {
         return str == null || str.isEmpty() || str.chars().allMatch(Character::isWhitespace);
+    }
+
+    /**
+     * Returns full-qualified class name for a given JDI class reference instance.
+     *
+     * @param context       Debug context
+     * @param referenceType JDI class reference instance
+     * @return full-qualified class name
+     */
+    public static String getQualifiedClassName(DebugContext context, ReferenceType referenceType) {
+        try {
+            List<String> paths = referenceType.sourcePaths(null);
+            if (paths.isEmpty()) {
+                return referenceType.name();
+            }
+            String path = paths.get(0);
+            if (!path.endsWith(BAL_FILE_EXT) || (context.getSourceProject() instanceof BuildProject &&
+                    !path.startsWith(context.getSourceProject().currentPackage().packageOrg().value()))) {
+                return referenceType.name();
+            }
+            // Removes ".bal" extension if exists.
+            path = path.replaceAll(BAL_FILE_EXT + "$", "");
+            return replaceSeparators(path);
+        } catch (Exception e) {
+            return referenceType.name();
+        }
     }
 
     /**
@@ -225,5 +222,26 @@ public class PackageUtils {
                 .add(document.module().packageInstance().packageVersion().toString().replace(".", "_"))
                 .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".").replace("/", "."));
         return classNameJoiner.toString();
+    }
+
+    public static String[] getNameParts(String path) {
+        String[] srcNames;
+        if (path.contains("/")) {
+            srcNames = path.split("/");
+        } else if (path.contains("\\")) {
+            srcNames = path.split("\\\\");
+        } else {
+            srcNames = new String[]{path};
+        }
+        return srcNames;
+    }
+
+    private static String replaceSeparators(String path) {
+        if (path.contains("/")) {
+            return path.replaceAll("/", ".");
+        } else if (path.contains("\\")) {
+            return path.replaceAll("\\\\", ".");
+        }
+        return path;
     }
 }

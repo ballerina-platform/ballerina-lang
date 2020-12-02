@@ -20,6 +20,8 @@ package io.ballerina.projects.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.BallerinaToml;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
@@ -35,10 +37,11 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.util.ProjectConstants;
@@ -49,7 +52,6 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -84,12 +86,7 @@ public class TestBuildProject {
         Module defaultModule = currentPackage.getDefaultModule();
         Assert.assertEquals(defaultModule.documentIds().size(), 2);
 
-        // 4) Resolve the dependencies of the current package and its modules
-        currentPackage.resolveDependencies();
-        DependencyGraph<ModuleId> moduleDependencyGraph = currentPackage.moduleDependencyGraph();
-        Assert.assertEquals(moduleDependencyGraph.getDirectDependencies(defaultModule.moduleId()).size(), 2);
-
-        // 5) Get Ballerina.toml file
+        // 4) Get Ballerina.toml file
         Optional<BallerinaToml> ballerinaTomlOptional = currentPackage.ballerinaToml();
         Assert.assertTrue(ballerinaTomlOptional.isPresent());
 
@@ -201,12 +198,22 @@ public class TestBuildProject {
         // 2) Load the package
         Package currentPackage = project.currentPackage();
 
-        // 3) Compile the package
-        PackageCompilation compilation = currentPackage.getCompilation();
+        // 3) Resolve the package dependencies
+        PackageResolution resolution = currentPackage.getResolution();
 
-        DependencyGraph<PackageId> dependencyGraph = compilation.packageDependencyGraph();
+        ResolvedPackageDependency currentNode = null;
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = resolution.dependencyGraph();
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            if (graphNode.packageId() == currentPackage.packageId()) {
+                currentNode = graphNode;
+            }
+        }
 
-        Assert.assertEquals(dependencyGraph.getDirectDependencies(currentPackage.packageId()).size(), 1);
+        if (currentNode == null) {
+            throw new IllegalStateException("Current package is found in the dependency graph");
+        }
+
+        Assert.assertEquals(dependencyGraph.getDirectDependencies(currentNode).size(), 1);
     }
 
     @Test (description = "tests loading an invalid Ballerina project")
@@ -246,6 +253,47 @@ public class TestBuildProject {
             Assert.assertTrue(e.getMessage().contains("Provided path is already within a Ballerina package: " +
                     projectPath));
         }
+    }
+
+    @Test(enabled = false, description = "tests loading a valid build project with build options from toml")
+    public void testLoadingBuildOptionsFromToml() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        // Verify expected default buildOptions
+        Assert.assertTrue(project.buildOptions().skipTests());
+        Assert.assertTrue(project.buildOptions().observabilityIncluded());
+        Assert.assertFalse(project.buildOptions().codeCoverage());
+        Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertTrue(project.buildOptions().experimental());
+        Assert.assertFalse(project.buildOptions().testReport());
+    }
+
+    @Test(enabled = false, description = "tests loading a valid build project with build options from toml")
+    public void testOverrideBuildOptions() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        BuildOptions buildOptions = new BuildOptionsBuilder().skipTests(false).build();
+        try {
+            project = BuildProject.load(projectPath, buildOptions);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        // Verify expected default buildOptions
+        Assert.assertFalse(project.buildOptions().skipTests());
+        Assert.assertTrue(project.buildOptions().observabilityIncluded());
+        Assert.assertFalse(project.buildOptions().codeCoverage());
+        Assert.assertFalse(project.buildOptions().offlineBuild());
+        Assert.assertTrue(project.buildOptions().experimental());
+        Assert.assertFalse(project.buildOptions().testReport());
     }
 
     @Test
@@ -466,14 +514,14 @@ public class TestBuildProject {
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectRoot);
         Package oldPackage = buildProject.currentPackage();
-        PackageManifest pkgDesc = oldPackage.manifest();
+        PackageManifest pkgManifest = oldPackage.manifest();
 
         ModuleId newModuleId = ModuleId.create(filePath.toString(), oldPackage.packageId());
         ModuleName moduleName = ModuleName.from(oldPackage.packageName(), filePath.getFileName().toString());
-        ModuleDescriptor moduleDesc = ModuleDescriptor.from(pkgDesc.name(),
-                pkgDesc.org(), pkgDesc.version(), moduleName);
+        ModuleDescriptor moduleDesc = ModuleDescriptor.from(moduleName, pkgManifest.descriptor());
 
-        ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleDesc, new ArrayList<>(), new ArrayList<>());
+        ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleDesc, Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList());
         Package newPackage = oldPackage.modify().addModule(newModuleConfig).apply();
 
         Assert.assertEquals(newPackage.module(newModuleId).documentIds().size(), 0);
@@ -508,12 +556,11 @@ public class TestBuildProject {
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectRoot);
         Package oldPackage = buildProject.currentPackage();
-        PackageManifest pkgDesc = oldPackage.manifest();
+        PackageManifest pkgManifest = oldPackage.manifest();
 
         ModuleId newModuleId = ModuleId.create(filePath.toString(), oldPackage.packageId());
         ModuleName moduleName = ModuleName.from(oldPackage.packageName(), filePath.getFileName().toString());
-        ModuleDescriptor moduleDesc = ModuleDescriptor.from(pkgDesc.name(),
-                pkgDesc.org(), pkgDesc.version(), moduleName);
+        ModuleDescriptor moduleDesc = ModuleDescriptor.from(moduleName, pkgManifest.descriptor());
         DocumentId documentId = DocumentId.create(filePath.resolve("main.bal").toString(), newModuleId);
         String mainContent = "import ballerina/io;\n";
         DocumentConfig documentConfig = DocumentConfig.from(documentId, mainContent, filePath.getFileName().toString());
@@ -526,7 +573,7 @@ public class TestBuildProject {
 
         ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleDesc,
                 Collections.singletonList(documentConfig),
-                Collections.singletonList(testDocumentConfig));
+                Collections.singletonList(testDocumentConfig), Collections.emptyList());
         Package newPackage = oldPackage.modify().addModule(newModuleConfig).apply();
 
         Assert.assertEquals(newPackage.module(newModuleId).documentIds().size(), 1);
@@ -590,7 +637,7 @@ public class TestBuildProject {
 
         try {
             BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        } catch (RuntimeException e) {
+        } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("module directory path does not exist"));
         }
     }
@@ -611,11 +658,6 @@ public class TestBuildProject {
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
         Assert.assertEquals(defaultModule.documentIds().size(), 2);
-
-        // 4) Resolve the dependencies of the current package and its modules
-        currentPackage.resolveDependencies();
-        DependencyGraph<ModuleId> moduleDependencyGraph = currentPackage.moduleDependencyGraph();
-        Assert.assertEquals(moduleDependencyGraph.getDirectDependencies(defaultModule.moduleId()).size(), 2);
 
         // 5) Compile the module
         ModuleCompilation compilation = defaultModule.getCompilation();

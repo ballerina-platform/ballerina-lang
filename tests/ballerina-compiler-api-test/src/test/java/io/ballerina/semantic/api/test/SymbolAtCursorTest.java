@@ -61,6 +61,7 @@ public class SymbolAtCursorTest {
                 {19, 9, "test"},
                 {19, 11, "test"},
                 {19, 13, null},
+                {22, 59, "HELLO"},
                 {26, 11, null},
                 {26, 12, "a"},
                 {26, 13, null},

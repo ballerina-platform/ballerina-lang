@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.environment.ModuleLoadRequest;
+import io.ballerina.projects.internal.TransactionImportValidator;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
@@ -32,8 +33,9 @@ import org.wso2.ballerinalang.compiler.parser.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -45,6 +47,9 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 class DocumentContext {
+    // TODO This constant should not be here
+    private static final String IDENTIFIER_LITERAL_PREFIX = "'";
+
     private SyntaxTree syntaxTree;
     private TextDocument textDocument;
     private Set<ModuleLoadRequest> moduleLoadRequests;
@@ -106,25 +111,37 @@ class DocumentContext {
         return nodeCloner.clone(compilationUnit);
     }
 
-    Set<ModuleLoadRequest> moduleLoadRequests() {
+    Set<ModuleLoadRequest> moduleLoadRequests(PackageDependencyScope scope) {
         if (this.moduleLoadRequests != null) {
             return this.moduleLoadRequests;
         }
 
-        this.moduleLoadRequests = getModuleLoadRequests();
+        this.moduleLoadRequests = getModuleLoadRequests(scope);
         return this.moduleLoadRequests;
     }
 
-    private Set<ModuleLoadRequest> getModuleLoadRequests() {
-        Set<ModuleLoadRequest> moduleLoadRequests = new HashSet<>();
+    private Set<ModuleLoadRequest> getModuleLoadRequests(PackageDependencyScope scope) {
+        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         ModulePartNode modulePartNode = syntaxTree().rootNode();
         for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
-            moduleLoadRequests.add(getModuleLoadRequest(importDcl));
+            moduleLoadRequests.add(getModuleLoadRequest(importDcl, scope));
         }
+
+        // TODO This is a temporary solution for SLP6 release
+        // TODO Traverse the syntax tree to see whether to import the ballerinai/transaction package or not
+        TransactionImportValidator trxImportValidator = new TransactionImportValidator();
+        if (trxImportValidator.shouldImportTransactionPackage(modulePartNode)) {
+            PackageName packageName = PackageName.from(Names.TRANSACTION.value);
+            ModuleLoadRequest ballerinaiLoadReq =
+                    new ModuleLoadRequest(PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
+                            packageName, ModuleName.from(packageName), null, scope);
+            moduleLoadRequests.add(ballerinaiLoadReq);
+        }
+
         return moduleLoadRequests;
     }
 
-    private ModuleLoadRequest getModuleLoadRequest(ImportDeclarationNode importDcl) {
+    private ModuleLoadRequest getModuleLoadRequest(ImportDeclarationNode importDcl, PackageDependencyScope scope) {
         // TODO We need to handle syntax errors in importDcl
         // Get organization name
         PackageOrg orgName = importDcl.orgName()
@@ -136,7 +153,7 @@ class DocumentContext {
         // Index in identifierTokenList from which the moduleNamePart starts
         int moduleNamePartStartIndex;
         SeparatedNodeList<IdentifierToken> identifierTokenList = importDcl.moduleName();
-        String firstModuleNamePart = identifierTokenList.get(0).text();
+        String firstModuleNamePart = handleQuotedIdentifier(identifierTokenList.get(0).text());
 
         // Check for langLib packages
         if (PackageOrg.BALLERINA_ORG.equals(orgName) &&
@@ -144,7 +161,7 @@ class DocumentContext {
             // This a request to load a lang lib package
             // Lang lib package names take the form lang.{identifier}
             //  e.g, lang.int, lang.boolean lang.stream
-            String secondModuleNamePart = identifierTokenList.get(1).text();
+            String secondModuleNamePart = handleQuotedIdentifier(identifierTokenList.get(1).text());
             packageName = PackageName.from(firstModuleNamePart + "." + secondModuleNamePart);
             moduleNamePartStartIndex = 2;
         } else {
@@ -155,13 +172,21 @@ class DocumentContext {
         // Compute the module name
         StringJoiner stringJoiner = new StringJoiner(".");
         for (int i = moduleNamePartStartIndex; i < identifierTokenList.size(); i++) {
-            stringJoiner.add(identifierTokenList.get(i).text());
+            stringJoiner.add(handleQuotedIdentifier(identifierTokenList.get(i).text()));
         }
         String moduleNamePart = stringJoiner.toString();
         ModuleName moduleName = ModuleName.from(packageName, moduleNamePart.isEmpty() ? null : moduleNamePart);
 
         // Create the module load request
-        return new ModuleLoadRequest(orgName, packageName, moduleName, null);
+        return new ModuleLoadRequest(orgName, packageName, moduleName, null, scope);
+    }
+
+    private String handleQuotedIdentifier(String identifier) {
+        if (identifier.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
+            return identifier.substring(1);
+        } else {
+            return identifier;
+        }
     }
 
     private void reportSyntaxDiagnostics(PackageID pkgID, SyntaxTree tree, BLangDiagnosticLog dlog) {

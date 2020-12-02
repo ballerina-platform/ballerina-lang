@@ -107,6 +107,8 @@ public abstract class Launcher {
         // Adds file name, only if single file debugging.
         if (balFile != null) {
             command.add(balFile);
+        } else if (!testDebugging) {
+            command.add(".");
         }
 
         boolean networkLogs = false;

@@ -226,11 +226,11 @@ public abstract class AbstractParser {
      * @param diagnosticCode diagnostic code related to the invalid node
      * @param args           additional arguments used in diagnostic message
      */
-    protected void updateFirstNodeInListWithInvalidNode(List<STNode> nodeList,
-                                                        STNode invalidParam,
-                                                        DiagnosticCode diagnosticCode,
-                                                        Object... args) {
-        updateANodeInListWithInvalidNode(nodeList, 0, invalidParam, diagnosticCode, args);
+    protected void updateFirstNodeInListWithLeadingInvalidNode(List<STNode> nodeList,
+                                                               STNode invalidParam,
+                                                               DiagnosticCode diagnosticCode,
+                                                               Object... args) {
+        updateANodeInListWithLeadingInvalidNode(nodeList, 0, invalidParam, diagnosticCode, args);
     }
 
     /**
@@ -242,11 +242,11 @@ public abstract class AbstractParser {
      * @param diagnosticCode diagnostic code related to the invalid node
      * @param args           additional arguments used in diagnostic message
      */
-    protected void updateANodeInListWithInvalidNode(List<STNode> nodeList,
-                                                    int indexOfTheNode,
-                                                    STNode invalidParam,
-                                                    DiagnosticCode diagnosticCode,
-                                                    Object... args) {
+    protected void updateANodeInListWithLeadingInvalidNode(List<STNode> nodeList,
+                                                           int indexOfTheNode,
+                                                           STNode invalidParam,
+                                                           DiagnosticCode diagnosticCode,
+                                                           Object... args) {
         STNode node = nodeList.get(indexOfTheNode);
         STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, invalidParam);
         if (diagnosticCode != null) {

@@ -122,7 +122,7 @@ public class InitCommand implements BLauncherCmd {
             if (!ProjectUtils.validatePkgName(packageName)) {
                 CommandUtil.printError(errStream,
                         "Invalid package name : '" + packageName + "' :\n" +
-                                "Package name can only contain alphanumerics, underscores and periods " +
+                                "Package name can only contain alphanumerics and underscores" +
                                 "and the maximum length is 256 characters",
                         null,
                         false);

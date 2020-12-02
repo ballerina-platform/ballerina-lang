@@ -18,8 +18,12 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.ProjectEnvironment;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
+
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * The class {code Project} provides an abstract representation of a Ballerina project.
@@ -29,9 +33,18 @@ import java.nio.file.Path;
 public abstract class Project {
     protected final Path sourceRoot;
     private Package currentPackage;
-    private BuildOptions buildOptions;
+    private final BuildOptions buildOptions;
     private final ProjectEnvironment projectEnvironment;
     private final ProjectKind projectKind;
+
+    protected Project(ProjectKind projectKind,
+                      Path projectPath,
+                      ProjectEnvironmentBuilder projectEnvironmentBuilder, BuildOptions buildOptions) {
+        this.projectKind = projectKind;
+        this.sourceRoot = projectPath;
+        this.projectEnvironment = projectEnvironmentBuilder.build(this);
+        this.buildOptions = buildOptions;
+    }
 
     protected Project(ProjectKind projectKind,
                       Path projectPath,
@@ -39,6 +52,7 @@ public abstract class Project {
         this.projectKind = projectKind;
         this.sourceRoot = projectPath;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
+        this.buildOptions = new BuildOptionsBuilder().build();
     }
 
     public ProjectKind kind() {
@@ -51,20 +65,12 @@ public abstract class Project {
     }
 
     public void addPackage(PackageConfig packageConfig) {
-        Package newPackage = Package.from(this, packageConfig);
+        Package newPackage = Package.from(this, packageConfig, this.buildOptions.compilationOptions());
         setCurrentPackage(newPackage);
     }
 
     public Path sourceRoot() {
         return this.sourceRoot;
-    }
-
-    public BuildOptions getBuildOptions() {
-        return buildOptions;
-    }
-
-    public void setBuildOptions(BuildOptions buildOptions) {
-        this.buildOptions = buildOptions;
     }
 
     protected void setCurrentPackage(Package currentPackage) {
@@ -74,5 +80,18 @@ public abstract class Project {
 
     public ProjectEnvironment projectEnvironmentContext() {
         return this.projectEnvironment;
+    }
+
+    public BuildOptions buildOptions() {
+        return buildOptions;
+    }
+
+    // Following project path was added to support old compiler extensions.
+    // Currently this method is only called from Build and Single File projects
+    // todo remove after introducing extension model
+    protected void populateCompilerContext() {
+        CompilerContext compilerContext = this.projectEnvironmentContext().getService(CompilerContext.class);
+        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
+        options.put(PROJECT_DIR, this.sourceRoot().toAbsolutePath().toString());
     }
 }

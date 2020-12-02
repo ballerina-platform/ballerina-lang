@@ -35,6 +35,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'io.opentracing:opentracing-api'
     implementation 'io.opentracing:opentracing-util'
+    implementation 'com.moandjiezana.toml:toml4j'
     implementation ('org.awaitility:awaitility') {
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }

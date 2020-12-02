@@ -80,7 +80,8 @@ public class KeyValueTest {
         Assert.assertEquals(stringValue, "hello");
         Assert.assertEquals(longValue, Long.valueOf(123L));
         Assert.assertEquals(doubleValue, 56.55);
-        Assert.assertEquals(multiString, "\nRoses are red\nViolets are blue");
+        Assert.assertEquals(multiString,
+                String.format("%sRoses are red%sViolets are blue", System.lineSeparator(), System.lineSeparator()));
         Assert.assertFalse(boolfalse);
         Assert.assertTrue(booltrue);
     }

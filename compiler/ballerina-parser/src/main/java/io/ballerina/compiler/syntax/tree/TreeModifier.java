@@ -151,6 +151,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ServiceDeclarationNode serviceDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(serviceDeclarationNode.metadata().orElse(null));
+        NodeList<Token> qualifiers =
+                modifyNodeList(serviceDeclarationNode.qualifiers());
         Token serviceKeyword =
                 modifyToken(serviceDeclarationNode.serviceKeyword());
         IdentifierToken serviceName =
@@ -163,6 +165,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(serviceDeclarationNode.serviceBody());
         return serviceDeclarationNode.modify(
                 metadata,
+                qualifiers,
                 serviceKeyword,
                 serviceName,
                 onKeyword,
@@ -3142,6 +3145,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openBrace,
                 members,
                 closeBrace);
+    }
+
+    @Override
+    public RequiredExpressionNode transform(
+            RequiredExpressionNode requiredExpressionNode) {
+        Token questionMarkToken =
+                modifyToken(requiredExpressionNode.questionMarkToken());
+        return requiredExpressionNode.modify(
+                questionMarkToken);
     }
 
     // Tokens

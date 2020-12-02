@@ -51,7 +51,7 @@ public function testXMLSubType() {
     xml<'xml:Element> el = (xdata/*).elements();
 
     foreach 'xml:Element item in el {
-        concatIntString(i, x.toString());
+        concatIntString(i, item.toString());
         i += 1;
     }
     return output;

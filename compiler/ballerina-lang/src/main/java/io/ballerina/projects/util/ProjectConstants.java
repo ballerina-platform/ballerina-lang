@@ -33,6 +33,8 @@ public class ProjectConstants {
     public static final String MODULE_MD_FILE_NAME = "Module.md";
     public static final String PACKAGE_MD_FILE_NAME = "Package.md";
     public static final String PACKAGE_JSON = "package.json";
+    public static final String BALO_JSON = "balo.json";
+    public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
@@ -43,6 +45,7 @@ public class ProjectConstants {
 
     public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
     public static final String HOME_REPO_DEFAULT_DIRNAME = ".ballerina";
+    public static final String BALLERINA_CENTRAL_ACCESS_TOKEN = "BALLERINA_CENTRAL_ACCESS_TOKEN";
 
     public static final String USER_DIR = "user.dir";
     public static final String USER_NAME = "user.name";

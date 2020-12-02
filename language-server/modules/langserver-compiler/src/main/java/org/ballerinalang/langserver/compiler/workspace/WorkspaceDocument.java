@@ -30,6 +30,7 @@ import java.util.List;
 /**
  * Represents a document open in workspace.
  */
+@Deprecated(forRemoval = true)
 public class WorkspaceDocument {
     /* Tracking code lenses sent to client, to make-use in compilation failures */
     private List<CodeLens> codeLenses;

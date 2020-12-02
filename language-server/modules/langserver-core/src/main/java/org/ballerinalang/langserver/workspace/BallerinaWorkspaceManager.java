@@ -21,6 +21,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -140,11 +142,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @return {@link SemanticModel}
      */
     public Optional<SemanticModel> semanticModel(Path filePath) {
-        Optional<Module> module = this.module(filePath);
-        if (module.isEmpty()) {
+        Optional<Module> optModule = this.module(filePath);
+        if (optModule.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.ofNullable(module.get().getCompilation().getSemanticModel());
+        Module module = optModule.get();
+        return Optional.ofNullable(module.packageInstance().getCompilation().getSemanticModel(module.moduleId()));
     }
 
     /**
@@ -183,7 +186,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Document updatedDoc = document.get().modify().withContent(content).apply();
 
         // Update project instance
-        sourceRootToProject.put(project.get().sourceRoot(), updatedDoc.module().project());
+        sourceRootToProject.put(projectRoot(filePath), updatedDoc.module().project());
     }
 
     /**
@@ -201,11 +204,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
         // If it is a single file project, remove project from mapping
         if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            sourceRootToProject.remove(project.get().sourceRoot());
+            Path projectRoot = projectRoot(filePath);
+            sourceRootToProject.remove(projectRoot);
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
-                                            "' {project: '" + project.get().sourceRoot().toUri().toString() +
-                                            "' kind: '" + project.get().kind().name().toLowerCase(Locale.getDefault()) +
-                                            "'} removed}");
+                    "' {project: '" + projectRoot.toUri().toString() +
+                    "' kind: '" + project.get().kind().name().toLowerCase(Locale.getDefault()) +
+                    "'} removed}");
         }
     }
 
@@ -265,14 +269,15 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         ProjectKind projectKind = projectKindAndProjectRootPair.getLeft();
         Path projectRoot = projectKindAndProjectRootPair.getRight();
         Project project;
+        BuildOptions options = new BuildOptionsBuilder().offline(true).build();
         if (projectKind == ProjectKind.BUILD_PROJECT) {
-            project = BuildProject.load(projectRoot);
+            project = BuildProject.load(projectRoot, options);
         } else {
-            project = SingleFileProject.load(projectRoot);
+            project = SingleFileProject.load(projectRoot, options);
         }
         LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
-                                        "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
-                                        project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
+                "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
+                project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
         return project;
     }
 

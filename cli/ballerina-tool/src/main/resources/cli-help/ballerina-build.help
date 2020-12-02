@@ -1,19 +1,18 @@
 NAME
-       ballerina-build - Build Ballerina module(s) and generate executables
+       ballerina-build - Build the Ballerina package and generate executables
 
 SYNOPSIS
        ballerina build [<options>]
-                       <ballerina-file-path> | <module-name> [<config properties>]
-       ballerina build -a | --all [<options>] [--] [<config properties>]
+                       [<ballerina-file-path> | <ballerina-project-directory>] [<config properties>]
 
 
 DESCRIPTION
        Build compiles Ballerina sources and produces executable JAR file(s). However, 
-       if the module does not contain an entry point, it will produce a non-executable
-       JAR file, which can be used in another module/program.
+       if the package does not contain an entry point, it will produce a non-executable
+       JAR file, which can be used in another package/program.
 
-       Building a Ballerina project or a specific module in a project creates the
-       executable .jar files in the <project-root>/target/bin directory.
+       Building a Ballerina package creates the executable .jar files
+       in the <project-root>/target/bin directory.
 
        Building a single Ballerina file will create an executable .jar file in the
        current directory. The name of the executable file will be
@@ -26,28 +25,17 @@ DESCRIPTION
 
 OPTIONS
        -o <output>, --output <output>
-           Write output to the given file. The provided output
-           filename may or may not contain the ‘.jar’ extension.
-
-       --sourceroot <path>
-           Provide the path to be taken as the root of the source.
-           Source will be looked up relative to the given source root
-           path.
+           Write the output to the given file. The provided output
+           file name may or may not contain the ‘.jar’ extension.
 
        -c, --compile
            Compile the source without generating executable(s).
 
-       -a, --all
-           Build or compile all the modules of a project.
-
        --offline
-           Build offline without downloading dependencies.
+           Build offline without downloading the dependencies.
 
        --skip-tests
            Skip test compilation and execution.
-
-       --skip-lock
-           Skip using the lock file to resolve dependencies.
 
        --experimental
            Enable experimental language features.
@@ -73,28 +61,26 @@ CONFIG PROPERTIES
            Set the Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter
            has to be prefixed with '--'. Details of the environment parameters
-           supported by the Ballerina standard library modules are specified
+           supported by the Ballerina standard library packages are specified
            in the relevant API documentation.
 
 
 EXAMPLES
-       Compile a Ballerina source file and create an executable jar.
+       Compile a Ballerina source file and create an executable JAR.
           $ ballerina build hello.bal
 
-       Build the 'hello' module. This will generate a hello.jar file
-       in the '<project-root>/target/bin' directory.
-          $ ballerina build hello
+       Build the 'hello' package that has an entry point. This will generate a
+        `hello.jar` file in the '<project-root>/target/bin' directory.
+          $ ballerina build
 
-       Build all the modules that have entry points in a project into
-       executables. This will generate executable jar files and place
-       them in the '<project-root>/target/bin' directory.
-          $ ballerina build -a
+       Build the 'hello' package from a different directory location.
+          $ ballerina build `<hello-project-path>`
 
-       Build all modules and generate the test report. This will generate an
+       Build the current package and generate the test report. This will generate an
        html test report in addition to the executable jar files.
-          $ ballerina build --test-report -a
+          $ ballerina build --test-report
 
-       Build all modules and generate the test report with
+       Build the current package and generate the test report with
        code coverage information. This will add an additional section
        to the test report for code coverage information.
-          $ ballerina build --code-coverage -a
+          $ ballerina build --code-coverage

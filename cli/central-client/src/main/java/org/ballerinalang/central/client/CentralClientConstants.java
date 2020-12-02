@@ -28,10 +28,8 @@ public class CentralClientConstants {
     }
 
     static final String BALLERINA_PLATFORM = "Ballerina-Platform";
-    static final String BAL_LANG_SPEC_VERSION = "Ballerina-Language-Specification-Version";
     static final String IDENTITY = "identity";
     static final String RESOLVED_REQUESTED_URI = "RESOLVED_REQUESTED_URI";
-    static final String SETTINGS_TOML_FILE = "Settings.toml";
     static final String SSL = "SSL";
     static final String AUTHORIZATION = "Authorization";
     static final String CONTENT_TYPE = "Content-Type";

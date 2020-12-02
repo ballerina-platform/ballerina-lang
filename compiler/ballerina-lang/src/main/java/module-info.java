@@ -13,6 +13,7 @@ module io.ballerina.lang {
     requires org.apache.commons.compress;
     requires org.apache.commons.io;
     requires io.ballerina.toml;
+    requires io.ballerina.central.client;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
     exports io.ballerina.compiler.api.impl;
@@ -69,7 +70,7 @@ module io.ballerina.lang {
     exports io.ballerina.projects.directory;
     exports io.ballerina.projects.balo;
     exports io.ballerina.projects.repos;
-    exports io.ballerina.projects.model;
+    exports io.ballerina.projects.internal.model; // TODO Remove this exports
     exports io.ballerina.projects.testsuite;
-    exports io.ballerina.projects.internal.environment;
+    exports io.ballerina.projects.internal.environment; // TODO Remove these exports
 }

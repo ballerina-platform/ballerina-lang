@@ -48,4 +48,9 @@ public class TableNegetiveTest extends AbstractTomlParserTest {
     public void testEmptyTableOpen() {
         super.testFile("empty-table-open-negative.toml", "empty-table-open-negative.json");
     }
+
+    @Test
+    public void testStringMissingCloseQuotes() {
+        super.testFile("string-missing-close-quotes.toml", "string-missing-close-quotes.json");
+    }
 }

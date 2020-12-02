@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
@@ -56,6 +57,13 @@ public class SemanticAPITestUtils {
         Package currentPackage = project.currentPackage();
         ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
         return currentPackage.getCompilation().getSemanticModel(defaultModuleId);
+    }
+
+    public static SemanticModel getSemanticModelOf(String projectPath, String moduleName) {
+        Project project = BCompileUtil.loadProject(projectPath);
+        Package currentPackage = project.currentPackage();
+        ModuleName modName = ModuleName.from(currentPackage.packageName(), moduleName);
+        return currentPackage.module(modName).getCompilation().getSemanticModel();
     }
 
     public static void assertList(List<? extends Symbol> actualValues, List<String> expectedValues) {
