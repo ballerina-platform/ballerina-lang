@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.providers.imports;
 
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -21,6 +21,8 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
+import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -82,7 +84,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         for (int i = 0; i < fileImports.size(); i++) {
             ImportDeclarationNode importPkg = fileImports.get(i);
             LineRange pos = importPkg.lineRange();
-            ImportModel importModel = ImportModel.from(importPkg);
+            CodeActionModuleId importModel = CodeActionModuleId.from(importPkg);
 
             // Get imports starting line
             if (importSLine > pos.startLine().line()) {
@@ -94,8 +96,8 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
 
             // Remove any matching imports on-the-go
             boolean rmMatched = toBeRemovedImports.stream()
-                    .anyMatch(rmImport -> rmImport[0].equals(importModel.orgName + importModel.moduleName) &&
-                            rmImport[1].equals(importModel.version) && rmImport[2].equals(importModel.alias)
+                    .anyMatch(rmImport -> rmImport[0].equals(importModel.orgName() + importModel.moduleName()) &&
+                            rmImport[1].equals(importModel.version()) && rmImport[2].equals(importModel.alias())
                     );
             if (rmMatched) {
                 fileImports = fileImports.remove(i);

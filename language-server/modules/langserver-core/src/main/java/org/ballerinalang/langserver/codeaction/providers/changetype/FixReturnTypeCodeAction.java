@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.providers.changetype;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -25,6 +25,8 @@ import io.ballerina.projects.Module;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
+import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -102,7 +104,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
     }
 
     private FunctionDefinitionNode getFunctionNode(CodeActionContext context) {
-        NonTerminalNode parent = context.positionDetails().matchedNode();
+        Node parent = context.positionDetails().matchedNode();
         while (parent.kind() != SyntaxKind.FUNCTION_DEFINITION) {
             parent = parent.parent();
         }
@@ -128,9 +130,9 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             } else {
                 boolean pkgAlreadyImported = ((ModulePartNode) syntaxTree.get().rootNode()).imports().stream()
                         .anyMatch(importPkg -> {
-                            ImportModel importModel = ImportModel.from(importPkg);
-                            return importModel.orgName.equals(orgName)
-                                    && importModel.moduleName.equals(moduleName);
+                            CodeActionModuleId importModel = CodeActionModuleId.from(importPkg);
+                            return importModel.orgName().equals(orgName)
+                                    && importModel.moduleName().equals(moduleName);
                         });
                 if (!pkgAlreadyImported) {
                     edits.addAll(CommonUtil.getAutoImportTextEdits(orgName, moduleName, context));

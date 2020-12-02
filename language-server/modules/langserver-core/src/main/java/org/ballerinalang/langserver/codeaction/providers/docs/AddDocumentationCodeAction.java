@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.providers.docs;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
+import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
@@ -30,13 +31,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Code Action provider for adding all documentation for top level items.
+ * Code Action for adding single documentation.
  *
  * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
-    public AddAllDocumentationCodeAction() {
+public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
+    public AddDocumentationCodeAction() {
         super(Arrays.asList(CodeActionNodeType.FUNCTION,
                 CodeActionNodeType.OBJECT,
                 CodeActionNodeType.CLASS,
@@ -53,11 +54,15 @@ public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
         String docUri = context.fileUri();
-        CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
-        List<Object> args = new ArrayList<>(Collections.singletonList(docUriArg));
+        int line = context.cursorPosition().getLine();
 
-        CodeAction action = new CodeAction(CommandConstants.ADD_ALL_DOC_TITLE);
-        action.setCommand(new Command(CommandConstants.ADD_ALL_DOC_TITLE, AddAllDocumentationExecutor.COMMAND, args));
+        CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
+        CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
+        List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
+
+        CodeAction action = new CodeAction(CommandConstants.ADD_DOCUMENTATION_TITLE);
+        Command command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE, AddDocumentationExecutor.COMMAND, args);
+        action.setCommand(command);
         return Collections.singletonList(action);
     }
 }

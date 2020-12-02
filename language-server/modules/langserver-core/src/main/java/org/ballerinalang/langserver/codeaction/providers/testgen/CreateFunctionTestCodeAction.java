@@ -13,38 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.providers.testgen;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
+import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
+import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+
 /**
- * Code Action for adding single documentation.
+ * Code Action for generating test case for function.
  *
- * @since 1.1.1
+ * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
-    public AddDocumentationCodeAction() {
-        super(Arrays.asList(CodeActionNodeType.FUNCTION,
-                CodeActionNodeType.OBJECT,
-                CodeActionNodeType.CLASS,
-                CodeActionNodeType.SERVICE,
-                CodeActionNodeType.RESOURCE,
-                CodeActionNodeType.RECORD,
-                CodeActionNodeType.OBJECT_FUNCTION,
-                CodeActionNodeType.CLASS_FUNCTION));
+public class CreateFunctionTestCodeAction extends AbstractCodeActionProvider {
+    public CreateFunctionTestCodeAction() {
+        super(Collections.singletonList(CodeActionNodeType.FUNCTION));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isEnabled() {
+        return false;
     }
 
     /**
@@ -53,15 +56,16 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
         String docUri = context.fileUri();
-        int line = context.cursorPosition().getLine();
+        List<CodeAction> actions = new ArrayList<>();
+        List<Object> args = new ArrayList<>();
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri));
+        Position position = context.cursorPosition();
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + position.getLine()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + position.getCharacter()));
 
-        CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
-        CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
-        List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
-
-        CodeAction action = new CodeAction(CommandConstants.ADD_DOCUMENTATION_TITLE);
-        Command command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE, AddDocumentationExecutor.COMMAND, args);
-        action.setCommand(command);
-        return Collections.singletonList(action);
+        CodeAction action = new CodeAction(CommandConstants.CREATE_TEST_FUNC_TITLE);
+        action.setCommand(new Command(CommandConstants.CREATE_TEST_FUNC_TITLE, CreateTestExecutor.COMMAND, args));
+        actions.add(action);
+        return actions;
     }
 }

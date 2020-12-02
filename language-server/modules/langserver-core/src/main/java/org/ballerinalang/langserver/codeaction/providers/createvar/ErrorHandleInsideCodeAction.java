@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.providers.createvar;
 
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
@@ -87,7 +88,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
         edits.add(createVarTextEdits.edits.get(0));
         edits.addAll(createVarTextEdits.imports);
-        return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
+        return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(commandTitle, edits, uri));
     }
 
     private static List<TextEdit> getTypeGuardCodeActionEdits(String varName, Diagnostic diagnostic,

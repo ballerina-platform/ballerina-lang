@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.providers.createvar;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -23,11 +23,12 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -159,12 +160,12 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
         String commandTitle = String.format(CommandConstants.ADD_CHECK_TITLE,
                                             context.positionDetails().matchedSymbol().name());
-        return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
+        return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(commandTitle, edits, uri));
     }
 
-    private Optional<FunctionDefinitionNode> getParentFunction(NonTerminalNode matchedNode) {
+    private Optional<FunctionDefinitionNode> getParentFunction(Node matchedNode) {
         FunctionDefinitionNode functionDefNode = null;
-        NonTerminalNode parentNode = matchedNode;
+        Node parentNode = matchedNode;
         while (parentNode.kind() != SyntaxKind.FUNCTION_DEFINITION || parentNode.kind() != SyntaxKind.MODULE_PART) {
             parentNode = parentNode.parent();
             if (parentNode == null) {
