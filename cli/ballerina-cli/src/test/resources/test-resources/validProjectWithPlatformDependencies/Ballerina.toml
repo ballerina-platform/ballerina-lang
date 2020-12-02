@@ -1,0 +1,9 @@
+[package]
+org = "foo"
+name = "winery"
+version = "0.1.0"
+
+[[platform.java11.dependency]]
+path = "./libs/utils.jar.txt"
+groupId = "wso2"
+artifactId = "utils"

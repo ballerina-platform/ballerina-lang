@@ -258,6 +258,39 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("winery.bir").toFile().exists());
     }
 
+    @Test(description = "Build a valid ballerina project with platform dependencies")
+    public void testBuildBalProjectWithPlatformDependencies() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformDependencies");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        // non existing bal file
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
+                "\tfoo/winery:0.1.0\n" +
+                "\n" +
+                "Creating balos\n" +
+                "\ttarget/balo/foo-winery-java11-0.1.0.balo\n" +
+                "\n" +
+                "Running Tests\n\n" +
+                "\twinery\n" +
+                "\tNo tests found\n" +
+                "\n" +
+                "Generating executable\n" +
+                "\ttarget/bin/winery.jar\n");
+
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("balo").resolve("foo-winery-java11-0.1.0.balo").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                                  .resolve("winery").resolve("0.1.0").resolve("java11")
+                                  .resolve("winery.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                                  .resolve("winery").resolve("0.1.0").resolve("bir")
+                                  .resolve("winery.bir").toFile().exists());
+    }
+
     @Test(description = "Build a valid ballerina project")
     public void testBuildBalProjectFromADifferentDirectory() throws IOException {
         Path projectPath = this.testResources.resolve("validProject");
