@@ -7,5 +7,6 @@ module org.ballerinalang.observability.anaylze {
 
     requires gson;
 
-    exports org.ballerinalang.observability.anaylze;
+    provides org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector
+            with org.ballerinalang.observability.anaylze.DefaultObservabilitySymbolCollector;
 }

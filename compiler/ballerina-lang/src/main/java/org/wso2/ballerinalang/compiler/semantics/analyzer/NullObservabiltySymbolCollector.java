@@ -18,6 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -36,7 +39,8 @@ public class NullObservabiltySymbolCollector implements ObservabilitySymbolColle
     }
 
     @Override
-    public void process(BLangPackage pkgNode) {
+    public void process(PackageID moduleId, SemanticModel semanticModel, String documentName, SyntaxTree syntaxTree,
+                        BLangPackage bLangPackage) {
         // Do nothing
     }
 

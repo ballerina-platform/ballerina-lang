@@ -15,33 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.observability.anaylze.model;
 
 import com.google.gson.JsonElement;
 
 /**
- * Holds a compilation unit holding an AST JSON.
+ * Holds data related to a document.
  *
  * @since 2.0.0
  */
-public class CUnitASTHolder {
-    private String name;
-    private JsonElement ast;
+public class DocumentHolder {
+    private final String documentName;
+    private final JsonElement syntaxTree;
 
-    public String getName() {
-        return name;
+    DocumentHolder(String documentName, JsonElement syntaxTree) {
+        this.documentName = documentName;
+        this.syntaxTree = syntaxTree;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getDocumentName() {
+        return documentName;
     }
 
-    public JsonElement getAst() {
-        return ast;
-    }
-
-    public void setAst(JsonElement ast) {
-        this.ast = ast;
+    public JsonElement getSyntaxTree() {
+        return syntaxTree;
     }
 }

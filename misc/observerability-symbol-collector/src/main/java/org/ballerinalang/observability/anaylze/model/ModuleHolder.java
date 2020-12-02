@@ -15,57 +15,48 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.observability.anaylze.model;
+
+import com.google.gson.JsonElement;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Holds a package of a list of compilation units holding the AST JSONs.
+ * Holds data related to a module.
  *
  * @since 2.0.0
  */
-public class PkgASTHolder {
-    private String name;
-    private String orgName;
-    private String version;
-    private Map<String, CUnitASTHolder> compilationUnits;
+public class ModuleHolder {
+    private final String orgName;
+    private final String name;
+    private final String version;
+    private final Map<String, DocumentHolder> documentsMap = new HashMap<>();
 
-    public PkgASTHolder() {
-        compilationUnits = new HashMap<>();
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+    ModuleHolder(String orgName, String name, String version) {
+        this.orgName = orgName;
         this.name = name;
+        this.version = version;
+    }
+
+    public void addSyntaxTree(String cUnitName, JsonElement syntaxTree) {
+        this.documentsMap.put(cUnitName, new DocumentHolder(cUnitName, syntaxTree));
     }
 
     public String getOrgName() {
         return orgName;
     }
 
-    public void setOrgName(String orgName) {
-        this.orgName = orgName;
+    public String getName() {
+        return name;
     }
 
     public String getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public Map<String, CUnitASTHolder> getCompilationUnits() {
-        return Collections.unmodifiableMap(compilationUnits);
-    }
-
-    public void addCompilationUnit(String cUnitName, CUnitASTHolder cUnitASTHolder) {
-        this.compilationUnits.put(cUnitName, cUnitASTHolder);
+    public Map<String, DocumentHolder> getDocuments() {
+        return Collections.unmodifiableMap(documentsMap);
     }
 }

@@ -18,6 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.spi;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -33,7 +36,8 @@ import java.nio.file.Path;
 public interface ObservabilitySymbolCollector {
     void init(CompilerContext context);
 
-    void process(BLangPackage pkgNode);
+    void process(PackageID moduleId, SemanticModel semanticModel, String documentName, SyntaxTree syntaxTree,
+                 BLangPackage bLangPackage);
 
     void writeCollectedSymbols(Path executableFile) throws IOException;
 }
