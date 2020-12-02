@@ -83,45 +83,35 @@ public type LinkedList object {
     #
     # + node - The node, which should be removed from the provided linked list
     public function remove(Node node) {
-        if (node.prev is ()) {
-            self.head = node.next;
-        } else {
-            Node prev = <Node>node.prev;
-            prev.next = node.next;
+        if (tryLock()) {
+            if (node.prev is ()) {
+                self.head = node.next;
+            } else {
+                Node prev = <Node>node.prev;
+                prev.next = node.next;
+            }
+            if (node.next is ()) {
+                self.tail = node.prev;
+            } else {
+                Node next = <Node>node.next;
+                next.prev = node.prev;
+            }
+            node.next = ();
+            node.prev = ();
+            releaseLock();
         }
-        if (node.next is ()) {
-            self.tail = node.prev;
-        } else {
-            Node next = <Node>node.next;
-            next.prev = node.prev;
-        }
-        node.next = ();
-        node.prev = ();
     }
 
     # Removes the last node from the provided linked list.
     #
-    # + node - The node, which should be removed from the provided linked list
     # + return - Last node of the provided linked list or `()` if the last node is empty
-    public function removeLast(Node? node = ()) returns Node? {
-        if (tryLock()) {
-            if (node is Node) {
-                self.remove(node);
-                releaseLock();
-            } else {
-               if (self.tail is ()) {
-                   releaseLock();
-                   return ();
-               }
-               Node tail = <Node>self.tail;
-               Node predecessorOfTail = <Node>tail.prev;
-               self.tail = predecessorOfTail;
-               predecessorOfTail.next = ();
-               tail.prev = ();
-               releaseLock();
-               return tail;
-            }
+    public function removeLast() returns Node? {
+        if (self.tail is ()) {
+            return ();
         }
+        Node tail = <Node>self.tail;
+        self.remove(tail);
+        return tail;
     }
 
     # Clears the provided linked list.
