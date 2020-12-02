@@ -21,9 +21,9 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -1526,7 +1526,7 @@ public class TypeChecker {
 
     private static boolean checkObjectEquivalency(Object sourceVal, Type sourceType, BObjectType targetType,
                                                   List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
+        if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG && sourceType.getTag() != TypeTags.SERVICE_TAG) {
             return false;
         }
         // If we encounter two types that we are still resolving, then skip it.
@@ -1546,8 +1546,8 @@ public class TypeChecker {
 
         Map<String, Field> targetFields = targetType.getFields();
         Map<String, Field> sourceFields = sourceObjectType.getFields();
-        AttachedFunctionType[] targetFuncs = targetType.getAttachedFunctions();
-        AttachedFunctionType[] sourceFuncs = sourceObjectType.getAttachedFunctions();
+        MemberFunctionType[] targetFuncs = targetType.getAttachedFunctions();
+        MemberFunctionType[] sourceFuncs = sourceObjectType.getAttachedFunctions();
 
         if (targetType.getFields().values().stream().anyMatch(field -> SymbolFlags
                 .isFlagOn(field.getFlags(), SymbolFlags.PRIVATE))
@@ -1629,12 +1629,12 @@ public class TypeChecker {
     }
 
     private static boolean checkObjectSubTypeForMethods(List<TypePair> unresolvedTypes,
-                                                        AttachedFunctionType[] targetFuncs,
-                                                        AttachedFunctionType[] sourceFuncs,
+                                                        MemberFunctionType[] targetFuncs,
+                                                        MemberFunctionType[] sourceFuncs,
                                                         String targetTypeModule, String sourceTypeModule,
                                                         BObjectType sourceType, BObjectType targetType) {
-        for (AttachedFunctionType lhsFunc : targetFuncs) {
-            AttachedFunctionType rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
+        for (MemberFunctionType lhsFunc : targetFuncs) {
+            MemberFunctionType rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
                     !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsFunc.getFlags(),
                                               rhsFunc.getFlags())) {
@@ -1672,9 +1672,9 @@ public class TypeChecker {
                 lhsTypePkg.equals(rhsTypePkg);
     }
 
-    private static AttachedFunctionType getMatchingInvokableType(AttachedFunctionType[] rhsFuncs,
-                                                              AttachedFunctionType lhsFunc,
-                                                             List<TypePair> unresolvedTypes) {
+    private static MemberFunctionType getMatchingInvokableType(MemberFunctionType[] rhsFuncs,
+                                                               MemberFunctionType lhsFunc,
+                                                               List<TypePair> unresolvedTypes) {
         return Arrays.stream(rhsFuncs)
                 .filter(rhsFunc -> lhsFunc.getName().equals(rhsFunc.getName()))
                 .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.getType(), lhsFunc.getType(),
@@ -2859,7 +2859,7 @@ public class TypeChecker {
         if (type.getTag() == TypeTags.SERVICE_TAG) {
             return false;
         } else {
-            AttachedFunctionType generatedInitializer = type.generatedInitializer;
+            MemberFunctionType generatedInitializer = type.generatedInitializer;
             if (generatedInitializer == null) {
                 // abstract objects doesn't have a filler value.
                 return false;

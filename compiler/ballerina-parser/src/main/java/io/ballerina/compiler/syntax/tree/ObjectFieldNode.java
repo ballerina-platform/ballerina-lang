@@ -41,8 +41,8 @@ public class ObjectFieldNode extends NonTerminalNode {
         return optionalChildInBucket(1);
     }
 
-    public Optional<Token> finalKeyword() {
-        return optionalChildInBucket(2);
+    public NodeList<Token> qualifierList() {
+        return new NodeList<>(childInBucket(2));
     }
 
     public Node typeName() {
@@ -80,7 +80,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         return new String[]{
                 "metadata",
                 "visibilityQualifier",
-                "finalKeyword",
+                "qualifierList",
                 "typeName",
                 "fieldName",
                 "equalsToken",
@@ -91,7 +91,7 @@ public class ObjectFieldNode extends NonTerminalNode {
     public ObjectFieldNode modify(
             MetadataNode metadata,
             Token visibilityQualifier,
-            Token finalKeyword,
+            NodeList<Token> qualifierList,
             Node typeName,
             Token fieldName,
             Token equalsToken,
@@ -100,7 +100,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
-                finalKeyword,
+                qualifierList.underlyingListNode(),
                 typeName,
                 fieldName,
                 equalsToken,
@@ -112,7 +112,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         return NodeFactory.createObjectFieldNode(
                 metadata,
                 visibilityQualifier,
-                finalKeyword,
+                qualifierList,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -133,7 +133,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         private final ObjectFieldNode oldNode;
         private MetadataNode metadata;
         private Token visibilityQualifier;
-        private Token finalKeyword;
+        private NodeList<Token> qualifierList;
         private Node typeName;
         private Token fieldName;
         private Token equalsToken;
@@ -144,7 +144,7 @@ public class ObjectFieldNode extends NonTerminalNode {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
-            this.finalKeyword = oldNode.finalKeyword().orElse(null);
+            this.qualifierList = oldNode.qualifierList();
             this.typeName = oldNode.typeName();
             this.fieldName = oldNode.fieldName();
             this.equalsToken = oldNode.equalsToken().orElse(null);
@@ -164,9 +164,10 @@ public class ObjectFieldNode extends NonTerminalNode {
             return this;
         }
 
-        public ObjectFieldNodeModifier withFinalKeyword(
-                Token finalKeyword) {
-            this.finalKeyword = finalKeyword;
+        public ObjectFieldNodeModifier withQualifierList(
+                NodeList<Token> qualifierList) {
+            Objects.requireNonNull(qualifierList, "qualifierList must not be null");
+            this.qualifierList = qualifierList;
             return this;
         }
 
@@ -207,7 +208,7 @@ public class ObjectFieldNode extends NonTerminalNode {
             return oldNode.modify(
                     metadata,
                     visibilityQualifier,
-                    finalKeyword,
+                    qualifierList,
                     typeName,
                     fieldName,
                     equalsToken,

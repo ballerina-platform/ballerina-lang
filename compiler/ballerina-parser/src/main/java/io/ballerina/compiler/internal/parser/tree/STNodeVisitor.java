@@ -257,10 +257,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(typeReferenceNode);
     }
 
-    public void visit(STServiceBodyNode serviceBodyNode) {
-        visitSyntaxNode(serviceBodyNode);
-    }
-
     public void visit(STAnnotationNode annotationNode) {
         visitSyntaxNode(annotationNode);
     }
@@ -693,10 +689,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(transactionalExpressionNode);
     }
 
-    public void visit(STServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        visitSyntaxNode(serviceConstructorExpressionNode);
-    }
-
     public void visit(STByteArrayLiteralNode byteArrayLiteralNode) {
         visitSyntaxNode(byteArrayLiteralNode);
     }
@@ -795,6 +787,10 @@ public abstract class STNodeVisitor {
 
     public void visit(STClassDefinitionNode classDefinitionNode) {
         visitSyntaxNode(classDefinitionNode);
+    }
+
+    public void visit(STResourcePathParameterNode resourcePathParameterNode) {
+        visitSyntaxNode(resourcePathParameterNode);
     }
 
     public void visit(STRequiredExpressionNode requiredExpressionNode) {

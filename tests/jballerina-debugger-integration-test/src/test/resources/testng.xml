@@ -44,8 +44,8 @@ under the License.
 
             <!--Breakpoint tests-->
             <class name="org.ballerinalang.debugger.test.adapter.ControlFlowDebugTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.CallStackDebugTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.LanguageConstructDebugTest"/>
+<!--            <class name="org.ballerinalang.debugger.test.adapter.CallStackDebugTest"/>-->
+<!--            <class name="org.ballerinalang.debugger.test.adapter.LanguageConstructDebugTest"/>-->
             <!--<class name="org.ballerinalang.debugger.test.adapter.ServiceDebugTest"/>-->
 
             <!--Debug Variables Tests-->

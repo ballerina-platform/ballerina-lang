@@ -1291,7 +1291,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "240",
-      "insertText": "public function __attach(service ${1:s}, string? ${2:name} = ()) returns error? {\n\t${3}\n}",
+      "insertText": "public function attach(service ${1:s}, string? ${2:name} = ()) returns error? {\n\t${3}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1307,7 +1307,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "240",
-      "insertText": "public function __start() returns error? {\n\t${1}\n}",
+      "insertText": "public function 'start() returns error? {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1315,7 +1315,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "240",
-      "insertText": "public function __gracefulStop() returns error? {\n\t${1}\n}",
+      "insertText": "public function gracefulStop() returns error? {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1323,7 +1323,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "240",
-      "insertText": "public function __immediateStop() returns error? {\n\t${1}\n}",
+      "insertText": "public function immediateStop() returns error? {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {

@@ -874,8 +874,6 @@ public class ParserTestUtils {
                 return SyntaxKind.CONDITIONAL_EXPRESSION;
             case "TRANSACTIONAL_EXPRESSION":
                 return SyntaxKind.TRANSACTIONAL_EXPRESSION;
-            case "SERVICE_CONSTRUCTOR_EXPRESSION":
-                return SyntaxKind.SERVICE_CONSTRUCTOR_EXPRESSION;
             case "BYTE_ARRAY_LITERAL":
                 return SyntaxKind.BYTE_ARRAY_LITERAL;
             case "XML_FILTER_EXPRESSION":
@@ -1078,8 +1076,6 @@ public class ParserTestUtils {
                 return SyntaxKind.COMPUTED_NAME_FIELD;
             case "SPREAD_FIELD":
                 return SyntaxKind.SPREAD_FIELD;
-            case "SERVICE_BODY":
-                return SyntaxKind.SERVICE_BODY;
             case "ARRAY_DIMENSION":
                 return SyntaxKind.ARRAY_DIMENSION;
             case "METADATA":
@@ -1192,6 +1188,14 @@ public class ParserTestUtils {
                 return SyntaxKind.JOIN_CLAUSE;
             case "ON_CLAUSE":
                 return SyntaxKind.ON_CLAUSE;
+            case "RESOURCE_ACCESSOR_DEFINITION":
+                return SyntaxKind.RESOURCE_ACCESSOR_DEFINITION;
+            case "RESOURCE_ACCESSOR_DECLARATION":
+                return SyntaxKind.RESOURCE_ACCESSOR_DECLARATION;
+            case "RESOURCE_PATH_SEGMENT_PARAM":
+                return SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM;
+            case "RESOURCE_PATH_REST_PARAM":
+                return SyntaxKind.RESOURCE_PATH_REST_PARAM;
 
             // XML template
             case "XML_ELEMENT":

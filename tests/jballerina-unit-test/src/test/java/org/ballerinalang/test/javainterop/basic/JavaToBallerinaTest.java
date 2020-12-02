@@ -23,7 +23,6 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -33,15 +32,9 @@ import org.testng.annotations.Test;
  */
 public class JavaToBallerinaTest {
 
-    private CompileResult result;
-
-    @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compile("test-src/javainterop/basic/java_to_bal_test.bal");
-    }
-
     @Test
     public void testUsingExistingBallerinaRuntime() {
+        CompileResult result = BCompileUtil.compile("test-src/javainterop/basic/java_to_bal_test.bal");
         BValue[] returns = BRunUtil.invoke(result, "timerTest");
 
         Assert.assertEquals(returns.length, 1);
@@ -50,5 +43,18 @@ public class JavaToBallerinaTest {
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
     }
+
+    @Test
+    public void testReturnValue() {
+        CompileResult result = BCompileUtil.compile("test-src/javainterop/basic/java_to_bal_with_return.bal");
+        BValue[] returns = BRunUtil.invoke(result, "returnValueTest");
+
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+    }
+
 
 }
