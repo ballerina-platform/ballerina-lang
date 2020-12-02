@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 listener CustomListener listen = new CustomListener();
 
 class CustomListener {

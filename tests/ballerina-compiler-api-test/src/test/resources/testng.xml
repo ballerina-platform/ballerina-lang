@@ -32,7 +32,7 @@
             <class name="io.ballerina.semantic.api.test.SymbolPositionTest" />
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
-            <class name="io.ballerina.semantic.api.test.ServiceSymbolTest" />
+            <class name="io.ballerina.semantic.api.test.ServiceSemanticAPITest" />
 
             <class name="io.ballerina.semantic.api.test.allreferences.AnnotationRefsTest" />
             <!--            The following is disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/27049-->

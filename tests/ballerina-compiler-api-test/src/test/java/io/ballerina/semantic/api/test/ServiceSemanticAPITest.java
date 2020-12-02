@@ -50,7 +50,7 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 2.0.0
  */
-public class ServiceSymbolTest {
+public class ServiceSemanticAPITest {
 
     private SemanticModel model;
     private final String fileName = "service_symbol_test.bal";

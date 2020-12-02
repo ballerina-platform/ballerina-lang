@@ -70,16 +70,16 @@ public class SymbolFlagToQualifierMappingTest {
     @DataProvider(name = "QualifierProvider")
     public Object[][] getPositionsAndQualifiers() {
         return new Object[][]{
-                {18, 27, Set.of(LISTENER, FINAL)},
-                {20, 13, new HashSet<Qualifier>()},
-                {21, 20, Set.of(PUBLIC)},
-                {37, 19, Set.of(READONLY)},
-                {51, 20, Set.of(ISOLATED)},
-                {54, 22, Set.of(READONLY, PUBLIC)},
-                {58, 16, Set.of(CLIENT)},
-                {59, 22, Set.of(REMOTE)},
-                {67, 17, Set.of(LISTENER, FINAL)},
-                {68, 24, Set.of(RESOURCE)}
+                {16, 27, Set.of(LISTENER, FINAL)},
+                {18, 13, new HashSet<Qualifier>()},
+                {19, 20, Set.of(PUBLIC)},
+                {35, 19, Set.of(READONLY)},
+                {49, 20, Set.of(ISOLATED)},
+                {52, 22, Set.of(READONLY, PUBLIC)},
+                {56, 16, Set.of(CLIENT)},
+                {57, 22, Set.of(REMOTE)},
+                {65, 17, Set.of(LISTENER, FINAL)},
+                {66, 24, Set.of(RESOURCE)}
         };
     }
 
@@ -94,8 +94,8 @@ public class SymbolFlagToQualifierMappingTest {
     @DataProvider(name = "SymbolKindProvider")
     public Object[][] getSymbolKinds() {
         return new Object[][]{
-                {21, 20, SymbolKind.METHOD},
-                {77, 7, SymbolKind.CONSTANT},
+                {19, 20, SymbolKind.METHOD},
+                {75, 7, SymbolKind.CONSTANT},
         };
     }
 }
