@@ -867,10 +867,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TYPE_NAME:
                 case IMPORT_ORG_OR_MODULE_NAME:
                 case IMPORT_MODULE_NAME:
-                case IMPORT_PREFIX:
                 case MAPPING_FIELD_NAME:
                 case SERVICE_NAME:
-                case QUALIFIED_IDENTIFIER:
                 case IDENTIFIER:
                 case ANNOTATION_TAG:
                 case NAMESPACE_PREFIX:
@@ -884,6 +882,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case SIMPLE_BINDING_PATTERN:
                 case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
+                    break;
+                case IMPORT_PREFIX:
+                case QUALIFIED_IDENTIFIER:
+                    hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN ||
+                            BallerinaParser.isPredeclaredPrefix(nextToken.kind);
                     break;
                 case OPEN_PARENTHESIS:
                 case PARENTHESISED_TYPE_DESC_START:

@@ -735,6 +735,10 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
+        } else if (isPredeclaredPrefix(nextToken.kind)) {
+            STToken preDeclaredPrefix = consume();
+            return STNodeFactory.createIdentifierToken(preDeclaredPrefix.text(), preDeclaredPrefix.leadingMinutiae(),
+                    preDeclaredPrefix.trailingMinutiae());
         } else {
             recover(peek(), ParserRuleContext.IMPORT_PREFIX);
             return parseImportPrefix();
@@ -4034,6 +4038,15 @@ public class BallerinaParser extends AbstractParser {
             case BASE64_KEYWORD:
                 return parseByteArrayLiteral();
             default:
+                if (isPredeclaredPrefix(nextToken.kind)) {
+                    if (getNextNextToken().kind == SyntaxKind.COLON_TOKEN) {
+                        STToken preDeclaredPrefix = consume();
+                        STToken identifier = STNodeFactory.createIdentifierToken(preDeclaredPrefix.text(),
+                                preDeclaredPrefix.leadingMinutiae(), preDeclaredPrefix.trailingMinutiae());
+                        return parseQualifiedIdentifier(identifier, isInConditionalExpr);
+                    }
+                    return parseSimpleTypeDescriptor();
+                }
                 if (isSimpleType(nextToken.kind)) {
                     return parseSimpleTypeDescriptor();
                 }
@@ -8215,6 +8228,27 @@ public class BallerinaParser extends AbstractParser {
             case TYPEDESC_KEYWORD: // This is for recovery logic. <code>typedesc a;</code> scenario recovered here.
             case READONLY_KEYWORD:
             case DISTINCT_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    static boolean isPredeclaredPrefix(SyntaxKind nodeKind) {
+        switch (nodeKind) {
+            case BOOLEAN_KEYWORD:
+            case DECIMAL_KEYWORD:
+            case ERROR_KEYWORD:
+            case FLOAT_KEYWORD:
+            case FUTURE_KEYWORD:
+            case INT_KEYWORD:
+            case MAP_KEYWORD:
+            case OBJECT_KEYWORD:
+            case STREAM_KEYWORD:
+            case STRING_KEYWORD:
+            case TABLE_KEYWORD:
+            case TYPEDESC_KEYWORD:
+            case XML_KEYWORD:
                 return true;
             default:
                 return false;
