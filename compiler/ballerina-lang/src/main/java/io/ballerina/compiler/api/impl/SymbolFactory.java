@@ -155,7 +155,10 @@ public class SymbolFactory {
         PackageID pkgID = invokableSymbol.pkgID;
         BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
                 new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol);
-        if (isFlagOn(invokableSymbol.flags, Flags.PUBLIC)) {
+        boolean isResourceMethod = isFlagOn(invokableSymbol.flags, Flags.RESOURCE);
+        boolean isRemoteMethod = isFlagOn(invokableSymbol.flags, Flags.REMOTE);
+
+        if (isFlagOn(invokableSymbol.flags, Flags.PUBLIC) && !(isResourceMethod || isRemoteMethod)) {
             builder.withQualifier(Qualifier.PUBLIC);
         }
         if (isFlagOn(invokableSymbol.flags, Flags.PRIVATE)) {
@@ -164,10 +167,10 @@ public class SymbolFactory {
         if (isFlagOn(invokableSymbol.flags, Flags.ISOLATED)) {
             builder.withQualifier(Qualifier.ISOLATED);
         }
-        if (isFlagOn(invokableSymbol.flags, Flags.REMOTE)) {
+        if (isRemoteMethod) {
             builder.withQualifier(Qualifier.REMOTE);
         }
-        if (isFlagOn(invokableSymbol.flags, Flags.RESOURCE)) {
+        if (isResourceMethod) {
             builder.withQualifier(Qualifier.RESOURCE);
         }
         if (isFlagOn(invokableSymbol.flags, Flags.TRANSACTIONAL)) {
@@ -283,6 +286,9 @@ public class SymbolFactory {
         }
         if (isFlagOn(classSymbol.flags, Flags.DISTINCT)) {
             symbolBuilder.withQualifier(Qualifier.DISTINCT);
+        }
+        if (isFlagOn(classSymbol.flags, Flags.SERVICE)) {
+            symbolBuilder.withQualifier(Qualifier.SERVICE);
         }
         if (isFlagOn(classSymbol.flags, Flags.CLIENT)) {
             symbolBuilder.withQualifier(Qualifier.CLIENT);
