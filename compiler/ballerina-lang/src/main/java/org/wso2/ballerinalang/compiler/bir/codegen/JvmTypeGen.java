@@ -1019,7 +1019,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load function name
-        mv.visitLdcInsn(decodeIdentifier(resourceFunction.funcName.value));
+        mv.visitLdcInsn(resourceFunction.funcName.value);
 
         // Load the parent object type
         loadType(mv, objType);
