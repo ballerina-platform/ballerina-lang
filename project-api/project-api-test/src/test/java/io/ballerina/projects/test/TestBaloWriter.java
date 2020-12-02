@@ -89,7 +89,7 @@ public class TestBaloWriter {
                 project.currentPackage().packageVersion().toString());
         Path baloPath = target.getBaloPath().resolve(baloName);
         // balo name
-        Assert.assertEquals(baloName, "foo-winery-any-0.1.0.balo");
+        Assert.assertEquals(baloName, "foo-winery-java11-0.1.0.balo");
         // invoke write balo method
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);

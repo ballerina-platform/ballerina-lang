@@ -280,8 +280,8 @@ public class BuildCommandTest extends BaseCommandTest {
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");
 
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("balo").resolve("foo-winery-java11-0.1.0.balo").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("balo").resolve("foo-winery-java11-0.1.0.balo").toFile()
+                                  .exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                                   .resolve("winery").resolve("0.1.0").resolve("java11")
