@@ -26,17 +26,22 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
-import io.ballerina.tools.text.LinePosition;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
 import static io.ballerina.compiler.api.symbols.Qualifier.LISTENER;
+import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
+import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
+import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -57,7 +62,7 @@ public class ServiceSymbolTest {
 
     @Test
     public void testServiceClass() {
-        ClassSymbol symbol = (ClassSymbol) model.symbol(fileName, LinePosition.from(22, 14)).get();
+        ClassSymbol symbol = (ClassSymbol) model.symbol(fileName, from(22, 14)).get();
 
         List<String> expMethods = List.of("foo", "$get$barPath", "$get$foo$path", "$get$.", "$get$foo$baz",
                                           "$get$foo$*", "$get$foo$*$**");
@@ -74,7 +79,7 @@ public class ServiceSymbolTest {
 
     @Test
     public void testServiceDeclTypedesc() {
-        TypeSymbol symbol = (TypeSymbol) model.symbol(fileName, LinePosition.from(66, 8)).get();
+        TypeSymbol symbol = (TypeSymbol) model.symbol(fileName, from(66, 8)).get();
         assertEquals(symbol.typeKind(), TYPE_REFERENCE);
         assertEquals(symbol.name(), "ProcessingService");
         assertEquals(((TypeReferenceTypeSymbol) symbol).typeDescriptor().typeKind(), OBJECT);
@@ -82,12 +87,40 @@ public class ServiceSymbolTest {
 
     @Test
     public void testServiceDeclListener() {
-        VariableSymbol symbol = (VariableSymbol) model.symbol(fileName, LinePosition.from(66, 31)).get();
+        VariableSymbol symbol = (VariableSymbol) model.symbol(fileName, from(66, 31)).get();
         assertEquals(symbol.name(), "lsn");
         assertEquals(symbol.typeDescriptor().typeKind(), TYPE_REFERENCE);
         assertEquals(symbol.typeDescriptor().name(), "Listener");
         assertEquals(symbol.qualifiers().size(), 2);
         assertTrue(symbol.qualifiers().contains(LISTENER));
         assertTrue(symbol.qualifiers().contains(FINAL));
+    }
+
+    @Test
+    public void testServiceDeclField() {
+        VariableSymbol symbol = (VariableSymbol) model.symbol(fileName, from(68, 18)).get();
+        assertEquals(symbol.name(), "magic");
+        assertEquals(symbol.typeDescriptor().typeKind(), STRING);
+        assertEquals(symbol.qualifiers().size(), 1);
+        assertTrue(symbol.qualifiers().contains(PUBLIC));
+    }
+
+    @Test(dataProvider = "ServiceDeclMethodPos")
+    public void testServiceDeclMethods(int line, int col, String name, List<Qualifier> quals) {
+        MethodSymbol symbol = (MethodSymbol) model.symbol(fileName, from(line, col)).get();
+        assertEquals(symbol.name(), name);
+        assertEquals(symbol.qualifiers().size(), quals.size());
+
+        for (Qualifier qual : quals) {
+            assertTrue(symbol.qualifiers().contains(qual));
+        }
+    }
+
+    @DataProvider(name = "ServiceDeclMethodPos")
+    public Object[][] getMethodPos() {
+        return new Object[][]{
+                {70, 22, "$get$processRequest", List.of(RESOURCE)},
+                {72, 13, "createError", new ArrayList<Qualifier>()}
+        };
     }
 }

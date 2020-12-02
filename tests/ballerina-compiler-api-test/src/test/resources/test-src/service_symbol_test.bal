@@ -68,28 +68,25 @@ service ProcessingService / on lsn {
 
     public string magic = "The Somebody Else's Problem field";
 
-    resource function get processRequest() returns json => { output: "Hello" };
+    resource function get processRequest() returns json => { output: self.magic };
 
     function createError() returns @tainted error? => ();
 }
 
 public class Listener {
 
-    public isolated function __start() returns error? {
+    public function start() returns error? {
     }
 
-    public isolated function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
     }
 
-    public isolated function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
     }
 
-    public isolated function __detach(service object {} s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 
-    public isolated function __attach(service object {} s, string[]? name = ()) returns error? {
-    }
-
-    isolated function register(service object {} s, string[]? name) returns error? {
+    public function attach(service object {} s, string[]? name = ()) returns error? {
     }
 }
