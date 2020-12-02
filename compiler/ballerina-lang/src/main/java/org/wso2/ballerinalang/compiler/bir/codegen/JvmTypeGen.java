@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -948,10 +949,8 @@ public class JvmTypeGen {
             BResourceFunction resourceFunction = (BResourceFunction) attachedFunc;
             createResourceFunction(mv, resourceFunction, objType);
 
-            BIRVariableDcl recFuncVar = new BIRVariableDcl(symbolTable.anyType,
-                    new Name(toNameString(objType) + resourceFunction.funcName.value + "$r$func"), VarScope.FUNCTION,
-                    VarKind.LOCAL);
-            int rFuncVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(recFuncVar);
+            String varRefName = toNameString(objType) + resourceFunction.funcName.value + "$r$func";
+            int rFuncVarIndex = indexMap.addIfNotExists(varRefName, symbolTable.anyType);
             mv.visitVarInsn(ASTORE, rFuncVarIndex);
 
             mv.visitInsn(DUP);
