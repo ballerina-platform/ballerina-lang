@@ -312,6 +312,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangResourceFunction funcNode) {
         visit((BLangFunction) funcNode);
+        for (BLangSimpleVariable pathParam : funcNode.pathParams) {
+            pathParam.accept(this);
+            if (!types.isAssignable(pathParam.type, symTable.intStringFloatOrBoolean)) {
+                dlog.error(pathParam.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE, pathParam.type);
+            }
+        }
+
+        if (funcNode.restPathParam != null) {
+            funcNode.restPathParam.accept(this);
+            BArrayType arrayType = (BArrayType) funcNode.restPathParam.type;
+            BType elemType = arrayType.getElementType();
+            if (!types.isAssignable(elemType, symTable.intStringFloatOrBoolean)) {
+                dlog.error(funcNode.restPathParam.getPosition(),
+                        DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE, elemType);
+            }
+        }
     }
 
     public void visit(BLangFunction funcNode) {
