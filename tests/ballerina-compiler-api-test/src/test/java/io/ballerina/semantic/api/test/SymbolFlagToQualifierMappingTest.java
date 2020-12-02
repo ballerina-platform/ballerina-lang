@@ -28,11 +28,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.CLIENT;
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
@@ -72,16 +70,16 @@ public class SymbolFlagToQualifierMappingTest {
     @DataProvider(name = "QualifierProvider")
     public Object[][] getPositionsAndQualifiers() {
         return new Object[][]{
-                {18, 27, getQualifiers(LISTENER, FINAL)},
-                {20, 13, Collections.EMPTY_SET},
-                {21, 20, getQualifiers(PUBLIC)},
-                {37, 19, getQualifiers(READONLY)},
-                {51, 20, getQualifiers(ISOLATED)},
-                {54, 22, getQualifiers(READONLY)},
-                {58, 16, getQualifiers(CLIENT)},
-                {59, 22, getQualifiers(REMOTE)},
-                {67, 17, getQualifiers(LISTENER, FINAL)},
-                {68, 24, getQualifiers(RESOURCE)}
+                {18, 27, Set.of(LISTENER, FINAL)},
+                {20, 13, new HashSet<Qualifier>()},
+                {21, 20, Set.of(PUBLIC)},
+                {37, 19, Set.of(READONLY)},
+                {51, 20, Set.of(ISOLATED)},
+                {54, 22, Set.of(READONLY, PUBLIC)},
+                {58, 16, Set.of(CLIENT)},
+                {59, 22, Set.of(REMOTE)},
+                {67, 17, Set.of(LISTENER, FINAL)},
+                {68, 24, Set.of(RESOURCE)}
         };
     }
 
@@ -99,9 +97,5 @@ public class SymbolFlagToQualifierMappingTest {
                 {21, 20, SymbolKind.METHOD},
                 {77, 7, SymbolKind.CONSTANT},
         };
-    }
-
-    private Set<Qualifier> getQualifiers(Qualifier... quals) {
-        return Stream.of(quals).collect(Collectors.toSet());
     }
 }

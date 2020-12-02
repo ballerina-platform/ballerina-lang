@@ -146,9 +146,9 @@ public class SymbolLookupTest {
 //                {22, 20, 6, moduleLevelSymbols}, // TODO: Filter out field symbols
 //                {28, 22, 6, moduleLevelSymbols}, // TODO: Filter out field symbols
                 {30, 65, 14, getSymbolNames(moduleLevelSymbols, "parent", "pParent", "name", "pName", "age", "pAge",
-                                            "self", "PersonObj.init")},
-                {39, 8, 13, getSymbolNames(moduleLevelSymbols, "parent", "name", "age", "self",
-                                            "PersonObj.getAge", "PersonObj.getName", "PersonObj.init")},
+                                            "self", "init")},
+                {39, 8, 13, getSymbolNames(moduleLevelSymbols, "parent", "name", "age", "self", "getAge", "getName",
+                                           "init")},
                 {46, 9, 7, getSymbolNames(moduleLevelSymbols, "x")},
                 {48, 19, 7, getSymbolNames(moduleLevelSymbols, "x")},
                 // TODO: Fix filtering out 'person'
