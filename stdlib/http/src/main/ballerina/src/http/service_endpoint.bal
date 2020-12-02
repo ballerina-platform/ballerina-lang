@@ -201,6 +201,7 @@ public type Local record {|
 # + auth - Listener authenticaton configurations
 # + server - The server name which should appear as a response header
 # + webSocketCompressionEnabled - Enable support for compression in WebSocket
+# + requestLimits - Configurations associated with inbound request size limits
 public type ListenerConfiguration record {|
     string host = "0.0.0.0";
     ListenerHttp1Settings http1Settings = {};
@@ -212,6 +213,7 @@ public type ListenerConfiguration record {|
     ListenerAuth auth?;
     string? server = ();
     boolean webSocketCompressionEnabled = true;
+    RequestLimitConfigs requestLimits = {};
 |};
 
 # Provides settings related to HTTP/1.x protocol.
@@ -231,6 +233,21 @@ public type ListenerConfiguration record {|
 public type ListenerHttp1Settings record {|
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
+    int maxUriLength = 4096;
+    int maxHeaderSize = 8192;
+    int maxEntityBodySize = -1;
+|};
+
+# Provides inbound request URI, total header and entity body size threshold configurations.
+#
+# + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a
+#                  `414 - URI Too Long` response.
+# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
+#                   `431 - Request Header Fields Too Large` response.
+# + maxEntityBodySize - Maximum allowed size for the entity body. By default it is set to -1 which means there
+#                       is no restriction `maxEntityBodySize`, On the Exceeding this limit will result in a
+#                       `413 - Payload Too Large` response.
+public type RequestLimitConfigs record {|
     int maxUriLength = 4096;
     int maxHeaderSize = 8192;
     int maxEntityBodySize = -1;
