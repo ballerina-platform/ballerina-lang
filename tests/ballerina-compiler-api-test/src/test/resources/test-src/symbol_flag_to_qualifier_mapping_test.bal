@@ -14,12 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object;
 
 listener CustomListener listen = new CustomListener();
 
 class CustomListener {
-    public function attach(service object {} s, string[]? name) returns error? {
+    public function attach(service object {} s, string[]|string? name) returns error? {
     }
 
     public function detach(service object {} s) returns error? {
