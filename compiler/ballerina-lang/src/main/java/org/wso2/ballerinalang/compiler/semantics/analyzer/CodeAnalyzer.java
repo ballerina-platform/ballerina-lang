@@ -783,11 +783,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.returnWithinLambdaWrappingCheckStack.push(true);
         }
 
-        if (returnStmt.parent != null && returnStmt.parent.parent.getKind() == NodeKind.MATCH_CLAUSE) {
-            this.matchClauseReturns = true;
-        } else {
-            this.statementReturns = true;
-        }
+        this.statementReturns = true;
         analyzeExpr(returnStmt.expr);
         this.returnTypes.peek().add(returnStmt.expr.type);
     }
@@ -844,7 +840,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean allClausesReturns = true;
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
         for (int i = 0; i < matchClauses.size(); i++) {
-            this.matchClauseReturns = false;
             BLangMatchClause matchClause = matchClauses.get(i);
             for (int j = i; j > 0; j--) {
                 if (!checkSimilarMatchGuard(matchClause.matchGuard, matchClauses.get(j - 1).matchGuard)) {
@@ -897,6 +892,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         matchClause.declaredVars.putAll(matchClause.matchPatterns.get(0).declaredVars);
 
         analyzeNode(matchClause.blockStmt, env);
+        this.matchClauseReturns = this.statementReturns;
         resetStatementReturns();
     }
 

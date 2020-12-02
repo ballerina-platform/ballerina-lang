@@ -425,6 +425,59 @@ public function testConstPattern13() {
     }
 }
 
+public function constPattern14(any animal) returns string {
+    int total = 1;
+    match animal {
+        "Mouse" => {
+            if (total == 2) {
+                return "Total 2";
+            }
+            else {
+                return "Not 2";
+            }
+        }
+        _ => {
+            return "!Mouse";
+        }
+    }
+}
+
+public function testConstPattern14() {
+    assertEquals("Not 2", constPattern14("Mouse"));
+    assertEquals("!Mouse", constPattern14("Dog"));
+}
+
+public function constPattern15(any animal) returns string {
+    int total = 1;
+    int age = 2;
+    match animal {
+        "Mouse" => {
+            if (total == 2) {
+                if (age > 3) {
+                    return "Age is greater that 3";
+                } else {
+                    return "Age is less than 3";
+                }
+            }
+            else {
+                if (age > 3) {
+                    return "Age is greater that 3";
+                } else {
+                    return "Age is less than 3";
+                }
+            }
+        }
+        _ => {
+            return "!Mouse";
+        }
+    }
+}
+
+public function testConstPattern15() {
+    assertEquals("Age is less than 3", constPattern15("Mouse"));
+    assertEquals("!Mouse", constPattern15("Dog"));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
