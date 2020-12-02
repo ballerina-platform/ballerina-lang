@@ -43,7 +43,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -69,6 +72,7 @@ public class BuildLangLib {
             if (args.length >= 4 && args[3].equals("true")) {
                 skipBootstrap = true;
             }
+            String docFilter = args.length > 4 ? args[4] : "";
             System.setProperty(ProjectConstants.BALLERINA_HOME, distCache.toString());
             out.println("Building langlib ...");
             out.println("Project Dir: " + projectDir);
@@ -133,9 +137,12 @@ public class BuildLangLib {
             Files.copy(generatedJarFilePath, targetJarFilePath);
 
             //Generate docs
-            out.println("Generating docs...");
-            BallerinaDocGenerator.generateAPIDocs(project, targetPath.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY)
-                    .toString());
+            Set<String> docsToFilter = new HashSet<>(Arrays.asList(docFilter.split(",")));
+            if (!docsToFilter.contains(pkg.packageName().toString())) {
+                out.println("Generating docs...");
+                BallerinaDocGenerator.generateAPIDocs(project, targetPath.resolve(
+                        ProjectConstants.TARGET_API_DOC_DIRECTORY).toString());
+            }
 
         } catch (Exception e) {
             out.println("Unknown error building : " + projectDir.toString());

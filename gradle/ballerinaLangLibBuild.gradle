@@ -66,7 +66,8 @@ class BallerinaLangLibBuildTask extends JavaExec {
         args << distCache
         args << pkgName
         args << skipBootstrap
-
+        args << "lang.__internal,lang.annotations"
+        
         super.setArgs(args)
         super.exec()
     }
