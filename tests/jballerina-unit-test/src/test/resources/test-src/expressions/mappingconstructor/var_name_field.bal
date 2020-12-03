@@ -82,7 +82,7 @@ function testLikeModuleQualifiedVarNameAsJsonField() {
     panic getFailureError(expectedM, m);
 }
 
-annotation Foo foo on class;
+annotation Foo foo on service;
 
 service object {} serv1 =
 @foo {

@@ -25,7 +25,7 @@ public type Bar record {|
     int i = 10;
 |};
 
-public const annotation Bar v1 on source class, source listener;
+public const annotation Bar v1 on source service, source listener;
 
 string s2 = "s2";
 
@@ -49,7 +49,7 @@ class Qux {
 
 }
 
-public const annotation Baz v2 on class, source listener;
+public const annotation Baz v2 on service, source listener;
 
 service object {} ser3 = @v2 {
     st: "string value"

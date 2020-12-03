@@ -456,7 +456,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-        AttachPoint.Point attachedPoint = classDefinition.isServiceDecl
+        AttachPoint.Point attachedPoint = classDefinition.flagSet.contains(Flag.SERVICE)
                 ? AttachPoint.Point.SERVICE
                 : AttachPoint.Point.CLASS;
 
