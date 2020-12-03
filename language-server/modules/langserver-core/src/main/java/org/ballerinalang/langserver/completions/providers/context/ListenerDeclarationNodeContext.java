@@ -277,7 +277,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     }
 
     private ObjectTypeSymbol mapToObjectType(Symbol symbol) {
-        if (symbol.kind() == SymbolKind.TYPE) {
+        if (symbol.kind() == SymbolKind.TYPE_DEFINITION) {
             TypeSymbol type = ((TypeDefinitionSymbol) symbol).typeDescriptor();
             return type.typeKind() == TypeDescKind.TYPE_REFERENCE ?
                     (ObjectTypeSymbol) ((TypeReferenceTypeSymbol) type).typeDescriptor() :
