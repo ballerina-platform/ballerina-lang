@@ -16,7 +16,6 @@
 
 package org.ballerinalang.observe.trace.extension.choreo.model;
 
-import io.jaegertracing.internal.LogData;
 
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,6 @@ public class ChoreoTraceSpan {
     private Map<String, String> tags;
     private List<Reference> references;
     private List<SpanEvent> events;
-//    private List<LogData> events;
 
     public ChoreoTraceSpan(long traceId, long spanId, String serviceName, String operationName,
                            long timestamp, long duration, Map<String, String> tags, List<Reference> references,
@@ -124,7 +122,7 @@ public class ChoreoTraceSpan {
     }
 
     /**
-    * Trace Span Event
+    * Trace Span Event.
     */
     public static class SpanEvent {
         private long time;
