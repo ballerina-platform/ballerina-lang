@@ -42,8 +42,7 @@ public class Endpoint {
     public static BError attachService(BObject listenerEndpoint, BObject serviceObject) {
         try {
             WebServer webServer = (WebServer) listenerEndpoint.getNativeData(WEB_SERVER_NATIVE_DATA_KEY);
-            Service service = webServer.addService(serviceObject);
-            Utils.logInfo("Attached Service %s", service.getServiceName());
+            webServer.addService(serviceObject);
             return null;
         } catch (Throwable t) {
             return Utils.createError(t);
@@ -53,8 +52,7 @@ public class Endpoint {
     public static BError detachService(BObject listenerEndpoint, BObject serviceObject) {
         try {
             WebServer webServer = (WebServer) listenerEndpoint.getNativeData(WEB_SERVER_NATIVE_DATA_KEY);
-            Service service = webServer.removeService(serviceObject);
-            Utils.logInfo("Detached Service %s", service.getServiceName());
+            webServer.removeService(serviceObject);
             return null;
         } catch (Throwable t) {
             return Utils.createError(t);

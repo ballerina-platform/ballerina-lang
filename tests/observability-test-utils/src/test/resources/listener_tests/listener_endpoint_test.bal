@@ -17,12 +17,18 @@
 import ballerina/testobserve;
 import ballerina/lang.'int;
 
-service testServiceOne on new testobserve:Listener(9091) {
-    resource function resourceOne(testobserve:Caller caller) {
+type testServiceOneType service object {
+    resource function get resourceOne(testobserve:Caller caller);
+    resource function get resourceTwo(testobserve:Caller caller, string body) returns error?;
+    resource function get resourceThree(testobserve:Caller caller) returns error?;
+};
+
+service testServiceOneType /testServiceOneType on new testobserve:Listener(9091) {
+    resource function get resourceOne(testobserve:Caller caller) {
         var ret = caller->respond("Hello from Resource One");
     }
 
-    resource function resourceTwo(testobserve:Caller caller, string body) returns error? {
+    resource function get resourceTwo(testobserve:Caller caller, string body) returns error? {
         int numberCount = check 'int:fromString(body);
         var sum = 0;
         foreach var i in 1 ... numberCount {
@@ -31,7 +37,7 @@ service testServiceOne on new testobserve:Listener(9091) {
         var ret = caller->respond("Sum of numbers: " + sum.toString());
     }
 
-    resource function resourceThree(testobserve:Caller caller) returns error? {
+    resource function get resourceThree(testobserve:Caller caller) returns error? {
         error e = error("Test Error");
         panic e;
     }
