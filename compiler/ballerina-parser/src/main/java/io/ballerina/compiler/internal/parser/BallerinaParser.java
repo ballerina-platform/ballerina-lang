@@ -6898,6 +6898,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case SLASH_TOKEN:
             case ON_KEYWORD:
+            case STRING_LITERAL_TOKEN: // should belong to the resource path
                 reportInvalidQualifierList(qualifiers);
                 return STNodeFactory.createEmptyNode();
             default:
