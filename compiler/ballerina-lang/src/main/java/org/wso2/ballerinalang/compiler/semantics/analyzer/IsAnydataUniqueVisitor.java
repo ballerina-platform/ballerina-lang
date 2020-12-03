@@ -140,7 +140,8 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         }
         visited.add(type);
 
-        return visit(type.constraint);
+        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor(visited);
+        return isPureTypeUniqueVisitor.visit(type.constraint);
     }
 
     @Override
