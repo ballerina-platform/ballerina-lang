@@ -221,32 +221,22 @@ public type ListenerConfiguration record {|
 # + keepAlive - Can be set to either `KEEPALIVE_AUTO`, which respects the `connection` header, or `KEEPALIVE_ALWAYS`,
 #               which always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection
 # + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
-#                          connection. By default 10 requests can be pipelined on a single cinnection and user can
+#                          connection. By default 10 requests can be pipelined on a single connection and user can
 #                          change this limit appropriately.
-# + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a
-#                  `414 - URI Too Long` response.
-# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
-#                   `431 - Request Header Fields Too Large` response.
-# + maxEntityBodySize - Maximum allowed size for the entity body. By default it is set to -1 which means there
-#                       is no restriction `maxEntityBodySize`, On the Exceeding this limit will result in a
-#                       `413 - Payload Too Large` response.
 public type ListenerHttp1Settings record {|
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
-    int maxUriLength = 4096;
-    int maxHeaderSize = 8192;
-    int maxEntityBodySize = -1;
 |};
 
 # Provides inbound request URI, total header and entity body size threshold configurations.
 #
-# + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a
-#                  `414 - URI Too Long` response.
+# + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a `414 - URI Too Long`
+#                  response
 # + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
-#                   `431 - Request Header Fields Too Large` response.
+#                   `431 - Request Header Fields Too Large` response
 # + maxEntityBodySize - Maximum allowed size for the entity body. By default it is set to -1 which means there
 #                       is no restriction `maxEntityBodySize`, On the Exceeding this limit will result in a
-#                       `413 - Payload Too Large` response.
+#                       `413 - Payload Too Large` response
 public type RequestLimitConfigs record {|
     int maxUriLength = 4096;
     int maxHeaderSize = 8192;
