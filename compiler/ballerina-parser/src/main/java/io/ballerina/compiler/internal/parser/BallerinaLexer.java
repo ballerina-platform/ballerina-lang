@@ -791,6 +791,10 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         String tokenText = getLexeme();
+        if (isPredeclaredPrefix(tokenText) && peek() == ':') {
+            return getIdentifierToken();
+        }
+
         switch (tokenText) {
             // built-in named-types
             case LexerTerminals.INT:
@@ -993,6 +997,27 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.CONFIGURABLE_KEYWORD);
             default:
                 return getIdentifierToken();
+        }
+    }
+
+    private boolean isPredeclaredPrefix(String tokenText) {
+        switch (tokenText) {
+            case LexerTerminals.BOOLEAN:
+            case LexerTerminals.DECIMAL:
+            case LexerTerminals.ERROR:
+            case LexerTerminals.FLOAT:
+            case LexerTerminals.FUTURE:
+            case LexerTerminals.INT:
+            case LexerTerminals.MAP:
+            case LexerTerminals.OBJECT:
+            case LexerTerminals.STREAM:
+            case LexerTerminals.STRING:
+            case LexerTerminals.TABLE:
+            case LexerTerminals.TYPEDESC:
+            case LexerTerminals.XML:
+                return true;
+            default:
+                return false;
         }
     }
 

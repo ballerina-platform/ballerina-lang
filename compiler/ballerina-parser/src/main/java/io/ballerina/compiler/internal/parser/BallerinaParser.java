@@ -4038,15 +4038,6 @@ public class BallerinaParser extends AbstractParser {
             case BASE64_KEYWORD:
                 return parseByteArrayLiteral();
             default:
-                if (isPredeclaredPrefix(nextToken.kind)) {
-                    if (getNextNextToken().kind == SyntaxKind.COLON_TOKEN) {
-                        STToken preDeclaredPrefix = consume();
-                        STToken identifier = STNodeFactory.createIdentifierToken(preDeclaredPrefix.text(),
-                                preDeclaredPrefix.leadingMinutiae(), preDeclaredPrefix.trailingMinutiae());
-                        return parseQualifiedIdentifier(identifier, isInConditionalExpr);
-                    }
-                    return parseSimpleTypeDescriptor();
-                }
                 if (isSimpleType(nextToken.kind)) {
                     return parseSimpleTypeDescriptor();
                 }
