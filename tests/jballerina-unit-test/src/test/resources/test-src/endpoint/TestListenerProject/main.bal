@@ -1,11 +1,11 @@
 import endpoint_pkg.a;
 
-service sample2 on a:ep {
+service /sample2 on a:ep {
 
-    resource function foo(string b) {
+    resource function get foo(string b) {
     }
 
-    resource function bar(string b) {
+    resource function get bar(string b) {
     }
 }
 

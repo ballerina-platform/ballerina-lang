@@ -85,6 +85,10 @@
                   "value": "init"
                 },
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "FUNCTION_SIGNATURE",
                   "children": [
                     {
@@ -141,6 +145,10 @@
                   "value": "getName"
                 },
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "FUNCTION_SIGNATURE",
                   "children": [
                     {
@@ -173,7 +181,7 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "PUBLIC_KEYWORD",
+                      "kind": "REMOTE_KEYWORD",
                       "leadingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
@@ -184,15 +192,6 @@
                           "value": "    "
                         }
                       ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "REMOTE_KEYWORD",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -214,6 +213,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "get"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",

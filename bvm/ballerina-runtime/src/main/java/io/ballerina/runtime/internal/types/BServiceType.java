@@ -18,10 +18,15 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.MemberFunctionType;
+import io.ballerina.runtime.api.types.ResourceFunctionType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.internal.AnnotationUtils;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.MapValue;
+
+import java.util.ArrayList;
 
 /**
  * {@code BServiceType} represents a service in Ballerina.
@@ -30,13 +35,16 @@ import io.ballerina.runtime.internal.values.MapValue;
  */
 public class BServiceType extends BObjectType implements ServiceType {
 
+    private ResourceFunctionType[] resourceFunctions;
+    private volatile MemberFunctionType[] remoteFunctions;
+
     public BServiceType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags);
     }
 
     public void setAttachedFuncsAndProcessAnnots(MapValue globalAnnotationMap, Strand strand,
                                                          BServiceType originalType,
-                                                         AttachedFunction[] attachedFunctions) {
+                                                         BMemberFunctionType[] attachedFunctions) {
         this.setAttachedFunctions(attachedFunctions);
         this.setFields(originalType.getFields());
         this.initializer = originalType.initializer;
@@ -45,13 +53,50 @@ public class BServiceType extends BObjectType implements ServiceType {
         AnnotationUtils.processServiceAnnotations(globalAnnotationMap, this, strand);
     }
 
+    public void setResourceFunctions(ResourceFunctionType[] resourceFunctions) {
+        this.resourceFunctions = resourceFunctions;
+    }
+
+    /**
+     * Gen an array of remote functions defined in the service object.
+     *
+     * @return array of remote functions
+     */
     @Override
-    public int getTag() {
-        return TypeTags.SERVICE_TAG;
+    public MemberFunctionType[] getRemoteFunctions() {
+        if (remoteFunctions == null) {
+            MemberFunctionType[] funcs = getRemoteFunctions(getAttachedFunctions());
+            synchronized (this) {
+                if (remoteFunctions == null) {
+                    remoteFunctions = funcs;
+                }
+            }
+        }
+        return remoteFunctions;
+    }
+
+    private MemberFunctionType[] getRemoteFunctions(MemberFunctionType[] attachedFunctions) {
+        ArrayList<MemberFunctionType> functions = new ArrayList<>();
+        for (MemberFunctionType funcType : attachedFunctions) {
+            if (SymbolFlags.isFlagOn(((BMemberFunctionType) funcType).flags, SymbolFlags.REMOTE)) {
+                functions.add(funcType);
+            }
+        }
+        return functions.toArray(new MemberFunctionType[]{});
+    }
+
+    /**
+     * Get array containing resource functions defined in service object.
+     *
+     * @return resource functions
+     */
+    @Override
+    public ResourceFunctionType[] getResourceFunctions() {
+        return resourceFunctions;
     }
 
     @Override
-    public boolean isReadOnly() {
-        return true;
+    public int getTag() {
+        return TypeTags.SERVICE_TAG;
     }
 }

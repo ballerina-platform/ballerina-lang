@@ -111,7 +111,7 @@ public class DocumentationTest extends AbstractMiscTest {
         testFile("documentation/doc_source_13.bal", "documentation/doc_assert_13.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testDocWithInitialDiagnostics() {
         testFile("documentation/doc_source_18.bal", "documentation/doc_assert_18.json");
     }

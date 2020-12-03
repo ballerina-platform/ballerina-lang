@@ -56,7 +56,7 @@ function testFlush() {
 }
 
 public client class SimpleClient {
-    public remote function simpleAction(string actionParam) {
+    remote function simpleAction(string actionParam) {
 
     }
 }

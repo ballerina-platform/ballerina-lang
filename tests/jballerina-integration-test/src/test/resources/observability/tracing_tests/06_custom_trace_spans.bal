@@ -17,8 +17,8 @@
 import ballerina/testobserve;
 import ballerina/observe;
 
-service testServiceFive on new testobserve:Listener(9096) {
-    resource function resourceOne(testobserve:Caller caller) {
+service "testServiceFive" on new testobserve:Listener(9096) {
+    resource function get resourceOne(testobserve:Caller caller) {
         var customSpanOneId = checkpanic observe:startSpan("customSpanOne");
         _ = checkpanic observe:addTagToSpan("resource", "resourceOne", customSpanOneId);
         _ = checkpanic observe:addTagToSpan("custom", "true", customSpanOneId);
@@ -48,7 +48,7 @@ service testServiceFive on new testobserve:Listener(9096) {
         }
     }
 
-    resource function resourceTwo(testobserve:Caller caller) {
+    resource function get resourceTwo(testobserve:Caller caller) {
         int customSpanThreeId = observe:startRootSpan("customSpanThree");
         _ = checkpanic observe:addTagToSpan("resource", "resourceTwo", customSpanThreeId);
         _ = checkpanic observe:addTagToSpan("custom", "true", customSpanThreeId);
