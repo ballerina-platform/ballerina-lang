@@ -263,16 +263,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangResourceFunction resourceFunction) {
-        if (setEnclosingNode(resourceFunction.symbol, resourceFunction.name.pos)) {
-            return;
-        }
-
-        lookupNodes(resourceFunction.requiredParams);
-        lookupNode(resourceFunction.restParam);
-        lookupNode(resourceFunction.returnTypeNode);
-        lookupNode(resourceFunction.body);
-        lookupNode(resourceFunction.restPathParam);
-        lookupNodes(resourceFunction.pathParams);
+        visit((BLangFunction) resourceFunction);
     }
 
     @Override

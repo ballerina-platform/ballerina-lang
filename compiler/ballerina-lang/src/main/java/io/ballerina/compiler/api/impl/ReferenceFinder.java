@@ -244,18 +244,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangResourceFunction resourceFunction) {
-        find(resourceFunction.annAttachments);
-        find(resourceFunction.requiredParams);
-        find(resourceFunction.restParam);
-        find(resourceFunction.returnTypeAnnAttachments);
-        find(resourceFunction.returnTypeNode);
-        find(resourceFunction.body);
-        find(resourceFunction.pathParams);
-        find(resourceFunction.restPathParam);
-
-        if (resourceFunction.symbol.origin != VIRTUAL) {
-            addIfSameSymbol(resourceFunction.symbol, resourceFunction.name.pos);
-        }
+        visit((BLangFunction) resourceFunction);
     }
 
     @Override
@@ -1148,6 +1137,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(classDefinition.fields);
         find(classDefinition.initFunction);
         find(classDefinition.functions);
+        find(classDefinition.typeRefs);
         addIfSameSymbol(classDefinition.symbol, classDefinition.name.pos);
     }
 

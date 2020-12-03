@@ -251,16 +251,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangResourceFunction resourceFunction) {
-        if (!this.range.equals(resourceFunction.symbol.pos.lineRange())) {
-            this.enclosingContainer = resourceFunction;
-        }
-
-        lookupNodes(resourceFunction.requiredParams);
-        lookupNode(resourceFunction.restParam);
-        lookupNode(resourceFunction.returnTypeNode);
-        lookupNode(resourceFunction.body);
-        lookupNodes(resourceFunction.pathParams);
-        lookupNode(resourceFunction.restPathParam);
+        visit((BLangFunction) resourceFunction);
     }
 
     @Override

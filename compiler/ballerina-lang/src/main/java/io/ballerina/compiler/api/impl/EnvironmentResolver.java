@@ -239,14 +239,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangResourceFunction resourceFunction) {
-        if (PositionUtil.withinBlock(this.linePosition, resourceFunction.getPosition())) {
-            SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(resourceFunction, resourceFunction.symbol.scope,
-                                                            this.symbolEnv);
-            this.scope = funcEnv;
-            this.acceptNode(resourceFunction.getBody(), funcEnv);
-            return;
-        }
-        resourceFunction.getAnnotationAttachments().forEach(annotation -> this.acceptNode(annotation, this.symbolEnv));
+        visit((BLangFunction) resourceFunction);
     }
 
     // TODO: Add the expression and the external

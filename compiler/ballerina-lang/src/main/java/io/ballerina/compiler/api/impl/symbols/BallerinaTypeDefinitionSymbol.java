@@ -47,7 +47,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
                                             List<Qualifier> qualifiers,
                                             TypeSymbol typeDescriptor,
                                             BSymbol bSymbol) {
-        super(name, moduleID, SymbolKind.TYPE, bSymbol);
+        super(name, moduleID, SymbolKind.TYPE_DEFINITION, bSymbol);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
