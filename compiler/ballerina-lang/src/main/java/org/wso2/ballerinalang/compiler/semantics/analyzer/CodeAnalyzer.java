@@ -810,10 +810,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         if (ifStmt.elseStmt != null) {
             analyzeNode(ifStmt.elseStmt, env);
+            boolean elseWithinTrxMode = this.withinTransactionScope;
             this.statementReturns = ifStmtReturns && this.statementReturns;
             this.errorThrown = currentErrorThrown && this.errorThrown;
-            this.withinTransactionScope = (prevTxMode && !ifWithinTrxMode && !this.withinTransactionScope)
-                    ? false : prevTxMode;
+            this.withinTransactionScope = (!prevTxMode || ifWithinTrxMode || elseWithinTrxMode) && prevTxMode;
         }
         analyzeExpr(ifStmt.expr);
     }
