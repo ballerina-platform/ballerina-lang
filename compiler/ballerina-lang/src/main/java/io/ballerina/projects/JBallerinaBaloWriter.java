@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipOutputStream;
@@ -38,17 +39,18 @@ import java.util.zip.ZipOutputStream;
 public class JBallerinaBaloWriter extends BaloWriter {
 
 
-    public JBallerinaBaloWriter(JdkVersion targetPlatform) {
-        this.target = targetPlatform.code();
+    public JBallerinaBaloWriter(PackageContext packageContext) {
+        super(packageContext);
+        this.target = getTargetPlatform(packageContext.getResolution()).code();
     }
 
 
     @Override
-    protected Optional<JsonArray> addPlatformLibs(ZipOutputStream baloOutputStream, Package pkg)
+    protected Optional<JsonArray> addPlatformLibs(ZipOutputStream baloOutputStream)
             throws IOException {
-        Path sourceRoot = pkg.project().sourceRoot();
+        Path sourceRoot = this.packageContext.project().sourceRoot();
         //If platform libs are defined add them to balo
-        PackageManifest.Platform platform = pkg.manifest().platform(target);
+        PackageManifest.Platform platform = this.packageContext.manifest().platform(target);
         if (platform == null) {
             return Optional.empty();
         }
@@ -89,5 +91,16 @@ public class JBallerinaBaloWriter extends BaloWriter {
         }
 
         return Optional.of(newPlatformLibs);
+    }
+
+    private CompilerBackend.TargetPlatform getTargetPlatform(PackageResolution pkgResolution) {
+        Collection<ResolvedPackageDependency> resolvedPkgDependencies = pkgResolution.allDependencies();
+        for (ResolvedPackageDependency dependency : resolvedPkgDependencies) {
+            if (dependency.packageInstance().packageOrg().value().equals("ballerina")
+                    && dependency.packageInstance().packageName().value().equals("java")) {
+                return JdkVersion.JAVA_11;
+            }
+        }
+        return AnyVersion.ANY;
     }
 }

@@ -156,9 +156,8 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void emitBalo(Path filePath) {
-        JBallerinaBaloWriter writer = new JBallerinaBaloWriter(jdkVersion);
-        Package pkg = packageCache.getPackageOrThrow(packageContext.packageId());
-        writer.write(pkg, filePath);
+        JBallerinaBaloWriter writer = new JBallerinaBaloWriter(this.packageContext);
+        writer.write(filePath);
     }
 
     @Override
