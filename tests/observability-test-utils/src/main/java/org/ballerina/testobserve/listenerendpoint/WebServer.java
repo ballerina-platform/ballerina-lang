@@ -84,7 +84,6 @@ public class WebServer {
     private final int port;
     private final EventLoopGroup loopGroup;
     private final Runtime runtime;
-    private boolean isRunning;
 
     public WebServer(int port, Runtime runtime) {
         this.port = port;
@@ -117,9 +116,6 @@ public class WebServer {
      * @param serviceObject The service object to be detached
      */
     public void removeService(BObject serviceObject) {
-        if (this.isRunning) {
-            throw new IllegalStateException("Service cannot be detached while the endpoint is active");
-        }
         List<String> resourcesToBeRemoved = new ArrayList<>();
         for (Resource resource : this.resourceMap.values()) {
             if (Objects.equals(serviceObject, resource.getServiceObject())) {
@@ -140,7 +136,6 @@ public class WebServer {
      */
     public void start() throws InterruptedException {
         try {
-            this.isRunning = true;
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             Channel channel = serverBootstrap
                     .group(this.loopGroup)
@@ -162,7 +157,6 @@ public class WebServer {
             channel.closeFuture().sync();
         } finally {
             this.loopGroup.shutdownGracefully().sync();
-            this.isRunning = false;
         }
     }
 
@@ -173,7 +167,6 @@ public class WebServer {
      */
     public void shutdownGracefully() throws InterruptedException {
         this.loopGroup.shutdownGracefully().sync();
-        this.isRunning = false;
     }
 
     /**
@@ -183,7 +176,6 @@ public class WebServer {
      */
     public void shutdownNow() throws InterruptedException {
         this.loopGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS).sync();
-        this.isRunning = false;
     }
 
     /**
@@ -209,8 +201,8 @@ public class WebServer {
                 return;
             }
             final FullHttpRequest request = (FullHttpRequest) o;
-            String resourcePath = Utils.normalizeResourcePath(request.uri());
             String httpMethod = request.method().name();
+            String resourcePath = Utils.normalizeResourcePath(request.uri());
             String resourceMapKey = generateResourceMapKey(httpMethod, resourcePath);
 
             BObject callerObject = ValueCreator.createObjectValue(TEST_OBSERVE_PACKAGE, CALLER_TYPE_NAME);
