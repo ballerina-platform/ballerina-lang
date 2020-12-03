@@ -31,6 +31,7 @@
                 <exclude name="brokenOnNewParser"/>
                 <exclude name="brokenOnErrorChange"/>
                 <exclude name="brokenOnClassChange"/>
+                <exclude name="disabledOnServiceChange"/>
             </run>
         </groups>
         <packages>
@@ -598,7 +599,7 @@
             </class>
             <class name="org.ballerinalang.test.javainterop.basic.JavaToBallerinaTest">
                 <methods>
-                    <exclude name="testUsingExistingBallerinaRuntime"/>
+<!--                    <exclude name="testUsingExistingBallerinaRuntime"/>-->
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">

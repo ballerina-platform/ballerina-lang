@@ -25,9 +25,9 @@ function init() {
 
 public function main() {
     ABC ep = new ABC("ModDynA");
-    checkpanic ep.__start();
+    checkpanic ep.start();
     runtime:registerListener(ep);
-    checkpanic ep.__gracefulStop();
+    checkpanic ep.gracefulStop();
     runtime:deregisterListener(ep);
 }
 
@@ -39,7 +39,7 @@ public class ABC {
         self.name = name;
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
        incrementCount();
        if (self.name == "ModDynA") {
         assertCount(2);
@@ -48,7 +48,7 @@ public class ABC {
        }
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
        incrementCount();
         if (self.name == "ModDynA") {
             assertCount(3);
@@ -58,13 +58,13 @@ public class ABC {
         }
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 }
 

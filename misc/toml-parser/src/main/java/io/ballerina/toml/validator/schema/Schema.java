@@ -66,7 +66,8 @@ public class Schema extends ObjectSchema {
      * @return Parsed json schema object.
      */
     public static Schema from(String jsonContent) {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(AbstractSchema.class, new SchemaDeserializer()).create();
         Schema rootSchema = gson.fromJson(jsonContent, Schema.class);
         rootSchema.setType(Type.OBJECT);
         return rootSchema;

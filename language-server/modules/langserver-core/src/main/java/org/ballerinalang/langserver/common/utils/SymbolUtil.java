@@ -202,8 +202,8 @@ public class SymbolUtil {
                 .stream()
                 .map(Symbol::name)
                 .collect(Collectors.toList());
-        return attachedMethods.contains("__start") && attachedMethods.contains("__immediateStop")
-                && attachedMethods.contains("__immediateStop") && attachedMethods.contains("__attach");
+        return attachedMethods.contains("start") && attachedMethods.contains("immediateStop")
+                && attachedMethods.contains("immediateStop") && attachedMethods.contains("attach");
     }
 
     /**

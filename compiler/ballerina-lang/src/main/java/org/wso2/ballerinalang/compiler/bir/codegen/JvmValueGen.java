@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -102,7 +101,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
@@ -176,7 +174,7 @@ class JvmValueGen {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
-            if (bType instanceof BServiceType || (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
+            if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
                 desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, initMethodGen, jvmPackageGen);
             }
@@ -432,11 +430,6 @@ class JvmValueGen {
                 mv.visitInsn(ACONST_NULL);
             } else {
                 JvmCastGen.addBoxInsn(mv, retType);
-                if (io.ballerina.runtime.api.flags.SymbolFlags.
-                        isFlagOn(func.flags, io.ballerina.runtime.api.flags.SymbolFlags.RESOURCE)) {
-                    mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, "handleResourceError",
-                                       String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
-                }
             }
             mv.visitInsn(ARETURN);
             i += 1;

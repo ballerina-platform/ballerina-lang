@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -43,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -212,10 +212,6 @@ public class TypeParamAnalyzer {
                 }
                 return containsTypeParam(invokableType.retType, resolvedTypes);
             case TypeTags.OBJECT:
-                if (type instanceof BServiceType) {
-                    return false;
-                }
-
                 BObjectType objectType = (BObjectType) type;
                 for (BField field : objectType.fields.values()) {
                     BType bFieldType = field.getType();
@@ -364,7 +360,7 @@ public class TypeParamAnalyzer {
                 }
                 return;
             case TypeTags.OBJECT:
-                if (actualType.tag == TypeTags.OBJECT && !(actualType instanceof BServiceType)) {
+                if (actualType.tag == TypeTags.OBJECT) {
                     findTypeParamInObject(loc, (BObjectType) expType, (BObjectType) actualType, env, resolvedTypes,
                                           result);
                 }
@@ -627,9 +623,6 @@ public class TypeParamAnalyzer {
             case TypeTags.INVOKABLE:
                 return getMatchingFunctionBoundType((BInvokableType) expType, env, resolvedTypes);
             case TypeTags.OBJECT:
-                if (expType instanceof BServiceType) {
-                    return expType;
-                }
                 return getMatchingObjectBoundType((BObjectType) expType, env, resolvedTypes);
             case TypeTags.UNION:
                 return getMatchingOptionalBoundType((BUnionType) expType, env, resolvedTypes);
@@ -735,14 +728,24 @@ public class TypeParamAnalyzer {
             matchType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, invokableSymbol.flags, Names.EMPTY,
                                                          env.enclPkg.symbol.pkgID, invokableSymbol.type,
                                                          env.scope.owner, invokableSymbol.pos, VIRTUAL);
-            actObjectSymbol.attachedFuncs.add(
-                    new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos));
+            actObjectSymbol.attachedFuncs.add(duplicateAttachFunc(expFunc, matchType, invokableSymbol));
             String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,
                     expFunc.funcName.value);
             actObjectSymbol.scope.define(names.fromString(funcName), invokableSymbol);
         }
 
         return objectType;
+    }
+
+    private BAttachedFunction duplicateAttachFunc(BAttachedFunction expFunc, BInvokableType matchType,
+                                                  BInvokableSymbol invokableSymbol) {
+        if (expFunc instanceof BResourceFunction) {
+            BResourceFunction resourceFunction = (BResourceFunction) expFunc;
+            return new BResourceFunction(resourceFunction.funcName, invokableSymbol, matchType,
+                    resourceFunction.resourcePath, resourceFunction.accessor, resourceFunction.pathParams,
+                    resourceFunction.restPathParam, expFunc.pos);
+        }
+        return new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos);
     }
 
     private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {

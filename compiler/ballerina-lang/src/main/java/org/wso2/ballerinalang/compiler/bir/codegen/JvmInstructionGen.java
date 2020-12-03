@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -172,7 +171,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.duplicateServiceTypeWithAnnots;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
@@ -1617,15 +1615,15 @@ public class JvmInstructionGen {
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
 
-        if (type instanceof BServiceType) {
-            // For services, create a new type for each new service value. TODO: do only for local vars
-            String pkgClassName = currentPackageName.equals(".") || currentPackageName.equals("") ?
-                    MODULE_INIT_CLASS_NAME : jvmPackageGen.lookupGlobalVarClassName(currentPackageName,
-                    ANNOTATION_MAP_NAME);
-            duplicateServiceTypeWithAnnots(this.mv, (BObjectType) type, pkgClassName, strandIndex);
-        } else {
-            loadType(mv, type);
-        }
+//        if (type instanceof BServiceType) {
+//            // For services, create a new type for each new service value. TODO: do only for local vars
+//            String pkgClassName = currentPackageName.equals(".") || currentPackageName.equals("") ?
+//                    MODULE_INIT_CLASS_NAME : jvmPackageGen.lookupGlobalVarClassName(currentPackageName,
+//                    ANNOTATION_MAP_NAME);
+//            duplicateServiceTypeWithAnnots(this.mv, (BObjectType) type, pkgClassName, strandIndex);
+//        } else {
+        loadType(mv, type);
+//        }
         this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
         this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE_IMPL),
                 false);

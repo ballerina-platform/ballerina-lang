@@ -46,6 +46,10 @@
               ]
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "children": [
                 {
@@ -159,6 +163,10 @@
               "diagnostics": [
                 "ERROR_MISSING_FUNCTION_NAME"
               ]
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_SIGNATURE",

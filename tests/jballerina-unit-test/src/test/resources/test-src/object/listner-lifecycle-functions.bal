@@ -10,23 +10,23 @@ public function main(string... args) {
 class CustomListener {
     *lang:Listener;
 
-    public function __attach(service s, string? name) returns error? {
+    public function attach(service object {} s, string[]? name) returns error? {
         io:println("running __attach");
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
         io:println("running __dettach");
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
         io:println("running __start");
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         io:println("running __gracefulStop");
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         io:println("running __immediateStop");
     }
 }

@@ -94,6 +94,14 @@ public interface WorkspaceManager {
     Optional<ModuleCompilation> waitAndGetModuleCompilation(Path filePath);
 
     /**
+     * Returns module compilation from the module provided.
+     *
+     * @param module {@link Module}
+     * @return {@link ModuleCompilation}
+     */
+    Optional<ModuleCompilation> waitAndGetModuleCompilation(Module module);
+
+    /**
      * The document open notification is sent from the client to the server to signal newly opened text documents.
      *
      * @param filePath {@link Path} of the document

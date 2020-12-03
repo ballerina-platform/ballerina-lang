@@ -107,7 +107,7 @@ public class DiagnosticsHelper {
                 modulePath = (moduleNamePart == null) ? projectRoot
                         : projectRoot.resolve("modules").resolve(moduleNamePart);
             }
-            Optional<ModuleCompilation> modCompilation = workspace.waitAndGetModuleCompilation(context.filePath());
+            Optional<ModuleCompilation> modCompilation = workspace.waitAndGetModuleCompilation(module);
             if (modCompilation.isEmpty()) {
                 continue;
             }

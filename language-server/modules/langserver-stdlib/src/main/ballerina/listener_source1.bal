@@ -1,30 +1,26 @@
-import ballerina/lang.'object as lang;
-
 public class Listener {
-
-    *lang:Listener;
 
     private int port = 0;
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
         return self.startEndpoint();
     }
 
-    public function __gracefulStop() returns error? {
-        return self.gracefulStop();
+    public function gracefulStop() returns error? {
+        return ();
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         error err = error("not implemented");
         return err;
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
         return self.register(s, name);
     }
 
-    public function __detach(service s) returns error? {
-        return self.detach(s);
+    public function detach(service object {} s) returns error? {
+        return ();
     }
 
     public function init(int port) {
@@ -34,19 +30,11 @@ public class Listener {
         return ();
     }
 
-    function register(service s, string? name) returns error? {
+    function register(service object {} s, string[]|string? name) returns error? {
         return ();
     }
 
     function startEndpoint() returns error? {
-        return ();
-    }
-
-    function gracefulStop() returns error? {
-        return ();
-    }
-
-    function detach(service s) returns error? {
         return ();
     }
 }

@@ -20,6 +20,10 @@
       "value": "foo"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -150,6 +154,10 @@
                           "kind": "OBJECT_FIELD",
                           "children": [
                             {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
                               "kind": "INT_TYPE_DESC",
                               "children": [
                                 {
@@ -209,6 +217,10 @@
                             {
                               "kind": "IDENTIFIER_TOKEN",
                               "value": "bar"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
                             },
                             {
                               "kind": "FUNCTION_SIGNATURE",

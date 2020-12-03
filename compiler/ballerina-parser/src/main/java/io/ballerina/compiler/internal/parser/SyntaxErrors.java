@@ -121,7 +121,7 @@ public class SyntaxErrors {
             case ARRAY_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
             case TYPE_NAME:
-            case TYPE_REFERENCE:
+            case TYPE_REFERENCE_IN_TYPE_INCLUSION:
             case FIELD_ACCESS_IDENTIFIER:
             case CLASS_NAME:
             case FUNC_NAME:
@@ -133,7 +133,6 @@ public class SyntaxErrors {
             case IMPORT_PREFIX:
             case VARIABLE_REF:
             case BASIC_LITERAL: // return var-ref for any kind of terminal expression
-            case SERVICE_NAME:
             case IDENTIFIER:
             case QUALIFIED_IDENTIFIER:
             case NAMESPACE_PREFIX:
@@ -165,6 +164,7 @@ public class SyntaxErrors {
             case SIMPLE_BINDING_PATTERN:
             case ERROR_FIELD_BINDING_PATTERN:
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
+            case PATH_SEGMENT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -232,7 +232,7 @@ public class SyntaxErrors {
             case RECORD_FIELD_OR_RECORD_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
             case CLOSE_PARENTHESIS:
-            case ARG_LIST_END:
+            case ARG_LIST_CLOSE_PAREN:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN;
             case COMMA:
             case ERROR_MESSAGE_BINDING_PATTERN_END_COMMA:
@@ -240,7 +240,7 @@ public class SyntaxErrors {
             case OPEN_BRACE:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
             case OPEN_PARENTHESIS:
-            case ARG_LIST_START:
+            case ARG_LIST_OPEN_PAREN:
             case PARENTHESISED_TYPE_DESC_START:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN;
             case SEMICOLON:
@@ -380,7 +380,6 @@ public class SyntaxErrors {
             case ANNOT_DECL_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_ON_KEYWORD;
             case RESOURCE_KEYWORD:
-            case RESOURCE_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_RESOURCE_KEYWORD;
             case FINAL_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_FINAL_KEYWORD;
