@@ -1,6 +1,5 @@
 {
   "kind": "ERROR_CONSTRUCTOR",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "ERROR_KEYWORD"
@@ -19,7 +18,7 @@
               "children": [
                 {
                   "kind": "STRING_LITERAL_TOKEN",
-                  "value": "Test"
+                  "value": "error message"
                 }
               ]
             }
@@ -28,12 +27,7 @@
       ]
     },
     {
-      "kind": "CLOSE_PAREN_TOKEN",
-      "isMissing": true,
-      "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_CLOSE_PAREN_TOKEN"
-      ]
+      "kind": "CLOSE_PAREN_TOKEN"
     }
   ]
 }

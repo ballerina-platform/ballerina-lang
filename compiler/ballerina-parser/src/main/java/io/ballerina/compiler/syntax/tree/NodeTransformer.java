@@ -808,6 +808,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(requiredExpressionNode);
     }
 
+    public T transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        return transformSyntaxNode(errorConstructorExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
