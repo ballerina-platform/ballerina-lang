@@ -76,6 +76,10 @@ public class Resource {
         return this.resourceFunctionType.getName();
     }
 
+    public String getAccessor() {
+        return this.resourceFunctionType.getAccessor();
+    }
+
     public String getResourcePath() {
         return Utils.normalizeResourcePath(basePath)
                 + Utils.normalizeResourcePath(String.join("/", this.resourceFunctionType.getResourcePath()));

@@ -60,6 +60,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -101,11 +102,12 @@ public class WebServer {
         ResourceFunctionType[] resourceFunctions = ((ServiceType) serviceObject.getType()).getResourceFunctions();
         for (ResourceFunctionType resourceFunctionType : resourceFunctions) {
             Resource resource = new Resource(serviceObject, resourceFunctionType, basePath);
-            if (this.resourceMap.containsKey(resource.getResourcePath())) {
+            String resourceMapKey = generateResourceMapKey(resource.getAccessor(), resource.getResourcePath());
+            if (this.resourceMap.containsKey(resourceMapKey)) {
                 throw new IllegalArgumentException("Unable to register service with duplicate resource path");
             }
-            this.resourceMap.put(resource.getResourcePath(), resource);
-            Utils.logInfo("Registered resource path %s", resource.getResourcePath());
+            this.resourceMap.put(resourceMapKey, resource);
+            Utils.logInfo("Registered resource path %s", resourceMapKey);
         }
     }
 
@@ -121,7 +123,8 @@ public class WebServer {
         List<String> resourcesToBeRemoved = new ArrayList<>();
         for (Resource resource : this.resourceMap.values()) {
             if (Objects.equals(serviceObject, resource.getServiceObject())) {
-                resourcesToBeRemoved.add(resource.getResourcePath());
+                String resourceMapKey = generateResourceMapKey(resource.getAccessor(), resource.getResourcePath());
+                resourcesToBeRemoved.add(resourceMapKey);
             }
         }
         for (String resourcePath : resourcesToBeRemoved) {
@@ -207,12 +210,14 @@ public class WebServer {
             }
             final FullHttpRequest request = (FullHttpRequest) o;
             String resourcePath = Utils.normalizeResourcePath(request.uri());
+            String httpMethod = request.method().name();
+            String resourceMapKey = generateResourceMapKey(httpMethod, resourcePath);
 
             BObject callerObject = ValueCreator.createObjectValue(TEST_OBSERVE_PACKAGE, CALLER_TYPE_NAME);
             callerObject.addNativeData(NETTY_CONTEXT_NATIVE_DATA_KEY, ctx);
 
             // Preparing the arguments for dispatching the resource function
-            Resource resource = this.resourceMap.get(resourcePath);
+            Resource resource = this.resourceMap.get(resourceMapKey);
             if (resource == null) {
                 writeResponse(ctx, HttpResponseStatus.NOT_FOUND, "resource " + resourcePath + " not found");
                 return;
@@ -312,5 +317,16 @@ public class WebServer {
 
         // Close the non-keep-alive connection after the write operation is done.
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    /**
+     * Generate key for the resource map.
+     *
+     * @param accessor Ballerina resource function accessor or HTTP Method
+     * @param resourcePath Ballerina resource function full resource path or HTTP path
+     * @return The key for resource map
+     */
+    public static String generateResourceMapKey(String accessor, String resourcePath) {
+        return accessor.toLowerCase(Locale.ENGLISH) + " " + resourcePath.toLowerCase(Locale.ENGLISH);
     }
 }
