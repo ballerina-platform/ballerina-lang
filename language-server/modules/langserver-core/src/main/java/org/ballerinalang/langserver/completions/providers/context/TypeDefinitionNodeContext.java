@@ -67,9 +67,9 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
     }
 
     private List<LSCompletionItem> getObjectTypeQualifierItems(CompletionContext context) {
+        // Note: here we do not add the service type qualifier since it is being added via getTypeItems call.
         return Arrays.asList(
                 new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()),
-                new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()),
                 new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
     }
 

@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.isFlagOn;
@@ -206,7 +207,8 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             for (Map.Entry<Name, ScopeEntry> entry : this.packageSymbol.scope.entries.entrySet()) {
                 ScopeEntry scopeEntry = entry.getValue();
                 if (!isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC)
-                        || (scopeEntry.symbol.origin != COMPILED_SOURCE && scopeEntry.symbol.origin != SOURCE)) {
+                        || (scopeEntry.symbol.origin != COMPILED_SOURCE && scopeEntry.symbol.origin != SOURCE
+                        && scopeEntry.symbol.origin != BUILTIN)) {
                     continue;
                 }
                 symbols.add(

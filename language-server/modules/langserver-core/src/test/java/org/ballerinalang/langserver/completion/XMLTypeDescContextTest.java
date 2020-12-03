@@ -31,7 +31,6 @@ import java.io.IOException;
 public class XMLTypeDescContextTest extends CompletionTestNew {
 
     @Override
-    @Test(groups = {"broken"})
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
         super.test(config, configPath);
     }
