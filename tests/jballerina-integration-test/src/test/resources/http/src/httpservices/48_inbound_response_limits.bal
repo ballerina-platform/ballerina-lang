@@ -45,7 +45,7 @@ http:ClientConfiguration http2headerLimitConfig = {
 http:Client statusLimitClient = new("http://localhost:9262/backend/statustest", statusLineLimitConfig);
 http:Client headerLimitClient = new("http://localhost:9263/backend/headertest", headerLimitConfig);
 http:Client entityBodyLimitClient = new("http://localhost:9264/backend/entitybodytest", entityBodyLimitConfig);
-http:Client http2headerLimitClient = new("http://localhost:9263/backend/headertest", http2headerLimitConfig);
+http:Client http2headerLimitClient = new("http://localhost:9266/backend/headertest", http2headerLimitConfig);
 
 @http:ServiceConfig {basePath:"/responseLimit"}
 service passthruLimitService on new http:Listener(9261) {
@@ -128,7 +128,7 @@ service entitybodyBackendService on new http:Listener(9264) {
 
 
 @http:ServiceConfig {basePath:"/backend"}
-service headertBackendService on new http:Listener(9263) {
+service http2headertBackendService on new http:Listener(9266) {
     resource function headertest(http:Caller caller, http:Request req) {
         http:Response res = new;
         string testType = req.getHeader("x-test-type");
