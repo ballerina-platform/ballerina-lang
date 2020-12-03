@@ -2173,14 +2173,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTypeDescriptor(List<STNode> qualifiers, ParserRuleContext context,
                                        boolean isTypedBindingPattern, boolean isInConditionalExpr) {
         startContext(context);
-        STNode typeDesc = parseTypeDescriptorInternal(qualifiers, context, isTypedBindingPattern, isInConditionalExpr);
-        endContext();
-        return typeDesc;
-    }
-
-    private STNode parseTypeDescriptorInternal(List<STNode> qualifiers, ParserRuleContext context,
-                                               boolean isTypedBindingPattern, boolean isInConditionalExpr) {
         STNode typeDesc = parseTypeDescriptorInternal(qualifiers, context, isInConditionalExpr);
+        endContext();
 
         // var is parsed as a built-in simple type. However, since var is not allowed everywhere,
         // validate it here. This is done to give better error messages.
@@ -2192,17 +2186,20 @@ public class BallerinaParser extends AbstractParser {
             typeDesc = STNodeFactory.createSimpleNameReferenceNode(missingToken);
         }
 
-        return parseComplexTypeDescriptor(typeDesc, context, isTypedBindingPattern);
+        typeDesc = parseComplexTypeDescriptor(typeDesc, context, isTypedBindingPattern);
+        return typeDesc;
     }
 
     /**
      * This will handle the parsing of optional,array,union type desc to infinite length.
      *
-     * @param typeDesc
+     * @param typeDesc LHS type of the complex type
      * @return Parsed type descriptor node
      */
     private STNode parseComplexTypeDescriptor(STNode typeDesc, ParserRuleContext context,
                                               boolean isTypedBindingPattern) {
+        // Assume we reach here without starting a context for the rhs type descriptor.
+        // Although in error handler, TYPEDESC_RHS is called within already started type descriptor context.
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case QUESTION_MARK_TOKEN:
@@ -8798,7 +8795,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseUnionTypeDescriptor(STNode leftTypeDesc, ParserRuleContext context,
                                             boolean isTypedBindingPattern) {
-        STNode pipeToken = parsePipeToken();
+        // we come here only after seeing | token hence consume.
+        STNode pipeToken = consume();
         STNode rightTypeDesc = parseTypeDescriptor(context, isTypedBindingPattern, false);
         return createUnionTypeDesc(leftTypeDesc, pipeToken, rightTypeDesc);
     }
@@ -13851,9 +13849,7 @@ public class BallerinaParser extends AbstractParser {
 
         // We haven't parsed the type-desc as a type-desc (parsed as an identifier/expr).
         // Therefore handle the context manually here.
-        startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
         typeDesc = parseComplexTypeDescriptor(typeDesc, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, false);
-        endContext();
         return parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
     }
 
@@ -14101,10 +14097,8 @@ public class BallerinaParser extends AbstractParser {
                 // treat as type
                 // We haven't parsed the type-desc as a type-desc (parsed as an identifier/expr).
                 // Therefore handle the context manually here.
-                startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
                 typeDesc = parseComplexTypeDescriptor(typeOrExpr, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
                         false);
-                endContext();
                 return typeDesc;
             case SEMICOLON_TOKEN:
                 return getTypeDescFromExpr(typeOrExpr);
@@ -16306,10 +16300,8 @@ public class BallerinaParser extends AbstractParser {
                 // Then treat parent as a var-decl statement
                 switchContext(ParserRuleContext.BLOCK_STMT);
                 startContext(ParserRuleContext.VAR_DECL_STMT);
-                startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
                 STNode typeDesc = parseComplexTypeDescriptor(readonlyKeyword,
                         ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
-                endContext();
                 STNode annots = STNodeFactory.createEmptyNodeList();
                 List<STNode> varDeclQualifiers = new ArrayList<>();
                 STNode typedBP = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
