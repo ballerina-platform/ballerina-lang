@@ -265,6 +265,8 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
                 return visit((BFiniteType) type);
             case TypeTags.TUPLE:
                 return visit((BTupleType) type);
+            case TypeTags.INTERSECTION:
+                return visit((BIntersectionType) type);
         }
         return isPureType(type);
     }

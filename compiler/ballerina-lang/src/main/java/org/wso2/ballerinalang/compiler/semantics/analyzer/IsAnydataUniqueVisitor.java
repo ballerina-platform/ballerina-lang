@@ -299,6 +299,8 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
                 return visit((BFiniteType) type);
             case TypeTags.TUPLE:
                 return visit((BTupleType) type);
+            case TypeTags.INTERSECTION:
+                return visit((BIntersectionType) type);
         }
         return isanydata(type);
     }
