@@ -68,7 +68,7 @@ public class CreateBaloTask implements Task {
         try {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath.resolve(baloName));
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
 
         } catch (ProjectException e) {
             throw createLauncherException("BALO creation failed:" + e.getMessage());

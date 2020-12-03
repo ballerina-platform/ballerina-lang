@@ -93,7 +93,6 @@ public class BuildLangLib {
             }
 
             PackageManifest pkgDesc = pkg.manifest();
-            String baloName = ProjectUtils.getBaloName(pkgDesc);
             Path baloDirPath = pkgTargetPath.resolve("balo");
 
             // Create balo cache directory
@@ -101,7 +100,7 @@ public class BuildLangLib {
                     .resolve(pkgDesc.name().value())
                     .resolve(pkgDesc.version().toString());
             Files.createDirectories(balrPath);
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath.resolve(baloName));
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath);
 
             // Create zip file
             Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");

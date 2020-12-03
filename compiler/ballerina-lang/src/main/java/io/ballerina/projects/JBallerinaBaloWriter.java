@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipOutputStream;
 
@@ -38,14 +39,14 @@ public class JBallerinaBaloWriter extends BaloWriter {
 
     JBallerinaBackend backend;
 
-    public JBallerinaBaloWriter(JBallerinaBackend backend) {
-        this.backend = backend;
-        this.target = backend.jdkVersion().code();
+    public JBallerinaBaloWriter(PackageContext packageContext) {
+        super(packageContext);
+        this.target = getTargetPlatform(packageContext.getResolution()).code();
     }
 
 
     @Override
-    protected Optional<JsonArray> addPlatformLibs(ZipOutputStream baloOutputStream, Package pkg)
+    protected Optional<JsonArray> addPlatformLibs(ZipOutputStream baloOutputStream)
             throws IOException {
         // retrieve platform dependencies that have default scope
         Collection<PlatformLibrary> jars = backend.platformLibraryDependencies(pkg.packageId(),
@@ -87,5 +88,16 @@ public class JBallerinaBaloWriter extends BaloWriter {
         }
 
         return Optional.of(newPlatformLibs);
+    }
+
+    private CompilerBackend.TargetPlatform getTargetPlatform(PackageResolution pkgResolution) {
+        Collection<ResolvedPackageDependency> resolvedPkgDependencies = pkgResolution.allDependencies();
+        for (ResolvedPackageDependency dependency : resolvedPkgDependencies) {
+            if (dependency.packageInstance().packageOrg().value().equals("ballerina")
+                    && dependency.packageInstance().packageName().value().equals("java")) {
+                return JdkVersion.JAVA_11;
+            }
+        }
+        return AnyVersion.ANY;
     }
 }

@@ -127,7 +127,8 @@ public class BCompileUtil {
                                                 String org,
                                                 String pkgName,
                                                 String version) throws IOException {
-        Path targetPath = baloCachePath(org, pkgName, version);
+        String baloFileName = ProjectUtils.getBaloName(org, pkgName, version, null);
+        Path targetPath = baloCachePath(org, pkgName, version).resolve(baloFileName);
         Files.copy(srcPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
@@ -163,8 +164,7 @@ public class BCompileUtil {
                     .resolve(pkgName)
                     .resolve(version);
             Files.createDirectories(baloDirPath);
-            String baloFileName = ProjectUtils.getBaloName(org, pkgName, version, null);
-            return baloDirPath.resolve(baloFileName);
+            return baloDirPath;
         } catch (IOException e) {
             throw new RuntimeException("error while creating the balo distribution cache directory at " +
                     testBuildDirectory, e);
