@@ -137,4 +137,9 @@ public class OptionalFieldAccessTest {
     public void testOptionalFieldAccessInUnionType() {
         BRunUtil.invoke(result, "testOptionalFieldAccessInUnionType");
     }
+
+    @Test
+    public void testOptionalFieldAccessOnClassDef() {
+        BRunUtil.invoke(result, "testOptionalFieldAccessOnClassDef");
+    }
 }

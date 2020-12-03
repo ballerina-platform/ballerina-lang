@@ -5286,7 +5286,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
-        BType actualType = checkInvocationParam(iExpr);
+        BType actualType = iExpr.originalType = checkInvocationParam(iExpr);
         resultType = types.checkType(iExpr, actualType, this.expType);
     }
 

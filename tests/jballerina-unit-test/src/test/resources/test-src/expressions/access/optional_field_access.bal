@@ -391,3 +391,36 @@ function testOptionalFieldAccessInUnionType() {
     testOptionalFieldAccessInUnionType2();
     testOptionalFieldAccessInUnionType3();
 }
+
+class Student {
+    public Details? details = ();
+
+    function init(Details? details) {
+        self.details = details;
+    }
+
+    public function getDetails() returns Details? {
+        return self.details;
+    }
+}
+
+public type Details record {
+    Address addr?;
+};
+
+public type Address record {
+    string street;
+};
+
+function testOptionalFieldAccessOnClassDef() {
+    Address addr = {street: "Colombo"};
+
+    Details details = {addr: addr};
+
+    Student person = new Student(details);
+    string? c1 = person.getDetails()?.addr?.street;
+
+    if (c1 != "Colombo") {
+        panic error("ASSERTION_ERROR_REASON", message = "expected 'Colombo', found '" + c1.toString() + "'");
+    }
+}
