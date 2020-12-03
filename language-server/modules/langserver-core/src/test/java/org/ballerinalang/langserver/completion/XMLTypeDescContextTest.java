@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.completion;
 
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 import java.io.IOException;
 
