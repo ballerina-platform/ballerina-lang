@@ -32,7 +32,6 @@ public enum Qualifier {
     DISTINCT("distinct"),
     SERVICE("service"),
     CLIENT("client"),
-    SERVICE("service"),
     READONLY("readonly"),
     REMOTE("remote"),
     RESOURCE("resource"),
