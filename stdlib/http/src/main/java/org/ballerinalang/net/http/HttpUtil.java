@@ -1470,22 +1470,24 @@ public class HttpUtil {
         String host = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_HOST);
         MapValue sslConfig = endpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_VERSION);
-        MapValue<String, Object> http1Settings = null;
         long idleTimeout = endpointConfig.getIntValue(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (HTTP_1_1_VERSION.equals(httpVersion)) {
-            http1Settings = (MapValue<String, Object>) endpointConfig.get(HttpConstants.HTTP1_SETTINGS);
+            MapValue<String, Object> http1Settings =
+                    (MapValue<String, Object>) endpointConfig.get(HttpConstants.HTTP1_SETTINGS);
             listenerConfiguration.setPipeliningLimit(http1Settings.getIntValue(HttpConstants.PIPELINING_REQUEST_LIMIT));
             String keepAlive = http1Settings.getStringValue(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE);
             listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
-            // Set Request validation limits.
-            setInboundMgsSizeValidationConfig(
-                    http1Settings.getIntValue(HttpConstants.MAX_URI_LENGTH),
-                    http1Settings.getIntValue(HttpConstants.MAX_HEADER_SIZE),
-                    http1Settings.getIntValue(HttpConstants.MAX_ENTITY_BODY_SIZE),
-                    listenerConfiguration.getMsgSizeValidationConfig());
         }
+
+        // Set Request validation limits.
+        MapValue<String, Object> requestLimits =
+                (MapValue<String, Object>) endpointConfig.getMapValue(HttpConstants.REQUEST_LIMITS);
+        setInboundMgsSizeValidationConfig(requestLimits.getIntValue(HttpConstants.MAX_URI_LENGTH),
+                                          requestLimits.getIntValue(HttpConstants.MAX_HEADER_SIZE),
+                                          requestLimits.getIntValue(HttpConstants.MAX_ENTITY_BODY_SIZE),
+                                          listenerConfiguration.getMsgSizeValidationConfig());
 
         if (host == null || host.trim().isEmpty()) {
             listenerConfiguration.setHost(ConfigRegistry.getInstance().getConfigOrDefault("b7a.http.host",

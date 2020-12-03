@@ -1,10 +1,10 @@
 {
     "position": {
-        "line": 3,
-        "character": 13
+        "line":3,
+        "character":13
     },
     "source": "toplevel/source/globalVarDefPackageContent.bal",
-    "items": [
+    "items":[
         {
             "label": "AUTH_HEADER",
             "kind": "Variable",
@@ -2495,6 +2495,17 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "ResponseLimitConfigs",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides inbound response status line, total header and entity body size threshold configurations.\n"
+            },
+            "sortText": "120",
+            "insertText": "ResponseLimitConfigs",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "ClientHttp2Settings",
             "kind": "Struct",
             "detail": "Record",
@@ -3583,6 +3594,17 @@
             },
             "sortText": "120",
             "insertText": "ListenerHttp1Settings",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RequestLimitConfigs",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides inbound request URI, total header and entity body size threshold configurations.\n"
+            },
+            "sortText": "120",
+            "insertText": "RequestLimitConfigs",
             "insertTextFormat": "Snippet"
         },
         {

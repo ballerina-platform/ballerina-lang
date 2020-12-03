@@ -106,4 +106,29 @@ public class ResponseLimitsConfigurationTest extends HttpBaseTest {
                                     "entity body size exceeds: Entity body is larger than 1024 bytes. ",
                             "Message content mismatched");
     }
+
+    @Test(description = "Test when header size is less than the configured maxHeaderSize threshold in http2 client " +
+            "but the backend sends http 1.1 response")
+    public void testValidHeaderLengthWithHttp2Client() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(X_TEST_TYPE, SUCCESS);
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(9261, "responseLimit/http2"), headers);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "Hello World!!!", "Message content mismatched");
+        Assert.assertEquals(response.getHeaders().get("x-header"), "Validated", "Header content mismatched");
+    }
+
+    @Test(description = "Test when header size is greater than the configured maxHeaderSize threshold in http2 client" +
+            " but the backend sends http 1.1 response")
+    public void testInvalidHeaderLengthWithHttp2Client() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(X_TEST_TYPE, ERROR);
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(9261, "responseLimit/http2"), headers);
+        Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "error {ballerina/http}GenericClientError message=Response max " +
+                "header size exceeds: HTTP header is larger than 1024 bytes.", "Header content mismatched");
+        Assert.assertNull(response.getHeaders().get("x-header"), "Message content mismatched");
+    }
 }
