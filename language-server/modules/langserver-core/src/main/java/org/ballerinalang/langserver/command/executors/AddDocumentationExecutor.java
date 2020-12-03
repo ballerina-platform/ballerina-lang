@@ -102,7 +102,7 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
 
     private NonTerminalNode getDocumentableNode(NonTerminalNode node) {
         while (node.parent().kind() != SyntaxKind.MODULE_PART &&
-                node.parent().kind() != SyntaxKind.SERVICE_BODY &&
+                //node.parent().kind() != SyntaxKind.SERVICE_BODY &&
                 node.parent().kind() != SyntaxKind.OBJECT_TYPE_DESC &&
                 node.parent().kind() != SyntaxKind.CLASS_DEFINITION) {
             node = node.parent();

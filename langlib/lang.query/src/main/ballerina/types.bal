@@ -682,8 +682,11 @@ class _FrameMultiMap {
         _Frame[]? vals = self.m[k];
         if (vals is _Frame[]) {
             _Frame[] frames = [];
-            foreach _Frame v in vals {
-                frames.push(v);
+            int l = vals.length();
+            int i = 0;
+            while (i < l) {
+                frames.push(vals[i]);
+                i += 1;
             }
             return frames;
         }
@@ -722,10 +725,9 @@ class _OrderTreeNode {
     # adds a _Frame into the _OrderTreeNode tree structure.
     function add(_Frame f, any[] directions, any[] keys) {
         if (keys.length() == 0 && directions.length() == 0) {
-            if (self.frames is _Frame[]) {
-                _Frame[] frames = <_Frame[]>self.frames;
-                frames.push(f);
-                self.frames = frames;
+            _Frame[]? currentFrames = self.frames;
+            if (currentFrames is _Frame[]) {
+                currentFrames.push(f);
             } else {
                 self.frames = [f];
             }
@@ -755,8 +757,11 @@ class _OrderTreeNode {
         _Frame[] orderedFrames = [];
         if (self.frames is _Frame[]) {
             _Frame[] frames = <_Frame[]>self.frames;
-            foreach _Frame f in frames {
-                orderedFrames.push(f);
+            int l = frames.length();
+            int i = 0;
+            while (i < l) {
+                orderedFrames.push(frames[i]);
+                i += 1;
             }
         } else {
             any[] keys = self.getSortedArray(self.keys);

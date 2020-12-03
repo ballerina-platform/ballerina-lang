@@ -87,13 +87,13 @@ type TestConnector record {
 # parameter `invalidParameter`
 # + conn - HTTP connection.
 # + return - description
-service PizzaService on new test:MockListener(9090) {
+service /PizzaService on new test:MockListener(9090) {
 
     # Check orderPizza resource.
     # + req - In request.
     # + req - In request.
     # + reqest - In request.
-    resource function orderPizza(string conn, string req) {
+    resource function get orderPizza(string conn, string req) {
 
     }
 }

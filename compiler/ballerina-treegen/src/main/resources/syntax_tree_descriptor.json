@@ -61,6 +61,11 @@
                     "type": "IdentifierToken"
                 },
                 {
+                    "name": "relativeResourcePath",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
                     "name": "functionSignature",
                     "type": "FunctionSignatureNode"
                 },
@@ -194,9 +199,14 @@
                     "type": "Token"
                 },
                 {
-                    "name": "serviceName",
-                    "type": "IdentifierToken",
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode",
                     "isOptional": true
+                },
+                {
+                    "name": "absoluteResourcePath",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "onKeyword",
@@ -208,8 +218,17 @@
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
-                    "name": "serviceBody",
-                    "type": "Node"
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "members",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
                 }
             ]
         },
@@ -1258,9 +1277,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "finalKeyword",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "typeName",
@@ -1391,26 +1410,6 @@
                 },
                 {
                     "name": "semicolonToken",
-                    "type": "Token"
-                }
-            ]
-        },
-        {
-            "name": "ServiceBodyNode",
-            "base": "Node",
-            "kind": "SERVICE_BODY",
-            "attributes": [
-                {
-                    "name": "openBraceToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "resources",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "closeBraceToken",
                     "type": "Token"
                 }
             ]
@@ -1633,13 +1632,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "firstIdent",
-                    "type": "Token"
-                },
-                {
-                    "name": "secondIdent",
+                    "name": "identifiers",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 }
             ]
         },
@@ -3029,7 +3024,6 @@
         {
             "name": "MethodDeclarationNode",
             "base": "Node",
-            "kind": "METHOD_DECLARATION",
             "attributes": [
                 {
                     "name": "metadata",
@@ -3048,6 +3042,11 @@
                 {
                     "name": "methodName",
                     "type": "IdentifierToken"
+                },
+                {
+                    "name": "relativeResourcePath",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "methodSignature",
@@ -3671,26 +3670,6 @@
             ]
         },
         {
-            "name": "ServiceConstructorExpressionNode",
-            "base": "ExpressionNode",
-            "kind": "SERVICE_CONSTRUCTOR_EXPRESSION",
-            "attributes": [
-                {
-                    "name": "annotations",
-                    "type": "AnnotationNode",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "serviceKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "serviceBody",
-                    "type": "Node"
-                }
-            ]
-        },
-        {
             "name": "ByteArrayLiteralNode",
             "base": "ExpressionNode",
             "kind": "BYTE_ARRAY_LITERAL",
@@ -4233,12 +4212,73 @@
             ]
         },
         {
+            "name": "ResourcePathParameterNode",
+            "base": "Node",
+            "attributes": [
+                {
+                    "name": "openBracketToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "ellipsisToken",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "paramName",
+                    "type": "Token"
+                },
+                {
+                    "name": "closeBracketToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "RequiredExpressionNode",
             "base": "ExpressionNode",
             "kind": "REQUIRED_EXPRESSION",
             "attributes": [
                 {
                     "name": "questionMarkToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ErrorConstructorExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "ERROR_CONSTRUCTOR",
+            "attributes": [
+                {
+                    "name": "errorKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeReference",
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "arguments",
+                    "type": "FunctionArgumentNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeParenToken",
                     "type": "Token"
                 }
             ]

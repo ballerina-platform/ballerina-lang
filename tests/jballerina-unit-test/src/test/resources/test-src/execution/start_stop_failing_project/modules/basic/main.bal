@@ -26,14 +26,13 @@ public function main() {
 
 public class TestListener {
 
-    *'object:Listener;
     private string name = "";
 
     public function init(string name){
         self.name = name;
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
         io:println("basic:TestListener listener __start called, service name - " + self.name);
         if (self.name == "dependent") {
             io:println("listener __start panicked for service name - " + self.name);
@@ -42,7 +41,7 @@ public class TestListener {
         }
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         io:println("basic:TestListener listener __gracefulStop called, service name - " + self.name);
         if (self.name == "dependent") {
             io:println("listener __gracefulStop panicked, service name - " + self.name);
@@ -52,16 +51,16 @@ public class TestListener {
         return ();
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         io:println("basic:TestListener listener __immediateStop called, service name - " + self.name);
         return ();
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
         io:println("basic:TestListener listener __attach called, service name - " + self.name);
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
         io:println("basic:TestListener listener __detach called, service name - " + self.name);
     }
 }

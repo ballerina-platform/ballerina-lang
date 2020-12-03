@@ -139,9 +139,10 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         }
 
         static ImportModel from(ImportDeclarationNode importPkg) {
-            String orgName = importPkg.orgName().isPresent() ? importPkg.orgName().get().orgName() + ORG_SEPARATOR : "";
+            String orgName = importPkg.orgName().isPresent() ?
+                    importPkg.orgName().get().orgName().text() + ORG_SEPARATOR : "";
             StringBuilder pkgNameBuilder = new StringBuilder();
-            importPkg.moduleName().forEach(pkgNameBuilder::append);
+            importPkg.moduleName().forEach(name -> pkgNameBuilder.append(name.text()));
             String pkgName = pkgNameBuilder.toString();
             String alias = importPkg.prefix().isEmpty() ? "" : importPkg.prefix().get().prefix().text();
             return new ImportModel(orgName, pkgName, alias, "");

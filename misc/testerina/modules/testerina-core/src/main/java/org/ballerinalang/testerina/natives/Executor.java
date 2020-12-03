@@ -87,7 +87,7 @@ public class Executor {
             CountDownLatch completeFunction = new CountDownLatch(1);
             BFuture futureValue = scheduler.schedule(jvmArgs, func, null, new Callback() {
                 @Override
-                public void notifySuccess() {
+                public void notifySuccess(Object result) {
                     completeFunction.countDown();
                 }
 
