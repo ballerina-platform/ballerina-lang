@@ -1000,4 +1000,8 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangClassDefinition classDefinition) {
         throw  new AssertionError();
     }
+
+    public void visit(BLangResourceFunction resourceFunction) {
+        throw new AssertionError();
+    }
 }

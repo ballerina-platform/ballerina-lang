@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
@@ -200,7 +200,7 @@ public class WebServer {
             // Preparing the arguments for dispatching the resource function
             BObject serviceObject = serviceMap.get(serviceName).getServiceObject();
             int paramCount = 0;
-            for (AttachedFunctionType attachedFunction : serviceObject.getType().getAttachedFunctions()) {
+            for (MemberFunctionType attachedFunction : serviceObject.getType().getAttachedFunctions()) {
                 if (Objects.equals(attachedFunction.getName(), resourceName)) {
                     paramCount = attachedFunction.getParameterTypes().length;
                     break;
@@ -256,7 +256,7 @@ public class WebServer {
             }
 
             @Override
-            public void notifySuccess() {
+            public void notifySuccess(Object result) {
                 Utils.logInfo("Successfully executed resource " + this.resourceName);
             }
 

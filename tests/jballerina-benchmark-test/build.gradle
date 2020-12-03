@@ -73,10 +73,11 @@ jar {
 test {
     dependsOn ':jballerina-tools:build'
     dependsOn(copyToLib)
+    dependsOn(jar)
     maxParallelForks = 1
 
-    def warmupIterations = 20000
-    def benchmarkIterations = 200000
+    def warmupIterations = 40000
+    def benchmarkIterations = 400000
     def ballerinaHome = "${configurations.ballerinaTools.asPath}"
     def sourceLocation = "${project.projectDir}/src/main/ballerina/"
     def resultsLocation = "${buildDir}/results"

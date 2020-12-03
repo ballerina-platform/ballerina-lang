@@ -28,6 +28,7 @@ public enum SymbolKind {
     FUNCTION,
     METHOD,
     CONSTANT,
+    TYPE_DEFINITION,
     TYPE,
     VARIABLE,
     SERVICE,

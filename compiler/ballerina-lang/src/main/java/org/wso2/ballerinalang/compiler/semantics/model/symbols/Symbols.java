@@ -83,9 +83,12 @@ public class Symbols {
                                                        BType type,
                                                        BSymbol owner,
                                                        Location pos,
-                                                       SymbolOrigin origin) {
+                                                       SymbolOrigin origin,
+                                                       boolean isServiceDecl) {
         BClassSymbol typeSymbol = new BClassSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner, pos, origin);
         typeSymbol.kind = SymbolKind.OBJECT;
+        // This class represent the service declared via service declaration.
+        typeSymbol.isServiceDecl = isServiceDecl;
         return typeSymbol;
     }
 
@@ -216,6 +219,10 @@ public class Symbols {
         return (sym.flags & Flags.PRIVATE) == Flags.PRIVATE;
     }
 
+    public static boolean isResource(BSymbol sym) {
+        return (sym.flags & Flags.RESOURCE) == Flags.RESOURCE;
+    }
+
     public static boolean isRemote(BSymbol sym) {
         return (sym.flags & Flags.REMOTE) == Flags.REMOTE;
     }
@@ -238,5 +245,9 @@ public class Symbols {
 
     public static boolean isTagOn(BSymbol symbol, int symTag) {
         return (symbol.tag & symTag) == symTag;
+    }
+
+    public static boolean isService(BSymbol sym) {
+        return (sym.flags & Flags.SERVICE) == Flags.SERVICE;
     }
 }

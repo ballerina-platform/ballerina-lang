@@ -47,6 +47,10 @@
       "value": "foo6"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {

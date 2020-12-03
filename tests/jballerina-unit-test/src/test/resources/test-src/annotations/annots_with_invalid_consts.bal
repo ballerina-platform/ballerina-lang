@@ -25,17 +25,17 @@ public type Bar record {|
     int i = 10;
 |};
 
-public const annotation Bar v1 on source service, source listener;
+public const annotation Bar v1 on source class, source listener;
 
 string s2 = "s2";
 
-service ser2 = @v1 {
+service object {} ser2 = @v1 {
     f: [
         { s: "s", t: "t" },
         { s: s2, t: "t2" }
     ]
-} service {
-    resource function res() {
+} service object {
+    resource function get res() {
 
     }
 };
@@ -49,12 +49,12 @@ class Qux {
 
 }
 
-public const annotation Baz v2 on service, source listener;
+public const annotation Baz v2 on class, source listener;
 
-service ser3 = @v2 {
+service object {} ser3 = @v2 {
     st: "string value"
-} service {
-    resource function res() {
+} service object  {
+    resource function get res() {
 
     }
 };

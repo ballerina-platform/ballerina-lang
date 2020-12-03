@@ -54,7 +54,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -256,17 +255,6 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
-    public void visit(BServiceType bServiceType) {
-        //This is to say this is an object, this is a temporary fix object - 1, service - 0,
-        // ideal fix would be to use the type tag to
-        // differentiate. TODO fix later
-        buff.writeByte(1);
-
-        writeObjectAndServiceTypes(bServiceType);
-        writeTypeIds(bServiceType.typeIdSet);
-    }
-
-    @Override
     public void visit(BStructureType bStructureType) {
         throwUnimplementedError(bStructureType);
     }
@@ -346,7 +334,11 @@ public class BIRTypeWriter implements TypeVisitor {
         //This is to say this is an object, this is a temporary fix object - 1, service - 0,
         // ideal fix would be to use the type tag to
         // differentiate. TODO fix later
-        buff.writeByte(0);
+        if ((bObjectType.flags & Flags.SERVICE) == Flags.SERVICE) {
+            buff.writeByte(1);
+        } else {
+            buff.writeByte(0);
+        }
         writeObjectAndServiceTypes(bObjectType);
         writeTypeIds(bObjectType.typeIdSet);
     }
