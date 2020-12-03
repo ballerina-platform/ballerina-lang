@@ -77,6 +77,12 @@ public class ObjectConstructorExpressionTest extends AbstractExpressionsTest {
                 "object-constructor/service_object_constructor_assert_02.json");
     }
 
+    @Test
+    public void testObjectConstructorAsArgument() {
+        testFile("object-constructor/object_constructor_source_10.bal",
+                "object-constructor/object_constructor_assert_10.json");
+    }
+
     // Recovery tests
 
     @Test

@@ -98,12 +98,7 @@
                           "kind": "ERROR_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "ERROR_TYPE_DESC",
-                              "children": [
-                                {
-                                  "kind": "ERROR_KEYWORD"
-                                }
-                              ]
+                              "kind": "ERROR_KEYWORD"
                             },
                             {
                               "kind": "OPEN_PAREN_TOKEN"
@@ -373,12 +368,7 @@
                               "kind": "ERROR_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "ERROR_TYPE_DESC",
-                                  "children": [
-                                    {
-                                      "kind": "ERROR_KEYWORD"
-                                    }
-                                  ]
+                                  "kind": "ERROR_KEYWORD"
                                 },
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"

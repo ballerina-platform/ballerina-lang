@@ -50,6 +50,7 @@ import io.ballerina.compiler.syntax.tree.ElseBlockNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumMemberNode;
 import io.ballerina.compiler.syntax.tree.ErrorBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
@@ -1990,6 +1991,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                      getPosition(functionCallNode), isFunctionCallAsync(functionCallNode));
     }
 
+    @Override
+    public BLangNode transform(ErrorConstructorExpressionNode errorConstructorExprNode) {
+        return createBLangInvocation(errorConstructorExprNode.errorKeyword(), errorConstructorExprNode.arguments(),
+                getPosition(errorConstructorExprNode), false);
+    }
+
     public BLangNode transform(MethodCallExpressionNode methodCallExprNode) {
         BLangInvocation bLInvocation = createBLangInvocation(methodCallExprNode.methodName(),
                                                              methodCallExprNode.arguments(),
@@ -3756,6 +3763,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         serviceInstance.name =  createIdentifier(pos, serviceVarName);
 
         serviceInstance.expr = initNode;
+        serviceInstance.internal = true;
 
         return serviceInstance;
     }
@@ -4859,6 +4867,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 break;
             case NEW_KEYWORD:
             case IDENTIFIER_TOKEN:
+            case ERROR_KEYWORD:
                 break;
             case SIMPLE_NAME_REFERENCE:
             default:

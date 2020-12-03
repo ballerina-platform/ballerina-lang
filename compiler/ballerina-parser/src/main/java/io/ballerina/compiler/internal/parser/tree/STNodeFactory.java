@@ -2333,5 +2333,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STRequiredExpressionNode(
                 questionMarkToken);
     }
+
+    public static STNode createErrorConstructorExpressionNode(
+            STNode errorKeyword,
+            STNode typeReference,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+
+        return new STErrorConstructorExpressionNode(
+                errorKeyword,
+                typeReference,
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
 }
 

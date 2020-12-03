@@ -1,13 +1,8 @@
 {
-  "kind": "FUNCTION_CALL",
+  "kind": "ERROR_CONSTRUCTOR",
   "children": [
     {
-      "kind": "ERROR_TYPE_DESC",
-      "children": [
-        {
-          "kind": "ERROR_KEYWORD"
-        }
-      ]
+      "kind": "ERROR_KEYWORD"
     },
     {
       "kind": "OPEN_PAREN_TOKEN"
@@ -39,32 +34,8 @@
           ]
         },
         {
-          "kind": "NAMED_ARG",
+          "kind": "POSITIONAL_ARG",
           "children": [
-            {
-              "kind": "SIMPLE_NAME_REFERENCE",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "message",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "EQUAL_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
             {
               "kind": "STRING_LITERAL",
               "children": [
