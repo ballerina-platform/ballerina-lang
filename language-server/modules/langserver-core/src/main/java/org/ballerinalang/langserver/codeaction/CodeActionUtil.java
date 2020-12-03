@@ -33,7 +33,6 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
@@ -106,9 +105,10 @@ public class CodeActionUtil {
                 if (isWithinStartSegment) {
                     // Cursor on the service
                     return Optional.of(new ImmutablePair<>(CodeActionNodeType.SERVICE, member));
-                } else {
-                    // Cursor within the service
-                    ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) member;
+                }
+//                else {
+                // Cursor within the service
+//                    ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) member;
 //                    for (Node resourceNode : ((ServiceBodyNode) serviceDeclrNode.serviceBody()).resources()) {
 //                        if (resourceNode.kind() == SyntaxKind.FUNCTION_DEFINITION
 //                                && isWithinStartCodeSegment(resourceNode, cursorPosOffset)) {
@@ -116,7 +116,7 @@ public class CodeActionUtil {
 //                            return Optional.of(new ImmutablePair<>(CodeActionNodeType.RESOURCE, member));
 //                        }
 //                    }
-                }
+//                }
             } else if (isWithinStartSegment && member.kind() == SyntaxKind.FUNCTION_DEFINITION) {
                 return Optional.of(new ImmutablePair<>(CodeActionNodeType.FUNCTION, member));
             } else if (member.kind() == SyntaxKind.TYPE_DEFINITION) {
