@@ -124,29 +124,18 @@ public class ObserveUtils {
         env.setStrandLocal(ObservabilityConstants.SERVICE_NAME, service);
     }
 
-    public static void recordCheckpoint(Environment env, BString pkg, BString position){
+    public static void recordCheckpoint(Environment env, BString pkg, BString position) {
 
         if (!tracingEnabled) {
             return;
         }
-        System.out.println("checkpointing in : " + pkg + " " + position);
-
-//        Supplier<String> logPosition = position::getValue;
-
-//        Supplier<String>  getPositionID = () -> {
-//            String positionID = pkg.getValue() + "/" + position.getValue();
-//            return positionID;
-//        };
-//
-//        logMessageToActiveSpan("CHECKPOINT" ,getPositionID, false);
 
         // Adding Position and Module ID to the Jaeger Span
-
         Map<String, String> eventAttributes = new HashMap<>(2);
         eventAttributes.put(TAG_KEY_MODULE, pkg.getValue());
         eventAttributes.put(TAG_KEY_INVOCATION_POSITION, position.getValue());
 
-        addEventToActiveSpan("CHECKPOINT",eventAttributes);
+        addEventToActiveSpan("CHECKPOINT", eventAttributes);
 
     }
 
