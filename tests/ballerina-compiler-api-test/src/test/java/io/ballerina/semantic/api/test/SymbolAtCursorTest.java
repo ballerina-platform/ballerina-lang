@@ -69,7 +69,7 @@ public class SymbolAtCursorTest {
                 {40, 7, "Person"},
                 {41, 7, "PersonObj"},
                 {42, 20, "pObj"},
-                {42, 29, "PersonObj.getFullName"},
+                {42, 29, "getFullName"},
                 {43, 11, "p"},
                 {43, 15, "name"},
                 {44, 19, "p"},

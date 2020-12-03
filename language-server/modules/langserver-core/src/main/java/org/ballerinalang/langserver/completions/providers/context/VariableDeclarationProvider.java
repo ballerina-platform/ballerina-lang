@@ -119,7 +119,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
     }
 
     private boolean isObjectType(Symbol symbol) {
-        if (symbol.kind() == SymbolKind.TYPE) {
+        if (symbol.kind() == SymbolKind.TYPE_DEFINITION) {
             return CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind() ==
                     TypeDescKind.OBJECT;
         }
@@ -128,7 +128,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
     }
 
     private ObjectTypeSymbol getObjectType(Symbol symbol) {
-        if (symbol.kind() == SymbolKind.TYPE) {
+        if (symbol.kind() == SymbolKind.TYPE_DEFINITION) {
             return (ObjectTypeSymbol) CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor());
         }
 

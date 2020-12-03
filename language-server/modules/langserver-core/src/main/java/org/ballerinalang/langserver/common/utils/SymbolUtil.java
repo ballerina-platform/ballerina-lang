@@ -50,7 +50,7 @@ public class SymbolUtil {
     public static boolean isObject(Symbol symbol) {
         TypeSymbol typeDescriptor;
         switch (symbol.kind()) {
-            case TYPE:
+            case TYPE_DEFINITION:
                 typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
                 break;
             case VARIABLE:
@@ -75,7 +75,7 @@ public class SymbolUtil {
     public static boolean isRecord(Symbol symbol) {
         TypeSymbol typeDescriptor;
         switch (symbol.kind()) {
-            case TYPE:
+            case TYPE_DEFINITION:
                 typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
                 break;
             case VARIABLE:
@@ -100,7 +100,7 @@ public class SymbolUtil {
             return Optional.empty();
         }
         switch (symbol.kind()) {
-            case TYPE:
+            case TYPE_DEFINITION:
                 return Optional.ofNullable(((TypeDefinitionSymbol) symbol).typeDescriptor());
             case VARIABLE:
                 return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());

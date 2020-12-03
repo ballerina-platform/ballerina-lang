@@ -3763,6 +3763,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         serviceInstance.name =  createIdentifier(pos, serviceVarName);
 
         serviceInstance.expr = initNode;
+        serviceInstance.internal = true;
 
         return serviceInstance;
     }

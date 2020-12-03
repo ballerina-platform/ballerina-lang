@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 listener CustomListener listen = new CustomListener();
 
 class CustomListener {
@@ -73,11 +72,5 @@ service /echo on listen {
 
     }
 }
-
-//type PersonType distinct object {
-//    string name;
-//
-//    function getName() returns string;
-//};
 
 const PI = 3.14;
