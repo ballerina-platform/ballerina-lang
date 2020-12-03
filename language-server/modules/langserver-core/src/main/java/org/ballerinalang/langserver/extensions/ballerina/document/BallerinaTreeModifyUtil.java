@@ -90,8 +90,10 @@ public class BallerinaTreeModifyUtil {
                         "}\n");
         put("IF_STATEMENT", "if ($CONDITION) {\n" +
                 "\n} else {\n\n}\n");
+        put("IF_STATEMENT_CONDITION", "($CONDITION)");
         put("FOREACH_STATEMENT", "foreach $TYPE $VARIABLE in $COLLECTION {\n" +
                 "\n}\n");
+        put("FOREACH_STATEMENT_CONDITION", "$VARIABLE in $COLLECTION");
         put("LOG_STATEMENT", "log:print$TYPE($LOG_EXPR);\n");
         put("PROPERTY_STATEMENT", "$PROPERTY\n");
         put("RESPOND", "$TYPE $VARIABLE = $CALLER->respond($EXPRESSION);\n");
@@ -149,12 +151,12 @@ public class BallerinaTreeModifyUtil {
             Collection<BLangImportPackage> unusedImports, TextDocument textDocument) {
         List<TextEdit> edits = new ArrayList<>();
         for (BLangImportPackage importPackage : unusedImports) {
-            LinePosition startLinePos = LinePosition.from(importPackage.getPosition().getStartLine() - 1,
-                    importPackage.getPosition().getStartColumn() - 1);
-            LinePosition endLinePos = LinePosition.from(importPackage.getPosition().getEndLine() - 1,
-                    importPackage.getPosition().getEndColumn() - 1);
+            LinePosition startLinePos = LinePosition.from(importPackage.getPosition().getStartLine(),
+                    importPackage.getPosition().getStartColumn());
+            LinePosition endLinePos = LinePosition.from(importPackage.getPosition().getEndLine(),
+                    importPackage.getPosition().getEndColumn());
             int startOffset = textDocument.textPositionFrom(startLinePos);
-            int endOffset = textDocument.textPositionFrom(endLinePos) + 1;
+            int endOffset = textDocument.textPositionFrom(endLinePos);
             edits.add(TextEdit.from(
                     TextRange.from(startOffset,
                             endOffset - startOffset), ""));

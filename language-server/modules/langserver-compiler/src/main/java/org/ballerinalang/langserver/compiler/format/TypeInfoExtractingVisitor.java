@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -1021,6 +1022,11 @@ public class TypeInfoExtractingVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamType streamType) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
         // no implementation
     }
 }
