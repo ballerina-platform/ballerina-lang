@@ -2244,7 +2244,10 @@ public class Types {
 
         @Override
         public Boolean visit(BAnydataType t, BType s) {
-            return t == s;
+            if (t == s) {
+                return true;
+            }
+            return t.tag == s.tag;
         }
 
         @Override
