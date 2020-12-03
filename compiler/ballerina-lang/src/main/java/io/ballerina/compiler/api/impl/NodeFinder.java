@@ -272,8 +272,8 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        lookupNodes(serviceNode.resourceFunctions);
         lookupNodes(serviceNode.annAttachments);
+        lookupNode(serviceNode.serviceClass);
         lookupNodes(serviceNode.attachedExprs);
     }
 
