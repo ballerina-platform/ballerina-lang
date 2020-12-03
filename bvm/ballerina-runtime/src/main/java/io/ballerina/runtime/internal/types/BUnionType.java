@@ -22,7 +22,9 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -51,30 +53,15 @@ public class BUnionType extends BType implements UnionType {
         this.readonly = false;
     }
 
-    /**
-     * Create a {@code BUnionType} which represents the union type.
-     *
-     * @param memberTypes of the union type
-     * @param typeFlags flags associated with the type
-     */
-    public BUnionType(List<Type> memberTypes, int typeFlags) {
-        this(memberTypes, typeFlags, false);
-    }
-
-    public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly) {
-        super(null, null, Object.class);
-        this.memberTypes = memberTypes;
-        this.typeFlags = typeFlags;
-        this.readonly = readonly;
-    }
-
     public BUnionType(List<Type> memberTypes) {
         this(memberTypes, false);
     }
 
     public BUnionType(List<Type> memberTypes, boolean readonly) {
         this(memberTypes, 0, readonly);
-        boolean nilable = false, isAnydata = true, isPureType = true;
+        boolean nilable = false;
+        boolean isAnydata = true;
+        boolean isPureType = true;
         for (Type memberType : memberTypes) {
             nilable |= memberType.isNilable();
             isAnydata &= memberType.isAnydata();
@@ -92,12 +79,37 @@ public class BUnionType extends BType implements UnionType {
         }
     }
 
-    public BUnionType(Type[] memberTypes, int typeFlags, boolean readonly) {
-        this(Arrays.asList(memberTypes), typeFlags, readonly);
+    /**
+     * Create a {@code BUnionType} which represents the union type.
+     *
+     * @param memberTypes of the union type
+     * @param typeFlags   flags associated with the type
+     */
+    public BUnionType(List<Type> memberTypes, int typeFlags) {
+        this(memberTypes, typeFlags, false);
     }
 
     public BUnionType(Type[] memberTypes, int typeFlags) {
         this(memberTypes, typeFlags, false);
+    }
+
+    public BUnionType(Type[] memberTypes, int typeFlags, boolean readonly) {
+        this(Arrays.asList(memberTypes), typeFlags, readonly);
+    }
+
+    public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly) {
+        super(null, null, Object.class);
+        this.memberTypes = readonly ? getReadOnlyTypes(memberTypes) : memberTypes;
+        this.typeFlags = typeFlags;
+        this.readonly = readonly;
+    }
+
+    private List<Type> getReadOnlyTypes(List<Type> memberTypes) {
+        List<Type> readOnlyTypes = new ArrayList<>();
+        for (Type type : memberTypes) {
+            readOnlyTypes.add(ReadOnlyUtils.getReadOnlyType(type));
+        }
+        return readOnlyTypes;
     }
 
     public List<Type> getMemberTypes() {
