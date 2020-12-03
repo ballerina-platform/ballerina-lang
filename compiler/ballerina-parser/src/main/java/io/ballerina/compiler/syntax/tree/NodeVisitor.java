@@ -267,10 +267,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(typeReferenceNode);
     }
 
-    public void visit(ServiceBodyNode serviceBodyNode) {
-        visitSyntaxNode(serviceBodyNode);
-    }
-
     public void visit(AnnotationNode annotationNode) {
         visitSyntaxNode(annotationNode);
     }
@@ -703,10 +699,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(transactionalExpressionNode);
     }
 
-    public void visit(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        visitSyntaxNode(serviceConstructorExpressionNode);
-    }
-
     public void visit(ByteArrayLiteralNode byteArrayLiteralNode) {
         visitSyntaxNode(byteArrayLiteralNode);
     }
@@ -807,8 +799,16 @@ public abstract class NodeVisitor {
         visitSyntaxNode(classDefinitionNode);
     }
 
+    public void visit(ResourcePathParameterNode resourcePathParameterNode) {
+        visitSyntaxNode(resourcePathParameterNode);
+    }
+
     public void visit(RequiredExpressionNode requiredExpressionNode) {
         visitSyntaxNode(requiredExpressionNode);
+    }
+
+    public void visit(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        visitSyntaxNode(errorConstructorExpressionNode);
     }
 
     // Tokens

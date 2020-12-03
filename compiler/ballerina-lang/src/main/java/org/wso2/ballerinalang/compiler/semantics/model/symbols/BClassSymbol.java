@@ -33,6 +33,8 @@ import java.util.ArrayList;
  */
 public class BClassSymbol extends BObjectTypeSymbol {
 
+    public boolean isServiceDecl;
+
     public BClassSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type,
                         BSymbol owner, Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);
@@ -41,7 +43,8 @@ public class BClassSymbol extends BObjectTypeSymbol {
 
     @Override
     public BClassSymbol createLabelSymbol() {
-        BClassSymbol copy = Symbols.createClassSymbol(flags, Names.EMPTY, pkgID, type, owner, pos, origin);
+        BClassSymbol copy = Symbols.createClassSymbol(flags, Names.EMPTY, pkgID, type, owner, pos, origin,
+                isServiceDecl);
         copy.attachedFuncs = attachedFuncs;
         copy.initializerFunc = initializerFunc;
         copy.isLabel = true;

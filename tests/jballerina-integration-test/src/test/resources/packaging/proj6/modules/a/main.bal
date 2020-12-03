@@ -12,14 +12,13 @@ public function main() {
 
 public class ABC {
 
-    *'object:Listener;
     private string name = "";
 
     public function init(string name){
         self.name = name;
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
        incrementCount();
        if (self.name == "ModA") {
         assertCount(5);
@@ -30,7 +29,7 @@ public class ABC {
        }
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
        incrementCount();
        if (self.name == "ModC") {
         assertCount(8);
@@ -44,10 +43,10 @@ public class ABC {
        }
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service s, string? name = ()) returns error? {
     }
 
     public function __detach(service s) returns error? {

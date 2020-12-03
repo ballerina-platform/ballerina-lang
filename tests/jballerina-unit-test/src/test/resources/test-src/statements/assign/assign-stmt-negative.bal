@@ -72,15 +72,15 @@ function constantAssignment () {
 }
 
 public client class Client {
-    public remote function foo() returns [int, int] {
+    remote function foo() returns [int, int] {
         return [0, 0];
     }
 
-    public remote function foo1() returns record { string a; } {
+    remote function foo1() returns record { string a; } {
         return { a: "a" };
     }
 
-    public remote function foo2() returns error {
+    remote function foo2() returns error {
         return error("the error reason");
     }
 }

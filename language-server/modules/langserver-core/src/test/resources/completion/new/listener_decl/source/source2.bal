@@ -9,20 +9,20 @@ public class Listener {
 
     private int port = 0;
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
         return self.startEndpoint();
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         return self.gracefulStop();
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         error err = error("not implemented");
         return err;
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
     }
 

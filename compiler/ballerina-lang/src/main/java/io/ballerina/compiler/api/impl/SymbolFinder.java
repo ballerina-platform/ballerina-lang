@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -261,6 +262,11 @@ class SymbolFinder extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangResourceFunction resourceFunction) {
+        visit((BLangFunction) resourceFunction);
+    }
+
+    @Override
     public void visit(BLangBlockFunctionBody blockFuncBody) {
         lookupNodes(blockFuncBody.stmts);
     }
@@ -277,12 +283,8 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        if (setEnclosingNode(serviceNode.symbol, serviceNode.name.pos)) {
-            return;
-        }
-
-        lookupNodes(serviceNode.resourceFunctions);
         lookupNodes(serviceNode.annAttachments);
+        lookupNode(serviceNode.serviceClass);
         lookupNodes(serviceNode.attachedExprs);
     }
 
@@ -997,12 +999,8 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-        // skip the generated class def for services
-        if (classDefinition.flagSet.contains(Flag.SERVICE)) {
-            return;
-        }
-
-        if (setEnclosingNode(classDefinition.symbol, classDefinition.name.pos)) {
+        if (!isClassDefForServiceDecl(classDefinition) &&
+                setEnclosingNode(classDefinition.symbol, classDefinition.name.pos)) {
             return;
         }
 
@@ -1345,6 +1343,10 @@ class SymbolFinder extends BLangNodeVisitor {
         }
 
         return false;
+    }
+
+    private boolean isClassDefForServiceDecl(BLangClassDefinition clazz) {
+        return clazz.flagSet.contains(Flag.SERVICE) && clazz.flagSet.contains(Flag.ANONYMOUS);
     }
 
     private boolean isLambdaFunction(TopLevelNode node) {

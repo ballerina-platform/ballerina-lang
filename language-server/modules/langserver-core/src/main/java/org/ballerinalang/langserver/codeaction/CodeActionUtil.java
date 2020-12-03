@@ -37,7 +37,6 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.ServiceBodyNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -113,13 +112,13 @@ public class CodeActionUtil {
                 } else {
                     // Cursor within the service
                     ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) member;
-                    for (Node resourceNode : ((ServiceBodyNode) serviceDeclrNode.serviceBody()).resources()) {
-                        if (resourceNode.kind() == SyntaxKind.FUNCTION_DEFINITION
-                                && isWithinStartCodeSegment(resourceNode, cursorPosOffset)) {
-                            // Cursor on the resource function
-                            return Optional.of(new ImmutablePair<>(CodeActionNodeType.RESOURCE, member));
-                        }
-                    }
+//                    for (Node resourceNode : ((ServiceBodyNode) serviceDeclrNode.serviceBody()).resources()) {
+//                        if (resourceNode.kind() == SyntaxKind.FUNCTION_DEFINITION
+//                                && isWithinStartCodeSegment(resourceNode, cursorPosOffset)) {
+//                            // Cursor on the resource function
+//                            return Optional.of(new ImmutablePair<>(CodeActionNodeType.RESOURCE, member));
+//                        }
+//                    }
                 }
             } else if (isWithinStartSegment && member.kind() == SyntaxKind.FUNCTION_DEFINITION) {
                 return Optional.of(new ImmutablePair<>(CodeActionNodeType.FUNCTION, member));
@@ -221,10 +220,10 @@ public class CodeActionUtil {
                 TextRange functionBodyTextRange = ((FunctionDefinitionNode) node).functionBody().textRange();
                 return isWithinRange(positionOffset, functionBodyTextRange.startOffset(),
                         functionBodyTextRange.endOffset());
-            case SERVICE_DECLARATION:
-                TextRange serviceBodyTextRange = ((ServiceDeclarationNode) node).serviceBody().textRange();
-                return isWithinRange(positionOffset, serviceBodyTextRange.startOffset(),
-                        serviceBodyTextRange.endOffset());
+//            case SERVICE_DECLARATION:
+//                TextRange serviceBodyTextRange = ((ServiceDeclarationNode) node).serviceBody().textRange();
+//                return isWithinRange(positionOffset, serviceBodyTextRange.startOffset(),
+//                        serviceBodyTextRange.endOffset());
             case CLASS_DEFINITION:
                 ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
                 return isWithinRange(positionOffset, classDefinitionNode.openBrace().textRange().startOffset(),
@@ -265,13 +264,13 @@ public class CodeActionUtil {
                         .orElseGet(() -> functionDefinitionNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, functionStartOffset,
                         functionDefinitionNode.functionBody().textRange().startOffset());
-            case SERVICE_DECLARATION:
-                ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) node;
-                Optional<MetadataNode> serviceMetadata = serviceDeclarationNode.metadata();
-                int serviceStartOffset = serviceMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
-                        .orElseGet(() -> serviceDeclarationNode.textRange().startOffset() - 1);
-                return isWithinRange(positionOffset, serviceStartOffset,
-                        serviceDeclarationNode.serviceBody().textRange().startOffset());
+//            case SERVICE_DECLARATION:
+//                ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) node;
+//                Optional<MetadataNode> serviceMetadata = serviceDeclarationNode.metadata();
+//                int serviceStartOffset = serviceMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
+//                        .orElseGet(() -> serviceDeclarationNode.textRange().startOffset() - 1);
+//                return isWithinRange(positionOffset, serviceStartOffset,
+//                        serviceDeclarationNode.serviceBody().textRange().startOffset());
             case METHOD_DECLARATION:
                 MethodDeclarationNode methodDeclarationNode = (MethodDeclarationNode) node;
                 Optional<MetadataNode> methodMetadata = methodDeclarationNode.metadata();

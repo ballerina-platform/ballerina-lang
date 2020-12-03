@@ -30,6 +30,10 @@
       "value": "test"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -372,15 +376,10 @@
                               ]
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "ERROR_CONSTRUCTOR",
                               "children": [
                                 {
-                                  "kind": "ERROR_TYPE_DESC",
-                                  "children": [
-                                    {
-                                      "kind": "ERROR_KEYWORD"
-                                    }
-                                  ]
+                                  "kind": "ERROR_KEYWORD"
                                 },
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"

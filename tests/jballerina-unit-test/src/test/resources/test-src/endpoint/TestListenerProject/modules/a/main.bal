@@ -1,5 +1,3 @@
-import ballerina/lang.'object;
-
 int startCount = 0;
 int attachCount = 0;
 
@@ -9,38 +7,36 @@ public function getStartAndAttachCount() returns string {
 
 public class ABC {
 
-    *'object:Listener;
-
     public function init(){
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
         startCount += 1;
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         return ();
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         return ();
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
         attachCount += 1;
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 }
 
 public listener ABC ep = new ABC();
 
-service Sample1 on ep {
+service /Sample1 on ep {
 
-    resource function foo(string b) {
+    resource function get foo(string b) {
     }
 
-    resource function bar(string b) {
+    resource function get bar(string b) {
     }
 }
