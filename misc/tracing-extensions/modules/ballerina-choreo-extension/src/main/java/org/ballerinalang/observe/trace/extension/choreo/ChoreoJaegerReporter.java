@@ -125,17 +125,24 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                 references.add(reference);
             }
 
+            List<ChoreoTraceSpan.SpanEvent> events;
+            if (jaegerSpan.getLogs() != null) {
+                events = new ArrayList<>(jaegerSpan.getLogs().size());
 
+                for (LogData eventLog : jaegerSpan.getLogs()) {
+                    ChoreoTraceSpan.SpanEvent event = new ChoreoTraceSpan.SpanEvent(
+                            eventLog.getTime(),
+                            (((Map) eventLog.getFields().get("CHECKPOINT")).
+                                    get(TAG_KEY_MODULE)).toString(),
+                            (((Map) eventLog.getFields().get("CHECKPOINT")).
+                                    get(TAG_KEY_INVOCATION_POSITION)).toString());
 
-            List<ChoreoTraceSpan.SpanEvent> events = new ArrayList<>(jaegerSpan.getLogs().size());
-            for ( LogData eventLog : jaegerSpan.getLogs()) {
-                ChoreoTraceSpan.SpanEvent event = new ChoreoTraceSpan.SpanEvent(
-                        eventLog.getTime(),
-                        (((Map)eventLog.getFields().get("CHECKPOINT")).get(TAG_KEY_MODULE)).toString(),
-                        (((Map)eventLog.getFields().get("CHECKPOINT")).get(TAG_KEY_INVOCATION_POSITION)).toString());
-                
-                events.add(event);
+                    events.add(event);
+                }
+            } else {
+                events = null;
             }
+
 
             JaegerSpanContext spanContext = jaegerSpan.context();
             long timestamp = jaegerSpan.getStart() / 1000;  // Jaeger stores timestamp in microseconds by default
@@ -145,9 +152,6 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                     jaegerSpan.getServiceName(), jaegerSpan.getOperationName(), timestamp, duration, tags, references,
                     events);
 
-//            ChoreoTraceSpan traceSpan = new ChoreoTraceSpan(spanContext.getTraceId(), spanContext.getSpanId(),
-//                    jaegerSpan.getServiceName(), jaegerSpan.getOperationName(), timestamp, duration, tags, references,
-//                    jaegerSpan.getLogs());
             synchronized (this) {
                 traceSpans.add(traceSpan);
             }
