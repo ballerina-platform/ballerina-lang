@@ -90,7 +90,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
         protected TypeSymbol typeDescriptor;
 
         public TypeDefSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
-            super(name, moduleID, SymbolKind.TYPE, symbol);
+            super(name, moduleID, SymbolKind.TYPE_DEFINITION, symbol);
         }
 
         public TypeDefSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {

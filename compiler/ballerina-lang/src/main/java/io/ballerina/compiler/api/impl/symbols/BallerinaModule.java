@@ -107,7 +107,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     public List<TypeDefinitionSymbol> typeDefinitions() {
         if (this.typeDefs == null) {
             this.typeDefs = this.allSymbols().stream()
-                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE)
+                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION)
                     .map(symbol -> (TypeDefinitionSymbol) symbol)
                     .collect(Collectors.toUnmodifiableList());
         }
