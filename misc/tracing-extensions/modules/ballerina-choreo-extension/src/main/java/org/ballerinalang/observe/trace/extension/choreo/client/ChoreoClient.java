@@ -21,7 +21,6 @@ package org.ballerinalang.observe.trace.extension.choreo.client;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
-import io.jaegertracing.internal.LogData;
 import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
 import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoErrors;
 import org.ballerinalang.observe.trace.extension.choreo.gen.HandshakeGrpc;
@@ -39,8 +38,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_INVOCATION_POSITION;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_MODULE;
 
 /**
  * Manages the communication with Choreo cloud.
@@ -206,18 +203,14 @@ public class ChoreoClient implements AutoCloseable {
                                     : TelemetryOuterClass.TraceReferenceType.FOLLOWS_FROM));
                 }
 
-//                for (LogData eventLog : traceSpan.getEvents()) {
-//                    traceSpanBuilder.addCheckpoints(TelemetryOuterClass.Checkpoint.newBuilder()
-//                        .setTimestamp(eventLog.getTime())
-//                        .setEventModuleID(eventLog.getFields().get(TAG_KEY_MODULE).toString())
-//                        .setEventPositionID(eventLog.getFields().get(TAG_KEY_INVOCATION_POSITION).toString()));
-//                }
 
-                for (ChoreoTraceSpan.SpanEvent spanEvent: traceSpan.getEvents()) {
-                    traceSpanBuilder.addCheckpoints(TelemetryOuterClass.Checkpoint.newBuilder()
-                            .setTimestamp(spanEvent.getTime())
-                            .setEventModuleID(spanEvent.getModuleID())
-                            .setEventPositionID(spanEvent.getPositionID()));
+                if (traceSpan.getEvents() != null) {
+                    for (ChoreoTraceSpan.SpanEvent spanEvent: traceSpan.getEvents()) {
+                        traceSpanBuilder.addCheckpoints(TelemetryOuterClass.Checkpoint.newBuilder()
+                                .setTimestamp(spanEvent.getTime())
+                                .setModuleID(spanEvent.getModuleID())
+                                .setPositionID(spanEvent.getPositionID()));
+                    }
                 }
 
 
