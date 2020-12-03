@@ -61,6 +61,6 @@ enum TraceReferenceType {
 
 message Checkpoint {
     int64 timestamp = 1;
-    string eventModuleID = 2;
-    string eventPositionID = 3;
+    string moduleID = 2;
+    string positionID = 3;
 }
