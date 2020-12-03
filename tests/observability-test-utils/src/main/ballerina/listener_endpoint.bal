@@ -23,7 +23,15 @@ public class Listener {
     }
 
     public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
-        return externAttach(self, s);
+        string basePath;
+        if (name is string[]) {
+            basePath = "/".'join(...name);
+        } else if (name is string) {
+            basePath = name;
+        } else {
+            basePath = "";
+        }
+        return externAttach(self, s, basePath);
     }
 
     public isolated function detach(service object {} s) returns error? {
@@ -48,7 +56,7 @@ isolated function externInitEndpoint(Listener listenerObj, int port) = @java:Met
     name: "initEndpoint"
 } external;
 
-isolated function externAttach(Listener listenerObj, service object {} s) returns error? = @java:Method {
+isolated function externAttach(Listener listenerObj, service object {} s, string basePath) returns error? = @java:Method {
     'class: "org.ballerina.testobserve.listenerendpoint.Endpoint",
     name: "attachService"
 } external;

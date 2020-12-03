@@ -57,8 +57,11 @@ import io.netty.handler.codec.http.HttpVersion;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -92,11 +95,12 @@ public class WebServer {
      * Attach a new service object to the listener.
      *
      * @param serviceObject The service object to be attached
+     * @param basePath The base path of the service
      */
-    public void addService(BObject serviceObject) {
+    public void addService(BObject serviceObject, String basePath) {
         ResourceFunctionType[] resourceFunctions = ((ServiceType) serviceObject.getType()).getResourceFunctions();
         for (ResourceFunctionType resourceFunctionType : resourceFunctions) {
-            Resource resource = new Resource(serviceObject, resourceFunctionType);
+            Resource resource = new Resource(serviceObject, resourceFunctionType, basePath);
             if (this.resourceMap.containsKey(resource.getResourcePath())) {
                 throw new IllegalArgumentException("Unable to register service with duplicate resource path");
             }
@@ -114,11 +118,15 @@ public class WebServer {
         if (this.isRunning) {
             throw new IllegalStateException("Service cannot be detached while the endpoint is active");
         }
-        ResourceFunctionType[] resourceFunctions = ((ServiceType) serviceObject.getType()).getResourceFunctions();
-        for (ResourceFunctionType resourceFunctionType : resourceFunctions) {
-            Resource resource = new Resource(serviceObject, resourceFunctionType);
-            this.resourceMap.remove(resource.getResourcePath());
-            Utils.logInfo("Removed resource path %s", resource.getResourcePath());
+        List<String> resourcesToBeRemoved = new ArrayList<>();
+        for (Resource resource : this.resourceMap.values()) {
+            if (Objects.equals(serviceObject, resource.getServiceObject())) {
+                resourcesToBeRemoved.add(resource.getResourcePath());
+            }
+        }
+        for (String resourcePath : resourcesToBeRemoved) {
+            this.resourceMap.remove(resourcePath);
+            Utils.logInfo("Removed resource path %s", resourcePath);
         }
     }
 

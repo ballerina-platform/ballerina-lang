@@ -33,10 +33,12 @@ import static org.ballerina.testobserve.listenerendpoint.Constants.TEST_OBSERVE_
 public class Resource {
     private final BObject serviceObject;
     private final ResourceFunctionType resourceFunctionType;
+    private final String basePath;
 
-    public Resource(BObject serviceObject, ResourceFunctionType resourceFunctionType) {
+    public Resource(BObject serviceObject, ResourceFunctionType resourceFunctionType, String basePath) {
         this.serviceObject = serviceObject;
         this.resourceFunctionType = resourceFunctionType;
+        this.basePath = basePath;
 
         // Validate resource
         int paramCount = this.getParamTypes().length;
@@ -75,7 +77,8 @@ public class Resource {
     }
 
     public String getResourcePath() {
-        return Utils.normalizeResourcePath(String.join("/", this.resourceFunctionType.getResourcePath()));
+        return Utils.normalizeResourcePath(basePath)
+                + Utils.normalizeResourcePath(String.join("/", this.resourceFunctionType.getResourcePath()));
     }
 
     public Type[] getParamTypes() {

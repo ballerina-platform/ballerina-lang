@@ -50,7 +50,7 @@ public class ListenerEndpointTest {
     private static BalServer balServer;
     private static BServerInstance servicesServerInstance;
 
-    private static final String SERVICE_BASE_URL = "http://localhost:9091";
+    private static final String SERVICE_BASE_URL = "http://localhost:9091/testServiceOne";
 
     @BeforeGroups(value = "mock-listener-tests", alwaysRun = true)
     private void setup() throws Exception {

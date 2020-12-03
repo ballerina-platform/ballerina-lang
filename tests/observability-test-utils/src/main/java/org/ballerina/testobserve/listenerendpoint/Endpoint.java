@@ -39,10 +39,10 @@ public class Endpoint {
         Utils.logInfo("Initialized Web Server with port " + port);
     }
 
-    public static BError attachService(BObject listenerEndpoint, BObject serviceObject) {
+    public static BError attachService(BObject listenerEndpoint, BObject serviceObject, BString basePath) {
         try {
             WebServer webServer = (WebServer) listenerEndpoint.getNativeData(WEB_SERVER_NATIVE_DATA_KEY);
-            webServer.addService(serviceObject);
+            webServer.addService(serviceObject, basePath.getValue());
             return null;
         } catch (Throwable t) {
             return Utils.createError(t);

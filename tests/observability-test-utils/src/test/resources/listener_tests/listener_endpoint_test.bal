@@ -23,7 +23,7 @@ type testServiceOneType service object {
     resource function get resourceThree(testobserve:Caller caller) returns error?;
 };
 
-service testServiceOneType /testServiceOneType on new testobserve:Listener(9091) {
+service testServiceOneType /testServiceOne on new testobserve:Listener(9091) {
     resource function get resourceOne(testobserve:Caller caller) {
         var ret = caller->respond("Hello from Resource One");
     }
