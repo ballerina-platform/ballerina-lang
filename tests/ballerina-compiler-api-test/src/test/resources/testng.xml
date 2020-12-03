@@ -40,6 +40,7 @@
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsAcrossFilesTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInExprsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInLambdasTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInServiceDeclTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInWorkersTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.XMLRefsTest" />
         </classes>
