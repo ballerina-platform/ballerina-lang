@@ -106,8 +106,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
     private void stopObservation(ObserverContext observerContext) {
         Set<Tag> tags = new HashSet<>();
-        Map<String, Tag> customTags =
-                (Map<String, Tag>) observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS);
+        Map<String, Tag> customTags = observerContext.customMetricTags;
         if (customTags != null) {
             tags.addAll(customTags.values());
         }

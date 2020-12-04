@@ -41,11 +41,9 @@ public class AddTagToMetrics {
 
         ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(env);
         if (observerContext != null) {
-            Map<String, Tag> customTags =
-                    (Map<String, Tag>) observerContext.getProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS);
+            Map<String, Tag> customTags = observerContext.customMetricTags;
             if (customTags == null) {
                 customTags = new HashMap<>();
-                observerContext.addProperty(BallerinaMetricsObserver.PROPERTY_CUSTOM_TAGS, customTags);
             }
             customTags.put(tagKey.getValue(), Tag.of(tagKey.getValue(), tagValue.getValue()));
             return null;
