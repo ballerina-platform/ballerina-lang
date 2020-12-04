@@ -445,13 +445,23 @@ public class TestUtil {
         return GSON.toJson(jsonrpcResponse).replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
 
-    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath, WorkspaceManager workspaceManager) {
+    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath, WorkspaceManager workspaceManager)
+            throws IOException {
         List<Diagnostic> diagnostics = new ArrayList<>();
 
         DocumentServiceContext context = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
-                workspaceManager,
-                LSContextOperation.TXT_DID_OPEN);
+                                                                         workspaceManager,
+                                                                         LSContextOperation.TXT_DID_OPEN);
+        DidOpenTextDocumentParams params = new DidOpenTextDocumentParams();
+        TextDocumentItem textDocument = new TextDocumentItem();
+        textDocument.setUri(sourcePath.toUri().toString());
+        textDocument.setText(new String(Files.readAllBytes(sourcePath)));
+        params.setTextDocument(textDocument);
+        context.workspace().didOpen(sourcePath, params);
         Optional<Project> project = context.workspace().project(context.filePath());
+        if (project.isEmpty()) {
+            return diagnostics;
+        }
         for (Module module : project.get().currentPackage().modules()) {
             diagnostics.addAll(module.getCompilation().diagnostics().diagnostics());
         }

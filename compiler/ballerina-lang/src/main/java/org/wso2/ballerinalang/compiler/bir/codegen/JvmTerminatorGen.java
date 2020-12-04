@@ -559,7 +559,7 @@ public class JvmTerminatorGen {
         }
         if (callIns.varArgExist) {
             BIROperand arg = callIns.args.get(argIndex);
-            int localVarIndex = this.indexMap.addToMapIfNotFoundAndGetIndex(arg.variableDcl);
+            int localVarIndex = this.indexMap.addIfNotExists(arg.variableDcl.name.value, arg.variableDcl.type);
             genVarArg(this.mv, this.indexMap, arg.variableDcl.type, callIns.varArgType, localVarIndex, symbolTable);
         }
 
@@ -1257,8 +1257,7 @@ public class JvmTerminatorGen {
     }
 
     private int getJVMIndexOfVarRef(BIRNode.BIRVariableDcl varDcl) {
-
-        return this.indexMap.addToMapIfNotFoundAndGetIndex(varDcl);
+        return this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
     }
 
     private void loadVar(BIRNode.BIRVariableDcl varDcl) {

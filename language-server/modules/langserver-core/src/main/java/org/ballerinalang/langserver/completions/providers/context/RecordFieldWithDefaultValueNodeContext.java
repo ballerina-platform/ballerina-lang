@@ -86,7 +86,7 @@ public class RecordFieldWithDefaultValueNodeContext extends
 
     private List<LSCompletionItem> getNewExprCompletionItems(CompletionContext context, Node typeNameNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<ObjectTypeSymbol> objectType;
         if (this.onQualifiedNameIdentifier(context, typeNameNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeNameNode));

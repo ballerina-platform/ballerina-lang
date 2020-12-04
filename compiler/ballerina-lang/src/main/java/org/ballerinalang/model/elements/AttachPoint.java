@@ -50,9 +50,9 @@ public class AttachPoint {
          */
         OBJECT_METHOD("objectfunction"),
         /**
-         * Indicates Resource Attach point.
+         * Indicates Service Remote Attach point.
          */
-        RESOURCE("resourcefunction"),
+        SERVICE_REMOTE("serviceremotefunction"),
         /**
          * Indicates Parameter Attach point.
          */

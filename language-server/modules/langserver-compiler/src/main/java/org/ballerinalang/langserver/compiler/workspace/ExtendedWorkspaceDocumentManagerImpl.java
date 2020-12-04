@@ -35,6 +35,7 @@ import java.util.concurrent.locks.Lock;
  * This class is being used by the composer to provide a flexible Workspace DocumentManager. Operations such as
  * openFile() are aware of the browser refreshes that may cause file already opened exceptions.
  */
+@Deprecated(forRemoval = true)
 public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManagerImpl {
 
     private volatile WorkspaceDocument tempDocument;

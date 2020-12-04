@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.INIT_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
 
 /**
@@ -122,7 +123,7 @@ public class InitCommand implements BLauncherCmd {
             if (!ProjectUtils.validatePkgName(packageName)) {
                 CommandUtil.printError(errStream,
                         "Invalid package name : '" + packageName + "' :\n" +
-                                "Package name can only contain alphanumerics, underscores and periods " +
+                                "Package name can only contain alphanumerics and underscores" +
                                 "and the maximum length is 256 characters",
                         null,
                         false);
@@ -131,8 +132,9 @@ public class InitCommand implements BLauncherCmd {
         }
 
         if (!ProjectUtils.validatePkgName(packageName)) {
-            errStream.println("warning: invalid package name. Modified package name : " +
-                    ProjectUtils.guessPkgName(packageName));
+            errStream.println("Unallowed characters in the project name were replaced by " +
+                    "underscores when deriving the package name. Edit the Ballerina.toml to change it.");
+            errStream.println();
         }
 
         try {
@@ -149,7 +151,7 @@ public class InitCommand implements BLauncherCmd {
             errStream.println("error: Error occurred while initializing project : " + e.getMessage());
             return;
         }
-        errStream.println("Ballerina project initialised ");
+        errStream.println("Created new Ballerina package '" + guessPkgName(packageName) + "'.");
         errStream.println();
     }
 

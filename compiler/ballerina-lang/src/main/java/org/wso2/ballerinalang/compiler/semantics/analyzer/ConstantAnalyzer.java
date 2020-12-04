@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -85,7 +85,7 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
         BSymbol symbol = varRef.symbol;
         // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
         if (symbol != null && (symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
-            dlog.error(varRef.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+            dlog.error(varRef.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
     }
 
@@ -115,7 +115,7 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
                 continue;
             }
             if (kind != NodeKind.BINARY_EXPR) {
-                dlog.error(binaryExpr.pos, DiagnosticCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
+                dlog.error(binaryExpr.pos, DiagnosticErrorCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
             }
         }
         analyzeExpr(binaryExpr.lhsExpr);
@@ -141,7 +141,7 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
                 this.expressions.pop();
                 return;
         }
-        dlog.error(expr.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+        dlog.error(expr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
     }
 
     /**

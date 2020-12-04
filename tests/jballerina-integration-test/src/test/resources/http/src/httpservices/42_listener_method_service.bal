@@ -25,9 +25,9 @@ boolean listenerStopped = false;
 
 service startService on new http:Listener(9251) {
     resource function test(http:Caller caller, http:Request req) {
-        checkpanic backendEP.__attach(mock1);
-        checkpanic backendEP.__attach(mock2);
-        checkpanic backendEP.__start();
+        checkpanic backendEP.attach(mock1);
+        checkpanic backendEP.attach(mock2);
+        checkpanic backendEP.start();
         var result = caller->respond("Backend service started!");
         if (result is error) {
             log:printError("Error sending response", result);
@@ -58,7 +58,7 @@ service mock2 =
         path: "/"
     }
     resource function mock2(http:Caller caller, http:Request req) {
-        checkpanic backendEP.__gracefulStop();
+        checkpanic backendEP.gracefulStop();
         runtime:sleep(2000);
         var responseToCaller = caller->respond("Mock2 invoked!");
         if (responseToCaller is error) {

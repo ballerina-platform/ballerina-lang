@@ -11,10 +11,10 @@
         },
         "end":{
           "line":53,
-          "character":30
+          "character":29
         }
       },
-        "newText":"mapStudentToGrades(Amal);"
+        "newText":"mapStudentToGrades(Amal)"
       }
     ]
   }

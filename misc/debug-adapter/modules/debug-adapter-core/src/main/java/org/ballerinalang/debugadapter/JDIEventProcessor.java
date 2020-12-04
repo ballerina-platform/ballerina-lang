@@ -189,7 +189,7 @@ public class JDIEventProcessor {
 
     private void configureUserBreakPoints(ReferenceType referenceType) {
         try {
-            String qualifiedClassName = referenceType.name();
+            String qualifiedClassName = getQualifiedClassName(context, referenceType);
             if (!breakpointsList.containsKey(qualifiedClassName)) {
                 return;
             }

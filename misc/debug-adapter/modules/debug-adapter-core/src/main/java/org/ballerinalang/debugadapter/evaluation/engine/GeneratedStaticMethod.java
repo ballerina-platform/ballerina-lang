@@ -16,8 +16,10 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
+import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassType;
+import com.sun.jdi.LocalVariable;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
@@ -30,6 +32,10 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.STRAND_VAR_NAME;
 
 /**
  * JVM generated static method representation of a ballerina function.
@@ -39,16 +45,16 @@ import java.util.List;
 public class GeneratedStaticMethod extends JvmMethod {
 
     private final ReferenceType classRef;
+    protected Map<String, Value> namedArgValues;
 
     public GeneratedStaticMethod(SuspendedContext context, ReferenceType classRef, Method methodRef) {
         super(context, methodRef);
         this.classRef = classRef;
+        this.namedArgValues = null;
     }
 
-    public GeneratedStaticMethod(SuspendedContext context, ReferenceType classRef, Method methodRef,
-                                 List<Evaluator> argEvaluators, List<Value> argsList) {
-        super(context, methodRef, argEvaluators, argsList);
-        this.classRef = classRef;
+    public void setNamedArgValues(Map<String, Value> namedArgValues) {
+        this.namedArgValues = namedArgValues;
     }
 
     @Override
@@ -75,7 +81,7 @@ public class GeneratedStaticMethod extends JvmMethod {
     @Override
     protected List<Value> getMethodArgs(JvmMethod method) throws EvaluationException {
         try {
-            if (argValues == null && argEvaluators == null) {
+            if (argValues == null && argEvaluators == null && namedArgValues == null) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString()
                         , methodRef.name()));
             }
@@ -93,9 +99,24 @@ public class GeneratedStaticMethod extends JvmMethod {
                 return argValueList;
             }
 
+            if (namedArgValues != null && !namedArgValues.isEmpty()) {
+                // Here we use the existing strand instance to execute the function invocation expression.
+                Value strand = getCurrentStrand();
+                namedArgValues.put(STRAND_VAR_NAME, strand);
+                List<LocalVariable> args = method.methodRef.arguments();
+                List<String> argNames = args.stream().map(LocalVariable::name).collect(Collectors.toList());
+                argNames.forEach(argName -> {
+                    argValueList.add(namedArgValues.get(argName));
+                    if (!argName.equals(STRAND_VAR_NAME)) {
+                        argValueList.add(EvaluationUtils.make(context, true).getJdiValue());
+                    }
+                });
+                return argValueList;
+            }
+
             // Evaluates all function argument expressions at first.
-            for (Evaluator argEvaluator : argEvaluators) {
-                argValueList.add(argEvaluator.evaluate().getJdiValue());
+            for (Map.Entry<String, Evaluator> argEvaluator : argEvaluators) {
+                argValueList.add(argEvaluator.getValue().evaluate().getJdiValue());
                 // Assuming all the arguments are positional args.
                 argValueList.add(EvaluationUtils.make(context, true).getJdiValue());
             }
@@ -111,7 +132,7 @@ public class GeneratedStaticMethod extends JvmMethod {
             Value strand = getCurrentStrand();
             argValueList.add(0, strand);
             return argValueList;
-        } catch (ClassNotLoadedException e) {
+        } catch (ClassNotLoadedException | AbsentInformationException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
                     methodRef.name()));
         }

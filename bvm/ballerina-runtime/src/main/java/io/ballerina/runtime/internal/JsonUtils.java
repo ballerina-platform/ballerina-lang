@@ -48,6 +48,7 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 import io.ballerina.runtime.internal.values.RefValue;
 
 import java.math.BigDecimal;
@@ -465,11 +466,13 @@ public class JsonUtils {
             if (elementMergeNullableError == null) {
                 continue;
             }
-
-            MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
-            detailMap.put(TypeConstants.DETAIL_MESSAGE,
-                          StringUtils.fromString("JSON Merge failed for key '" + key + "'"));
-            detailMap.put(TypeConstants.DETAIL_CAUSE, elementMergeNullableError);
+            MappingInitialValueEntry[] initialValues = new MappingInitialValueEntry[2];
+            initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(TypeConstants.DETAIL_MESSAGE,
+                                                StringUtils.fromString("JSON Merge failed for key '" + key + "'"));
+            initialValues[1] = new MappingInitialValueEntry.KeyValueEntry(TypeConstants.DETAIL_CAUSE,
+                                                                          elementMergeNullableError);
+            MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL,
+                                                                        initialValues);
             return ErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR, detailMap);
         }
         return null;

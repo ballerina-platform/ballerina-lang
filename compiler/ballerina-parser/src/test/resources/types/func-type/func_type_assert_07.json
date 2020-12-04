@@ -32,6 +32,10 @@
               "value": "foo"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "hasDiagnostics": true,
               "children": [
@@ -768,6 +772,10 @@
                       "kind": "OBJECT_FIELD",
                       "hasDiagnostics": true,
                       "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
                         {
                           "kind": "FUNCTION_TYPE_DESC",
                           "hasDiagnostics": true,

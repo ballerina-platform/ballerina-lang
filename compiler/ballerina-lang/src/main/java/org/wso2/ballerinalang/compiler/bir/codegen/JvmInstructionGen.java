@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -172,7 +171,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.duplicateServiceTypeWithAnnots;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
@@ -196,7 +194,6 @@ public class JvmInstructionGen {
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, BIRNode.BIRPackage currentPackage,
                              JvmPackageGen jvmPackageGen) {
-
         this.mv = mv;
         this.indexMap = indexMap;
         this.currentPackage = currentPackage;
@@ -243,7 +240,7 @@ public class JvmInstructionGen {
         }
     }
 
-    private static void generateJVarLoad(MethodVisitor mv, JType jType, String currentPackageName, int valueIndex) {
+    private static void generateJVarLoad(MethodVisitor mv, JType jType, int valueIndex) {
 
         switch (jType.jTag) {
             case JTypeTags.JBYTE:
@@ -280,7 +277,7 @@ public class JvmInstructionGen {
         }
     }
 
-    private static void generateJVarStore(MethodVisitor mv, JType jType, String currentPackageName, int valueIndex) {
+    private static void generateJVarStore(MethodVisitor mv, JType jType, int valueIndex) {
 
         switch (jType.jTag) {
             case JTypeTags.JBYTE:
@@ -506,7 +503,7 @@ public class JvmInstructionGen {
                 mv.visitVarInsn(ALOAD, valueIndex);
                 break;
             case JTypeTags.JTYPE:
-                generateJVarLoad(mv, (JType) bType, currentPackageName, valueIndex);
+                generateJVarLoad(mv, (JType) bType, valueIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
@@ -578,7 +575,7 @@ public class JvmInstructionGen {
                 mv.visitVarInsn(ASTORE, valueIndex);
                 break;
             case JTypeTags.JTYPE:
-                generateJVarStore(mv, (JType) bType, currentPackageName, valueIndex);
+                generateJVarStore(mv, (JType) bType, valueIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
@@ -609,7 +606,6 @@ public class JvmInstructionGen {
     }
 
     void generatePlatformIns(JInstruction ins) {
-
         if (ins.jKind == JInsKind.JCAST) {
             JCast castIns = (JCast) ins;
             BType targetType = castIns.targetType;
@@ -620,7 +616,6 @@ public class JvmInstructionGen {
     }
 
     void generateMoveIns(BIRNonTerminator.Move moveIns) {
-
         this.loadVar(moveIns.rhsOp.variableDcl);
         this.storeToVar(moveIns.lhsOp.variableDcl);
     }
@@ -1224,8 +1219,7 @@ public class JvmInstructionGen {
     }
 
     private int getJVMIndexOfVarRef(BIRNode.BIRVariableDcl varDcl) {
-
-        return this.indexMap.addToMapIfNotFoundAndGetIndex(varDcl);
+        return this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
     }
 
     void generateMapNewIns(BIRNonTerminator.NewStructure mapNewIns, int localVarOffset) {
@@ -1621,15 +1615,15 @@ public class JvmInstructionGen {
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
 
-        if (type instanceof BServiceType) {
-            // For services, create a new type for each new service value. TODO: do only for local vars
-            String pkgClassName = currentPackageName.equals(".") || currentPackageName.equals("") ?
-                    MODULE_INIT_CLASS_NAME : jvmPackageGen.lookupGlobalVarClassName(currentPackageName,
-                    ANNOTATION_MAP_NAME);
-            duplicateServiceTypeWithAnnots(this.mv, (BObjectType) type, pkgClassName, strandIndex);
-        } else {
-            loadType(mv, type);
-        }
+//        if (type instanceof BServiceType) {
+//            // For services, create a new type for each new service value. TODO: do only for local vars
+//            String pkgClassName = currentPackageName.equals(".") || currentPackageName.equals("") ?
+//                    MODULE_INIT_CLASS_NAME : jvmPackageGen.lookupGlobalVarClassName(currentPackageName,
+//                    ANNOTATION_MAP_NAME);
+//            duplicateServiceTypeWithAnnots(this.mv, (BObjectType) type, pkgClassName, strandIndex);
+//        } else {
+        loadType(mv, type);
+//        }
         this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
         this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE_IMPL),
                 false);

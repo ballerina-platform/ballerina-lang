@@ -79,6 +79,10 @@
                       ]
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
@@ -238,6 +242,10 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "OBJECT_TYPE_DESC",
                       "hasDiagnostics": true,
                       "children": [
@@ -270,6 +278,10 @@
                               "kind": "OBJECT_FIELD",
                               "hasDiagnostics": true,
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
@@ -382,6 +394,10 @@
                                       }
                                     }
                                   ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
                                 },
                                 {
                                   "kind": "FUNCTION_SIGNATURE",

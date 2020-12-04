@@ -124,10 +124,11 @@ public class ContextBuilder {
      * @param workspaceManager workspace manager instance
      * @return {@link HoverContext} generated hover context
      */
-    public static HoverContext buildHoverContext(String uri, WorkspaceManager workspaceManager) {
+    public static HoverContext buildHoverContext(String uri, WorkspaceManager workspaceManager, Position position) {
         return new HoverContextImpl.HoverContextBuilder()
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
+                .withPosition(position)
                 .build();
     }
 

@@ -15,7 +15,7 @@
 // under the License.
 
 public client class MockClient {
-    public remote function callWithNoReturn(int a, int b, int expectedSum) {
+    remote function callWithNoReturn(int a, int b, int expectedSum) {
         var sum = a + b;
         if (sum != expectedSum) {   // Check for validating if normal execution is intact from instrumentation
             error e = error("Sum is " + sum.toString() + ". Expected :" + expectedSum.toString());
@@ -23,20 +23,20 @@ public client class MockClient {
         }
     }
 
-    public remote function calculateSum(int a, int b) returns int {
+    remote function calculateSum(int a, int b) returns int {
         var sum = a + b;
         return a + b;
     }
 
-    public remote function callAnotherRemoteFunction() {
+    remote function callAnotherRemoteFunction() {
         self->callWithNoReturn(13, 9, 22);
     }
 
-    public remote function callWithReturn(int a, int b) returns int|error {
+    remote function callWithReturn(int a, int b) returns int|error {
         return a + b;
     }
 
-    public remote function callWithErrorReturn() returns error? {
+    remote function callWithErrorReturn() returns error? {
         var sum = 3 + 7;
         var expectedSum = 10;
         if (sum != expectedSum) {    // Check for validating if normal execution is intact from instrumentation
@@ -48,7 +48,7 @@ public client class MockClient {
         }
     }
 
-    public remote function callWithPanic() {
+    remote function callWithPanic() {
         var sum = 5 + 2;
         var expectedSum = 7;
         if (sum != expectedSum) {    // Check for validating if normal execution is intact from instrumentation

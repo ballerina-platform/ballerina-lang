@@ -71,7 +71,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -371,6 +370,7 @@ public class BIRPackageSymbolEnter {
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
+                // todo: Define resource function from BIR
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
                                               symTable.builtinPos);
@@ -1036,13 +1036,17 @@ public class BIRPackageSymbolEnter {
                         boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
                         BInvokableSymbol recordInitFuncSymbol =
                                 Symbols.createFunctionSymbol(recordInitFuncFlags,
-                                        initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
-                                        env.pkgSymbol, isNative, symTable.builtinPos, COMPILED_SOURCE);
+                                                             initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
+                                                             env.pkgSymbol, isNative, symTable.builtinPos,
+                                                             COMPILED_SOURCE);
                         recordInitFuncSymbol.retType = recordInitFuncType.retType;
+                        // Define resource function
                         recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
                                                                              recordInitFuncType, symTable.builtinPos);
                         recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
                     }
+
+                    recordType.typeInclusions = readTypeInclusions();
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 
@@ -1269,7 +1273,7 @@ public class BIRPackageSymbolEnter {
                     if (Symbols.isFlagOn(objFlags, Flags.CLASS)) {
                         objectSymbol = Symbols.createClassSymbol(objFlags, names.fromString(objName),
                                                                  env.pkgSymbol.pkgID, null, env.pkgSymbol,
-                                                                 symTable.builtinPos, COMPILED_SOURCE);
+                                                                 symTable.builtinPos, COMPILED_SOURCE, false);
                     } else {
                         objectSymbol = Symbols.createObjectSymbol(objFlags, names.fromString(objName),
                                                                   env.pkgSymbol.pkgID, null, env.pkgSymbol,
@@ -1279,14 +1283,14 @@ public class BIRPackageSymbolEnter {
                     objectSymbol.scope = new Scope(objectSymbol);
                     BObjectType objectType;
                     // Below is a temporary fix, need to fix this properly by using the type tag
-                    if (service) {
-                        objectType = new BServiceType(objectSymbol);
-                    } else {
-                        objectType = new BObjectType(objectSymbol);
+                    objectType = new BObjectType(objectSymbol);
 
-                        if (isImmutable(flags)) {
-                            objectSymbol.flags |= Flags.READONLY;
-                        }
+                    if (service) {
+                        objectType.flags |= Flags.SERVICE;
+                        objectSymbol.flags |= Flags.SERVICE;
+                    }
+                    if (isImmutable(flags)) {
+                        objectSymbol.flags |= Flags.READONLY;
                     }
                     objectType.flags = flags;
                     objectSymbol.type = objectType;
@@ -1324,6 +1328,7 @@ public class BIRPackageSymbolEnter {
                         ignoreAttachedFunc();
                     }
 
+                    objectType.typeInclusions = readTypeInclusions();
                     objectType.typeIdSet = readTypeIdSet(inputStream);
 
                     Object poppedObjType = compositeStack.pop();
@@ -1342,7 +1347,7 @@ public class BIRPackageSymbolEnter {
                     // TODO fix
                     break;
                 case SERVICE_TYPE_TAG:
-                    return symTable.anyServiceType;
+                    throw new AssertionError();
                 case TypeTags.SIGNED32_INT:
                     return symTable.signed32IntType;
                 case TypeTags.SIGNED16_INT:
@@ -1400,6 +1405,16 @@ public class BIRPackageSymbolEnter {
             // TODO: check
             inputStream.readLong();
             readTypeFromCp();
+        }
+
+        private List<BType> readTypeInclusions() throws IOException {
+            int nTypeInclusions = inputStream.readInt();
+            List<BType> typeInclusions = new ArrayList<>();
+            for (int i = 0; i < nTypeInclusions; i++) {
+                BType inclusion = readTypeFromCp();
+                typeInclusions.add(inclusion);
+            }
+            return typeInclusions;
         }
     }
 

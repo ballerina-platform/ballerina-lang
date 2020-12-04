@@ -18,13 +18,14 @@
 package org.ballerinalang.stdlib.utils;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.ballerinalang.repository.CompiledPackage;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -49,7 +50,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT;
+import static org.ballerinalang.util.diagnostic.DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG_PROP;
@@ -196,13 +197,17 @@ public class GenerateBalo {
     }
 
     private static boolean isIsolatedWarningLog(DiagnosticCode code) {
-        switch (code) {
-            case FUNCTION_CAN_BE_MARKED_ISOLATED:
-            case WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT:
-            case WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT:
-            case WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT:
-                return true;
+        if (code instanceof DiagnosticWarningCode) {
+            DiagnosticWarningCode diagCode = (DiagnosticWarningCode) code;
+            switch (diagCode) {
+                case FUNCTION_CAN_BE_MARKED_ISOLATED:
+                case WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT:
+                case WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT:
+                case WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT:
+                    return true;
+            }
         }
+
         return false;
     }
 }

@@ -89,7 +89,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     }
 
     private List<LSCompletionItem> getCurrentModuleAnnotations(CompletionContext ctx, SyntaxKind kind) {
-        List<Symbol> visibleSymbols = ctx.getVisibleSymbols(ctx.getCursorPosition());
+        List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
         return visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
                         && this.matchingAnnotation((AnnotationSymbol) symbol, kind)
@@ -129,8 +129,8 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     private boolean matchingAnnotation(AnnotationSymbol symbol, SyntaxKind kind) {
         switch (kind) {
             case SERVICE_DECLARATION:
-            case SERVICE_CONSTRUCTOR_EXPRESSION:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.SERVICE);
+//            case SERVICE_CONSTRUCTOR_EXPRESSION:
+//                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.SERVICE);
             case RESOURCE_KEYWORD:
                 return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.RESOURCE)
                         || AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FUNCTION);

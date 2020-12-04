@@ -21,7 +21,10 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateDocsTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -75,10 +78,6 @@ public class DocCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
     private String outputLoc;
-
-    @CommandLine.Option(names = {"--excludeIndex", "-excludeIndex"}, description = "Prevents project index from " +
-            "being generated.")
-    private boolean excludeIndex;
 
     @CommandLine.Option(names = {"--combine", "-combine"}, description = "Creates index using modules.")
     private boolean combine;
@@ -143,9 +142,10 @@ public class DocCommand implements BLauncherCmd {
 
         // load project
         Project project;
+        BuildOptions buildOptions = constructBuildOptions();
         try {
-            project = BuildProject.load(this.projectPath);
-        } catch (RuntimeException e) {
+            project = BuildProject.load(this.projectPath, buildOptions);
+        } catch (ProjectException e) {
             CommandUtil.printError(this.errStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -170,7 +170,7 @@ public class DocCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 //.addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
-                .addTask(new CreateDocsTask(excludeIndex, outStream, outputPath)) // creates API documentation
+                .addTask(new CreateDocsTask(outStream, outputPath)) // creates API documentation
                 .build();
 
         taskExecutor.executeTasks(project);
@@ -197,5 +197,16 @@ public class DocCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
+    }
+
+    private BuildOptions constructBuildOptions() {
+        return new BuildOptionsBuilder()
+                .codeCoverage(false)
+                .experimental(experimentalFlag)
+                .offline(offline)
+                .skipTests(true)
+                .testReport(false)
+                .observabilityIncluded(false)
+                .build();
     }
 }

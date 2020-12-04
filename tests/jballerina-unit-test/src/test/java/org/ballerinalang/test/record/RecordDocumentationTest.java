@@ -107,7 +107,7 @@ public class RecordDocumentationTest {
         BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'successfuls'", 47, 9);
         BAssertUtil.validateWarning(compileResult, i++, "field 'url' already documented", 71, 5);
         BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'urls'", 72, 5);
-        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'conn'", 79, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'conn'", 79, 5);
         BAssertUtil.validateWarning(compileResult, i++, "parameter 'req' already documented", 85, 9);
         BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'reqest'", 86, 9);
         BAssertUtil.validateWarning(compileResult, i++, "field 'abc' already documented", 95, 5);

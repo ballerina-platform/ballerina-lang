@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 /**
  * LSInMemorySourceEntry.
  */
+@Deprecated(forRemoval = true)
 class LSInMemorySourceEntry extends FileSystemSourceInput {
 
     private WorkspaceDocumentManager documentManager;

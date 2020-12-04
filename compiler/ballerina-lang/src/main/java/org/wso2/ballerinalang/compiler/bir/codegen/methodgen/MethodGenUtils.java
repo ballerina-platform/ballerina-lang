@@ -25,14 +25,10 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
@@ -59,25 +55,19 @@ public class MethodGenUtils {
 
     static boolean hasInitFunction(BIRNode.BIRPackage pkg) {
         for (BIRNode.BIRFunction func : pkg.functions) {
-            if (func != null && isModuleInitFunction(pkg, func)) {
+            if (func != null && isModuleInitFunction(func)) {
                 return true;
             }
         }
         return false;
     }
 
-    static boolean isModuleInitFunction(BIRNode.BIRPackage module, BIRNode.BIRFunction func) {
+    static boolean isModuleInitFunction(BIRNode.BIRFunction func) {
         return func.name.value.equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
     }
 
     static PackageID packageToModuleId(BIRNode.BIRPackage mod) {
         return new PackageID(mod.org, mod.name, mod.version);
-    }
-
-    static void genArgs(MethodVisitor mv, int schedulerVarIndex) {
-        mv.visitVarInsn(ALOAD, schedulerVarIndex);
-        mv.visitIntInsn(BIPUSH, 1);
-        mv.visitTypeInsn(ANEWARRAY, OBJECT);
     }
 
     static void submitToScheduler(MethodVisitor mv, String moduleClassName,
@@ -136,7 +126,6 @@ public class MethodGenUtils {
     }
 
     private static boolean isValidType(BType attachedType) {
-        return attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType instanceof BServiceType ||
-                attachedType.tag == TypeTags.RECORD);
+        return attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD);
     }
 }

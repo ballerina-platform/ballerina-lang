@@ -51,17 +51,165 @@ isolated function getDepartmentArray(int size) returns Department[] {
     return deptList;
 }
 
+public function benchmarkEmptyWhile(int warmupCount, int benchmarkCount) returns int {
+    int i = 0;
+    while (i < warmupCount) {
+        i += 1;
+    }
+
+    i = 0;
+    int startTime = nanoTime();
+    while (i < benchmarkCount) {
+        i += 1;
+    }
+    return (nanoTime() - startTime);
+}
+
+public function benchmarkWhileWithMapAssignment(int warmupCount, int benchmarkCount) returns int {
+    Person p = {id: 1, fname: "FName", lname: "LName"};
+    int i = 0;
+    map<[string, any]> e = {};
+    while (i < warmupCount) {
+        e = {};
+        i += 1;
+    }
+
+    i = 0;
+    int startTime = nanoTime();
+    while (i < benchmarkCount) {
+        e = {};
+        i += 1;
+    }
+    return (nanoTime() - startTime);
+}
+
+public function benchmarkWhileWithEntries(int warmupCount, int benchmarkCount) returns int {
+    Person p = {id: 1, fname: "FName", lname: "LName"};
+    int i = 0;
+    map<[string, any]> e = {};
+    while (i < warmupCount) {
+        e = p.entries();
+        i += 1;
+    }
+
+    i = 0;
+    int startTime = nanoTime();
+    while (i < benchmarkCount) {
+        e = p.entries();
+        i += 1;
+    }
+    return (nanoTime() - startTime);
+}
+
+public function benchmarkWithoutCasting(int warmupCount, int benchmarkCount) returns int {
+    Person p = {id: 1, fname: "FName", lname: "LName"};
+    int i = 0;
+    while (i < warmupCount) {
+        Person psn = p;
+        i += 1;
+    }
+
+    i = 0;
+    int startTime = nanoTime();
+    while (i < benchmarkCount) {
+        Person psn = p;
+        i += 1;
+    }
+    return (nanoTime() - startTime);
+}
+
+public function benchmarkWithCastingFromNilable(int warmupCount, int benchmarkCount) returns int {
+    Person? p = {id: 1, fname: "FName", lname: "LName"};
+    int i = 0;
+    while (i < warmupCount) {
+        Person psn = <Person>p;
+        i += 1;
+    }
+
+    i = 0;
+    int startTime = nanoTime();
+    while (i < benchmarkCount) {
+        Person psn = <Person>p;
+        i += 1;
+    }
+    return (nanoTime() - startTime);
+}
+
+public function benchmarkWithCastingFromAny(int warmupCount, int benchmarkCount) returns int {
+    Person p = {id: 1, fname: "FName", lname: "LName"};
+    any p2 = p;
+    int i = 0;
+    while (i < warmupCount) {
+        Person psn = <Person>p2;
+        i += 1;
+    }
+
+    i = 0;
+    int startTime = nanoTime();
+    while (i < benchmarkCount) {
+        Person psn = <Person>p2;
+        i += 1;
+    }
+    return (nanoTime() - startTime);
+}
+
 public function benchmarkLoopWithQuery(int warmupCount, int benchmarkCount) returns int {
     Person[] pl = getPersonArray(warmupCount);
     Person[] outputList =
         from var person in pl
         select person;
-    int startTime = nanoTime();
 
     pl = getPersonArray(benchmarkCount);
+    int startTime = nanoTime();
     outputList =
             from var person in pl
             select person;
+    return (nanoTime() - startTime);
+}
+
+public function benchmarkLoopWithStreamNextAndInvertedTypeGuard(int warmupCount, int benchmarkCount) returns int {
+    Person[] pl = getPersonArray(warmupCount);
+    stream<Person> personStream = pl.toStream();
+    Person[] outputList = [];
+
+    record {| Person value; |}|error? v = personStream.next();
+    while (!(v is ()) && !(v is error)) {
+        outputList.push(v.value);
+        v = personStream.next();
+    }
+
+    pl = getPersonArray(benchmarkCount);
+    personStream = pl.toStream();
+    outputList = [];
+    int startTime = nanoTime();
+    v = personStream.next();
+    while (!(v is ()) && !(v is error)) {
+        outputList.push(v.value);
+        v = personStream.next();
+    }
+    return (nanoTime() - startTime);
+}
+
+public function benchmarkLoopWithStreamNextAndTypeGuard(int warmupCount, int benchmarkCount) returns int {
+    Person[] pl = getPersonArray(warmupCount);
+    stream<Person> personStream = pl.toStream();
+    Person[] outputList = [];
+
+    record {| Person value; |}|error? v = personStream.next();
+    while (v is record {| Person value; |}) {
+        outputList.push(v.value);
+        v = personStream.next();
+    }
+
+    pl = getPersonArray(benchmarkCount);
+    personStream = pl.toStream();
+    outputList = [];
+    int startTime = nanoTime();
+    v = personStream.next();
+    while (v is record {| Person value; |}) {
+        outputList.push(v.value);
+        v = personStream.next();
+    }
     return (nanoTime() - startTime);
 }
 
@@ -74,10 +222,10 @@ public function benchmarkLoopWithWhile(int warmupCount, int benchmarkCount) retu
         i += 1;
     }
 
-    int startTime = nanoTime();
     pl = getPersonArray(benchmarkCount);
     outputList = [];
     i = 0;
+    int startTime = nanoTime();
     while (i < benchmarkCount) {
         outputList.push(pl[i]);
         i += 1;
@@ -93,11 +241,88 @@ public function benchmarkLoopWithForeach(int warmupCount, int benchmarkCount) re
         outputList.push(v);
     }
 
-    int startTime = nanoTime();
     pl = getPersonArray(benchmarkCount);
     outputList = [];
+    int startTime = nanoTime();
     foreach var v in pl {
         outputList.push(v);
+    }
+    return (nanoTime() - startTime);
+}
+
+type _Frame record {|
+    (any|error|())...;
+|};
+
+public function benchmarkLoopWithFramesForeach(int warmupCount, int benchmarkCount) returns int {
+    Person[] pl = getPersonArray(warmupCount);
+    Person[] outputList = [];
+    _Frame[] frames = [];
+
+    foreach var v in pl {
+        _Frame _frame = {};
+        foreach var [k, val] in v.entries() {
+            _frame[k] = val;
+        }
+        frames.push(_frame);
+    }
+    foreach _Frame f in frames {
+        Person p = {id: <int>f["id"], fname: <string>f["fname"], lname: <string>f["lname"]};
+        outputList.push(p);
+    }
+
+    pl = getPersonArray(benchmarkCount);
+    outputList = [];
+    frames = [];
+    int startTime = nanoTime();
+    foreach var v in pl {
+        _Frame _frame = {};
+        foreach var [k, val] in v.entries() {
+            _frame[k] = val;
+        }
+        frames.push(_frame);
+    }
+    foreach _Frame f in frames {
+        Person p = {id: <int>f["id"], fname: <string>f["fname"], lname: <string>f["lname"]};
+        outputList.push(p);
+    }
+    return (nanoTime() - startTime);
+}
+
+public function benchmarkLoopWithFramesWOEntries(int warmupCount, int benchmarkCount) returns int {
+    Person[] pl = getPersonArray(warmupCount);
+    Person[] outputList = [];
+    _Frame[] frames = [];
+    _Frame[] frames2 = [];
+
+    foreach var v in pl {
+        _Frame _frame = {};
+        //foreach var [k, val] in v.entries() {
+        //    _frame[k] = val;
+        //}
+        frames.push(_frame);
+    }
+    foreach _Frame f in frames {
+        //Person p = <Person> f;
+        //outputList.push(p);
+        frames2.push(f);
+    }
+
+    pl = getPersonArray(benchmarkCount);
+    outputList = [];
+    frames = [];
+    int startTime = nanoTime();
+    foreach var v in pl {
+        _Frame _frame = {};
+        //foreach var [k, val] in v.entries() {
+        //    _frame[k] = val;
+        //}
+        frames.push(_frame);
+    }
+    foreach _Frame f in frames {
+        //Person p = <Person> f;
+        //outputList.push(p);
+        frames2.push(f);
     }
     return (nanoTime() - startTime);
 }

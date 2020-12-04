@@ -19,7 +19,6 @@ import ballerina/java;
 
 # Represents a ballerina task listener, which can be used to schedule and execute tasks periodically.
 public class Listener {
-    *'object:Listener;
     boolean started = false;
 
     private TimerConfiguration|AppointmentConfiguration listenerConfiguration;
@@ -47,7 +46,7 @@ public class Listener {
     # + s - Service to attach to the listener
     # + name - Name of the service
     # + return - () or else a `task:ListenerError` upon failure to attach the service
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service object { } s, string[]? name = ()) returns error? {
         // ignore param 'name'
         var result = attachExternal(self, s);
         if (result is error) {
@@ -59,7 +58,7 @@ public class Listener {
     #
     # + s - Service to be detached from the listener
     # + return - () or else a `task:ListenerError` upon failure to detach the service
-    public function __detach(service s) returns error? {
+    public function __detach(service object { } s) returns error? {
         return detachExternal(self, s);
     }
 
@@ -67,7 +66,7 @@ public class Listener {
     # any error.
     #
     # + return - () or else a `task:ListenerError` upon failure to start the listener
-    public function __start() returns error? {
+    public function 'start() returns error? {
         var result = startExternal(self);
         if (result is error) {
             panic result;
@@ -81,7 +80,7 @@ public class Listener {
     # completed. This may panic if the stopping causes any error.
     #
     # + return - () or else a `task:ListenerError` upon failure to stop the listener
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         var result = stopExternal(self);
         if (result is error) {
             panic result;
@@ -95,7 +94,7 @@ public class Listener {
     # panic if the stopping causes any error.
     #
     # + return - () or else a `task:ListenerError` upon failure to stop the listener
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         var result = stopExternal(self);
         if (result is error) {
             panic result;
@@ -149,12 +148,12 @@ function initExternal(Listener task) returns ListenerError? = @java:Method {
     'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
-function detachExternal(Listener task, service attachedService) returns ListenerError? = @java:Method {
+function detachExternal(Listener task, service object {} attachedService) returns ListenerError? = @java:Method {
     name: "detach",
     'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
-function attachExternal(Listener task, service s, any... attachments) returns ListenerError? = @java:Method {
+function attachExternal(Listener task, service object {} s, any... attachments) returns ListenerError? = @java:Method {
     name: "attach",
     'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;

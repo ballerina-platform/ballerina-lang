@@ -46,11 +46,11 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
     @DataProvider(name = "async-call-data-provider")
     public Object[][] getAsyncCallData() {
         return new Object[][] {
-                {"resourceOne", FILE_NAME + ":22:5", FILE_NAME + ":23:39", FILE_NAME + ":29:20",
+                {"resourceOne", FILE_NAME + ":22:5", FILE_NAME + ":23:33", FILE_NAME + ":29:20",
                         MOCK_CLIENT_OBJECT_NAME, "calculateSum", null, null},
-                {"resourceTwo", FILE_NAME + ":33:5", FILE_NAME + ":34:39", FILE_NAME + ":40:20",
+                {"resourceTwo", FILE_NAME + ":33:5", FILE_NAME + ":34:33", FILE_NAME + ":40:20",
                         null, null, null, "calculateSumWithObservability"},
-                {"resourceThree", FILE_NAME + ":44:5", FILE_NAME + ":46:39", FILE_NAME + ":52:20",
+                {"resourceThree", FILE_NAME + ":44:5", FILE_NAME + ":46:33", FILE_NAME + ":52:20",
                         null, null, OBSERVABLE_ADDER_OBJECT_NAME, "getSum"}
         };
     }

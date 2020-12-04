@@ -177,15 +177,15 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "DEC_INT",
+                      "kind": "BOOLEAN",
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "DECIMAL_INT_TOKEN",
+                          "kind": "FALSE_KEYWORD",
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
+                            "ERROR_MISSING_VALUE"
                           ]
                         }
                       ]

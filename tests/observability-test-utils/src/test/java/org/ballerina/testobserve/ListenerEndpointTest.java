@@ -41,34 +41,34 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Test cases for listener written to be used in unit tests.
  */
+// Disabled on https://github.com/ballerina-platform/ballerina-lang/issues/27151
 @Test(groups = "mock-listener-tests")
 public class ListenerEndpointTest {
-    private static final String TESTOBSERVE_MODULE_ZIP_NAME = "testobserve.zip";
-    private static final String OBESERVABILITY_TEST_UTILS_DIR = System.getProperty("observability.test.utils.dir");
-    private static final String TEST_NATIVES_JAR = System.getProperty("observability.test.utils.jar");
+    private static final String OBESERVABILITY_TEST_UTILS_BALO = System.getProperty("observability.test.utils.balo");
+    private static final String OBESERVABILITY_TEST_UTILS_JAR = System.getProperty("observability.test.utils.jar");
     private static final String BALLERINA_TOML_TEST_NATIVES_JAR_NAME = "observability-test-utils.jar";
 
     private static BalServer balServer;
     private static BServerInstance servicesServerInstance;
 
-    @BeforeGroups(value = "mock-listener-tests", alwaysRun = true)
+    @BeforeGroups(value = "mock-listener-tests", alwaysRun = true, enabled = false)
     private void setup() throws Exception {
         balServer = new BalServer();
         final String serverHome = balServer.getServerHome();
-        final Path testUtilsJar = Paths.get(TEST_NATIVES_JAR);
+        final Path testUtilsJar = Paths.get(OBESERVABILITY_TEST_UTILS_JAR);
 
         // Copy jar for Ballerina.toml reference to natives Jar
-        copyFile(testUtilsJar, Paths.get(Paths.get(TEST_NATIVES_JAR).getParent().toString(),
+        copyFile(testUtilsJar, Paths.get(testUtilsJar.getParent().toString(),
                 BALLERINA_TOML_TEST_NATIVES_JAR_NAME));
 
         // Copy jar for bre/libs
         copyFile(testUtilsJar, Paths.get(serverHome, "bre", "lib", testUtilsJar.getFileName().toString()));
 
         // Copy caches
-        Path cacheZip = Paths.get(OBESERVABILITY_TEST_UTILS_DIR, "build", "ballerina-src", "target",
-                                  TESTOBSERVE_MODULE_ZIP_NAME);
-        FileSystem fs = FileSystems.newFileSystem(cacheZip, ListenerEndpointTest.class.getClassLoader());
-        copyDir(fs.getPath("/"), Paths.get(serverHome, "repo"));
+        try (FileSystem fs = FileSystems.newFileSystem(Paths.get(OBESERVABILITY_TEST_UTILS_BALO),
+                ListenerEndpointTest.class.getClassLoader())) {
+            copyDir(fs.getPath("/"), Paths.get(serverHome, "repo"));
+        }
 
         // Don't use 9898 port here. It is used in metrics test cases.
         servicesServerInstance = new BServerInstance(balServer);
@@ -77,14 +77,14 @@ public class ListenerEndpointTest {
         servicesServerInstance.startServer(sourcesDir, "listener_tests", null, new String[0], new int[]{9091});
     }
 
-    @AfterGroups(value = "mock-listener-tests", alwaysRun = true)
+    @AfterGroups(value = "mock-listener-tests", alwaysRun = true, enabled = false)
     private void cleanup() throws Exception {
         servicesServerInstance.removeAllLeechers();
         servicesServerInstance.shutdownServer();
         balServer.cleanup();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testHelloWorldResponse() throws Exception {
         HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:9091/testServiceOne/resourceOne",
                 "dummy-ignored-input-1", Collections.emptyMap());
@@ -92,7 +92,7 @@ public class ListenerEndpointTest {
         Assert.assertEquals(httpResponse.getData(), "Hello from Resource One");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSuccessfulResponse() throws Exception {
         HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:9091/testServiceOne/resourceTwo",
                 "10", Collections.emptyMap());
@@ -100,7 +100,7 @@ public class ListenerEndpointTest {
         Assert.assertEquals(httpResponse.getData(), "Sum of numbers: 55");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testErrorReturnResponse() throws Exception {
         HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:9091/testServiceOne/resourceTwo",
                 "invalid-number", Collections.emptyMap());
@@ -108,7 +108,7 @@ public class ListenerEndpointTest {
         Assert.assertEquals(httpResponse.getData(), "{ballerina/lang.int}NumberParsingError");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testPanicResponse() throws Exception {
         HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:9091/testServiceOne/resourceThree",
                 "dummy-ignored-input-2", Collections.emptyMap());
@@ -118,18 +118,21 @@ public class ListenerEndpointTest {
 
     private void copyDir(Path source, Path dest) throws IOException {
         Files.walk(source).forEach(sourcePath -> {
+            Path relativeSourcePath = source.relativize(sourcePath);
             try {
-                Path targetPath = dest.resolve(source.relativize(sourcePath).toString());
+                Path targetPath = dest.resolve(relativeSourcePath.toString());
                 if (!targetPath.toFile().isDirectory() || !targetPath.toFile().exists()) {
                     copyFile(sourcePath, targetPath);
                 }
             } catch (IOException ex) {
-                Assert.fail("Failed to copy directory " + source.toString() + " to " + dest.toString(), ex);
+                Assert.fail("Failed to copy file " + relativeSourcePath + " in directory " + source.toString()
+                        + " to " + dest.toString(), ex);
             }
         });
     }
 
     private void copyFile(Path source, Path dest) throws IOException {
+        dest.getParent().toFile().mkdirs();     // Create parent directory
         Files.copy(source, dest, REPLACE_EXISTING);
     }
 }

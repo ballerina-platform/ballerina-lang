@@ -26,27 +26,23 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class PackageDescriptor {
+    private static final String LANG_LIB_PACKAGE_NAME_PREFIX = "lang.";
+
     private final PackageName packageName;
     private final PackageOrg packageOrg;
     private final PackageVersion packageVersion;
 
-    private PackageDescriptor(PackageName packageName, PackageOrg packageOrg, PackageVersion packageVersion) {
+    private PackageDescriptor(PackageOrg packageOrg,
+                              PackageName packageName,
+                              PackageVersion packageVersion) {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
         this.packageVersion = packageVersion;
     }
 
-    public static PackageDescriptor from(PackageName packageName,
-                                         PackageOrg packageOrg,
+    public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName,
                                          PackageVersion packageVersion) {
-        return new PackageDescriptor(packageName, packageOrg, packageVersion);
-    }
-
-    public static PackageDescriptor from(String packageName,
-                                         String packageOrg,
-                                         String packageVersion) {
-        return PackageDescriptor.from(PackageName.from(packageName), PackageOrg.from(packageOrg),
-                PackageVersion.from(packageVersion));
+        return new PackageDescriptor(packageOrg, packageName, packageVersion);
     }
 
     public PackageName name() {
@@ -59,6 +55,10 @@ public class PackageDescriptor {
 
     public PackageVersion version() {
         return packageVersion;
+    }
+
+    public boolean isLangLibPackage() {
+        return org().isBallerinaOrg() && packageName.value().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX);
     }
 
     @Override
@@ -74,11 +74,20 @@ public class PackageDescriptor {
         PackageDescriptor that = (PackageDescriptor) other;
         return packageName.equals(that.packageName) &&
                 packageOrg.equals(that.packageOrg) &&
-                packageVersion.equals(that.packageVersion);
+                Objects.equals(packageVersion, that.packageVersion);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(packageName, packageOrg, packageVersion);
+    }
+
+    @Override
+    public String toString() {
+        String pkgStr = packageOrg + ":" + packageName;
+        if (packageVersion == null) {
+            return pkgStr;
+        }
+        return pkgStr + ":" + packageVersion;
     }
 }

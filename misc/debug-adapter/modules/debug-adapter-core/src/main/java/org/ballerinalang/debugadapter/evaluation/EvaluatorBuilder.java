@@ -57,12 +57,16 @@ import org.ballerinalang.debugadapter.evaluation.engine.TypeOfExpressionEvaluato
 import org.ballerinalang.debugadapter.evaluation.engine.UnaryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.XMLTemplateEvaluator;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.REST_ARG_IDENTIFIER;
 
 /**
  * A {@code NodeVisitor} based implementation used to traverse and capture evaluatable segments of a parsed ballerina
@@ -167,52 +171,26 @@ public class EvaluatorBuilder extends NodeVisitor {
     @Override
     public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
         visitSyntaxNode(functionCallExpressionNode);
-        // Evaluates arguments.
-        List<Evaluator> argEvaluators = new ArrayList<>();
-        SeparatedNodeList<FunctionArgumentNode> args = functionCallExpressionNode.arguments();
-        // Removes argument separator nodes from the args list.
-        for (int index = args.size() - 2; index > 0; index -= 2) {
-            args.remove(index);
+        try {
+            List<Map.Entry<String, Evaluator>> argEvaluators = processArgs(functionCallExpressionNode.arguments());
+            result = new FunctionInvocationExpressionEvaluator(context, functionCallExpressionNode, argEvaluators);
+        } catch (EvaluationException e) {
+            builderException = e;
         }
-        for (int idx = 0; idx < args.size(); idx++) {
-            final FunctionArgumentNode argExprNode = args.get(idx);
-            argExprNode.accept(this);
-            if (result == null) {
-                builderException = new EvaluationException(String.format(EvaluationExceptionKind.INVALID_ARGUMENT
-                        .getString(), argExprNode.toString()));
-                return;
-            }
-            // Todo - should we disable GC like intellij expression evaluator does?
-            argEvaluators.add(result);
-        }
-        result = new FunctionInvocationExpressionEvaluator(context, functionCallExpressionNode, argEvaluators);
     }
 
     @Override
     public void visit(MethodCallExpressionNode methodCallExpressionNode) {
         visitSyntaxNode(methodCallExpressionNode);
-        // visits object expression.
-        methodCallExpressionNode.expression().accept(this);
-        Evaluator expression = result;
-        // visits object method arguments.
-        List<Evaluator> argEvaluators = new ArrayList<>();
-        SeparatedNodeList<FunctionArgumentNode> args = methodCallExpressionNode.arguments();
-        // Removes argument separator nodes from the args list.
-        for (int index = args.size() - 2; index > 0; index -= 2) {
-            args.remove(index);
+        try {
+            // visits object expression.
+            methodCallExpressionNode.expression().accept(this);
+            Evaluator expression = result;
+            List<Map.Entry<String, Evaluator>> argEvaluators = processArgs(methodCallExpressionNode.arguments());
+            result = new MethodCallExpressionEvaluator(context, methodCallExpressionNode, expression, argEvaluators);
+        } catch (EvaluationException e) {
+            builderException = e;
         }
-        for (int idx = 0; idx < args.size(); idx++) {
-            final FunctionArgumentNode argExprNode = args.get(idx);
-            argExprNode.accept(this);
-            if (result == null) {
-                builderException = new EvaluationException(String.format(EvaluationExceptionKind.INVALID_ARGUMENT
-                        .getString(), argExprNode.toString()));
-                return;
-            }
-            // Todo - should we disable GC like intellij expression evaluator does?
-            argEvaluators.add(result);
-        }
-        result = new MethodCallExpressionEvaluator(context, methodCallExpressionNode, expression, argEvaluators);
     }
 
     @Override
@@ -467,6 +445,8 @@ public class EvaluatorBuilder extends NodeVisitor {
     private void addFunctionCallExpressionSyntax() {
         supportedSyntax.add(SyntaxKind.FUNCTION_CALL);
         supportedSyntax.add(SyntaxKind.POSITIONAL_ARG);
+        supportedSyntax.add(SyntaxKind.NAMED_ARG);
+        supportedSyntax.add(SyntaxKind.REST_ARG);
         supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);
         supportedSyntax.add(SyntaxKind.CLOSE_PAREN_TOKEN);
         // Todo: Add named args and rest args
@@ -475,6 +455,8 @@ public class EvaluatorBuilder extends NodeVisitor {
     private void addMethodCallExpressionSyntax() {
         supportedSyntax.add(SyntaxKind.METHOD_CALL);
         supportedSyntax.add(SyntaxKind.POSITIONAL_ARG);
+        supportedSyntax.add(SyntaxKind.NAMED_ARG);
+        supportedSyntax.add(SyntaxKind.REST_ARG);
         supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);
         supportedSyntax.add(SyntaxKind.CLOSE_PAREN_TOKEN);
         // Todo: Add named args and rest args
@@ -590,5 +572,36 @@ public class EvaluatorBuilder extends NodeVisitor {
         unsupportedNodes.clear();
         result = null;
         builderException = null;
+    }
+
+    private List<Map.Entry<String, Evaluator>> processArgs(SeparatedNodeList<FunctionArgumentNode> args)
+            throws EvaluationException {
+
+        List<Map.Entry<String, Evaluator>> argEvaluators = new ArrayList<>();
+        for (FunctionArgumentNode argExprNode : args) {
+            argExprNode.accept(this);
+            if (result == null) {
+                throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_ARGUMENT
+                        .getString(), argExprNode.toString()));
+            }
+
+            switch (argExprNode.kind()) {
+                case POSITIONAL_ARG:
+                    argEvaluators.add(new AbstractMap.SimpleEntry<>("", result));
+                    break;
+                case NAMED_ARG:
+                    String namedArg = ((NamedArgumentNode) argExprNode).argumentName().name().toSourceCode();
+                    argEvaluators.add(new AbstractMap.SimpleEntry<>(namedArg.trim(), result));
+                    break;
+                case REST_ARG:
+                    argEvaluators.add(new AbstractMap.SimpleEntry<>(REST_ARG_IDENTIFIER, result));
+                    break;
+                default:
+                    builderException = new EvaluationException(String.format(EvaluationExceptionKind.INVALID_ARGUMENT
+                            .getString(), argExprNode.toString()));
+                    break;
+            }
+        }
+        return argEvaluators;
     }
 }

@@ -84,7 +84,7 @@
     </Match>
     <Match>
         <Package name="io.ballerina.compiler.api.impl" />
-        <Bug pattern="BC_UNCONFIRMED_CAST" />
+        <Bug pattern="BC_UNCONFIRMED_CAST, UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
     </Match>
     <Match>
         <Package name="io.ballerina.compiler.api.impl.symbols" />
@@ -287,6 +287,11 @@
     <Match>
         <Class name="io.ballerina.projects.internal.BaloFiles"/>
         <Method name="createPackageManifest"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.BaloFiles"/>
+        <Method name="createPackageDependencyGraph"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
 </FindBugsFilter>

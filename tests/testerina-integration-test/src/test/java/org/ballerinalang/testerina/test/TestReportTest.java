@@ -49,8 +49,17 @@ public class TestReportTest extends BaseTestCase {
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
         projectPath = projectBasedTestsPath.resolve("test-report-tests").toString();
-        resultsJsonPath = projectBasedTestsPath.resolve("test-report-tests").resolve("target")
+        resultsJsonPath = projectBasedTestsPath.resolve("test-report-tests").resolve("target").resolve("report")
                 .resolve("test_results.json");
+    }
+
+    @Test ()
+    public void testWarningForReportTools() throws BallerinaTestException, IOException {
+        String msg = "warning: Could not find the required HTML report tools for code coverage";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"--code-coverage"}, null, new String[]{},
+                new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(60000);
     }
 
     @Test ()
@@ -60,7 +69,7 @@ public class TestReportTest extends BaseTestCase {
         validateCoverage();
     }
 
-    @Test ()
+    @Test (enabled = false)
     public void testWithoutCoverage() throws BallerinaTestException, IOException {
         runCommand(false);
         validateStatuses();

@@ -39,8 +39,9 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 
@@ -113,7 +114,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         }
 
         List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == ANNOTATION && ((AnnotationSymbol) symbol).attachPoints()
                         .stream()
@@ -128,7 +129,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
 
     private AttachPoint.Point getAttachPointForType(BTypedescType typedescType) {
         BType type = typedescType.constraint.tsymbol.type;
-        if (type instanceof BServiceType) {
+        if (type instanceof BObjectType && Symbols.isService(typedescType.constraint.tsymbol)) {
             return AttachPoint.Point.SERVICE;
         } else if (type instanceof BInvokableType) {
             return AttachPoint.Point.FUNCTION;
@@ -157,7 +158,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
      * @return {@link Optional} scope entry for the node
      */
     private Optional<Symbol> getExpressionEntry(CompletionContext context, Node expressionNode) {
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
 
         switch (expressionNode.kind()) {
             case SIMPLE_NAME_REFERENCE:

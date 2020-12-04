@@ -87,7 +87,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
     private List<LSCompletionItem> getNewExprCompletionItems(CompletionContext context,
                                                              TypeDescriptorNode typeDescriptorNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<ObjectTypeSymbol> objectType;
         if (this.onQualifiedNameIdentifier(context, typeDescriptorNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeDescriptorNode));
@@ -119,7 +119,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
     }
 
     private boolean isObjectType(Symbol symbol) {
-        if (symbol.kind() == SymbolKind.TYPE) {
+        if (symbol.kind() == SymbolKind.TYPE_DEFINITION) {
             return CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind() ==
                     TypeDescKind.OBJECT;
         }
@@ -128,7 +128,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
     }
 
     private ObjectTypeSymbol getObjectType(Symbol symbol) {
-        if (symbol.kind() == SymbolKind.TYPE) {
+        if (symbol.kind() == SymbolKind.TYPE_DEFINITION) {
             return (ObjectTypeSymbol) CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor());
         }
 
