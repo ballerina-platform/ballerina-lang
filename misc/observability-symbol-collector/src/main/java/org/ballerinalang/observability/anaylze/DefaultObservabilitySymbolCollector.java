@@ -146,17 +146,17 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
                 .append(PACKAGE_VERSION_KEY).append("\":\"").append(packageHolder.getVersion()).append("\",\"")
                 .append(PACKAGE_MODULES_KEY).append("\":{");
 
-        String[] packageNames = packageHolder.getModules().keySet().toArray(new String[0]);
-        Arrays.sort(packageNames);
-        for (int i = 0, packageNamesLength = packageNames.length; i < packageNamesLength; i++) {
-            String packageName = packageNames[i];
-            ModuleHolder moduleHolder = packageHolder.getModules().get(packageName);
+        String[] moduleKeys = packageHolder.getModules().keySet().toArray(new String[0]);
+        Arrays.sort(moduleKeys);
+        for (int i = 0, packageNamesLength = moduleKeys.length; i < packageNamesLength; i++) {
+            String moduleKey = moduleKeys[i];
+            ModuleHolder moduleHolder = packageHolder.getModules().get(moduleKey);
 
             if (i != 0) {
                 jsonStringBuilder.append(",");
             }
 
-            jsonStringBuilder.append("\"").append(packageName).append("\":{\"")
+            jsonStringBuilder.append("\"").append(moduleKey).append("\":{\"")
                     .append(MODULE_NAME_KEY).append("\":\"").append(moduleHolder.getName()).append("\",\"")
                     .append(MODULE_DOCUMENTS_KEY).append("\":{");
 

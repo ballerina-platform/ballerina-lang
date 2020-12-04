@@ -34,7 +34,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObserverbilitySymbolCollectorRunner;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -513,7 +513,7 @@ public class JBallerinaBackend extends CompilerBackend {
             // TODO: Move to a compiler extension once Compiler revamp is complete
             if (packageContext.compilationOptions().observabilityIncluded()) {
                 ObservabilitySymbolCollector observabilitySymbolCollector
-                        = ObserverbilitySymbolCollectorRunner.getInstance(compilerContext);
+                        = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
                 observabilitySymbolCollector.process(packageContext.project());
                 observabilitySymbolCollector.writeToExecutable(executableFilePath);
             }

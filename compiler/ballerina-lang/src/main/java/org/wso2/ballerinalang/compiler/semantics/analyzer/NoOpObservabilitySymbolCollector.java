@@ -28,7 +28,7 @@ import java.nio.file.Path;
  *
  * @since 2.0.0
  */
-public class NullObservabiltySymbolCollector implements ObservabilitySymbolCollector {
+public class NoOpObservabilitySymbolCollector implements ObservabilitySymbolCollector {
     @Override
     public void process(Project project) {
         // Do nothing
