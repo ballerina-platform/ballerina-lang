@@ -18,13 +18,13 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.types.AttachedFunction;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
+import io.ballerina.runtime.internal.types.BMemberFunctionType;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.FPValue;
@@ -58,10 +58,10 @@ public class AnnotationUtils {
             return;
         }
         BObjectType objectType = (BObjectType) type;
-        for (AttachedFunctionType attachedFunction : objectType.getAttachedFunctions()) {
+        for (MemberFunctionType attachedFunction : objectType.getAttachedFunctions()) {
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
             if (globalAnnotMap.containsKey(annotationKey)) {
-                ((AttachedFunction) attachedFunction).setAnnotations((MapValue<BString, Object>)
+                ((BMemberFunctionType) attachedFunction).setAnnotations((MapValue<BString, Object>)
                                                                              globalAnnotMap.get(annotationKey));
             }
         }
@@ -74,11 +74,11 @@ public class AnnotationUtils {
             bType.setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
                     .call(new Object[]{strand}));
         }
-        for (AttachedFunctionType attachedFunction : bType.getAttachedFunctions()) {
+        for (MemberFunctionType attachedFunction : bType.getAttachedFunctions()) {
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
 
             if (globalAnnotMap.containsKey(annotationKey)) {
-                ((AttachedFunction) attachedFunction)
+                ((BMemberFunctionType) attachedFunction)
                         .setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
                                 .call(new Object[]{strand}));
             }

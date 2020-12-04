@@ -56,6 +56,10 @@
               "hasDiagnostics": true,
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "READONLY_TYPE_DESC",
                   "children": [
                     {
@@ -100,6 +104,10 @@
               "hasDiagnostics": true,
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
@@ -131,6 +139,10 @@
               "kind": "OBJECT_FIELD",
               "hasDiagnostics": true,
               "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
                 {
                   "kind": "READONLY_TYPE_DESC",
                   "children": [

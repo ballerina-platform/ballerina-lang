@@ -60,7 +60,7 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         Predicate<Symbol> predicate = symbol -> {
-            if (symbol.kind() != SymbolKind.TYPE) {
+            if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
                 return false;
             }
             TypeSymbol typeDesc = ((TypeDefinitionSymbol) symbol).typeDescriptor();

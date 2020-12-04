@@ -39,8 +39,9 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 
@@ -128,7 +129,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
 
     private AttachPoint.Point getAttachPointForType(BTypedescType typedescType) {
         BType type = typedescType.constraint.tsymbol.type;
-        if (type instanceof BServiceType) {
+        if (type instanceof BObjectType && Symbols.isService(typedescType.constraint.tsymbol)) {
             return AttachPoint.Point.SERVICE;
         } else if (type instanceof BInvokableType) {
             return AttachPoint.Point.FUNCTION;

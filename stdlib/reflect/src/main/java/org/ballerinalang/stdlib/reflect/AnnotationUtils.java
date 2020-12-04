@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.reflect;
 
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -39,9 +39,9 @@ public class AnnotationUtils {
      * @return annotation value object.
      */
     public static Object externGetResourceAnnotations(BObject service, BString resourceName, BString annot) {
-        AttachedFunctionType[] functions = service.getType().getAttachedFunctions();
+        MemberFunctionType[] functions = service.getType().getAttachedFunctions();
 
-        for (AttachedFunctionType function : functions) {
+        for (MemberFunctionType function : functions) {
             if (function.getName().equals(resourceName.getValue())) {
                 Object resourceAnnotation = function.getAnnotation(annot);
                 if (resourceAnnotation instanceof String) {

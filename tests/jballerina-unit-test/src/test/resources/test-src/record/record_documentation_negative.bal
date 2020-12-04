@@ -77,7 +77,7 @@ type TestConnector record {
 # PizzaService
 #
 # + conn - connection.
-service PizzaService on new test:MockListener (9090) {
+service /PizzaService on new test:MockListener (9090) {
 
     # Check orderPizza resource.
     #
@@ -86,7 +86,7 @@ service PizzaService on new test:MockListener (9090) {
     # + reqest - In request.
 //  # + conn - connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
 
-    resource function orderPizza(string conn, string req) {
+    resource function get orderPizza(string conn, string req) {
 
     }
 }
