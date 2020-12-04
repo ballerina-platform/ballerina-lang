@@ -85,6 +85,9 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
                 String uri = context.fileUri();
                 List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(context, diagnostic);
+                if (fEdits.isEmpty()) {
+                    return Optional.empty();
+                }
                 action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
                         new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
                 action.setDiagnostics(new ArrayList<>());
