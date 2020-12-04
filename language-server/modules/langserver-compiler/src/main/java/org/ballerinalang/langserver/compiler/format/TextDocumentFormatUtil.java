@@ -22,9 +22,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.ClassUtils;
@@ -133,21 +130,6 @@ public class TextDocumentFormatUtil {
         JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>(), new HashMap<>());
         result.add("model", modelElement);
         return result;
-    }
-
-    /**
-     * Get the Modified JSON ST with type info.
-     *
-     * @param fileName      File name of the source bal
-     * @param syntaxTree    SyntaxTree to be modified and in need to convert to JSON.
-     * @param semanticModel Semantic model for the syntax tree.
-     * @return {@link JsonObject}   ST as a Json Object
-     */
-    public static JsonElement getSyntaxTreeJSON(String fileName, SyntaxTree syntaxTree, SemanticModel semanticModel) {
-        // Map each type data by looking at the line ranges and prepare the SyntaxTree JSON.
-        SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(fileName, semanticModel);
-        ModulePartNode modulePartNode = syntaxTree.rootNode();
-        return mapGenerator.transform(modulePartNode);
     }
 
     private static boolean isTestablePackage(String relativeFilePath) {

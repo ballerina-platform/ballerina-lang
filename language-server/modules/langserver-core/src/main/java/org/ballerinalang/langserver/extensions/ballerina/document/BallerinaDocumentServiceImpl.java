@@ -20,6 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -117,7 +118,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
 
             // Get the generated syntax tree JSON with type info.
-            JsonElement jsonSyntaxTree = TextDocumentFormatUtil
+            JsonElement jsonSyntaxTree = DiagramUtil
                     .getSyntaxTreeJSON(filePath.get().getFileName().toString(), syntaxTree.get(), semanticModel.get());
 
             // Preparing the response.

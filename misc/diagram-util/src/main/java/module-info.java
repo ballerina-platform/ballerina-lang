@@ -1,6 +1,10 @@
 module io.ballerina.diagram.util {
-    exports org.ballerinalang.diagramutil;
     requires io.ballerina.lang;
+    requires io.ballerina.parser;
+    requires io.ballerina.tools.api;
+
     requires gson;
-    requires io.ballerina.lang;
+    requires org.apache.commons.lang3;
+
+    exports org.ballerinalang.diagramutil;
 }
