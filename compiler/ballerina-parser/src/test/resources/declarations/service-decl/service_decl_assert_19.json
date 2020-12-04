@@ -25,7 +25,7 @@
               ]
             },
             {
-              "kind": "SINGLETON_TYPE_DESC",
+              "kind": "LIST",
               "children": [
                 {
                   "kind": "STRING_LITERAL",
@@ -43,10 +43,6 @@
                   ]
                 }
               ]
-            },
-            {
-              "kind": "LIST",
-              "children": []
             },
             {
               "kind": "ON_KEYWORD",
