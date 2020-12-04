@@ -425,6 +425,38 @@ public function testConstPattern13() {
     }
 }
 
+function constPattern14(any a, any b) returns string {
+    match a {
+        "foo" => {
+            match b {
+                "bar" => {
+                    return "s1";
+                }
+                _ => {
+                    return "s2";
+                }
+            }
+        }
+        _ => {
+            match b {
+                "bar" => {
+                    return "s1";
+                }
+                _ => {
+                    return "s2";
+                }
+            }
+        }
+    }
+}
+
+function testConstPattern14() {
+    assertEquals("s2", constPattern14("foo", 2));
+    assertEquals("s1", constPattern14("foo", "bar"));
+    assertEquals("s4", constPattern14(1, 2));
+    assertEquals("s3", constPattern14(1, "bar"));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

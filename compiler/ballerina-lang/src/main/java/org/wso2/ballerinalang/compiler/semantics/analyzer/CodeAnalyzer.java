@@ -334,6 +334,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.errorThrown = false;
     }
 
+    private void resetLastPatternInClause() {
+        this.hasLastPatternInClause = false;
+    }
+
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
@@ -824,6 +828,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     containsLastPatternInStatement || (matchClause.matchGuard == null && this.hasLastPatternInClause);
         }
         this.statementReturns = allClausesReturns && containsLastPatternInStatement;
+        resetLastPatternInClause();
         this.errorThrown = currentErrorThrown;
         analyzeOnFailClause(matchStatement.onFailClause);
     }
