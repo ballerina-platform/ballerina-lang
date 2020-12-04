@@ -413,7 +413,7 @@ public class MarkdownDocumentationTest {
                 "invalid reference in documentation 'invalidConst' for type 'const'", 86, 3);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid usage of parameter reference outside of function definition 'invalidParameter'", 87, 3);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'conn'", 88, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'conn'", 88, 5);
         BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 89, 1);
         BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 94, 9);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 95, 9);
@@ -434,11 +434,13 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
         ServiceNode serviceNode = packageNode.getServices().get(0);
-        BLangMarkdownDocumentation documentationAttachment = serviceNode.getMarkdownDocumentationAttachment();
+        BLangMarkdownDocumentation documentationAttachment = serviceNode
+                .getServiceClass().getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "PizzaService HTTP Service");
 
-        documentationAttachment = serviceNode.getResources().get(0).getMarkdownDocumentationAttachment();
+        documentationAttachment = serviceNode.getServiceClass().getFunctions().get(0)
+                .getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Check orderPizza resource.");
 
@@ -449,7 +451,8 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(parameters.get(1).getParameterName().getValue(), "req");
         Assert.assertEquals(parameters.get(1).getParameterDocumentation(), "In request.");
 
-        documentationAttachment = serviceNode.getResources().get(1).getMarkdownDocumentationAttachment();
+        documentationAttachment = serviceNode.getServiceClass().getFunctions().get(1)
+                .getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Check status resource.");
 
@@ -460,7 +463,8 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(parameters.get(1).getParameterName().getValue(), "req");
         Assert.assertEquals(parameters.get(1).getParameterDocumentation(), "In request.");
 
-        documentationAttachment = packageNode.getServices().get(1).getMarkdownDocumentationAttachment();
+        documentationAttachment = packageNode.getServices().get(1).getServiceClass()
+                .getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
 
         LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
@@ -644,7 +648,8 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(parameters.get(2).getParameterName().getValue(), "c");
         Assert.assertEquals(parameters.get(2).getParameterDocumentation(), "`field c` documentation");
 
-        documentationAttachment = packageNode.getServices().get(0).getMarkdownDocumentationAttachment();
+        documentationAttachment = packageNode.getServices().get(0).getServiceClass()
+                .getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "PizzaService HTTP Service");
     }

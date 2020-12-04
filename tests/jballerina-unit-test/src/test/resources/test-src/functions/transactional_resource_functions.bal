@@ -7,31 +7,29 @@ int attachCount = -2;
 
 service on ep {
 
-    transactional resource function foo(string b) {
+    transactional resource function get foo(string b) {
     }
 }
 
 public class ABC {
 
-    *'object:Listener;
-
-    public function __start() returns error? {
+    public function 'start() returns error? {
         startCount += 1;
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         return ();
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         return ();
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
         attachCount += 1;
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 }
 

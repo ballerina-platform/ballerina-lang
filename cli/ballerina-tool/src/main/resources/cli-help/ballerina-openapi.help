@@ -79,7 +79,7 @@ EXAMPLES
           $ ballerina openapi -i hello.yaml --mode service
 
        Generate a Ballerina client with client name `hello-client`
-       and write the output to the client_project folder.
+       and write the output to the client_package folder.
           $ ballerina openapi -i hello.yaml --mode client -o ./output_path
 
        Export an OpenAPI definition for `hello_service.bal` for the `hello` service.

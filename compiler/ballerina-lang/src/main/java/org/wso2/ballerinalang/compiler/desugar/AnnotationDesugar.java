@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -154,7 +153,6 @@ public class AnnotationDesugar {
 
         defineTypeAnnotations(pkgNode, env, initFunction);
         defineClassAnnotations(pkgNode, env, initFunction);
-        defineServiceAnnotations(pkgNode, env, initFunction);
         defineFunctionAnnotations(pkgNode, env, initFunction);
     }
 
@@ -246,28 +244,6 @@ public class AnnotationDesugar {
         }
     }
 
-    private void defineServiceAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
-        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
-        for (BLangService service : pkgNode.services) {
-            SymbolEnv funcEnv = SymbolEnv.createServiceEnv(service, initFunction.symbol.scope, env);
-            BLangLambdaFunction lambdaFunction = defineAnnotations(service, service.pos, pkgNode,
-                                                                   funcEnv, service.symbol.pkgID, service.symbol.owner);
-            if (lambdaFunction != null) {
-                // Add the lambda in a temporary block.
-                BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
-                target.pos = initFnBody.pos;
-
-                addLambdaToGlobalAnnotMap(service.serviceClass.name.value, lambdaFunction, target);
-
-                // Add the annotation assignment to immediately before the service init.
-                int index = calculateIndex(initFnBody.stmts, service);
-                for (BLangStatement stmt : target.stmts) {
-                    initFnBody.stmts.add(index++, stmt);
-                }
-            }
-        }
-    }
-
     private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
         BLangFunction[] functions = pkgNode.functions.toArray(new BLangFunction[pkgNode.functions.size()]);
@@ -290,7 +266,7 @@ public class AnnotationDesugar {
                 String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
 
                 int index;
-                if (function.attachedFunction && function.receiver.type instanceof BServiceType) {
+                if (function.attachedFunction && ((function.receiver.type.flags & Flags.SERVICE) == Flags.SERVICE)) {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
                     index = calculateIndex(initFnBody.stmts, function.receiver.type.tsymbol);
                 } else {

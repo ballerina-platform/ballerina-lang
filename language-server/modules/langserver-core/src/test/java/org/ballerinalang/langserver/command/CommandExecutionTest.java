@@ -45,7 +45,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -242,11 +241,13 @@ public class CommandExecutionTest {
             testablePkg.getServices().forEach(service -> {
                 services.removeIf(ser -> service.name.value.equals(ser));
             });
-            testablePkg.getGlobalVariables().stream()
-                    .filter(simpleVariable -> simpleVariable.type instanceof BServiceType)
-                    .forEach(simpleVariable ->
-                            services.removeIf(serviceName ->
-                                    serviceName.equals(((BLangSimpleVariable) simpleVariable).name.value)));
+
+//            testablePkg.getGlobalVariables().stream()
+//                    .filter(simpleVariable -> simpleVariable.type instanceof BServiceType)
+//                    .forEach(simpleVariable ->
+//                            services.removeIf(serviceName ->
+//                                    serviceName.equals(((BLangSimpleVariable) simpleVariable).name.value)));
+
             // Check for pending expected values
             String failMsgTemplate = "Generated test file does not contain following %s:\n%s";
             if (!imports.isEmpty()) {

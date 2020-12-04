@@ -29,18 +29,47 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
     // Valid syntax tests
 
     @Test
-    public void testServiceWithoutName() {
+    public void testSimpleServiceDecl() {
         test("service-decl/service_decl_source_01.bal", "service-decl/service_decl_assert_01.json");
     }
 
     @Test
-    public void testServiceWithName() {
+    public void testServiceDecl() {
         test("service-decl/service_decl_source_02.bal", "service-decl/service_decl_assert_02.json");
     }
 
     @Test
-    public void testServiceQualifiers() {
+    public void testResourceFuncQualifiers() {
+        test("service-decl/service_decl_source_14.bal", "service-decl/service_decl_assert_14.json");
+    }
+
+    @Test
+    public void testResourcePathParam() {
         test("service-decl/service_decl_source_16.bal", "service-decl/service_decl_assert_16.json");
+    }
+
+    @Test
+    public void testServiceQualifiers() {
+        test("service-decl/service_decl_source_18.bal", "service-decl/service_decl_assert_18.json");
+    }
+
+    @Test
+    public void testServiceDeclStringLiteral() {
+        testFile("service-decl/service_decl_source_19.bal", "service-decl/service_decl_assert_19.json");
+    }
+
+    // Valid service function syntax tests
+
+    @Test
+    public void testTransactionalRemoteFunctionName() {
+        test("service-decl/transaction_remote_func_source_01.bal",
+                "service-decl/transaction_remote_func_assert_01.json");
+    }
+
+    @Test
+    public void testIsolatedServiceFunctions() {
+        test("service-decl/isolated_service_func_source_01.bal",
+                "service-decl/isolated_service_func_assert_01.json");
     }
 
     // Recovery tests
@@ -52,12 +81,7 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
 
     @Test
     public void testMissingOnKeyword() {
-        test("service-decl/service_decl_source_04.bal", "service-decl/service_decl_assert_04.json");
-    }
-
-    @Test
-    public void testMissingServiceNameAndOnKeyword() {
-        test("service-decl/service_decl_source_05.bal", "service-decl/service_decl_assert_05.json");
+        testFile("service-decl/service_decl_source_04.bal", "service-decl/service_decl_assert_04.json");
     }
 
     @Test
@@ -81,32 +105,47 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
     }
 
     @Test
-    public void testRecoveryInResources() {
-        test("service-decl/service_decl_source_10.bal", "service-decl/service_decl_assert_10.json");
-    }
-
-    @Test
-    public void testMissingCloseBraceBeforeService1() {
+    public void testMissingCloseBraceBeforeServiceDecl() {
         testFile("service-decl/service_decl_source_11.bal", "service-decl/service_decl_assert_11.json");
-    }
-
-    @Test
-    public void testMissingCloseBraceBeforeService2() {
-        testFile("service-decl/service_decl_source_12.bal", "service-decl/service_decl_assert_12.json");
     }
 
     @Test
     public void testKeywordsInListenersList() {
         testFile("service-decl/service_decl_source_13.bal", "service-decl/service_decl_assert_13.json");
     }
-    
+
     @Test
-    public void testResourceWithoutName() {
-        testFile("service-decl/service_decl_source_14.bal", "service-decl/service_decl_assert_14.json");
+    public void testAbsoluteResourcePathRecovery() {
+        testFile("service-decl/service_decl_source_12.bal", "service-decl/service_decl_assert_12.json");
     }
 
     @Test
-    public void testInvalidResourcesRecovery() {
+    public void testResourceAccessorDefinitionNegative() {
+        test("service-decl/service_decl_source_05.bal", "service-decl/service_decl_assert_05.json");
+        test("service-decl/service_decl_source_10.bal", "service-decl/service_decl_assert_10.json");
+    }
+
+    @Test
+    public void testFuncQualifiersNegative() {
         test("service-decl/service_decl_source_15.bal", "service-decl/service_decl_assert_15.json");
+    }
+
+    @Test
+    public void testResourcePathParamNegative() {
+        test("service-decl/service_decl_source_17.bal", "service-decl/service_decl_assert_17.json");
+    }
+
+    // Service function recovery tests
+
+    @Test
+    public void testMissingFunctionNameWithQualifiers() {
+        testFile("service-decl/isolated_service_func_source_03.bal",
+                "service-decl/isolated_service_func_assert_03.json");
+    }
+
+    @Test
+    public void testMissingTokensWithQualifiers() {
+        testFile("service-decl/isolated_service_func_source_04.bal",
+                "service-decl/isolated_service_func_assert_04.json");
     }
 }

@@ -164,7 +164,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 String typeName = typeDesc.signature();
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
-            } else if (symbol.kind() == SymbolKind.TYPE || symbol.kind() == SymbolKind.CLASS) {
+            } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
                 // Here skip all the package symbols since the package is added separately
                 CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.name());
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, typeCItem));
@@ -187,7 +187,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(bSymbol -> {
-            if (bSymbol.kind() == SymbolKind.TYPE || bSymbol.kind() == SymbolKind.CLASS) {
+            if (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS) {
                 CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }

@@ -50,7 +50,7 @@ public class SymbolUtil {
     public static boolean isObject(Symbol symbol) {
         TypeSymbol typeDescriptor;
         switch (symbol.kind()) {
-            case TYPE:
+            case TYPE_DEFINITION:
                 typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
                 break;
             case VARIABLE:
@@ -75,7 +75,7 @@ public class SymbolUtil {
     public static boolean isRecord(Symbol symbol) {
         TypeSymbol typeDescriptor;
         switch (symbol.kind()) {
-            case TYPE:
+            case TYPE_DEFINITION:
                 typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
                 break;
             case VARIABLE:
@@ -100,7 +100,7 @@ public class SymbolUtil {
             return Optional.empty();
         }
         switch (symbol.kind()) {
-            case TYPE:
+            case TYPE_DEFINITION:
                 return Optional.ofNullable(((TypeDefinitionSymbol) symbol).typeDescriptor());
             case VARIABLE:
                 return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());
@@ -163,8 +163,8 @@ public class SymbolUtil {
                 .stream()
                 .map(Symbol::name)
                 .collect(Collectors.toList());
-        return attachedMethods.contains("__start") && attachedMethods.contains("__immediateStop")
-                && attachedMethods.contains("__immediateStop") && attachedMethods.contains("__attach");
+        return attachedMethods.contains("start") && attachedMethods.contains("immediateStop")
+                && attachedMethods.contains("immediateStop") && attachedMethods.contains("attach");
     }
 
     /**

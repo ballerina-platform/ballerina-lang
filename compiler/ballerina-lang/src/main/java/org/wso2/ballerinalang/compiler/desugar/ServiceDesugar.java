@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.BlockNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -35,8 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -60,9 +60,9 @@ public class ServiceDesugar {
 
     private static final CompilerContext.Key<ServiceDesugar> SERVICE_DESUGAR_KEY = new CompilerContext.Key<>();
 
-    private static final String START_METHOD = "__start";
-    private static final String GRACEFUL_STOP = "__gracefulStop";
-    private static final String ATTACH_METHOD = "__attach";
+    private static final String START_METHOD = "start";
+    private static final String GRACEFUL_STOP = "gracefulStop";
+    private static final String ATTACH_METHOD = "attach";
     private static final String LISTENER = "$LISTENER";
 
     private final SymbolTable symTable;
@@ -108,7 +108,7 @@ public class ServiceDesugar {
             SymbolEnv env, String method) {
         // This method will generate and add following statement to give life cycle function.
         //
-        //  _ = [check] var.__start/__stop();
+        //  _ = [check] var.start/stop();
         //
 
         final Location pos = variable.pos;
@@ -123,8 +123,8 @@ public class ServiceDesugar {
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, variable.symbol);
 
         // Create method invocation
-        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), Collections.emptyList(),
-                            (BLangBlockFunctionBody) lifeCycleFunction.body);
+        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(),
+                (BLangBlockFunctionBody) lifeCycleFunction.body);
     }
 
     BLangBlockStmt rewriteServiceVariables(List<BLangService> services, SymbolEnv env) {
@@ -134,16 +134,15 @@ public class ServiceDesugar {
     }
 
     void rewriteServiceVariable(BLangService service, SymbolEnv env, BLangBlockStmt attachments) {
-        // service x on y { ... }
+        // service x [/abs/Path] on y { ... }
         //
         // after desugar :
-        //      if y is anonymous (globalVar)   ->      y = y(expr)
         //      (init)                          ->      y.__attach(x, {});
 
-        if (service.isAnonymousService()) {
-            return;
-        }
         final Location pos = service.pos;
+
+        ASTBuilderUtil.defineVariable(service.serviceVariable, env.enclPkg.symbol, names);
+        env.enclPkg.globalVars.add(service.serviceVariable);
 
         int count = 0;
         for (BLangExpression attachExpr : service.attachedExprs) {
@@ -173,21 +172,27 @@ public class ServiceDesugar {
 
             // Create method invocation
             List<BLangExpression> args = new ArrayList<>();
-            args.add(ASTBuilderUtil.createVariableRef(pos, service.variableNode.symbol));
+            args.add(ASTBuilderUtil.createVariableRef(pos, service.serviceVariable.symbol));
 
-            BLangLiteral serviceName = ASTBuilderUtil.createLiteral(pos, symTable.stringType, service.name.value);
-            List<BLangNamedArgsExpression> namedArgs = Collections.singletonList(
-                    ASTBuilderUtil.createNamedArg("name", serviceName));
+            if (service.getServiceNameLiteral() == null) {
+                BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
+                        ASTBuilderUtil.createEmptyArrayLiteral(service.getPosition(), symTable.arrayStringType);
+                for (IdentifierNode path : service.getAbsolutePath()) {
+                    var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType,
+                            path.getValue());
+                    arrayLiteral.exprs.add(literal);
+                }
+                args.add(arrayLiteral);
+            } else {
+                args.add((BLangExpression) service.getServiceNameLiteral());
+            }
 
-            addMethodInvocation(pos, listenerVarRef, methodRef, args, namedArgs, attachments);
+            addMethodInvocation(pos, listenerVarRef, methodRef, args, attachments);
         }
     }
 
-    private void addMethodInvocation(Location pos,
-                                     BLangSimpleVarRef varRef,
-                                     BInvokableSymbol methodRefSymbol,
+    private void addMethodInvocation(Location pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
                                      List<BLangExpression> args,
-                                     List<BLangNamedArgsExpression> namedArgs,
                                      BlockNode body) {
         // Create method invocation
         final BLangInvocation methodInvocation =

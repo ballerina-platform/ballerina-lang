@@ -21,17 +21,17 @@ listener test:MockListener helloWorldEP = new (19093);
 
 // Services created using service constructor expressions are dynamically bound to listeners using listener.__attach
 // mechanism hence we consider those services to be tainted.
-service ss = service {
-    resource function x(string caller, string req) {
+service object {} ss = service object {
+    resource function get x(string caller, string req) {
         sensitiveFunc(req);
         sensitiveFunc(caller);
     }
 };
 
 // Service bound to tainted listener is considered tainted.
-service sample on helloWorldEP1 {
+service /sample on helloWorldEP1 {
 
-    resource function params (string foo) {
+    resource function get params (string foo) {
         sensitiveFunc(foo);
     }
 }

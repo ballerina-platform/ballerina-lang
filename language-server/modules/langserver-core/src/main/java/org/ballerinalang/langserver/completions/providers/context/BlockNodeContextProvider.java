@@ -72,7 +72,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             Predicate<Symbol> filter = symbol ->
-                    symbol.kind() == SymbolKind.TYPE
+                    symbol.kind() == SymbolKind.TYPE_DEFINITION
                             || symbol.kind() == SymbolKind.VARIABLE
                             || symbol.kind() == SymbolKind.CONSTANT
                             || symbol.kind() == SymbolKind.FUNCTION

@@ -1027,6 +1027,35 @@ function testToJsonWithTable() {
     ];
     json j = tb.toJson();
     assert(j.toJsonString(), "[{\"id\":12, \"str\":\"abc\"}, {\"id\":34, \"str\":\"def\"}]");
+
+    table<map<anydata>> tab1 = table [
+          {id: 12, name: "abc"},
+          {id: 34, name: "def"}
+    ];
+    json j1 = tab1.toJson();
+    assert(j1.toJsonString(), "[{\"id\":12, \"name\":\"abc\"}, {\"id\":34, \"name\":\"def\"}]");
+
+    table<map<string>> tab2 = table [
+          {fname: "John", lname: "Wick"},
+          {fname: "Robert", lname: "Downey"}
+    ];
+    json j2 = tab2.toJson();
+    assert(j2.toJsonString(), "[{\"fname\":\"John\", \"lname\":\"Wick\"}, {\"fname\":\"Robert\", " +
+    "\"lname\":\"Downey\"}]");
+
+    table<map<any>> tab3 = table [
+          {id: 12, name: "abc"},
+          {id: 34, name: "def"}
+    ];
+    json j3 = tab3.toJson();
+    assert(j3.toJsonString(), "[{\"id\":12, \"name\":\"abc\"}, {\"id\":34, \"name\":\"def\"}]");
+
+    table<map<Boo>> tab4 = table [
+          {info: {id: 12, str: "abc"}},
+          {info: {id: 12, str: "abc"}}
+    ];
+    json j4 = tab4.toJson();
+    assert(j4.toJsonString(), "[{\"info\":{\"id\":12, \"str\":\"abc\"}}, {\"info\":{\"id\":12, \"str\":\"abc\"}}]");
 }
 
 function testToStringOnCycles() {

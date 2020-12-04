@@ -29,13 +29,12 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
-import org.wso2.ballerinalang.compiler.bir.model.VarKind;
-import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -48,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -70,7 +68,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
@@ -105,14 +102,12 @@ import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANYDATA_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_FUNCTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_FUNCTION_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
@@ -151,6 +146,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MEMBER_FUNCTION_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NEVER_TYPE;
@@ -162,6 +158,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARAMETER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REMOTE_FUNCTION_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_FUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_FUNCTION_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE_IMPL;
@@ -259,11 +258,7 @@ public class JvmTypeGen {
             if (bType.tag == TypeTags.RECORD) {
                 createRecordType(mv, (BRecordType) bType);
             } else if (bType.tag == TypeTags.OBJECT) {
-                if (bType instanceof BServiceType) {
-                    createServiceType(mv, (BServiceType) bType);
-                } else {
-                    createObjectType(mv, (BObjectType) bType);
-                }
+                createObjectType(mv, (BObjectType) bType);
             } else if (bType.tag == TypeTags.ERROR) {
                 createErrorType(mv, (BErrorType) bType, bType.tsymbol.name.value);
             } else {
@@ -310,28 +305,19 @@ public class JvmTypeGen {
                     addImmutableType(mv, recordType);
                     break;
                 case TypeTags.OBJECT:
-                    if (bType instanceof BServiceType) {
-                        BServiceType serviceType = (BServiceType) bType;
-                        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
-                        mv.visitInsn(DUP);
-                        addObjectFields(mv, serviceType.fields);
-                        addObjectAttachedFunctions(mv, ((BObjectTypeSymbol) serviceType.tsymbol).attachedFuncs,
-                                serviceType, indexMap, symbolTable);
-                    } else {
-                        BObjectType objectType = (BObjectType) bType;
-                        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
-                        mv.visitInsn(DUP);
-                        mv.visitInsn(DUP);
-                        addObjectFields(mv, objectType.fields);
-                        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
-                        addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, objectType, indexMap,
-                                "$init$", "setGeneratedInitializer", symbolTable);
-                        addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, objectType, indexMap, "init",
-                                "setInitializer", symbolTable);
-                        addObjectAttachedFunctions(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap,
-                                symbolTable);
-                        addImmutableType(mv, objectType);
-                    }
+                    BObjectType objectType = (BObjectType) bType;
+                    mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
+                    mv.visitInsn(DUP);
+                    mv.visitInsn(DUP);
+                    addObjectFields(mv, objectType.fields);
+                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
+                    addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, objectType, indexMap,
+                            "$init$", "setGeneratedInitializer", symbolTable);
+                    addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, objectType, indexMap, "init",
+                            "setInitializer", symbolTable);
+                    addObjectAttachedFunctions(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap, symbolTable);
+                    addResourceMethods(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap, symbolTable);
+                    addImmutableType(mv, objectType);
                     BTypeIdSet objTypeIdSet = ((BObjectType) bType).typeIdSet;
                     if (!objTypeIdSet.isEmpty()) {
                         mv.visitInsn(DUP);
@@ -424,7 +410,7 @@ public class JvmTypeGen {
         for (NamedNode node : nodes) {
             if (node != null) {
                 labels.add(i, new Label());
-                String name = node.getName().value;;
+                String name = node.getName().value;
                 hashCodes[i] = name.hashCode();
                 i += 1;
             }
@@ -482,7 +468,7 @@ public class JvmTypeGen {
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.OBJECT &&
-                    Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.CLASS)) {
+                    Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 objectTypeDefs.add(i, optionalTypeDef);
                 i += 1;
             }
@@ -564,30 +550,12 @@ public class JvmTypeGen {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
 
-        BIRVariableDcl selfVar = new BIRVariableDcl(symbolTable.anyType, new Name("self"), VarScope.FUNCTION,
-                VarKind.ARG);
-
-        BIRVariableDcl var1 = new BIRVariableDcl(symbolTable.stringType, new Name("var1"), VarScope.FUNCTION,
-                VarKind.ARG);
-
-        BIRVariableDcl scheduler = new BIRVariableDcl(symbolTable.anyType, new Name("scheduler"), VarScope.FUNCTION,
-                VarKind.ARG);
-
-        BIRVariableDcl parent = new BIRVariableDcl(symbolTable.anyType, new Name("parent"), VarScope.FUNCTION,
-                VarKind.ARG);
-
-        BIRVariableDcl properties = new BIRVariableDcl(symbolTable.anyType, new Name("properties"), VarScope.FUNCTION,
-                VarKind.ARG);
-
-        BIRVariableDcl args = new BIRVariableDcl(symbolTable.anyType, new Name("args"), VarScope.FUNCTION, VarKind.ARG);
-
-        indexMap.addToMapIfNotFoundAndGetIndex(selfVar);
-
-        int var1Index = indexMap.addToMapIfNotFoundAndGetIndex(var1);
-        int schedulerIndex = indexMap.addToMapIfNotFoundAndGetIndex(scheduler);
-        int parentIndex = indexMap.addToMapIfNotFoundAndGetIndex(parent);
-        int propertiesIndex = indexMap.addToMapIfNotFoundAndGetIndex(properties);
-        int argsIndex = indexMap.addToMapIfNotFoundAndGetIndex(args);
+        indexMap.addIfNotExists("self", symbolTable.anyType);
+        int var1Index = indexMap.addIfNotExists("var1", symbolTable.stringType);
+        int schedulerIndex = indexMap.addIfNotExists("scheduler", symbolTable.anyType);
+        int parentIndex = indexMap.addIfNotExists("parent", symbolTable.anyType);
+        int propertiesIndex = indexMap.addIfNotExists("properties", symbolTable.anyType);
+        int argsIndex = indexMap.addIfNotExists("args", symbolTable.anyType);
 
         mv.visitCode();
 
@@ -615,14 +583,9 @@ public class JvmTypeGen {
             mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE_IMPL),
                                false);
 
-            BIRVariableDcl tempVar = new BIRVariableDcl(optionalTypeDef.type, new Name("tempVar"), VarScope.FUNCTION,
-                                                        VarKind.LOCAL);
-
-            int tempVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(tempVar);
+            int tempVarIndex = indexMap.addIfNotExists("tempVar", optionalTypeDef.type);
             mv.visitVarInsn(ASTORE, tempVarIndex);
-            BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.anyType, new Name("strandVar"), VarScope.FUNCTION,
-                    VarKind.LOCAL);
-            int strandVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(strandVar);
+            int strandVarIndex = indexMap.addIfNotExists("strandVar", symbolTable.anyType);
 
             mv.visitVarInsn(ALOAD, parentIndex);
             Label parentNonNullLabel = new Label();
@@ -659,10 +622,7 @@ public class JvmTypeGen {
             String methodDesc = String.format("(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT);
             mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "call", methodDesc, true);
 
-            BIRVariableDcl tempResult = new BIRVariableDcl(symbolTable.anyType, new Name("tempResult"),
-                    VarScope.FUNCTION, VarKind.LOCAL);
-
-            int tempResultIndex = indexMap.addToMapIfNotFoundAndGetIndex(tempResult);
+            int tempResultIndex = indexMap.addIfNotExists("tempResult", symbolTable.anyType);
             mv.visitVarInsn(ASTORE, tempResultIndex);
             mv.visitVarInsn(ALOAD, tempResultIndex);
             mv.visitTypeInsn(INSTANCEOF, BERROR);
@@ -819,7 +779,9 @@ public class JvmTypeGen {
      */
     private static void createObjectType(MethodVisitor mv, BObjectType objectType) {
         // Create the object type
-        mv.visitTypeInsn(NEW, OBJECT_TYPE_IMPL);
+        String objectClassName = Symbols.isService(objectType.tsymbol) ? SERVICE_TYPE_IMPL : OBJECT_TYPE_IMPL;
+
+        mv.visitTypeInsn(NEW, objectClassName);
         mv.visitInsn(DUP);
 
         // Load type name
@@ -842,78 +804,8 @@ public class JvmTypeGen {
         mv.visitLdcInsn(typeSymbol.flags);
 
         // initialize the object
-        mv.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;J)V", STRING_VALUE, MODULE), false);
-    }
-
-    /**
-     * Create a runtime type instance for the service.
-     *
-     * @param mv         method visitor
-     * @param objectType object type
-     */
-    private static void createServiceType(MethodVisitor mv, BObjectType objectType) {
-        // Create the object type
-        mv.visitTypeInsn(NEW, SERVICE_TYPE_IMPL);
-        mv.visitInsn(DUP);
-
-        // Load type name
-        BTypeSymbol typeSymbol = objectType.tsymbol;
-
-        mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
-
-        // Load package path
-        mv.visitTypeInsn(NEW, MODULE);
-        mv.visitInsn(DUP);
-        PackageID packageID = objectType.tsymbol.pkgID;
-
-        mv.visitLdcInsn(packageID.orgName.value);
-        mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
-        mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
-
-        // Load flags
-        mv.visitLdcInsn(typeSymbol.flags);
-
-        // initialize the object
-        mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;J)V", STRING_VALUE, MODULE), false);
-    }
-
-    static void duplicateServiceTypeWithAnnots(MethodVisitor mv, BObjectType objectType, String pkgClassName,
-                                               int strandIndex) {
-
-        createServiceType(mv, objectType);
-        mv.visitInsn(DUP);
-
-        mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
-
-        mv.visitVarInsn(ALOAD, strandIndex);
-
-        loadType(mv, objectType);
-        mv.visitTypeInsn(CHECKCAST, SERVICE_TYPE_IMPL);
-
-        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
-
-        List<BAttachedFunction> attachedFunctions = objectTypeSymbol.attachedFuncs;
-        mv.visitLdcInsn((long) attachedFunctions.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, ATTACHED_FUNCTION_IMPL);
-        int i = 0;
-        for (BAttachedFunction attachedFunc : attachedFunctions) {
-            if (attachedFunc == null) {
-                continue;
-            }
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
-            mv.visitInsn(L2I);
-            createObjectAttachedFunction(mv, attachedFunc, objectType);
-            mv.visitInsn(AASTORE);
-            i += 1;
-        }
-        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE_IMPL, "setAttachedFuncsAndProcessAnnots", String.format(
-                "(L%s;L%s;L%s;[L%s;)V", MAP_VALUE, STRAND_CLASS, SERVICE_TYPE_IMPL, ATTACHED_FUNCTION_IMPL), false);
+        mv.visitMethodInsn(INVOKESPECIAL, objectClassName, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;J)V", STRING_VALUE, MODULE), false);
     }
 
     /**
@@ -988,20 +880,18 @@ public class JvmTypeGen {
                                                    BObjectType objType, BIRVarToJVMIndexMap indexMap,
                                                    SymbolTable symbolTable) {
         // Create the attached function array
-        mv.visitLdcInsn((long) attachedFunctions.size());
+        mv.visitLdcInsn((long) attachedFunctions.size() - resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, ATTACHED_FUNCTION_IMPL);
+        mv.visitTypeInsn(ANEWARRAY, MEMBER_FUNCTION_IMPL);
         int i = 0;
         for (BAttachedFunction attachedFunc : attachedFunctions) {
-            if (attachedFunc == null) {
+            if (attachedFunc == null || attachedFunc instanceof BResourceFunction) {
                 continue;
             }
             // create and load attached function
-            createObjectAttachedFunction(mv, attachedFunc, objType);
-            BIRVariableDcl attachedFuncVar = new BIRVariableDcl(symbolTable.anyType,
-                    new Name(toNameString(objType) + attachedFunc.funcName.value), VarScope.FUNCTION,
-                    VarKind.LOCAL);
-            int attachedFunctionVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(attachedFuncVar);
+            createObjectMemberFunction(mv, attachedFunc, objType);
+            int attachedFunctionVarIndex = indexMap.addIfNotExists(toNameString(objType) + attachedFunc.funcName.value,
+                                                                   symbolTable.anyType);
             mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
 
             mv.visitInsn(DUP);
@@ -1028,18 +918,66 @@ public class JvmTypeGen {
         }
 
         mv.visitInsn(DUP);
-        createObjectAttachedFunction(mv, initFunction, objType);
-        BType anyType = symbolTable.anyType;
-        BIRVariableDcl attachedFuncVar = new BIRVariableDcl(anyType,
-                new Name(objType.name + initFunction.funcName.value), VarScope.FUNCTION, VarKind.LOCAL);
-        int attachedFunctionVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(attachedFuncVar);
+        createObjectMemberFunction(mv, initFunction, objType);
+        int attachedFunctionVarIndex = indexMap.addIfNotExists(objType.name + initFunction.funcName.value,
+                                                               symbolTable.anyType);
         mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
         mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
         mv.visitInsn(DUP);
         mv.visitInsn(POP);
         mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, initializerFuncName,
-                           String.format("(L%s;)V", ATTACHED_FUNCTION_IMPL), false);
+                           String.format("(L%s;)V", MEMBER_FUNCTION_IMPL), false);
     }
+
+    private static void addResourceMethods(MethodVisitor mv, List<BAttachedFunction> attachedFunctions,
+                                           BObjectType objType, BIRVarToJVMIndexMap indexMap,
+                                           SymbolTable symbolTable) {
+        if (!Symbols.isService(objType.tsymbol)) {
+            return;
+        }
+        mv.visitInsn(DUP);
+        mv.visitTypeInsn(CHECKCAST, SERVICE_TYPE_IMPL);
+        // Create the resource function array
+        mv.visitLdcInsn(resourceFunctionCount(attachedFunctions));
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, RESOURCE_FUNCTION);
+        int i = 0;
+        for (BAttachedFunction attachedFunc : attachedFunctions) {
+            if (!(attachedFunc instanceof BResourceFunction)) {
+                continue;
+            }
+            BResourceFunction resourceFunction = (BResourceFunction) attachedFunc;
+            createResourceFunction(mv, resourceFunction, objType);
+
+            String varRefName = toNameString(objType) + resourceFunction.funcName.value + "$r$func";
+            int rFuncVarIndex = indexMap.addIfNotExists(varRefName, symbolTable.anyType);
+            mv.visitVarInsn(ASTORE, rFuncVarIndex);
+
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+
+            // Add the member to the array
+            mv.visitVarInsn(ALOAD, rFuncVarIndex);
+            mv.visitInsn(AASTORE);
+            i += 1;
+        }
+
+        // Set the fields of the object
+        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE_IMPL, "setResourceFunctions",
+                String.format("([L%s;)V", RESOURCE_FUNCTION), false);
+    }
+
+    private static long resourceFunctionCount(List<BAttachedFunction> attachedFunctions) {
+        int i = 0;
+        for (BAttachedFunction attachedFunction : attachedFunctions) {
+            if (attachedFunction instanceof BResourceFunction) {
+                i++;
+            }
+        }
+        return i;
+    }
+
 
     /**
      * Create a attached function information for objects.
@@ -1048,10 +986,12 @@ public class JvmTypeGen {
      * @param attachedFunc object attached function
      * @param objType      object type used for creating the attached function
      */
-    private static void createObjectAttachedFunction(MethodVisitor mv, BAttachedFunction attachedFunc,
-                                                     BObjectType objType) {
+    private static void createObjectMemberFunction(MethodVisitor mv, BAttachedFunction attachedFunc,
+                                                   BObjectType objType) {
 
-        mv.visitTypeInsn(NEW, ATTACHED_FUNCTION_IMPL);
+        String implClassName = Symbols.isRemote(attachedFunc.symbol) ? REMOTE_FUNCTION_IMPL : MEMBER_FUNCTION_IMPL;
+        mv.visitTypeInsn(NEW, implClassName);
+
         mv.visitInsn(DUP);
 
         // Load function name
@@ -1067,9 +1007,69 @@ public class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(attachedFunc.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION_IMPL, JVM_INIT_METHOD,
+        mv.visitMethodInsn(INVOKESPECIAL, implClassName, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;L%s;J)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL),
                            false);
+    }
+
+    private static void createResourceFunction(MethodVisitor mv, BResourceFunction resourceFunction,
+                                               BObjectType objType) {
+
+        mv.visitTypeInsn(NEW, RESOURCE_FUNCTION_IMPL);
+        mv.visitInsn(DUP);
+
+        // Load function name
+        mv.visitLdcInsn(resourceFunction.funcName.value);
+
+        // Load the parent object type
+        loadType(mv, objType);
+        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
+
+        // Load the invokable type
+        loadType(mv, resourceFunction.type);
+
+        // Load flags
+        mv.visitLdcInsn(resourceFunction.symbol.flags);
+
+        // Load accessor
+        mv.visitLdcInsn(decodeIdentifier(resourceFunction.accessor.value));
+
+        // Load resource path
+        mv.visitLdcInsn((long) resourceFunction.resourcePath.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+        List<Name> resourcePath = resourceFunction.resourcePath;
+        for (int i = 0, resourcePathSize = resourcePath.size(); i < resourcePathSize; i++) {
+            Name path = resourcePath.get(i);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+
+            // load resource path name
+            mv.visitLdcInsn(path.value);
+
+            mv.visitInsn(AASTORE);
+        }
+
+        List<BVarSymbol> params = resourceFunction.symbol.params;
+        mv.visitLdcInsn((long) params.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+        for (int i = 0; i < params.size(); i++) {
+            BVarSymbol paramSymbol = params.get(i);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+
+            mv.visitLdcInsn(paramSymbol.name.value);
+
+            mv.visitInsn(AASTORE);
+        }
+
+        mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_FUNCTION_IMPL, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;L%s;JL%s;[L%s;[L%s;)V",
+                        STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL, STRING_VALUE, STRING_VALUE, STRING_VALUE),
+                false);
     }
 
     // -------------------------------------------------------
@@ -1197,18 +1197,9 @@ public class JvmTypeGen {
                     loadTypedescType(mv, (BTypedescType) bType);
                     return;
                 case TypeTags.OBJECT:
-                    if (bType instanceof BServiceType) {
-                        if (!Objects.equals(getTypeFieldName(toNameString(bType)), "$type$service")) {
-                            loadUserDefinedType(mv, bType);
-                            return;
-                        } else {
-                            typeFieldName = "TYPE_ANY_SERVICE";
-                        }
-                    } else if (bType instanceof BObjectType) {
-                        loadUserDefinedType(mv, bType);
-                        return;
-                    }
-                    break;
+                case TypeTags.RECORD:
+                    loadUserDefinedType(mv, bType);
+                    return;
                 case TypeTags.HANDLE:
                     typeFieldName = "TYPE_HANDLE";
                     break;
@@ -1232,9 +1223,6 @@ public class JvmTypeGen {
                     return;
                 case TypeTags.INTERSECTION:
                     loadIntersectionType(mv, (BIntersectionType) bType);
-                    return;
-                case TypeTags.RECORD:
-                    loadUserDefinedType(mv, bType);
                     return;
                 case TypeTags.INVOKABLE:
                     loadInvokableType(mv, (BInvokableType) bType);
@@ -1315,7 +1303,7 @@ public class JvmTypeGen {
                 case TypeTags.XML_TEXT:
                     return XML_TYPE;
                 case TypeTags.OBJECT:
-                    return (bType instanceof BServiceType) ? SERVICE_TYPE : OBJECT_TYPE;
+                    return Symbols.isService(bType.tsymbol) ? SERVICE_TYPE : OBJECT_TYPE;
                 case TypeTags.HANDLE:
                     return HANDLE_TYPE;
                 case TypeTags.READONLY:

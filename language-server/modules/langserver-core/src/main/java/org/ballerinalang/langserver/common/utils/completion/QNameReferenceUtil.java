@@ -52,7 +52,7 @@ public class QNameReferenceUtil {
 
         return moduleSymbol.map(value -> value.allSymbols().stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
-                        || symbol.kind() == SymbolKind.TYPE
+                        || symbol.kind() == SymbolKind.TYPE_DEFINITION
                         || symbol.kind() == SymbolKind.CLASS
                         || symbol instanceof VariableSymbol)
                 .collect(Collectors.toList())).orElseGet(ArrayList::new);
