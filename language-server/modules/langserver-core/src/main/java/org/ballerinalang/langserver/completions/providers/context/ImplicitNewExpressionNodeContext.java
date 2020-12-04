@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
@@ -58,14 +58,14 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         Supports the following
         (1) lhs = new <cursor>
         */
-        Optional<ObjectTypeSymbol> objectTypeSymbol = getObjectTypeDescriptor(context, node);
+        Optional<ClassSymbol> classSymbol = getClassSymbol(context, node);
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
-        objectTypeSymbol.ifPresent(bSymbol -> completionItems.add(this.getExplicitNewCompletionItem(bSymbol, context)));
+        classSymbol.ifPresent(symbol -> completionItems.add(this.getExplicitNewCompletionItem(symbol, context)));
 
         return completionItems;
     }
 
-    private Optional<ObjectTypeSymbol> getObjectTypeDescriptor(CompletionContext context, Node node) {
+    private Optional<ClassSymbol> getClassSymbol(CompletionContext context, Node node) {
         Node typeDescriptor;
 
         switch (node.parent().kind()) {
@@ -80,6 +80,10 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
                 return this.getObjectTypeForVarRef(context, varRef);
             default:
                 return Optional.empty();
+        }
+
+        if (typeDescriptor == null) {
+            return Optional.empty();
         }
 
         Optional<Symbol> nameReferenceSymbol = Optional.empty();
@@ -106,10 +110,10 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
             return Optional.empty();
         }
 
-        return Optional.of(SymbolUtil.getTypeDescForObjectSymbol(nameReferenceSymbol.get()));
+        return Optional.of(SymbolUtil.getTypeDescForClassSymbol(nameReferenceSymbol.get()));
     }
 
-    private Optional<ObjectTypeSymbol> getObjectTypeForVarRef(CompletionContext context, Node varRefNode) {
+    private Optional<ClassSymbol> getObjectTypeForVarRef(CompletionContext context, Node varRefNode) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         if (varRefNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();
@@ -123,6 +127,6 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
             return Optional.empty();
         }
 
-        return Optional.of(SymbolUtil.getTypeDescForObjectSymbol(varEntry.get()));
+        return Optional.of(SymbolUtil.getTypeDescForClassSymbol(varEntry.get()));
     }
 }

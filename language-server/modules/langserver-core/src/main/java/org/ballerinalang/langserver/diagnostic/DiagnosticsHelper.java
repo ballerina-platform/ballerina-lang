@@ -147,6 +147,8 @@ public class DiagnosticsHelper {
                 case INFO:
                     diagnostic.setSeverity(DiagnosticSeverity.Information);
                     break;
+                default:
+                    break;
             }
 
             String fileURI = modulePath.resolve(lineRange.filePath()).toUri().toString();
