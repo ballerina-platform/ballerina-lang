@@ -241,15 +241,16 @@ public class TransactionResourceManager {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
         if (txContextList != null) {
+            Xid xid = xidRegistry.get(combinedId);
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
                     if (xaResource != null) {
-                        Xid xid = xidRegistry.get(combinedId);
                         xaResource.prepare(xid);
                     }
-                } catch (Throwable e) {
-                    log.error("error in prepare the transaction, " + combinedId + ":" + e.getMessage(), e);
+                } catch (XAException e) {
+                    log.error("error at transaction prepare phase in transaction " + transactionId
+                            + "in transaction block " + transactionId + ":" + e.getMessage(), e);
                     return false;
                 }
             }
