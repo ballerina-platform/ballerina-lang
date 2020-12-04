@@ -816,17 +816,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         if (ifStmt.elseStmt != null) {
             analyzeNode(ifStmt.elseStmt, env);
-            boolean hasVisitedCommitOrRollback = false;
-            if (ifStmt.elseStmt.getKind() == NodeKind.IF && commitCount > 0 || rollbackCount > 0) {
-                hasVisitedCommitOrRollback = true;
-            }
-            if (!this.withinTransactionScope && hasVisitedCommitOrRollback) {
-                ifWithinTrxMode = false;
-            }
+            boolean elseWithinTrxMode = this.withinTransactionScope;
             this.statementReturns = ifStmtReturns && this.statementReturns;
             this.errorThrown = currentErrorThrown && this.errorThrown;
-            this.withinTransactionScope = (prevTxMode && !ifWithinTrxMode && !this.withinTransactionScope) ? false :
-                    prevTxMode;
+            this.withinTransactionScope = (!prevTxMode || ifWithinTrxMode || elseWithinTrxMode) && prevTxMode;
         }
         analyzeExpr(ifStmt.expr);
     }
