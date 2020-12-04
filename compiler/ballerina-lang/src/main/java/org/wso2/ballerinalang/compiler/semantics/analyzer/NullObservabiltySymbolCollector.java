@@ -18,36 +18,24 @@
 
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.ModuleDescriptor;
-import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.Project;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
 
 /**
- * Null Object for ObserverbilitySymbolCollector interface.
+ * Null Object for {@link ObservabilitySymbolCollector} interface.
  *
  * @since 2.0.0
  */
 public class NullObservabiltySymbolCollector implements ObservabilitySymbolCollector {
     @Override
-    public void init(CompilerContext context) {
+    public void process(Project project) {
         // Do nothing
     }
 
     @Override
-    public void process(PackageDescriptor packageDescriptor, ModuleDescriptor moduleDescriptor,
-                        SemanticModel semanticModel, String documentName, SyntaxTree syntaxTree,
-                        BLangPackage bLangPackage) {
-        // Do nothing
-    }
-
-    @Override
-    public void writeCollectedSymbols(Path executableFile) {
+    public void writeToExecutable(Path executableFile) {
         // Do nothing
     }
 }

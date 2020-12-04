@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
@@ -516,18 +514,8 @@ public class JBallerinaBackend extends CompilerBackend {
             if (packageContext.compilationOptions().observabilityIncluded()) {
                 ObservabilitySymbolCollector observabilitySymbolCollector
                         = ObserverbilitySymbolCollectorRunner.getInstance(compilerContext);
-                for (ModuleId moduleId : packageContext.moduleIds()) {
-                    ModuleContext moduleContext = packageContext.moduleContext(moduleId);
-                    BLangPackage bLangPackage = moduleContext.bLangPackage();
-                    SemanticModel semanticModel = packageContext.getModuleCompilation(moduleContext).getSemanticModel();
-                    for (DocumentId documentId : moduleContext.srcDocumentIds()) {
-                        DocumentContext documentContext = moduleContext.documentContext(documentId);
-                        SyntaxTree syntaxTree = documentContext.syntaxTree();
-                        observabilitySymbolCollector.process(packageContext.descriptor(), moduleContext.descriptor(),
-                                semanticModel, documentContext.name(), syntaxTree, bLangPackage);
-                    }
-                }
-                observabilitySymbolCollector.writeCollectedSymbols(executableFilePath);
+                observabilitySymbolCollector.process(packageContext.project());
+                observabilitySymbolCollector.writeToExecutable(executableFilePath);
             }
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package: " +

@@ -19,19 +19,15 @@ package org.ballerinalang.observability.anaylze;
 
 import com.google.gson.JsonElement;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.ModuleDescriptor;
-import io.ballerina.projects.PackageDescriptor;
-import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
-import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
-import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.Project;
+import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.observability.anaylze.model.DocumentHolder;
 import org.ballerinalang.observability.anaylze.model.ModuleHolder;
 import org.ballerinalang.observability.anaylze.model.PackageHolder;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -45,8 +41,6 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -75,30 +69,34 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     private static final String PROGRAM_HASH_KEY = "PROGRAM_HASH";
 
     private static final PrintStream out = System.out;
-    private CompilerContext compilerContext;
+
+    private boolean isObservabilityIncluded = false;
 
     @Override
-    public void init(CompilerContext context) {
-        compilerContext = context;
-    }
-
-    @Override
-    public void process(PackageDescriptor packageDescriptor, ModuleDescriptor moduleDescriptor,
-                        SemanticModel semanticModel, String documentName, SyntaxTree syntaxTree,
-                        BLangPackage bLangPackage) {
-        // TODO: Remove bLangPackage usage and directly use Project API
-        Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = getVisibleEndpoints(bLangPackage);
-        JsonElement syntaxTreeJSON = TextDocumentFormatUtil.getSyntaxTreeJSON(syntaxTree, bLangPackage,
-                visibleEPsByNode);
+    public void process(Project project) {
+        isObservabilityIncluded = project.buildOptions().observabilityIncluded();
+        if (!isObservabilityIncluded) {
+            return;
+        }
+        Package currentPackage = project.currentPackage();
         PackageHolder packageHolder = PackageHolder.getInstance();
-        packageHolder.setOrg(packageDescriptor.org().value());
-        packageHolder.setName(packageDescriptor.name().value());
-        packageHolder.setVersion(packageDescriptor.version().value().toString());
-        packageHolder.addSyntaxTree(moduleDescriptor, documentName, syntaxTreeJSON);
+        packageHolder.setOrg(currentPackage.packageOrg().toString());
+        packageHolder.setName(currentPackage.packageName().toString());
+        packageHolder.setVersion(currentPackage.packageVersion().toString());
+        for (Module module : currentPackage.modules()) {
+            SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+            for (Document document : module.documents()) {
+                JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(document.syntaxTree(), semanticModel);
+                packageHolder.addSyntaxTree(module.descriptor(), document.name(), syntaxTreeJSON);
+            }
+        }
     }
 
     @Override
-    public void writeCollectedSymbols(Path executableFile) throws IOException {
+    public void writeToExecutable(Path executableFile) throws IOException {
+        if (!isObservabilityIncluded) {
+            return;
+        }
         try (FileSystem fs = FileSystems.newFileSystem(executableFile,
                 DefaultObservabilitySymbolCollector.class.getClassLoader())) {
             Path syntaxTreeDirPath = fs.getPath(SYNTAX_TREE_DIR);
@@ -137,12 +135,6 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             hexString.append(hex);
         }
         return hexString.toString();
-    }
-
-    private Map<BLangNode, List<SymbolMetaInfo>> getVisibleEndpoints(BLangPackage packageNode) {
-        VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
-        visibleEndpointVisitor.visit(packageNode);
-        return visibleEndpointVisitor.getVisibleEPsByNode();
     }
 
     private String generateCanonicalJsonString(PackageHolder packageHolder) throws IOException {

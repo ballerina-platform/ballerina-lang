@@ -4,6 +4,7 @@ module org.ballerinalang.observability.anaylze {
     requires io.ballerina.tools.api;
     requires io.ballerina.language.server.compiler;
     requires io.ballerina.language.server.core;
+    requires io.ballerina.diagram.util;
 
     requires gson;
 

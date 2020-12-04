@@ -51,7 +51,6 @@ public class ObserverbilitySymbolCollectorRunner {
             Iterator<ObservabilitySymbolCollector> collectorIterator = observerbilitySymbolCollectors.iterator();
             if (collectorIterator.hasNext()) {
                 observabilitySymbolCollector = collectorIterator.next();
-                observabilitySymbolCollector.init(context);
             } else {
                 observabilitySymbolCollector = new NullObservabiltySymbolCollector();
             }
