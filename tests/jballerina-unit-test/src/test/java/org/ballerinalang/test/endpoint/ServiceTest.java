@@ -47,7 +47,7 @@ public class ServiceTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_transactional_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 3);
         int errIdx = 0;
-        validateError(compileResult, errIdx++, "undefined symbol 'bar'", 1, 16);
+        validateError(compileResult, errIdx++, "undefined symbol 'bar'", 1, 17);
         validateError(compileResult, errIdx++, "undefined annotation 'annot9'", 3, 5);
         validateError(compileResult, errIdx++, "missing close brace token", 4, 1);
     }

@@ -24,7 +24,7 @@ package io.ballerina.runtime.api.types;
  */
 public interface ObjectType extends StructureType {
 
-    void setAttachedFunctions(AttachedFunctionType[] attachedFunctionTypes);
+    void setAttachedFunctions(MemberFunctionType[] memberFunctionTypes);
 
-    AttachedFunctionType[] getAttachedFunctions();
+    MemberFunctionType[] getAttachedFunctions();
 }

@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
-import io.ballerina.compiler.api.symbols.ServiceSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -43,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.isFlagOn;
@@ -108,7 +108,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     public List<TypeDefinitionSymbol> typeDefinitions() {
         if (this.typeDefs == null) {
             this.typeDefs = this.allSymbols().stream()
-                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE)
+                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION)
                     .map(symbol -> (TypeDefinitionSymbol) symbol)
                     .collect(Collectors.toUnmodifiableList());
         }
@@ -187,11 +187,6 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
         return this.listeners;
     }
 
-    @Override
-    public List<ServiceSymbol> services() {
-        return new ArrayList<>();
-    }
-
     /**
      * Get all public the symbols within the module.
      *
@@ -206,7 +201,8 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             for (Map.Entry<Name, ScopeEntry> entry : this.packageSymbol.scope.entries.entrySet()) {
                 ScopeEntry scopeEntry = entry.getValue();
                 if (!isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC)
-                        || (scopeEntry.symbol.origin != COMPILED_SOURCE && scopeEntry.symbol.origin != SOURCE)) {
+                        || (scopeEntry.symbol.origin != COMPILED_SOURCE && scopeEntry.symbol.origin != SOURCE
+                        && scopeEntry.symbol.origin != BUILTIN)) {
                     continue;
                 }
                 symbols.add(

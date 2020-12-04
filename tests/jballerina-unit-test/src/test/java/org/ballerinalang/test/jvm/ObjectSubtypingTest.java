@@ -90,8 +90,8 @@ public class ObjectSubtypingTest {
         CompileResult result = BCompileUtil.compile("test-src/jvm/object_negatives.bal");
         String msgFormat = "incompatible types: expected '%s', found '%s'";
         int i = 0;
-        validateError(result, i++, "'private' qualifier not allowed", 21, 13);
-        validateError(result, i++, "'private' qualifier not allowed", 28, 13);
+        validateError(result, i++, "private qualifier in object member descriptor", 21, 13);
+        validateError(result, i++, "private qualifier in object member descriptor", 28, 13);
         validateError(result, i++, format(msgFormat, "ObjWithPvtField", "AnotherObjWithAPvtField"), 45, 26);
         validateError(result, i++, format(msgFormat, "ObjWithPvtMethod", "AnotherObjWithPvtMethod"), 46, 27);
         validateError(result, i++, format(msgFormat, "testorg/subtyping:1.0.0:ModuleLevelSubtypableObj", "Subtype1"),

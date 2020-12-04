@@ -240,7 +240,7 @@ public class SortingUtil {
         if (typeDesc.get().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String nameRef = ((SimpleNameReferenceNode) typeDesc.get()).name().text();
             for (Symbol symbol : visibleSymbols) {
-                if (symbol.kind() == SymbolKind.TYPE && symbol.name().equals(nameRef)) {
+                if (symbol.kind() == SymbolKind.TYPE_DEFINITION && symbol.name().equals(nameRef)) {
                     TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol;
                     return Optional.of(typeDefinitionSymbol.typeDescriptor());
                 }

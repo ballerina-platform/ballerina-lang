@@ -57,7 +57,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -1016,24 +1015,23 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         int typeFlags = 0;
-        if (objectTypeNode.flagSet.contains(Flag.READONLY)) {
-            flags.add(Flag.READONLY);
+        if (flags.contains(Flag.READONLY)) {
             typeFlags |= Flags.READONLY;
         }
 
-        if (objectTypeNode.flagSet.contains(Flag.ISOLATED)) {
-            flags.add(Flag.ISOLATED);
+        if (flags.contains(Flag.ISOLATED)) {
             typeFlags |= Flags.ISOLATED;
+        }
+
+        if (flags.contains(Flag.SERVICE)) {
+            typeFlags |= Flags.SERVICE;
         }
 
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
                 env.enclPkg.symbol.pkgID, null, env.scope.owner, objectTypeNode.pos, SOURCE);
-        BObjectType objectType;
-        if (flags.contains(Flag.SERVICE)) {
-            objectType = new BServiceType(objectSymbol);
-        } else {
-            objectType = new BObjectType(objectSymbol, typeFlags);
-        }
+
+        BObjectType objectType = new BObjectType(objectSymbol, typeFlags);
+
         objectSymbol.type = objectType;
         objectTypeNode.symbol = objectSymbol;
 

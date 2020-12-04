@@ -30,7 +30,7 @@ function finalFunction() {
     int i = 0;
 }
 
-service FooService on new test:MockListener(9090) {
+service /FooService on new test:MockListener(9090) {
 
 }
 
@@ -43,10 +43,4 @@ listener test:MockListener ml = new (8080);
 
 public function testChangingListenerVariableAfterDefining() {
     ml = new test:MockListener(8081);
-}
-
-service s on ml {}
-
-public function testChangingServiceVariableAfterDefining() {
-    s = service {};
 }

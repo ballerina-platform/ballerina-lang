@@ -35,39 +35,47 @@ public class STMethodDeclarationNode extends STNode {
     public final STNode qualifierList;
     public final STNode functionKeyword;
     public final STNode methodName;
+    public final STNode relativeResourcePath;
     public final STNode methodSignature;
     public final STNode semicolon;
 
     STMethodDeclarationNode(
+            SyntaxKind kind,
             STNode metadata,
             STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
+            STNode relativeResourcePath,
             STNode methodSignature,
             STNode semicolon) {
         this(
+                kind,
                 metadata,
                 qualifierList,
                 functionKeyword,
                 methodName,
+                relativeResourcePath,
                 methodSignature,
                 semicolon,
                 Collections.emptyList());
     }
 
     STMethodDeclarationNode(
+            SyntaxKind kind,
             STNode metadata,
             STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
+            STNode relativeResourcePath,
             STNode methodSignature,
             STNode semicolon,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.METHOD_DECLARATION, diagnostics);
+        super(kind, diagnostics);
         this.metadata = metadata;
         this.qualifierList = qualifierList;
         this.functionKeyword = functionKeyword;
         this.methodName = methodName;
+        this.relativeResourcePath = relativeResourcePath;
         this.methodSignature = methodSignature;
         this.semicolon = semicolon;
 
@@ -76,26 +84,31 @@ public class STMethodDeclarationNode extends STNode {
                 qualifierList,
                 functionKeyword,
                 methodName,
+                relativeResourcePath,
                 methodSignature,
                 semicolon);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMethodDeclarationNode(
+                this.kind,
                 this.metadata,
                 this.qualifierList,
                 this.functionKeyword,
                 this.methodName,
+                this.relativeResourcePath,
                 this.methodSignature,
                 this.semicolon,
                 diagnostics);
     }
 
     public STMethodDeclarationNode modify(
+            SyntaxKind kind,
             STNode metadata,
             STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
+            STNode relativeResourcePath,
             STNode methodSignature,
             STNode semicolon) {
         if (checkForReferenceEquality(
@@ -103,16 +116,19 @@ public class STMethodDeclarationNode extends STNode {
                 qualifierList,
                 functionKeyword,
                 methodName,
+                relativeResourcePath,
                 methodSignature,
                 semicolon)) {
             return this;
         }
 
         return new STMethodDeclarationNode(
+                kind,
                 metadata,
                 qualifierList,
                 functionKeyword,
                 methodName,
+                relativeResourcePath,
                 methodSignature,
                 semicolon,
                 diagnostics);
