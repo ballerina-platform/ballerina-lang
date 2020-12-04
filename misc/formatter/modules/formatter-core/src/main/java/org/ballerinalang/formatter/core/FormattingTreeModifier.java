@@ -596,19 +596,25 @@ public class FormattingTreeModifier extends TreeModifier {
     public ServiceDeclarationNode transform(ServiceDeclarationNode serviceDeclarationNode) {
         MetadataNode metadata = formatNode(serviceDeclarationNode.metadata().orElse(null), 0, 1);
         Token serviceKeyword = formatToken(serviceDeclarationNode.serviceKeyword(), 1, 0);
-        //IdentifierToken serviceName = formatToken(serviceDeclarationNode.serviceName().orElse(null), 1, 0);
+        TypeDescriptorNode typeDescriptor = formatNode(serviceDeclarationNode.typeDescriptor().orElse(null), 1, 0);
         Token onKeyword = formatToken(serviceDeclarationNode.onKeyword(), 1, 0);
         SeparatedNodeList<ExpressionNode> expressions =
                 formatSeparatedNodeList(serviceDeclarationNode.expressions(), 0, 0, 1, 0);
-        //Node serviceBody = formatNode(serviceDeclarationNode.serviceBody(), env.trailingWS, env.trailingNL);
+        Token openBrace = formatToken(serviceDeclarationNode.openBraceToken(), 0, 1);
+        indent();
+        NodeList<Node> members = formatNodeList(serviceDeclarationNode.members(), 0, 0, 0, 1, true);
+        unindent();
+        Token closeBrace = formatToken(serviceDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return serviceDeclarationNode.modify()
                 .withMetadata(metadata)
                 .withServiceKeyword(serviceKeyword)
-                //.withServiceName(serviceName)
+                .withTypeDescriptor(typeDescriptor)
                 .withOnKeyword(onKeyword)
                 .withExpressions(expressions)
-                //.withServiceBody(serviceBody)
+                .withOpenBraceToken(openBrace)
+                .withMembers(members)
+                .withCloseBraceToken(closeBrace)
                 .apply();
     }
 
