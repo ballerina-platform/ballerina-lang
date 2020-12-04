@@ -356,10 +356,9 @@ public class Desugar extends BLangNodeVisitor {
     private int transactionBlockCount;
     private BLangLiteral trxBlockId;
     private List<BLangOnFailClause> enclosingOnFailClause = new ArrayList<>();
-    private Map<BLangOnFailClause, BLangSimpleVarRef> enclosingForceJump = new HashMap<>();
+    private List<BLangSimpleVariableDef> enclosingOnFailCallFunc = new ArrayList<>();
     private Map<BLangOnFailClause, BLangSimpleVarRef> enclosingShouldPanic = new HashMap<>();
     private List<BLangSimpleVarRef> enclosingShouldContinue = new ArrayList<>();
-    private List<BLangSimpleVariableDef> enclosingOnFailCallFunc = new ArrayList<>();
 
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
@@ -2718,7 +2717,6 @@ public class Desugar extends BLangNodeVisitor {
             // error? $retryResult$ = ();
             // boolean $shouldRetry$ = false;
             // while($retryResult$ == () || ($retryResult$ is error && $shouldRetry$)) {
-            //      boolean $forceJump$ = false;
             //      boolean $returnErrorResult$ = false;
             //      boolean $continueLoop$ = false;
             //      $shouldRetry$ = false;
@@ -2728,7 +2726,7 @@ public class Desugar extends BLangNodeVisitor {
             //      } on fail var $caughtError$ {
             //           $retryResult$ = $caughtError$;
             //           $shouldRetry$ = $retryManager$.shouldRetry();
-            //           if (!$shouldRetry$ || $forceJump$) {
+            //           if (!$shouldRetry$) {
             //                  fail $retryResult$;
             //           }
             //           $continueLoop$ = true;
@@ -2738,7 +2736,7 @@ public class Desugar extends BLangNodeVisitor {
             //      } on fail var $caughtError$ {
             //           $retryResult$ = $caughtError$;
             //           $shouldRetry$ = $retryManager$.shouldRetry();
-            //           if (!$shouldRetry$ || $forceJump$) {
+            //           if (!$shouldRetry$) {
             //                 $returnErrorResult$ = true;
             //           }
             //           $continueLoop$ = true;
@@ -2773,17 +2771,6 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangLiteral falseLiteral =  createLiteral(pos, symTable.booleanType, false);
 
-        // boolean $forceJump$ = false;
-        BVarSymbol forceJumpVarSymbol = new BVarSymbol(0, names.fromString("$forceJump$"),
-                env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
-        forceJumpVarSymbol.closure = true;
-        BLangSimpleVariable forceJumpVariable = createVariable(pos, "$forceJump$",
-                symTable.booleanType, falseLiteral, forceJumpVarSymbol);
-        whileBody.scope.define(forceJumpVarSymbol.name, forceJumpVarSymbol);
-        BLangSimpleVariableDef forceJumpDef = ASTBuilderUtil.createVariableDef(pos, forceJumpVariable);
-        BLangSimpleVarRef forceJumpRef = createVariableRef(pos, forceJumpVarSymbol);
-        whileBody.stmts.add(forceJumpDef);
-
         // boolean $returnErrorResult$ = false;
         BVarSymbol returnResultSymbol = new BVarSymbol(0, names.fromString("$returnErrorResult$"),
                 env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
@@ -2809,15 +2796,14 @@ public class Desugar extends BLangNodeVisitor {
         // on fail error $caughtError$ {
         //    $retryResult$ = $caughtError$;
         //    $shouldRetry$ = $retryManager$.shouldRetry();
-        //    if (!$shouldRetry$ || $forceJump$) {
+        //    if (!$shouldRetry$) {
         //           fail $retryResult$;
         //    }
         //    $continueLoop$ = true;
         //    continue;
         // }
         BLangOnFailClause internalOnFail = createRetryInternalOnFail(pos, retryResultRef,
-                retryManagerRef, shouldRetryRef, forceJumpRef, continueLoopRef, returnResultRef, shouldRollback);
-        enclosingForceJump.put(internalOnFail, forceJumpRef);
+                retryManagerRef, shouldRetryRef, continueLoopRef, returnResultRef, shouldRollback);
         enclosingShouldContinue.add(continueLoopRef);
 
         BLangDo retryDo = wrapStatementWithinDo(pos, retryBody, internalOnFail);
@@ -2890,7 +2876,7 @@ public class Desugar extends BLangNodeVisitor {
         //      } on fail var $caughtError$ {
         //           $retryResult$ = $caughtError$;
         //           $shouldRetry$ = $retryManager$.shouldRetry();
-        //           if (!$shouldRetry$ || $forceJump$) {
+        //           if (!$shouldRetry$) {
         //                  fail $retryResult$;
         //           }
         //           $continueLoop$ = true;
@@ -2900,7 +2886,7 @@ public class Desugar extends BLangNodeVisitor {
         //      } on fail var $caughtError$ {
         //           $retryResult$ = $caughtError$;
         //           $shouldRetry$ = $retryManager$.shouldRetry();
-        //           if (!$shouldRetry$ || $forceJump$) {
+        //           if (!$shouldRetry$) {
         //                 $returnErrorResult$ = true;
         //           }
         //           $continueLoop$ = true;
@@ -4010,6 +3996,8 @@ public class Desugar extends BLangNodeVisitor {
         trxOnFailClause.body.scope = new Scope(env.scope.owner);
         trxOnFailClause.isInternal = true;
 
+        // on fail error $trxError$ {
+        // }
         BVarSymbol trxOnFailErrorSym = new BVarSymbol(0, names.fromString("$trxError$"),
                 env.scope.owner.pkgID, symTable.errorType, env.scope.owner, pos, VIRTUAL);
         BLangSimpleVariable trxOnFailError = ASTBuilderUtil.createVariable(pos,
@@ -4017,6 +4005,11 @@ public class Desugar extends BLangNodeVisitor {
         trxOnFailClause.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos,
                 trxOnFailError);
         trxOnFailClause.body.scope.define(trxOnFailErrorSym.name, trxOnFailErrorSym);
+
+        // if (($trxError$ is error) && !($trxError$ is TransactionError) && transctional) {
+        //     $shouldCleanUp$ = true;
+        //     check panic rollback $trxError$;
+        // }
         transactionDesugar.createRollbackIfFailed(pos, trxOnFailClause.body, trxOnFailErrorSym, trxBlockId);
 
         BLangGroupExpr shouldNotPanic = new BLangGroupExpr();
@@ -4031,6 +4024,11 @@ public class Desugar extends BLangNodeVisitor {
         panicNode.pos = pos;
         panicNode.expr = caughtError;
 
+        // if(!$shouldPanic$) {
+        //      fail $trxError$;
+        // } else {
+        //      panic $trxError$;
+        // }
         BLangIf exitIf = ASTBuilderUtil.createIfElseStmt(pos, shouldNotPanic, failBlock, panicNode);
         trxOnFailClause.body.stmts.add(exitIf);
 
@@ -4040,6 +4038,18 @@ public class Desugar extends BLangNodeVisitor {
         failBlock.stmts.add(failStmt);
         trxOnFailClause.bodyContainsFail = true;
 
+        // at this point;
+        // on fail error $trxError$ {
+        //     if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
+        //          $shouldCleanUp$ = true;
+        //          check panic rollback $trxError$;
+        //      }
+        // }
+        // if(!$shouldPanic$) {
+        //      fail $trxError$;
+        // } else {
+        //      panic $trxError$;
+        // }
         return trxOnFailClause;
     }
 
@@ -4051,6 +4061,14 @@ public class Desugar extends BLangNodeVisitor {
             transactionNode.onFailClause = null;
             transactionNode.transactionBody.isBreakable = false;
             BLangDo doStmt = wrapStatementWithinDo(transactionNode.pos, transactionNode, onFailClause);
+            // at this point;
+            // do {
+            //      transction {
+            //        <Transaction Body>
+            //      }
+            // } on fail var e {
+            //     (User Defined On Fail Clause)
+            // }
             result = rewrite(doStmt, env);
         } else {
             BLangLiteral currentTrxBlockId = this.trxBlockId;
@@ -4077,17 +4095,60 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef shouldPanicRef = ASTBuilderUtil.createVariableRef(transactionNode.pos,
                     shouldPanicVarSymbol);
 
+            // on fail error $trxError$ {
+            //     if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
+            //          $shouldCleanUp$ = true;
+            //          check panic rollback $trxError$;
+            //      }
+            // }
+            // if(!$shouldPanic$) {
+            //      fail $trxError$;
+            // } else {
+            //      panic $trxError$;
+            // }
             BLangOnFailClause trxInternalOnFail = createTrxInternalOnFail(transactionNode.pos, shouldPanicRef);
             enclosingShouldPanic.put(trxInternalOnFail, shouldPanicRef);
 
-            boolean userDefinedOnFailAvail = this.onFailClause != null;
+            boolean userDefinedOnFailAvbl = this.onFailClause != null;
             analyzeOnFailClause(trxInternalOnFail, transactionNode.transactionBody);
 
             BLangBlockStmt transactionStmtBlock =
                     transactionDesugar.rewrite(transactionNode, trxBlockId, env, uniqueId);
+
             transactionStmtBlock.stmts.add(0, shouldPanicDef);
             transactionStmtBlock.scope.define(shouldPanicVarSymbol.name, shouldPanicVarSymbol);
-            transactionStmtBlock.isBreakable = !userDefinedOnFailAvail;
+            transactionStmtBlock.isBreakable = !userDefinedOnFailAvbl;
+
+            // at this point;
+            //
+            // boolean $shouldPanic$ = false;
+            // do {
+            //      boolean $shouldCleanUp$ = false;
+            //      transactions:Info? prevAttempt = ();
+            //      string transactionId = "";
+            //      error? $trapResult = trap {
+            //                                  transactionId = startTransaction(1, prevAttempt)
+            //                                  prevAttempt = info();
+            //
+            //                                  <Transaction Body>
+            //                                 }
+            //      if($trapResult$ is error) {
+            //          panic $trapResult$;
+            //      }
+            //      if ($shouldCleanUp$) {
+            //          cleanupTransactionContext(1);
+            //      }
+            // } on fail error $trxError$ {
+            //     if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
+            //          $shouldCleanUp$ = true;
+            //          check panic rollback $trxError$;
+            //      }
+            // }
+            // if(!$shouldPanic$) {
+            //      fail $trxError$;
+            // } else {
+            //      panic $trxError$;
+            // }
             result = rewrite(transactionStmtBlock, this.env);
 
             this.addCheckExpression = currentAddCheckExpr;
@@ -4107,7 +4168,6 @@ public class Desugar extends BLangNodeVisitor {
                                                         BLangSimpleVarRef retryResultRef,
                                                         BLangSimpleVarRef retryManagerRef,
                                                         BLangSimpleVarRef shouldRetryRef,
-                                                        BLangSimpleVarRef forceJumpRef,
                                                         BLangSimpleVarRef continueLoopRef,
                                                         BLangSimpleVarRef returnResult,
                                                         boolean shouldRollback) {
@@ -4151,8 +4211,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangGroupExpr exitCheck = new BLangGroupExpr();
         exitCheck.type = symTable.booleanType;
-        exitCheck.expression =  ASTBuilderUtil.createBinaryExpr(pos, shouldNotRetryCheck, forceJumpRef,
-                symTable.booleanType, OperatorKind.OR, null);
+        exitCheck.expression = shouldNotRetryCheck;
 
         BLangBlockStmt exitLogicBlock = ASTBuilderUtil.createBlockStmt(pos);
         BLangIf exitIf = ASTBuilderUtil.createIfElseStmt(pos, exitCheck, exitLogicBlock, null);
@@ -4173,7 +4232,7 @@ public class Desugar extends BLangNodeVisitor {
             loopContinueStmt.pos = pos;
             internalOnFail.body.stmts.add(loopContinueStmt);
 
-            // if (!$shouldRetry$ || $forceJump$) {
+            // if (!$shouldRetry$) {
             //      fail $retryResult$;
             // }
             // continue;
@@ -4182,14 +4241,14 @@ public class Desugar extends BLangNodeVisitor {
                     ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
             exitLogicBlock.stmts.add(returnErrorTrue);
             internalOnFail.body.stmts.add(exitIf);
-            // if (!$shouldRetry$ || $forceJump$) {
+            // if (!$shouldRetry$) {
             //      $returnErrorResult$ = true;
             // }
         }
         return internalOnFail;
     }
 
-    BLangUnaryExpr createNotBinaryExpression(Location pos, BLangSimpleVarRef expression) {
+    BLangUnaryExpr createNotBinaryExpression(Location pos, BLangExpression expression) {
         List<BType> paramTypes = new ArrayList<>();
         paramTypes.add(symTable.booleanType);
         BInvokableType type = new BInvokableType(paramTypes, symTable.booleanType,

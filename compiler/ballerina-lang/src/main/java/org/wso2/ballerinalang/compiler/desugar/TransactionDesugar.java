@@ -147,15 +147,11 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return result;
     }
     public void visit(BLangTransaction transactionNode) {
-        // Transaction statement desugar implementation code.
-
-        Location pos = transactionNode.pos;
-        BLangBlockStmt transactionBlockStmt = desugarTransactionBody(transactionNode, env, false, pos);
-        result = transactionBlockStmt;
+        result = desugarTransactionBody(transactionNode, env, transactionNode.pos);
     }
 
-    private BLangBlockStmt desugarTransactionBody(BLangTransaction transactionNode, SymbolEnv env, boolean shouldRetry,
-                                                  Location pos) {
+    // Transaction statement desugar implementation code.
+    private BLangBlockStmt desugarTransactionBody(BLangTransaction transactionNode, SymbolEnv env, Location pos) {
         BLangBlockStmt transactionBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         transactionBlockStmt.scope = transactionNode.transactionBody.scope;
 
@@ -194,13 +190,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionBlockStmt.scope.define(prevAttemptVarDef.var.symbol.name, prevAttemptVarDef.var.symbol);
         transactionBlockStmt.scope.define(shouldCleanUpVariable.symbol.name, shouldCleanUpVariable.symbol);
 
-        // wraps content within transaction statement inside a lambda function
-        //
-        //  function (transactions:Info prevAttempt) returns any|error {
-        //    <"Content in transaction block goes here">
-        //  };
         BType transactionReturnType = symTable.errorOrNilType;
 
+        // wraps content within transaction body inside a statement expression
         BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
         BLangStatementExpression statementExpression =
                 createStatementExpression(transactionNode.transactionBody, nilLiteral);
@@ -266,6 +258,22 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangExpressionStmt stmt = ASTBuilderUtil.createExpressionStmt(pos, cleanValidationIf.body);
         stmt.expr = createCleanupTrxStmt(pos, this.trxBlockId);
 
+        // at this point ;
+        // boolean $shouldCleanUp$ = false;
+        // transactions:Info? prevAttempt = ();
+        // string transactionId = "";
+        // error? $trapResult = trap {
+        //                              transactionId = startTransaction(1, prevAttempt)
+        //                              prevAttempt = info();
+        //
+        //                              <Transaction Body>
+        //                            }
+        // if($trapResult$ is error) {
+        //     panic $trapResult$;
+        // }
+        // if ($shouldCleanUp$) {
+        //      cleanupTransactionContext(1);
+        // }
         return desugar.rewrite(transactionBlockStmt, env);
     }
 
@@ -348,8 +356,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     //  commit or rollback was not executed and fail(e) or panic(e) returned, so rollback
-    //    if ((result is error) && !(result is TransactionError)) {
-    //        rollback result;
+    //    if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
+    //        $shouldCleanUp$ = true;
+    //        check panic rollback $trxError$;
     //    }
     void createRollbackIfFailed(Location pos, BLangBlockStmt onFailBodyBlock,
                                 BSymbol trxFuncResultSymbol, BLangLiteral trxBlockId) {
@@ -366,26 +375,32 @@ public class TransactionDesugar extends BLangNodeVisitor {
         trxErrorTypeNode.type = errorType;
         BLangSimpleVarRef trxResultRef = ASTBuilderUtil.createVariableRef(pos, trxFuncResultSymbol);
 
+        // $trxError$ is TransactionError
         BLangTypeTestExpr testExpr = ASTBuilderUtil.createTypeTestExpr(pos, trxResultRef, trxErrorTypeNode);
         testExpr.type = symTable.booleanType;
+
         BLangGroupExpr transactionErrorCheckGroupExpr = new BLangGroupExpr();
         transactionErrorCheckGroupExpr.type = symTable.booleanType;
-        BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(names.fromString(OperatorKind.NOT.value()),
-                symTable.rootPkgSymbol.pkgID, errorType,
-                symTable.rootPkgSymbol, symTable.builtinPos, VIRTUAL);
-        transactionErrorCheckGroupExpr.expression = ASTBuilderUtil.createUnaryExpr(pos, testExpr,
-                symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
+        // !($trxError$ is TransactionError)
+        transactionErrorCheckGroupExpr.expression =  desugar.createNotBinaryExpression(pos, testExpr);
 
+        // ($trxError$ is error)
         BLangTypeTestExpr errorCheck = desugar.createTypeCheckExpr(pos, trxResultRef, desugar.getErrorOrNillTypeNode());
+
+        // ($trxError$ is error) && !($trxError$ is TransactionError)
         BLangBinaryExpr isErrorCheck = ASTBuilderUtil.createBinaryExpr(pos, errorCheck, transactionErrorCheckGroupExpr,
                 symTable.booleanType, OperatorKind.AND, null);
 
+        // transactional
         BLangTransactionalExpr isTransactionalCheck = TreeBuilder.createTransactionalExpressionNode();
         isTransactionalCheck.pos = pos;
+
+        // if(($trxError$ is error) && !($trxError$ is TransactionError) && transactional)
         rollbackCheck.expr = ASTBuilderUtil.createBinaryExpr(pos, isErrorCheck, isTransactionalCheck,
                 symTable.booleanType, OperatorKind.AND, null);
         rollbackCheck.body = ASTBuilderUtil.createBlockStmt(pos);
 
+        // rollbackTransaction(transactionBlockID);
         BLangStatementExpression rollbackInvocation = invokeRollbackFunc(pos,
                 desugar.addConversionExprIfRequired(trxResultRef, symTable.errorOrNilType), trxBlockId);
 
@@ -398,6 +413,12 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionExprStmt.expr = checkedExpr;
         transactionExprStmt.type = symTable.nilType;
         rollbackCheck.body.stmts.add(transactionExprStmt);
+
+        // at this point;
+        //    if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
+        //        $shouldCleanUp$ = true;
+        //        check panic rollback $trxError$;
+        //    }
     }
 
     private BLangInvocation createCleanupTrxStmt(Location pos, BLangLiteral trxBlockId) {
