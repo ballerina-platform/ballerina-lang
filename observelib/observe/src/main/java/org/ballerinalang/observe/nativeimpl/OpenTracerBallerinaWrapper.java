@@ -20,6 +20,8 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.observability.TracingUtils;
@@ -28,6 +30,8 @@ import io.ballerina.runtime.observability.tracer.TraceConstants;
 import io.ballerina.runtime.observability.tracer.TracersStore;
 import io.opentracing.Tracer;
 import org.ballerinalang.config.ConfigRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +45,7 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_
  * This class wraps opentracing apis and exposes extern functions to use within ballerina.
  */
 public class OpenTracerBallerinaWrapper {
+    private static Logger log = LoggerFactory.getLogger(OpenTracerBallerinaWrapper.class);
 
     private static final OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
     private final TracersStore tracerStore;
@@ -150,33 +155,39 @@ public class OpenTracerBallerinaWrapper {
     /**
      * Method to add tags to an existing span.
      *
-     * @param env current environment
-     * @param tagKey the key of the tag
+     * @param env      current environment
+     * @param tagKey   the key of the tag
      * @param tagValue the value of the tag
-     * @param spanId id of the Span
-     * @return boolean to indicate if tag was added to the span
+     * @param spanId   id of the Span
+     * @return Object to indicate if tag was added to the span
      */
-    public boolean addTag(Environment env, String tagKey, String tagValue, long spanId) {
+    public Object addTag(Environment env, String tagKey, String tagValue, long spanId) {
+
         if (!enabled) {
-            return false;
+            return null;
         }
 
         final BSpan span;
         if (spanId == -1) {
             ObserverContext observer = ObserveUtils.getObserverContextOfCurrentFrame(env);
             if (observer == null) {
-                return false;
+                return ErrorCreator.createError(
+                        StringUtils.fromString(
+                                ("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}")));
             }
             span = (BSpan) observer.getProperty(TraceConstants.KEY_SPAN);
         } else {
             ObserverContext observerContext = observerContextMap.get(spanId);
             if (observerContext == null) {
-                return false;
+                log.info("Could not find the trace for given span id. Can not add tag {" + tagKey + ":" + tagValue + "}");
+                return ErrorCreator.createError(
+                        StringUtils.fromString(
+                                ("Could not find the trace for given span id. Can not add tag {" + tagKey + ":" + tagValue + "}")));
             }
             span = (BSpan) observerContext.getProperty(TraceConstants.KEY_SPAN);
         }
 
         span.addTag(tagKey, tagValue);
-        return true;
+        return null;
     }
 }
