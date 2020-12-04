@@ -189,8 +189,7 @@ public class TypeParamAnalyzer {
             case TypeTags.MAP:
                 return containsTypeParam(((BMapType) type).constraint, resolvedTypes);
             case TypeTags.STREAM:
-                 return containsTypeParam(((BStreamType) type).constraint, resolvedTypes) ||
-                        containsTypeParam(((BStreamType) type).error, resolvedTypes);
+                 return containsTypeParam(((BStreamType) type).constraint, resolvedTypes);
             case TypeTags.TABLE:
                 return (containsTypeParam(((BTableType) type).constraint, resolvedTypes) ||
                         ((BTableType) type).keyTypeConstraint != null
