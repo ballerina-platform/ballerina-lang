@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.eclipse.lsp4j.Position;
 
 import javax.annotation.Nonnull;
 
@@ -33,11 +34,15 @@ import javax.annotation.Nonnull;
 public class HoverContextImpl extends AbstractDocumentServiceContext implements HoverContext {
 
     private Token tokenAtCursor;
+    
+    private final Position cursorPosition;
 
     HoverContextImpl(LSOperation operation,
                      String fileUri,
-                     WorkspaceManager wsManager) {
+                     WorkspaceManager wsManager,
+                     Position cursorPosition) {
         super(operation, fileUri, wsManager);
+        this.cursorPosition = cursorPosition;
     }
 
     @Override
@@ -54,19 +59,34 @@ public class HoverContextImpl extends AbstractDocumentServiceContext implements 
         return this.tokenAtCursor;
     }
 
+    @Override
+    public Position getCursorPosition() {
+        return this.cursorPosition;
+    }
+
     /**
      * Represents Language server signature help context Builder.
      *
      * @since 2.0.0
      */
     protected static class HoverContextBuilder extends AbstractContextBuilder<HoverContextBuilder> {
+        
+        private Position cursorPosition;
 
         public HoverContextBuilder() {
             super(LSContextOperation.TXT_HOVER);
         }
 
         public HoverContext build() {
-            return new HoverContextImpl(this.operation, this.fileUri, this.wsManager);
+            return new HoverContextImpl(this.operation,
+                    this.fileUri,
+                    this.wsManager,
+                    this.cursorPosition);
+        }
+        
+        public HoverContextBuilder withPosition(Position cursorPosition) {
+            this.cursorPosition = cursorPosition;
+            return self();
         }
 
         @Override

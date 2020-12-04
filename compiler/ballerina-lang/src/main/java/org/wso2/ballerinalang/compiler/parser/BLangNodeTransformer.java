@@ -50,6 +50,7 @@ import io.ballerina.compiler.syntax.tree.ElseBlockNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumMemberNode;
 import io.ballerina.compiler.syntax.tree.ErrorBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
@@ -148,6 +149,7 @@ import io.ballerina.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.RestDescriptorNode;
@@ -159,8 +161,6 @@ import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RollbackStatementNode;
 import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerina.compiler.syntax.tree.ServiceBodyNode;
-import io.ballerina.compiler.syntax.tree.ServiceConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
@@ -218,6 +218,7 @@ import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -240,7 +241,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -263,6 +264,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -324,7 +326,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
@@ -577,7 +578,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         if (unsupportedBP != null) {
             Location bindingPatternPos = getPosition(bindingPatternNode);
-            dlog.error(bindingPatternPos, DiagnosticCode.BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL,
+            dlog.error(bindingPatternPos, DiagnosticErrorCode.BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL,
                     unsupportedBP);
             variableName = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
                     NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
@@ -586,14 +587,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         boolean isFinal = false;
+        boolean isConfigurable = false;
+        boolean isolated = false;
+        // TODO handle this inside createSimpleVar
         for (Token qualifier : modVarDeclrNode.qualifiers()) {
-            if (qualifier.kind() == SyntaxKind.FINAL_KEYWORD) {
+            SyntaxKind kind = qualifier.kind();
+
+            if (kind == SyntaxKind.FINAL_KEYWORD) {
                 isFinal = true;
+            } else if (qualifier.kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
+                isConfigurable = true;
+            } else if (kind == SyntaxKind.ISOLATED_KEYWORD) {
+                isolated = true;
             }
         }
 
         BLangSimpleVariable simpleVar = createSimpleVar(variableName, typedBindingPattern.typeDescriptor(),
-                modVarDeclrNode.initializer().orElse(null), isFinal, false, null,
+                modVarDeclrNode.initializer().orElse(null), isFinal, isolated, isConfigurable, false, null,
                 getAnnotations(modVarDeclrNode.metadata()));
         simpleVar.pos = getPositionWithoutMetadata(modVarDeclrNode);
         simpleVar.markdownDocumentationAttachment =
@@ -604,7 +614,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ImportDeclarationNode importDeclaration) {
         ImportOrgNameNode orgNameNode = importDeclaration.orgName().orElse(null);
-        ImportPrefixNode prefixNode = importDeclaration.prefix().orElse(null);
+        Optional<ImportPrefixNode> prefixNode = importDeclaration.prefix();
+        Token prefix = prefixNode.isPresent() ? prefixNode.get().prefix() : null;
 
         Token orgName = null;
         if (orgNameNode != null) {
@@ -623,22 +634,112 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         importDcl.pkgNameComps = pkgNameComps;
         importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
         importDcl.version = this.createIdentifier(null, version);
-        importDcl.alias = (prefixNode != null) ? this.createIdentifier(getPosition(prefixNode), prefixNode.prefix())
-                                               : pkgNameComps.get(pkgNameComps.size() - 1);
+        importDcl.alias = (prefix != null) ? this.createIdentifier(getPosition(prefix), prefix)
+                : pkgNameComps.get(pkgNameComps.size() - 1);
 
         return importDcl;
     }
 
     @Override
     public BLangNode transform(MethodDeclarationNode methodDeclarationNode) {
-        BLangFunction bLFunction = createFunctionNode(methodDeclarationNode.methodName(),
-                methodDeclarationNode.qualifierList(), methodDeclarationNode.methodSignature(), null);
+        BLangFunction bLFunction;
+        if (methodDeclarationNode.relativeResourcePath().isEmpty()) {
+            bLFunction = createFunctionNode(methodDeclarationNode.methodName(),
+                    methodDeclarationNode.qualifierList(), methodDeclarationNode.methodSignature(), null);
+        } else {
+            bLFunction = createResourceFunctionNode(methodDeclarationNode.methodName(),
+                    methodDeclarationNode.qualifierList(), methodDeclarationNode.relativeResourcePath(),
+                    methodDeclarationNode.methodSignature(), null);
+        }
 
         bLFunction.annAttachments = applyAll(getAnnotations(methodDeclarationNode.metadata()));
         bLFunction.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(methodDeclarationNode.metadata()));
         bLFunction.pos = getPositionWithoutMetadata(methodDeclarationNode);
         return bLFunction;
+    }
+
+    @Override
+    public BLangNode transform(ResourcePathParameterNode resourcePathParameterNode) {
+
+        BLangSimpleVariable pathParam = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        pathParam.name = createIdentifier(resourcePathParameterNode.paramName());
+        BLangType typeNode = (BLangType) resourcePathParameterNode.typeDescriptor().apply(this);
+        pathParam.pos = getPosition(resourcePathParameterNode);
+        pathParam.annAttachments = applyAll(resourcePathParameterNode.annotations());
+
+        if (resourcePathParameterNode.kind() == SyntaxKind.RESOURCE_PATH_REST_PARAM) {
+            BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
+            arrayTypeNode.elemtype = typeNode;
+            arrayTypeNode.dimensions = 1;
+            typeNode = arrayTypeNode;
+        }
+        pathParam.typeNode = typeNode;
+        return pathParam;
+    }
+
+    private BLangFunction createResourceFunctionNode(IdentifierToken accessorName,
+                                                     NodeList<Token> qualifierList,
+                                                     NodeList<Node> relativeResourcePath,
+                                                     FunctionSignatureNode methodSignature,
+                                                     FunctionBodyNode functionBody) {
+
+        BLangResourceFunction bLFunction = (BLangResourceFunction) TreeBuilder.createResourceFunctionNode();
+
+        String resourceFuncName = calculateResourceFunctionName(accessorName, relativeResourcePath);
+        BLangIdentifier name = createIdentifier(getPosition(accessorName), resourceFuncName);
+        populateFunctionNode(name, qualifierList, methodSignature, functionBody, bLFunction);
+        bLFunction.accessorName = createIdentifier(accessorName);
+
+        bLFunction.resourcePath =  new ArrayList<>();
+        List<BLangSimpleVariable> params = new ArrayList<>();
+        for (Node pathSegment : relativeResourcePath) {
+            switch (pathSegment.kind()) {
+                case SLASH_TOKEN:
+                    continue;
+                case RESOURCE_PATH_SEGMENT_PARAM:
+                    BLangSimpleVariable param = (BLangSimpleVariable) pathSegment.apply(this);
+                    params.add(param);
+                    bLFunction.addPathParam(param);
+                    bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "*"));
+                    break;
+                case RESOURCE_PATH_REST_PARAM:
+                    BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
+                    params.add(restParam);
+                    bLFunction.setRestPathParam(restParam);
+                    bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "**"));
+                    break;
+                default:
+                    bLFunction.resourcePath.add(createIdentifier((Token) pathSegment));
+                    break;
+            }
+        }
+        bLFunction.getParameters().addAll(0, params);
+
+        return bLFunction;
+    }
+
+    private String calculateResourceFunctionName(IdentifierToken accessorName, NodeList<Node> relativeResourcePath) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("$");
+        sb.append(createIdentifier(accessorName).getValue());
+        for (Node token : relativeResourcePath) {
+            switch (token.kind()) {
+                case SLASH_TOKEN:
+                    continue;
+                case RESOURCE_PATH_SEGMENT_PARAM:
+                    sb.append("$*");
+                    break;
+                case RESOURCE_PATH_REST_PARAM:
+                    sb.append("$**");
+                    break;
+                default:
+                    sb.append("$");
+                    String value = createIdentifier((Token) token).getValue();
+                    sb.append(value);
+            }
+        }
+        return sb.toString();
     }
 
     @Override
@@ -939,6 +1040,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 } else {
                     objectTypeNode.addFunction(bLangFunction);
                 }
+            } else if (bLangNode.getKind() == NodeKind.RESOURCE_FUNC) {
+                BLangFunction bLangFunction = (BLangFunction) bLangNode;
+                bLangFunction.attachedFunction = true;
+                bLangFunction.flagSet.add(Flag.ATTACHED);
+                objectTypeNode.addFunction(bLangFunction);
             } else if (bLangNode.getKind() == NodeKind.VARIABLE) {
                 objectTypeNode.addField((BLangSimpleVariable) bLangNode);
             } else if (bLangNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
@@ -973,7 +1079,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Node node : members) {
             BLangNode bLangNode = node.apply(this);
             NodeKind nodeKind =  bLangNode.getKind();
-            if (nodeKind == NodeKind.FUNCTION) {
+            if (nodeKind == NodeKind.FUNCTION || bLangNode.getKind() == NodeKind.RESOURCE_FUNC) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
@@ -986,7 +1092,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     continue;
                 }
                 if (bLangFunction.requiredParams.size() != 0) {
-                    dlog.error(bLangFunction.pos, DiagnosticCode.OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS);
+                    dlog.error(bLangFunction.pos, DiagnosticErrorCode.OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS);
                     continue;
                 }
                 bLangFunction.objInitFunction = true;
@@ -994,7 +1100,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else if (nodeKind == NodeKind.VARIABLE) {
                 classDefinition.addField((BLangSimpleVariable) bLangNode);
             } else if (nodeKind == NodeKind.USER_DEFINED_TYPE) {
-                dlog.error(bLangNode.pos, DiagnosticCode.OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS);
+                dlog.error(bLangNode.pos, DiagnosticErrorCode.OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS);
             }
         }
 
@@ -1040,11 +1146,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         NodeList<Token> objectConstructorQualifierList = objectConstructorExpressionNode.objectTypeQualifiers();
         for (Token qualifier : objectConstructorQualifierList) {
-            if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
+            SyntaxKind kind = qualifier.kind();
+            if (kind == SyntaxKind.CLIENT_KEYWORD) {
                 anonClass.flagSet.add(Flag.CLIENT);
                 objectCtorExpression.isClient = true;
+            } else if (kind == SyntaxKind.ISOLATED_KEYWORD) {
+                anonClass.flagSet.add(Flag.ISOLATED);
+            } else if (qualifier.kind() == SyntaxKind.SERVICE_KEYWORD) {
+                anonClass.flagSet.add(SERVICE);
+                objectCtorExpression.isService = true;
             } else {
-                throw new RuntimeException("Syntax kind is not supported: " + qualifier.kind());
+                throw new RuntimeException("Syntax kind is not supported: " + kind);
             }
         }
 
@@ -1058,7 +1170,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         BLangIdentifier pkgAlias = createIdentifier(pos, "");
-        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, anonClass.name);
+        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, createIdentifier(pos, genName));
 
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
@@ -1073,158 +1185,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ObjectFieldNode objFieldNode) {
         BLangSimpleVariable simpleVar = createSimpleVar(objFieldNode.fieldName(), objFieldNode.typeName(),
-                                                        objFieldNode.expression().orElse(null),
-                                                        false, false, objFieldNode.visibilityQualifier().orElse(null),
-                                                        getAnnotations(objFieldNode.metadata()));
+                objFieldNode.expression().orElse(null), objFieldNode.visibilityQualifier().orElse(null),
+                getAnnotations(objFieldNode.metadata()));
         // Transform documentation
         Optional<Node> doc = getDocumentationString(objFieldNode.metadata());
         simpleVar.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(doc);
 
-        addFinalQualifier(objFieldNode.finalKeyword(), simpleVar);
+        NodeList<Token> qualifierList = objFieldNode.qualifierList();
+        for (Token token : qualifierList) {
+            if (token.kind() == SyntaxKind.FINAL_KEYWORD) {
+                addFinalQualifier(simpleVar);
+            } else if (token.kind() == SyntaxKind.RESOURCE_KEYWORD) {
+                addResourceQualifier(simpleVar);
+            }
+        }
+
         simpleVar.pos = getPositionWithoutMetadata(objFieldNode);
         return simpleVar;
     }
 
-    @Override
-    public BLangNode transform(ServiceDeclarationNode serviceDeclrNode) {
-        return createService(serviceDeclrNode, serviceDeclrNode.serviceName().orElse(null), false);
-    }
-
-    private BLangNode createService(Node serviceNode, IdentifierToken serviceNameNode, boolean isAnonServiceValue) {
-        // Any Service can be represented in two major components.
-        //  1) A anonymous type node (Object)
-        //  2) Variable assignment with "serviceName".
-        //      This is a global variable if the service is defined in module level.
-        //      Otherwise (isAnonServiceValue = true) it is a local variable definition, which is written by user.
-        ServiceDeclarationNode serviceDeclrNode = null;
-        ServiceConstructorExpressionNode serviceConstructorNode;
-        BLangService bLService = (BLangService) TreeBuilder.createServiceNode();
-        //TODO handle service.expression
-        // TODO: Look for generify this into sepearte method for type as well
-        bLService.isAnonymousServiceValue = isAnonServiceValue;
-
-        Location pos = getPositionWithoutMetadata(serviceNode);
-        if (serviceNode instanceof ServiceDeclarationNode) {
-            pos = trimLeft(pos, getPosition(((ServiceDeclarationNode) serviceNode).serviceKeyword()));
-        }
-        String serviceName;
-        Location identifierPos;
-        if (isAnonServiceValue || serviceNameNode == null) {
-            serviceName = this.anonymousModelHelper.getNextAnonymousServiceVarKey(packageID);
-            identifierPos = pos;
-        } else {
-            if (serviceNameNode == null || serviceNameNode.isMissing()) {
-                serviceName = missingNodesHelper.getNextMissingNodeName(packageID);
-            } else {
-                serviceName = serviceNameNode.text();
-            }
-            identifierPos = getPosition(serviceNameNode);
-        }
-
-        String serviceTypeName =
-                this.anonymousModelHelper.getNextAnonymousServiceTypeKey(packageID, serviceName);
-        BLangIdentifier serviceVar = createIdentifier(identifierPos, serviceName);
-        serviceVar.pos = identifierPos;
-        bLService.setName(serviceVar);
-        if (!isAnonServiceValue) {
-            serviceDeclrNode = (ServiceDeclarationNode) serviceNode;
-            for (Node expr : serviceDeclrNode.expressions()) {
-                bLService.attachedExprs.add(createExpression(expr));
-            }
-        }
-
-        if (isAnonServiceValue) {
-            bLService.annAttachments = applyAll(((ServiceConstructorExpressionNode) serviceNode).annotations());
-        } else {
-            bLService.annAttachments = applyAll(getAnnotations(serviceDeclrNode.metadata()));
-        }
-
-        // We add all service nodes to top level, only for future reference.
-        addToTop(bLService);
-
-        // 1) Define type nodeDefinition for service type.
-        BLangClassDefinition classDef = (BLangClassDefinition) TreeBuilder.createClassDefNode();
-        BLangIdentifier serviceTypeID = createIdentifier(identifierPos, serviceTypeName);
-        serviceTypeID.pos = pos;
-        classDef.setName(serviceTypeID);
-        classDef.flagSet.add(SERVICE);
-
-        if (!isAnonServiceValue) {
-            addServiceConstructsToClassDefinition((ServiceBodyNode) serviceDeclrNode.serviceBody(), classDef);
-            bLService.markdownDocumentationAttachment =
-                    createMarkdownDocumentationAttachment(getDocumentationString(serviceDeclrNode.metadata()));
-        } else {
-            serviceConstructorNode = (ServiceConstructorExpressionNode) serviceNode;
-            addServiceConstructsToClassDefinition((ServiceBodyNode) serviceConstructorNode.serviceBody(), classDef);
-            bLService.annAttachments = applyAll(serviceConstructorNode.annotations());
-        }
-
-        classDef.pos = pos;
-        addToTop(classDef);
-        bLService.serviceClass = classDef;
-
-        // 2) Create service constructor.
-        final BLangServiceConstructorExpr serviceConstNode = (BLangServiceConstructorExpr) TreeBuilder
-                .createServiceConstructorNode();
-        serviceConstNode.serviceNode = bLService;
-        serviceConstNode.pos = pos;
-
-        // Crate Global variable for service.
-        bLService.pos = pos;
-        if (!isAnonServiceValue) {
-            BLangSimpleVariable var = (BLangSimpleVariable) createBasicVarNodeWithoutType(identifierPos,
-                    Collections.emptySet(),
-                    serviceName, symTable.builtinPos,
-                    serviceConstNode);
-            var.flagSet.add(Flag.FINAL);
-            var.flagSet.add(SERVICE);
-
-            BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-            bLUserDefinedType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-            bLUserDefinedType.typeName = classDef.name;
-            bLUserDefinedType.pos = symTable.builtinPos;
-
-            var.typeNode = bLUserDefinedType;
-            bLService.variableNode = var;
-            return var;
-        } else {
-            BLangServiceConstructorExpr serviceConstructorExpr =
-                    (BLangServiceConstructorExpr) TreeBuilder.createServiceConstructorNode();
-            serviceConstructorExpr.serviceNode = bLService;
-            return serviceConstructorExpr;
-        }
-    }
-
-    public void addServiceConstructsToClassDefinition(ServiceBodyNode serviceBodyNode,
-                                                      BLangClassDefinition classDefinition) {
-        classDefinition.flagSet.add(SERVICE);
-        for (Node resourceNode : serviceBodyNode.resources()) {
-            BLangNode bLangNode = resourceNode.apply(this);
-            if (bLangNode.getKind() == NodeKind.FUNCTION) {
-                BLangFunction bLangFunction = (BLangFunction) bLangNode;
-                bLangFunction.attachedFunction = true;
-                bLangFunction.flagSet.add(Flag.ATTACHED);
-                classDefinition.addFunction(bLangFunction);
-            }
-        }
-    }
-
-    @Override
-    public BLangNode transform(ServiceBodyNode serviceBodyNode) {
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
-        objectTypeNode.flagSet.add(SERVICE);
-        for (Node resourceNode : serviceBodyNode.resources()) {
-            BLangNode bLangNode = resourceNode.apply(this);
-            if (bLangNode.getKind() == NodeKind.FUNCTION) {
-                BLangFunction bLangFunction = (BLangFunction) bLangNode;
-                bLangFunction.attachedFunction = true;
-                bLangFunction.flagSet.add(Flag.ATTACHED);
-                objectTypeNode.addFunction(bLangFunction);
-            }
-        }
-        objectTypeNode.isAnonymous = false;
-        objectTypeNode.pos = getPosition(serviceBodyNode);
-        return objectTypeNode;
+    private void addResourceQualifier(BLangSimpleVariable simpleVar) {
+        simpleVar.flagSet.add(Flag.RESOURCE);
     }
 
     @Override
@@ -1352,8 +1333,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(FunctionDefinitionNode funcDefNode) {
-        BLangFunction bLFunction = createFunctionNode(funcDefNode.functionName(), funcDefNode.qualifierList(),
-                funcDefNode.functionSignature(), funcDefNode.functionBody());
+        BLangFunction bLFunction;
+        if (funcDefNode.relativeResourcePath().isEmpty()) {
+            bLFunction = createFunctionNode(funcDefNode.functionName(), funcDefNode.qualifierList(),
+                    funcDefNode.functionSignature(), funcDefNode.functionBody());
+        } else {
+            bLFunction = createResourceFunctionNode(funcDefNode.functionName(),
+                    funcDefNode.qualifierList(), funcDefNode.relativeResourcePath(),
+                    funcDefNode.functionSignature(), funcDefNode.functionBody());
+        }
 
         bLFunction.annAttachments = applyAll(getAnnotations(funcDefNode.metadata()));
         bLFunction.pos = getPositionWithoutMetadata(funcDefNode);
@@ -1368,8 +1356,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
 
+        BLangIdentifier name = createIdentifier(getPosition(funcName), funcName);
+        populateFunctionNode(name, qualifierList, functionSignature, functionBody, bLFunction);
+        return bLFunction;
+    }
+
+    private void populateFunctionNode(BLangIdentifier name, NodeList<Token> qualifierList,
+                                      FunctionSignatureNode functionSignature, FunctionBodyNode functionBody,
+                                      BLangFunction bLFunction) {
         // Set function name
-        bLFunction.name = createIdentifier(getPosition(funcName), funcName);
+        bLFunction.name = name;
         //Set method qualifiers
         setFunctionQualifiers(bLFunction, qualifierList);
         // Set function signature
@@ -1386,7 +1382,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLFunction.flagSet.add(Flag.NATIVE);
             }
         }
-        return bLFunction;
     }
 
     private void setFunctionQualifiers(BLangFunction bLFunction, NodeList<Token> qualifierList) {
@@ -1431,7 +1426,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Location pos = getPosition(anonFuncExprNode);
 
         // Set function name
-        bLFunction.name = createIdentifier(pos,
+        bLFunction.name = createIdentifier(symTable.builtinPos,
                                            anonymousModelHelper.getNextAnonymousFunctionKey(packageID));
 
         // Set function signature
@@ -1618,7 +1613,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLInvocation.async = true;
 //            attachAnnotations(invocation, numAnnotations, false);
         } else {
-            dlog.error(workerBodyPos, DiagnosticCode.START_REQUIRE_INVOCATION);
+            dlog.error(workerBodyPos, DiagnosticErrorCode.START_REQUIRE_INVOCATION);
         }
 
         BLangSimpleVariable invoc = new SimpleVarBuilder()
@@ -1717,11 +1712,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             AnnotationAttachPointNode attachPoint = (AnnotationAttachPointNode) child;
             boolean source = attachPoint.sourceKeyword().isPresent();
             AttachPoint bLAttachPoint;
-            Token firstIndent =  attachPoint.firstIdent();
+            NodeList<Token> idents = attachPoint.identifiers();
+            Token firstIndent =  idents.get(0);
 
             switch (firstIndent.kind()) {
                 case OBJECT_KEYWORD:
-                    Token secondIndent = attachPoint.secondIdent().get();
+                    Token secondIndent = idents.get(1);
                     switch (secondIndent.kind()) {
                         case FUNCTION_KEYWORD:
                             bLAttachPoint =
@@ -1735,8 +1731,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                             throw new RuntimeException("Syntax kind is not supported: " + secondIndent.kind());
                     }
                     break;
-                case RESOURCE_KEYWORD:
-                    bLAttachPoint = AttachPoint.getAttachmentPoint(AttachPoint.Point.RESOURCE.getValue(), source);
+                case SERVICE_KEYWORD:
+                    String value;
+                    if (idents.size() == 1) {
+                        value = AttachPoint.Point.SERVICE.getValue();
+                    } else if (idents.size() == 3) {
+                        // the only case we are having 3 idents is service remote function
+                        value = AttachPoint.Point.SERVICE_REMOTE.getValue();
+                    } else {
+                        throw new RuntimeException("Invalid annotation attach point");
+                    }
+                    bLAttachPoint = AttachPoint.getAttachmentPoint(value, source);
                     break;
                 case RECORD_KEYWORD:
                     bLAttachPoint = AttachPoint.getAttachmentPoint(AttachPoint.Point.RECORD_FIELD.getValue(), source);
@@ -1986,6 +1991,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                      getPosition(functionCallNode), isFunctionCallAsync(functionCallNode));
     }
 
+    @Override
+    public BLangNode transform(ErrorConstructorExpressionNode errorConstructorExprNode) {
+        return createBLangInvocation(errorConstructorExprNode.errorKeyword(), errorConstructorExprNode.arguments(),
+                getPosition(errorConstructorExprNode), false);
+    }
+
     public BLangNode transform(MethodCallExpressionNode methodCallExprNode) {
         BLangInvocation bLInvocation = createBLangInvocation(methodCallExprNode.methodName(),
                                                              methodCallExprNode.arguments(),
@@ -2228,6 +2239,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangUserDefinedType userDefinedType = (BLangUserDefinedType) child.apply(this);
                 BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
                 parameter.name = userDefinedType.typeName;
+                parameter.pos = getPosition(child);
                 arrowFunction.params.add(parameter);
             }
 
@@ -2235,10 +2247,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) param.apply(this);
             BLangSimpleVariable parameter = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
             parameter.name = userDefinedType.typeName;
+            parameter.pos = getPosition(param);
             arrowFunction.params.add(parameter);
         }
         arrowFunction.body = new BLangExprFunctionBody();
         arrowFunction.body.expr = createExpression(implicitAnonymousFunctionExpressionNode.expression());
+        arrowFunction.body.pos = arrowFunction.body.expr.pos;
         return arrowFunction;
     }
 
@@ -2287,11 +2301,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         letVar.definitionNode = varDefNode;
         return letVar;
-    }
-
-    @Override
-    public BLangNode transform(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        return createService(serviceConstructorExpressionNode, null, true);
     }
 
     @Override
@@ -2490,7 +2499,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangAssignment bLAssignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
         BLangExpression lhsExpr = createExpression(assignmentStmtNode.varRef());
-        validateLvexpr(lhsExpr, DiagnosticCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT);
+        validateLvexpr(lhsExpr, DiagnosticErrorCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT);
 
         bLAssignment.setExpression(createExpression(assignmentStmtNode.expression()));
         bLAssignment.pos = getPosition(assignmentStmtNode);
@@ -2881,7 +2890,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             actionInvocation.name = invocation.name;
             actionInvocation.argExprs = invocation.argExprs;
             actionInvocation.flagSet = invocation.flagSet;
-            actionInvocation.pos = invocation.pos;
+            actionInvocation.pos = getPosition(startActionNode);
             invocation = actionInvocation;
         }
 
@@ -3663,6 +3672,103 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(ServiceDeclarationNode serviceDeclarationNode) {
+        Location pos = getPositionWithoutMetadata(serviceDeclarationNode);
+        BLangClassDefinition annonClassDef = transformObjectCtorExpressionBody(serviceDeclarationNode.members());
+        annonClassDef.isServiceDecl = true;
+        annonClassDef.pos = pos;
+        annonClassDef.flagSet.add(SERVICE);
+
+        List<IdentifierNode> absResourcePathPath = new ArrayList<>();
+        NodeList<Node> pathList = serviceDeclarationNode.absoluteResourcePath();
+        BLangLiteral serviceNameLiteral = null;
+        if (pathList.size() == 1 && pathList.get(0).kind() == SyntaxKind.STRING_LITERAL) {
+            serviceNameLiteral = (BLangLiteral) createExpression(pathList.get(0));
+        } else {
+            for (var token : pathList) {
+                String text = ((Token) token).text();
+                // if it's a single '/' then add, else ignore '/' chars and only add other pieces.
+                if (pathList.size() == 1 && text.equals("/")) {
+                    absResourcePathPath.add(createIdentifier((Token) token));
+                } else if (!text.equals("/")) {
+                    absResourcePathPath.add(createIdentifier((Token) token));
+                }
+            }
+        }
+
+        // Generate a name for the anonymous class
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
+        IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
+        annonClassDef.setName(anonTypeGenName);
+        annonClassDef.flagSet.add(Flag.PUBLIC);
+
+        Optional<TypeDescriptorNode> typeReference = serviceDeclarationNode.typeDescriptor();
+        typeReference.ifPresent(typeReferenceNode -> {
+            BLangType typeNode = createTypeNode(typeReferenceNode);
+            annonClassDef.typeRefs.add(typeNode);
+        });
+
+        annonClassDef.annAttachments = applyAll(getAnnotations(serviceDeclarationNode.metadata()));
+        annonClassDef.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(getDocumentationString(serviceDeclarationNode.metadata()));
+
+        addToTop(annonClassDef);
+
+        BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, annonClassDef.name);
+
+        BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
+        initNode.pos = pos;
+        initNode.userDefinedType = userDefinedType;
+
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        BLangIdentifier pkgAlias = createIdentifier(pos, "");
+        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, createIdentifier(pos, genName));
+
+        invocationNode.name = (BLangIdentifier) nameReference.name;
+        invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+
+        initNode.argsExpr.addAll(invocationNode.argExprs);
+        initNode.initInvocation = invocationNode;
+
+        BLangSimpleVariable serviceVariable = createServiceVariable(pos, annonClassDef, initNode);
+
+        List<BLangExpression> exprs = new ArrayList<>();
+        for (var exp : serviceDeclarationNode.expressions()) {
+            exprs.add(createExpression(exp));
+        }
+
+        BLangService service = (BLangService) TreeBuilder.createServiceNode();
+        service.serviceVariable = serviceVariable;
+        service.attachedExprs = exprs;
+        service.serviceClass = annonClassDef;
+        service.absoluteResourcePath = absResourcePathPath;
+        service.serviceNameLiteral = serviceNameLiteral;
+        service.pos = pos;
+        service.name = createIdentifier(pos, anonymousModelHelper.getNextAnonymousServiceVarKey(packageID));
+        return service;
+    }
+
+    private BLangSimpleVariable createServiceVariable(Location pos, BLangClassDefinition annonClassDef,
+                                                         BLangTypeInit initNode) {
+        BLangUserDefinedType typeName = createUserDefinedType(pos,
+                (BLangIdentifier) TreeBuilder.createIdentifierNode(), annonClassDef.name);
+
+        BLangSimpleVariable serviceInstance =
+                (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        serviceInstance.typeNode = typeName;
+
+        String serviceVarName = anonymousModelHelper.getNextAnonymousServiceVarKey(packageID);
+        serviceInstance.name =  createIdentifier(pos, serviceVarName);
+
+        serviceInstance.expr = initNode;
+        serviceInstance.internal = true;
+
+        return serviceInstance;
+    }
+
+    @Override
     public BLangNode transform(ClassDefinitionNode classDefinitionNode) {
         BLangClassDefinition blangClass = (BLangClassDefinition) TreeBuilder.createClassDefNode();
         blangClass.pos = getPositionWithoutMetadata(classDefinitionNode);
@@ -3707,7 +3813,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Node node : members) {
             // TODO: Check for fields other than SimpleVariableNode
             BLangNode bLangNode = node.apply(this);
-            if (bLangNode.getKind() == NodeKind.FUNCTION) {
+            if (bLangNode.getKind() == NodeKind.FUNCTION || bLangNode.getKind() == NodeKind.RESOURCE_FUNC) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
@@ -3881,7 +3987,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         if (matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                 ((SimpleNameReferenceNode) matchPattern).name().isMissing()) {
-            dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
+            dlog.error(matchPatternPos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
             return null;
         } else if (matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                 ((SimpleNameReferenceNode) matchPattern).name().text().equals("_")) {
@@ -3919,7 +4025,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     break;
                 default:
                     // TODO : Remove this after all binding patterns are implemented
-                    dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
+                    dlog.error(matchPatternPos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
                     return null;
             }
             return bLangVarBindingPattern;
@@ -3955,7 +4061,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return bLangRestMatchPattern;
         } else {
             // TODO : Remove this after all binding patterns are implemented
-            dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
+            dlog.error(matchPatternPos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
             return null;
         }
     }
@@ -4368,19 +4474,25 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangSimpleVariable createSimpleVar(Optional<Token> name, Node type, NodeList<AnnotationNode> annotations) {
         if (name.isPresent()) {
             Token nameToken = name.get();
-            return createSimpleVar(nameToken, type, null, false, false, null, annotations);
+            return createSimpleVar(nameToken, type, null, null, annotations);
         }
 
-        return createSimpleVar(null, type, null, false, false, null, annotations);
+        return createSimpleVar(null, type, null, null, annotations);
     }
 
     private BLangSimpleVariable createSimpleVar(Token name, Node type, NodeList<AnnotationNode> annotations) {
-        return createSimpleVar(name, type, null, false, false, null, annotations);
+        return createSimpleVar(name, type, null, null, annotations);
+    }
+
+    private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer,
+                                                Token visibilityQualifier, NodeList<AnnotationNode> annotations) {
+        return createSimpleVar(name, typeName, initializer, false, false, false, false,
+                visibilityQualifier, annotations);
     }
 
     private BLangSimpleVariable createSimpleVar(Token name, Node typeName, Node initializer, boolean isFinal,
-                                                boolean isListenerVar, Token visibilityQualifier,
-                                                NodeList<AnnotationNode> annotations) {
+                                                boolean isolated, boolean isConfigurable, boolean isListenerVar,
+                                                Token visibilityQualifier, NodeList<AnnotationNode> annotations) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(name));
         bLSimpleVar.name.pos = getPosition(name);
@@ -4399,9 +4511,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
+        if (isConfigurable) {
+            bLSimpleVar.flagSet.add(Flag.CONFIGURABLE);
+            if (initializer.kind() == SyntaxKind.REQUIRED_EXPRESSION) {
+                bLSimpleVar.flagSet.add(Flag.REQUIRED);
+                initializer = null;
+            }
+        }
+
         if (isFinal) {
             markVariableAsFinal(bLSimpleVar);
         }
+
+        if (isolated) {
+            bLSimpleVar.flagSet.add(Flag.ISOLATED);
+        }
+
         if (initializer != null) {
             bLSimpleVar.setInitialExpression(createExpression(initializer));
         }
@@ -4561,7 +4686,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                     pos.lineRange().endLine().line(),
                                     pos.lineRange().startLine().offset() + offset,
                                     pos.lineRange().startLine().offset() + offset + hexStringWithBraces.length()),
-                               DiagnosticCode.INVALID_UNICODE, hexStringWithBraces);
+                               DiagnosticErrorCode.INVALID_UNICODE, hexStringWithBraces);
                 }
                 text = matcher.replaceFirst("\\\\u" + fillWithZeros(hexStringVal));
                 position = matcher.end() - 2;
@@ -4742,6 +4867,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 break;
             case NEW_KEYWORD:
             case IDENTIFIER_TOKEN:
+            case ERROR_KEYWORD:
                 break;
             case SIMPLE_NAME_REFERENCE:
             default:
@@ -4999,12 +5125,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private Object getIntegerLiteral(Node literal, String nodeValue, SyntaxKind sign) {
         SyntaxKind literalTokenKind = ((BasicLiteralNode) literal).literalToken().kind();
         if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-            return parseLong(literal, nodeValue, nodeValue, 10, sign, DiagnosticCode.INTEGER_TOO_SMALL,
-                    DiagnosticCode.INTEGER_TOO_LARGE);
+            return parseLong(literal, nodeValue, nodeValue, 10, sign, DiagnosticErrorCode.INTEGER_TOO_SMALL,
+                             DiagnosticErrorCode.INTEGER_TOO_LARGE);
         } else if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
             String processedNodeValue = nodeValue.toLowerCase().replace("0x", "");
-            return parseLong(literal, nodeValue, processedNodeValue, 16, sign, DiagnosticCode.HEXADECIMAL_TOO_SMALL,
-                    DiagnosticCode.HEXADECIMAL_TOO_LARGE);
+            return parseLong(literal, nodeValue, processedNodeValue, 16, sign,
+                             DiagnosticErrorCode.HEXADECIMAL_TOO_SMALL, DiagnosticErrorCode.HEXADECIMAL_TOO_LARGE);
         }
         return null;
     }
@@ -5310,11 +5436,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private void addFinalQualifier(Optional<Token> finalKeyword, BLangSimpleVariable simpleVar) {
-        if (!finalKeyword.isPresent()) {
-            return;
-        }
-
+    private void addFinalQualifier(BLangSimpleVariable simpleVar) {
         simpleVar.flagSet.add(Flag.FINAL);
     }
 

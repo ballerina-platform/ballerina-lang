@@ -77,8 +77,10 @@ public class TestReport {
     }
 
     public void addCoverage(String moduleName, ModuleCoverage coverage) {
-        coverage.setName(moduleName);
-        this.moduleCoverage.add(coverage);
+        if (coverage != null) {
+            coverage.setName(moduleName);
+            this.moduleCoverage.add(coverage);
+        }
     }
 
     public void setOrgName(String orgName) {

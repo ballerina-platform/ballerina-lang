@@ -19,11 +19,13 @@ package org.ballerinalang.langserver.commons;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents the language server context.
@@ -39,7 +41,7 @@ public interface DocumentServiceContext {
      * @param position cursor position
      * @return {@link List}
      */
-    List<Symbol> getVisibleSymbols(Position position);
+    List<Symbol> visibleSymbols(Position position);
 
     /**
      * Get the workspace manager instance.
@@ -74,5 +76,12 @@ public interface DocumentServiceContext {
      *
      * @return {@link List} of import nodes
      */
-    List<ImportDeclarationNode> getCurrentDocImports();
+    List<ImportDeclarationNode> currentDocImports();
+
+    /**
+     * Get the current module where the given file URI resides.
+     * 
+     * @return {@link Module}
+     */
+    Optional<Module> currentModule();
 }

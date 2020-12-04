@@ -17,9 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.PackageResolution.DependencyResolution;
 import io.ballerina.projects.environment.ModuleLoadRequest;
-import io.ballerina.projects.environment.ModuleLoadResponse;
-import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
@@ -34,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
@@ -42,9 +42,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
  * Maintains the internal state of a {@code Module} instance.
@@ -63,6 +67,7 @@ class ModuleContext {
     private final Map<DocumentId, DocumentContext> testDocContextMap;
     private final Project project;
     private final CompilationCache compilationCache;
+    private final List<ModuleDescriptor> moduleDescDependencies;
 
     private Set<ModuleDependency> moduleDependencies;
     private BLangPackage bLangPackage;
@@ -70,6 +75,7 @@ class ModuleContext {
     private byte[] birBytes = new byte[0];
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
+    private Set<ModuleLoadRequest> allModuleLoadRequests;
 
     ModuleContext(Project project,
                   ModuleId moduleId,
@@ -77,7 +83,7 @@ class ModuleContext {
                   boolean isDefaultModule,
                   Map<DocumentId, DocumentContext> srcDocContextMap,
                   Map<DocumentId, DocumentContext> testDocContextMap,
-                  Set<ModuleDependency> moduleDependencies) {
+                  List<ModuleDescriptor> moduleDescDependencies) {
         this.project = project;
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
@@ -86,22 +92,11 @@ class ModuleContext {
         this.srcDocIds = Collections.unmodifiableCollection(srcDocContextMap.keySet());
         this.testDocContextMap = testDocContextMap;
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
-        this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
+        this.moduleDescDependencies = Collections.unmodifiableList(moduleDescDependencies);
 
         ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
-        this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class),
-                projectEnvironment.getService(PackageCache.class));
+        this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class));
         this.compilationCache = projectEnvironment.getService(CompilationCache.class);
-    }
-
-    private ModuleContext(Project project,
-                          ModuleId moduleId,
-                          ModuleDescriptor moduleDescriptor,
-                          boolean isDefaultModule,
-                          Map<DocumentId, DocumentContext> srcDocContextMap,
-                          Map<DocumentId, DocumentContext> testDocContextMap) {
-        this(project, moduleId, moduleDescriptor, isDefaultModule, srcDocContextMap,
-                testDocContextMap, Collections.emptySet());
     }
 
     static ModuleContext from(Project project, ModuleConfig moduleConfig) {
@@ -115,9 +110,8 @@ class ModuleContext {
             testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
         }
 
-        return new ModuleContext(project, moduleConfig.moduleId(),
-                moduleConfig.moduleDescriptor(), moduleConfig.isDefaultModule(),
-                srcDocContextMap, testDocContextMap);
+        return new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleDescriptor(),
+                moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap, moduleConfig.dependencies());
     }
 
     ModuleId moduleId() {
@@ -160,10 +154,29 @@ class ModuleContext {
         return moduleDependencies;
     }
 
-    boolean entryPointExists() {
-        // TODO this is temporary method. We should remove this ASAP
-        BLangPackage bLangPackage = getBLangPackageOrThrow();
-        return bLangPackage.symbol.entryPointExists;
+    List<ModuleDescriptor> moduleDescDependencies() {
+        return moduleDescDependencies;
+    }
+
+    Set<ModuleLoadRequest> populateModuleLoadRequests() {
+        allModuleLoadRequests = new LinkedHashSet<>();
+        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
+        for (DocumentContext docContext : srcDocContextMap.values()) {
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(PackageDependencyScope.DEFAULT));
+        }
+
+        allModuleLoadRequests.addAll(moduleLoadRequests);
+        return moduleLoadRequests;
+    }
+
+    Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
+        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
+        for (DocumentContext docContext : testDocContextMap.values()) {
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(PackageDependencyScope.TEST_ONLY));
+        }
+
+        allModuleLoadRequests.addAll(moduleLoadRequests);
+        return moduleLoadRequests;
     }
 
     BLangPackage bLangPackage() {
@@ -210,7 +223,8 @@ class ModuleContext {
         }
     }
 
-    private ModuleCompilationState currentCompilationState() {
+    // TODO temp change
+    ModuleCompilationState currentCompilationState() {
         if (moduleCompState != null) {
             return moduleCompState;
         }
@@ -232,16 +246,49 @@ class ModuleContext {
         currentCompilationState().parse(this);
     }
 
-    boolean resolveDependencies() {
-        // TODO refactor the boolean return
-        ModuleCompilationState moduleState = currentCompilationState();
-        if (moduleState == ModuleCompilationState.DEPENDENCIES_RESOLVED_FROM_BALO ||
-                moduleState == ModuleCompilationState.DEPENDENCIES_RESOLVED_FROM_SOURCES) {
-            return false;
+    void resolveDependencies(DependencyResolution dependencyResolution) {
+        Set<ModuleDependency> moduleDependencies = new HashSet<>();
+        if (this.project.kind() == ProjectKind.BALR_PROJECT) {
+            for (ModuleDescriptor dependencyModDesc : moduleDescDependencies) {
+                // Dependencies loaded from cache should not contain test dependencies
+                addModuleDependency(dependencyModDesc.org(), dependencyModDesc.packageName(),
+                        dependencyModDesc.name(), PackageDependencyScope.DEFAULT,
+                        moduleDependencies, dependencyResolution);
+            }
         } else {
-            moduleState.resolveDependencies(this);
-            return true;
+            Set<ModuleLoadRequest> moduleLoadRequests = this.allModuleLoadRequests;
+            for (ModuleLoadRequest modLoadRequest : moduleLoadRequests) {
+                PackageOrg packageOrg;
+                if (modLoadRequest.orgName().isEmpty()) {
+                    packageOrg = descriptor().org();
+                } else {
+                    packageOrg = modLoadRequest.orgName().get();
+                }
+
+                addModuleDependency(packageOrg, modLoadRequest.packageName(), modLoadRequest.moduleName(),
+                        modLoadRequest.scope(), moduleDependencies, dependencyResolution);
+            }
         }
+
+        this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
+    }
+
+    private void addModuleDependency(PackageOrg org,
+                                     PackageName packageName,
+                                     ModuleName moduleName,
+                                     PackageDependencyScope scope,
+                                     Set<ModuleDependency> moduleDependencies,
+                                     DependencyResolution dependencyResolution) {
+        Optional<Module> resolvedModuleOptional = dependencyResolution.getModule(org, packageName, moduleName);
+        if (resolvedModuleOptional.isEmpty()) {
+            return;
+        }
+
+        Module resolvedModule = resolvedModuleOptional.get();
+        ModuleDependency moduleDependency = new ModuleDependency(
+                new PackageDependency(resolvedModule.packageInstance().packageId(), scope),
+                resolvedModule.moduleId());
+        moduleDependencies.add(moduleDependency);
     }
 
     void compile(CompilerContext compilerContext) {
@@ -259,34 +306,6 @@ class ModuleContext {
     }
 
     static void resolveDependenciesInternal(ModuleContext moduleContext) {
-        // 1) Combine all the moduleLoadRequests of documents
-        Set<ModuleLoadRequest> moduleLoadRequests = new HashSet<>();
-        for (DocumentContext docContext : moduleContext.srcDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests());
-        }
-
-        // Combine all the moduleLoadRequests of test documents
-        if (!moduleContext.testSrcDocIds.isEmpty()) {
-            for (DocumentContext docContext : moduleContext.testDocContextMap.values()) {
-                moduleLoadRequests.addAll(docContext.moduleLoadRequests());
-            }
-        }
-
-        // 2) Resolve all the dependencies of this module
-        PackageResolver packageResolver = moduleContext.project.projectEnvironmentContext().
-                getService(PackageResolver.class);
-        Collection<ModuleLoadResponse> moduleLoadResponses = packageResolver.loadPackages(moduleLoadRequests);
-
-        // The usage of Set eliminates duplicates
-        Set<ModuleDependency> moduleDependencies = new HashSet<>();
-        for (ModuleLoadResponse moduleLoadResponse : moduleLoadResponses) {
-            ModuleDependency moduleDependency = new ModuleDependency(
-                    new PackageDependency(moduleLoadResponse.packageId()),
-                    moduleLoadResponse.moduleId());
-            moduleDependencies.add(moduleDependency);
-        }
-
-        moduleContext.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
     }
 
     static void compileInternal(ModuleContext moduleContext, CompilerContext compilerContext) {
@@ -309,9 +328,10 @@ class ModuleContext {
             pkgNode.addCompilationUnit(documentContext.compilationUnit(compilerContext, moduleCompilationId));
         }
 
-        // Parse test source files
-        // TODO use the compilerOption such as --skip-tests to enable or disable tests
-        if (!moduleContext.testSrcDocumentIds().isEmpty()) {
+        // Parse test source files if --skip-tests option is set to false
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+        if (!Boolean.parseBoolean(compilerOptions.get(SKIP_TESTS))
+                && !moduleContext.testSrcDocumentIds().isEmpty()) {
             moduleContext.parseTestSources(pkgNode, moduleCompilationId, compilerContext);
         }
 

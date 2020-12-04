@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -219,7 +219,7 @@ class JInterop {
                 constraintClass = boolean.class;
                 break;
             default:
-                throw new JInteropException(DiagnosticCode.UNSUPPORTED_PRIMITIVE_TYPE,
+                throw new JInteropException(DiagnosticErrorCode.UNSUPPORTED_PRIMITIVE_TYPE,
                         "Unsupported Java primitive type '" + primitiveTypeName + "'");
         }
         return new ParamTypeConstraint(constraintClass);
@@ -245,7 +245,7 @@ class JInterop {
             case JBOOLEAN:
                 return "Z";
             default:
-                throw new JInteropException(DiagnosticCode.UNSUPPORTED_PRIMITIVE_TYPE,
+                throw new JInteropException(DiagnosticErrorCode.UNSUPPORTED_PRIMITIVE_TYPE,
                         "Unsupported Java primitive type '" + primitiveTypeName + "'");
         }
     }
@@ -255,7 +255,7 @@ class JInterop {
         try {
             return Class.forName(className.replace("/", "."), false, classLoader);
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
-            throw new JInteropException(DiagnosticCode.CLASS_NOT_FOUND, e.getMessage(), e);
+            throw new JInteropException(DiagnosticErrorCode.CLASS_NOT_FOUND, e.getMessage(), e);
         }
     }
 

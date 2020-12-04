@@ -19,6 +19,8 @@
 package org.ballerinalang.central.client;
 
 import org.awaitility.Duration;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.testng.Assert;
@@ -46,10 +48,8 @@ import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.TestUtils.cleanDirectory;
-import static org.ballerinalang.toml.parser.SettingsProcessor.parseTomlContentFromFile;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 
 /**
  * Test cases to test central api client.
@@ -58,17 +58,16 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     private HttpURLConnection connection = mock(HttpURLConnection.class);
     private ByteArrayOutputStream console;
-    private ByteArrayOutputStream errConsole;
 
     private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
     private static final Path TMP_DIR = UTILS_TEST_RESOURCES.resolve("temp-test-central-api-client");
     private static final String TEST_BALO_NAME = "sf-any.balo";
     private static final String OUTPUT_BALO = "output.balo";
     private static final String WINERY = "winery";
+    private static final String ACCESS_TOKEN = "273cc9f6-c333-36ab-aa2q-f08e9513ff5y";
 
-    public TestCentralApiClient() throws IOException {
-        super();
-        this.settings = parseTomlContentFromFile(UTILS_TEST_RESOURCES.resolve("Settings.toml"));
+    public TestCentralApiClient() {
+        super("", null);
     }
 
     @Override
@@ -92,21 +91,10 @@ public class TestCentralApiClient extends CentralAPIClient {
         return output;
     }
 
-    private String readErrorOutput() throws IOException {
-        String output;
-        output = this.errConsole.toString();
-        this.errConsole.close();
-        this.errConsole = new ByteArrayOutputStream();
-        this.errStream = new PrintStream(this.errConsole);
-        return output;
-    }
-
     @BeforeMethod
     public void beforeMethod() {
         this.console = new ByteArrayOutputStream();
-        this.errConsole = new ByteArrayOutputStream();
         this.outStream = new PrintStream(this.console);
-        this.errStream = new PrintStream(this.errConsole);
     }
 
     private void cleanTmpDir() {
@@ -120,7 +108,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     }
 
     @Test(description = "Test pull package", enabled = false)
-    public void testPullPackage() throws IOException {
+    public void testPullPackage() throws IOException, CentralClientException {
         final String baloUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.balo";
         Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
         File baloFile = new File(String.valueOf(baloPath));
@@ -135,7 +123,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getContentLengthLong()).thenReturn(Files.size(baloPath));
             when(connection.getInputStream()).thenReturn(baloStream);
 
-            this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, "any", false);
+            this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, "any", "slp5", false);
 
             Assert.assertTrue(TMP_DIR.resolve("1.3.5").resolve("sf-2020r2-any-1.3.5.balo").toFile().exists());
             String buildLog = readOutput();
@@ -152,18 +140,18 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test pull non existing package", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "error: package not found: foo/sf.*")
-    public void testPullNonExistingPackage() throws IOException {
+    public void testPullNonExistingPackage() throws IOException, CentralClientException {
         String resString = "{\"message\": \"package not found: foo/sf:*_any\"}";
         InputStream resStream = new ByteArrayInputStream(resString.getBytes());
 
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
         when(connection.getErrorStream()).thenReturn(resStream);
 
-        this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, "any", false);
+        this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, "any", "slp5", false);
     }
 
     @Test(description = "Test get package")
-    public void testGetPackage() throws IOException {
+    public void testGetPackage() throws IOException, CentralClientException {
         Path packageJsonPath = UTILS_TEST_RESOURCES.resolve("package.json");
         File packageJson = new File(String.valueOf(packageJsonPath));
 
@@ -179,7 +167,7 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test get non existing package", expectedExceptions = NoPackageException.class,
             expectedExceptionsMessageRegExp = "package not found for: bar/winery:2.0.0_any")
-    public void testGetNonExistingPackage() throws IOException {
+    public void testGetNonExistingPackage() throws IOException, CentralClientException {
         String resString = "{\"message\": \"package not found for: bar/winery:2.0.0_any\"}";
 
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
@@ -190,7 +178,7 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test get package with bad request", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "invalid request received. invaild/unsupported semver version: v2")
-    public void testGetPackageWithBadRequest() throws IOException {
+    public void testGetPackageWithBadRequest() throws IOException, CentralClientException {
         String resString = "{\"message\": \"invalid request received. invaild/unsupported semver version: v2\"}";
 
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
@@ -200,7 +188,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     }
 
     @Test(description = "Test push package", enabled = false)
-    public void testPushPackage() throws IOException {
+    public void testPushPackage() throws IOException, CentralClientException {
         Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
         File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
 
@@ -210,7 +198,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getOutputStream()).thenReturn(outputStream);
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
 
-            this.pushPackage(baloPath);
+            this.pushPackage(baloPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
             String buildLog = readOutput();
             given().with().pollInterval(Duration.ONE_SECOND).and()
                     .with().pollDelay(Duration.ONE_SECOND)
@@ -219,29 +207,9 @@ public class TestCentralApiClient extends CentralAPIClient {
         }
     }
 
-    @Test(description = "Test push package with invalid access token")
-    public void testPushPackageWithInvalidAccessToken() throws IOException {
-        Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
-        File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
-
-        setBallerinaHome();
-
-        try (FileOutputStream outputStream = new FileOutputStream(outputBalo)) {
-            when(connection.getOutputStream()).thenReturn(outputStream);
-            when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_UNAUTHORIZED);
-
-            this.pushPackage(baloPath);
-            String errorLog = readErrorOutput();
-            given().with().pollInterval(Duration.ONE_SECOND).and()
-                    .with().pollDelay(Duration.ONE_SECOND)
-                    .await().atMost(10, SECONDS)
-                    .until(() -> errorLog.contains("unauthorized access token for organization: foo"));
-        }
-    }
-
     @Test(description = "Test push existing package", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "package already exists: foo/github:1.8.3_2020r2_any")
-    public void testPushExistingPackage() throws IOException {
+    public void testPushExistingPackage() throws IOException, CentralClientException {
         String resString = "{\"message\": \"package already exists: foo/github:1.8.3_2020r2_any\"}";
         Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
         File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
@@ -253,14 +221,14 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
             when(connection.getErrorStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
 
-            this.pushPackage(baloPath);
+            this.pushPackage(baloPath, "foo", "github", "1.8.3", ACCESS_TOKEN);
         }
     }
 
     @Test(description = "Test push package request failure", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "error: failed to push the package: "
                     + "'foo/sf:1.3.5' to the remote repository 'https://api.central.ballerina.io/registry'")
-    public void testPushPackageRequestFailure() throws IOException {
+    public void testPushPackageRequestFailure() throws IOException, CentralClientException {
         Path baloPath = UTILS_TEST_RESOURCES.resolve(TEST_BALO_NAME);
         File outputBalo = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALO)));
 
@@ -271,12 +239,12 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
             when(connection.getURL()).thenReturn(new URL("https://api.central.ballerina.io/registry"));
 
-            this.pushPackage(baloPath);
+            this.pushPackage(baloPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
         }
     }
 
     @Test(description = "Test search package")
-    public void testSearchPackage() throws IOException {
+    public void testSearchPackage() throws IOException, CentralClientException {
         Path packageSearchJsonPath = UTILS_TEST_RESOURCES.resolve("packageSearch.json");
         File packageSearchJson = new File(String.valueOf(packageSearchJsonPath));
 
@@ -292,7 +260,7 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test search package with bad request", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "invalid request received. invaild/unsupported org name: foo-org")
-    public void testSearchPackageWithBadRequest() throws IOException {
+    public void testSearchPackageWithBadRequest() throws IOException, CentralClientException {
         String resString = "{\"message\": \"invalid request received. invaild/unsupported org name: foo-org\"}";
 
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
@@ -302,8 +270,9 @@ public class TestCentralApiClient extends CentralAPIClient {
     }
 
     private void setBallerinaHome() {
-        if (System.getProperty(BALLERINA_INSTALL_DIR_PROP) == null) {
-            System.setProperty(BALLERINA_INSTALL_DIR_PROP, String.valueOf(Paths.get("build")));
+        final String ballerinaInstallDirProp = "ballerina.home";
+        if (System.getProperty(ballerinaInstallDirProp) == null) {
+            System.setProperty(ballerinaInstallDirProp, String.valueOf(Paths.get("build")));
         }
     }
 }

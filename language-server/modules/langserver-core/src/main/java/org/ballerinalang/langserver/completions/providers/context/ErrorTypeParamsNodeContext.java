@@ -60,7 +60,7 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         Predicate<Symbol> predicate = symbol -> {
-            if (symbol.kind() != SymbolKind.TYPE) {
+            if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
                 return false;
             }
             TypeSymbol typeDesc = ((TypeDefinitionSymbol) symbol).typeDescriptor();
@@ -74,7 +74,7 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
             return this.getCompletionItemList(mappingTypes, context);
         }
 
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         mappingTypes = visibleSymbols.stream().filter(predicate).collect(Collectors.toList());
         List<LSCompletionItem> completionItems = this.getCompletionItemList(mappingTypes, context);
         completionItems.addAll(this.getModuleCompletionItems(context));

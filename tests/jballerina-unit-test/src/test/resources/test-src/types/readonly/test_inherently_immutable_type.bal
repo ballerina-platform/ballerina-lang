@@ -31,7 +31,6 @@ import ballerina/lang.'xml;
 // - string
 // - error
 // - function
-// - service
 // - typedesc
 // - handle
 //
@@ -92,15 +91,6 @@ function testSimpleAssignmentForInherentlyImmutableBasicTypes() {
     function (any|error actual) trueFunc = <function (any|error actual)> j;
     trueFunc(true);
 
-    service ser = service {
-        resource function res() {
-
-        }
-    };
-    readonly k = ser;
-    assertTrue(k is service);
-    assertEquality(ser, k);
-
     Employee employee = {name: "Jo"};
     typedesc<any> typeDesc = typeof Employee;
     readonly l = typeDesc;
@@ -150,14 +140,6 @@ function testRuntimeIsTypeForInherentlyImmutableBasicTypes() {
 
     any j = assertTrue;
     assertTrue(j is readonly);
-
-    service ser = service {
-        resource function res() {
-
-        }
-    };
-    any k = ser;
-    assertTrue(k is readonly);
 
     Employee employee = {name: "Jo"};
     typedesc<any> typeDesc = typeof Employee;

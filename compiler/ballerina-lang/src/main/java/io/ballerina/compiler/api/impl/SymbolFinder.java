@@ -22,6 +22,8 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotatableNode;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -42,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -192,7 +195,8 @@ class SymbolFinder extends BLangNodeVisitor {
         this.symbolAtCursor = null;
 
         for (TopLevelNode node : unit.topLevelNodes) {
-            if (!PositionUtil.withinBlock(this.cursorPos, node.getPosition()) || isLambdaFunction(node)) {
+            if ((!PositionUtil.withinBlock(this.cursorPos, node.getPosition()) && !isWithinNodeMetaData(node))
+                    || isLambdaFunction(node)) {
                 continue;
             }
 
@@ -258,6 +262,11 @@ class SymbolFinder extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangResourceFunction resourceFunction) {
+        visit((BLangFunction) resourceFunction);
+    }
+
+    @Override
     public void visit(BLangBlockFunctionBody blockFuncBody) {
         lookupNodes(blockFuncBody.stmts);
     }
@@ -274,12 +283,8 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        if (setEnclosingNode(serviceNode.symbol, serviceNode.name.pos)) {
-            return;
-        }
-
-        lookupNodes(serviceNode.resourceFunctions);
         lookupNodes(serviceNode.annAttachments);
+        lookupNode(serviceNode.serviceClass);
         lookupNodes(serviceNode.attachedExprs);
     }
 
@@ -643,7 +648,12 @@ class SymbolFinder extends BLangNodeVisitor {
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         lookupNode(indexAccessExpr.expr);
-        lookupNode(indexAccessExpr.indexExpr);
+
+        if (indexAccessExpr.indexExpr instanceof BLangLiteral) {
+            setEnclosingNode(indexAccessExpr.symbol, indexAccessExpr.indexExpr.pos);
+        } else {
+            lookupNode(indexAccessExpr.indexExpr);
+        }
     }
 
     @Override
@@ -774,7 +784,8 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-
+        lookupNode(xmlAttribute.name);
+        lookupNode(xmlAttribute.value);
     }
 
     @Override
@@ -988,12 +999,8 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-        // skip the generated class def for services
-        if (classDefinition.flagSet.contains(Flag.SERVICE)) {
-            return;
-        }
-
-        if (setEnclosingNode(classDefinition.symbol, classDefinition.name.pos)) {
+        if (!isClassDefForServiceDecl(classDefinition) &&
+                setEnclosingNode(classDefinition.symbol, classDefinition.name.pos)) {
             return;
         }
 
@@ -1338,6 +1345,10 @@ class SymbolFinder extends BLangNodeVisitor {
         return false;
     }
 
+    private boolean isClassDefForServiceDecl(BLangClassDefinition clazz) {
+        return clazz.flagSet.contains(Flag.SERVICE) && clazz.flagSet.contains(Flag.ANONYMOUS);
+    }
+
     private boolean isLambdaFunction(TopLevelNode node) {
         if (node.getKind() != NodeKind.FUNCTION) {
             return false;
@@ -1345,5 +1356,22 @@ class SymbolFinder extends BLangNodeVisitor {
 
         BLangFunction func = (BLangFunction) node;
         return func.flagSet.contains(Flag.LAMBDA);
+    }
+
+    private boolean isWithinNodeMetaData(TopLevelNode node) {
+        if (!(node instanceof AnnotatableNode)) {
+            return false;
+        }
+
+        List<AnnotationAttachmentNode> nodes =
+                (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
+
+        for (AnnotationAttachmentNode annotAttachment : nodes) {
+            if (PositionUtil.withinBlock(this.cursorPos, annotAttachment.getPosition())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

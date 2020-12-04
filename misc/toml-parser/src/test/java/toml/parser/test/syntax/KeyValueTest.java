@@ -42,4 +42,9 @@ public class KeyValueTest extends AbstractTomlParserTest {
     public void testArrayJson() {
         super.testFile("array.toml", "array.json");
     }
+
+    @Test
+    public void testNoNewlineEnd() {
+        super.testFile("no-newline-end.toml", "no-newline-end.json");
+    }
 }

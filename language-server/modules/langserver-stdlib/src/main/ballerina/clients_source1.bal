@@ -16,7 +16,7 @@ public client class Client {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`
     # + targetType - Specifies the target type
     # + return - The response for the request
-    public remote function post(@untainted string path, RequestMessage message, string targetType="xml") returns Response {
+    remote function post(@untainted string path, RequestMessage message, string targetType="xml") returns Response {
         Response response = new();
         return response;
     }

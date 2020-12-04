@@ -73,6 +73,9 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
         Set<AttachPoint.Point> points = new HashSet<>();
         if (!attachPoints.isEmpty()) {
             for (AttachPoint attachPoint : attachPoints) {
+                if (attachPoint == null) {
+                    continue;
+                }
                 points.add(attachPoint.point);
             }
         } else {

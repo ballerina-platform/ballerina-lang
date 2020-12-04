@@ -45,7 +45,7 @@ public class FlushActionNodeContext extends AbstractCompletionProvider<FlushActi
     public List<LSCompletionItem> getCompletions(CompletionContext context, FlushActionNode node)
             throws LSCompletionException {
         // TODO: Following logic can be generalized
-        List<Symbol> visibleSymbols = context.getVisibleSymbols(context.getCursorPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredWorkers = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
                 .collect(Collectors.toList());

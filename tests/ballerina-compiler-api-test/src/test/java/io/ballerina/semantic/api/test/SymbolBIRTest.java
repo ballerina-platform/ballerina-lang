@@ -64,7 +64,7 @@ public class SymbolBIRTest {
         }
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSymbolLookupInBIR() {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_imports_test.bal");
         Package currentPackage = project.currentPackage();
@@ -130,7 +130,7 @@ public class SymbolBIRTest {
                 {20, 13, "testproject"},
                 {22, 5, "testproject"},
 //                {26, 12, "foo"}, // TODO: issue #25841
-                {31, 20, "PersonObj.getName"},
+                {31, 20, "getName"},
         };
     }
 }

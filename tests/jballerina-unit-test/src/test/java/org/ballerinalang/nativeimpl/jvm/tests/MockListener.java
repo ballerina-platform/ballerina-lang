@@ -47,7 +47,7 @@ public class MockListener {
             runtime.invokeMethodAsync(service, name.getValue(), null, null,
                                       new Callback() {
                                           @Override
-                                          public void notifySuccess() {
+                                          public void notifySuccess(Object result) {
                                               latch.countDown();
                                           }
 

@@ -25,7 +25,6 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.impl.symbols.BallerinaParameterSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaServiceSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
@@ -43,11 +42,12 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -59,6 +59,8 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.String.format;
 
 /**
  * Represents a set of factory methods to generate the {@link Symbol}s.
@@ -103,7 +105,7 @@ public class SymbolFactory {
         if (symbol instanceof BVarSymbol) {
             if (symbol.kind == SymbolKind.FUNCTION) {
                 if (Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)) {
-                    return createMethodSymbol((BInvokableSymbol) symbol, name);
+                    return createMethodSymbol((BInvokableSymbol) symbol);
                 }
                 return createFunctionSymbol((BInvokableSymbol) symbol, name);
             }
@@ -116,9 +118,7 @@ public class SymbolFactory {
             if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
                 return createWorkerSymbol((BVarSymbol) symbol, name);
             }
-            if (symbol instanceof BServiceSymbol) {
-                return createServiceSymbol((BServiceSymbol) symbol, name);
-            }
+
             // return the variable symbol
             return createVariableSymbol((BVarSymbol) symbol, name);
         }
@@ -155,7 +155,10 @@ public class SymbolFactory {
         PackageID pkgID = invokableSymbol.pkgID;
         BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
                 new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol);
-        if (isFlagOn(invokableSymbol.flags, Flags.PUBLIC)) {
+        boolean isResourceMethod = isFlagOn(invokableSymbol.flags, Flags.RESOURCE);
+        boolean isRemoteMethod = isFlagOn(invokableSymbol.flags, Flags.REMOTE);
+
+        if (isFlagOn(invokableSymbol.flags, Flags.PUBLIC) && !(isResourceMethod || isRemoteMethod)) {
             builder.withQualifier(Qualifier.PUBLIC);
         }
         if (isFlagOn(invokableSymbol.flags, Flags.PRIVATE)) {
@@ -164,10 +167,10 @@ public class SymbolFactory {
         if (isFlagOn(invokableSymbol.flags, Flags.ISOLATED)) {
             builder.withQualifier(Qualifier.ISOLATED);
         }
-        if (isFlagOn(invokableSymbol.flags, Flags.REMOTE)) {
+        if (isRemoteMethod) {
             builder.withQualifier(Qualifier.REMOTE);
         }
-        if (isFlagOn(invokableSymbol.flags, Flags.RESOURCE)) {
+        if (isResourceMethod) {
             builder.withQualifier(Qualifier.RESOURCE);
         }
         if (isFlagOn(invokableSymbol.flags, Flags.TRANSACTIONAL)) {
@@ -196,6 +199,17 @@ public class SymbolFactory {
     }
 
     /**
+     * Create a Method Symbol.
+     *
+     * @param invokableSymbol {@link BInvokableSymbol} to convert
+     * @return {@link Symbol} generated
+     */
+    private BallerinaMethodSymbol createMethodSymbol(BInvokableSymbol invokableSymbol) {
+        String name = getMethodName(invokableSymbol, (BObjectTypeSymbol) invokableSymbol.owner);
+        return createMethodSymbol(invokableSymbol, name);
+    }
+
+    /**
      * Create a generic variable symbol.
      *
      * @param symbol {@link BVarSymbol} to convert
@@ -216,6 +230,10 @@ public class SymbolFactory {
         if (isFlagOn(symbol.flags, Flags.READONLY)) {
             symbolBuilder.withQualifier(Qualifier.READONLY);
         }
+        if (isFlagOn(symbol.flags, Flags.PUBLIC)) {
+            symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+
         return symbolBuilder
                 .withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.type))
                 .build();
@@ -225,10 +243,6 @@ public class SymbolFactory {
         return new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol.pkgID, symbol)
                 .withReturnType(typesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint))
                 .build();
-    }
-
-    public BallerinaServiceSymbol createServiceSymbol(BServiceSymbol symbol, String name) {
-        return new BallerinaServiceSymbol.ServiceSymbolBuilder(this.context, name, symbol.pkgID, symbol).build();
     }
 
     /**
@@ -283,6 +297,9 @@ public class SymbolFactory {
         }
         if (isFlagOn(classSymbol.flags, Flags.DISTINCT)) {
             symbolBuilder.withQualifier(Qualifier.DISTINCT);
+        }
+        if (isFlagOn(classSymbol.flags, Flags.SERVICE)) {
+            symbolBuilder.withQualifier(Qualifier.SERVICE);
         }
         if (isFlagOn(classSymbol.flags, Flags.CLIENT)) {
             symbolBuilder.withQualifier(Qualifier.CLIENT);
@@ -363,5 +380,19 @@ public class SymbolFactory {
     // Private methods
     public static boolean isFlagOn(long mask, long flags) {
         return (mask & flags) == flags;
+    }
+
+    private String getMethodName(BInvokableSymbol method, BObjectTypeSymbol owner) {
+        List<BAttachedFunction> methods = new ArrayList<>(owner.attachedFuncs);
+        methods.add(owner.initializerFunc);
+
+        for (BAttachedFunction mthd : methods) {
+            if (method == mthd.symbol) {
+                return mthd.funcName.value;
+            }
+        }
+
+        throw new IllegalStateException(
+                format("Method symbol for '%s' not found in owner symbol '%s'", method.name, owner.name));
     }
 }

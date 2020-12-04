@@ -255,28 +255,12 @@ public class BServerInstance implements BServer {
     }
 
     private void cleanupServer() {
-        process.destroy();
-        serverInfoLogReader.stop();
-        serverErrorLogReader.stop();
-        process = null;
         //wait until port to close
         Utils.waitForPortsToClose(requiredPorts, 30000);
         log.info("Server Stopped Successfully");
-
-        if (serverInfoLogReader != null) {
-            serverInfoLogReader.stop();
-            serverErrorLogReader.removeAllLeechers();
-            serverInfoLogReader = null;
-        }
-
-        if (serverErrorLogReader != null) {
-            serverErrorLogReader.stop();
-            serverErrorLogReader.removeAllLeechers();
-            serverErrorLogReader = null;
-        }
     }
 
-    private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+    private synchronized void addJavaAgents(Map<String, String> envProperties) {
         if (agentsAdded) {
             return;
         }

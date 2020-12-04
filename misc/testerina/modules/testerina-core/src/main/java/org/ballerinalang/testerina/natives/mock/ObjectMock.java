@@ -18,8 +18,8 @@
 package org.ballerinalang.testerina.natives.mock;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
@@ -59,7 +59,7 @@ public class ObjectMock {
                         MockConstants.INVALID_MOCK_OBJECT_ERROR, MockConstants.TEST_PACKAGE_ID,
                         StringUtils.fromString(detail));
             } else {
-                for (AttachedFunctionType attachedFunction : objectValue.getType().getAttachedFunctions()) {
+                for (MemberFunctionType attachedFunction : objectValue.getType().getAttachedFunctions()) {
                     BError error = validateFunctionSignatures(attachedFunction,
                             ((ObjectType) bTypedesc.getDescribingType()).getAttachedFunctions());
                     if (error != null) {
@@ -149,7 +149,7 @@ public class ObjectMock {
         String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
         BArray argsList = caseObj.getArrayValue(StringUtils.fromString("args"));
 
-        for (AttachedFunctionType attachedFunction : genericMock.getType().getAttachedFunctions()) {
+        for (MemberFunctionType attachedFunction : genericMock.getType().getAttachedFunctions()) {
             if (attachedFunction.getName().equals(functionName)) {
 
                 // validate the number of arguments provided
@@ -282,8 +282,8 @@ public class ObjectMock {
      * @param attachedFunctions functions available in the mocked type
      * @return whether the function name is valid
      */
-    private static boolean validateFunctionName(String functionName, AttachedFunctionType[] attachedFunctions) {
-        for (AttachedFunctionType attachedFunction : attachedFunctions) {
+    private static boolean validateFunctionName(String functionName, MemberFunctionType[] attachedFunctions) {
+        for (MemberFunctionType attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
                 return true;
             }
@@ -316,9 +316,9 @@ public class ObjectMock {
      * @return whether the return value is valid
      */
     private static boolean validateReturnValue(
-            String functionName, Object returnVal, AttachedFunctionType[] attachedFunctions) {
+            String functionName, Object returnVal, MemberFunctionType[] attachedFunctions) {
 
-        for (AttachedFunctionType attachedFunction : attachedFunctions) {
+        for (MemberFunctionType attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
                 if (attachedFunction.getType().getReturnParameterType() instanceof UnionType) {
                     List<Type> memberTypes =
@@ -354,13 +354,13 @@ public class ObjectMock {
      * @param attachedFunctions functions available in the mocked type
      * @return whether the function signature is valid
      */
-    private static BError validateFunctionSignatures(AttachedFunctionType func,
-                                                     AttachedFunctionType[] attachedFunctions) {
+    private static BError validateFunctionSignatures(MemberFunctionType func,
+                                                     MemberFunctionType[] attachedFunctions) {
         String functionName = func.getName();
         Type[] paramTypes = func.getParameterTypes();
         Type returnType = func.getType().getReturnParameterType();
 
-        for (AttachedFunctionType attachedFunction : attachedFunctions) {
+        for (MemberFunctionType attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
 
                 // validate that the number of parameters are equal

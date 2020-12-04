@@ -31,10 +31,12 @@ import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
@@ -46,6 +48,10 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.docgen.Generator;
+import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,6 +84,8 @@ public class Type {
     @Expose
     public boolean isIntersectionType;
     @Expose
+    public boolean isParenthesisedType;
+    @Expose
     public boolean isRestParam;
     @Expose
     public boolean isLambda;
@@ -97,6 +105,7 @@ public class Type {
     public Type returnType;
     @Expose
     public Type constraint;
+    private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
 
     private Type() {
     }
@@ -113,7 +122,9 @@ public class Type {
                         LinePosition.from(node.lineRange().startLine().line(),
                                 node.lineRange().startLine().offset()));
             } catch (NullPointerException nullException) {
-                System.out.print(Arrays.toString(nullException.getStackTrace()));
+                if (BallerinaDocUtils.isDebugEnabled()) {
+                    log.error("Symbol find threw null pointer in " + fileName + " : Line range:" + node.lineRange());
+                }
             }
             if (symbol != null && symbol.isPresent()) {
                 resolveSymbol(type, symbol.get());
@@ -159,6 +170,11 @@ public class Type {
                 unionTypeNode = unionType.rightTypeDesc();
             }
             type.memberTypes.add(fromNode(unionTypeNode, semanticModel, fileName));
+        } else if (node instanceof IntersectionTypeDescriptorNode) {
+            type.isIntersectionType = true;
+            IntersectionTypeDescriptorNode intersectionType = (IntersectionTypeDescriptorNode) node;
+            type.memberTypes.add(fromNode(intersectionType.leftTypeDesc(), semanticModel, fileName));
+            type.memberTypes.add(fromNode(intersectionType.rightTypeDesc(), semanticModel, fileName));
         } else if (node instanceof RecordTypeDescriptorNode) {
             type.name = node.toString();
             type.generateUserDefinedTypeLink = false;
@@ -206,6 +222,10 @@ public class Type {
             SingletonTypeDescriptorNode singletonTypeDesc = (SingletonTypeDescriptorNode) node;
             type.name = singletonTypeDesc.simpleContExprNode().toString();
             type.category = "builtin";
+        } else if (node instanceof ParenthesisedTypeDescriptorNode) {
+            ParenthesisedTypeDescriptorNode parenthesisedNode = (ParenthesisedTypeDescriptorNode) node;
+            type.elementType = fromNode(parenthesisedNode.typedesc(), semanticModel, fileName);
+            type.isParenthesisedType = true;
         } else {
             type.category = "UNKNOWN";
         }
@@ -232,7 +252,7 @@ public class Type {
             if (typeDescriptor.typeKind().equals(TypeDescKind.RECORD)) {
                 return "records";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.OBJECT)) {
-                return "abstractobjects";
+                return "abstractObjects";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.ERROR)) {
                 return "errors";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.UNION)) {

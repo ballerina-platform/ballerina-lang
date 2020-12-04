@@ -1,7 +1,5 @@
 service Foo on bar {
-    resource function () {
-    }
+    isolated resource transactional function get x/y/z() {
 
-    resource function start() {
     }
 }

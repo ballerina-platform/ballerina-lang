@@ -24,7 +24,7 @@ const COLON = ":";
 # + annotName - Name of the annotation
 # + moduleName - Name of the module
 # + return - Returns the service annotation data
-public function getServiceAnnotations(service serviceType, string annotName, string? moduleName = ()) returns any {
+public function getServiceAnnotations(service object {} serviceType, string annotName, string? moduleName = ()) returns any {
     return externGetServiceAnnotations(serviceType, getAnnotQualifiedIdentifier(annotName, moduleName));
 }
 
@@ -35,16 +35,16 @@ public function getServiceAnnotations(service serviceType, string annotName, str
 # + annotName - Name of the annotation
 # + moduleName - Name of the module
 # + return - Returns the resource annotation data
-public function getResourceAnnotations(service serviceType, string resourceName, string annotName,
+public function getResourceAnnotations(service object {} serviceType, string resourceName, string annotName,
                                        string? moduleName = ()) returns any {
     return externGetResourceAnnotations(serviceType, resourceName, getAnnotQualifiedIdentifier(annotName, moduleName));
 }
 
-function externGetServiceAnnotations(service serviceType, string annot) returns any = @java:Method {
+function externGetServiceAnnotations(service object {} serviceType, string annot) returns any = @java:Method {
     'class: "org.ballerinalang.stdlib.reflect.AnnotationUtils"
 } external;
 
-function externGetResourceAnnotations(service serviceType, string resourceName, string annot)
+function externGetResourceAnnotations(service object {} serviceType, string resourceName, string annot)
                                       returns any = @java:Method {
     'class: "org.ballerinalang.stdlib.reflect.AnnotationUtils"
 } external;

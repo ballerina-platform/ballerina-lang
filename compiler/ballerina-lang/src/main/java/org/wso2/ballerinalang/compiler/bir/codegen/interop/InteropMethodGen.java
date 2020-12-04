@@ -131,11 +131,8 @@ public class InteropMethodGen {
                                          String moduleClassName,
                                          AsyncDataCollector asyncDataCollector) {
 
-        // Create a local variable for the strand
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-        BIRVariableDcl strandVarDcl = new BIRVariableDcl(jvmPackageGen.symbolTable.stringType, new Name("$_strand_$"),
-                null, VarKind.ARG);
-        indexMap.addToMapIfNotFoundAndGetIndex(strandVarDcl);
+        indexMap.addIfNotExists("$_strand_$", jvmPackageGen.symbolTable.stringType);
 
         // Generate method desc
         BIRFunction birFunc = jFieldFuncWrapper.func;
@@ -168,7 +165,7 @@ public class InteropMethodGen {
             if (birLocalVarOptional instanceof BIRNode.BIRFunctionParameter) {
                 BIRNode.BIRFunctionParameter functionParameter = (BIRNode.BIRFunctionParameter) birLocalVarOptional;
                 birFuncParams.add(functionParameter);
-                indexMap.addToMapIfNotFoundAndGetIndex(functionParameter);
+                indexMap.addIfNotExists(functionParameter.name.value, functionParameter.type);
             }
         }
 
@@ -186,7 +183,7 @@ public class InteropMethodGen {
 
             // The following boolean parameter indicates the existence of a default value
             BIRNode.BIRFunctionParameter isDefaultValueExist = birFuncParams.get(birFuncParamIndex + 1);
-            mv.visitVarInsn(ILOAD, indexMap.addToMapIfNotFoundAndGetIndex(isDefaultValueExist));
+            mv.visitVarInsn(ILOAD, indexMap.addIfNotExists(isDefaultValueExist.name.value, isDefaultValueExist.type));
 
             // Gen the if not equal logic
             Label paramNextLabel = labelGen.getLabel(birFuncParam.name.value + "next");
@@ -206,7 +203,8 @@ public class InteropMethodGen {
 
         // Load receiver which is the 0th parameter in the birFunc
         if (!jField.isStatic()) {
-            int receiverLocalVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(birFuncParams.get(0));
+            BIRNode.BIRVariableDcl var = birFuncParams.get(0);
+            int receiverLocalVarIndex = indexMap.addIfNotExists(var.name.value, var.type);
             mv.visitVarInsn(ALOAD, receiverLocalVarIndex);
             mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, "()Ljava/lang/Object;", false);
             mv.visitTypeInsn(CHECKCAST, jField.getDeclaringClassName());
@@ -233,7 +231,7 @@ public class InteropMethodGen {
         birFuncParamIndex = jField.isStatic() ? 0 : 2;
         if (birFuncParamIndex < birFuncParams.size()) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
-            int paramLocalVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(birFuncParam);
+            int paramLocalVarIndex = indexMap.addIfNotExists(birFuncParam.name.value, birFuncParam.type);
             loadMethodParamToStackInInteropFunction(mv, birFuncParam, jFieldType,
                                                     paramLocalVarIndex, instGen);
         }
@@ -254,15 +252,14 @@ public class InteropMethodGen {
 
         // Handle return type
         BIRVariableDcl retVarDcl = new BIRVariableDcl(retType, new Name("$_ret_var_$"), null, VarKind.LOCAL);
-        int returnVarRefIndex = indexMap.addToMapIfNotFoundAndGetIndex(retVarDcl);
+        int returnVarRefIndex = indexMap.addIfNotExists(retVarDcl.name.value, retType);
 
         if (retType.tag == TypeTags.NIL) {
             mv.visitInsn(ACONST_NULL);
         } else if (retType.tag == TypeTags.HANDLE) {
             // Here the corresponding Java method parameter type is 'jvm:RefType'. This has been verified before
-            BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(jvmPackageGen.symbolTable.anyType,
-                    new Name("$_ret_jobject_var_$"), null, VarKind.LOCAL);
-            int returnJObjectVarRefIndex = indexMap.addToMapIfNotFoundAndGetIndex(retJObjectVarDcl);
+            int returnJObjectVarRefIndex = indexMap.addIfNotExists("$_ret_jobject_var_$",
+                                                                   jvmPackageGen.symbolTable.anyType);
             mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
             mv.visitTypeInsn(NEW, HANDLE_VALUE);
             mv.visitInsn(DUP);
@@ -590,17 +587,9 @@ public class InteropMethodGen {
             throw new BLangCompilerException(String.format("invalid type for var-arg: %s", jvmType));
         }
 
-        BIRVariableDcl varArgsLen = new BIRVariableDcl(symbolTable.intType, new Name("$varArgsLen"), null,
-                VarKind.TEMP);
-
-        BIRVariableDcl index = new BIRVariableDcl(symbolTable.intType, new Name("$index"), null, VarKind.TEMP);
-
-        BIRVariableDcl valueArray = new BIRVariableDcl(symbolTable.anyType, new Name("$valueArray"), null,
-                VarKind.TEMP);
-
-        int varArgsLenVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(varArgsLen);
-        int indexVarIndex = indexMap.addToMapIfNotFoundAndGetIndex(index);
-        int valueArrayIndex = indexMap.addToMapIfNotFoundAndGetIndex(valueArray);
+        int varArgsLenVarIndex = indexMap.addIfNotExists("$varArgsLen", symbolTable.intType);
+        int indexVarIndex = indexMap.addIfNotExists("$index", symbolTable.intType);
+        int valueArrayIndex = indexMap.addIfNotExists("$valueArray", symbolTable.anyType);
 
         // get the number of var args provided
         mv.visitVarInsn(ALOAD, varArgIndex);

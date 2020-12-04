@@ -30,22 +30,26 @@ public class ModuleConfig {
     private final ModuleDescriptor moduleDescriptor;
     private final List<DocumentConfig> srcDocs;
     private final List<DocumentConfig> testSrcDocs;
+    private final List<ModuleDescriptor> dependencies;
 
     private ModuleConfig(ModuleId moduleId,
                          ModuleDescriptor moduleDescriptor,
                          List<DocumentConfig> srcDocs,
-                         List<DocumentConfig> testSrcDocs) {
+                         List<DocumentConfig> testSrcDocs,
+                         List<ModuleDescriptor> dependencies) {
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
         this.srcDocs = srcDocs;
         this.testSrcDocs = testSrcDocs;
+        this.dependencies = dependencies;
     }
 
     public static ModuleConfig from(ModuleId moduleId,
                                     ModuleDescriptor moduleDescriptor,
                                     List<DocumentConfig> srcDocs,
-                                    List<DocumentConfig> testSrcDocs) {
-        return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs);
+                                    List<DocumentConfig> testSrcDocs,
+                                    List<ModuleDescriptor> dependencies) {
+        return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, dependencies);
     }
 
     public ModuleId moduleId() {
@@ -66,5 +70,9 @@ public class ModuleConfig {
 
     public List<DocumentConfig> testSourceDocs() {
         return testSrcDocs;
+    }
+
+    public List<ModuleDescriptor> dependencies() {
+        return dependencies;
     }
 }

@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -37,6 +38,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private static final String ANON_ORG = "$anon";
     private final String definitionName;
     private TypeSymbol typeDescriptorImpl;
+    private Location location;
 
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
                                             String definitionName) {
@@ -62,6 +64,19 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     @Override
     public String name() {
         return this.definitionName;
+    }
+
+    @Override
+    public Location location() {
+        if (location == null) {
+            BType type = this.getBType();
+
+            if (type.tsymbol != null) {
+                this.location = type.tsymbol.pos;
+            }
+        }
+
+        return this.location;
     }
 
     @Override

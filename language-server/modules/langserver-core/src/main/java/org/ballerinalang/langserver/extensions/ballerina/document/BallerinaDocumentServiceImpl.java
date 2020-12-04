@@ -83,28 +83,28 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     @Override
     public CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request) {
         BallerinaASTResponse reply = new BallerinaASTResponse();
-        String fileUri = request.getDocumentIdentifier().getUri();
-        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
-        if (!filePath.isPresent()) {
-            return CompletableFuture.supplyAsync(() -> reply);
-        }
-        Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
-        Optional<Lock> lock = documentManager.lockFile(compilationPath);
-        try {
-            LSContext astContext = new DocumentOperationContext
-                    .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
-                    .withCommonParams(null, fileUri, documentManager)
-                    .build();
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
-            reply.setAst(getTreeForContent(astContext));
-            reply.setParseSuccess(isParseSuccess(astContext));
-        } catch (Throwable e) {
-            reply.setParseSuccess(false);
-            String msg = "Operation 'ballerinaDocument/ast' failed!";
-            logError(msg, e, request.getDocumentIdentifier(), (Position) null);
-        } finally {
-            lock.ifPresent(Lock::unlock);
-        }
+//        String fileUri = request.getDocumentIdentifier().getUri();
+//        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+//        if (!filePath.isPresent()) {
+//            return CompletableFuture.supplyAsync(() -> reply);
+//        }
+//        Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
+//        Optional<Lock> lock = documentManager.lockFile(compilationPath);
+//        try {
+//            LSContext astContext = new DocumentOperationContext
+//                    .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
+//                    .withCommonParams(null, fileUri, documentManager)
+//                    .build();
+//            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
+//            reply.setAst(getTreeForContent(astContext));
+//            reply.setParseSuccess(isParseSuccess(astContext));
+//        } catch (Throwable e) {
+//            reply.setParseSuccess(false);
+//            String msg = "Operation 'ballerinaDocument/ast' failed!";
+//            logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+//        } finally {
+//            lock.ifPresent(Lock::unlock);
+//        }
         return CompletableFuture.supplyAsync(() -> reply);
     }
 
@@ -118,7 +118,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
         String fileUri = request.getDocumentIdentifier().getUri();
         Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
-        if (!filePath.isPresent()) {
+        if (filePath.isEmpty()) {
             return CompletableFuture.supplyAsync(() -> reply);
         }
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
@@ -325,7 +325,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     Collections.singletonList(textEdit));
 
             WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(
-            Either.forLeft(txtDocumentEdit)));
+                    Either.forLeft(txtDocumentEdit)));
             applyWorkspaceEditParams.setEdit(workspaceEdit);
 
             // update the document
@@ -597,7 +597,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                                     int startIndex = FormattingSourceGen.extractWS(sourceKeyValue).get(0)
                                             .getAsJsonObject().get("i").getAsInt();
                                     FormattingSourceGen.addNewWS(matchedTargetRecord, tree, "", ",", true,
-                                    startIndex);
+                                            startIndex);
                                 }
                             }
                         }
