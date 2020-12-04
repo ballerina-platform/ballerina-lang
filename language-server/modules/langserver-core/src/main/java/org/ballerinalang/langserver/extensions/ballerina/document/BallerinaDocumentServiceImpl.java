@@ -119,7 +119,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
             // Get the generated syntax tree JSON with type info.
             JsonElement jsonSyntaxTree = DiagramUtil
-                    .getSyntaxTreeJSON(filePath.get().getFileName().toString(), syntaxTree.get(), semanticModel.get());
+                    .getSyntaxTreeJSON(syntaxTree.get(), semanticModel.get());
 
             // Preparing the response.
             reply.setSource(syntaxTree.get().toSourceCode());
