@@ -76,6 +76,7 @@ public class TransactionImportValidator extends NodeVisitor {
                 qualifiers.contains(SyntaxKind.RESOURCE_KEYWORD.stringValue())) {
             importTransactionPackage = true;
         }
+        super.visit(functionDefinitionNode);
     }
 
 

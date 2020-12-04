@@ -460,8 +460,7 @@ public class BTestRunner {
         }
 
         if (!packageName.equals(TesterinaConstants.DOT)) {
-            Path sourceRootPath = Paths.get(suite.getSourceRootPath()).resolve(TesterinaConstants.TARGET_DIR_NAME)
-                    .resolve(TesterinaConstants.REPORT_DIR_NAME);
+            Path sourceRootPath = Paths.get(suite.getSourceRootPath()).resolve(TesterinaConstants.TARGET_DIR_NAME);
             Path jsonPath = Paths.get(sourceRootPath.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
             File jsonFile = new File(jsonPath.toString());
             writeFailedTestsToJson(failedOrSkippedTests, jsonFile);

@@ -23,6 +23,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-cli-module')
     implementation project(':toml-parser')
+    implementation project(':central-client')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.apache.commons:commons-compress:1.18'

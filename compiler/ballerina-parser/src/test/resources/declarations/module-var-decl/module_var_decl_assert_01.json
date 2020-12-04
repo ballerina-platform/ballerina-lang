@@ -271,6 +271,214 @@
               ]
             }
           ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a\\-b"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "FLOAT_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "FLOAT_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "\\+b"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "STRING_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a\\%b\\#c\\-\\\u003ed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "STRING_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "\\+a\\%b\\#c\\-\\\u003ed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
         }
       ]
     },

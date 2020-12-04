@@ -45,6 +45,7 @@ public class ProjectConstants {
 
     public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
     public static final String HOME_REPO_DEFAULT_DIRNAME = ".ballerina";
+    public static final String BALLERINA_CENTRAL_ACCESS_TOKEN = "BALLERINA_CENTRAL_ACCESS_TOKEN";
 
     public static final String USER_DIR = "user.dir";
     public static final String USER_NAME = "user.name";
@@ -103,4 +104,6 @@ public class ProjectConstants {
     public static final String ASM_COMMONS_JAR = "asm-commons-7.2.jar";
     public static final String DIFF_UTILS_JAR = "java-diff-utils-4.5.jar";
     public static final String REPORT_DIR_NAME = "report";
+
+    public static final String BALLERINA_OFFLINE_FLAG = "ballerina.offline.flag";
 }

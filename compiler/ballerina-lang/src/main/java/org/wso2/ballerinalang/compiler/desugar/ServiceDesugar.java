@@ -59,9 +59,9 @@ public class ServiceDesugar {
 
     private static final CompilerContext.Key<ServiceDesugar> SERVICE_DESUGAR_KEY = new CompilerContext.Key<>();
 
-    private static final String START_METHOD = "__start";
-    private static final String GRACEFUL_STOP = "__gracefulStop";
-    private static final String ATTACH_METHOD = "__attach";
+    private static final String START_METHOD = "start";
+    private static final String GRACEFUL_STOP = "gracefulStop";
+    private static final String ATTACH_METHOD = "attach";
     private static final String LISTENER = "$LISTENER";
 
     private final SymbolTable symTable;
@@ -104,7 +104,7 @@ public class ServiceDesugar {
             SymbolEnv env, String method) {
         // This method will generate and add following statement to give life cycle function.
         //
-        //  _ = [check] var.__start/__stop();
+        //  _ = [check] var.start/stop();
         //
 
         final Location pos = variable.pos;
@@ -170,13 +170,18 @@ public class ServiceDesugar {
             List<BLangExpression> args = new ArrayList<>();
             args.add(ASTBuilderUtil.createVariableRef(pos, service.serviceVariable.symbol));
 
-            BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
-                    ASTBuilderUtil.createEmptyArrayLiteral(service.getPosition(), symTable.arrayStringType);
-            for (IdentifierNode path : service.getAbsolutePath()) {
-                var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType, path.getValue());
-                arrayLiteral.exprs.add(literal);
+            if (service.getServiceNameLiteral() == null) {
+                BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
+                        ASTBuilderUtil.createEmptyArrayLiteral(service.getPosition(), symTable.arrayStringType);
+                for (IdentifierNode path : service.getAbsolutePath()) {
+                    var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType,
+                            path.getValue());
+                    arrayLiteral.exprs.add(literal);
+                }
+                args.add(arrayLiteral);
+            } else {
+                args.add((BLangExpression) service.getServiceNameLiteral());
             }
-            args.add(arrayLiteral);
 
             addMethodInvocation(pos, listenerVarRef, methodRef, args, attachments);
         }

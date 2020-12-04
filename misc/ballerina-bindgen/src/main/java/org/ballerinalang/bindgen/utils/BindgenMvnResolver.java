@@ -17,14 +17,13 @@
  */
 package org.ballerinalang.bindgen.utils;
 
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.internal.BallerinaTomlProcessor;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
-import org.ballerinalang.toml.model.Library;
-import org.ballerinalang.toml.model.Platform;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +31,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.getOutputPath;
@@ -117,31 +117,30 @@ public class BindgenMvnResolver {
     private static void populateBallerinaToml(String groupId, String artifactId, String version, File tomlFile,
                                               Path projectRoot, String parent) throws BindgenException {
         try (FileWriterWithEncoding fileWriter = new FileWriterWithEncoding(tomlFile, StandardCharsets.UTF_8, true)) {
-            Platform platform = BallerinaTomlProcessor.parse(tomlFile.toPath()).getPlatform();
-            if (platform == null || (platform.target == null && platform.libraries == null)) {
-                fileWriter.write("\n\n[platform]\n");
-                fileWriter.write("target = \"java11\"\n");
-            } else if (platform.getLibraries() != null) {
-                for (Library library : platform.getLibraries()) {
-                    if (library.path == null && library.groupId != null && library.artifactId != null &&
-                            library.version != null && library.groupId.equals(groupId) &&
-                            library.artifactId.equals(artifactId) && library.version.equals(version)) {
+            PackageManifest.Platform platform = BallerinaTomlProcessor.parseAsPackageManifest(tomlFile.toPath())
+                    .platform("java11");
+            if (platform != null && platform.dependencies() != null) {
+                for (Map<String, Object> library : platform.dependencies()) {
+                    if (library.get("path") == null &&
+                            library.get("groupId") != null && library.get("groupId").equals(groupId) &&
+                            library.get("artifactId") != null && library.get("artifactId").equals(artifactId) &&
+                            library.get("version") != null && library.get("version").equals(version)) {
                         return;
                     }
                 }
             }
             fileWriter.write("\n");
             if (parent != null) {
-                fileWriter.write("    # transitive dependency of " + parent + "\n");
+                fileWriter.write("# transitive dependency of " + parent + "\n");
             }
-            fileWriter.write("    [[platform.libraries]]\n");
+            fileWriter.write("[[platform.java11.dependency]]\n");
             String moduleName = getModuleName(projectRoot, getOutputPath());
             if (moduleName != null) {
-                fileWriter.write("    modules = [\"" + moduleName + "\"]\n");
+                fileWriter.write("modules = [\"" + moduleName + "\"]\n");
             }
-            fileWriter.write("    groupId = \"" + groupId + "\"\n");
-            fileWriter.write("    artifactId = \"" + artifactId + "\"\n");
-            fileWriter.write("    version = \"" + version + "\"\n");
+            fileWriter.write("groupId = \"" + groupId + "\"\n");
+            fileWriter.write("artifactId = \"" + artifactId + "\"\n");
+            fileWriter.write("version = \"" + version + "\"\n");
         } catch (IOException io) {
             throw new BindgenException("Error while updating the Ballerina.toml file.", io);
         }

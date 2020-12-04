@@ -20,20 +20,20 @@ public class Listener {
     boolean initialized = false;
     boolean started = false;
 
-    public isolated function __start() returns error? {
+    public isolated function 'start() returns error? {
         self.started = true;
         return externStart(self);
     }
-    public isolated function __gracefulStop() returns error? {
+    public isolated function gracefulStop() returns error? {
     }
-    public isolated function __immediateStop() returns error? {
+    public isolated function immediateStop() returns error? {
     }
-    public isolated function __detach(service object {} s) returns error? {
+    public isolated function detach(service object {} s) returns error? {
     }
-     public isolated function __attach(service object {} s, string[]? name = ()) returns error? {
+    public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
         return self.register(s, name);
     }
-    isolated function register(service object {} s, string[]? name) returns error? {
+    isolated function register(service object {} s, string[]|string? name) returns error? {
         return externAttach(s, name);
     }
 
@@ -43,7 +43,7 @@ public class Listener {
     }
 }
 
-isolated function externAttach(service object {} s, string[]? name) returns error? = @java:Method {
+isolated function externAttach(service object {} s, string[]|string? name) returns error? = @java:Method {
     'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name: "attach"
 } external;
@@ -66,6 +66,11 @@ function getListener() returns object {} = @java:Method {
 function getService() returns object {} = @java:Method {
     'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name: "getService"
+} external;
+
+function reset() = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "reset"
 } external;
 
 listener Listener lsn = new();
@@ -95,6 +100,7 @@ function testServiceDecl() {
 
     MagicField o = <MagicField> getService(); // get service attached to the listener
     assertEquality("The Somebody Else's Problem field", o.magic);
+    reset();
 }
 
 function assertEquality(any|error expected, any|error actual) {

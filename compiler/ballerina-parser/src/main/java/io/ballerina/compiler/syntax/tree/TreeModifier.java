@@ -160,7 +160,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(serviceDeclarationNode.serviceKeyword());
         TypeDescriptorNode typeDescriptor =
                 modifyNode(serviceDeclarationNode.typeDescriptor().orElse(null));
-        NodeList<Token> absoluteResourcePath =
+        NodeList<Node> absoluteResourcePath =
                 modifyNodeList(serviceDeclarationNode.absoluteResourcePath());
         Token onKeyword =
                 modifyToken(serviceDeclarationNode.onKeyword());

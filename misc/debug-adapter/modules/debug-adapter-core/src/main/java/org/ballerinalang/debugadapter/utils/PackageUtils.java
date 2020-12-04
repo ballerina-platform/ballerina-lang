@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.utils;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
+import com.sun.jdi.ReferenceType;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -25,6 +26,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.debugadapter.DebugContext;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -130,18 +132,6 @@ public class PackageUtils {
         }
     }
 
-    public static String[] getNameParts(String path) {
-        String[] srcNames;
-        if (path.contains("/")) {
-            srcNames = path.split("/");
-        } else if (path.contains("\\")) {
-            srcNames = path.split("\\\\");
-        } else {
-            srcNames = new String[]{path};
-        }
-        return srcNames;
-    }
-
     public static String getFileNameFrom(Path filePath) {
         try {
             String[] split = filePath.toString().split(SEPARATOR_REGEX);
@@ -157,6 +147,32 @@ public class PackageUtils {
 
     public static boolean isBlank(String str) {
         return str == null || str.isEmpty() || str.chars().allMatch(Character::isWhitespace);
+    }
+
+    /**
+     * Returns full-qualified class name for a given JDI class reference instance.
+     *
+     * @param context       Debug context
+     * @param referenceType JDI class reference instance
+     * @return full-qualified class name
+     */
+    public static String getQualifiedClassName(DebugContext context, ReferenceType referenceType) {
+        try {
+            List<String> paths = referenceType.sourcePaths(null);
+            if (paths.isEmpty()) {
+                return referenceType.name();
+            }
+            String path = paths.get(0);
+            if (!path.endsWith(BAL_FILE_EXT) || (context.getSourceProject() instanceof BuildProject &&
+                    !path.startsWith(context.getSourceProject().currentPackage().packageOrg().value()))) {
+                return referenceType.name();
+            }
+            // Removes ".bal" extension if exists.
+            path = path.replaceAll(BAL_FILE_EXT + "$", "");
+            return replaceSeparators(path);
+        } catch (Exception e) {
+            return referenceType.name();
+        }
     }
 
     /**
@@ -206,5 +222,26 @@ public class PackageUtils {
                 .add(document.module().packageInstance().packageVersion().toString().replace(".", "_"))
                 .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".").replace("/", "."));
         return classNameJoiner.toString();
+    }
+
+    public static String[] getNameParts(String path) {
+        String[] srcNames;
+        if (path.contains("/")) {
+            srcNames = path.split("/");
+        } else if (path.contains("\\")) {
+            srcNames = path.split("\\\\");
+        } else {
+            srcNames = new String[]{path};
+        }
+        return srcNames;
+    }
+
+    private static String replaceSeparators(String path) {
+        if (path.contains("/")) {
+            return path.replaceAll("/", ".");
+        } else if (path.contains("\\")) {
+            return path.replaceAll("\\\\", ".");
+        }
+        return path;
     }
 }

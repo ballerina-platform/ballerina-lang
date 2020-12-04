@@ -21,9 +21,12 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -34,6 +37,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
@@ -46,6 +50,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Contains a set of utility methods to manage projects.
@@ -56,7 +62,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     /**
      * Mapping of source root to project instance.
      */
-    private final Map<Path, Project> sourceRootToProject = new HashMap<>();
+    private final Map<Path, ProjectPair> sourceRootToProject = new HashMap<>();
     /**
      * Cache mapping of document path to source root.
      */
@@ -86,8 +92,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param filePath ballerina project or standalone file path
      * @return project of applicable type
      */
+    @Override
     public Optional<Project> project(Path filePath) {
-        return Optional.ofNullable(sourceRootToProject.get(projectRoot(filePath)));
+        return projectPair(filePath).map(ProjectPair::project);
     }
 
     /**
@@ -96,6 +103,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param filePath file path of the document
      * @return project of applicable type
      */
+    @Override
     public Optional<Module> module(Path filePath) {
         Optional<Project> project = project(filePath);
         if (project.isEmpty()) {
@@ -114,6 +122,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param filePath file path of the document
      * @return {@link Document}
      */
+    @Override
     public Optional<Document> document(Path filePath) {
         Optional<Project> project = project(filePath);
         return project.isPresent() ? document(filePath, project.get()) : Optional.empty();
@@ -125,6 +134,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param filePath file path of the document
      * @return {@link io.ballerina.compiler.syntax.tree.SyntaxTree}
      */
+    @Override
     public Optional<SyntaxTree> syntaxTree(Path filePath) {
         Optional<Document> document = this.document(filePath);
         if (document.isEmpty()) {
@@ -139,13 +149,38 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param filePath file path of the document
      * @return {@link SemanticModel}
      */
+    @Override
     public Optional<SemanticModel> semanticModel(Path filePath) {
-        Optional<Module> optModule = this.module(filePath);
-        if (optModule.isEmpty()) {
+        return waitAndGetModuleCompilation(filePath).map(ModuleCompilation::getSemanticModel);
+    }
+
+    /**
+     * Returns module compilation from the file path provided.
+     *
+     * @param filePath file path of the document
+     * @return {@link ModuleCompilation}
+     */
+    @Override
+    public Optional<ModuleCompilation> waitAndGetModuleCompilation(Path filePath) {
+        // Get Project and Lock
+        Optional<ProjectPair> projectPair = projectPair(filePath);
+        if (projectPair.isEmpty()) {
             return Optional.empty();
         }
-        Module module = optModule.get();
-        return Optional.ofNullable(module.packageInstance().getCompilation().getSemanticModel(module.moduleId()));
+        Optional<Document> document = document(filePath, projectPair.get().project());
+        if (document.isEmpty()) {
+            return Optional.empty();
+        }
+        // Get Module
+        Module module = document.get().module();
+        // Lock Project Instance
+        projectPair.get().locker().lock();
+        try {
+            return Optional.of(module.getCompilation());
+        } finally {
+            // Unlock Project Instance
+            projectPair.get().locker().unlock();
+        }
     }
 
     /**
@@ -154,9 +189,31 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param filePath {@link Path} of the document
      * @param params   {@link DidOpenTextDocumentParams}
      */
+    @Override
     public void didOpen(Path filePath, DidOpenTextDocumentParams params) {
-        // Create project, if not exists
-        sourceRootToProject.computeIfAbsent(projectRoot(filePath), this::createProject);
+        // Create Project, if not exists
+        Path projectRoot = projectRoot(filePath);
+        sourceRootToProject.computeIfAbsent(projectRoot, this::createProject);
+        // Get document
+        ProjectPair projectPair = sourceRootToProject.get(projectRoot);
+        if (projectPair == null) {
+            // NOTE: This will never happen since we create a project if not exists
+            return;
+        }
+
+        // Check if new document is not loaded to Project Instance
+        Optional<Document> document = document(filePath, projectPair.project());
+        if (document.isEmpty()) {
+            // Lock Project Instance
+            projectPair.locker().lock();
+            try {
+                // Reload the project
+                projectPair.setProject(createProject(filePath).project());
+            } finally {
+                // Unlock Project Instance
+                projectPair.locker().unlock();
+            }
+        }
     }
 
     /**
@@ -166,25 +223,32 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param params   {@link DidChangeTextDocumentParams}
      * @throws WorkspaceDocumentException when project or document not found
      */
+    @Override
     public void didChange(Path filePath, DidChangeTextDocumentParams params) throws WorkspaceDocumentException {
-        // Get project
-        Optional<Project> project = project(filePath);
-        if (project.isEmpty()) {
+        // Get Project and Lock
+        Optional<ProjectPair> projectPair = projectPair(filePath);
+        if (projectPair.isEmpty()) {
             throw new WorkspaceDocumentException("Cannot add changes to a file in an un-opened project!");
         }
+        // Lock Project Instance
+        projectPair.get().locker().lock();
+        try {
+            // Get document
+            Optional<Document> document = document(filePath, projectPair.get().project());
+            if (document.isEmpty()) {
+                throw new WorkspaceDocumentException("Document does not exist in path: " + filePath.toString());
+            }
 
-        // Get document
-        Optional<Document> document = document(filePath, project.get());
-        if (document.isEmpty()) {
-            throw new WorkspaceDocumentException("Document does not exist in path: " + filePath.toString());
+            // Update file
+            String content = params.getContentChanges().get(0).getText();
+            Document updatedDoc = document.get().modify().withContent(content).apply();
+
+            // Update project instance
+            projectPair.get().setProject(updatedDoc.module().project());
+        } finally {
+            // Unlock Project Instance
+            projectPair.get().locker().unlock();
         }
-
-        // Update file
-        String content = params.getContentChanges().get(0).getText();
-        Document updatedDoc = document.get().modify().withContent(content).apply();
-
-        // Update project instance
-        sourceRootToProject.put(projectRoot(filePath), updatedDoc.module().project());
     }
 
     /**
@@ -195,6 +259,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param params   {@link DidCloseTextDocumentParams}
      * @throws WorkspaceDocumentException when project not found
      */
+    @Override
     public void didClose(Path filePath, DidCloseTextDocumentParams params) throws WorkspaceDocumentException {
         Optional<Project> project = project(filePath);
         if (project.isEmpty()) {
@@ -202,7 +267,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
         // If it is a single file project, remove project from mapping
         if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            Path projectRoot = projectRoot(filePath);
+            Path projectRoot = project.get().sourceRoot();
             sourceRootToProject.remove(projectRoot);
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
                                             "' {project: '" + projectRoot.toUri().toString() +
@@ -262,20 +327,25 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         return filePath.resolve(ProjectConstants.BALLERINA_TOML).toFile().exists();
     }
 
-    private Project createProject(Path filePath) {
+    private Optional<ProjectPair> projectPair(Path filePath) {
+        return Optional.ofNullable(sourceRootToProject.get(projectRoot(filePath)));
+    }
+
+    private ProjectPair createProject(Path filePath) {
         Pair<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndProjectRoot(filePath);
         ProjectKind projectKind = projectKindAndProjectRootPair.getLeft();
         Path projectRoot = projectKindAndProjectRootPair.getRight();
         Project project;
+        BuildOptions options = new BuildOptionsBuilder().offline(true).build();
         if (projectKind == ProjectKind.BUILD_PROJECT) {
-            project = BuildProject.load(projectRoot);
+            project = BuildProject.load(projectRoot, options);
         } else {
-            project = SingleFileProject.load(projectRoot);
+            project = SingleFileProject.load(projectRoot, options);
         }
         LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
                                         "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
                                         project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
-        return project;
+        return ProjectPair.from(project);
     }
 
     private Optional<Path> modulePath(ModuleId moduleId, Project project) {
@@ -333,5 +403,54 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             }
         }
         return Optional.empty();
+    }
+
+    /**
+     * This class holds project and its lock.
+     */
+    public static class ProjectPair {
+
+        private final Lock lock;
+        private Project project;
+
+        private ProjectPair(Project project, Lock lock) {
+            this.project = project;
+            this.lock = lock;
+        }
+
+        public static ProjectPair from(Project project) {
+            return new ProjectPair(project, new ReentrantLock(true));
+        }
+
+        public static ProjectPair from(Project project, Lock lock) {
+            return new ProjectPair(project, lock);
+        }
+
+        /**
+         * Returns the associated lock for the file.
+         *
+         * @return {@link Lock}
+         */
+        public Lock locker() {
+            return this.lock;
+        }
+
+        /**
+         * Returns the workspace document.
+         *
+         * @return {@link WorkspaceDocumentManager}
+         */
+        public Project project() {
+            return this.project;
+        }
+
+        /**
+         * Set workspace document.
+         *
+         * @param project {@link Project}
+         */
+        public void setProject(Project project) {
+            this.project = project;
+        }
     }
 }

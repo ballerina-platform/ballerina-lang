@@ -25,5 +25,15 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public abstract class PlatformLibrary {
+    private final PlatformLibraryScope scope;
+
+    public PlatformLibrary(PlatformLibraryScope scope) {
+        this.scope = scope;
+    }
+
     public abstract Path path();
+
+    public PlatformLibraryScope scope() {
+        return scope;
+    }
 }

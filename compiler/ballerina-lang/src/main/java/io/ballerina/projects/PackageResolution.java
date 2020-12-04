@@ -28,10 +28,10 @@ import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Resolves dependencies and handles version conflicts in the dependency graph.
@@ -43,11 +43,14 @@ public class PackageResolution {
     private final PackageCache packageCache;
     private final PackageResolver packageResolver;
     private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
+    private final CompilationOptions compilationOptions;
 
     private List<ModuleContext> topologicallySortedModuleList;
+    private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
 
     private PackageResolution(PackageContext rootPackageContext) {
         this.rootPackageContext = rootPackageContext;
+        this.compilationOptions = rootPackageContext.compilationOptions();
 
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
@@ -70,6 +73,24 @@ public class PackageResolution {
      */
     public DependencyGraph<ResolvedPackageDependency> dependencyGraph() {
         return dependencyGraph;
+    }
+
+    /**
+     * Returns all the dependencies of this package including it's transitive dependencies.
+     *
+     * @return all the dependencies of this package including it's transitive dependencies
+     */
+    public Collection<ResolvedPackageDependency> allDependencies() {
+        if (dependenciesWithTransitives != null) {
+            return dependenciesWithTransitives;
+        }
+
+        dependenciesWithTransitives = dependencyGraph.toTopologicallySortedList()
+                .stream()
+                // Remove root package from this list.
+                .filter(resolvedPkg -> resolvedPkg.packageId() != rootPackageContext.packageId())
+                .collect(Collectors.toList());
+        return dependenciesWithTransitives;
     }
 
     /**
@@ -112,19 +133,26 @@ public class PackageResolution {
         // TODO Check for cycles
     }
 
-    private Set<ResolutionRequest> getPackageLoadRequestsOfDirectDependencies() {
-        Set<ModuleLoadRequest> allModuleLoadRequests = new HashSet<>();
+    private LinkedHashSet<ResolutionRequest> getPackageLoadRequestsOfDirectDependencies() {
+        LinkedHashSet<ModuleLoadRequest> allModuleLoadRequests = new LinkedHashSet<>();
         for (ModuleId moduleId : rootPackageContext.moduleIds()) {
             ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
-            allModuleLoadRequests.addAll(moduleContext.moduleLoadRequests());
+            allModuleLoadRequests.addAll(moduleContext.populateModuleLoadRequests());
+        }
+
+        if (!compilationOptions.skipTests()) {
+            for (ModuleId moduleId : rootPackageContext.moduleIds()) {
+                ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
+                allModuleLoadRequests.addAll(moduleContext.populateTestSrcModuleLoadRequests());
+            }
         }
 
         return getPackageLoadRequestsOfDirectDependencies(allModuleLoadRequests);
     }
 
-    private Set<ResolutionRequest> getPackageLoadRequestsOfDirectDependencies(
-            Set<ModuleLoadRequest> moduleLoadRequests) {
-        Set<ResolutionRequest> resolutionRequests = new HashSet<>();
+    private LinkedHashSet<ResolutionRequest> getPackageLoadRequestsOfDirectDependencies(
+            LinkedHashSet<ModuleLoadRequest> moduleLoadRequests) {
+        LinkedHashSet<ResolutionRequest> resolutionRequests = new LinkedHashSet<>();
         for (ModuleLoadRequest moduleLoadRequest : moduleLoadRequests) {
             Optional<PackageOrg> optionalOrgName = moduleLoadRequest.orgName();
             if (optionalOrgName.isEmpty()) {
@@ -146,8 +174,8 @@ public class PackageResolution {
                     requestedPkgOrg, requestedPkgName);
             PackageDescriptor pkdDesc = PackageDescriptor.from(requestedPkgOrg,
                     requestedPkgName, requestedPkgVersion);
-            ResolutionRequest packageLoadRequest = ResolutionRequest.from(pkdDesc);
-            resolutionRequests.add(packageLoadRequest);
+            ResolutionRequest resolutionRequest = ResolutionRequest.from(pkdDesc, moduleLoadRequest.scope());
+            resolutionRequests.add(resolutionRequest);
         }
         return resolutionRequests;
     }
@@ -175,11 +203,11 @@ public class PackageResolution {
 
     private void createDependencyGraphFromSources(PackageDependencyGraphBuilder depGraphBuilder) {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
-        Set<ResolutionRequest> packageLoadRequests = getPackageLoadRequestsOfDirectDependencies();
+        LinkedHashSet<ResolutionRequest> packageLoadRequests = getPackageLoadRequestsOfDirectDependencies();
 
         // 2) Resolve direct dependencies. My assumption is that, all these dependencies comes from BALRs
-        Collection<ResolutionResponse> resolutionResponses =
-                packageResolver.resolvePackages(packageLoadRequests, rootPackageContext.project());
+        List<ResolutionResponse> resolutionResponses =
+                packageResolver.resolvePackages(new ArrayList<>(packageLoadRequests), rootPackageContext.project());
 
         PackageDescriptor rootPkgDesc = rootPackageContext.descriptor();
         depGraphBuilder.addNode(rootPkgDesc);
@@ -188,12 +216,21 @@ public class PackageResolution {
                 // We don't log errors for unresolved direct dependencies
                 continue;
             }
+
             Package directDependency = resolutionResponse.resolvedPackage();
             PackageDescriptor dependencyDescriptor = directDependency.descriptor();
-            depGraphBuilder.addDependency(rootPkgDesc, dependencyDescriptor);
+            ResolutionRequest resolutionRequest = resolutionResponse.packageLoadRequest();
+            if (resolutionRequest.scope() == PackageDependencyScope.DEFAULT) {
+                depGraphBuilder.addDependency(rootPkgDesc, dependencyDescriptor);
 
-            // Merge direct dependency's dependency graph with the current one.
-            depGraphBuilder.mergeGraph(directDependency.packageContext().dependencyGraph());
+                // Merge direct dependency's dependency graph with the current one.
+                depGraphBuilder.mergeGraph(directDependency.packageContext().dependencyGraph());
+            } else if (resolutionRequest.scope() == PackageDependencyScope.TEST_ONLY) {
+                depGraphBuilder.addTestDependency(rootPkgDesc, dependencyDescriptor);
+
+                // Merge direct dependency's dependency graph with the current one.
+                depGraphBuilder.mergeTestDependencyGraph(directDependency.packageContext().dependencyGraph());
+            }
         }
 
         // Now we have raw dependency graph that contains all the direct and transitive dependencies of this module

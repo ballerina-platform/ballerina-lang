@@ -193,11 +193,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
     private static final String NULL_LITERAL = "null";
-    private static final String LEFT_BRACE = "{";
-    private static final String RIGHT_BRACE = "}";
-    private static final String SPACE = " ";
     public static final String COLON = ":";
-    private static final String LISTENER_TYPE_NAME = "lang.object:Listener";
     private static final String LISTENER_NAME = "listener";
 
     private SymbolTable symTable;
@@ -316,6 +312,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangResourceFunction funcNode) {
         visit((BLangFunction) funcNode);
+        for (BLangSimpleVariable pathParam : funcNode.pathParams) {
+            pathParam.accept(this);
+            if (!types.isAssignable(pathParam.type, symTable.intStringFloatOrBoolean)) {
+                dlog.error(pathParam.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE, pathParam.type);
+            }
+        }
+
+        if (funcNode.restPathParam != null) {
+            funcNode.restPathParam.accept(this);
+            BArrayType arrayType = (BArrayType) funcNode.restPathParam.type;
+            BType elemType = arrayType.getElementType();
+            if (!types.isAssignable(elemType, symTable.intStringFloatOrBoolean)) {
+                dlog.error(funcNode.restPathParam.getPosition(),
+                        DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE, elemType);
+            }
+        }
     }
 
     public void visit(BLangFunction funcNode) {
@@ -936,7 +948,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
 
                 if (variable.flagSet.contains(Flag.LISTENER) && !types.checkListenerCompatibility(rhsType)) {
-                    dlog.error(varRefExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, LISTENER_TYPE_NAME, rhsType);
+                    dlog.error(varRefExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, LISTENER_NAME, rhsType);
                     return;
                 }
 
@@ -2801,6 +2813,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         analyzeDef(serviceNode.serviceVariable, env);
+        if (serviceNode.serviceNameLiteral != null) {
+            typeChecker.checkExpr(serviceNode.serviceNameLiteral, env, symTable.stringType);
+        }
 
         for (BLangExpression attachExpr : serviceNode.attachedExprs) {
             final BType exprType = typeChecker.checkExpr(attachExpr, env);

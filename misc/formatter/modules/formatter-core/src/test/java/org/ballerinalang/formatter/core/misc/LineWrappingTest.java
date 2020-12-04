@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Test the line wrapping.
@@ -43,5 +45,12 @@ public class LineWrappingTest extends FormatterTest {
     @Override
     public String getTestResourceDir() {
         return Paths.get("misc", "linewrapping").toString();
+    }
+
+    @Override
+    public List<String> skipList() {
+        return Arrays.asList(
+                "line_wrapping_1.bal"
+        );
     }
 }

@@ -664,6 +664,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSimpleVariable pathParam = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         pathParam.name = createIdentifier(resourcePathParameterNode.paramName());
         BLangType typeNode = (BLangType) resourcePathParameterNode.typeDescriptor().apply(this);
+        pathParam.pos = getPosition(resourcePathParameterNode);
+        pathParam.annAttachments = applyAll(resourcePathParameterNode.annotations());
 
         if (resourcePathParameterNode.kind() == SyntaxKind.RESOURCE_PATH_REST_PARAM) {
             BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
@@ -689,19 +691,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLFunction.accessorName = createIdentifier(accessorName);
 
         bLFunction.resourcePath =  new ArrayList<>();
+        List<BLangSimpleVariable> params = new ArrayList<>();
         for (Node pathSegment : relativeResourcePath) {
             switch (pathSegment.kind()) {
                 case SLASH_TOKEN:
                     continue;
                 case RESOURCE_PATH_SEGMENT_PARAM:
                     BLangSimpleVariable param = (BLangSimpleVariable) pathSegment.apply(this);
-                    bLFunction.addParameter(param);
+                    params.add(param);
                     bLFunction.addPathParam(param);
                     bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "*"));
                     break;
                 case RESOURCE_PATH_REST_PARAM:
                     BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
-                    bLFunction.addParameter(restParam);
+                    params.add(restParam);
                     bLFunction.setRestPathParam(restParam);
                     bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "**"));
                     break;
@@ -710,6 +713,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     break;
             }
         }
+        bLFunction.getParameters().addAll(0, params);
 
         return bLFunction;
     }
@@ -3669,14 +3673,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         annonClassDef.flagSet.add(SERVICE);
 
         List<IdentifierNode> absResourcePathPath = new ArrayList<>();
-        NodeList<Token> pathList = serviceDeclarationNode.absoluteResourcePath();
-        for (Token token : pathList) {
-            String text = token.text();
-            // if it's a single '/' then add, else ignore '/' chars and only add other pieces.
-            if (pathList.size() == 1 && text.equals("/")) {
-                absResourcePathPath.add(createIdentifier(token));
-            } else if (!text.equals("/")) {
-                absResourcePathPath.add(createIdentifier(token));
+        NodeList<Node> pathList = serviceDeclarationNode.absoluteResourcePath();
+        BLangLiteral serviceNameLiteral = null;
+        if (pathList.size() == 1 && pathList.get(0).kind() == SyntaxKind.STRING_LITERAL) {
+            serviceNameLiteral = (BLangLiteral) createExpression(pathList.get(0));
+        } else {
+            for (var token : pathList) {
+                String text = ((Token) token).text();
+                // if it's a single '/' then add, else ignore '/' chars and only add other pieces.
+                if (pathList.size() == 1 && text.equals("/")) {
+                    absResourcePathPath.add(createIdentifier((Token) token));
+                } else if (!text.equals("/")) {
+                    absResourcePathPath.add(createIdentifier((Token) token));
+                }
             }
         }
 
@@ -3728,6 +3737,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         service.attachedExprs = exprs;
         service.serviceClass = annonClassDef;
         service.absoluteResourcePath = absResourcePathPath;
+        service.serviceNameLiteral = serviceNameLiteral;
         service.pos = pos;
         service.name = createIdentifier(pos, anonymousModelHelper.getNextAnonymousServiceVarKey(packageID));
         return service;

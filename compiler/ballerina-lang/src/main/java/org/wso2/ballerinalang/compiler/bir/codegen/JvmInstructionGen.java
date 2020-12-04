@@ -194,7 +194,6 @@ public class JvmInstructionGen {
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, BIRNode.BIRPackage currentPackage,
                              JvmPackageGen jvmPackageGen) {
-
         this.mv = mv;
         this.indexMap = indexMap;
         this.currentPackage = currentPackage;
@@ -241,7 +240,7 @@ public class JvmInstructionGen {
         }
     }
 
-    private static void generateJVarLoad(MethodVisitor mv, JType jType, String currentPackageName, int valueIndex) {
+    private static void generateJVarLoad(MethodVisitor mv, JType jType, int valueIndex) {
 
         switch (jType.jTag) {
             case JTypeTags.JBYTE:
@@ -278,7 +277,7 @@ public class JvmInstructionGen {
         }
     }
 
-    private static void generateJVarStore(MethodVisitor mv, JType jType, String currentPackageName, int valueIndex) {
+    private static void generateJVarStore(MethodVisitor mv, JType jType, int valueIndex) {
 
         switch (jType.jTag) {
             case JTypeTags.JBYTE:
@@ -504,7 +503,7 @@ public class JvmInstructionGen {
                 mv.visitVarInsn(ALOAD, valueIndex);
                 break;
             case JTypeTags.JTYPE:
-                generateJVarLoad(mv, (JType) bType, currentPackageName, valueIndex);
+                generateJVarLoad(mv, (JType) bType, valueIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
@@ -576,7 +575,7 @@ public class JvmInstructionGen {
                 mv.visitVarInsn(ASTORE, valueIndex);
                 break;
             case JTypeTags.JTYPE:
-                generateJVarStore(mv, (JType) bType, currentPackageName, valueIndex);
+                generateJVarStore(mv, (JType) bType, valueIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
@@ -607,7 +606,6 @@ public class JvmInstructionGen {
     }
 
     void generatePlatformIns(JInstruction ins) {
-
         if (ins.jKind == JInsKind.JCAST) {
             JCast castIns = (JCast) ins;
             BType targetType = castIns.targetType;
@@ -618,7 +616,6 @@ public class JvmInstructionGen {
     }
 
     void generateMoveIns(BIRNonTerminator.Move moveIns) {
-
         this.loadVar(moveIns.rhsOp.variableDcl);
         this.storeToVar(moveIns.lhsOp.variableDcl);
     }
@@ -1222,8 +1219,7 @@ public class JvmInstructionGen {
     }
 
     private int getJVMIndexOfVarRef(BIRNode.BIRVariableDcl varDcl) {
-
-        return this.indexMap.addToMapIfNotFoundAndGetIndex(varDcl);
+        return this.indexMap.addIfNotExists(varDcl.name.value, varDcl.type);
     }
 
     void generateMapNewIns(BIRNonTerminator.NewStructure mapNewIns, int localVarOffset) {

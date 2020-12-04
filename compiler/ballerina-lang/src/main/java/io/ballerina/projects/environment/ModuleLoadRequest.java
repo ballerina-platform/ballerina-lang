@@ -18,6 +18,7 @@
 package io.ballerina.projects.environment;
 
 import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
@@ -35,11 +36,13 @@ public class ModuleLoadRequest {
     private final PackageName packageName;
     private final ModuleName moduleName;
     private final PackageVersion version;
+    private final PackageDependencyScope scope;
 
     public ModuleLoadRequest(PackageOrg orgName,
                              PackageName packageName,
                              ModuleName moduleName,
-                             PackageVersion version) {
+                             PackageVersion version,
+                             PackageDependencyScope scope) {
         if (orgName != null && orgName.value().isEmpty()) {
             throw new IllegalArgumentException("The orgName cannot be an empty string. " +
                     "It should be either null or a non-empty string value");
@@ -48,6 +51,7 @@ public class ModuleLoadRequest {
         this.packageName = packageName;
         this.moduleName = moduleName;
         this.version = version;
+        this.scope = scope;
     }
 
     public Optional<PackageOrg> orgName() {
@@ -64,6 +68,10 @@ public class ModuleLoadRequest {
 
     public Optional<PackageVersion> version() {
         return Optional.ofNullable(version);
+    }
+
+    public PackageDependencyScope scope() {
+        return scope;
     }
 
     @Override

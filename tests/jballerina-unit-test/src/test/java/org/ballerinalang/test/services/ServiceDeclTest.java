@@ -29,8 +29,14 @@ import org.testng.annotations.Test;
 public class ServiceDeclTest {
 
     @Test()
-    public void testErrorReturnFunction() {
+    public void testServiceDecl() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl.bal");
         BRunUtil.invoke(compileResult, "testServiceDecl");
+    }
+
+    @Test()
+    public void testServiceNameLiteral() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_service_name_literal.bal");
+        BRunUtil.invoke(compileResult, "testServiceName");
     }
 }

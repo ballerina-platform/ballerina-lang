@@ -96,6 +96,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
@@ -668,11 +669,6 @@ public class Types {
 
         if (targetTag == TypeTags.RECORD && sourceTag == TypeTags.MAP) {
             return isAssignableMapType((BMapType) source, (BRecordType) target);
-        }
-
-        if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
-            // Special casing services, until we figure out service type concept.
-            return true;
         }
 
         if (targetTag == TypeTags.TYPEDESC && sourceTag == TypeTags.TYPEDESC) {
@@ -2064,37 +2060,13 @@ public class Types {
         if (type.tag != TypeTags.OBJECT) {
             return false;
         }
-        final BSymbol bSymbol = symTable.langObjectModuleSymbol.scope.lookup(Names.LISTENER).symbol;
-        if (bSymbol == symTable.notFoundSymbol || bSymbol.type.tag != TypeTags.OBJECT) {
-            throw new AssertionError("Listener object not defined.");
-        }
-        BObjectType rhsType = (BObjectType) type;
-        BObjectType lhsType = (BObjectType) bSymbol.type;
 
-        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
-        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
+        BObjectType rhsType = (BObjectType) type;
         List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
 
-        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
-        if (lhsAttachedFuncCount > rhsFuncs.size()) {
-            return false;
-        }
+        ListenerValidationModel listenerValidationModel = new ListenerValidationModel(this, symTable);
+        return listenerValidationModel.checkMethods(rhsFuncs);
 
-        for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc) {
-                continue;
-            }
-
-            if (!Symbols.isPublic(lhsFunc.symbol)) {
-                return false;
-            }
-
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, new HashSet<>());
-            if (rhsFunc == null || !Symbols.isPublic(rhsFunc.symbol)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public boolean isValidErrorDetailType(BType detailType) {
@@ -3697,5 +3669,147 @@ public class Types {
 
     private boolean isIsolated(BType type) {
         return Symbols.isFlagOn(type.flags, Flags.ISOLATED);
+    }
+
+    private static class ListenerValidationModel {
+        private final Types types;
+        private final SymbolTable symtable;
+        private final BObjectType emptyServiceType;
+        private final BType serviceNameType;
+        boolean attachFound;
+        boolean detachFound;
+        boolean startFound;
+        boolean gracefulStopFound;
+        boolean immediateStopFound;
+
+        public ListenerValidationModel(Types types, SymbolTable symTable) {
+            this.types = types;
+            this.symtable = symTable;
+            this.emptyServiceType = new BObjectType(
+                    new BObjectTypeSymbol(SymTag.OBJECT,
+                            Flags.SERVICE & Flags.PUBLIC,
+                            new org.wso2.ballerinalang.compiler.util.Name(""),
+                            null, null, null, null, BUILTIN));
+            this.emptyServiceType.tsymbol.type = this.emptyServiceType;
+
+            this.serviceNameType =
+                    BUnionType.create(null, symtable.stringType, symtable.arrayStringType, symtable.nilType);
+        }
+
+        boolean isValidListener() {
+            return attachFound && detachFound && startFound && gracefulStopFound && immediateStopFound;
+        }
+
+        private boolean checkMethods(List<BAttachedFunction> rhsFuncs) {
+            for (BAttachedFunction func : rhsFuncs) {
+                switch (func.funcName.value) {
+                    case "attach":
+                        if (!checkAttachMethod(func)) {
+                            return false;
+                        }
+                        break;
+                    case "detach":
+                        if (!checkDetachMethod(func)) {
+                            return false;
+                        }
+                        break;
+                    case "start":
+                        if (!checkStartMethod(func)) {
+                            return true;
+                        }
+                        break;
+                    case "gracefulStop":
+                        if (!checkGracefulStop(func)) {
+                            return false;
+                        }
+                        break;
+                    case "immediateStop":
+                        if (!checkImmediateStop(func)) {
+                            return false;
+                        }
+                        break;
+                }
+            }
+            return isValidListener();
+        }
+
+        private boolean emptyParamList(BAttachedFunction func) {
+            return func.type.paramTypes.isEmpty() && func.type.restType != symtable.noType;
+        }
+
+        private boolean publicAndReturnsErrorOrNil(BAttachedFunction func) {
+            if (!Symbols.isPublic(func.symbol)) {
+                return false;
+            }
+
+            if (!types.isAssignable(func.type.retType, symtable.errorOrNilType)) {
+                return false;
+            }
+            return true;
+        }
+
+        private boolean isPublicNoParamReturnsErrorOrNil(BAttachedFunction func) {
+            if (!publicAndReturnsErrorOrNil(func)) {
+                return false;
+            }
+
+            if (!emptyParamList(func)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        private boolean checkImmediateStop(BAttachedFunction func) {
+            return immediateStopFound = isPublicNoParamReturnsErrorOrNil(func);
+        }
+
+        private boolean checkGracefulStop(BAttachedFunction func) {
+            return gracefulStopFound = isPublicNoParamReturnsErrorOrNil(func);
+        }
+
+        private boolean checkStartMethod(BAttachedFunction func) {
+            return startFound = publicAndReturnsErrorOrNil(func);
+        }
+
+        private boolean checkDetachMethod(BAttachedFunction func) {
+            if (!publicAndReturnsErrorOrNil(func)) {
+                return false;
+            }
+
+            if (func.type.paramTypes.size() != 1) {
+                return false;
+            }
+
+            BType firstParamType = func.type.paramTypes.get(0);
+            boolean isMatchingSignature = firstParamType.tag == TypeTags.OBJECT
+                    && types.isServiceObject((BObjectTypeSymbol) firstParamType.tsymbol);
+            return detachFound = isMatchingSignature;
+        }
+
+        private boolean checkAttachMethod(BAttachedFunction func) {
+            if (!publicAndReturnsErrorOrNil(func)) {
+                return false;
+            }
+
+            if (func.type.paramTypes.size() != 2) {
+                return false;
+            }
+
+            // todo: change is unions are allowed as service type.
+            BType firstParamType = func.type.paramTypes.get(0);
+            if (firstParamType.tag != TypeTags.OBJECT) {
+                return false;
+            }
+
+            if (!types.isServiceObject((BObjectTypeSymbol) firstParamType.tsymbol)) {
+                return false;
+            }
+
+            BType secondParamType = func.type.paramTypes.get(1);
+            boolean sameType = types.isSameType(this.serviceNameType, secondParamType);
+            return attachFound = sameType;
+
+        }
     }
 }
