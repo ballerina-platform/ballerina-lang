@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
@@ -178,6 +179,22 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 bLangRecordVariable.pos);
         validateDeprecatedParametersDocumentation(bLangRecordVariable.markdownDocumentationAttachment,
                 bLangRecordVariable.pos);
+    }
+
+    @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        validateNoParameters(bLangErrorVariable);
+        validateReturnParameter(bLangErrorVariable, null, false);
+        validateReferences(bLangErrorVariable);
+        validateDeprecationDocumentation(bLangErrorVariable.markdownDocumentationAttachment, false,
+                bLangErrorVariable.pos);
+        validateDeprecatedParametersDocumentation(bLangErrorVariable.markdownDocumentationAttachment,
+                bLangErrorVariable.pos);
+    }
+
+    @Override
+    public void visit(BLangResourceFunction funcNode) {
+        visit((BLangFunction) funcNode);
     }
 
     @Override

@@ -1162,7 +1162,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     errorVariable.type = symTable.semanticError;
                     return;
                 }
-                symbolEnter.defineNode(errorVariable, env);
                 break;
         }
     }

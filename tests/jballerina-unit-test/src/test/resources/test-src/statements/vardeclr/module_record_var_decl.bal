@@ -15,16 +15,6 @@
 // under the License.
 
 //Test module level mapping binding pattern
-type Age record {
-    int age;
-    string format;
-};
-
-type Person record {|
-    string name;
-    boolean married;
-|};
-
 Person {name:Fname, married:Married} = {name:"Jhone", married:true};
 
 public function testBasic() {
@@ -32,13 +22,7 @@ public function testBasic() {
     assertTrue(Married);
 }
 
-
-// Record var inside record var ------------------------------------------------------------
-type PersonWithAge record {
-    string name;
-    Age age;
-    boolean married;
-};
+// Record var inside record var
 PersonWithAge {name: fName1, age: {age: theAge1, format:format1}, married} = getPersonWithAge();
 
 function recordVarInRecordVar() {
@@ -51,14 +35,8 @@ function recordVarInRecordVar() {
 function getPersonWithAge() returns PersonWithAge {
     return { name: "Peter", age: {age:29, format: "Y"}, married: true, "work": "SE" };
 }
-// ------------------------------------------------------------------------------------------------
 
-// Tuple var inside record var ------------------------------------------------------------
-type PersonWithAge2 record {
-    string name;
-    [int, string] age;
-    boolean married;
-};
+// Tuple var inside record var
 PersonWithAge2 {name: fName2, age: [age2, format2], married:married2} = getPersonWithAge2();
 
 function tupleVarInRecordVar() {
@@ -71,11 +49,68 @@ function tupleVarInRecordVar() {
 function getPersonWithAge2() returns PersonWithAge2 {
     return { name: "Mac", age:[21, "Y"], married: false};
 }
-// ------------------------------------------------------------------------------------------------
 
 
-// Check annotation support ---------------------------------------------------------------------
+// Check annotation support
 const annotation annot on source var;
 
 @annot
 Age {age, format} = {age:24, format:"myFormat"};
+public function testRecordVarWithAnnotations() {
+    assertEquality(24, age);
+    assertEquality("myFormat", format);
+}
+
+
+// Test record variable reordering/forward referencing
+//Person {name:name3, married:married3} = {name:name4, married:married4};
+//// Test record variable declared with var
+//var {name:name4, married:married4} = {name:"Nicolette", married:false};
+//public function testVariableForwardReferencingAndDeclaredWithVar() {
+//    assertEquality("Nicolette", name3);
+//    assertFalse(married3);
+//}
+
+//// Test record variable with rest binding pattern
+//Student {name:studentName, age:studentAge, grade:studentGrade, ...marks} = getStudentDetail();
+//function getStudentDetail() returns Student {
+//    return {name:"Flash", age:15, grade:10, mark1:50, mark2:85, mark3:90};
+//}
+//public function testRecordVariableWithRestBP() {
+//    assertEquality("Flash", studentName);
+//    assertEquality(15, studentAge);
+//    assertEquality(10, studentGrade);
+//    assertEquality(50, marks[0]);
+//    assertEquality(85", marks[1]);
+//    assertEquality(90, marks[2]);
+//}
+
+// Support codes
+type Age record {
+    int age;
+    string format?;
+};
+
+type Person record {|
+    string name;
+    boolean married;
+|};
+
+type PersonWithAge record {
+    string name;
+    Age age;
+    boolean married;
+};
+
+type PersonWithAge2 record {
+    string name;
+    [int, string] age;
+    boolean married;
+};
+
+type Student record {|
+    string name;
+    int grade;
+    *Age;
+    int...;
+|};

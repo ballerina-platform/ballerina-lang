@@ -92,28 +92,12 @@ public class ModuleVariableTest {
 
     @Test
     public void testModuleLevelRecordVarDecl() {
-
-        BValue[] returns = BRunUtil.invoke(recordVarCompileResult, "testBasic");
-        int index = 0;
-        assertEquals(returns[index++].stringValue(), "Jhone");
-        assertTrue(((BBoolean) returns[index++]).booleanValue());
-        assertEquals(returns.length, index++);
-
-        returns = BRunUtil.invoke(recordVarCompileResult, "recordVarInRecordVar");
-        index = 0;
-        assertEquals(returns[index++].stringValue(), "Peter");
-        assertEquals(((BInteger) returns[index++]).intValue(), 29);
-        assertEquals(returns[index++].stringValue(), "Y");
-        assertTrue(((BBoolean) returns[index++]).booleanValue());
-        assertEquals(returns.length, index++);
-
-        returns = BRunUtil.invoke(recordVarCompileResult, "tupleVarInRecordVar");
-        index = 0;
-        assertEquals(returns[index++].stringValue(), "Mac");
-        assertEquals(((BInteger) returns[index++]).intValue(), 21);
-        assertEquals(returns[index++].stringValue(), "Y");
-        assertFalse(((BBoolean) returns[index++]).booleanValue());
-        assertEquals(returns.length, index++);
+        BRunUtil.invoke(recordVarCompileResult, "testBasic");
+        BRunUtil.invoke(recordVarCompileResult, "recordVarInRecordVar");
+        BRunUtil.invoke(recordVarCompileResult, "tupleVarInRecordVar");
+        BRunUtil.invoke(recordVarCompileResult, "testRecordVarWithAnnotations");
+//        BRunUtil.invoke(recordVarCompileResult, "testVariableForwardReferencingAndDeclaredWithVar");
+//        BRunUtil.invoke(recordVarCompileResult, "testRecordVariableWithRestBP");
     }
 
     @Test
@@ -122,13 +106,14 @@ public class ModuleVariableTest {
         validateError(recordVarCompileResultNegetive, index++, "redeclared symbol 'Fname'", 23, 14);
         validateError(recordVarCompileResultNegetive, index++, "redeclared symbol 'Married'", 25, 9);
         validateError(recordVarCompileResultNegetive, index++, "invalid record binding pattern; unknown field 'age' in record type 'Person'", 31, 1);
-        validateError(recordVarCompileResultNegetive, index++, "only simple variables are allowed to be isolated", 34, 1);
+        validateError(recordVarCompileResultNegetive, index++, "only a simple variable can be marked as 'isolated'", 34, 1);
         validateError(recordVarCompileResultNegetive, index++, "only simple variables are allowed to be configurable", 37, 1);
         assertEquals(recordVarCompileResultNegetive.getErrorCount(), index);
     }
 
     @Test
     public void testUninitializedModuleLevelRecordVar() {
+        // TODO: disallow uninitialized record variables from parser and update this test
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_record_var_decl.bal");
         int index = 0;
