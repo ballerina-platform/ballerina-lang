@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.debugger.test;
 
-import org.ballerinalang.debugger.test.utils.TestUtils;
+import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
@@ -25,19 +25,17 @@ import org.testng.annotations.BeforeSuite;
 import java.io.IOException;
 
 /**
- * Parent test class for all of the debug adapter integration test cases. This will provide basic functionality for
- * debug adapter integration tests.
+ * Parent test class for all debug integration test cases.
  */
-public class DebugAdapterBaseTestCase {
+public class BaseTestCase {
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {
-        TestUtils.initialize();
+        DebugTestRunner.initialize();
     }
 
     @AfterSuite(alwaysRun = true)
     public void destroy() {
-        TestUtils.terminateDebugSession();
-        TestUtils.destroy();
+        DebugTestRunner.destroy();
     }
 }

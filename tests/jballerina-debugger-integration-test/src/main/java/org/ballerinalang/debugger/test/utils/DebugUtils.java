@@ -35,9 +35,9 @@ public class DebugUtils {
         try (ServerSocket socket = new ServerSocket(0)) {
             socket.setReuseAddress(true);
             return socket.getLocalPort();
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not find a free TCP/IP port to start debugging", e);
         }
-        throw new IllegalStateException("Could not find a free TCP/IP port to start debugging");
     }
 
     /**

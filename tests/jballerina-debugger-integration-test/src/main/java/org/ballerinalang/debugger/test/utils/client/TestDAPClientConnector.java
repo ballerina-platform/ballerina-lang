@@ -42,7 +42,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 /**
@@ -133,7 +132,7 @@ public class TestDAPClientConnector {
             InitializeRequestArguments initParams = new InitializeRequestArguments();
             initParams.setAdapterID("BallerinaDebugClient");
 
-            CompletableFuture<Capabilities> initializeFuture = debugServer.initialize(initParams).thenApply(res -> {
+            debugServer.initialize(initParams).thenApply(res -> {
                 initializeResult = res;
                 LOGGER.info("initialize response received from the debug server.");
                 requestManager = new DAPRequestManager(this, debugClient, debugServer, initializeResult);

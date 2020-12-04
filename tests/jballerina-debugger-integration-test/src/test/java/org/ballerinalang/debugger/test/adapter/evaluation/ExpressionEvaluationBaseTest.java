@@ -19,23 +19,17 @@
 package org.ballerinalang.debugger.test.adapter.evaluation;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
+import org.ballerinalang.debugger.test.BaseTestCase;
 import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
-import org.ballerinalang.debugger.test.utils.TestUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
-
-import java.nio.file.Paths;
-
-import static org.ballerinalang.debugger.test.utils.TestUtils.testEntryFilePath;
-import static org.ballerinalang.debugger.test.utils.TestUtils.testProjectBaseDir;
-import static org.ballerinalang.debugger.test.utils.TestUtils.testProjectPath;
 
 /**
  * Base implementation for debug expression evaluation scenarios.
  */
-public abstract class ExpressionEvaluationBaseTest extends DebugAdapterBaseTestCase {
+public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
 
     protected StoppedEventArguments context;
 
@@ -86,15 +80,16 @@ public abstract class ExpressionEvaluationBaseTest extends DebugAdapterBaseTestC
     protected static final String GLOBAL_VAR_10 = "jsonVar";
     protected static final String GLOBAL_VAR_11 = "'\\ \\/\\:\\@\\[\\`\\{\\~\\u{2324}_IL";
 
+    protected DebugTestRunner debugTestRunner;
+
     protected void prepareForEvaluation() throws BallerinaTestException {
         String testProjectName = "variable-tests";
         String testModuleFileName = "main.bal";
-        testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
-        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
 
-        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 182));
-        TestUtils.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = TestUtils.waitForDebugHit(25000);
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 182));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         this.context = debugHitInfo.getRight();
     }
 

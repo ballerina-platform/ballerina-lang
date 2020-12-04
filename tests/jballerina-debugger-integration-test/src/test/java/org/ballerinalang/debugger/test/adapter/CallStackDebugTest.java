@@ -19,10 +19,10 @@
 package org.ballerinalang.debugger.test.adapter;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
+import org.ballerinalang.debugger.test.BaseTestCase;
 import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
-import org.ballerinalang.debugger.test.utils.TestUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
@@ -30,66 +30,62 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.nio.file.Paths;
-
-import static org.ballerinalang.debugger.test.utils.TestUtils.DebugResumeKind;
-import static org.ballerinalang.debugger.test.utils.TestUtils.testEntryFilePath;
-import static org.ballerinalang.debugger.test.utils.TestUtils.testProjectBaseDir;
-import static org.ballerinalang.debugger.test.utils.TestUtils.testProjectPath;
+import static org.ballerinalang.debugger.test.utils.DebugTestRunner.DebugResumeKind;
 
 /**
  * Test class for debug hit call stack representation.
  */
-public class CallStackDebugTest extends DebugAdapterBaseTestCase {
+public class CallStackDebugTest extends BaseTestCase {
+
+    DebugTestRunner debugTestRunner;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
         String testProjectName = "callstack-tests";
         String testModuleFileName = "main.bal";
-        testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
-        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
 
-        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 35));
-        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 44));
-        TestUtils.addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 40));
-        TestUtils.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 35));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 44));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 40));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
     }
 
     @Test
     public void callStackTest() throws BallerinaTestException {
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = TestUtils.waitForDebugHit(25000);
-        StackFrame[] frames = TestUtils.fetchStackFrames(debugHitInfo.getRight());
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+        StackFrame[] frames = debugTestRunner.fetchStackFrames(debugHitInfo.getRight());
+
         // Call stack representation test for strand creation with 'start' keyword.
         // Created strand is invoking a remote function.
-        TestUtils.assertCallStack(frames[0], "getName", 35, "main.bal");
-        TestUtils.assertCallStack(frames[1], "func3", 28, "main.bal");
-        TestUtils.assertCallStack(frames[2], "func2", 23, "main.bal");
-        TestUtils.assertCallStack(frames[3], "func1", 19, "main.bal");
-        TestUtils.assertCallStack(frames[4], "addition", 14, "main.bal");
-        TestUtils.assertCallStack(frames[5], "start:f1", 2, "main.bal");
+        debugTestRunner.assertCallStack(frames[0], "getName", 35, "main.bal");
+        debugTestRunner.assertCallStack(frames[1], "func3", 28, "main.bal");
+        debugTestRunner.assertCallStack(frames[2], "func2", 23, "main.bal");
+        debugTestRunner.assertCallStack(frames[3], "func1", 19, "main.bal");
+        debugTestRunner.assertCallStack(frames[4], "addition", 14, "main.bal");
+        debugTestRunner.assertCallStack(frames[5], "start:f1", 2, "main.bal");
 
-        TestUtils.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = TestUtils.waitForDebugHit(10000);
-        frames = TestUtils.fetchStackFrames(debugHitInfo.getRight());
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        frames = debugTestRunner.fetchStackFrames(debugHitInfo.getRight());
 
         // Call stack representation test for strand creation with 'worker' keyword.
-        TestUtils.assertCallStack(frames[0], "multiply", 44, "main.bal");
-        TestUtils.assertCallStack(frames[1], "w1", 6, "main.bal");
-        TestUtils.assertCallStack(frames[2], "worker:w1", 5, "main.bal");
+        debugTestRunner.assertCallStack(frames[0], "multiply", 44, "main.bal");
+        debugTestRunner.assertCallStack(frames[1], "w1", 6, "main.bal");
+        debugTestRunner.assertCallStack(frames[2], "worker:w1", 5, "main.bal");
 
-        TestUtils.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = TestUtils.waitForDebugHit(10000);
-        frames = TestUtils.fetchStackFrames(debugHitInfo.getRight());
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        frames = debugTestRunner.fetchStackFrames(debugHitInfo.getRight());
 
         // Call stack representation test for strand creation with 'start' keyword.
         // Results of the strand is not assigned to any variable. In this case frame name is assigned to 'anonymous'.
-        TestUtils.assertCallStack(frames[0], "sayHello", 40, "main.bal");
-        TestUtils.assertCallStack(frames[1], "start:anonymous", 10, "main.bal");
+        debugTestRunner.assertCallStack(frames[0], "sayHello", 40, "main.bal");
+        debugTestRunner.assertCallStack(frames[1], "start:anonymous", 10, "main.bal");
     }
 
     @AfterClass(alwaysRun = true)
     private void cleanup() {
-        TestUtils.terminateDebugSession();
+        debugTestRunner.terminateDebugSession();
     }
 }

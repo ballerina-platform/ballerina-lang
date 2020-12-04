@@ -17,16 +17,4 @@
   -->
 
 <FindBugsFilter>
-    <Match>
-        <Package name="org.ballerinalang.debugger.test.utils"/>
-    </Match>
-    <Match>
-        <Bug pattern="DM_DEFAULT_ENCODING" />
-    </Match>
-    <Match>
-        <Bug pattern="DLS_DEAD_LOCAL_STORE" />
-    </Match>
-    <Match>
-        <Bug pattern="OS_OPEN_STREAM" />
-    </Match>
 </FindBugsFilter>

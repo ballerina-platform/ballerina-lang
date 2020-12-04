@@ -17,32 +17,30 @@
  */
 package org.ballerinalang.debugger.test.remote;
 
-import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
+import org.ballerinalang.debugger.test.BaseTestCase;
+import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
-import static org.ballerinalang.debugger.test.utils.TestUtils.balServer;
-import static org.ballerinalang.debugger.test.utils.TestUtils.testProjectBaseDir;
 
 /**
  * Test class to test positive scenarios of remote debugging ballerina test command.
  */
-public class BallerinaTestRemoteDebugTest extends DebugAdapterBaseTestCase {
+public class BallerinaTestRemoteDebugTest extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
+    DebugTestRunner debugTestRunner;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        balClient = new BMainInstance(balServer);
         String testProjectName = "basic-project";
-        projectPath = testProjectBaseDir + File.separator + testProjectName;
+        String testSingleFileName = "hello_world.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testSingleFileName, false);
+        balClient = new BMainInstance(debugTestRunner.getBalServer());
     }
 
     @Test
@@ -51,7 +49,7 @@ public class BallerinaTestRemoteDebugTest extends DebugAdapterBaseTestCase {
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.debugMain("test", new String[]{"--debug", String.valueOf(port)}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 10);
+                new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 10);
         clientLeecher.waitForText(20000);
     }
 }
