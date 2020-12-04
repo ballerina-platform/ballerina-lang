@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -92,13 +92,13 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
     private List<LSCompletionItem> getNewExprCompletionItems(CompletionContext context, AssignmentStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        Optional<ObjectTypeSymbol> objectType;
+        Optional<ClassSymbol> objectType;
         Node varRef = node.varRef();
         if (varRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) varRef).name().text();
             objectType = visibleSymbols.stream()
-                    .filter(symbol -> symbol.name().equals(identifier) && SymbolUtil.isObject(symbol))
-                    .map(SymbolUtil::getTypeDescForObjectSymbol)
+                    .filter(symbol -> symbol.name().equals(identifier) && SymbolUtil.isClass(symbol))
+                    .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else {
             objectType = Optional.empty();
