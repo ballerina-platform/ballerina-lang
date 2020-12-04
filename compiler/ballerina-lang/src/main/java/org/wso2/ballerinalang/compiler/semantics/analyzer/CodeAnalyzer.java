@@ -815,11 +815,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.resetWithinTrxScopeToTrue();
         }
         if (ifStmt.elseStmt != null) {
+            analyzeNode(ifStmt.elseStmt, env);
             boolean hasVisitedCommitOrRollback = false;
-            if (commitCount > 0 || rollbackCount > 0) {
+            if (ifStmt.elseStmt.getKind() == NodeKind.IF && commitCount > 0 || rollbackCount > 0) {
                 hasVisitedCommitOrRollback = true;
             }
-            analyzeNode(ifStmt.elseStmt, env);
             if (!this.withinTransactionScope && hasVisitedCommitOrRollback) {
                 ifWithinTrxMode = false;
             }
