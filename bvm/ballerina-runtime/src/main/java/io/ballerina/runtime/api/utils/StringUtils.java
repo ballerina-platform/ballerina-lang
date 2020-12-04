@@ -18,7 +18,7 @@ package io.ballerina.runtime.api.utils;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
@@ -207,7 +207,7 @@ public class StringUtils {
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             BObject objectValue = (BObject) value;
             ObjectType objectType = objectValue.getType();
-            for (AttachedFunctionType func : objectType.getAttachedFunctions()) {
+            for (MemberFunctionType func : objectType.getAttachedFunctions()) {
                 if (func.getName().equals(TO_STRING) && func.getParameterTypes().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
                     return objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
@@ -279,7 +279,7 @@ public class StringUtils {
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
             ObjectType objectType = objectValue.getType();
-            for (AttachedFunctionType func : objectType.getAttachedFunctions()) {
+            for (MemberFunctionType func : objectType.getAttachedFunctions()) {
                 if (func.getName().equals(TO_STRING) && func.getParameterTypes().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
                     return "object " + objectValue.call(Scheduler.getStrand(), TO_STRING).toString();

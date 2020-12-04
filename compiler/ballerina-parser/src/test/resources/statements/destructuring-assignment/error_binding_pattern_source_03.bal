@@ -1,20 +1,20 @@
 function foo() {
     error(a b) = "hello";
     error(a b = "hello";
-    T(a b) = "hello";
+    error T(a b) = "hello";
 
     [x error(a b] = "hello";
-    [x, T(a, b)] = "hello";
+    [x, error T(a b] = "hello";
 
     error(a error(b, c d=error(e f))) = "hello";
-    T(a, error(b c), d=T(e, f)) = "hello";
+    error T(a, error(b c), d=T(e, f)) = "hello";
     error(a,) = "simpleError";
     error(a, b,) = "simpleError";
     error(a, = bindingPattern) = "simpleError";
     error(a ...) = "simpleError";
 
     {x: error(a b} = "hello";
-    {x: T(a, b} = "hello";
+    {x: error T(a, b} = "hello";
 
     error(error(a,b)) = "simpleError";
     error([a,b,c])  = "simpleError";

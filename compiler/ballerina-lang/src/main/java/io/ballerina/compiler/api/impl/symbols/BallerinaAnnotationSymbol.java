@@ -151,7 +151,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
             if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.OBJECT_METHOD)) {
                 annotationAttachPoints.add(AnnotationAttachPoint.OBJECT_METHOD);
             }
-            if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.RESOURCE)) {
+            if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.SERVICE_REMOTE)) {
                 annotationAttachPoints.add(AnnotationAttachPoint.RESOURCE);
             }
             if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.PARAMETER)) {

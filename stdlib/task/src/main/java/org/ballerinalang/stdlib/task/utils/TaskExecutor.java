@@ -19,7 +19,7 @@ package org.ballerinalang.stdlib.task.utils;
 
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.StrandMetadata;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
@@ -37,7 +37,7 @@ public class TaskExecutor {
             new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION, RESOURCE_ON_TRIGGER);
 
     public static void executeFunction(ServiceInformation serviceInformation) {
-        AttachedFunctionType onTriggerFunction = serviceInformation.getOnTriggerFunction();
+        MemberFunctionType onTriggerFunction = serviceInformation.getOnTriggerFunction();
         Object[] onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceInformation);
 
         Runtime runtime = serviceInformation.getRuntime();
@@ -45,7 +45,7 @@ public class TaskExecutor {
                                   onTriggerFunctionArgs);
     }
 
-    private static Object[] getParameterList(AttachedFunctionType function, ServiceInformation serviceInformation) {
+    private static Object[] getParameterList(MemberFunctionType function, ServiceInformation serviceInformation) {
         Object[] attachments = serviceInformation.getAttachment();
         int numberOfParameters = function.getType().getParameterTypes().length;
         Object[] parameters = null;
