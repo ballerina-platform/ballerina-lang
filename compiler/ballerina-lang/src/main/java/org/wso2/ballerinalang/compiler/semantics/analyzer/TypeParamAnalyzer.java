@@ -418,6 +418,10 @@ public class TypeParamAnalyzer {
             return false;
         }
 
+        if (source.name.getValue().isEmpty()) {
+            return false;
+        }
+
         return source.pkgID.equals(target.pkgID) && source.name.equals(target.name);
     }
 
