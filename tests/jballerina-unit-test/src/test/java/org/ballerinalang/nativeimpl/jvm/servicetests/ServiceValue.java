@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 
@@ -125,6 +126,15 @@ public class ServiceValue {
 
     public static BObject getService() {
         return ServiceValue.service;
+    }
+
+    public static BValue getResourceAnnotation(BString resourceName, BString annotName) {
+        for (var r : ((ServiceType) ServiceValue.service.getType()).getResourceFunctions()) {
+            if (r.getName().equals(resourceName.getValue())) {
+                return (BValue) r.getAnnotation(annotName);
+            }
+        }
+        return null;
     }
 
     public static BArray getServicePath() {

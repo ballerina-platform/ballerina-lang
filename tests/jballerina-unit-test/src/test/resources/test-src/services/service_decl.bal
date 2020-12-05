@@ -73,16 +73,29 @@ function reset() = @java:Method {
     name: "reset"
 } external;
 
+function getResourceAnnotation(string funcName, string annotName) returns any = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "getResourceAnnotation"
+} external;
+
 listener Listener lsn = new();
 
 type S service object {
     resource function get processRequest() returns json;
 };
 
+
+
+type Annot record {
+    string val;
+};
+
+public annotation Annot RAnnot on object function;
+
 service S / on lsn {
     public string magic = "The Somebody Else's Problem field";
 
-    resource function get processRequest() returns json {
+    @RAnnot { val: "anot-val" }  resource function get processRequest() returns json {
         return { output: "Hello" };
     }
 
@@ -100,6 +113,12 @@ function testServiceDecl() {
 
     MagicField o = <MagicField> getService(); // get service attached to the listener
     assertEquality("The Somebody Else's Problem field", o.magic);
+
+    // validate resource function annotation
+    any val = getResourceAnnotation("$get$processRequest", "RAnnot");
+    map<any> m = <map<any>> val;
+    string s = <string> m["val"];
+    assertEquality(s, "anot-val");
     reset();
 }
 
