@@ -57,4 +57,5 @@ module io.ballerina.runtime {
             io.ballerina.lang.xml, io.ballerina.testerina.core, io.ballerina.cli.utils;
     exports io.ballerina.runtime.internal.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime;
     exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
+    exports io.ballerina.runtime.internal.types to io.ballerina.lang.internal;
 }

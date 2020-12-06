@@ -27,12 +27,18 @@ import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.internal.types.BAnnotatableType;
+import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.MapValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
 /**
@@ -45,6 +51,7 @@ public class ServiceValue {
     private static BObject listener;
     private static boolean started;
     private static String[] names;
+    private static MapValue annotationMap; // captured at attach method
 
     public static BFuture callMethod(Environment env, BObject l, BString name) {
         BFuture k = env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
@@ -100,6 +107,18 @@ public class ServiceValue {
                 names[i] = array.getBString(i).getValue();
             }
         }
+
+        // Verify annotation availability
+        BServiceType serviceType = (BServiceType) servObj.getType();
+        try {
+            Field annotations = BAnnotatableType.class.getDeclaredField("annotations");
+            annotations.setAccessible(true);
+            Object annotationMap = annotations.get(serviceType);
+            ServiceValue.annotationMap = (MapValue) annotationMap;
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new AssertionError();
+        }
+
         return null;
     }
 
@@ -118,6 +137,7 @@ public class ServiceValue {
         ServiceValue.listener = null;
         ServiceValue.started = false;
         ServiceValue.names = new String[0];
+        ServiceValue.annotationMap = new MapValueImpl();
     }
 
     public static BObject getListener() {
@@ -140,5 +160,9 @@ public class ServiceValue {
     public static BArray getServicePath() {
         BArray ar = new ArrayValueImpl(names);
         return ar;
+    }
+
+    public static BMap getAnnotationsAtServiceAttach() {
+        return ServiceValue.annotationMap;
     }
 }

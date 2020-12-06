@@ -78,8 +78,11 @@ public class AnnotationUtils {
         if (globalAnnotMap.containsKey(annotationKey)) {
             Object annot = globalAnnotMap.get(annotationKey);
             if (annot instanceof FPValue) {
-                Object annotValue = ((FPValue) annot).call(new Object[]{strand});
-                bType.setAnnotations((MapValue<BString, Object>) annotValue);
+                // If annotations are already set via desugard service-decl, skip.
+                if (!bType.isAnnotationsAvailable()) {
+                    Object annotValue = ((FPValue) annot).call(new Object[]{strand});
+                    bType.setAnnotations((MapValue<BString, Object>) annotValue);
+                }
             } else {
                 bType.setAnnotations((MapValue<BString, Object>) annot);
             }

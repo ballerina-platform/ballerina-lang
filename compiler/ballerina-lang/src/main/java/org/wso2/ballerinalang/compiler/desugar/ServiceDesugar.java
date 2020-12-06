@@ -26,10 +26,12 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -140,6 +142,8 @@ public class ServiceDesugar {
         ASTBuilderUtil.defineVariable(service.serviceVariable, env.enclPkg.symbol, names);
         env.enclPkg.globalVars.add(service.serviceVariable);
 
+        createPopulateAnnotationMethodInvocation(service, env, attachments, pos);
+
         int count = 0;
         for (BLangExpression attachExpr : service.attachedExprs) {
             //      if y is anonymous   ->      y = y(expr)
@@ -185,6 +189,39 @@ public class ServiceDesugar {
 
             addMethodInvocation(pos, listenerVarRef, methodRef, args, attachments);
         }
+    }
+
+    private void createPopulateAnnotationMethodInvocation(BLangService service, SymbolEnv env,
+                                                          BLangBlockStmt attachments, Location pos) {
+        BSymbol annotMap = env.enclPkg.symbol.scope.lookup(names.fromString(AnnotationDesugar.ANNOTATION_DATA)).symbol;
+        if (annotMap == symTable.notFoundSymbol) {
+            throw new AssertionError("Couldn't resolve " + AnnotationDesugar.ANNOTATION_DATA);
+        }
+
+        BSymbol populateServiceAnnotations = symResolver.lookupLangLibMethodInModule(
+                symTable.langInternalModuleSymbol, names.fromString("populateServiceAnnotations"));
+
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.setLiteral(false);
+        name.setValue(populateServiceAnnotations.name.value);
+        name.pos = pos;
+        invocationNode.name = name;
+        invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        invocationNode.symbol = populateServiceAnnotations;
+
+        ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
+        requiredArgs.add(ASTBuilderUtil.createVariableRef(pos, service.serviceVariable.symbol));
+        requiredArgs.add(ASTBuilderUtil.createVariableRef(pos, annotMap));
+        invocationNode.requiredArgs = requiredArgs;
+
+        invocationNode.type = symTable.nilType;
+        invocationNode.langLibInvocation = true;
+
+        BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, attachments);
+        expressionStmt.expr = invocationNode;
+        expressionStmt.expr.pos = pos;
     }
 
     private void addMethodInvocation(Location pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,

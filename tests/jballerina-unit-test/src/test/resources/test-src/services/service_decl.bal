@@ -78,6 +78,11 @@ function getResourceAnnotation(string funcName, string annotName) returns any = 
     name: "getResourceAnnotation"
 } external;
 
+function getAnnotationsAtServiceAttach() returns map<any> = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "getAnnotationsAtServiceAttach"
+} external;
+
 listener Listener lsn = new();
 
 type S service object {
@@ -121,10 +126,14 @@ function testServiceDecl() {
     map<any> m = <map<any>> val;
     string s = <string> m["val"];
     assertEquality(s, "anot-val");
+
+    map<any> annots = getAnnotationsAtServiceAttach();
+    assertEquality(annots["ServiceAnnot"], true);
+
     reset();
 }
 
-function assertEquality(any|error expected, any|error actual) {
+function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }
