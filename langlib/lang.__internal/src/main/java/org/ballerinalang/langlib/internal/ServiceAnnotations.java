@@ -24,7 +24,7 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BServiceType;
 
 /**
- * Populate annotations on service objects
+ * Populate annotations on service objects.
  *
  * @since 2.0
  */
