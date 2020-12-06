@@ -25,11 +25,9 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
-import io.ballerina.runtime.observability.metrics.BallerinaMetricsObserver;
 import io.ballerina.runtime.observability.metrics.Tag;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This function add tags to System Metrics.

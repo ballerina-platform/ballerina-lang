@@ -179,10 +179,12 @@ public class OpenTracerBallerinaWrapper {
         } else {
             ObserverContext observerContext = observerContextMap.get(spanId);
             if (observerContext == null) {
-                log.info("Could not find the trace for given span id. Can not add tag {" + tagKey + ":" + tagValue + "}");
+                log.info("Could not find the trace for given span id. Can not add tag {" + tagKey + ":" + tagValue +
+                        "}");
                 return ErrorCreator.createError(
                         StringUtils.fromString(
-                                ("Could not find the trace for given span id. Can not add tag {" + tagKey + ":" + tagValue + "}")));
+                                ("Could not find the trace for given span id. Can not add tag {" + tagKey + ":" +
+                                        tagValue + "}")));
             }
             span = (BSpan) observerContext.getProperty(TraceConstants.KEY_SPAN);
         }
