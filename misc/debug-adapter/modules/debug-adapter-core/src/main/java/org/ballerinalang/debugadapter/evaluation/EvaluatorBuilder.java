@@ -66,7 +66,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.REST_ARG_IDENTIFIER;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
 
 /**
  * A {@code NodeVisitor} based implementation used to traverse and capture evaluatable segments of a parsed ballerina

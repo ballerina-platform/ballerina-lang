@@ -150,7 +150,7 @@ public class DebugExpressionCompiler {
             Optional<ExpressionNode> expressionNode = ((ReturnStatementNode) (((FunctionBodyBlockNode)
                     ((FunctionDefinitionNode) ((ModulePartNode) syntaxTree.rootNode()).members().get(0)).functionBody())
                     .statements().get(0))).expression();
-            if (!expressionNode.isPresent()) {
+            if (expressionNode.isEmpty()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID.getString(), expression));
             }
             return expressionNode.get();
