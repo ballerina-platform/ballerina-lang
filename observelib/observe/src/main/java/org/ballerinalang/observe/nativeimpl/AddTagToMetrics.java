@@ -41,11 +41,11 @@ public class AddTagToMetrics {
 
         ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(env);
         if (observerContext != null) {
-            Map<String, Tag> customTags = observerContext.customMetricTags;
-            if (customTags == null) {
-                customTags = new HashMap<>();
+
+            if (observerContext.customMetricTags == null) {
+                observerContext.customMetricTags = new HashMap<>();
             }
-            customTags.put(tagKey.getValue(), Tag.of(tagKey.getValue(), tagValue.getValue()));
+            observerContext.customMetricTags.put(tagKey.getValue(), Tag.of(tagKey.getValue(), tagValue.getValue()));
             return null;
         }
         return ErrorCreator.createError(
