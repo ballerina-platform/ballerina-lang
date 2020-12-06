@@ -49,14 +49,14 @@ public class AnnotationUtils {
         }
 
         BAnnotatableType type = (BAnnotatableType) bType;
-        BString annotationKey = StringUtils.fromString(type.getAnnotationKey());
-        if (globalAnnotMap.containsKey(annotationKey)) {
-            type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
-        }
-
         if (type.getTag() == TypeTags.SERVICE_TAG) {
             processServiceAnnotations(globalAnnotMap, (BServiceType) bType, strand);
             return;
+        }
+
+        BString annotationKey = StringUtils.fromString(type.getAnnotationKey());
+        if (globalAnnotMap.containsKey(annotationKey)) {
+            type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
         }
 
         if (type.getTag() != TypeTags.OBJECT_TYPE_TAG) {

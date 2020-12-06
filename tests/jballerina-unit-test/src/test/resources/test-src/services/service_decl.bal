@@ -91,7 +91,9 @@ type Annot record {
 };
 
 public annotation Annot RAnnot on object function;
+public annotation ServiceAnnot on service;
 
+@ServiceAnnot
 service S / on lsn {
     public string magic = "The Somebody Else's Problem field";
 
