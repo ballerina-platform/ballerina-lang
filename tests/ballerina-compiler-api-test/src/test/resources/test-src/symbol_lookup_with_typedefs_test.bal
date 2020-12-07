@@ -54,3 +54,7 @@ function testAnonTypes() {
 }
 
 const HELLO = "Hello";
+
+enum Colour {
+    RED, BLUE, GREEN
+}

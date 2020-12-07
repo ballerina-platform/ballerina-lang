@@ -109,6 +109,7 @@ public class SymbolAtCursorTest {
     @DataProvider(name = "EnumPosProvider")
     public Object[][] getEnumPos() {
         return new Object[][]{
+                {16, 5, "Colour"},
                 {17, 6, "RED"},
                 {21, 18, "RED"},
                 {22, 8, "Colour"},
