@@ -100,6 +100,20 @@ public class BallerinaDocGenerator {
                         Project jsonProject = gson.fromJson(br, Project.class);
                         project.resources.addAll(getResourcePaths(Paths.get(file.getAbsolutePath())));
                         project.modules.addAll(jsonProject.modules);
+
+                        File newIndex = new File(file.getAbsolutePath() + File.separator + "index.html");
+                        String htmlData = "<!DOCTYPE html>\n" +
+                                "<html>\n" +
+                                "<head>\n" +
+                                "\t<meta http-equiv=\"refresh\" content=\"0; URL=../index.html#/" + jsonProject.name +
+                                "\" />\n" +
+                                "</head>\n" +
+                                "<body>\n" +
+                                "\t<h1>If you are not redirected please click this <a href=\"../index.html#/" +
+                                jsonProject.name + "\">link</a> </h1>\n" +
+                                "</body>\n" +
+                                "</html>";
+                        FileUtils.write(newIndex, htmlData, StandardCharsets.UTF_8, false);
                     } catch (IOException e) {
                         String errorMsg = String.format("API documentation generation failed. Cause: %s",
                                                         e.getMessage());
