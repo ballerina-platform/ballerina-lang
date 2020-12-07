@@ -17,24 +17,19 @@
  */
 package io.ballerina.compiler.api.symbols;
 
+import java.util.List;
+
 /**
- * Represents the types of Symbols.
+ * Represents an enum.
  *
  * @since 2.0.0
  */
-public enum SymbolKind {
-    MODULE,
-    XMLNS,
-    FUNCTION,
-    METHOD,
-    CONSTANT,
-    TYPE_DEFINITION,
-    TYPE,
-    VARIABLE,
-    SERVICE,
-    CLASS,
-    WORKER,
-    ANNOTATION,
-    FIELD,
-    ENUM
+public interface EnumSymbol extends TypeDefinitionSymbol, Qualifiable, Deprecatable {
+
+    /**
+     * Retrieves a list of the members of this enum.
+     *
+     * @return A {@link List} of enum members
+     */
+    List<ConstantSymbol> members();
 }

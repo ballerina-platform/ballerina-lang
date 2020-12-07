@@ -21,6 +21,7 @@ package io.ballerina.compiler.api.impl;
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaClassSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaEnumSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
@@ -133,6 +134,10 @@ public class SymbolFactory {
             if (symbol instanceof BClassSymbol) {
                 return createClassSymbol((BClassSymbol) symbol, name);
             }
+            if (Symbols.isFlagOn(symbol.flags, Flags.ENUM)) {
+                return createEnumSymbol((BTypeSymbol) symbol, name);
+            }
+
             // create the typeDefs
             return createTypeDefinition((BTypeSymbol) symbol, name);
         }
@@ -275,6 +280,17 @@ public class SymbolFactory {
     public BallerinaTypeDefinitionSymbol createTypeDefinition(BTypeSymbol typeSymbol, String name) {
         BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder symbolBuilder =
                 new BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder(name, typeSymbol.pkgID, typeSymbol);
+
+        if (isFlagOn(typeSymbol.flags, Flags.PUBLIC)) {
+            symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+
+        return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type, true)).build();
+    }
+
+    public BallerinaEnumSymbol createEnumSymbol(BTypeSymbol typeSymbol, String name) {
+        BallerinaEnumSymbol.EnumSymbolBuilder symbolBuilder =
+                new BallerinaEnumSymbol.EnumSymbolBuilder(name, typeSymbol.pkgID, typeSymbol);
 
         if (isFlagOn(typeSymbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
