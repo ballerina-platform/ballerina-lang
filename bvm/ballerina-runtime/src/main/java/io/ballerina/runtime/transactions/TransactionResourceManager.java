@@ -249,7 +249,7 @@ public class TransactionResourceManager {
                     }
                 } catch (XAException e) {
                     log.error("error at transaction prepare phase in transaction " + transactionId
-                            + "in transaction block " + transactionId + ":" + e.getMessage(), e);
+                            + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
                     return false;
                 }
             }
@@ -283,8 +283,10 @@ public class TransactionResourceManager {
                     if (trx != null) {
                         trx.commit();
                     }
-                } catch (SystemException | HeuristicMixedException | HeuristicRollbackException | RollbackException e) {
-                    log.error("error when committing the transaction, " + combinedId + ":" + e.getMessage(), e);
+                } catch (SystemException | HeuristicMixedException | HeuristicRollbackException
+                        | RollbackException e) {
+                    log.error("error when committing transaction " + transactionId
+                            + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 }
             }
@@ -305,7 +307,8 @@ public class TransactionResourceManager {
                         }
                     }
                 } catch (XAException e) {
-                    log.error("error when committing the transaction, " + combinedId + ":" + e.getMessage(), e);
+                    log.error("error when committing transaction " + transactionId
+                            + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 } finally {
                     ctx.close();
@@ -342,7 +345,8 @@ public class TransactionResourceManager {
                         trx.rollback();
                     }
                 } catch (SystemException e) {
-                    log.error("error when aborting the transaction, " + combinedId + ":" + e.getMessage(), e);
+                    log.error("error when aborting transaction " + transactionId
+                            + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 }
             }
@@ -363,7 +367,8 @@ public class TransactionResourceManager {
                         }
                     }
                 } catch (XAException e) {
-                    log.error("error when aborting the transaction, " + combinedId + ":" + e.getMessage(), e);
+                    log.error("error when aborting the transaction, " + transactionId
+                            + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 } finally {
                     ctx.close();
@@ -404,7 +409,8 @@ public class TransactionResourceManager {
                 }
                 trx.enlistResource(xaResource);
             } catch (RollbackException | SystemException | NotSupportedException e) {
-                log.error("error in initiating the transaction, " + combinedId + ":" + e.getMessage(), e);
+                log.error("error in initiating transaction " + transactionId
+                        + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
             }
         } else {
             Xid xid = xidRegistry.get(combinedId);
@@ -415,8 +421,8 @@ public class TransactionResourceManager {
             try {
                 xaResource.start(xid, TMNOFLAGS);
             } catch (XAException e) {
-                log.error("error in starting the XA transaction: id: " + combinedId + " error:" +
-                        e.getMessage());
+                log.error("error in starting XA transaction " + transactionId
+                        + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
             }
         }
     }
@@ -510,8 +516,8 @@ public class TransactionResourceManager {
                                 trx.delistResource(xaResource, TMSUCCESS);
                             }
                         } catch (IllegalStateException | SystemException e) {
-                            log.error("error in ending the XA transaction: id: " + combinedId
-                                    + " error:" + e.getMessage());
+                            log.error("error in ending the XA transaction " + transactionId
+                                    + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
                         }
                     }
                 }
@@ -528,8 +534,8 @@ public class TransactionResourceManager {
                                 ctx.getXAResource().end(xid, TMSUCCESS);
                             }
                         } catch (XAException e) {
-                            log.error("error in ending the XA transaction: id: " + combinedId
-                                    + " error:" + e.getMessage());
+                            log.error("error in ending XA transaction " + transactionId
+                                    + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
                         }
                     }
                 }
