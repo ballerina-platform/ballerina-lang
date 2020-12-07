@@ -570,7 +570,7 @@ public class TomlLexer extends AbstractLexer {
             type = SyntaxKind.IDENTIFIER_LITERAL;
         }
         // Integer cannot have a leading zero
-        if (startChar == '0' && len > 1) {
+        if (startChar == '0' && len > 1 && type == SyntaxKind.DECIMAL_INT_TOKEN) {
             reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
         }
 

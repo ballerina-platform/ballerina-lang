@@ -25,3 +25,4 @@ Violets are blue""" #Multi line strings
 key5 = [1,2,3]
 key6 = false
 key7 = true
+key8 = 0.11
