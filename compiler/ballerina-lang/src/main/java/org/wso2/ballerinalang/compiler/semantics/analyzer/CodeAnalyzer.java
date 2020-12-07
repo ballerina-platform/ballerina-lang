@@ -296,7 +296,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int rollbackCount;
     private boolean withinTransactionScope;
     private boolean withinTransactionBlock;
-    private boolean commitRollbackAllowed;
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
     private boolean queryToTableWithKey;
@@ -338,6 +337,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void resetErrorThrown() {
         this.errorThrown = false;
+    }
+
+    private void resetWithinTrxScopeToTrue() {
+        this.withinTransactionScope = true;
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -581,8 +584,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean previousWithinTrxBlock = this.withinTransactionBlock;
         int previousCommitCount = this.commitCount;
         int previousRollbackCount = this.rollbackCount;
-        boolean prevCommitRollbackAllowed = this.commitRollbackAllowed;
-        this.commitRollbackAllowed = true;
         this.commitCount = 0;
         this.rollbackCount = 0;
 
@@ -617,7 +618,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.withinTransactionBlock = previousWithinTrxBlock;
         this.commitCount = previousCommitCount;
         this.rollbackCount = previousRollbackCount;
-        this.commitRollbackAllowed = prevCommitRollbackAllowed;
         if (this.innerTransactionBlock != null) {
             transactionNode.statementBlockReturns = this.innerTransactionBlock.statementBlockReturns;
         }
@@ -628,7 +628,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithinTransactionCheckStack.pop();
         this.loopWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
-        transactionNode.transactionBody.isBreakable = transactionNode.onFailClause != null;
         analyzeOnFailClause(transactionNode.onFailClause);
         this.errorTypes.pop();
     }
@@ -651,7 +650,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCommitExpr commitExpr) {
         this.commitCount++;
-        this.commitCountWithinBlock++;
         if (this.transactionCount == 0) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
@@ -660,7 +658,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!withinTransactionScope || !commitRollbackAllowed) {
+        if (!withinTransactionScope) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_NOT_ALLOWED);
             return;
         }
@@ -670,7 +668,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRollback rollbackNode) {
         rollbackCount++;
-        this.rollbackCountWithinBlock++;
         if (this.transactionCount == 0 && !withinTransactionScope) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
@@ -679,7 +676,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!withinTransactionScope || !commitRollbackAllowed) {
+        if (!withinTransactionScope) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_NOT_ALLOWED);
             return;
         }
@@ -799,15 +796,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIf ifStmt) {
-        boolean independentBlocks = false;
-        int prevCommitCount = commitCount;
-        int prevRollbackCount = rollbackCount;
-        this.checkStatementExecutionValidity(ifStmt);
-        if (withinTransactionScope && ifStmt.elseStmt != null && ifStmt.elseStmt.getKind() != NodeKind.IF) {
-                independentBlocks = true;
-                commitRollbackAllowed = true;
-        }
         boolean prevTxMode = this.withinTransactionScope;
+        this.checkStatementExecutionValidity(ifStmt);
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = true;
         }
@@ -817,19 +807,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         boolean ifStmtReturns = this.statementReturns;
         boolean currentErrorThrown = this.errorThrown;
+        boolean ifWithinTrxMode = this.withinTransactionScope;
         this.resetStatementReturns();
         this.resetErrorThrown();
+        if (prevTxMode) {
+            this.resetWithinTrxScopeToTrue();
+        }
         if (ifStmt.elseStmt != null) {
-            if (independentBlocks) {
-                commitRollbackAllowed = true;
-                withinTransactionScope = true;
-            }
             analyzeNode(ifStmt.elseStmt, env);
-            if ((prevCommitCount != commitCount) || prevRollbackCount != rollbackCount) {
-                commitRollbackAllowed = false;
-            }
+            boolean elseWithinTrxMode = this.withinTransactionScope;
             this.statementReturns = ifStmtReturns && this.statementReturns;
             this.errorThrown = currentErrorThrown && this.errorThrown;
+            this.withinTransactionScope = (!prevTxMode || ifWithinTrxMode || elseWithinTrxMode) && prevTxMode;
         }
         analyzeExpr(ifStmt.expr);
     }
