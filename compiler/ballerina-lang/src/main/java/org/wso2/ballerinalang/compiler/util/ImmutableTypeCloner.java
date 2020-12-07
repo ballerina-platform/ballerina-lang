@@ -143,7 +143,7 @@ public class ImmutableTypeCloner {
                                           BSymbol owner, SymbolTable symTable,
                                           BLangAnonymousModelHelper anonymousModelHelper, Names names,
                                           Set<BType> unresolvedTypes) {
-        if (types.isInherentlyImmutableType(type)) {
+        if (types.isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             return type;
         }
 

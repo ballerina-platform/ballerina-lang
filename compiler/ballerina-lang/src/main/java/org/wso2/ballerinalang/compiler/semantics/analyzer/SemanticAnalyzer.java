@@ -467,6 +467,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         validateAnnotationAttachmentCount(classDefinition.annAttachments);
 
         analyzeClassDefinition(classDefinition);
+
+        checkForReadOnlyClassInclusions(classDefinition.typeRefs);
     }
 
     @Override
@@ -571,6 +573,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Validate the referenced functions that don't have implementations within the function.
         ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions
                 .forEach(func -> validateReferencedFunction(objectTypeNode.pos, func, env));
+
+        checkForReadOnlyClassInclusions(objectTypeNode.typeRefs);
 
         if (objectTypeNode.initFunction == null) {
             return;
@@ -3400,6 +3404,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (funcNode.interfaceFunction && !env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
             dlog.error(funcNode.pos, DiagnosticErrorCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, funcNode.name,
                     funcNode.receiver.type);
+        }
+    }
+
+    private void checkForReadOnlyClassInclusions(List<BLangType> typeRefs) {
+        for (BLangType typeRef : typeRefs) {
+            BType type = typeRef.type;
+            BTypeSymbol tsymbol = type.tsymbol;
+            if (tsymbol == null ||
+                    !Symbols.isFlagOn(tsymbol.flags, Flags.CLASS) ||
+                    !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                continue;
+            }
+
+            dlog.error(typeRef.pos, DiagnosticErrorCode.INVALID_READ_ONLY_CLASS_INCLUSION);
         }
     }
 

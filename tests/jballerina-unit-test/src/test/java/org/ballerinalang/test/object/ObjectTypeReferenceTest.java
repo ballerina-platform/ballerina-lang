@@ -34,6 +34,9 @@ import org.testng.annotations.Test;
  */
 public class ObjectTypeReferenceTest {
 
+    private static final String ERROR_INVALID_READ_ONLY_CLASS_INCLUSION =
+            "object type inclusion cannot be used with a 'readonly class'";
+
     CompileResult compileResult;
 
     @BeforeClass
@@ -139,6 +142,20 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'Bar'", 19, 6);
         BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions", 20, 6);
         BAssertUtil.validateError(negativeResult, i, "unknown type 'YYY'", 29, 6);
+    }
+
+    @Test
+    public void testInvalidInclusion() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object_inclusion_negative.bal");
+
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 26, 6);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 27, 6);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 33, 6);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 34, 6);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 37, 18);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 43, 21);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
