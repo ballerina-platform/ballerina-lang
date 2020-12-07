@@ -77,12 +77,6 @@ public class ObserverContext {
         return properties.get(key);
     }
 
-    @Deprecated
-    public void addMainTag(String key, String value) {
-        // TODO: Remove this method once all the usages in the standard libraries had been updated.
-        addTag(key, value);
-    }
-
     public void addTag(String key, String value) {
         String sanitizedValue = value != null ? value : "";
         Tag tag = Tag.of(key, sanitizedValue);
