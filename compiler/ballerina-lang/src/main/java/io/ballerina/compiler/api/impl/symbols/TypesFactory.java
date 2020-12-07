@@ -22,8 +22,10 @@ import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -197,7 +199,8 @@ public class TypesFactory {
 
         final TypeKind kind = bType.getKind();
         return kind == RECORD || kind == OBJECT || bType.tsymbol.isLabel
-                || bType instanceof BIntSubType || bType instanceof BStringSubType || bType instanceof BXMLSubType;
+                || bType instanceof BIntSubType || bType instanceof BStringSubType || bType instanceof BXMLSubType
+                || bType.tsymbol.kind == SymbolKind.ENUM;
     }
 
     public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {
