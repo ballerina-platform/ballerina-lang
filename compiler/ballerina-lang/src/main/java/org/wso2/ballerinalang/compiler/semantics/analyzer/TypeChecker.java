@@ -4654,8 +4654,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (exprType.tag != TypeTags.UNION) {
             if (exprType.tag == TypeTags.READONLY) {
-                checkedExpr.equivalentErrorTypeList = new ArrayList<>();
-                checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+                checkedExpr.equivalentErrorTypeList = new ArrayList<>(1) {{
+                    add(symTable.errorType);
+                }};
                 resultType = symTable.anyAndReadonly;
                 return;
             } else if (types.isAssignable(exprType, symTable.errorType)) {
@@ -4672,24 +4673,24 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Filter out the list of types which are not equivalent with the error type.
-        List<BType> errorAssignableTypes = new ArrayList<>();
-        List<BType> errorNotAssignableTypes = new ArrayList<>();
+        List<BType> errorTypes = new ArrayList<>();
+        List<BType> nonErrorTypes = new ArrayList<>();
         for (BType memberType : ((BUnionType) exprType).getMemberTypes()) {
             if (memberType.tag == TypeTags.READONLY) {
-                errorAssignableTypes.add(symTable.errorType);
-                errorNotAssignableTypes.add(symTable.anyAndReadonly);
+                errorTypes.add(symTable.errorType);
+                nonErrorTypes.add(symTable.anyAndReadonly);
                 continue;
             }
             if (types.isAssignable(memberType, symTable.errorType)) {
-                errorAssignableTypes.add(memberType);
-            } else {
-                errorNotAssignableTypes.add(memberType);
+                errorTypes.add(memberType);
+                continue;
             }
+            nonErrorTypes.add(memberType);
         }
 
         // This list will be used in the desugar phase
-        checkedExpr.equivalentErrorTypeList = errorAssignableTypes;
-        if (checkedExpr.equivalentErrorTypeList.size() == 0) {
+        checkedExpr.equivalentErrorTypeList = errorTypes;
+        if (checkedExpr.equivalentErrorTypeList.isEmpty()) {
             // No member types in this union is equivalent to the error type
             dlog.error(checkedExpr.expr.pos,
                     DiagnosticErrorCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorType);
@@ -4697,7 +4698,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (errorNotAssignableTypes.size() == 0) {
+        if (nonErrorTypes.isEmpty()) {
             // All member types in the union are equivalent to the error type.
             // Checked expression requires at least one type which is not equivalent to the error type.
             dlog.error(checkedExpr.expr.pos,
@@ -4707,10 +4708,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType actualType;
-        if (errorNotAssignableTypes.size() == 1) {
-            actualType = errorNotAssignableTypes.get(0);
+        if (nonErrorTypes.size() == 1) {
+            actualType = nonErrorTypes.get(0);
         } else {
-            actualType = BUnionType.create(null, new LinkedHashSet<>(errorNotAssignableTypes));
+            actualType = BUnionType.create(null, new LinkedHashSet<>(nonErrorTypes));
         }
 
         resultType = types.checkType(checkedExpr, actualType, expType);
