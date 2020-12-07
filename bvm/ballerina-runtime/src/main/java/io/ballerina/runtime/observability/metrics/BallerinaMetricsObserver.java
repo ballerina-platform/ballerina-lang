@@ -37,7 +37,6 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
     private static final String PROPERTY_START_TIME = "_observation_start_time_";
     private static final String PROPERTY_IN_PROGRESS_COUNTER = "_observation_in_progress_counter_";
-    public static final String PROPERTY_CUSTOM_TAGS = "_custom_metric_tags_";
 
     private static final PrintStream consoleError = System.err;
 
