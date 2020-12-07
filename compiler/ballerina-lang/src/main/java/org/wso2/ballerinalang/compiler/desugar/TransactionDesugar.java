@@ -70,7 +70,7 @@ import java.util.List;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createStatementExpression;
-import static org.wso2.ballerinalang.compiler.util.Names.CHECK_IF_TRANSACTIONAL;
+import static org.wso2.ballerinalang.compiler.util.Names.BEGIN_REMOTE_PARTICIPANT;
 import static org.wso2.ballerinalang.compiler.util.Names.CLEAN_UP_TRANSACTION;
 import static org.wso2.ballerinalang.compiler.util.Names.CURRENT_TRANSACTION_INFO;
 import static org.wso2.ballerinalang.compiler.util.Names.END_TRANSACTION;
@@ -104,6 +104,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private String uniqueId;
     private BLangLiteral trxBlockId;
     private boolean transactionInternalModuleIncluded = false;
+    private int trxResourceCount;
 
     private TransactionDesugar(CompilerContext context) {
         context.put(TRANSACTION_DESUGAR_KEY, this);
@@ -308,9 +309,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return startTransactionInvocation;
     }
 
-    public BLangInvocation createTransactionalCheckInvocation(Location pos) {
-        BInvokableSymbol startTransactionInvokableSymbol =
-                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(CHECK_IF_TRANSACTIONAL);
+    public BLangInvocation createBeginParticipantInvocation(Location pos) {
+        BInvokableSymbol beginParticipantInvokableSymbol =
+                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(BEGIN_REMOTE_PARTICIPANT);
 
         // Include transaction-internal module as an import if not included
         if (!transactionInternalModuleIncluded) {
@@ -319,8 +320,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
         }
 
         List<BLangExpression> args = new ArrayList<>();
+        args.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, String.valueOf(++trxResourceCount)));
         BLangInvocation startTransactionInvocation = ASTBuilderUtil.
-                createInvocationExprForMethod(pos, startTransactionInvokableSymbol, args, symResolver);
+                createInvocationExprForMethod(pos, beginParticipantInvokableSymbol, args, symResolver);
         startTransactionInvocation.argExprs = args;
         return startTransactionInvocation;
     }
