@@ -92,7 +92,6 @@ public class RunTestsTask implements Task {
     private boolean isRerunTestExecution;
     private boolean isModuleTestExecution;
     private List<String> singleExecTests;
-    private List<String> moduleExecTests;
     TestReport testReport;
 
     public RunTestsTask(PrintStream out, PrintStream err, String[] args) {
@@ -101,19 +100,14 @@ public class RunTestsTask implements Task {
         this.args = Lists.of(args);
     }
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, List<String> moduleList) {
+    public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean rerunTests, boolean isModule,
+                        List<String> groupList, List<String> disableGroupList, List<String> testList) {
         this.out = out;
         this.err = err;
         this.args = Lists.of(args);
         this.isSingleTestExecution = false;
-
-        if (moduleList != null) {
-            isModuleTestExecution = true;
-            moduleExecTests = moduleList;
-        }
-
         this.isRerunTestExecution = rerunTests;
+        this.isModuleTestExecution = isModule;
 
         if (this.isRerunTestExecution) {
             testList = new ArrayList<>();
@@ -175,10 +169,8 @@ public class RunTestsTask implements Task {
             ModuleName moduleName = module.moduleName();
 
             if (isModuleTestExecution) {
-                if (!moduleExecTests.contains(moduleName.moduleNamePart())) {
+                if (moduleName.moduleNamePart() == null) {
                     continue;
-                } else {
-                    moduleExecTests.remove(moduleName.moduleNamePart());
                 }
             }
 
@@ -234,10 +226,6 @@ public class RunTestsTask implements Task {
                     throw createLauncherException("error while generating test report", e);
                 }
             }
-        }
-
-        if (isModuleTestExecution && !moduleExecTests.isEmpty()) {
-            out.println("The following modules were not found in the modules directory : " + moduleExecTests);
         }
 
         try {

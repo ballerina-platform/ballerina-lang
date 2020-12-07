@@ -27,11 +27,16 @@ import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -58,6 +63,7 @@ public class TestCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private Path projectPath;
     private boolean exitWhenFinish;
+    private String moduleName;
 
     public TestCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -120,9 +126,6 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--tests", split = ",", description = "Test functions to be executed")
     private List<String> testList;
 
-    @CommandLine.Option(names = "--modules", split = ",", description = "Modules to be tested")
-    private List<String> moduleList;
-
     @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
     private boolean rerunTests;
 
@@ -137,6 +140,8 @@ public class TestCommand implements BLauncherCmd {
         }
 
         String[] args;
+        Boolean isModule = false;
+
         if (this.argList == null) {
             args = new String[0];
             this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -144,8 +149,15 @@ public class TestCommand implements BLauncherCmd {
             args = argList.toArray(new String[0]);
             this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         } else {
-            args = argList.subList(1, argList.size()).toArray(new String[0]);
-            this.projectPath = Paths.get(argList.get(0));
+            if (ProjectUtils.isBallerinaProject(this.projectPath) &&
+                    !ProjectUtils.isBallerinaProject(Paths.get(this.argList.get(0)))) {
+                args = new String[0];
+                moduleName = argList.get(0);
+                isModule = true;
+            } else {
+                args = argList.subList(1, argList.size()).toArray(new String[0]);
+                this.projectPath = Paths.get(argList.get(0));
+            }
         }
 
         String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
@@ -178,6 +190,39 @@ public class TestCommand implements BLauncherCmd {
                 return;
             }
             isSingleFile = true;
+        } else if (isModule == true) {
+            try {
+                project = BuildProject.load(this.projectPath, buildOptions);
+                
+                // Get the package
+                Package modifiedPackage = project.currentPackage();
+                
+                // Iterate through each module
+                for (ModuleId moduleId : modifiedPackage.moduleIds()) {
+                     
+                    Module module = modifiedPackage.module(moduleId);
+                    ModuleName packageModule = module.moduleName();
+                    
+                    // If the iterated module doesnt match the passed module name, it is removed
+                    if (packageModule.moduleNamePart() != null && !packageModule.moduleNamePart().equals(moduleName)) {
+                        modifiedPackage = modifiedPackage.modify().removeModule(moduleId).apply();
+                    }
+                }
+
+                if (modifiedPackage.moduleIds().size() <= 1) {
+                    errStream.println("error: Cannot execute module " + moduleName + ". Does not exist in the modules" +
+                            " directory");
+                    return;
+                }
+
+                // After all the modules are iterated and the unnecessary ones are removed
+                // we assign the modified package project to the original
+                project = modifiedPackage.project();
+            } catch (ProjectException e) {
+                CommandUtil.printError(this.errStream, e.getMessage(), testCmd, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
         } else {
             try {
                 project = BuildProject.load(this.projectPath, buildOptions);
@@ -201,8 +246,8 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(outStream), isSingleFile || listGroups) // create the BALO (projects only)
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream), !listGroups) // list the available test groups
-                .addTask(new RunTestsTask(outStream, errStream, args, rerunTests, groupList, disableGroupList,
-                        testList, moduleList), listGroups)
+                .addTask(new RunTestsTask(outStream, errStream, args, rerunTests, isModule, groupList, disableGroupList,
+                        testList), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);

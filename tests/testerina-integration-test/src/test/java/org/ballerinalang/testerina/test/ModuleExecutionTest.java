@@ -47,43 +47,22 @@ public class ModuleExecutionTest extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
 
-        balClient.runMain("test", new String[]{"--modules", "Module1"}, null, new String[]{},
+        balClient.runMain("test", new String[]{"Module1"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
 
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
     }
 
-    @Test()
-    public void test_MultiModuleTestExecution() throws BallerinaTestException {
-        String msg1 = "module_execution_tests.Module1";
-        String msg2 = "module_execution_tests.Module2";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-
-        balClient.runMain("test", new String[]{"--modules", "Module1,Module2"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-    }
-
-    @Test()
+    @Test(enabled = false)
     public void test_NonExistingModuleTextExecution() throws BallerinaTestException {
-        String msg1 = "module_execution_tests.Module1";
-        String msg2 = "The following modules were not found in the modules directory : [ModuleA]";
-        String msg3 = "1 passing";
-
+        String msg1 = "error: Cannot execute module ModuleA. Does not exist in the modules directory";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
 
-        balClient.runMain("test", new String[]{"--modules", "ModuleA,Module1"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1, clientLeecher2, clientLeecher3}, projectPath);
+        balClient.runMain("test", new String[]{"ModuleA"}, null, new String[]{},
+                new LogLeecher[]{clientLeecher1}, projectPath);
 
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
-        clientLeecher3.waitForText(20000);
+        clientLeecher1.waitForText(40000);
     }
 
 }
