@@ -17,13 +17,7 @@
 import ballerina/testobserve;
 import ballerina/lang.'int;
 
-type testServiceOneType service object {
-    resource function post resourceOne(testobserve:Caller caller);
-    resource function post resourceTwo(testobserve:Caller caller, string body) returns error?;
-    resource function post resourceThree(testobserve:Caller caller) returns error?;
-};
-
-service testServiceOneType /testServiceOne on new testobserve:Listener(9091) {
+service /testServiceOne on new testobserve:Listener(9091) {
     resource function post resourceOne(testobserve:Caller caller) {
         var ret = caller->respond("Hello from Resource One");
     }
