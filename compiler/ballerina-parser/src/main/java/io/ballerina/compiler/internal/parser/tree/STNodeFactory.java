@@ -1700,26 +1700,22 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createListBindingPatternNode(
             STNode openBracket,
             STNode bindingPatterns,
-            STNode restBindingPattern,
             STNode closeBracket) {
 
         return new STListBindingPatternNode(
                 openBracket,
                 bindingPatterns,
-                restBindingPattern,
                 closeBracket);
     }
 
     public static STNode createMappingBindingPatternNode(
             STNode openBrace,
             STNode fieldBindingPatterns,
-            STNode restBindingPattern,
             STNode closeBrace) {
 
         return new STMappingBindingPatternNode(
                 openBrace,
                 fieldBindingPatterns,
-                restBindingPattern,
                 closeBrace);
     }
 
