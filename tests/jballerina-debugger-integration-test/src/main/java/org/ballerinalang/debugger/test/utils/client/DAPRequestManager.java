@@ -57,10 +57,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class DAPRequestManager {
 
-    private TestDAPClientConnector clientConnector;
-    private final DAPClient client;
+    private final TestDAPClientConnector clientConnector;
     private final IDebugProtocolServer server;
-    private final Capabilities serverCapabilities;
 
     private static final int TIMEOUT_SET_BREAKPOINTS = 10000;
     private static final int TIMEOUT_CONFIG_DONE = 2000;
@@ -80,9 +78,7 @@ public class DAPRequestManager {
     public DAPRequestManager(TestDAPClientConnector clientConnector, DAPClient client, IDebugProtocolServer server,
                              Capabilities serverCapabilities) {
         this.clientConnector = clientConnector;
-        this.client = client;
         this.server = server;
-        this.serverCapabilities = serverCapabilities;
     }
 
     public TestDAPClientConnector getClientConnector() {
