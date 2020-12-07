@@ -142,7 +142,7 @@ public enum Flag {
      */
     CONFIGURABLE,
     /**
-     * Indicates flagged node is an enum
+     * Indicates flagged node is an enum.
      */
     ENUM
 }

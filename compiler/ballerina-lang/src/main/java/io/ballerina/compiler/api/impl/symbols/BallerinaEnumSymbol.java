@@ -27,18 +27,27 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+/**
+ * Represents an enum.
+ *
+ * @since 2.0.0
+ */
 public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implements EnumSymbol {
 
-    protected BallerinaEnumSymbol(String name, PackageID moduleID, List<Qualifier> qualifiers,
-                                  TypeSymbol typeDescriptor, BSymbol bSymbol) {
+    private List<ConstantSymbol> members;
+
+    protected BallerinaEnumSymbol(String name, PackageID moduleID, List<ConstantSymbol> members,
+                                  List<Qualifier> qualifiers, TypeSymbol typeDescriptor, BSymbol bSymbol) {
         super(name, moduleID, qualifiers, typeDescriptor, bSymbol);
+        this.members = Collections.unmodifiableList(members);
     }
 
     @Override
     public List<ConstantSymbol> members() {
-        return null;
+        return this.members;
     }
 
     @Override
@@ -53,11 +62,17 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
      */
     public static class EnumSymbolBuilder extends SymbolBuilder<BallerinaEnumSymbol.EnumSymbolBuilder> {
 
+        protected List<ConstantSymbol> members;
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
         public EnumSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
             super(name, moduleID, SymbolKind.TYPE_DEFINITION, symbol);
+        }
+
+        public EnumSymbolBuilder withMembers(List<ConstantSymbol> members) {
+            this.members = members;
+            return this;
         }
 
         public EnumSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
@@ -72,8 +87,8 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
 
         @Override
         public BallerinaEnumSymbol build() {
-            return new BallerinaEnumSymbol(this.name, this.moduleID, this.qualifiers, this.typeDescriptor,
-                                           this.bSymbol);
+            return new BallerinaEnumSymbol(this.name, this.moduleID, this.members, this.qualifiers,
+                                           this.typeDescriptor, this.bSymbol);
         }
     }
 }

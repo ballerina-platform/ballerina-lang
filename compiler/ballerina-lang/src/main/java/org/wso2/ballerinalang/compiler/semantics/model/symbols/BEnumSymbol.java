@@ -27,6 +27,11 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.List;
 
+/**
+ * Represents an enum.
+ *
+ * @since 2.0.0
+ */
 public class BEnumSymbol extends BTypeSymbol {
 
     public List<BConstantSymbol> members;

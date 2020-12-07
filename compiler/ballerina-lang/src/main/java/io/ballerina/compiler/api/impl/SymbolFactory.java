@@ -31,6 +31,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -135,7 +137,7 @@ public class SymbolFactory {
                 return createClassSymbol((BClassSymbol) symbol, name);
             }
             if (Symbols.isFlagOn(symbol.flags, Flags.ENUM)) {
-                return createEnumSymbol((BTypeSymbol) symbol, name);
+                return createEnumSymbol((BEnumSymbol) symbol, name);
             }
 
             // create the typeDefs
@@ -288,15 +290,23 @@ public class SymbolFactory {
         return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type, true)).build();
     }
 
-    public BallerinaEnumSymbol createEnumSymbol(BTypeSymbol typeSymbol, String name) {
+    public BallerinaEnumSymbol createEnumSymbol(BEnumSymbol enumSymbol, String name) {
         BallerinaEnumSymbol.EnumSymbolBuilder symbolBuilder =
-                new BallerinaEnumSymbol.EnumSymbolBuilder(name, typeSymbol.pkgID, typeSymbol);
+                new BallerinaEnumSymbol.EnumSymbolBuilder(name, enumSymbol.pkgID, enumSymbol);
 
-        if (isFlagOn(typeSymbol.flags, Flags.PUBLIC)) {
+        if (isFlagOn(enumSymbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
-        return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type, true)).build();
+        List<ConstantSymbol> members = new ArrayList<>();
+        for (BConstantSymbol member : enumSymbol.members) {
+            members.add(this.createConstantSymbol(member, member.name.value));
+        }
+
+        return symbolBuilder
+                .withMembers(members)
+                .withTypeDescriptor(typesFactory.getTypeDescriptor(enumSymbol.type, true))
+                .build();
     }
 
     public BallerinaClassSymbol createClassSymbol(BClassSymbol classSymbol, String name) {
