@@ -93,10 +93,7 @@ public class ForeachJSONTypedBindingPatternsTests {
                     ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible types: '\\(\\)' cannot be cast" +
                             " to 'map<json>'.*")
     public void testDirectAccessInvalidElementWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types: '" +
-                "()' cannot be cast to 'map<json>'\"}");
+        BRunUtil.invoke(program, "testDirectAccessInvalidElementWithoutType");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -104,10 +101,7 @@ public class ForeachJSONTypedBindingPatternsTests {
                     ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible types: '\\(\\)' cannot be cast" +
                             " to 'map<json>'.*")
     public void testDirectAccessInvalidElementWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types: '" +
-                "()' cannot be cast to 'map<json>'\"}");
+        BRunUtil.invoke(program, "testDirectAccessInvalidElementWithType");
     }
 
     @Test
