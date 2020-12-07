@@ -3811,10 +3811,7 @@ public class Types {
                 return false;
             }
 
-            if (!types.isServiceObject((BObjectTypeSymbol) type.tsymbol)) {
-                return false;
-            }
-            return true;
+            return types.isServiceObject((BObjectTypeSymbol) type.tsymbol);
         }
     }
 }

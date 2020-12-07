@@ -94,7 +94,7 @@ public class BServiceType extends BObjectType implements ServiceType {
         return TypeTags.SERVICE_TAG;
     }
 
-    public boolean isAnnotationsAvailable() {
+    public boolean hasAnnotations() {
         return !annotations.isEmpty();
     }
 }
