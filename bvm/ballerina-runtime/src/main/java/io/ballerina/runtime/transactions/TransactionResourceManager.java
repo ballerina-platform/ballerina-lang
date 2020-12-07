@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import org.ballerinalang.config.ConfigRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -305,7 +304,7 @@ public class TransactionResourceManager {
                             ctx.commit();
                         }
                     }
-                } catch (Throwable e) {
+                } catch (XAException e) {
                     log.error("error when committing the transaction, " + combinedId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 } finally {
@@ -363,7 +362,7 @@ public class TransactionResourceManager {
                             ctx.rollback();
                         }
                     }
-                } catch (Throwable e) {
+                } catch (XAException e) {
                     log.error("error when aborting the transaction, " + combinedId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 } finally {
@@ -416,7 +415,7 @@ public class TransactionResourceManager {
             try {
                 xaResource.start(xid, TMNOFLAGS);
             } catch (XAException e) {
-                throw new BallerinaException("error in starting the XA transaction: id: " + combinedId + " error:" +
+                log.error("error in starting the XA transaction: id: " + combinedId + " error:" +
                         e.getMessage());
             }
         }
@@ -510,9 +509,9 @@ public class TransactionResourceManager {
                             if (xaResource != null) {
                                 trx.delistResource(xaResource, TMSUCCESS);
                             }
-                        } catch (Throwable e) {
-                            throw new BallerinaException(
-                              "error in ending the XA transaction: id: " + combinedId + " error:" + e.getMessage());
+                        } catch (IllegalStateException | SystemException e) {
+                            log.error("error in ending the XA transaction: id: " + combinedId
+                                    + " error:" + e.getMessage());
                         }
                     }
                 }
@@ -528,9 +527,9 @@ public class TransactionResourceManager {
                             if (xaResource != null) {
                                 ctx.getXAResource().end(xid, TMSUCCESS);
                             }
-                        } catch (Throwable e) {
-                            throw new BallerinaException(
-                              "error in ending the XA transaction: id: " + combinedId + " error:" + e.getMessage());
+                        } catch (XAException e) {
+                            log.error("error in ending the XA transaction: id: " + combinedId
+                                    + " error:" + e.getMessage());
                         }
                     }
                 }
