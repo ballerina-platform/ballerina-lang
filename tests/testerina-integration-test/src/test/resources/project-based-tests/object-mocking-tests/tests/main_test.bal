@@ -22,7 +22,7 @@ public client class MockHttpClient {
 
     public string url = "http://mockUrl";
 
-    public remote function get(string path) returns string {
+    remote function get(string path) returns string {
         return self.url + path + "/mocked";
     }
 }

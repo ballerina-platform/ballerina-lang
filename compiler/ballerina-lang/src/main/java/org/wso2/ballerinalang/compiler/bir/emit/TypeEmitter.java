@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -106,9 +105,6 @@ class TypeEmitter {
             case TypeTags.RECORD:
                 return emitBRecordType((BRecordType) bType, tabs);
             case TypeTags.OBJECT:
-                if (bType instanceof BServiceType) {
-                    return emitBServiceType((BServiceType) bType, tabs);
-                }
                 return emitBObjectType((BObjectType) bType, tabs);
             case TypeTags.MAP:
                 return emitBMapType((BMapType) bType, tabs);
@@ -134,7 +130,7 @@ class TypeEmitter {
         if (bType.constraint == null) {
             return readonly ? bType.toString().concat(" & readonly") : bType.toString();
         }
-        
+
         if (!visited.add(bType.constraint)) {
             return "...";
         }
@@ -277,8 +273,10 @@ class TypeEmitter {
     }
 
     private static String emitBObjectType(BObjectType bType, int tabs) {
+        boolean isService = (bType.flags & Flags.SERVICE) == Flags.SERVICE;
 
-        StringBuilder str = new StringBuilder("object");
+        StringBuilder str = new StringBuilder();
+        str.append(isService ? "service object" : "object");
         str.append(emitSpaces(1));
         str.append("{");
         str.append(emitLBreaks(1));
@@ -367,15 +365,6 @@ class TypeEmitter {
         String str = "typeDesc";
         str += "<";
         str += emitTypeRef(bType.constraint, 0);
-        str += ">";
-        return str;
-    }
-
-    private static String emitBServiceType(BServiceType bType, int tabs) {
-
-        String str = "service";
-        str += "<";
-        str += emitTypeRef(bType.tsymbol.type, 0);
         str += ">";
         return str;
     }

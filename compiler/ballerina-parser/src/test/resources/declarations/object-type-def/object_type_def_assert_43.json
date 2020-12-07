@@ -68,6 +68,10 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
                           "kind": "SIMPLE_NAME_REFERENCE",
                           "hasDiagnostics": true,
                           "children": [
@@ -75,7 +79,7 @@
                               "kind": "IDENTIFIER_TOKEN",
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_QUALIFIER_NOT_ALLOWED"
+                                "ERROR_PRIVATE_QUALIFIER_IN_OBJECT_MEMBER_DESCRIPTOR"
                               ],
                               "value": "age",
                               "leadingMinutiae": [
@@ -137,6 +141,10 @@
                       "kind": "OBJECT_FIELD",
                       "hasDiagnostics": true,
                       "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
                         {
                           "kind": "STRING_TYPE_DESC",
                           "children": [
@@ -274,6 +282,10 @@
                           ]
                         },
                         {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
                           "kind": "FUNCTION_SIGNATURE",
                           "children": [
                             {
@@ -308,6 +320,10 @@
                       "kind": "OBJECT_FIELD",
                       "hasDiagnostics": true,
                       "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
                         {
                           "kind": "INT_TYPE_DESC",
                           "hasDiagnostics": true,
@@ -391,6 +407,10 @@
                           "value": "baz"
                         },
                         {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
                           "kind": "FUNCTION_SIGNATURE",
                           "children": [
                             {
@@ -425,6 +445,10 @@
                       "kind": "OBJECT_FIELD",
                       "hasDiagnostics": true,
                       "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
                         {
                           "kind": "INT_TYPE_DESC",
                           "hasDiagnostics": true,

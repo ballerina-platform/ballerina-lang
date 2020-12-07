@@ -57,7 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -75,7 +75,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -97,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -607,31 +607,31 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangClassDefinition classDefinition) {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
         boolean isPublicType = flags.contains(Flag.PUBLIC);
+        boolean isServiceType = flags.contains(Flag.SERVICE);
         Name className = names.fromIdNode(classDefinition.name);
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
                                                         env.scope.owner, classDefinition.name.pos,
-                                                        getOrigin(className, flags));
+                                                        getOrigin(className, flags), classDefinition.isServiceDecl);
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
 
-        BObjectType objectType;
-        if (flags.contains(Flag.SERVICE)) {
-            objectType = new BServiceType(tSymbol);
-        } else {
-            int typeFlags = 0;
+        int typeFlags = 0;
 
-            if (flags.contains(Flag.READONLY)) {
-                typeFlags |= Flags.READONLY;
-            }
-
-            if (flags.contains(Flag.ISOLATED)) {
-                typeFlags |= Flags.ISOLATED;
-            }
-
-            objectType = new BObjectType(tSymbol, typeFlags);
+        if (flags.contains(Flag.READONLY)) {
+            typeFlags |= Flags.READONLY;
         }
+
+        if (flags.contains(Flag.ISOLATED)) {
+            typeFlags |= Flags.ISOLATED;
+        }
+
+        if (isServiceType) {
+            typeFlags |= Flags.SERVICE;
+        }
+
+        BObjectType objectType = new BObjectType(tSymbol, typeFlags);
 
         if (flags.contains(Flag.DISTINCT)) {
             objectType.typeIdSet = BTypeIdSet.from(env.enclPkg.symbol.pkgID, classDefinition.name.value, isPublicType);
@@ -1438,21 +1438,34 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        Name serviceName = names.fromIdNode(serviceNode.name);
-        BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet), serviceName,
-                                                                   env.enclPkg.symbol.pkgID, serviceNode.type,
-                                                                   env.scope.owner, serviceNode.name.pos,
-                                                                   getOrigin(serviceName));
-        serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
+        defineNode(serviceNode.serviceVariable, env);
+    }
 
-        BType serviceObjectType = serviceNode.serviceClass.symbol.type;
-        serviceNode.symbol = serviceSymbol;
-        serviceNode.symbol.type = new BServiceType(serviceObjectType.tsymbol);
-        serviceSymbol.scope = new Scope(serviceSymbol);
+    @Override
+    public void visit(BLangResourceFunction funcNode) {
+        boolean validAttachedFunc = validateFuncReceiver(funcNode);
 
-        // Caching values future validation.
-        serviceNode.serviceClass.functions.stream().filter(func -> func.flagSet.contains(Flag.RESOURCE))
-                .forEach(func -> serviceNode.resourceFunctions.add(func));
+        if (PackageID.isLangLibPackageID(env.enclPkg.symbol.pkgID)) {
+            funcNode.flagSet.add(Flag.LANG_LIB);
+        }
+
+        BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
+                getFuncSymbolName(funcNode),
+                env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                funcNode.hasBody(), funcNode.name.pos, SOURCE);
+        funcSymbol.source = funcNode.pos.lineRange().filePath();
+        funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
+        SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
+        defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
+        funcNode.type = funcSymbol.type;
+
+        if (isDeprecated(funcNode.annAttachments)) {
+            funcSymbol.flags |= Flags.DEPRECATED;
+        }
+        // Define function receiver if any.
+        if (funcNode.receiver != null) {
+            defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
+        }
     }
 
     @Override
@@ -2124,6 +2137,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    private void updateServiceResourceFieldVisibilityRegion(BField value, boolean isService) {
+        if (isService && value.symbol != null && Symbols.isResource(value.symbol)) {
+            value.symbol.flags |= Flags.PUBLIC;
+        }
+    }
+
     private void defineMembers(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangNode node : typeDefNodes) {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
@@ -2316,7 +2335,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BStructureType structureType = (BStructureType) symbol.type;
 
             if (Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
-                if (structureType.tag != TypeTags.OBJECT || structureType instanceof BServiceType) {
+                if (structureType.tag != TypeTags.OBJECT) {
                     continue;
                 }
 
@@ -2390,10 +2409,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void setReadOnlynessOfClassDef(BLangClassDefinition classDef, SymbolEnv pkgEnv) {
         BObjectType objectType = (BObjectType) classDef.type;
         Location pos = classDef.pos;
-
-        if (objectType instanceof BServiceType) {
-            return;
-        }
 
         if (Symbols.isFlagOn(classDef.type.flags, Flags.READONLY)) {
             if (!types.isSelectivelyImmutableType(objectType, new HashSet<>())) {
@@ -2642,8 +2657,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BInvokableType funcType = (BInvokableType) funcSymbol.type;
         BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) funcNode.receiver.type.tsymbol;
-        BAttachedFunction attachedFunc = new BAttachedFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType,
-                                                               funcNode.pos);
+        BAttachedFunction attachedFunc;
+        if (funcNode.getKind() == NodeKind.RESOURCE_FUNC) {
+            attachedFunc = createResourceFunction(funcNode, funcSymbol, funcType);
+        } else {
+            attachedFunc = new BAttachedFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, funcNode.pos);
+        }
 
         validateRemoteFunctionAttachedToObject(funcNode, objectSymbol);
         validateResourceFunctionAttachedToObject(funcNode, objectSymbol);
@@ -2658,23 +2677,43 @@ public class SymbolEnter extends BLangNodeVisitor {
         objectSymbol.initializerFunc = attachedFunc;
     }
 
+    private BAttachedFunction createResourceFunction(BLangFunction funcNode, BInvokableSymbol funcSymbol,
+                                                     BInvokableType funcType) {
+        BLangResourceFunction resourceFunction = (BLangResourceFunction) funcNode;
+        Name accessor = names.fromIdNode(resourceFunction.accessorName);
+        List<Name> resourcePath = resourceFunction.resourcePath.stream()
+                .map(names::fromIdNode)
+                .collect(Collectors.toList());
+
+        List<BVarSymbol> pathParamSymbols = resourceFunction.pathParams.stream()
+                .map(p -> p.symbol)
+                .collect(Collectors.toList());
+
+        BVarSymbol restPathParamSym =
+                resourceFunction.restPathParam != null ? resourceFunction.restPathParam.symbol : null;
+
+        return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
+                accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
+    }
+
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
         if (!Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.REMOTE)) {
             return;
         }
         funcNode.symbol.flags |= Flags.REMOTE;
+        funcNode.symbol.flags |= Flags.PUBLIC;
 
-        if (!Symbols.isFlagOn(objectSymbol.flags, Flags.CLIENT)) {
-            this.dlog.error(funcNode.pos, DiagnosticErrorCode.REMOTE_FUNCTION_IN_NON_CLIENT_OBJECT);
+        if (!isNetworkQualified(objectSymbol)) {
+            this.dlog.error(funcNode.pos, DiagnosticErrorCode.REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT);
         }
     }
 
+    private boolean isNetworkQualified(BObjectTypeSymbol objectSymbol) {
+        return Symbols.isFlagOn(objectSymbol.flags, Flags.CLIENT)
+                || Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE);
+    }
+
     private void validateResourceFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
-        if (Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)
-                && (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)
-                || Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE))) {
-            this.dlog.error(funcNode.pos, DiagnosticErrorCode.SERVICE_FUNCTION_INVALID_MODIFIER);
-        }
         if (!Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.RESOURCE)) {
             return;
         }
@@ -2683,8 +2722,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)) {
             this.dlog.error(funcNode.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT);
         }
-
-        types.validateErrorOrNilReturn(funcNode, DiagnosticErrorCode.RESOURCE_FUNCTION_INVALID_RETURN_TYPE);
     }
 
     private StatementNode createAssignmentStmt(BLangSimpleVariable variable, BVarSymbol varSym, BSymbol fieldVar) {
@@ -2885,9 +2922,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // If not, define the function symbol within the object.
         // Take a copy of the symbol, with the new name, and the package ID same as the object type.
-        BInvokableSymbol funcSymbol = ASTBuilderUtil
-                .duplicateFunctionDeclarationSymbol(referencedFunc.symbol, typeDefSymbol, funcName, typeDefSymbol.pkgID,
-                                                    typeRef.pos, getOrigin(funcName));
+        BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateFunctionDeclarationSymbol(referencedFunc.symbol,
+                typeDefSymbol, funcName, typeDefSymbol.pkgID, typeRef.pos, getOrigin(funcName));
         defineSymbol(typeRef.pos, funcSymbol, objEnv);
 
         // Create and define the parameters and receiver. This should be done after defining the function symbol.
@@ -2900,9 +2936,18 @@ public class SymbolEnter extends BLangNodeVisitor {
                 defineVarSymbol(location, flagSet, typeDefSymbol.type, Names.SELF, funcEnv, isInternal);
 
         // Cache the function symbol.
-        BAttachedFunction attachedFunc =
-                new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
-                                      referencedFunc.pos);
+        BAttachedFunction attachedFunc;
+        if (referencedFunc instanceof BResourceFunction) {
+            BResourceFunction resourceFunction = (BResourceFunction) referencedFunc;
+            attachedFunc = new BResourceFunction(referencedFunc.funcName,
+                    funcSymbol, (BInvokableType) funcSymbol.type, resourceFunction.resourcePath,
+                    resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
+                    referencedFunc.pos);
+        } else {
+            attachedFunc = new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
+                    referencedFunc.pos);
+        }
+
         ((BObjectTypeSymbol) typeDefSymbol).attachedFuncs.add(attachedFunc);
         ((BObjectTypeSymbol) typeDefSymbol).referencedFunctions.add(attachedFunc);
     }
@@ -3023,7 +3068,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private SymbolOrigin getOrigin(Name name, Set<Flag> flags) {
-        if (flags.contains(Flag.SERVICE) || missingNodesHelper.isMissingNode(name)) {
+        if ((flags.contains(Flag.ANONYMOUS) && flags.contains(Flag.SERVICE))
+                || missingNodesHelper.isMissingNode(name)) {
             return VIRTUAL;
         }
         return SOURCE;

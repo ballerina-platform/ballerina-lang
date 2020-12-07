@@ -56,6 +56,10 @@
               "hasDiagnostics": true,
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "SIMPLE_NAME_REFERENCE",
                   "hasDiagnostics": true,
                   "children": [
@@ -145,6 +149,10 @@
                   "value": "foo"
                 },
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "FUNCTION_SIGNATURE",
                   "children": [
                     {
@@ -174,6 +182,10 @@
               "kind": "OBJECT_FIELD",
               "hasDiagnostics": true,
               "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
                   "hasDiagnostics": true,
@@ -274,6 +286,10 @@
                   "value": "foo0"
                 },
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "FUNCTION_SIGNATURE",
                   "children": [
                     {
@@ -303,6 +319,10 @@
               "kind": "OBJECT_FIELD",
               "hasDiagnostics": true,
               "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
                   "hasDiagnostics": true,
@@ -371,6 +391,10 @@
               "hasDiagnostics": true,
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "SINGLETON_TYPE_DESC",
                   "children": [
                     {
@@ -429,6 +453,10 @@
                   "value": "foo2"
                 },
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "FUNCTION_SIGNATURE",
                   "children": [
                     {
@@ -458,6 +486,10 @@
               "kind": "OBJECT_FIELD",
               "hasDiagnostics": true,
               "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
                   "hasDiagnostics": true,
@@ -526,6 +558,10 @@
               "hasDiagnostics": true,
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "SINGLETON_TYPE_DESC",
                   "children": [
                     {
@@ -582,6 +618,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "foo3"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",

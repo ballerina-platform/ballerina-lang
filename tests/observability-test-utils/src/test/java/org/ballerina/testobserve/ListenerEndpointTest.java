@@ -41,6 +41,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Test cases for listener written to be used in unit tests.
  */
+// Disabled on https://github.com/ballerina-platform/ballerina-lang/issues/27151
 @Test(groups = "mock-listener-tests")
 public class ListenerEndpointTest {
     private static final String OBESERVABILITY_TEST_UTILS_BALO = System.getProperty("observability.test.utils.balo");
@@ -50,7 +51,7 @@ public class ListenerEndpointTest {
     private static BalServer balServer;
     private static BServerInstance servicesServerInstance;
 
-    @BeforeGroups(value = "mock-listener-tests", alwaysRun = true)
+    @BeforeGroups(value = "mock-listener-tests", alwaysRun = true, enabled = false)
     private void setup() throws Exception {
         balServer = new BalServer();
         final String serverHome = balServer.getServerHome();
@@ -76,14 +77,14 @@ public class ListenerEndpointTest {
         servicesServerInstance.startServer(sourcesDir, "listener_tests", null, new String[0], new int[]{9091});
     }
 
-    @AfterGroups(value = "mock-listener-tests", alwaysRun = true)
+    @AfterGroups(value = "mock-listener-tests", alwaysRun = true, enabled = false)
     private void cleanup() throws Exception {
         servicesServerInstance.removeAllLeechers();
         servicesServerInstance.shutdownServer();
         balServer.cleanup();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testHelloWorldResponse() throws Exception {
         HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:9091/testServiceOne/resourceOne",
                 "dummy-ignored-input-1", Collections.emptyMap());
@@ -91,7 +92,7 @@ public class ListenerEndpointTest {
         Assert.assertEquals(httpResponse.getData(), "Hello from Resource One");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSuccessfulResponse() throws Exception {
         HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:9091/testServiceOne/resourceTwo",
                 "10", Collections.emptyMap());
@@ -99,7 +100,7 @@ public class ListenerEndpointTest {
         Assert.assertEquals(httpResponse.getData(), "Sum of numbers: 55");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testErrorReturnResponse() throws Exception {
         HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:9091/testServiceOne/resourceTwo",
                 "invalid-number", Collections.emptyMap());
@@ -107,7 +108,7 @@ public class ListenerEndpointTest {
         Assert.assertEquals(httpResponse.getData(), "{ballerina/lang.int}NumberParsingError");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testPanicResponse() throws Exception {
         HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:9091/testServiceOne/resourceThree",
                 "dummy-ignored-input-2", Collections.emptyMap());

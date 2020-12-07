@@ -29,7 +29,9 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,7 +59,11 @@ public class CodeActionRouter {
         // Get available node-type based code-actions
         Optional<Pair<CodeActionNodeType, NonTerminalNode>> nodeTypeAndNode = codeActionNodeType(ctx);
         SemanticModel semanticModel = ctx.workspace().semanticModel(ctx.filePath()).orElseThrow();
-        String relPath = ctx.filePath().getFileName().toString();
+        Path fileName = ctx.filePath().getFileName();
+        if (fileName == null) {
+            return Collections.emptyList();
+        }
+        String relPath = fileName.toString();
         if (nodeTypeAndNode.isPresent()) {
             CodeActionNodeType nodeType = nodeTypeAndNode.get().getLeft();
             NonTerminalNode matchedNode = nodeTypeAndNode.get().getRight();

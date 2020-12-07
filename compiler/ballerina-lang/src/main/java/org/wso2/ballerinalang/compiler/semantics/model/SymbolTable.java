@@ -49,7 +49,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -242,7 +241,6 @@ public class SymbolTable {
         initializeType(anyType, TypeKind.ANY.typeName(), BUILTIN);
         initializeType(nilType, TypeKind.NIL.typeName(), BUILTIN);
         initializeType(neverType, TypeKind.NEVER.typeName(), BUILTIN);
-        initializeType(anyServiceType, TypeKind.SERVICE.typeName(), BUILTIN);
         initializeType(handleType, TypeKind.HANDLE.typeName(), BUILTIN);
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
         initializeType(readonlyType, TypeKind.READONLY.typeName(), BUILTIN);
