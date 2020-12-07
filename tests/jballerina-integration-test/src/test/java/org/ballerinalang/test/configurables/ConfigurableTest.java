@@ -88,7 +88,7 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testInvalidTomlFile() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "InvalidTomlFile").toAbsolutePath();
-        String tomlError = "Invalid table definition on line 1: [testOrg..main.file..]]";
+        String tomlError = "missing identifier [configuration.toml:(0:9,0:9)]";
         LogLeecher errorLeecher = new LogLeecher(errorMsg + tomlError, ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
@@ -107,7 +107,7 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testInvalidType() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "InvalidType").toAbsolutePath();
-        String typeError = "invalid type found for variable 'intVar', expected type is 'int'";
+        String typeError = "invalid type found for variable 'intVar', expected type is 'int', found 'DOUBLE'";
         LogLeecher errorLeecher = new LogLeecher(errorMsg + typeError, ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
