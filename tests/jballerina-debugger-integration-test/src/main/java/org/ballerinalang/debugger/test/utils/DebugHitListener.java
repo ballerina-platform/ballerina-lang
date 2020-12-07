@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class DebugHitListener extends TimerTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugHitListener.class);
-    public static TestDAPClientConnector connector;
+    TestDAPClientConnector connector;
     private StoppedEventArguments debugHitContext;
     private BallerinaTestDebugPoint debugHitpoint;
     private boolean debugHitFound;
@@ -116,5 +116,9 @@ public class DebugHitListener extends TimerTask {
             LOGGER.warn("Error occurred when fetching stack frames", e);
             throw new BallerinaTestException("Error occurred when fetching stack frames.", e);
         }
+    }
+
+    public TestDAPClientConnector getConnector() {
+        return connector;
     }
 }

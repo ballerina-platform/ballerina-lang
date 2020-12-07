@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,8 +34,8 @@ import java.util.Objects;
 public class TestSocketStreamConnectionProvider extends TestProcessStreamConnectionProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestSocketStreamConnectionProvider.class);
-    private String address;
-    private int port;
+    private final String address;
+    private final int port;
 
     private Socket socket;
     private InputStream inputStream;
@@ -55,7 +56,7 @@ public class TestSocketStreamConnectionProvider extends TestProcessStreamConnect
                 LOG.warn(e.getMessage());
             }
         });
-
+        final BufferedReader[] bufferedReader = new BufferedReader[1];
         Thread adapterLauncherThread = new Thread(() -> {
             try {
                 super.start();
@@ -63,9 +64,9 @@ public class TestSocketStreamConnectionProvider extends TestProcessStreamConnect
                 if (stdIn == null) {
                     throw new IOException("Debug adapter input stream is null.");
                 }
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stdIn), 1);
+                bufferedReader[0] = new BufferedReader(new InputStreamReader(stdIn, StandardCharsets.UTF_8), 1);
                 String line;
-                while ((line = bufferedReader.readLine()) != null && line.contains("Debug server started")) {
+                while ((line = bufferedReader[0].readLine()) != null && line.contains("Debug server started")) {
                     // Just waits here for the debug adapter to print server init message to the std out.
                 }
             } catch (Exception e) {
@@ -126,6 +127,15 @@ public class TestSocketStreamConnectionProvider extends TestProcessStreamConnect
                 LOG.error(e.getMessage());
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof TestSocketStreamConnectionProvider) {
+            TestSocketStreamConnectionProvider other = (TestSocketStreamConnectionProvider) obj;
+            return port == other.port && address.equals(other.address) && super.equals(obj);
+        }
+        return false;
     }
 
     @Override

@@ -42,11 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-
-import static org.ballerinalang.debugger.test.utils.DebugUtils.JBAL_DEBUG_CMD_NAME;
-import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
 /**
  * Used to communicate with debug server.
@@ -55,21 +51,20 @@ public class TestDAPClientConnector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestDAPClientConnector.class);
 
-    private String balHome;
-    private String projectPath;
-    private String entryFilePath;
-    private String host;
-    private int port;
+    private final String balHome;
+    private final String projectPath;
+    private final String entryFilePath;
+    private final String host;
+    private final int port;
     private DAPClient debugClient;
     private IDebugProtocolServer debugServer;
     private DAPRequestManager requestManager;
     private TestStreamConnectionProvider streamConnectionProvider;
     private Future<Void> launcherFuture;
-    private CompletableFuture<Capabilities> initializeFuture;
     private Capabilities initializeResult;
     private ConnectionState myConnectionState;
-    private DebugServerEventHolder serverEventHolder;
-    private int debugAdapterPort;
+    private final DebugServerEventHolder serverEventHolder;
+    private final int debugAdapterPort;
 
     private static final String CONFIG_SOURCE = "script";
     private static final String CONFIG_DEBUGEE_HOST = "debuggeeHost";
@@ -91,7 +86,7 @@ public class TestDAPClientConnector {
         this.entryFilePath = entryFilePath;
         this.host = host;
         this.port = port;
-        this.debugAdapterPort = findFreePort();
+        this.debugAdapterPort = DebugUtils.findFreePort();
         myConnectionState = ConnectionState.NOT_CONNECTED;
         serverEventHolder = new DebugServerEventHolder();
     }
@@ -137,7 +132,7 @@ public class TestDAPClientConnector {
             InitializeRequestArguments initParams = new InitializeRequestArguments();
             initParams.setAdapterID("BallerinaDebugClient");
 
-            initializeFuture = debugServer.initialize(initParams).thenApply(res -> {
+            debugServer.initialize(initParams).thenApply(res -> {
                 initializeResult = res;
                 LOGGER.info("initialize response received from the debug server.");
                 requestManager = new DAPRequestManager(this, debugClient, debugServer, initializeResult);
@@ -234,7 +229,7 @@ public class TestDAPClientConnector {
             processArgs.add(balHome + File.separator + "bin" + File.separator + Constant.JBALLERINA_SERVER_SCRIPT_NAME);
         }
 
-        processArgs.add(JBAL_DEBUG_CMD_NAME);
+        processArgs.add(DebugUtils.JBAL_DEBUG_CMD_NAME);
         processArgs.add(Integer.toString(debugAdapterPort));
         return new TestSocketStreamConnectionProvider(processArgs, projectPath, host, debugAdapterPort);
     }

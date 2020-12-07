@@ -35,8 +35,8 @@ import java.util.Objects;
 public class TestProcessStreamConnectionProvider implements TestStreamConnectionProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestProcessStreamConnectionProvider.class);
-    private List<String> commands;
-    private String workingDir;
+    private final List<String> commands;
+    private final String workingDir;
 
     public TestProcessStreamConnectionProvider(List<String> commands, String workingDir) {
         this.commands = commands;

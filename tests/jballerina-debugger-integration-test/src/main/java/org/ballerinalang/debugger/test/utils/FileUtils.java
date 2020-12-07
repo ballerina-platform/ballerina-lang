@@ -55,7 +55,7 @@ public class FileUtils {
      */
     public static String getFileContent(Path filepath) {
         try {
-            return new String(Files.readAllBytes(filepath));
+            return Files.readString(filepath);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
