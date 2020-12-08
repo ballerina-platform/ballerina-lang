@@ -47,6 +47,7 @@ import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
@@ -152,6 +153,10 @@ public class Type {
         } else if (node instanceof BuiltinSimpleNameReferenceNode) {
             BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode = (BuiltinSimpleNameReferenceNode) node;
             type.name = builtinSimpleNameReferenceNode.name().text();
+            type.category = "builtin";
+        } else if (node instanceof XmlTypeDescriptorNode) {
+            XmlTypeDescriptorNode xmlType = (XmlTypeDescriptorNode) node;
+            type.name = xmlType.xmlKeywordToken().text();
             type.category = "builtin";
         } else if (node instanceof ArrayTypeDescriptorNode) {
             ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
