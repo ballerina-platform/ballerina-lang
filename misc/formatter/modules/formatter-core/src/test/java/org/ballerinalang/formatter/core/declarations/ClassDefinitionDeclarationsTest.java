@@ -52,16 +52,6 @@ public class ClassDefinitionDeclarationsTest extends FormatterTest {
     }
 
     /**
-     * Specify the file names to be skipped during the test execution.
-     *
-     * @return Skipping test scenarios for execution
-     */
-    @Override
-    public List<String> skipList() {
-        return Arrays.asList("class_definition_declaration_5.bal", "class_definition_declaration_8.bal");
-    }
-
-    /**
      * Returns the directory path inside resources which holds the test files.
      *
      * @return Directory path of test files
@@ -69,5 +59,14 @@ public class ClassDefinitionDeclarationsTest extends FormatterTest {
     @Override
     public String getTestResourceDir() {
         return Paths.get("declarations", "class-definition").toString();
+    }
+
+    @Override
+    public List<String> skipList() {
+        return Arrays.asList(
+                "class_definition_declaration_7.bal",
+                "class_definition_declaration_17.bal",
+                "class_definition_declaration_3.bal"
+        );
     }
 }

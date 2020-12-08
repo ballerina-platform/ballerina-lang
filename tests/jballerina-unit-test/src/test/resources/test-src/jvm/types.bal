@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 function testIntWithoutArgs() returns int {
    int b = 7;
    return b;
@@ -155,29 +153,6 @@ function tupleTest() returns int {
    // var (_, r1) = ret;
 
    return 10;
-}
-
-public function testRestType() {
-    [int...] x = [1, 2];
-    any y = x;
-    assertEquality(y is string[], false);
-}
-
-public function testEmptyArrayType() {
-    var x = [];
-    any a = x;
-    assertEquality(a is int[2], false);
-    assertEquality(a is int[], true);
-
-    string[] sa = [];
-    any arr = sa;
-    assertEquality(arr is string[], true);
-    assertEquality(arr is int[], false);
-
-    int[0] ia = [];
-    any iarr = ia;
-    assertEquality(iarr is int[0], true);
-    assertEquality(iarr is int[], true);
 }
 
 function divideBy([int,int] d) returns [int, int] {
@@ -758,7 +733,7 @@ function testTupleArrayTypeToString() {
 function testTypeDescValuePrint() {
 	map<int|string> m1 = { one: 1, two: 2 };
     typedesc<map<anydata>> t1 = typeof m1;
-    io:print(t1);
+    assertEquality("typedesc map<int|string>", t1.toString());
 }
 
 type AssertionError error;

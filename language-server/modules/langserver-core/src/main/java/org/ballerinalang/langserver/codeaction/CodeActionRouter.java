@@ -15,15 +15,28 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
+import static org.ballerinalang.langserver.codeaction.CodeActionUtil.codeActionNodeType;
+import static org.ballerinalang.langserver.codeaction.CodeActionUtil.findCursorDetails;
 
 /**
  * Represents the Code Action router.
@@ -35,24 +48,33 @@ public class CodeActionRouter {
     /**
      * Returns a list of supported code actions.
      *
-     * @param nodeType           code action node type
-     * @param context            ls context
-     * @param diagnosticsOfRange list of diagnostics of the cursor range
-     * @param allDiagnostics     list of all diagnostics
+     * @param ctx {@link LSContext}
      * @return list of code actions
      */
-    public static List<CodeAction> getBallerinaCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                                           List<Diagnostic> diagnosticsOfRange,
-                                                           List<Diagnostic> allDiagnostics) {
+    public static List<CodeAction> getAvailableCodeActions(CodeActionContext ctx) {
+        SyntaxTree syntaxTree = ctx.workspace().syntaxTree(ctx.filePath()).orElseThrow();
+
         List<CodeAction> codeActions = new ArrayList<>();
         CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder.getInstance();
-        if (nodeType != null) {
+        // Get available node-type based code-actions
+        Optional<Pair<CodeActionNodeType, NonTerminalNode>> nodeTypeAndNode = codeActionNodeType(ctx);
+        SemanticModel semanticModel = ctx.workspace().semanticModel(ctx.filePath()).orElseThrow();
+        Path fileName = ctx.filePath().getFileName();
+        if (fileName == null) {
+            return Collections.emptyList();
+        }
+        String relPath = fileName.toString();
+        if (nodeTypeAndNode.isPresent()) {
+            CodeActionNodeType nodeType = nodeTypeAndNode.get().getLeft();
+            NonTerminalNode matchedNode = nodeTypeAndNode.get().getRight();
+            TypeSymbol matchedTypeSymbol = semanticModel.type(relPath, matchedNode.lineRange()).orElse(null);
+            PositionDetails posDetails = PositionDetailsImpl.from(matchedNode, null, matchedTypeSymbol);
+            ctx.setPositionDetails(posDetails);
             codeActionProvidersHolder.getActiveNodeBasedProviders(nodeType).forEach(provider -> {
                 try {
-                    List<CodeAction> codeActionList = provider.getNodeBasedCodeActions(nodeType, context,
-                                                                                       allDiagnostics);
-                    if (codeActionList != null) {
-                        codeActions.addAll(codeActionList);
+                    List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(ctx);
+                    if (codeActionsOut != null) {
+                        codeActions.addAll(codeActionsOut);
                     }
                 } catch (Exception e) {
                     String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
@@ -60,20 +82,24 @@ public class CodeActionRouter {
                 }
             });
         }
-        if (diagnosticsOfRange != null && diagnosticsOfRange.size() > 0) {
-            codeActionProvidersHolder.getActiveDiagnosticsBasedProviders().forEach(provider -> {
-                try {
-                    List<CodeAction> codeActionList = provider.getDiagBasedCodeActions(nodeType, context,
-                                                                                       diagnosticsOfRange,
-                                                                                       allDiagnostics);
-                    if (codeActionList != null) {
-                        codeActions.addAll(codeActionList);
+        // Get available diagnostics based code-actions
+        List<Diagnostic> cursorDiagnostics = ctx.cursorDiagnostics();
+        if (cursorDiagnostics != null && !cursorDiagnostics.isEmpty()) {
+            for (Diagnostic diagnostic : cursorDiagnostics) {
+                PositionDetails posDetails = findCursorDetails(diagnostic.getRange(), syntaxTree, ctx);
+                ctx.setPositionDetails(posDetails);
+                codeActionProvidersHolder.getActiveDiagnosticsBasedProviders().forEach(provider -> {
+                    try {
+                        List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic, ctx);
+                        if (codeActionsOut != null) {
+                            codeActions.addAll(codeActionsOut);
+                        }
+                    } catch (Exception e) {
+                        String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
+                        LSClientLogger.logError(msg, e, null, (Position) null);
                     }
-                } catch (Exception e) {
-                    String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
-                    LSClientLogger.logError(msg, e, null, (Position) null);
-                }
-            });
+                });
+            }
         }
         return codeActions;
     }

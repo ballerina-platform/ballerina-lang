@@ -17,20 +17,20 @@
 */
 package org.ballerinalang.test.types.json;
 
-import org.ballerinalang.jvm.JSONDataSource;
-import org.ballerinalang.jvm.values.StreamingJsonValue;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import io.ballerina.runtime.internal.JsonDataSource;
+import io.ballerina.runtime.internal.values.StreamingJsonValue;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.util.JsonParser;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -197,7 +197,7 @@ public class JSONTest {
 
     @Test
     public void testStreamingJsonType() {
-        StreamingJsonValue jsonValue = new StreamingJsonValue(Mockito.mock(JSONDataSource.class));
+        StreamingJsonValue jsonValue = new StreamingJsonValue(Mockito.mock(JsonDataSource.class));
         Assert.assertEquals(jsonValue.getType().toString(), "map<json>[]");
     }
 }

@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -58,8 +58,8 @@ public class JavaCastTest {
         BValue[] returns = BRunUtil.invoke(result, "testJavaCastForInvalidTypedesc3");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0].stringValue().contains("{ballerina/java} Error while initializing the new " +
-               "object from `String4` type: java.lang.ClassCastException: org.ballerinalang.jvm.values.HandleValue " +
-               "cannot be cast to org.ballerinalang.jvm.api.values.BString"));
+               "object from `String4` type: java.lang.ClassCastException: class io.ballerina.runtime.internal.values." +
+                "HandleValue cannot be cast to class io.ballerina.runtime.api.values.BString"));
     }
 
     @Test(description = "Test java:cast function in ballerina/java for incorrect class in typedesc object annotation")

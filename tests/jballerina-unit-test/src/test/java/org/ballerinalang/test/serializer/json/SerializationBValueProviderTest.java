@@ -17,17 +17,17 @@
  */
 package org.ballerinalang.test.serializer.json;
 
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.util.serializer.BPacket;
-import org.ballerinalang.model.util.serializer.BValueSerializer;
-import org.ballerinalang.model.util.serializer.BValueTree;
-import org.ballerinalang.model.util.serializer.JsonSerializer;
-import org.ballerinalang.model.util.serializer.providers.bvalue.NumericBValueProviders;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.util.serializer.BPacket;
+import org.ballerinalang.core.model.util.serializer.BValueSerializer;
+import org.ballerinalang.core.model.util.serializer.BValueTree;
+import org.ballerinalang.core.model.util.serializer.JsonSerializer;
+import org.ballerinalang.core.model.util.serializer.providers.bvalue.NumericBValueProviders;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -42,7 +42,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 
-import static org.ballerinalang.model.util.serializer.JsonSerializerConst.VALUE_TAG;
+import static org.ballerinalang.core.model.util.serializer.JsonSerializerConst.VALUE_TAG;
 
 /**
  * Test SerializationBValueProvider implementations.

@@ -36,11 +36,6 @@ public class BehaviouralTypesTest extends FormatterTest {
         super.test(source, sourcePath);
     }
 
-    @Override
-    public List<String> skipList() {
-        return Arrays.asList("service_type_1.bal", "streams_type_1.bal");
-    }
-
     @DataProvider(name = "test-file-provider")
     @Override
     public Object[][] dataProvider() {
@@ -50,5 +45,12 @@ public class BehaviouralTypesTest extends FormatterTest {
     @Override
     public String getTestResourceDir() {
         return Paths.get("types", "behavioural").toString();
+    }
+
+    @Override
+    public List<String> skipList() {
+        return Arrays.asList(
+                "service_type_1.bal"
+        );
     }
 }

@@ -15,21 +15,20 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.JoinClauseNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.JoinClauseNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.Collections;
 import java.util.List;
@@ -50,8 +49,8 @@ public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClause
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, JoinClauseNode node) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+    public List<LSCompletionItem> getCompletions(CompletionContext context, JoinClauseNode node) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onSuggestBindingPattern(context, node)) {
             /*
@@ -91,7 +90,7 @@ public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClause
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Scope.ScopeEntry> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
             return this.getCompletionItemList(exprEntries, context);
         }
 
@@ -99,12 +98,12 @@ public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClause
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, JoinClauseNode node) {
+    public boolean onPreValidation(CompletionContext context, JoinClauseNode node) {
         return !node.joinKeyword().isMissing();
     }
 
-    private boolean onSuggestBindingPattern(LSContext context, JoinClauseNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onSuggestBindingPattern(CompletionContext context, JoinClauseNode node) {
+        int cursor = context.getCursorPositionInTree();
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
         if (typedBindingPattern.isMissing()) {
             return true;
@@ -114,8 +113,8 @@ public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClause
                 && cursor >= typedBindingPattern.textRange().startOffset();
     }
 
-    private boolean onSuggestInKeyword(LSContext context, JoinClauseNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    private boolean onSuggestInKeyword(CompletionContext context, JoinClauseNode node) {
+        int cursor = context.getCursorPositionInTree();
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
         ExpressionNode expression = node.expression();
 

@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.compiler.exception;
  *
  * @since 1.0.0
  */
+@Deprecated(forRemoval = true)
 public class CompilationFailedException extends Exception {
     public CompilationFailedException(String message) {
         super(message);

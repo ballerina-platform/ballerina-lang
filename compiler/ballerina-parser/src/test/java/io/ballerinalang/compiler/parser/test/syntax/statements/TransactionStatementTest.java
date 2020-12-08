@@ -58,6 +58,12 @@ public class TransactionStatementTest extends AbstractStatementTest {
         testFile("transaction-stmt/retry_stmt_source_05.bal", "transaction-stmt/retry_stmt_assert_05.json");
     }
 
+    @Test
+    public void testTransactionalWorker() {
+        testFile("transaction-stmt/transactional_worker_source_01.bal",
+                "transaction-stmt/transactional_worker_assert_01.json");
+    }
+
     // Recovery tests
 
     @Test

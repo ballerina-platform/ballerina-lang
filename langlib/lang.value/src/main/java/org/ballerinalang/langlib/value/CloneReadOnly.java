@@ -18,30 +18,14 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.CloneUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
-
 /**
  * Performs a deep copy, recursively copying all structural values and their members. The copy is read-only
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "lang.value", version = VALUE_VERSION,
-        functionName = "cloneReadOnly",
-        args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
-        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
-)
 public class CloneReadOnly {
 
-    public static Object cloneReadOnly(Strand strand, Object value) {
+    public static Object cloneReadOnly(Object value) {
         return CloneUtils.cloneReadOnly(value);
     }
 }

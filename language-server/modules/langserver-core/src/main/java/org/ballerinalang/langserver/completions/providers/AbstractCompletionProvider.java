@@ -17,66 +17,54 @@
  */
 package org.ballerinalang.langserver.completions.providers;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.Token;
-import org.ballerinalang.langserver.SnippetBlock;
-import org.ballerinalang.langserver.common.CommonKeys;
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.symbols.WorkerSymbol;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.Package;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.FilterUtils;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.builder.BConstantCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.TypeCompletionItem;
+import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.WorkerCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
-import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 
 /**
  * Interface for completion item providers.
@@ -115,12 +103,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, T node) {
+    public boolean onPreValidation(CompletionContext context, T node) {
         return true;
     }
 
     @Override
-    public void sort(LSContext context, T node, List<LSCompletionItem> completionItems) {
+    public void sort(CompletionContext context, T node, List<LSCompletionItem> completionItems) {
         for (LSCompletionItem item : completionItems) {
             CompletionItem cItem = item.getCompletionItem();
             int rank;
@@ -139,7 +127,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * {@inheritDoc}
      */
     @Override
-    public void sort(LSContext context, T node, List<LSCompletionItem> completionItems, Object... metaData) {
+    public void sort(CompletionContext context, T node, List<LSCompletionItem> completionItems, Object... metaData) {
         this.sort(context, node, completionItems);
     }
 
@@ -147,50 +135,38 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * Populate the completion item list by considering the.
      *
      * @param scopeEntries list of symbol information
-     * @param context      Language server operation context
+     * @param ctx          Language server operation context
      * @return {@link List}     list of completion items
      */
-    protected List<LSCompletionItem> getCompletionItemList(List<Scope.ScopeEntry> scopeEntries, LSContext context) {
-        List<BSymbol> processedSymbols = new ArrayList<>();
+    protected List<LSCompletionItem> getCompletionItemList(List<? extends Symbol> scopeEntries, CompletionContext ctx) {
+        List<Symbol> processedSymbols = new ArrayList<>();
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        scopeEntries.removeIf(CommonUtil.invalidSymbolsPredicate());
-        scopeEntries.forEach(scopeEntry -> {
-            BSymbol symbol = scopeEntry.symbol;
+        scopeEntries.forEach(symbol -> {
             if (processedSymbols.contains(symbol)) {
                 return;
             }
-            Optional<BSymbol> bTypeSymbol;
-            if (CommonUtil.isValidInvokableSymbol(symbol)) {
-                completionItems.add(populateBallerinaFunctionCompletionItem(scopeEntry, context));
-            } else if (symbol instanceof BConstantSymbol) {
-                CompletionItem constantCItem = BConstantCompletionItemBuilder.build((BConstantSymbol) symbol, context);
-                completionItems.add(new SymbolCompletionItem(context, symbol, constantCItem));
-            } else if (!(symbol instanceof BInvokableSymbol) && symbol instanceof BVarSymbol) {
-                String typeName = CommonUtil.getBTypeName(symbol.type, context, false);
-                CompletionItem variableCItem = BVariableCompletionItemBuilder
-                        .build((BVarSymbol) symbol, scopeEntry.symbol.name.value, typeName);
-                completionItems.add(new SymbolCompletionItem(context, symbol, variableCItem));
-            } else if ((bTypeSymbol = FilterUtils.getBTypeEntry(scopeEntry)).isPresent()) {
+            if (symbol.kind() == FUNCTION || symbol.kind() == METHOD) {
+                completionItems.add(populateBallerinaFunctionCompletionItem(symbol, ctx));
+            } else if (symbol.kind() == SymbolKind.CONSTANT) {
+                CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol);
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, constantCItem));
+            } else if (symbol.kind() == SymbolKind.VARIABLE) {
+                VariableSymbol varSymbol = (VariableSymbol) symbol;
+                TypeSymbol typeDesc = (varSymbol).typeDescriptor();
+                String typeName = typeDesc == null ? "" : typeDesc.signature();
+                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
+            } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
                 // Here skip all the package symbols since the package is added separately
-                CompletionItem typeCItem = BTypeCompletionItemBuilder.build(bTypeSymbol.get(),
-                        scopeEntry.symbol.name.value);
-                completionItems.add(new SymbolCompletionItem(context, bTypeSymbol.get(), typeCItem));
+                CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.name());
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, typeCItem));
+            } else if (symbol.kind() == SymbolKind.WORKER) {
+                CompletionItem workerItem = WorkerCompletionItemBuilder.build((WorkerSymbol) symbol);
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, workerItem));
             }
             processedSymbols.add(symbol);
         });
         return completionItems;
-    }
-
-    /**
-     * Populate the completion item list by either list.
-     *
-     * @param list    Either List of completion items or symbol info
-     * @param context LS Operation Context
-     * @return {@link List}     Completion Items List
-     */
-    protected List<LSCompletionItem> getCompletionItemList(Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> list,
-                                                           LSContext context) {
-        return list.isLeft() ? list.getLeft() : this.getCompletionItemList(list.getRight(), context);
     }
 
     /**
@@ -199,23 +175,18 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param context LS Operation Context
      * @return {@link List}     List of completion items
      */
-    protected List<LSCompletionItem> getTypeItems(LSContext context) {
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
+    protected List<LSCompletionItem> getTypeItems(CompletionContext context) {
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.forEach(scopeEntry -> {
-            BSymbol bSymbol = scopeEntry.symbol;
-            if (((bSymbol instanceof BConstructorSymbol && bSymbol.type != null
-                    && bSymbol.type.getKind() == TypeKind.ERROR))
-                    || (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol))) {
-                BSymbol symbol = bSymbol;
-                if (bSymbol instanceof BConstructorSymbol) {
-                    symbol = ((BConstructorSymbol) bSymbol).type.tsymbol;
-                }
-                CompletionItem cItem = BTypeCompletionItemBuilder.build(symbol, scopeEntry.symbol.name.getValue());
-                completionItems.add(new SymbolCompletionItem(context, symbol, cItem));
+        visibleSymbols.forEach(bSymbol -> {
+            if (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS) {
+                CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
+                completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
         });
+
+        completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
+        completionItems.add(new TypeCompletionItem(context, null, Snippet.TYPE_MAP.get().build(context)));
 
         completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
         completionItems.addAll(Arrays.asList(
@@ -235,12 +206,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param moduleSymbol package symbol
      * @return {@link List} list of filtered type entries
      */
-    protected List<Scope.ScopeEntry> filterTypesInModule(BSymbol moduleSymbol) {
-        return moduleSymbol.scope.entries.values().stream()
-                .filter(scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol
-                        || (scopeEntry.symbol instanceof BConstructorSymbol
-                        && Names.ERROR.equals(scopeEntry.symbol.name)))
-                .collect(Collectors.toList());
+    @Deprecated
+    protected List<Symbol> filterTypesInModule(ModuleSymbol moduleSymbol) {
+        List<Symbol> typeDefs = new ArrayList<>();
+        typeDefs.addAll(moduleSymbol.typeDefinitions());
+        typeDefs.addAll(moduleSymbol.classes());
+        return typeDefs;
     }
 
     /**
@@ -250,22 +221,28 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param ctx LS Operation context
      * @return {@link List}     List of packages completion items
      */
-    protected List<LSCompletionItem> getModuleCompletionItems(LSContext ctx) {
+    protected List<LSCompletionItem> getModuleCompletionItems(CompletionContext ctx) {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
-        BLangPackage currentPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        List<BLangImportPackage> currentModuleImports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
+        List<ImportDeclarationNode> currentModuleImports = ctx.currentDocImports();
         List<LSCompletionItem> completionItems = currentModuleImports.stream()
-                .map(pkg -> {
-                    String orgName = pkg.orgName.value;
-                    String pkgName = pkg.pkgNameComps.stream()
-                            .map(id -> id.value)
+                .map(importNode -> {
+                    String orgName = importNode.orgName().isEmpty()
+                            ? "" : importNode.orgName().get().orgName().text();
+                    String pkgName = importNode.moduleName().stream()
+                            .map(Token::text)
                             .collect(Collectors.joining("."));
-                    String label = pkg.alias.value;
-                    String insertText = pkg.alias.value;
+                    String prefix;
+                    if (importNode.prefix().isEmpty()) {
+                        prefix = importNode.moduleName().get(importNode.moduleName().size() - 1).text();
+                    } else {
+                        prefix = importNode.prefix().get().prefix().text();
+                    }
+                    String label = prefix;
+                    String insertText = prefix;
                     // If the import is a langlib module and there isn't a user defined alias we add ' before
-                    if ("ballerina".equals(orgName) && pkg.pkgNameComps.get(0).getValue().equals("lang")
-                            && pkgName.endsWith("." + pkg.alias.value)
+                    if ("ballerina".equals(orgName) && importNode.moduleName().get(0).text().equals("lang")
+                            && pkgName.endsWith("." + importNode.prefix().get().prefix().text())
                             && this.appendSingleQuoteForPackageInsertText(ctx)) {
                         insertText = "'" + insertText;
                     }
@@ -275,22 +252,23 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                     item.setDetail(ItemResolverConstants.MODULE_TYPE);
                     item.setKind(CompletionItemKind.Module);
                     populatedList.add(orgName + "/" + pkgName);
-                    return new SymbolCompletionItem(ctx, pkg.symbol, item);
+                    return new SymbolCompletionItem(ctx, null, item);
                 }).collect(Collectors.toList());
 
-        List<BallerinaPackage> packages = LSPackageLoader.getSdkPackages();
-        packages.addAll(LSPackageLoader.getHomeRepoPackages());
-        packages.addAll(LSPackageLoader.getCurrentProjectModules(currentPkg, ctx));
+        List<Package> packages = LSPackageLoader.getDistributionRepoPackages();
+        // TODO: Refactor to match the latest project structure
+//        packages.addAll(LSPackageLoader.getCurrentProjectModules(currentPkg, ctx));
         packages.forEach(pkg -> {
-            String name = pkg.getPackageName();
-            String orgName = pkg.getOrgName();
+            String name = pkg.packageName().value();
+            String orgName = pkg.packageOrg().value();
             boolean pkgAlreadyImported = currentModuleImports.stream()
-                    .anyMatch(importPkg -> importPkg.orgName.value.equals(orgName)
-                            && importPkg.alias.value.equals(name));
-            if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name) &&
-                    !("ballerina".equals(orgName) && name.startsWith("lang.annotations"))) {
+                    .anyMatch(importPkg -> importPkg.orgName().isPresent()
+                            && importPkg.orgName().get().orgName().text().equals(orgName)
+                            && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(name));
+            if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name)
+                    && !this.isPreDeclaredLangLib(pkg)) {
                 CompletionItem item = new CompletionItem();
-                item.setLabel(pkg.getFullPackageNameAlias());
+                item.setLabel(CommonUtil.getPackageLabel(pkg));
                 String[] pkgNameComps = name.split("\\.");
                 String insertText = pkgNameComps[pkgNameComps.length - 1];
                 // Check for the lang lib module insert text
@@ -312,134 +290,51 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             }
         });
 
+        List<LSCompletionItem> langlibModules = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
+                .filter(symbol -> {
+                    ModuleID moduleID = symbol.moduleID();
+                    return symbol.kind() == MODULE && moduleID.orgName().equals("ballerina")
+                            && moduleID.moduleName().startsWith("lang.")
+                            && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(moduleID.moduleName());
+                })
+                .map(symbol -> this.getLangLibCompletionItem(symbol.moduleID(), ctx))
+                .collect(Collectors.toList());
+        completionItems.addAll(langlibModules);
+
         return completionItems;
     }
 
-    /**
-     * Get the Resource Snippets.
-     *
-     * @param ctx Language Server Context
-     * @return {@link Optional} Completion List
-     */
-    protected List<LSCompletionItem> getResourceSnippets(LSContext ctx) {
-        BLangNode symbolEnvNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
-        List<LSCompletionItem> items = new ArrayList<>();
-        if (!(symbolEnvNode instanceof BLangService)) {
-            return items;
-        }
-        BLangService service = (BLangService) symbolEnvNode;
-
-        if (service.listenerType == null) {
-            Optional<Boolean> webSocketClientService = isWebSocketClientService(service);
-            if (webSocketClientService.isPresent()) {
-                if (webSocketClientService.get()) {
-                    // Is a 'ws' client service
-                    addAllWSClientResources(ctx, items, service);
-                } else {
-                    // Is a 'ws' service
-                    addAllWSResources(ctx, items, service);
-                }
-            } else {
-                // Is ambiguous, suggest for all 'ws', 'ws-client' and 'http' services
-                items.add(new SnippetCompletionItem(ctx, Snippet.DEF_RESOURCE_HTTP.get()));
-                items.add(new SnippetCompletionItem(ctx, Snippet.DEF_RESOURCE_COMMON.get()));
-                addAllWSClientResources(ctx, items, service);
-                addAllWSResources(ctx, items, service);
-            }
-            return items;
-        }
-
-        String owner = service.listenerType.tsymbol.owner.name.value;
-        String serviceTypeName = service.listenerType.tsymbol.name.value;
-
-        // Only http, grpc have generic resource templates, others will have generic resource snippet
-        switch (owner) {
-            case "http":
-                if ("Listener".equals(serviceTypeName)) {
-                    Optional<Boolean> webSocketService = isWebSocketService(service);
-                    if (webSocketService.isPresent()) {
-                        if (webSocketService.get()) {
-                            // Is a 'ws' service
-                            addAllWSResources(ctx, items, service);
-                        } else {
-                            // Is a 'http' service
-                            items.add(new SnippetCompletionItem(ctx, Snippet.DEF_RESOURCE_HTTP.get()));
-                        }
-                    } else {
-                        // Is ambiguous, suggest both 'ws' and 'http'
-                        addAllWSResources(ctx, items, service);
-                        items.add(new SnippetCompletionItem(ctx, Snippet.DEF_RESOURCE_HTTP.get()));
-                    }
-                    break;
-                }
-                return items;
-            case "grpc":
-                items.add(new SnippetCompletionItem(ctx, Snippet.DEF_RESOURCE_GRPC.get()));
-                break;
-//            case "websub":
-//                addAllWebsubResources(ctx, items, service);
-//                break;
-            default:
-                items.add(new SnippetCompletionItem(ctx, Snippet.DEF_RESOURCE_COMMON.get()));
-                return items;
-        }
-        return items;
-    }
-
-    protected boolean onQualifiedNameIdentifier(LSContext context, Node node) {
+    protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
         if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;
         }
         int colonPos = ((QualifiedNameReferenceNode) node).colon().textRange().startOffset();
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int cursor = context.getCursorPositionInTree();
 
         return colonPos < cursor;
     }
 
-    private void addAllWSClientResources(LSContext ctx, List<LSCompletionItem> items, BLangService service) {
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_TEXT.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_BINARY.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_PING.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_PONG.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_IDLE.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_ERROR.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_CLOSE.get(), service, items, ctx);
-    }
+    protected LSCompletionItem getExplicitNewCompletionItem(ClassSymbol classSymbol, CompletionContext context) {
+        CompletionItem cItem = FunctionCompletionItemBuilder.build(classSymbol,
+                FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
+        MethodSymbol initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
 
-    private void addAllWSResources(LSContext ctx, List<LSCompletionItem> items, BLangService service) {
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_BINARY.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_PING.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_PONG.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_IDLE.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_ERROR.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
+        return new SymbolCompletionItem(context, initMethod, cItem);
     }
 
     /**
      * Get the implicit new expression completion item.
      *
-     * @param objectTypeSymbol object type symbol
-     * @param context          Language server operation context
+     * @param classSymbol object type symbol
+     * @param context     Language server operation context
      * @return {@link LSCompletionItem} generated
      */
-    protected LSCompletionItem getImplicitNewCompletionItem(BObjectTypeSymbol objectTypeSymbol, LSContext context) {
-        CompletionItem cItem = BFunctionCompletionItemBuilder.build(objectTypeSymbol,
-                BFunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
+    protected LSCompletionItem getImplicitNewCompletionItem(ClassSymbol classSymbol, CompletionContext context) {
+        CompletionItem cItem = FunctionCompletionItemBuilder.build(classSymbol,
+                FunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
+        MethodSymbol initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
 
-        BInvokableSymbol invokableSymbol = objectTypeSymbol.initializerFunc == null
-                ? null : objectTypeSymbol.initializerFunc.symbol;
-        return new SymbolCompletionItem(context, invokableSymbol, cItem);
-    }
-
-    protected LSCompletionItem getExplicitNewCompletionItem(BObjectTypeSymbol objectTypeSymbol, LSContext context) {
-        CompletionItem cItem = BFunctionCompletionItemBuilder.build(objectTypeSymbol,
-                BFunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
-        BInvokableSymbol invokableSymbol = objectTypeSymbol.initializerFunc == null
-                ? null : objectTypeSymbol.initializerFunc.symbol;
-        return new SymbolCompletionItem(context, invokableSymbol, cItem);
-
+        return new SymbolCompletionItem(context, initMethod, cItem);
     }
 
     // Private Methods
@@ -447,53 +342,15 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     /**
      * Populate the Ballerina Function Completion Item.
      *
-     * @param scopeEntry - symbol Entry
+     * @param symbol symbol Entry
      * @return completion item
      */
-    private LSCompletionItem populateBallerinaFunctionCompletionItem(Scope.ScopeEntry scopeEntry, LSContext context) {
-        BSymbol bSymbol = scopeEntry.symbol;
-        if (!(bSymbol instanceof BInvokableSymbol)) {
+    private LSCompletionItem populateBallerinaFunctionCompletionItem(Symbol symbol, CompletionContext context) {
+        if (symbol.kind() != SymbolKind.FUNCTION && symbol.kind() != SymbolKind.METHOD) {
             return null;
         }
-        CompletionItem completionItem = BFunctionCompletionItemBuilder.build((BInvokableSymbol) bSymbol, context);
-        return new SymbolCompletionItem(context, bSymbol, completionItem);
-    }
-
-    /**
-     * Get the function parameter signature generated dynamically, with the given list of parameter types.
-     * Parameter names will not be included for the arrow function snippets and the parameter names are generated
-     * dynamically
-     *
-     * @param paramTypes List of Parameter Types
-     * @param withType   Whether tha parameters included with the types. In case of arrow functions this value is false
-     * @param context    Language server operation context
-     * @return {@link String} Generated function parameter snippet
-     * @throws LSCompletionException Completion exception
-     */
-    protected String getDynamicParamsSnippet(List<BLangVariable> paramTypes, boolean withType, LSContext context)
-            throws LSCompletionException {
-        String paramName = "param";
-        StringBuilder signature = new StringBuilder("(");
-        List<String> params = IntStream.range(0, paramTypes.size())
-                .mapToObj(index -> {
-                    int paramIndex = index + 1;
-                    String paramPlaceHolder = "${" + paramIndex + ":" + paramName + paramIndex + "}";
-                    if (withType) {
-                        BType paramType = paramTypes.get(index).getTypeNode().type;
-                        paramPlaceHolder = CommonUtil.getBTypeName(paramType, context, true) + " " + paramPlaceHolder;
-                    }
-                    return paramPlaceHolder;
-                })
-                .collect(Collectors.toList());
-
-        if (params.contains("")) {
-            throw new LSCompletionException("Contains invalid parameter type");
-        }
-
-        signature.append(String.join(", ", params))
-                .append(") ");
-
-        return signature.toString();
+        CompletionItem completionItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
+        return new SymbolCompletionItem(context, symbol, completionItem);
     }
 
     /**
@@ -513,7 +370,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 || tokenAtCursor.text().equals(SyntaxKind.COLON_TOKEN.stringValue());
     }
 
-    protected List<LSCompletionItem> actionKWCompletions(LSContext context) {
+    protected List<LSCompletionItem> actionKWCompletions(CompletionContext context) {
         /*
         Add the start keywords of the following actions.
         start, wait, flush, check, check panic, trap, query action (query pipeline starts with from keyword)
@@ -528,8 +385,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         );
     }
 
-    protected List<LSCompletionItem> expressionCompletions(LSContext context) {
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+    protected List<LSCompletionItem> expressionCompletions(CompletionContext context) {
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         /*
         check and check panic expression starts with check and check panic keywords, Which has been added with actions.
         query pipeline starts with from keyword and also being added with the actions
@@ -553,80 +410,46 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
 
-        List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
-                .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
-                        && !(scopeEntry.symbol instanceof BOperatorSymbol))
+        List<Symbol> filteredList = visibleSymbols.stream()
+                .filter(symbol -> symbol instanceof VariableSymbol || symbol.kind() == FUNCTION)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         // TODO: anon function expressions, 
         return completionItems;
     }
 
-    /**
-     * Returns a websocket service or not.
-     * <p>
-     * Currently, both 'websocket' and 'http' services are attached into a common http:Listener.
-     * Thus, need to distinguish both.
-     *
-     * @param service service
-     * @return Optional boolean, empty when service has zero resources(ambiguous).
-     */
-    private Optional<Boolean> isWebSocketService(BLangService service) {
-        List<BLangFunction> resources = service.getResources();
-        if (resources.isEmpty()) {
-            return Optional.empty();
-        }
-        BLangFunction resource = resources.get(0);
-        if (!resource.requiredParams.isEmpty()) {
-            BLangType typeNode = resource.requiredParams.get(0).typeNode;
-            if (typeNode instanceof BLangUserDefinedType) {
-                BLangUserDefinedType node = (BLangUserDefinedType) typeNode;
-                if ("WebSocketCaller".equals(node.typeName.value)) {
-                    return Optional.of(true);
-                } else if ("Caller".equals(node.typeName.value)) {
-                    return Optional.of(false);
-                }
-            }
-        }
-        return Optional.empty();
+    protected boolean isPreDeclaredLangLib(Package pkg) {
+        return "ballerina".equals(pkg.packageOrg().value())
+                && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkg.packageName().value());
     }
 
-    private Optional<Boolean> isWebSocketClientService(BLangService service) {
-        List<BLangFunction> resources = service.getResources();
-        if (resources.isEmpty()) {
-            return Optional.empty();
-        }
-        BLangFunction resource = resources.get(0);
-        if (!resource.requiredParams.isEmpty()) {
-            BLangType typeNode = resource.requiredParams.get(0).typeNode;
-            if (typeNode instanceof BLangUserDefinedType) {
-                BLangUserDefinedType node = (BLangUserDefinedType) typeNode;
-                if ("WebSocketClient".equals(node.typeName.value)) {
-                    return Optional.of(true);
-                } else if ("WebSocketCaller".equals(node.typeName.value)) {
-                    return Optional.of(false);
-                }
-            }
-        }
-        return Optional.empty();
+    private List<LSCompletionItem> getBasicAndOtherTypeCompletions(CompletionContext context) {
+        List<String> types = Arrays.asList("float", "xml", "readonly", "handle", "never", "decimal", "string", "stream",
+                "json", "table", "anydata", "any", "int", "boolean", "future", "service", "typedesc", "byte");
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        types.forEach(type -> {
+
+            CompletionItem cItem = TypeCompletionItemBuilder.build(null, type);
+            completionItems.add(new SymbolCompletionItem(context, null, cItem));
+        });
+
+        return completionItems;
     }
 
-    private boolean appendSingleQuoteForPackageInsertText(LSContext context) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+    private boolean appendSingleQuoteForPackageInsertText(CompletionContext context) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         return !(nodeAtCursor != null && nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                 ((SimpleNameReferenceNode) nodeAtCursor).name().text().startsWith("'"));
     }
 
-    private void addIfNotExists(SnippetBlock snippet, BLangService service, List<LSCompletionItem> items,
-                                LSContext ctx) {
-        boolean found = false;
-        for (BLangFunction resource : service.getResources()) {
-            if (snippet.getLabel().endsWith(resource.name.value + " " + ItemResolverConstants.RESOURCE)) {
-                found = true;
-            }
-        }
-        if (!found) {
-            items.add(new SnippetCompletionItem(ctx, snippet));
-        }
+    private LSCompletionItem getLangLibCompletionItem(ModuleID moduleID, CompletionContext context) {
+        CompletionItem item = new CompletionItem();
+        item.setLabel(moduleID.orgName() + "/" + moduleID.moduleName());
+        String insertText = "'" + moduleID.modulePrefix();
+        item.setInsertText(insertText);
+        item.setDetail(ItemResolverConstants.MODULE_TYPE);
+        item.setKind(CompletionItemKind.Module);
+
+        return new StaticCompletionItem(context, item, StaticCompletionItem.Kind.LANG_LIB_MODULE);
     }
 }

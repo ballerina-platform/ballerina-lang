@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
-import com.sun.nio.zipfs.ZipFileSystem;
+//import com.sun.nio.zipfs.ZipFileSystem;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.toml.model.Manifest;
@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -161,12 +160,12 @@ public class PathConverter implements Converter<Path> {
 
     @Override
     public String toString() {
-        FileSystem fs = root.getFileSystem();
-        if (fs instanceof ZipFileSystem) {
-            return fs.toString();
-        } else {
+//        FileSystem fs = root.getFileSystem();
+//        if (fs instanceof ZipFileSystem) {
+//            return fs.toString();
+//        } else {
             return root.toString();
-        }
+//        }
     }
 
     public Path getRoot() {

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
+import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -39,7 +40,6 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -152,7 +152,7 @@ public class BIRBinaryWriter {
             // Name
             buf.writeInt(addStringCPEntry(birGlobalVar.name.value));
             // Flags
-            buf.writeInt(birGlobalVar.flags);
+            buf.writeLong(birGlobalVar.flags);
             // Origin
             buf.writeByte(birGlobalVar.origin.value());
 
@@ -169,7 +169,7 @@ public class BIRBinaryWriter {
         // Type name CP Index
         buf.writeInt(addStringCPEntry(typeDef.name.value));
         // Flags
-        buf.writeInt(typeDef.flags);
+        buf.writeLong(typeDef.flags);
         buf.writeByte(typeDef.isLabel ? 1 : 0);
         // Origin
         buf.writeByte(typeDef.origin.value());
@@ -193,7 +193,7 @@ public class BIRBinaryWriter {
         // Function worker name CP Index
         buf.writeInt(addStringCPEntry(birFunction.workerName.value));
         // Flags
-        buf.writeInt(birFunction.flags);
+        buf.writeLong(birFunction.flags);
         // Origin
         buf.writeByte(birFunction.origin.value());
 
@@ -206,7 +206,7 @@ public class BIRBinaryWriter {
         buf.writeInt(birFunction.requiredParams.size());
         for (BIRParameter parameter : birFunction.requiredParams) {
             buf.writeInt(addStringCPEntry(parameter.name.value));
-            buf.writeInt(parameter.flags);
+            buf.writeLong(parameter.flags);
         }
 
         // TODO find a better way
@@ -345,7 +345,7 @@ public class BIRBinaryWriter {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birAnnotation.name.value));
 
-        buf.writeInt(birAnnotation.flags);
+        buf.writeLong(birAnnotation.flags);
         buf.writeByte(birAnnotation.origin.value());
         writePosition(buf, birAnnotation.pos);
 
@@ -368,7 +368,7 @@ public class BIRBinaryWriter {
     private void writeConstant(ByteBuf buf, BIRTypeWriter typeWriter, BIRNode.BIRConstant birConstant) {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birConstant.name.value));
-        buf.writeInt(birConstant.flags);
+        buf.writeLong(birConstant.flags);
         buf.writeByte(birConstant.origin.value());
         writePosition(buf, birConstant.pos);
 
@@ -503,7 +503,7 @@ public class BIRBinaryWriter {
         }
     }
 
-    private void writePosition(ByteBuf buf, DiagnosticPos pos) {
+    private void writePosition(ByteBuf buf, Location pos) {
         BIRWriterUtils.writePosition(pos, buf, this.cp);
     }
 }

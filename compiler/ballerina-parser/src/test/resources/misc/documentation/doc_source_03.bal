@@ -1,2 +1,3 @@
 # This is sample documentation line
-function foo() { }
+function foo() {
+}

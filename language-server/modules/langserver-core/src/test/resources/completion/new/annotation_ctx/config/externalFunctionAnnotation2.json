@@ -1,0 +1,129 @@
+{
+  "position": {
+    "line": 2,
+    "character": 28
+  },
+  "source": "annotation_ctx/source/externalFunctionAnnotation2.bal",
+  "items": [
+    {
+      "label": "module1:sourceExternalAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:sourceExternalAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:sourceExternalAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:sourceExternalAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "java:Constructor",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "java:Constructor {\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
+      "label": "java:Method",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "java:Method {\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
+      "label": "java:FieldGet",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "java:FieldGet {\n\tname: \"${1}\",\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
+      "label": "java:FieldSet",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "java:FieldSet {\n\tname: \"${1}\",\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
+      "label": "sourceExternalAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceExternalAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceExternalAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceExternalAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

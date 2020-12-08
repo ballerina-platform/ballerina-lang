@@ -16,10 +16,10 @@
  */
 package org.ballerinalang.test.action.start;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -66,6 +66,18 @@ public class StartActionTest {
     @Test(dataProvider = "FuncList")
     public void testStartAction(String funcName) {
         BRunUtil.invoke(result, funcName);
+    }
+
+    @Test(description = "Test casting for lambda functions")
+    public void testStartLambdaParameterCasting() {
+        BRunUtil.invoke(result, "testCast");
+    }
+
+    @Test(description = "Test casting for lambda functions for functions from another package")
+    public void testStartLambdaParameterCastingFromOtherPackage() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/action/start/StartTypeCastProject");
+        BRunUtil.ExitDetails output = BRunUtil.run(compileResult, new String[]{});
+        Assert.assertEquals("", output.errorOutput);
     }
 
     @DataProvider(name = "FuncList")

@@ -19,6 +19,10 @@
       "value": "foo"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -70,7 +74,7 @@
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "                "
+                                  "value": "                 "
                                 }
                               ],
                               "trailingMinutiae": [
@@ -79,6 +83,10 @@
                                   "value": " "
                                 }
                               ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
                             },
                             {
                               "kind": "INT_TYPE_DESC",
@@ -113,6 +121,10 @@
                           "kind": "OBJECT_FIELD",
                           "children": [
                             {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
                               "kind": "OBJECT_TYPE_DESC",
                               "children": [
                                 {
@@ -128,7 +140,7 @@
                                     },
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "                "
+                                      "value": "                 "
                                     }
                                   ],
                                   "trailingMinutiae": [
@@ -154,6 +166,10 @@
                                       "kind": "OBJECT_FIELD",
                                       "children": [
                                         {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
                                           "kind": "INT_TYPE_DESC",
                                           "children": [
                                             {
@@ -161,7 +177,7 @@
                                               "leadingMinutiae": [
                                                 {
                                                   "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": "                    "
+                                                  "value": "                     "
                                                 }
                                               ],
                                               "trailingMinutiae": [
@@ -200,7 +216,7 @@
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "                    "
+                                              "value": "                     "
                                             }
                                           ],
                                           "trailingMinutiae": [
@@ -213,6 +229,10 @@
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
                                           "value": "bar"
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
                                         },
                                         {
                                           "kind": "FUNCTION_SIGNATURE",
@@ -247,7 +267,7 @@
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "                "
+                                      "value": "                 "
                                     }
                                   ],
                                   "trailingMinutiae": [
@@ -290,7 +310,7 @@
                                 },
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "                "
+                                  "value": "                 "
                                 }
                               ],
                               "trailingMinutiae": [
@@ -303,6 +323,10 @@
                             {
                               "kind": "IDENTIFIER_TOKEN",
                               "value": "foo"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
                             },
                             {
                               "kind": "FUNCTION_SIGNATURE",
@@ -337,7 +361,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "            "
+                          "value": "             "
                         }
                       ],
                       "trailingMinutiae": [

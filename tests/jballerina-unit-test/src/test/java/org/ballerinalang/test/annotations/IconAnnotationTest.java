@@ -19,9 +19,9 @@ package org.ballerinalang.test.annotations;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -59,7 +59,7 @@ public class IconAnnotationTest {
                 "/fooIconPath.icon}");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testIconOnObjectAndMemberFunction() {
         ClassDefinition clz = result.getAST().getClassDefinitions().get(0);
         List<? extends AnnotationAttachmentNode> objAnnot = clz.getAnnotationAttachments();

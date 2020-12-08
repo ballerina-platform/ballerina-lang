@@ -18,16 +18,15 @@
 
 package org.ballerinalang.packerina.cmd;
 
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.JarResolver;
-import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.packerina.JarResolverImpl;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
-import org.ballerinalang.packerina.task.CopyObservabilitySymbolsTask;
 import org.ballerinalang.packerina.task.CopyResourcesTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
@@ -54,6 +53,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
@@ -62,7 +62,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
@@ -159,7 +158,7 @@ public class RunCommand implements BLauncherCmd {
         Path sourcePath;
         Path targetPath;
 
-        if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+        if (this.argList.get(0).endsWith(RuntimeConstants.BLANG_SRC_FILE_SUFFIX)) {
             // when a single bal file is provided.
             //// check if path given is an absolute path. update source root accordingly.
             if (Paths.get(this.argList.get(0)).isAbsolute()) {
@@ -245,7 +244,7 @@ public class RunCommand implements BLauncherCmd {
         } else {
             CommandUtil.printError(this.errStream, "invalid Ballerina source path. It should either be a name" +
                             " of a module in a Ballerina project, a file with a '" +
-                            BLangConstants.BLANG_SRC_FILE_SUFFIX + "' extension, or an executable '" +
+                            RuntimeConstants.BLANG_SRC_FILE_SUFFIX + "' extension, or an executable '" +
                             BLANG_COMPILED_JAR_EXT + "' file.",
                     "ballerina run {<bal-file> | <module-name> | <executable-jar>}", true);
             Runtime.getRuntime().exit(1);
@@ -288,7 +287,6 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateJarTask())   // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
-                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
                 .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable
                 .addTask(new PrintRunningExecutableTask(!isSingleFileBuild))   // print running executables
                 .addTask(new RunExecutableTask(programArgs))

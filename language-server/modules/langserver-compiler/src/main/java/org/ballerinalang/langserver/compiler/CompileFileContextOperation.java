@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.commons.LSOperation;
  *
  * @since 1.2.0
  */
+@Deprecated(forRemoval = true)
 public enum CompileFileContextOperation implements LSOperation {
     COMPILE_FILE("extendedCompiler/compileFile");
 

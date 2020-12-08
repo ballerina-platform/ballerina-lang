@@ -48,6 +48,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 /**
  * This class will hold compiler contexts against the project directory.
  */
+@Deprecated(forRemoval = true)
 public class LSContextManager {
     private static final LSContextManager INSTANCE = new LSContextManager();
     private static final String BUILT_IN_PACKAGES_PROJ_DIR = "$builtInPackagesProjectDir";

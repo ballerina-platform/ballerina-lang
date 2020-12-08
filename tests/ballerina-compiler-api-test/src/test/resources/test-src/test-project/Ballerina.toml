@@ -1,0 +1,5 @@
+[package]
+org="testorg"
+name="semapi"
+version="1.0.0"
+exported=["semapi", "semapi.baz"]

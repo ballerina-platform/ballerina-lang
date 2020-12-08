@@ -2,6 +2,10 @@
   "kind": "MODULE_VAR_DECL",
   "children": [
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
@@ -80,6 +84,10 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "INT_TYPE_DESC",
                   "children": [
                     {
@@ -87,7 +95,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "value": "                                   "
                         }
                       ],
                       "trailingMinutiae": [
@@ -125,7 +133,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "value": "                                   "
                         }
                       ],
                       "trailingMinutiae": [
@@ -149,6 +157,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "init"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",
@@ -201,7 +213,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "        "
+                                          "value": "                                       "
                                         }
                                       ]
                                     }
@@ -263,7 +275,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "value": "                                   "
                         }
                       ],
                       "trailingMinutiae": [
@@ -280,7 +292,13 @@
           ]
         },
         {
-          "kind": "CLOSE_BRACE_TOKEN"
+          "kind": "CLOSE_BRACE_TOKEN",
+          "leadingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": "                               "
+            }
+          ]
         }
       ]
     },

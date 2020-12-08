@@ -20,20 +20,30 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.ballerinalang.compiler.syntax.tree.ChildNodeEntry;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * Generates a Map<String, Object> for a given SyntaxTree.
  */
 public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
+    private Map<String, JsonObject> typeInfo = new HashMap<>();
+
+    public SyntaxTreeMapGenerator(Map<String, JsonObject> typeInfo) {
+        this.typeInfo = typeInfo;
+    }
+
     @Override
     protected JsonElement transformSyntaxNode(Node node) {
         JsonObject nodeJson = new JsonObject();
@@ -49,6 +59,25 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeJson.add(childNodeEntry.name(), apply(childNodeEntry.node().get()));
             }
         }
+        nodeJson.addProperty("source", node.toSourceCode());
+        nodeJson.addProperty("kind", prettifyKind(node.kind().toString()));
+
+        if (node.lineRange() != null) {
+            LineRange lineRange = node.lineRange();
+            LinePosition startLine = lineRange.startLine();
+            LinePosition endLine = lineRange.endLine();
+            JsonObject position = new JsonObject();
+            position.addProperty("startLine", startLine.line());
+            position.addProperty("startColumn", startLine.offset());
+            position.addProperty("endLine", endLine.line());
+            position.addProperty("endColumn", endLine.offset());
+            nodeJson.add("position", position);
+            if (typeInfo.size() > 0 && typeInfo.get(startLine.line() + ":" + startLine.offset()) != null) {
+                nodeJson.add("typeData", typeInfo.get(startLine.line() + ":" + startLine.offset()));
+                typeInfo.remove(startLine.line() + ":" + startLine.offset());
+            }
+        }
+
         return nodeJson;
     }
 

@@ -15,12 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.TableTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -29,6 +28,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link AnnotationNode} context.
@@ -43,7 +43,7 @@ public class TableTypeDescriptorNodeContext extends AbstractCompletionProvider<T
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, TableTypeDescriptorNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, TableTypeDescriptorNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (this.onSuggestKeyKw(context, node)) {
@@ -53,13 +53,13 @@ public class TableTypeDescriptorNodeContext extends AbstractCompletionProvider<T
         return completionItems;
     }
 
-    private boolean onSuggestKeyKw(LSContext context, TableTypeDescriptorNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
-        Node keyConstraint = node.keyConstraintNode();
+    private boolean onSuggestKeyKw(CompletionContext context, TableTypeDescriptorNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Optional<Node> keyConstraint = node.keyConstraintNode();
         Node rowTypeParamNode = node.rowTypeParameterNode();
 
-        return (keyConstraint == null && cursor >= rowTypeParamNode.textRange().endOffset())
-                || (keyConstraint != null && cursor <= keyConstraint.textRange().startOffset()
+        return (keyConstraint.isPresent() && cursor >= rowTypeParamNode.textRange().endOffset())
+                || (keyConstraint.isPresent() && cursor <= keyConstraint.get().textRange().startOffset()
                 && cursor >= rowTypeParamNode.textRange().endOffset());
     }
 }

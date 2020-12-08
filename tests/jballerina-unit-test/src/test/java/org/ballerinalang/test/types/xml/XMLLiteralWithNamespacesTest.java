@@ -17,25 +17,22 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.model.values.BXMLSequence;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
-import org.ballerinalang.test.services.testutils.MessageUtils;
-import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.values.XmlValue;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BXML;
+import org.ballerinalang.core.model.values.BXMLItem;
+import org.ballerinalang.core.model.values.BXMLSequence;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.util.BFileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -127,8 +124,7 @@ public class XMLLiteralWithNamespacesTest {
     public void testComplexXMLLiteral() throws IOException {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
-        Assert.assertEquals(returns[0].stringValue(),
-                BCompileUtil.readFileAsString("test-src/types/xml/sampleXML.txt"));
+        Assert.assertEquals(returns[0].stringValue(), BFileUtil.readFileAsString("test-src/types/xml/sampleXML.txt"));
     }
 
     @Test
@@ -170,17 +166,6 @@ public class XMLLiteralWithNamespacesTest {
                 "<ns1:student xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:student>");
     }
 
-    @Test(groups = "brokenOnJBallerina")
-    // todo: enable this once we fix the method too large issue on jBallerina
-    public void testLargeXMLLiteral() {
-        BCompileUtil.compile("test-src/types/xml/xml_inline_large_literal.bal");
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
-        HttpCarbonMessage response = Services.invoke(9091, cMsg);
-        Assert.assertNotNull(response);
-        BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertTrue(xml.stringValue().contains("<line2>Sigiriya</line2>"));
-    }
-
     @Test
     public void testObjectLevelXML() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testObjectLevelXML");
@@ -208,7 +193,7 @@ public class XMLLiteralWithNamespacesTest {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "getXML");
         Assert.assertTrue(returns[0] instanceof BXML);
 
-        XMLValue xmlItem = (XMLValue) XMLFactory.parse(returns[0].stringValue());
+        XmlValue xmlItem = (XmlValue) XmlFactory.parse(returns[0].stringValue());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         xmlItem.serialize(baos);
         Assert.assertEquals(new String(baos.toByteArray()),
@@ -217,7 +202,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testXMLToString() {
-        XMLValue xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+        BXml xml = XmlFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }

@@ -10,8 +10,6 @@ class
                 [       1       ,
                     2    ]
                 ;
-
-
               readonly
           &
             int[]

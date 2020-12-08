@@ -127,6 +127,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -362,6 +364,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangListMatchPattern listMatchPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangRestMatchPattern restMatchPattern) {
         throw new AssertionError();
     }
 
@@ -959,6 +969,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangRecordLiteral.BLangRecordKey recordKey) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
         throw new AssertionError();
     }
@@ -985,5 +999,9 @@ public abstract class BLangNodeVisitor {
 
     public void visit(BLangClassDefinition classDefinition) {
         throw  new AssertionError();
+    }
+
+    public void visit(BLangResourceFunction resourceFunction) {
+        throw new AssertionError();
     }
 }

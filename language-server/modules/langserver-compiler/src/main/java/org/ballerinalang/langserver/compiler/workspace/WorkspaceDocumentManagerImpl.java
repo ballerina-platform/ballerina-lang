@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
  * An in-memory document manager that keeps dirty files in-memory and will match the collection of files currently open
  * in tool's workspace.
  */
+@Deprecated(forRemoval = true)
 public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     private volatile Map<Path, DocumentPair> documentList = new ConcurrentHashMap<>();
@@ -267,6 +268,12 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
         try {
             if (Files.exists(filePath)) {
                 byte[] encoded = Files.readAllBytes(filePath);
+
+                Path namePath = filePath.getFileName();
+                if (namePath != null) {
+                    return SyntaxTree.from(TextDocuments.from(new String(encoded, Charset.defaultCharset())),
+                            namePath.toString());
+                }
                 return SyntaxTree.from(TextDocuments.from(new String(encoded, Charset.defaultCharset())));
             }
             throw new WorkspaceDocumentException("Error in reading non-existent file '" + filePath);

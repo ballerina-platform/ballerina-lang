@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.packerina.cmd;
 
+import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.JarResolver;
-import org.ballerinalang.jvm.launch.LaunchUtils;
-import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.packerina.JarResolverImpl;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
@@ -52,6 +52,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
@@ -60,7 +61,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.packerina.cmd.Constants.TEST_COMMAND;
 
@@ -218,7 +218,7 @@ public class TestCommand implements BLauncherCmd {
             }
 
             // Cannot rerun failed tests for single bal files
-            if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            if (this.argList.get(0).endsWith(RuntimeConstants.BLANG_SRC_FILE_SUFFIX)) {
                 CommandUtil.printError(this.errStream,
                                        "--rerun-failed not supported for single bal files",
                                        "ballerina test --rerun-failed <module-name>",
@@ -279,7 +279,7 @@ public class TestCommand implements BLauncherCmd {
 
                 this.sourceRootPath = findRoot;
             }
-        } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+        } else if (this.argList.get(0).endsWith(RuntimeConstants.BLANG_SRC_FILE_SUFFIX)) {
             // TODO: remove this once code cov is implemented to support single bal file
             if (coverage) {
                 coverage = false;

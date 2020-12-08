@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -33,7 +34,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
@@ -70,7 +71,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -87,8 +87,6 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
@@ -122,13 +120,12 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
  * @since 0.995.0
  */
 public class BIRPackageSymbolEnter {
-    private final PackageLoader packageLoader;
+    private final PackageCache packageCache;
     private final SymbolResolver symbolResolver;
     private final SymbolTable symTable;
     private final Names names;
     private final TypeParamAnalyzer typeParamAnalyzer;
     private final Types types;
-    private final BLangDiagnosticLog dlog;
     private BIRTypeReader typeReader;
 
     private BIRPackageSymbolEnv env;
@@ -155,13 +152,12 @@ public class BIRPackageSymbolEnter {
     private BIRPackageSymbolEnter(CompilerContext context) {
         context.put(COMPILED_PACKAGE_SYMBOL_ENTER_KEY, this);
 
-        this.packageLoader = PackageLoader.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
         this.symbolResolver = SymbolResolver.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public BPackageSymbol definePackage(PackageID packageId,
@@ -339,8 +335,7 @@ public class BIRPackageSymbolEnter {
         String pkgName = getStringCPEntryValue(dataInStream);
         String pkgVersion = getStringCPEntryValue(dataInStream);
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
-        BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.pkgSymbol.pkgID,
-                this.env.repoHierarchy);
+        BPackageSymbol importPackageSymbol = packageCache.getSymbol(importPkgID);
         //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
@@ -348,12 +343,12 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineFunction(DataInputStream dataInStream) throws IOException {
-        DiagnosticPos pos = readPosition(dataInStream);
+        Location pos = readPosition(dataInStream);
 
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
         String workerName = getStringCPEntryValue(dataInStream);
-        int flags = dataInStream.readInt();
+        var flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
@@ -361,7 +356,7 @@ public class BIRPackageSymbolEnter {
                 Symbols.createFunctionSymbol(flags, names.fromString(funcName), this.env.pkgSymbol.pkgID, funcType,
                                              this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE),
                                              pos, toOrigin(origin));
-        invokableSymbol.source = pos.src.cUnitName;
+        invokableSymbol.source = pos.lineRange().filePath();
         invokableSymbol.retType = funcType.retType;
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
@@ -374,11 +369,8 @@ public class BIRPackageSymbolEnter {
             invokableSymbol.name =
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
-                if (attachedType.tag == TypeTags.OBJECT) {
-                    scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
-                } else {
-                    scopeToDefine = attachedType.tsymbol.scope;
-                }
+                scopeToDefine = attachedType.tsymbol.scope;
+                // todo: Define resource function from BIR
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
                                               symTable.builtinPos);
@@ -426,10 +418,10 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
-        DiagnosticPos pos = readPosition(dataInStream);
+        Location pos = readPosition(dataInStream);
         String typeDefName = getStringCPEntryValue(dataInStream);
 
-        int flags = dataInStream.readInt();
+        var flags = dataInStream.readLong();
         boolean isLabel = dataInStream.readByte() == 1;
         byte origin = dataInStream.readByte();
 
@@ -577,9 +569,9 @@ public class BIRPackageSymbolEnter {
     private void defineAnnotations(DataInputStream dataInStream) throws IOException {
         String name = getStringCPEntryValue(dataInStream);
 
-        int flags = dataInStream.readInt();
+        var flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
-        DiagnosticPos pos = readPosition(dataInStream);
+        Location pos = readPosition(dataInStream);
 
         int attachPointCount = dataInStream.readInt();
         Set<AttachPoint> attachPoints = new HashSet<>(attachPointCount);
@@ -606,9 +598,9 @@ public class BIRPackageSymbolEnter {
 
     private void defineConstant(DataInputStream dataInStream) throws IOException {
         String constantName = getStringCPEntryValue(dataInStream);
-        int flags = dataInStream.readInt();
+        var flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
-        DiagnosticPos pos = readPosition(dataInStream);
+        Location pos = readPosition(dataInStream);
 
         byte[] docBytes = readDocBytes(dataInStream);
 
@@ -667,7 +659,7 @@ public class BIRPackageSymbolEnter {
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
         dataInStream.readByte(); // Read and ignore the kind as it is anyway global variable
         String varName = getStringCPEntryValue(dataInStream);
-        int flags = dataInStream.readInt();
+        var flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
 
         byte[] docBytes = readDocBytes(dataInStream);
@@ -708,7 +700,7 @@ public class BIRPackageSymbolEnter {
         BInvokableType invokableType = (BInvokableType) invokableSymbol.type;
         for (int i = 0; i < requiredParamCount; i++) {
             String paramName = getStringCPEntryValue(dataInStream);
-            int flags = dataInStream.readInt();
+            var flags = dataInStream.readLong();
             BVarSymbol varSymbol = new BVarSymbol(flags, names.fromString(paramName), this.env.pkgSymbol.pkgID,
                                                   invokableType.paramTypes.get(i), invokableSymbol,
                                                   symTable.builtinPos, COMPILED_SOURCE);
@@ -860,14 +852,13 @@ public class BIRPackageSymbolEnter {
                 .filter(taintedStatus -> readByte == taintedStatus.getByteValue()).findFirst().get();
     }
 
-    private DiagnosticPos readPosition(DataInputStream dataInStream) throws IOException {
+    private Location readPosition(DataInputStream dataInStream) throws IOException {
         String cUnitName = getStringCPEntryValue(dataInStream);
         int sLine = dataInStream.readInt();
         int sCol = dataInStream.readInt();
         int eLine = dataInStream.readInt();
         int eCol = dataInStream.readInt();
-        BDiagnosticSource diagSrc = new BDiagnosticSource(this.env.pkgSymbol.pkgID, cUnitName);
-        return new DiagnosticPos(diagSrc, sLine, eLine, sCol, eCol);
+        return new BLangDiagnosticLocation(cUnitName, sLine, eLine, sCol, eCol);
     }
 
     // private utility methods
@@ -952,7 +943,7 @@ public class BIRPackageSymbolEnter {
         public BType readType(int cpI) throws IOException {
             byte tag = inputStream.readByte();
             Name name = names.fromString(getStringCPEntryValue(inputStream));
-            int flags = inputStream.readInt();
+            var flags = inputStream.readLong();
 
             // read and ignore type flags. These are only needed for runtime.
             inputStream.readInt();
@@ -1017,7 +1008,7 @@ public class BIRPackageSymbolEnter {
                     int recordFields = inputStream.readInt();
                     for (int i = 0; i < recordFields; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
-                        int fieldFlags = inputStream.readInt();
+                        var fieldFlags = inputStream.readLong();
 
                         byte[] docBytes = readDocBytes(inputStream);
 
@@ -1039,19 +1030,23 @@ public class BIRPackageSymbolEnter {
                     if (isInitAvailable) {
                         // read record init function
                         String recordInitFuncName = getStringCPEntryValue(inputStream);
-                        int recordInitFuncFlags = inputStream.readInt();
+                        var recordInitFuncFlags = inputStream.readLong();
                         BInvokableType recordInitFuncType = (BInvokableType) readTypeFromCp();
                         Name initFuncName = names.fromString(recordInitFuncName);
                         boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
                         BInvokableSymbol recordInitFuncSymbol =
                                 Symbols.createFunctionSymbol(recordInitFuncFlags,
-                                        initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
-                                        env.pkgSymbol, isNative, symTable.builtinPos, COMPILED_SOURCE);
+                                                             initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
+                                                             env.pkgSymbol, isNative, symTable.builtinPos,
+                                                             COMPILED_SOURCE);
                         recordInitFuncSymbol.retType = recordInitFuncType.retType;
+                        // Define resource function
                         recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
                                                                              recordInitFuncType, symTable.builtinPos);
                         recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
                     }
+
+                    recordType.typeInclusions = readTypeInclusions();
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 
@@ -1062,8 +1057,7 @@ public class BIRPackageSymbolEnter {
                         return recordType;
                     }
 
-                    BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
-                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
                     return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(recordName)).type;
                 case TypeTags.TYPEDESC:
                     BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
@@ -1071,9 +1065,10 @@ public class BIRPackageSymbolEnter {
                     typedescType.flags = flags;
                     return typedescType;
                 case TypeTags.PARAMETERIZED_TYPE:
-                    BParameterizedType type = new BParameterizedType(null, null, null, name);
+                    BParameterizedType type = new BParameterizedType(null, null, null, name, -1);
                     type.paramValueType = readTypeFromCp();
                     type.flags = flags;
+                    type.paramIndex = inputStream.readInt();
                     return type;
                 case TypeTags.STREAM:
                     BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
@@ -1250,7 +1245,7 @@ public class BIRPackageSymbolEnter {
                     return bFutureType;
                 case TypeTags.FINITE:
                     String finiteTypeName = getStringCPEntryValue(inputStream);
-                    int finiteTypeFlags = inputStream.readInt();
+                    var finiteTypeFlags = inputStream.readLong();
                     BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteTypeFlags,
                                                                   names.fromString(finiteTypeName), env.pkgSymbol.pkgID,
                                                                   null, env.pkgSymbol, symTable.builtinPos,
@@ -1271,25 +1266,31 @@ public class BIRPackageSymbolEnter {
                     pkgId = getPackageId(pkgCpIndex);
 
                     String objName = getStringCPEntryValue(inputStream);
-                    int objFlags = (inputStream.readBoolean() ? Flags.CLASS : 0) | Flags.PUBLIC;
+                    var objFlags = (inputStream.readBoolean() ? Flags.CLASS : 0) | Flags.PUBLIC;
                     objFlags = inputStream.readBoolean() ? objFlags | Flags.CLIENT : objFlags;
-                    BObjectTypeSymbol objectSymbol = Symbols.createObjectSymbol(objFlags,
-                                                                                names.fromString(objName),
-                                                                                env.pkgSymbol.pkgID, null,
-                                                                                env.pkgSymbol, symTable.builtinPos,
-                                                                                COMPILED_SOURCE);
+                    BObjectTypeSymbol objectSymbol;
+
+                    if (Symbols.isFlagOn(objFlags, Flags.CLASS)) {
+                        objectSymbol = Symbols.createClassSymbol(objFlags, names.fromString(objName),
+                                                                 env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                                                                 symTable.builtinPos, COMPILED_SOURCE, false);
+                    } else {
+                        objectSymbol = Symbols.createObjectSymbol(objFlags, names.fromString(objName),
+                                                                  env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                                                                  symTable.builtinPos, COMPILED_SOURCE);
+                    }
+
                     objectSymbol.scope = new Scope(objectSymbol);
-                    objectSymbol.methodScope = new Scope(objectSymbol);
                     BObjectType objectType;
                     // Below is a temporary fix, need to fix this properly by using the type tag
-                    if (service) {
-                        objectType = new BServiceType(objectSymbol);
-                    } else {
-                        objectType = new BObjectType(objectSymbol);
+                    objectType = new BObjectType(objectSymbol);
 
-                        if (isImmutable(flags)) {
-                            objectSymbol.flags |= Flags.READONLY;
-                        }
+                    if (service) {
+                        objectType.flags |= Flags.SERVICE;
+                        objectSymbol.flags |= Flags.SERVICE;
+                    }
+                    if (isImmutable(flags)) {
+                        objectSymbol.flags |= Flags.READONLY;
                     }
                     objectType.flags = flags;
                     objectSymbol.type = objectType;
@@ -1298,7 +1299,7 @@ public class BIRPackageSymbolEnter {
                     int fieldCount = inputStream.readInt();
                     for (int i = 0; i < fieldCount; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
-                        int fieldFlags = inputStream.readInt();
+                        var fieldFlags = inputStream.readLong();
 
                         byte[] docBytes = readDocBytes(inputStream);
 
@@ -1327,6 +1328,7 @@ public class BIRPackageSymbolEnter {
                         ignoreAttachedFunc();
                     }
 
+                    objectType.typeInclusions = readTypeInclusions();
                     objectType.typeIdSet = readTypeIdSet(inputStream);
 
                     Object poppedObjType = compositeStack.pop();
@@ -1336,8 +1338,7 @@ public class BIRPackageSymbolEnter {
                         return objectType;
                     }
 
-                    pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
-                    pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+                    pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
                     return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(objName)).type;
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
@@ -1346,7 +1347,7 @@ public class BIRPackageSymbolEnter {
                     // TODO fix
                     break;
                 case SERVICE_TYPE_TAG:
-                    return symTable.anyServiceType;
+                    throw new AssertionError();
                 case TypeTags.SIGNED32_INT:
                     return symTable.signed32IntType;
                 case TypeTags.SIGNED16_INT:
@@ -1401,8 +1402,19 @@ public class BIRPackageSymbolEnter {
 
         private void ignoreAttachedFunc() throws IOException {
             getStringCPEntryValue(inputStream);
-            inputStream.readInt();
+            // TODO: check
+            inputStream.readLong();
             readTypeFromCp();
+        }
+
+        private List<BType> readTypeInclusions() throws IOException {
+            int nTypeInclusions = inputStream.readInt();
+            List<BType> typeInclusions = new ArrayList<>();
+            for (int i = 0; i < nTypeInclusions; i++) {
+                BType inclusion = readTypeFromCp();
+                typeInclusions.add(inclusion);
+            }
+            return typeInclusions;
         }
     }
 
@@ -1472,7 +1484,7 @@ public class BIRPackageSymbolEnter {
                 (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
     }
 
-    private boolean isImmutable(int flags) {
+    private boolean isImmutable(long flags) {
         return Symbols.isFlagOn(flags, Flags.READONLY);
     }
 

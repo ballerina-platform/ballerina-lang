@@ -14,10 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 string s = "Main inside directory ";
 
 function print() {
-    io:println(s + s2 + s3);
+    string str = s + s2 + s3;
 }

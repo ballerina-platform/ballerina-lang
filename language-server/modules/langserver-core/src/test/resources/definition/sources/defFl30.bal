@@ -25,7 +25,7 @@ function getIntValue() returns int {
 }
 
 public client class SimpleClient {
-    public remote function simpleAction() returns int {
+    remote function simpleAction() returns int {
         return 1;
     }
 }

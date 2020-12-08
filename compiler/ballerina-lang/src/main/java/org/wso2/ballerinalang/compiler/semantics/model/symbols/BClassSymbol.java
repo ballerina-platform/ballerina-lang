@@ -17,12 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 
@@ -33,15 +33,18 @@ import java.util.ArrayList;
  */
 public class BClassSymbol extends BObjectTypeSymbol {
 
-    public BClassSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type,
-                        BSymbol owner, DiagnosticPos pos, SymbolOrigin origin) {
+    public boolean isServiceDecl;
+
+    public BClassSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type,
+                        BSymbol owner, Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);
         this.referencedFunctions = new ArrayList<>();
     }
 
     @Override
     public BClassSymbol createLabelSymbol() {
-        BClassSymbol copy = Symbols.createClassSymbol(flags, Names.EMPTY, pkgID, type, owner, pos, origin);
+        BClassSymbol copy = Symbols.createClassSymbol(flags, Names.EMPTY, pkgID, type, owner, pos, origin,
+                isServiceDecl);
         copy.attachedFuncs = attachedFuncs;
         copy.initializerFunc = initializerFunc;
         copy.isLabel = true;

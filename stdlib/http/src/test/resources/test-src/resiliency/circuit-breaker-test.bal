@@ -332,43 +332,43 @@ public client class MockClient {
         self.httpClient = simpleClient;
     }
 
-    public remote function post(string path,
+    remote function post(string path,
                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
                                                                                 returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function head(string path,
+    remote function head(string path,
                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                 returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function put(string path,
+    remote function put(string path,
                                http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
                                                                                 returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function execute(string httpVerb, string path,
+    remote function execute(string httpVerb, string path,
                                    http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function patch(string path,
+    remote function patch(string path,
                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
                                                                                 returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function delete(string path,
+    remote function delete(string path,
                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                 returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function get(string path,
+    remote function get(string path,
                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                 returns http:Response|http:ClientError {
         http:Request req = buildRequest(message);
@@ -422,39 +422,39 @@ public client class MockClient {
         return response;
     }
 
-    public remote function options(string path,
+    remote function options(string path,
            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                 returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function forward(string path, http:Request req) returns http:Response|http:ClientError {
+    remote function forward(string path, http:Request req) returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function submit(string httpVerb, string path,
+    remote function submit(string httpVerb, string path,
                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
                                                                             returns http:HttpFuture|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function getResponse(http:HttpFuture httpFuture)  returns http:Response|http:ClientError {
+    remote function getResponse(http:HttpFuture httpFuture)  returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function hasPromise(http:HttpFuture httpFuture) returns boolean {
+    remote function hasPromise(http:HttpFuture httpFuture) returns boolean {
         return false;
     }
 
-    public remote function getNextPromise(http:HttpFuture httpFuture) returns http:PushPromise|http:ClientError {
+    remote function getNextPromise(http:HttpFuture httpFuture) returns http:PushPromise|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function getPromisedResponse(http:PushPromise promise) returns http:Response|http:ClientError {
+    remote function getPromisedResponse(http:PushPromise promise) returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function rejectPromise(http:PushPromise promise) {
+    remote function rejectPromise(http:PushPromise promise) {
     }
 }
 

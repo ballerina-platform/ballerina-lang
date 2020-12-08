@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 
 /**
  * Find the visible Symbols for Resources and Functions.
- * 
+ *
  * @since 0.985.0
  */
 public class VisibleEndpointVisitor extends LSNodeVisitor {
@@ -65,7 +65,7 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     private SymbolTable symTable;
 
     private Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode;
-    
+
     private Map<PackageID, BLangImportPackage> packageMap;
 
     public VisibleEndpointVisitor(CompilerContext compilerContext) {
@@ -179,15 +179,15 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                 .map(bLangSimpleVariable -> bLangSimpleVariable.symbol)
                 .collect(Collectors.toList());
         List<BSymbol> visibleSymbols = new ArrayList<>();
-        symbolResolver.getAllVisibleInScopeSymbols(symbolEnv).forEach((key, value) -> 
+        symbolResolver.getAllVisibleInScopeSymbols(symbolEnv).forEach((key, value) ->
                 visibleSymbols.addAll(
                         value.stream()
                                 .map(scopeEntry -> scopeEntry.symbol)
                                 .collect(Collectors.toList())));
-        
+
         return visibleSymbols.stream()
-                .filter(symbol -> symbol instanceof BVarSymbol && CommonUtil.isClientObject(symbol)
-                    && (parameters.contains(symbol) || symbol.owner instanceof BPackageSymbol))
+                .filter(symbol -> symbol instanceof BVarSymbol && this.isClient(symbol)
+                        && (parameters.contains(symbol) || symbol.owner instanceof BPackageSymbol))
                 .map(symbol -> {
                     BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
                     String typeName = symbol.type.tsymbol.getName().getValue();
@@ -208,12 +208,12 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                 })
                 .collect(Collectors.toList());
     }
-    
+
     private void resolveEndpointsFromStatements(List<BLangStatement> statements, BLangNode owner) {
         statements.forEach(stmt -> {
-            if (stmt instanceof  BLangSimpleVariableDef) {
+            if (stmt instanceof BLangSimpleVariableDef) {
                 BVarSymbol symbol = ((BLangSimpleVariableDef) stmt).var.symbol;
-                if (CommonUtil.isClientObject(symbol)) {
+                if (this.isClient(symbol)) {
                     BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
                     String typeName = symbol.type.tsymbol.getName().getValue();
                     String pkgName = symbol.pkgID.getName().getValue();
@@ -240,5 +240,10 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                 stmt.accept(this);
             }
         });
+    }
+
+    private boolean isClient(BSymbol symbol) {
+        return symbol.type != null && symbol.type.tsymbol != null
+                && (symbol.type.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT;
     }
 }

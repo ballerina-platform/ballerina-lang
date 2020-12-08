@@ -8,6 +8,6 @@ function foo() {
     function(int, int = c, int...) f6 = x;
 }
 
-function ()|() a = ();
-function ()? b = ();
-final function () c = ();
+function()|() a = ();
+function()? b = ();
+final function() c = ();

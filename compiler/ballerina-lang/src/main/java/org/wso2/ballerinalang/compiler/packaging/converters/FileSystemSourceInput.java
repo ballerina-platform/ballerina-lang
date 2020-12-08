@@ -1,7 +1,7 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocuments;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.repository.CompilerInput;
 
@@ -74,7 +74,7 @@ public class FileSystemSourceInput implements CompilerInput {
         if (this.tree != null) {
             return this.tree;
         }
-        this.tree = SyntaxTree.from(TextDocuments.from(new String(getCode())));
+        this.tree = SyntaxTree.from(TextDocuments.from(new String(getCode())), this.path.getFileName().toString());
         return this.tree;
     }
 

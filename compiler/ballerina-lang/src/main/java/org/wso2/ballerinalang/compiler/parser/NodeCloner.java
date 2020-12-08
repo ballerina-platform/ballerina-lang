@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -149,6 +150,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -387,6 +390,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangCompilationUnit clone = new BLangCompilationUnit();
         source.cloneRef = clone;
         clone.name = source.name;
+        clone.setPackageID(source.getPackageID());
         for (TopLevelNode node : source.topLevelNodes) {
             clone.topLevelNodes.add(clone(node));
         }
@@ -415,16 +419,8 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction source) {
-
         BLangFunction clone = new BLangFunction();
-        source.cloneRef = clone;
-
-        clone.attachedFunction = source.attachedFunction;
-        clone.objInitFunction = source.objInitFunction;
-        clone.interfaceFunction = source.interfaceFunction;
-        clone.anonForkName = source.anonForkName;
-
-        cloneBLangInvokableNode(source, clone);
+        cloneFunctionNode(source, clone);
     }
 
     @Override
@@ -464,6 +460,9 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.name = source.name;
         clone.serviceClass = clone(source.serviceClass);
         clone.attachedExprs = cloneList(source.attachedExprs);
+        clone.serviceVariable = clone(source.serviceVariable);
+        clone.absoluteResourcePath = new ArrayList<>(source.absoluteResourcePath);
+        clone.serviceNameLiteral = clone(source.serviceNameLiteral);
 
         clone.variableNode = clone(source.variableNode);
         clone.isAnonymousServiceValue = source.isAnonymousServiceValue;
@@ -694,8 +693,8 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangMatchClause clone = new BLangMatchClause();
         source.cloneRef = clone;
         clone.matchPatterns = cloneList(source.matchPatterns);
-        clone.setMatchGuard(source.getMatchGuard());
-        clone.setBlockStatement(source.getBLockStatement());
+        clone.setMatchGuard(clone(source.getMatchGuard()));
+        clone.setBlockStatement(clone(source.getBLockStatement()));
         clone.expr = source.expr;
     }
 
@@ -730,6 +729,25 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
         clone.setBindingPattern(source.getBindingPattern());
         clone.isLastPattern = source.isLastPattern;
+    }
+
+    @Override
+    public void visit(BLangListMatchPattern source) {
+        BLangListMatchPattern clone = new BLangListMatchPattern();
+        source.cloneRef = clone;
+        clone.matchExpr = source.matchExpr;
+        clone.restMatchPattern = clone(source.restMatchPattern);
+        clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
+        clone.matchPatterns = cloneList(source.matchPatterns);
+        clone.declaredVars = source.declaredVars;
+    }
+
+    @Override
+    public void visit(BLangRestMatchPattern source) {
+        BLangRestMatchPattern clone = new BLangRestMatchPattern();
+        source.cloneRef = clone;
+        clone.matchExpr = source.matchExpr;
+        clone.setIdentifier(source.getIdentifier());
     }
 
     @Override
@@ -883,7 +901,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.workerIdentifier = source.workerIdentifier;
-        clone.keyExpr = clone(source.keyExpr);
     }
 
     @Override
@@ -893,8 +910,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
 
         clone.workerIdentifier = source.workerIdentifier;
-        clone.keyExpr = clone(source.keyExpr);
-        clone.isChannel = source.isChannel;
     }
 
     @Override
@@ -2048,6 +2063,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangRecordKey newKey = new BLangRecordKey(clone(source.key.expr));
         newKey.computedKey = source.key.computedKey;
+        newKey.pos = source.key.pos;
         clone.key = newKey;
 
         clone.valueExpr = clone(source.valueExpr);
@@ -2125,16 +2141,40 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.initFunction = clone(source.initFunction);
         clone.generatedInitFunction = clone(source.generatedInitFunction);
         clone.receiver = clone(source.receiver);
+        clone.isServiceDecl = source.isServiceDecl;
+    }
+
+    @Override
+    public void visit(BLangResourceFunction source) {
+        BLangResourceFunction clone = new BLangResourceFunction();
+        cloneFunctionNode(source, clone);
+
+        clone.resourcePath = cloneList(source.resourcePath);
+        clone.accessorName = clone(source.accessorName);
+        clone.restPathParam = clone(source.restPathParam);
+        clone.pathParams = cloneList(source.pathParams);
+    }
+
+    private void cloneFunctionNode(BLangFunction source, BLangFunction clone) {
+        source.cloneRef = clone;
+
+        clone.attachedFunction = source.attachedFunction;
+        clone.objInitFunction = source.objInitFunction;
+        clone.interfaceFunction = source.interfaceFunction;
+        clone.anonForkName = source.anonForkName;
+
+        cloneBLangInvokableNode(source, clone);
     }
 
     @Override
     public void visit(BLangObjectConstructorExpression source) {
         BLangObjectConstructorExpression clone = new BLangObjectConstructorExpression();
 
-        clone.classNode = clone(source.classNode);
         clone.pos = source.pos;
-        clone.referenceType = clone(source.referenceType);
+        clone.classNode = clone(source.classNode);
         clone.typeInit = clone(source.typeInit);
+        clone.referenceType = clone(source.referenceType);
+        clone.isClient = source.isClient;
 
         source.cloneRef = clone;
     }

@@ -17,16 +17,16 @@
 
 package org.ballerinalang.test.javainterop;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Test cases for interop functions with variable return types through typedesc refs.
@@ -53,8 +53,8 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++, "incompatible types: expected 'int', found 'boolean'", 32, 9);
         validateError(errors, indx++, "incompatible types: expected 'boolean', found 'int'", 34, 17);
         validateError(errors, indx++, "incompatible types: expected 'float', found 'int'", 36, 15);
-        validateError(errors, indx++, "incompatible types: expected 'typedesc<(int|float|decimal|string|boolean)>', " +
-                "found 'typedesc<json>'", 40, 23);
+        validateError(errors, indx++, "incompatible types: expected 'typedesc<(int|float|decimal|string|boolean)>', "
+                          + "found 'typedesc<json>'", 40, 23);
         validateError(errors, indx++, "unknown type 'aTypeVar'", 43, 60);
         validateError(errors, indx++, "incompatible types: expected 'map<int>', found 'map<other>'", 50, 18);
         validateError(errors, indx++, "incompatible types: expected 'int', found '(int|float)'", 60, 13);
@@ -64,43 +64,60 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of " +
                 "'map<(anydata|readonly)>'", 81, 83);
         validateError(errors, indx++, "unknown type 'detail'", 81, 83);
-        validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
-                "in external functions", 88, 45);
-        validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
-                "in external functions", 88, 67);
+        validateError(errors, indx++,
+                      "a function with a non-'external' function body cannot be a dependently-typed function", 88, 45);
+        validateError(errors, indx++,
+                      "a function with a non-'external' function body cannot be a dependently-typed function", 88, 67);
         validateError(errors, indx++, "default value for a 'typedesc' parameter used in the return type" +
                 " should be a reference to a type", 92, 29);
         validateError(errors, indx++, "unknown type 'NonExistentParam'", 102, 77);
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 108, 54);
+        validateError(errors, indx++,
+                      "a function with a non-'external' function body cannot be a dependently-typed function", 114, 45);
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 114, 45);
-        validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
-                "in external functions", 114, 45);
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
                 "(string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 125, 61);
         validateError(errors, indx++, "unknown type 'td'", 126, 48);
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
                 "(other)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 126, 57);
+        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
+                "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
+                " (other|error)'", 139, 5);
+        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
+                "function", 139, 64);
+        validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
+                "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
+                " (other|error)'", 143, 5);
+        validateError(errors, indx++, "a function with a non-'external' function body cannot be a dependently-typed " +
+                "function", 143, 64);
+        validateError(errors, indx++, "incompatible types: expected 'Bar', found 'Baz'", 175, 15);
+        validateError(errors, indx++, "incompatible types: expected 'Quux', found 'Qux'", 179, 17);
+        validateError(errors, indx++, "incompatible types: expected 'Qux', found 'Quux'", 180, 15);
+        validateError(errors, indx++, "incompatible types: expected 'Baz', found 'Quux'", 181, 16);
+        validateError(errors, indx++, "incompatible types: expected 'Quuz', found 'Qux'", 182, 17);
+        validateError(errors, indx++, "incompatible types: expected 'Corge', found 'Grault'", 184, 19);
+        validateError(errors, indx++, "incompatible types: expected 'Grault', found 'Corge'", 185, 21);
 
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: 'map' cannot be " +
-                  "cast to 'map<anydata>.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
+                  " 'map' cannot be cast to 'map<anydata>'.*")
     public void testRuntimeCastError() {
         BRunUtil.invoke(result, "testRuntimeCastError");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: 'Person' cannot be" +
-                  " cast to 'int'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
+                  " 'Person' cannot be cast to 'int'.*")
     public void testCastingForInvalidValues() {
         BRunUtil.invoke(result, "testCastingForInvalidValues");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: 'string' cannot be " +
-                  "cast to 'int'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
+                  " 'string' cannot be cast to 'int'.*")
     public void testFunctionAssignment() {
         BRunUtil.invoke(result, "testFunctionAssignment");
     }
@@ -126,7 +143,9 @@ public class VariableReturnTypeTest {
                 {"testTypedesc"},
                 {"testFuture"},
                 {"testComplexTypes"},
-                {"testObjectExternFunctions"}
+                {"testObjectExternFunctions"},
+                {"testDependentlyTypedMethodsWithObjectTypeInclusion"},
+                {"testSubtypingWithDependentlyTypedMethods"}
         };
     }
 }

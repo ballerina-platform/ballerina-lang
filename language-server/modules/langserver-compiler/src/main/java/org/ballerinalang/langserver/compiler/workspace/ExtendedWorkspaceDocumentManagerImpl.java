@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
@@ -35,6 +35,7 @@ import java.util.concurrent.locks.Lock;
  * This class is being used by the composer to provide a flexible Workspace DocumentManager. Operations such as
  * openFile() are aware of the browser refreshes that may cause file already opened exceptions.
  */
+@Deprecated(forRemoval = true)
 public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManagerImpl {
 
     private volatile WorkspaceDocument tempDocument;

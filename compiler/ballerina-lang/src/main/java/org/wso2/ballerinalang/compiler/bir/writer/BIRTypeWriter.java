@@ -54,7 +54,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -92,7 +91,7 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visitType(BType type) {
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
-        buff.writeInt(type.flags);
+        buff.writeLong(type.flags);
         buff.writeInt(TypeFlags.asMask(type.isNullable(), type.isAnydata(), type.isPureType()));
         type.accept(this);
     }
@@ -161,7 +160,7 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BFiniteType bFiniteType) {
         BTypeSymbol tsymbol = bFiniteType.tsymbol;
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
-        buff.writeInt(tsymbol.flags);
+        buff.writeLong(tsymbol.flags);
         buff.writeInt(bFiniteType.getValueSpace().size());
         for (BLangExpression valueLiteral : bFiniteType.getValueSpace()) {
             if (!(valueLiteral instanceof BLangLiteral)) {
@@ -218,6 +217,7 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BParameterizedType type) {
         writeTypeCpIndex(type.paramValueType);
+        buff.writeInt(type.paramIndex);
     }
 
     @Override
@@ -252,17 +252,6 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BPackageType bPackageType) {
         throwUnimplementedError(bPackageType);
-    }
-
-    @Override
-    public void visit(BServiceType bServiceType) {
-        //This is to say this is an object, this is a temporary fix object - 1, service - 0,
-        // ideal fix would be to use the type tag to
-        // differentiate. TODO fix later
-        buff.writeByte(1);
-
-        writeObjectAndServiceTypes(bServiceType);
-        writeTypeIds(bServiceType.typeIdSet);
     }
 
     @Override
@@ -321,7 +310,7 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BField field : bRecordType.fields.values()) {
             BSymbol symbol = field.symbol;
             buff.writeInt(addStringCPEntry(symbol.name.value));
-            buff.writeInt(symbol.flags);
+            buff.writeLong(symbol.flags);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
@@ -334,8 +323,10 @@ public class BIRTypeWriter implements TypeVisitor {
 
         buff.writeByte(1);
         buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
-        buff.writeInt(initializerFunc.symbol.flags);
+        buff.writeLong(initializerFunc.symbol.flags);
         writeTypeCpIndex(initializerFunc.type);
+
+        writeTypeInclusions(bRecordType.typeInclusions);
     }
 
     @Override
@@ -343,7 +334,11 @@ public class BIRTypeWriter implements TypeVisitor {
         //This is to say this is an object, this is a temporary fix object - 1, service - 0,
         // ideal fix would be to use the type tag to
         // differentiate. TODO fix later
-        buff.writeByte(0);
+        if ((bObjectType.flags & Flags.SERVICE) == Flags.SERVICE) {
+            buff.writeByte(1);
+        } else {
+            buff.writeByte(0);
+        }
         writeObjectAndServiceTypes(bObjectType);
         writeTypeIds(bObjectType.typeIdSet);
     }
@@ -366,7 +361,7 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BField field : bObjectType.fields.values()) {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
-            buff.writeInt(field.symbol.flags);
+            buff.writeLong(field.symbol.flags);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
@@ -395,11 +390,13 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BAttachedFunction attachedFunc : attachedFuncs) {
             writeAttachFunction(attachedFunc);
         }
+
+        writeTypeInclusions(bObjectType.typeInclusions);
     }
 
     private void writeAttachFunction(BAttachedFunction attachedFunc) {
         buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
-        buff.writeInt(attachedFunc.symbol.flags);
+        buff.writeLong(attachedFunc.symbol.flags);
         writeTypeCpIndex(attachedFunc.type);
     }
 
@@ -512,5 +509,12 @@ public class BIRTypeWriter implements TypeVisitor {
         int length = byteBuf.nioBuffer().limit();
         buff.writeInt(length);
         buff.writeBytes(byteBuf.nioBuffer().array(), 0, length);
+    }
+
+    private void writeTypeInclusions(List<BType> inclusions) {
+        buff.writeInt(inclusions.size());
+        for (BType inclusion : inclusions) {
+            writeTypeCpIndex(inclusion);
+        }
     }
 }

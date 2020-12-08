@@ -15,17 +15,13 @@
  */
 package org.ballerinalang.langserver.util.definition;
 
-import io.ballerinalang.compiler.syntax.tree.Token;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
-import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
-import org.ballerinalang.langserver.util.references.SymbolReferenceFindingVisitor;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.elements.PackageID;
@@ -37,15 +33,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -69,47 +62,49 @@ public class DefinitionUtil {
      * @throws WorkspaceDocumentException when couldn't find file for uri
      * @throws CompilationFailedException when compilation failed
      */
+    @Deprecated
     public static List<Location> getDefinition(LSContext context, Position position)
             throws WorkspaceDocumentException, CompilationFailedException, LSStdlibCacheException,
-                   TokenOrSymbolNotFoundException {
-        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
-        List<BLangPackage> modules = ReferencesUtil.compileModules(context);
-        SymbolReferencesModel refModel = ReferencesUtil.findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
-        // If the definition list contains an item after the prepare reference mode, then return it.
-        // In this case, definition is in the current compilation unit it self
-        if (!refModel.getDefinitions().isEmpty()) {
-            return ReferencesUtil.getLocations(Collections.singletonList(refModel.getDefinitions().get(0)),
-                                               context.get(DocumentServiceKeys.SOURCE_ROOT_KEY));
-        }
-        // If symbol at the cursor's module is a standard library module we find the module in standard library
-        SymbolReferencesModel.Reference symbolAtCursor = refModel.getReferenceAtCursor();
-        /*
-        Here we do not check whether the symbol at cursor exist since in the prepareReferences processing step
-        we check the presence 
-         */
-        PackageID pkgID = symbolAtCursor.getSymbol().pkgID;
-        if (isStandardLibModule(pkgID)) {
-            return getStdLibDefinitionLocations(context, pkgID, symbolAtCursor);
-        }
-        // Ignore the optional check since it has been handled during prepareReference and throws exception
-        String symbolPkgName = symbolAtCursor.getSymbolPkgName();
-        Optional<BLangPackage> module = modules.stream()
-                .filter(bLangPackage -> bLangPackage.symbol.getName().getValue().equals(symbolPkgName))
-                .findAny();
-        if (!module.isPresent()) {
-            return new ArrayList<>();
-        }
-        for (BLangCompilationUnit compilationUnit : module.get().getCompilationUnits()) {
-            SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context, tokenAtCursor,
-                                                                                         symbolPkgName);
-            refVisitor.visit(compilationUnit);
-            if (!refModel.getDefinitions().isEmpty()) {
-                break;
-            }
-        }
-
-        return ReferencesUtil.getLocations(refModel.getDefinitions(),
-                context.get(DocumentServiceKeys.SOURCE_ROOT_KEY));
+            TokenOrSymbolNotFoundException {
+//        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
+//        List<BLangPackage> modules = ReferencesUtil.compileModules(context);
+//        SymbolReferencesModel refModel = ReferencesUtil.findReferencesForCurrentCUnit(tokenAtCursor, modules,context);
+//        // If the definition list contains an item after the prepare reference mode, then return it.
+//        // In this case, definition is in the current compilation unit it self
+//        if (!refModel.getDefinitions().isEmpty()) {
+//            return ReferencesUtil.getLocations(Collections.singletonList(refModel.getDefinitions().get(0)),
+//                                               context.get(DocumentServiceKeys.SOURCE_ROOT_KEY));
+//        }
+//        // If symbol at the cursor's module is a standard library module we find the module in standard library
+//        SymbolReferencesModel.Reference symbolAtCursor = refModel.getReferenceAtCursor();
+//        /*
+//        Here we do not check whether the symbol at cursor exist since in the prepareReferences processing step
+//        we check the presence 
+//         */
+//        PackageID pkgID = symbolAtCursor.getSymbol().pkgID;
+//        if (isStandardLibModule(pkgID)) {
+//            return getStdLibDefinitionLocations(context, pkgID, symbolAtCursor);
+//        }
+//        // Ignore the optional check since it has been handled during prepareReference and throws exception
+//        String symbolPkgName = symbolAtCursor.getSymbolPkgName();
+//        Optional<BLangPackage> module = modules.stream()
+//                .filter(bLangPackage -> bLangPackage.symbol.getName().getValue().equals(symbolPkgName))
+//                .findAny();
+//        if (!module.isPresent()) {
+//            return new ArrayList<>();
+//        }
+//        for (BLangCompilationUnit compilationUnit : module.get().getCompilationUnits()) {
+//            SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context, tokenAtCursor,
+//                                                                                         symbolPkgName);
+//            refVisitor.visit(compilationUnit);
+//            if (!refModel.getDefinitions().isEmpty()) {
+//                break;
+//            }
+//        }
+//
+//        return ReferencesUtil.getLocations(refModel.getDefinitions(),
+//                context.get(DocumentServiceKeys.SOURCE_ROOT_KEY));
+        return null;
     }
 
     private static boolean isStandardLibModule(PackageID packageID) {
@@ -143,17 +138,18 @@ public class DefinitionUtil {
 
         if (extractedDef != null) {
             Pair<String, BSymbol> nameSymbolPair = getTopLevelNodeNameSymbolPair(extractedDef);
-            DiagnosticPos diagnosticPos = getTopLevelNodePosition(extractedDef);
-            return prepareLocations(diagnosticPos, nameSymbolPair.getRight(), (BLangNode) extractedDef);
+            io.ballerina.tools.diagnostics.Location diagnosticLocation = getTopLevelNodePosition(extractedDef);
+            return prepareLocations(diagnosticLocation, nameSymbolPair.getRight(), (BLangNode) extractedDef);
         }
 
         return new ArrayList<>();
     }
 
-    private static List<Location> prepareLocations(DiagnosticPos diagPos, BSymbol symbol, BLangNode node)
+    private static List<Location> prepareLocations(io.ballerina.tools.diagnostics.Location diagPos, BSymbol symbol,
+                                                   BLangNode node)
             throws LSStdlibCacheException {
         String sourceRoot = LSStandardLibCache.getInstance()
-                .getCachedStdlibRoot(diagPos.src.pkgID.name.value).toString();
+                .getCachedStdlibRoot(symbol.pkgID.name.value).toString();
         SymbolReferencesModel.Reference reference = new SymbolReferencesModel.Reference(diagPos, symbol, node);
         return ReferencesUtil.getLocations(Collections.singletonList(reference), sourceRoot);
     }
@@ -169,7 +165,7 @@ public class DefinitionUtil {
         if ("init".equals(symbolName)) {
             // Definition is invoked over the new keyword
             BLangFunction initFunction = objectTypeNode.initFunction;
-            DiagnosticPos pos;
+            io.ballerina.tools.diagnostics.Location pos;
             if (initFunction.symbol == null) {
                 pos = CommonUtil.toZeroBasedPosition(objectNode.get().getName().pos);
                 return prepareLocations(pos, objectNode.get().symbol, objectTypeNode);
@@ -179,13 +175,13 @@ public class DefinitionUtil {
         }
         for (BLangFunction function : objectTypeNode.functions) {
             if (symbolName.equals(function.getName().getValue())) {
-                DiagnosticPos pos = CommonUtil.toZeroBasedPosition(function.name.pos);
+                io.ballerina.tools.diagnostics.Location pos = CommonUtil.toZeroBasedPosition(function.name.pos);
                 return prepareLocations(pos, symbol, function);
             }
         }
         return new ArrayList<>();
     }
-    
+
     private static List<Location> getStdLibFieldLocation(BVarSymbol symbol, List<TopLevelNode> topLevelNodes)
             throws LSStdlibCacheException {
         Optional<BLangTypeDefinition> objectNode = getOwnerObjectTypeNode(symbol, topLevelNodes);
@@ -197,14 +193,14 @@ public class DefinitionUtil {
 
         for (BLangSimpleVariable field : objectTypeNode.fields) {
             if (symbolName.equals(field.getName().getValue())) {
-                DiagnosticPos pos = CommonUtil.toZeroBasedPosition(field.name.pos);
+                io.ballerina.tools.diagnostics.Location pos = CommonUtil.toZeroBasedPosition(field.name.pos);
                 return prepareLocations(pos, symbol, field);
             }
         }
-        
+
         return new ArrayList<>();
     }
-    
+
     private static Optional<BLangTypeDefinition> getOwnerObjectTypeNode(BVarSymbol symbol,
                                                                         List<TopLevelNode> topLevelNodes) {
         if (!(symbol.owner instanceof BObjectTypeSymbol)) {
@@ -230,7 +226,7 @@ public class DefinitionUtil {
                 || !(((BLangTypeDefinition) objectNode).typeNode instanceof BLangObjectTypeNode)) {
             return Optional.empty();
         }
-        
+
         return Optional.of((BLangTypeDefinition) objectNode);
     }
 
@@ -256,7 +252,7 @@ public class DefinitionUtil {
         }
     }
 
-    private static DiagnosticPos getTopLevelNodePosition(TopLevelNode topLevelNode)
+    private static io.ballerina.tools.diagnostics.Location getTopLevelNodePosition(TopLevelNode topLevelNode)
             throws LSStdlibCacheException {
         switch (topLevelNode.getKind()) {
             case FUNCTION:

@@ -15,31 +15,35 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import org.ballerinalang.langserver.common.utils.FilterUtils;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.NameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.FieldCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.util.Flags;
+import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * Generic Completion provider for field access providers.
@@ -58,119 +62,19 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      * Get the entries for the given field access expression.
      * This particular logic is written in order to capture the chain completion usage as well.
      *
-     * @param ctx         language server operation context
-     * @param baseEntries base entries to start the field/ entry search
-     * @param expr        expression node to evaluate
+     * @param ctx  language server operation context
+     * @param expr expression node to evaluate
      * @return {@link List} of filtered scope entries
      */
-    protected List<Scope.ScopeEntry> getEntries(LSContext ctx,
-                                                List<Scope.ScopeEntry> baseEntries,
-                                                ExpressionNode expr) {
-        switch (expr.kind()) {
-            case SIMPLE_NAME_REFERENCE:
-                /*
-                Captures the following
-                (1) fieldName.<cursor>
-                (2) fieldName.t<cursor>
-                 */
-                String name = ((SimpleNameReferenceNode) expr).name().text();
-                return baseEntries.stream()
-                        .filter(scopeEntry -> scopeEntry.symbol.getName().getValue().equals(name))
-                        .findFirst()
-                        .map(scopeEntry -> this.getEntriesForSymbol(name, scopeEntry.symbol.type, ctx))
-                        .orElseGet(ArrayList::new);
-            case FUNCTION_CALL:
-                /*
-                Captures the following
-                (1) functionName().<cursor>
-                (2) functionName().t<cursor>
-                 */
-                String fName = ((SimpleNameReferenceNode) ((FunctionCallExpressionNode) expr)
-                        .functionName()).name().text();
-                return baseEntries.stream()
-                        .filter(scopeEntry -> scopeEntry.symbol.getName().getValue().equals(fName))
-                        .findFirst()
-                        .map(entry -> this.getEntriesForSymbol(fName, ((BInvokableSymbol) entry.symbol).retType, ctx))
-                        .orElseGet(ArrayList::new);
-            case METHOD_CALL: {
-                /*
-                Address the following
-                (1) test.testMethod().<cursor>
-                (2) test.testMethod().t<cursor>
-                 */
-                List<Scope.ScopeEntry> filtered = this.getEntries(ctx, baseEntries,
-                        ((MethodCallExpressionNode) expr).expression());
-                String mName = ((SimpleNameReferenceNode) ((MethodCallExpressionNode) expr)
-                        .methodName()).name().text();
-                return filtered.stream()
-                        .filter(scopeEntry -> {
-                            String[] nameComps = scopeEntry.symbol.getName().getValue().split("\\.");
-                            return nameComps[nameComps.length - 1].equals(mName);
-                        })
-                        .findFirst()
-                        .map(entry -> this.getEntriesForSymbol(mName, ((BInvokableSymbol) entry.symbol).retType, ctx))
-                        .orElseGet(ArrayList::new);
-            }
-            case FIELD_ACCESS: {
-                /*
-                Address the following
-                (1) test1.test2.<cursor>
-                (2) test1.test2.t<cursor>
-                 */
-                List<Scope.ScopeEntry> filtered = this.getEntries(ctx, baseEntries,
-                        ((FieldAccessExpressionNode) expr).expression());
-                String field = ((SimpleNameReferenceNode) ((FieldAccessExpressionNode) expr).fieldName()).name().text();
-                return filtered.stream()
-                        .filter(scopeEntry -> scopeEntry.symbol.getName().getValue().equals(field))
-                        .findFirst()
-                        .map(scopeEntry -> this.getEntriesForSymbol(field, scopeEntry.symbol.type, ctx))
-                        .orElseGet(ArrayList::new);
-            }
-            default:
-                return new ArrayList<>();
+    protected List<LSCompletionItem> getEntries(CompletionContext ctx, ExpressionNode expr) {
+        Optional<? extends TypeSymbol> typeDesc = this.getTypeDesc(ctx, expr);
+        if (typeDesc.isEmpty()) {
+            return new ArrayList<>();
         }
+
+        return this.getCompletionsForTypeDesc(ctx, typeDesc.get());
     }
 
-    public List<Scope.ScopeEntry> getEntriesForSymbol(String symbolName, BType symbolType, LSContext context) {
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
-        Types types = Types.getInstance(compilerContext);
-        List<Scope.ScopeEntry> entries = new ArrayList<>();
-
-        /*
-        LangLib checks also contains a check for the object type tag. But we skip and instead extract the entries
-        from the object symbol itself
-         */
-        if (symbolType.tsymbol instanceof BObjectTypeSymbol) {
-            BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolType.tsymbol;
-            entries.addAll(FilterUtils.getObjectMethodsAndFields(context, objectTypeSymbol, symbolName));
-            entries.addAll(FilterUtils.getLangLibScopeEntries(symbolType, symbolTable, types));
-            return entries.stream()
-                    .filter(entry -> (!(entry.symbol instanceof BInvokableSymbol))
-                            || ((entry.symbol.flags & Flags.REMOTE) != Flags.REMOTE))
-                    .collect(Collectors.toList());
-        } else if (symbolType instanceof BUnionType) {
-            entries.addAll(FilterUtils.getInvocationsAndFieldsForUnionType((BUnionType) symbolType, context));
-        } else if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
-            entries.addAll(FilterUtils.getLangLibScopeEntries(symbolType, symbolTable, types));
-            List<Scope.ScopeEntry> filteredEntries = new ArrayList<>(symbolType.tsymbol.scope.entries.values());
-            // For the optional field access expression, the following will be skipped.
-            if (symbolType.tsymbol instanceof BRecordTypeSymbol && this.removeOptionalFields()) {
-                filteredEntries.removeIf(entry -> (entry.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL);
-            }
-            entries.addAll(filteredEntries);
-        } else {
-            entries.addAll(FilterUtils.getLangLibScopeEntries(symbolType, symbolTable, types));
-        }
-        /*
-        Here we add the BTypeSymbol check to skip the anyData and similar types suggested from lang lib scope entries
-         */
-        return entries.stream()
-                .filter(entry -> (!(entry.symbol instanceof BTypeSymbol))
-                        && ((!(entry.symbol instanceof BInvokableSymbol))
-                        || ((entry.symbol.flags & Flags.REMOTE) != Flags.REMOTE)))
-                .collect(Collectors.toList());
-    }
 
     /**
      * Whether to remove the optional fields during the record fields filtering phase.
@@ -178,4 +82,174 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      * @return {@link Boolean} optional field removal status
      */
     protected abstract boolean removeOptionalFields();
+
+    private Optional<? extends TypeSymbol> getTypeDesc(CompletionContext ctx, ExpressionNode expr) {
+        switch (expr.kind()) {
+            case SIMPLE_NAME_REFERENCE:
+                /*
+                Captures the following
+                (1) fieldName.<cursor>
+                (2) fieldName.t<cursor>
+                 */
+                return this.getTypeDescForNameRef(ctx, (SimpleNameReferenceNode) expr);
+            case FUNCTION_CALL:
+                /*
+                Captures the following
+                (1) functionName().<cursor>
+                (2) functionName().t<cursor>
+                 */
+                return this.getTypeDescForFunctionCall(ctx, (FunctionCallExpressionNode) expr);
+            case METHOD_CALL: {
+                /*
+                Address the following
+                (1) test.testMethod().<cursor>
+                (2) test.testMethod().t<cursor>
+                 */
+                return this.getTypeDescForMethodCall(ctx, (MethodCallExpressionNode) expr);
+            }
+            case FIELD_ACCESS: {
+                /*
+                Address the following
+                (1) test1.test2.<cursor>
+                (2) test1.test2.t<cursor>
+                 */
+                return this.getTypeDescForFieldAccess(ctx, (FieldAccessExpressionNode) expr);
+            }
+            case INDEXED_EXPRESSION: {
+                /*
+                Address the following
+                (1) test1[].<cursor>
+                (2) test1[].t<cursor>
+                 */
+                return this.getTypeDescForIndexedExpr(ctx, (IndexedExpressionNode) expr);
+            }
+
+            default:
+                return Optional.empty();
+        }
+    }
+
+    private Optional<? extends TypeSymbol> getTypeDescForFieldAccess(CompletionContext context,
+                                                                     FieldAccessExpressionNode node) {
+        String fieldName = ((SimpleNameReferenceNode) node.fieldName()).name().text();
+        ExpressionNode expressionNode = node.expression();
+        Optional<? extends TypeSymbol> typeDescriptor = this.getTypeDesc(context, expressionNode);
+
+        if (typeDescriptor.isEmpty()) {
+            return Optional.empty();
+        }
+
+        List<FieldSymbol> fieldSymbols = new ArrayList<>();
+        TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+            fieldSymbols.addAll(((ObjectTypeSymbol) rawType).fieldDescriptors());
+        } else if (rawType.typeKind() == TypeDescKind.RECORD) {
+            fieldSymbols.addAll(((RecordTypeSymbol) rawType).fieldDescriptors());
+        }
+
+        return fieldSymbols.stream()
+                .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
+                .map(FieldSymbol::typeDescriptor)
+                .findAny();
+    }
+
+    private Optional<? extends TypeSymbol> getTypeDescForNameRef(CompletionContext context,
+                                                                 NameReferenceNode referenceNode) {
+        if (referenceNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return Optional.empty();
+        }
+        String name = ((SimpleNameReferenceNode) referenceNode).name().text();
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        Optional<Symbol> symbolRef = visibleSymbols.stream()
+                .filter(symbol -> symbol.name().equals(name))
+                .findFirst();
+        if (symbolRef.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return SymbolUtil.getTypeDescriptor(symbolRef.get());
+    }
+
+    private Optional<? extends TypeSymbol> getTypeDescForFunctionCall(CompletionContext context,
+                                                                      FunctionCallExpressionNode expr) {
+        String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
+                .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
+                .map(symbol -> (FunctionSymbol) symbol)
+                .findFirst();
+        if (symbolRef.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return symbolRef.get().typeDescriptor().returnTypeDescriptor();
+    }
+
+    private Optional<? extends TypeSymbol> getTypeDescForMethodCall(CompletionContext context,
+                                                                    MethodCallExpressionNode node) {
+        String methodName = ((SimpleNameReferenceNode) node.methodName()).name().text();
+
+        Optional<? extends TypeSymbol> fieldTypeDesc = this.getTypeDesc(context, node.expression());
+
+        if (fieldTypeDesc.isEmpty()) {
+            return Optional.empty();
+        }
+        TypeSymbol rawType = CommonUtil.getRawType(fieldTypeDesc.get());
+        List<FunctionSymbol> visibleMethods = rawType.langLibMethods();
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+            visibleMethods.addAll(((ObjectTypeSymbol) rawType).methods());
+        }
+        Optional<FunctionSymbol> filteredMethod = visibleMethods.stream()
+                .filter(methodSymbol -> methodSymbol.name().equals(methodName))
+                .findFirst();
+
+        if (filteredMethod.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return filteredMethod.get().typeDescriptor().returnTypeDescriptor();
+    }
+
+    private Optional<? extends TypeSymbol> getTypeDescForIndexedExpr(CompletionContext context,
+                                                                     IndexedExpressionNode node) {
+        Optional<? extends TypeSymbol> typeDesc = getTypeDesc(context, node.containerExpression());
+
+        if (typeDesc.isEmpty() || typeDesc.get().typeKind() != TypeDescKind.ARRAY) {
+            return Optional.empty();
+        }
+
+        return Optional.of(((ArrayTypeSymbol) typeDesc.get()).memberTypeDescriptor());
+    }
+
+    private List<LSCompletionItem> getCompletionsForTypeDesc(CompletionContext context, TypeSymbol typeDescriptor) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor);
+        switch (rawType.typeKind()) {
+            case RECORD:
+                ((RecordTypeSymbol) rawType).fieldDescriptors().forEach(fieldDescriptor -> {
+                    CompletionItem completionItem = new CompletionItem();
+                    completionItem.setLabel(fieldDescriptor.name());
+                    completionItem.setInsertText(fieldDescriptor.name());
+                    completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
+                    completionItems.add(new FieldCompletionItem(context, fieldDescriptor, completionItem));
+                });
+                break;
+            case OBJECT:
+                ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) rawType;
+                objTypeDesc.fieldDescriptors().forEach(fieldDescriptor -> {
+                    CompletionItem completionItem = new CompletionItem();
+                    completionItem.setLabel(fieldDescriptor.name());
+                    completionItem.setInsertText(fieldDescriptor.name());
+                    completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
+                    completionItems.add(new FieldCompletionItem(context, fieldDescriptor, completionItem));
+                });
+                completionItems.addAll(this.getCompletionItemList(objTypeDesc.methods(), context));
+                break;
+            default:
+                break;
+        }
+        completionItems.addAll(this.getCompletionItemList(typeDescriptor.langLibMethods(), context));
+
+        return completionItems;
+    }
 }

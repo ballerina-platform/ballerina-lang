@@ -17,17 +17,16 @@
  */
 package org.ballerinalang.test.endpoint;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BCompileUtil.ExitDetails;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.BRunUtil.ExitDetails;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
-import static org.ballerinalang.test.util.BCompileUtil.run;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Services test.
@@ -39,7 +38,7 @@ public class ServiceTest {
     @Test
     public void testServiceInitNegativeTest() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_init_negative.bal");
-        ExitDetails output = run(compileResult, new String[]{});
+        ExitDetails output = BRunUtil.run(compileResult, new String[]{});
         Assert.assertTrue(output.errorOutput.contains("error: startError"));
     }
 
@@ -48,7 +47,7 @@ public class ServiceTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_transactional_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 3);
         int errIdx = 0;
-        validateError(compileResult, errIdx++, "undefined symbol 'bar'", 1, 16);
+        validateError(compileResult, errIdx++, "undefined symbol 'bar'", 1, 17);
         validateError(compileResult, errIdx++, "undefined annotation 'annot9'", 3, 5);
         validateError(compileResult, errIdx++, "missing close brace token", 4, 1);
     }
@@ -73,7 +72,7 @@ public class ServiceTest {
 
     @Test
     public void testUsingListenerFromDepModule() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/proj1", "c");
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/TestListenerProject");
         final BValue[] result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
         Assert.assertEquals(result.length, 1, "expected one return type");
         Assert.assertNotNull(result[0]);

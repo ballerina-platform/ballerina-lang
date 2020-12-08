@@ -15,16 +15,16 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,14 +43,14 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, TypeTestExpressionNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, TypeTestExpressionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.onQualifiedNameIdentifier(context, node.typeDescriptor())) {
-            Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context,
+            Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context,
                     QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) node.typeDescriptor())));
             module.ifPresent(scopeEntry ->
-                    completionItems.addAll(this.getCompletionItemList(this.filterTypesInModule(module.get().symbol),
+                    completionItems.addAll(this.getCompletionItemList(this.filterTypesInModule(module.get()),
                             context)));
         } else {
             completionItems.addAll(this.getTypeItems(context));

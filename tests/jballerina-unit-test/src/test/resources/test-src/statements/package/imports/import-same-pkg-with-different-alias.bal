@@ -1,9 +1,9 @@
-import ballerina/http;
-import ballerina/http as x;
-import ballerina/http as y;
+import ballerina/lang.'int;
+import ballerina/lang.'int as x;
+import ballerina/lang.'int as y;
 
 function testFunc() {
-    http:Client clientEndpoint1 = new("https://postman-echo.com");
-    x:Client clientEndpoint2 = new("https://postman-echo.com");
-    y:Client clientEndpoint3 = new("https://postman-echo.com");
+    int|error i1 = 'int:fromString("100");
+    int|error i2 = x:fromString("100");
+    int|error i3 = y:fromString("100");
 }

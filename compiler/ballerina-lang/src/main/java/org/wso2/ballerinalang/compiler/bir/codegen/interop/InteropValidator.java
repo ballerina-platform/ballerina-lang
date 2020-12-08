@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 
 import java.lang.reflect.Field;
@@ -76,7 +76,7 @@ public class InteropValidator {
             Field field = clazz.getField(fieldName);
             javaField = new JavaField(method, field);
         } catch (NoSuchFieldException e) {
-            throw new JInteropException(DiagnosticCode.FIELD_NOT_FOUND, "No such field '" + fieldName +
+            throw new JInteropException(DiagnosticErrorCode.FIELD_NOT_FOUND, "No such field '" + fieldName +
                     "' found in class '" + className + "'");
         }
 

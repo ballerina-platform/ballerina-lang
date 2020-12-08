@@ -9,8 +9,6 @@ public function main() {
 
 
          do       {
-
-
            var name = { firstName: student.firstName };
        };
 }

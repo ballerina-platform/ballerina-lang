@@ -19,6 +19,10 @@
       "value": "foo"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -131,6 +135,10 @@
                               "kind": "OBJECT_FIELD",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
                                     {
@@ -138,7 +146,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "        "
+                                          "value": "                  "
                                         }
                                       ],
                                       "trailingMinutiae": [
@@ -169,6 +177,10 @@
                               "kind": "OBJECT_FIELD",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
                                     {
@@ -176,7 +188,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "        "
+                                          "value": "                  "
                                         }
                                       ],
                                       "trailingMinutiae": [
@@ -207,6 +219,10 @@
                               "kind": "OBJECT_FIELD",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "STRING_TYPE_DESC",
                                   "children": [
                                     {
@@ -214,7 +230,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "        "
+                                          "value": "                  "
                                         }
                                       ],
                                       "trailingMinutiae": [
@@ -257,7 +273,7 @@
                                     },
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "        "
+                                      "value": "                  "
                                     }
                                   ],
                                   "trailingMinutiae": [
@@ -270,6 +286,10 @@
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "init"
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
                                 },
                                 {
                                   "kind": "FUNCTION_SIGNATURE",
@@ -404,13 +424,7 @@
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "value": "              "
                             }
                           ]
                         }

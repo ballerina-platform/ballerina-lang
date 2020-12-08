@@ -1,0 +1,4 @@
+[package]
+org = "testModuleClash"
+name = "main"
+version = "1.1.0"

@@ -1,0 +1,37 @@
+{
+  "position": {
+    "line": 20,
+    "character": 13
+  },
+  "source": "annotation_ctx/source/recordFieldAnnotation3.bal",
+  "items": [
+    {
+      "label": "fieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "fieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "fieldAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "recordFieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "recordFieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "recordFieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "recordFieldAnnotation2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

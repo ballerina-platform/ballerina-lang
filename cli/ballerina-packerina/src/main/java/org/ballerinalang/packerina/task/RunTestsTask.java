@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -58,6 +59,7 @@ import java.util.List;
 
 import static org.ballerinalang.packerina.utils.DebugUtils.getDebugArgs;
 import static org.ballerinalang.packerina.utils.DebugUtils.isInDebugMode;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
@@ -67,6 +69,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RUNTIME_JAR_PREFIX;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.TOOLS_DIR_NAME;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
@@ -159,7 +162,7 @@ public class RunTestsTask implements Task {
             }
 
             if (isSingleTestExecution || isRerunTestExection) {
-                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
+                suite.setTests(TesterinaUtils.getSingleExecutionTestsOld(suite.getTests(), singleExecTests));
             }
             if (suite == null) {
                 if (!DOT.equals(bLangPackage.packageID.toString())) {
@@ -211,15 +214,25 @@ public class RunTestsTask implements Task {
                 if (coverageResult != 0) {
                     throw createLauncherException("error while generating test report");
                 }
-                Path coverageJsonPath = jsonPath.resolve(TesterinaConstants.COVERAGE_FILE);
+            }
+        }
+
+        // Load Coverage data from the files only after each module's coverage data has been finalized
+        for (BLangPackage bLangPackage : moduleBirMap) {
+            // Check and update coverage
+            Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
+            Path coverageJsonPath = jsonPath.resolve(TesterinaConstants.COVERAGE_FILE);
+
+            if (coverageJsonPath.toFile().exists()) {
                 try {
                     ModuleCoverage moduleCoverage = loadModuleCoverageFromFile(coverageJsonPath);
                     testReport.addCoverage(String.valueOf(bLangPackage.packageID.name), moduleCoverage);
                 } catch (IOException e) {
-                    throw createLauncherException("error while generating test report", e);
+                    throw createLauncherException("error while generating test report :", e);
                 }
             }
         }
+
         if ((report || coverage) && (testReport.getModuleStatus().size() > 0)) {
             testReport.finalizeTestResults(coverage);
             generateHtmlReport(buildContext.out(), testReport, targetDir);
@@ -245,10 +258,11 @@ public class RunTestsTask implements Task {
         suite.setSourceRootPath(sourceRootPath.toString());
         // add module functions
         bLangPackage.functions.forEach(function -> {
-            String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                                                                       bLangPackage.packageID.name.value,
-                                                                       bLangPackage.packageID.version.value,
-                                                                       getClassName(function.pos.src.cUnitName));
+            String functionClassName =
+                    BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                                                    bLangPackage.packageID.name.value,
+                                                    bLangPackage.packageID.version.value,
+                                                    getClassName(function.pos.lineRange().filePath()));
             suite.addTestUtilityFunction(function.name.value, functionClassName);
         });
         // add test functions
@@ -257,10 +271,11 @@ public class RunTestsTask implements Task {
             suite.setTestStartFunctionName(bLangPackage.getTestablePkg().startFunction.name.value);
             suite.setTestStopFunctionName(bLangPackage.getTestablePkg().stopFunction.name.value);
             bLangPackage.getTestablePkg().functions.forEach(function -> {
-                String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                                                                           bLangPackage.packageID.name.value,
-                                                                           bLangPackage.packageID.version.value,
-                                                                           getClassName(function.pos.src.cUnitName));
+                String functionClassName =
+                        BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                                                        bLangPackage.packageID.name.value,
+                                                        bLangPackage.packageID.version.value,
+                                                        getClassName(function.pos.lineRange().filePath()));
                 suite.addTestUtilityFunction(function.name.value, functionClassName);
             });
         } else {
@@ -313,28 +328,37 @@ public class RunTestsTask implements Task {
         File jsonFile = new File(jsonPath.resolve(RESULTS_JSON_FILE).toString());
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
             writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-            out.println("\t" + Paths.get("").toAbsolutePath().relativize(jsonFile.toPath()) + "\n");
+            out.println("\t" + Paths.get("").toAbsolutePath().relativize(Paths.get(jsonFile.getCanonicalPath())) +
+                    "\n");
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
         }
-
-        String content;
-        try {
-            CodeCoverageUtils.unzipReportResources(getClass().getClassLoader().getResourceAsStream(REPORT_ZIP_NAME),
-                    jsonPath.resolve(REPORT_DIR_NAME).toFile());
-
-            content = new String(Files.readAllBytes(jsonPath.resolve(REPORT_DIR_NAME).resolve(RESULTS_HTML_FILE)),
-                    StandardCharsets.UTF_8);
-            content = content.replace(REPORT_DATA_PLACEHOLDER, json);
-        } catch (IOException e) {
-            throw LauncherUtils.createLauncherException("error occurred while preparing test report: " + e.toString());
-        }
-        File htmlFile = new File(jsonPath.resolve(REPORT_DIR_NAME).resolve(RESULTS_HTML_FILE).toString());
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8)) {
-            writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-            out.println("\tView the test report at: " + FILE_PROTOCOL + htmlFile.getAbsolutePath());
-        } catch (IOException e) {
-            throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
+        Path reportZipPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
+                resolve(TOOLS_DIR_NAME).resolve(COVERAGE_DIR).resolve(REPORT_ZIP_NAME);
+        if (Files.exists(reportZipPath)) {
+            String content;
+            try {
+                CodeCoverageUtils.unzipReportResources(new FileInputStream(reportZipPath.toFile()),
+                        jsonPath.resolve(REPORT_DIR_NAME).toFile());
+                content = new String(Files.readAllBytes(jsonPath.resolve(REPORT_DIR_NAME).resolve(RESULTS_HTML_FILE)),
+                        StandardCharsets.UTF_8);
+                content = content.replace(REPORT_DATA_PLACEHOLDER, json);
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException("error occurred while preparing test report: " +
+                        e.toString());
+            }
+            File htmlFile = new File(jsonPath.resolve(REPORT_DIR_NAME).resolve(RESULTS_HTML_FILE).toString());
+            try (Writer writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8)) {
+                writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                out.println("\tView the test report at: " + FILE_PROTOCOL + htmlFile.getAbsolutePath());
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
+            }
+        } else {
+            String reportToolsPath = "<" + BALLERINA_HOME + ">" + File.separator + BALLERINA_HOME_LIB +
+                    File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator + REPORT_ZIP_NAME;
+            out.println("warning: Could not find the required HTML report tools for code coverage at "
+                    + reportToolsPath);
         }
     }
 
@@ -349,6 +373,7 @@ public class RunTestsTask implements Task {
 
         String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
                 .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
+
         try {
             if (coverage) {
                 String agentCommand = "-javaagent:"
@@ -357,10 +382,12 @@ public class RunTestsTask implements Task {
                         + targetDir.resolve(TesterinaConstants.COVERAGE_DIR)
                         .resolve(TesterinaConstants.EXEC_FILE_NAME).toString();
                 if (!TesterinaConstants.DOT.equals(packageName)) {
-                    agentCommand += ",includes=" + orgName + "." + packageName + ".*";
+                    agentCommand += ",includes=" + orgName + ".*";
                 }
                 cmdArgs.add(agentCommand);
             }
+
+            resolveTestDependencies(testDependencies);
 
             String classPath = getClassPath(getTestRuntimeJar(buildContext), testDependencies);
             cmdArgs.addAll(Lists.of("-cp", classPath));
@@ -467,5 +494,24 @@ public class RunTestsTask implements Task {
         }
 
         return new ArrayList<String>();
+    }
+
+    private void resolveTestDependencies(HashSet<Path> testDependencies) {
+        Path jacocoCoreJarPath =  Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.JACOCO_CORE_JAR);
+        Path jacocoReportJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.JACOCO_REPORT_JAR);
+        Path asmJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.ASM_JAR);
+        Path asmTreeJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.ASM_TREE_JAR);
+        Path asmCommonsJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.ASM_COMMONS_JAR);
+
+        testDependencies.add(jacocoCoreJarPath);
+        testDependencies.add(jacocoReportJarPath);
+        testDependencies.add(asmJarPath);
+        testDependencies.add(asmTreeJarPath);
+        testDependencies.add(asmCommonsJarPath);
     }
 }

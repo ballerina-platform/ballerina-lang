@@ -17,7 +17,6 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,11 +55,6 @@ public class Module {
     @Expose
     public List<Error> errors = new ArrayList<>();
     @Expose
-    public List<FiniteType> finiteTypes = new ArrayList<>();
-    @Expose
-    public List<UnionType> unionTypes = new ArrayList<>();
-
-    @Expose
-    public List<Path> resources = new ArrayList<>();
+    public List<BType> types = new ArrayList<>();
 
 }

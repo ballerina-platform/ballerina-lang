@@ -44,3 +44,15 @@ description = 'Ballerina - CLI Utils'
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
+
+ext.moduleName = 'ballerina-cli-utils'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

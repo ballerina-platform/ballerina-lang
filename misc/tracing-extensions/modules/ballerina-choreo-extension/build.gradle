@@ -27,9 +27,20 @@ dependencies {
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
     implementation 'io.jaegertracing:jaeger-core'
-    implementation "io.grpc:grpc-protobuf"
-    implementation "io.grpc:grpc-stub"
-    implementation "io.grpc:grpc-netty-shaded"
+    implementation ("io.grpc:grpc-protobuf")  {
+        exclude group: 'io.grpc' , module: 'grpc-context';
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
+    implementation ("io.grpc:grpc-stub") {
+        exclude group: 'io.grpc' , module: 'grpc-context';
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+
+    }
+    implementation ("io.grpc:grpc-netty-shaded") {
+        exclude group: 'io.grpc' , module: 'grpc-context';
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
+    implementation "javax.annotation:javax.annotation-api:1.3.2"
 }
 
 protobuf {
@@ -58,4 +69,16 @@ checkstyleMain {
 
 createJavadoc {
     enabled false
+}
+
+ext.moduleName = 'io.ballerina.observe.trace.extension.choreo'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
 }

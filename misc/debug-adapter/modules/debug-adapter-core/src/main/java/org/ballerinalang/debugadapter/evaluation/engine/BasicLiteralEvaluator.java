@@ -16,10 +16,10 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
-import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.NilLiteralNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -36,10 +36,10 @@ public class BasicLiteralEvaluator extends Evaluator {
     private final Node syntaxNode;
     private final String literalString;
 
-    public BasicLiteralEvaluator(SuspendedContext context, BasicLiteralNode node) {
+    public BasicLiteralEvaluator(SuspendedContext context, Node node) {
         super(context);
         this.syntaxNode = node;
-        this.literalString = node.toSourceCode().trim();
+        this.literalString = node.toSourceCode();
     }
 
     public BasicLiteralEvaluator(SuspendedContext context, NilLiteralNode node) {
@@ -59,15 +59,16 @@ public class BasicLiteralEvaluator extends Evaluator {
                 if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
                     // int literal
                     // Todo - Add hex int literal support
-                    return EvaluationUtils.make(context, Long.parseLong(literalString));
+                    return EvaluationUtils.make(context, Long.parseLong(literalString.trim()));
                 } else {
                     // float literal
                     // Todo - Add hex float literal support
-                    return EvaluationUtils.make(context, Double.parseDouble(literalString));
+                    return EvaluationUtils.make(context, Double.parseDouble(literalString.trim()));
                 }
             case BOOLEAN_LITERAL:
-                return EvaluationUtils.make(context, Boolean.parseBoolean(literalString));
+                return EvaluationUtils.make(context, Boolean.parseBoolean(literalString.trim()));
             case STRING_LITERAL:
+            case TEMPLATE_STRING:
                 return EvaluationUtils.make(context, literalString);
             default:
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),

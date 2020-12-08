@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.test.runtime.util;
 
-import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.util.RuntimeUtils;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.projects.testsuite.Test;
+import io.ballerina.projects.testsuite.TestSuite;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
-import org.ballerinalang.test.runtime.entity.Test;
-import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,9 +30,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static io.ballerina.runtime.internal.IdentifierUtils.encodeNonFunctionIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
@@ -76,9 +77,8 @@ public class TesterinaUtils {
             if (testRunner.getTesterinaReport().isFailure()) {
                 throw new RuntimeException("there are test failures");
             }
-        } catch (BallerinaException e) {
+        } catch (BallerinaTestException e) {
             errStream.println("error: " + e.getMessage());
-            errStream.println(BLangConstants.INTERNAL_ERROR_MESSAGE);
             RuntimeUtils.silentlyLogBadSad(e);
             throw e;
         } catch (Throwable e) {
@@ -121,10 +121,10 @@ public class TesterinaUtils {
     public static String getQualifiedClassName(String orgName, String packageName,
                                                String version, String className) {
         if (!DOT.equals(packageName)) {
-            className = packageName.replace('.', '_') + "." + version.replace('.', '_') + "." + className;
+            className = encodeNonFunctionIdentifier(packageName) + "." + version.replace('.', '_') + "." + className;
         }
         if (!ANON_ORG.equals(orgName)) {
-            className = orgName.replace('.', '_') + "." +  className;
+            className = encodeNonFunctionIdentifier(orgName) + "." +  className;
         }
         return className;
     }
@@ -211,6 +211,11 @@ public class TesterinaUtils {
             }
         }
         return updatedTestList;
+    }
+
+    public static List<org.ballerinalang.test.runtime.entity.Test> getSingleExecutionTestsOld(
+            List<org.ballerinalang.test.runtime.entity.Test> currentTests, List<String> functions) {
+        return Collections.emptyList();
     }
 
 }

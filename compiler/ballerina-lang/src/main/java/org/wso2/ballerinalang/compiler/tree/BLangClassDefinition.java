@@ -19,7 +19,6 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -55,6 +54,7 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangSimpleVariable> referencedFields;
     public int precedence;
+    public boolean isServiceDecl;
 
     public BLangClassDefinition() {
         this.functions = new ArrayList<>();
@@ -166,13 +166,4 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
         this.precedence = precedence;
     }
 
-    @Override
-    public Symbol getSymbol() {
-        return this.symbol;
-    }
-
-    @Override
-    public void setSymbol(Symbol symbol) {
-        this.symbol = (BTypeSymbol) symbol;
-    }
 }

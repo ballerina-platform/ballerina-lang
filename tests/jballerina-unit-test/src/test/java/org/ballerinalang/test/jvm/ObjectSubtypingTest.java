@@ -18,17 +18,16 @@
 
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static java.lang.String.format;
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -41,8 +40,7 @@ public class ObjectSubtypingTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "subtyping");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/ObjectSubtypingTestProject");
         compileResult = BCompileUtil.compile("test-src/jvm/objects_subtyping.bal");
     }
 
@@ -92,8 +90,8 @@ public class ObjectSubtypingTest {
         CompileResult result = BCompileUtil.compile("test-src/jvm/object_negatives.bal");
         String msgFormat = "incompatible types: expected '%s', found '%s'";
         int i = 0;
-        validateError(result, i++, "'private' qualifier not allowed", 21, 13);
-        validateError(result, i++, "'private' qualifier not allowed", 28, 13);
+        validateError(result, i++, "private qualifier in object member descriptor", 21, 13);
+        validateError(result, i++, "private qualifier in object member descriptor", 28, 13);
         validateError(result, i++, format(msgFormat, "ObjWithPvtField", "AnotherObjWithAPvtField"), 45, 26);
         validateError(result, i++, format(msgFormat, "ObjWithPvtMethod", "AnotherObjWithPvtMethod"), 46, 27);
         validateError(result, i++, format(msgFormat, "testorg/subtyping:1.0.0:ModuleLevelSubtypableObj", "Subtype1"),

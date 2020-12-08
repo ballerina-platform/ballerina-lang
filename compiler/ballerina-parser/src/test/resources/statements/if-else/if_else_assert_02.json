@@ -29,6 +29,10 @@
       "value": "foo"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {
@@ -127,10 +131,6 @@
                     {
                       "kind": "CLOSE_BRACE_TOKEN",
                       "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        },
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
@@ -267,10 +267,6 @@
                                           "kind": "CLOSE_BRACE_TOKEN",
                                           "leadingMinutiae": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            },
-                                            {
                                               "kind": "END_OF_LINE_MINUTIAE",
                                               "value": "\n"
                                             },
@@ -346,10 +342,6 @@
                                                 {
                                                   "kind": "CLOSE_BRACE_TOKEN",
                                                   "leadingMinutiae": [
-                                                    {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": "        "
-                                                    },
                                                     {
                                                       "kind": "END_OF_LINE_MINUTIAE",
                                                       "value": "\n"
@@ -463,10 +455,6 @@
                                       "kind": "CLOSE_BRACE_TOKEN",
                                       "leadingMinutiae": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
-                                        },
-                                        {
                                           "kind": "END_OF_LINE_MINUTIAE",
                                           "value": "\n"
                                         },
@@ -515,10 +503,6 @@
                                         {
                                           "kind": "CLOSE_BRACE_TOKEN",
                                           "leadingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "    "
-                                            },
                                             {
                                               "kind": "END_OF_LINE_MINUTIAE",
                                               "value": "\n"

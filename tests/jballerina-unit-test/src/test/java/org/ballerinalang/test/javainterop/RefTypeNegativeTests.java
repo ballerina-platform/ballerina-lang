@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.ballerinalang.jvm.api.values.BFuture;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -37,8 +37,11 @@ public class RefTypeNegativeTests {
 
     @Test
     public void testInvalidMethodSignaturesForRefTypes() {
+//        CompileResult compileResult =
+//                BCompileUtil.compileInProc("test-src/javainterop/ballerina_ref_types_as_interop_negative.bal");
+
         CompileResult compileResult =
-                BCompileUtil.compileInProc("test-src/javainterop/ballerina_ref_types_as_interop_negative.bal");
+                BCompileUtil.compile("test-src/javainterop/ballerina_ref_types_as_interop_negative.bal");
         Diagnostic[] diagnostics = compileResult.getDiagnostics();
         Assert.assertNotNull(diagnostics);
         Assert.assertEquals(diagnostics.length, 6);
@@ -72,7 +75,7 @@ public class RefTypeNegativeTests {
                                   "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible return type for " +
                                           "method 'returnReadOnlyValue' in class " +
                                           "'org.ballerinalang.test.javainterop.RefTypeNegativeTests': Java type " +
-                                          "'org.ballerinalang.jvm.api.values.BFuture' will not be matched to " +
+                                          "'io.ballerina.runtime.api.values.BFuture' will not be matched to " +
                                           "ballerina type 'readonly''", 51, 1);
     }
 

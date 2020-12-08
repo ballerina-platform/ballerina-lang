@@ -66,7 +66,7 @@ public class DependencyScopeTest extends CommandTest {
             Files.walkFileTree(storedJarDependencyProject, new BuildCommandTest.Copy(storedJarDependencyProject,
                     this.testResources));
 
-            String baloFileName = "mymodule-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
+            String baloFileName = "mymodule-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
                     + BLANG_COMPILED_PKG_BINARY_EXT;
             String[] compileArgs = {"--all", "--skip-tests"};
 
@@ -113,10 +113,10 @@ public class DependencyScopeTest extends CommandTest {
         buildCommand.execute();
         Assert.assertTrue(Files.exists(balo), "Check if balo directory exists");
 
-        // Check whether dependency jars getting packed to balo
+    // Check whether dependency jars getting packed to balo
         Assert.assertTrue(renameFile(baloFile, baloZipFile));
         Assert.assertFalse(isJarExists(baloZipFile, storedJarPath));
-    }
+}
 
     private boolean renameFile(File oldName, File newName) {
         return oldName.renameTo(newName);

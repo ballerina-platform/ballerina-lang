@@ -129,12 +129,12 @@ public function cloneTable() returns [Employee[], Employee[], Employee[]] {
     Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
     Employee e3 = { id: 3, name: "John", salary: 400.50 };
     table<Employee> key(id) a = table [];
-    a[1] = e1;
-    a[2] = e2;
+    a.add(e1);
+    a.add(e2);
     table<Employee> key(id) x = a.clone();
     table<Employee> key(id) y = a.clone();
-    a[3] = e3;
-    y[3] = e3;
+    a.add(e3);
+    y.add(e3);
     return [[a[1], a[2], a[3]], [x[1], x[2]], [y[1], y[2], y[3]]];
 }
 

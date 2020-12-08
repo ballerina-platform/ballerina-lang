@@ -18,12 +18,12 @@
 
 package org.ballerinalang.tool;
 
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
-import org.ballerinalang.jvm.util.RuntimeUtils;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.tool.util.BCompileUtil;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -68,6 +68,8 @@ public class Main {
         } catch (BLauncherException e) {
             LauncherUtils.printLauncherException(e, errStream);
             Runtime.getRuntime().exit(1);
+        } catch (RuntimePanicException e) {
+            Runtime.getRuntime().exit(e.getExitCode());
         } catch (Throwable e) {
             errStream.println(getMessageForInternalErrors());
             RuntimeUtils.silentlyLogBadSad(e);
@@ -97,9 +99,12 @@ public class Main {
             }
 
             // set stop at positional to run command
-            cmdParser.getSubcommands().get("run").setStopAtPositional(true);
-            cmdParser.getSubcommands().get("build").setStopAtPositional(true);
-            cmdParser.getSubcommands().get("test").setStopAtPositional(true);
+            cmdParser.getSubcommands().get("run").setStopAtPositional(true)
+                    .setUnmatchedOptionsArePositionalParams(true);
+            cmdParser.getSubcommands().get("build").setStopAtPositional(true)
+                    .setUnmatchedOptionsArePositionalParams(true);
+            cmdParser.getSubcommands().get("test").setStopAtPositional(true)
+                    .setUnmatchedOptionsArePositionalParams(true);
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();

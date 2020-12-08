@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,6 +35,7 @@ public class ArraySizeDefinitionTest {
             "'intLength' as array size: expected a constant reference expression";
     private String incompatibleTypeError = "incompatible types: expected 'int', found 'string'";
     private String undefinedSymbolError = "undefined symbol 'length'";
+    private String invalidArrayLengthError = "invalid array length";
 
     @Test(groups = { "disableOnOldParser" })
     public void testCompilationSizeReferenceErrors() {
@@ -67,6 +68,7 @@ public class ArraySizeDefinitionTest {
         BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 42, 12);
         BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 43, 5);
         BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 44, 23);
+        BAssertUtil.validateError(resultNegative, index++, invalidArrayLengthError, 45, 8);
         Assert.assertEquals(resultNegative.getDiagnostics().length, index);
     }
 

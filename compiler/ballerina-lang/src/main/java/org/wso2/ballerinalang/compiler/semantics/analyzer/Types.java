@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -24,7 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -52,7 +54,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -68,7 +69,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -76,13 +76,13 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -95,6 +95,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
@@ -163,7 +165,7 @@ public class Types {
     public BType checkType(BLangExpression node,
                            BType actualType,
                            BType expType) {
-        return checkType(node, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        return checkType(node, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
     }
 
     public BType checkType(BLangExpression expr,
@@ -181,7 +183,7 @@ public class Types {
         return expr.type;
     }
 
-    public BType checkType(DiagnosticPos pos,
+    public BType checkType(Location pos,
                            BType actualType,
                            BType expType,
                            DiagnosticCode diagCode) {
@@ -285,8 +287,35 @@ public class Types {
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BLangConstPattern constMatchPattern) {
-        BLangExpression constPatternExpr = constMatchPattern.expr;
+    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BTupleType listMatchPatternType) {
+        if (matchExpr == null) {
+            return listMatchPatternType;
+        }
+        BType matchExprType = matchExpr.type;
+        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType);
+        if (intersectionType != symTable.semanticError) {
+            return intersectionType;
+        }
+        if (matchExprType.tag == TypeTags.ANYDATA) {
+            Collections.fill(listMatchPatternType.tupleTypes, symTable.anydataType);
+            if (listMatchPatternType.restType != null) {
+                listMatchPatternType.restType = symTable.anydataType;
+            }
+            return listMatchPatternType;
+        }
+        return symTable.noType;
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BLangExpression constPatternExpr) {
+        if (matchExpr == null) {
+            if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
+            } else {
+                return constPatternExpr.type;
+            }
+        }
+
+        BType matchExprType = matchExpr.type;
         BType constMatchPatternExprType = constPatternExpr.type;
 
         if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -339,7 +368,7 @@ public class Types {
         return symTable.noType;
     }
 
-    public boolean containsAnyType(BType type) {
+    private boolean containsAnyType(BType type) {
         if (type.tag != TypeTags.UNION) {
             return type.tag == TypeTags.ANY;
         }
@@ -350,6 +379,16 @@ public class Types {
             }
         }
         return false;
+    }
+
+    public BType mergeTypes(BType typeFirst, BType typeSecond) {
+        if (containsAnyType(typeFirst)) {
+            return typeSecond;
+        }
+        if (isSameBasicType(typeFirst, typeSecond)) {
+            return typeFirst;
+        }
+        return BUnionType.create(null, typeFirst, typeSecond);
     }
 
     public boolean isSubTypeOfMapping(BType type) {
@@ -567,6 +606,10 @@ public class Types {
             return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes);
         }
 
+        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
+            return isParameterizedTypeAssignable(source, target, unresolvedTypes);
+        }
+
         if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
             return true;
         }
@@ -626,11 +669,6 @@ public class Types {
 
         if (targetTag == TypeTags.RECORD && sourceTag == TypeTags.MAP) {
             return isAssignableMapType((BMapType) source, (BRecordType) target);
-        }
-
-        if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
-            // Special casing services, until we figure out service type concept.
-            return true;
         }
 
         if (targetTag == TypeTags.TYPEDESC && sourceTag == TypeTags.TYPEDESC) {
@@ -716,13 +754,22 @@ public class Types {
             return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
         }
 
-        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
-            BType resolvedType = typeBuilder.build(source);
-            return isAssignable(resolvedType, target, unresolvedTypes);
-        }
-
         return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
                 isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
+    }
+
+    private boolean isParameterizedTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        BType resolvedSourceType = typeBuilder.build(source);
+
+        if (target.tag != TypeTags.PARAMETERIZED_TYPE) {
+            return isAssignable(resolvedSourceType, target, unresolvedTypes);
+        }
+
+        if (((BParameterizedType) source).paramIndex != ((BParameterizedType) target).paramIndex) {
+            return false;
+        }
+
+        return isAssignable(resolvedSourceType, typeBuilder.build(target), unresolvedTypes);
     }
 
     private boolean isAssignableRecordType(BRecordType recordType, BType type, Set<TypePair> unresolvedTypes) {
@@ -845,7 +892,7 @@ public class Types {
         return isAssignable(sourceMapType.constraint, targetRecType.restFieldType);
     }
 
-    private boolean hasIncompatibleReadOnlyFlags(int targetFlags, int sourceFlags) {
+    private boolean hasIncompatibleReadOnlyFlags(long targetFlags, long sourceFlags) {
         return Symbols.isFlagOn(targetFlags, Flags.READONLY) && !Symbols.isFlagOn(sourceFlags, Flags.READONLY);
     }
 
@@ -919,7 +966,7 @@ public class Types {
 
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
                                                      Set<TypePair> unresolvedTypes) {
-        if (target.state != BArrayState.UNSEALED
+        if (target.state != BArrayState.OPEN
                 && (source.restType != null || source.tupleTypes.size() != target.size)) {
             return false;
         }
@@ -935,7 +982,7 @@ public class Types {
     private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
                                                      Set<TypePair> unresolvedTypes) {
         if (!target.tupleTypes.isEmpty()) {
-            if (source.state == BArrayState.UNSEALED) {
+            if (source.state == BArrayState.OPEN) {
                 // [int, int, int...] = int[] || [int, int] = int[]
                 return false;
             }
@@ -965,7 +1012,7 @@ public class Types {
         if (target.tag == TypeTags.ARRAY) {
             BArrayType targetArrayType = (BArrayType) target;
             BType targetElementType = targetArrayType.getElementType();
-            if (targetArrayType.state == BArrayState.UNSEALED) {
+            if (targetArrayType.state == BArrayState.OPEN) {
                 return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
             }
 
@@ -1040,8 +1087,6 @@ public class Types {
             case TypeTags.TYPEDESC:
             case TypeTags.HANDLE:
                 return true;
-            case TypeTags.SERVICE:
-                return type instanceof BServiceType; // Since the tag for both service and object are the same.
         }
         return false;
     }
@@ -1233,8 +1278,8 @@ public class Types {
         BArrayType lhsArrayType = (BArrayType) target;
         BArrayType rhsArrayType = (BArrayType) source;
         boolean hasSameTypeElements = isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
-        if (lhsArrayType.state == BArrayState.UNSEALED) {
-            return (rhsArrayType.state == BArrayState.UNSEALED) && hasSameTypeElements;
+        if (lhsArrayType.state == BArrayState.OPEN) {
+            return (rhsArrayType.state == BArrayState.OPEN) && hasSameTypeElements;
         }
 
         return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType) && hasSameTypeElements;
@@ -1269,12 +1314,21 @@ public class Types {
     }
 
     public boolean checkObjectEquivalency(BObjectType rhsType, BObjectType lhsType, Set<TypePair> unresolvedTypes) {
+        if (Symbols.isFlagOn(lhsType.flags, Flags.ISOLATED) && !Symbols.isFlagOn(rhsType.flags, Flags.ISOLATED)) {
+            return false;
+        }
+
         BObjectTypeSymbol lhsStructSymbol = (BObjectTypeSymbol) lhsType.tsymbol;
         BObjectTypeSymbol rhsStructSymbol = (BObjectTypeSymbol) rhsType.tsymbol;
         List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
         List<BAttachedFunction> rhsFuncs = ((BObjectTypeSymbol) rhsType.tsymbol).attachedFuncs;
         int lhsAttachedFuncCount = getObjectFuncCount(lhsStructSymbol);
         int rhsAttachedFuncCount = getObjectFuncCount(rhsStructSymbol);
+
+        // If LHS is a service obj, then RHS must be a service object in order to assignable
+        if (isServiceObject(lhsStructSymbol) && !isServiceObject(rhsStructSymbol)) {
+            return false;
+        }
 
         // RHS type should have at least all the fields as well attached functions of LHS type.
         if (lhsType.fields.size() > rhsType.fields.size() || lhsAttachedFuncCount > rhsAttachedFuncCount) {
@@ -1301,6 +1355,11 @@ public class Types {
                     !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
+
+            // If LHS field is a resource field, RHS field must be a resource field
+            if (Symbols.isResource(lhsField.symbol) && !Symbols.isResource(rhsField.symbol)) {
+                return false;
+            }
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
@@ -1318,6 +1377,10 @@ public class Types {
         }
 
         return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet);
+    }
+
+    private boolean isServiceObject(BObjectTypeSymbol rhsStructSymbol) {
+        return (rhsStructSymbol.flags & Flags.SERVICE) == Flags.SERVICE;
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
@@ -1392,7 +1455,7 @@ public class Types {
                 varType = streamType.constraint;
                 if (streamType.error != null) {
                     BType actualType = BUnionType.create(null, varType, streamType.error);
-                    dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                    dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             varType, actualType);
                 }
                 break;
@@ -1406,14 +1469,14 @@ public class Types {
                     BType errorType = getErrorType(nextMethodReturnType);
                     if (errorType != null) {
                         BType actualType = BUnionType.create(null, valueType, errorType);
-                        dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                        dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                                 valueType, actualType);
                     }
                     foreachNode.nillableResultType = nextMethodReturnType;
                     foreachNode.varType = valueType;
                     return;
                 }
-                dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 foreachNode.varType = symTable.semanticError;
@@ -1424,7 +1487,7 @@ public class Types {
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;
                 foreachNode.nillableResultType = symTable.semanticError;
-                dlog.error(foreachNode.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
                 return;
         }
@@ -1497,7 +1560,7 @@ public class Types {
                     return;
                 }
                 dlog.error(bLangInputClause.collection.pos,
-                        DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                        DiagnosticErrorCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 bLangInputClause.varType = symTable.semanticError;
@@ -1508,7 +1571,7 @@ public class Types {
                 bLangInputClause.varType = symTable.semanticError;
                 bLangInputClause.resultType = symTable.semanticError;
                 bLangInputClause.nillableResultType = symTable.semanticError;
-                dlog.error(bLangInputClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                dlog.error(bLangInputClause.collection.pos, DiagnosticErrorCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
                 return;
         }
@@ -1639,15 +1702,14 @@ public class Types {
     }
 
     public BType getResultTypeOfNextInvocation(BObjectType iteratorType) {
-        BAttachedFunction nextFunc = getNextFunc(iteratorType);
+        BAttachedFunction nextFunc = getAttachedFuncFromObject(iteratorType, BLangCompilerConstants.NEXT_FUNC);
         return Objects.requireNonNull(nextFunc).type.retType;
     }
 
-    private BAttachedFunction getNextFunc(BObjectType iteratorType) {
-        BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
+    public BAttachedFunction getAttachedFuncFromObject(BObjectType objectType, String funcName) {
+        BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) objectType.tsymbol;
         for (BAttachedFunction bAttachedFunction : iteratorSymbol.attachedFuncs) {
-            if (bAttachedFunction.funcName.value
-                    .equals(BLangCompilerConstants.NEXT_FUNC)) {
+            if (funcName.equals(bAttachedFunction.funcName.value)) {
                 return bAttachedFunction;
             }
         }
@@ -1982,6 +2044,7 @@ public class Types {
         implicitConversionExpr.expr = expr.impConversionExpr == null ? expr : expr.impConversionExpr;
         implicitConversionExpr.type = expType;
         implicitConversionExpr.targetType = expType;
+        implicitConversionExpr.internal = true;
         expr.impConversionExpr = implicitConversionExpr;
     }
 
@@ -1997,50 +2060,34 @@ public class Types {
         if (type.tag != TypeTags.OBJECT) {
             return false;
         }
-        final BSymbol bSymbol = symTable.langObjectModuleSymbol.scope.lookup(Names.LISTENER).symbol;
-        if (bSymbol == symTable.notFoundSymbol || bSymbol.type.tag != TypeTags.OBJECT) {
-            throw new AssertionError("Listener object not defined.");
-        }
-        BObjectType rhsType = (BObjectType) type;
-        BObjectType lhsType = (BObjectType) bSymbol.type;
 
-        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
-        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
+        BObjectType rhsType = (BObjectType) type;
         List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
 
-        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
-        if (lhsAttachedFuncCount > rhsFuncs.size()) {
-            return false;
-        }
+        ListenerValidationModel listenerValidationModel = new ListenerValidationModel(this, symTable);
+        return listenerValidationModel.checkMethods(rhsFuncs);
 
-        for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc) {
-                continue;
-            }
-
-            if (!Symbols.isPublic(lhsFunc.symbol)) {
-                return false;
-            }
-
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, new HashSet<>());
-            if (rhsFunc == null || !Symbols.isPublic(rhsFunc.symbol)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public boolean isValidErrorDetailType(BType detailType) {
         switch (detailType.tag) {
             case TypeTags.MAP:
-            case TypeTags.RECORD:
                 return isAssignable(detailType, symTable.detailType);
-
+            case TypeTags.RECORD: {
+                if (isSealed((BRecordType) detailType)) {
+                    return false;
+                }
+                return isAssignable(detailType, symTable.detailType);
+            }
         }
         return false;
     }
 
     // private methods
+
+    private boolean isSealed(BRecordType recordType) {
+        return recordType.sealed;
+    }
 
     private boolean isNullable(BType fieldType) {
         return fieldType.isNullable();
@@ -2286,11 +2333,6 @@ public class Types {
             }
 
             return isSameType(source.detailType, t.detailType, this.unresolvedTypes);
-        }
-
-        @Override
-        public Boolean visit(BServiceType t, BType s) {
-            return t == s || t.tag == s.tag;
         }
 
         @Override
@@ -2654,10 +2696,10 @@ public class Types {
 
         // Create a new finite type representing the assignable values.
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
-                                                                names.fromString("$anonType$" + finiteTypeCount++),
-                                                                finiteType.tsymbol.pkgID, null,
-                                                                finiteType.tsymbol.owner, finiteType.tsymbol.pos,
-                                                                VIRTUAL);
+                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                finiteType.tsymbol.pkgID, null,
+                finiteType.tsymbol.owner, finiteType.tsymbol.pos,
+                VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
@@ -3131,10 +3173,10 @@ public class Types {
         }
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
-                                                                names.fromString("$anonType$" + finiteTypeCount++),
-                                                                originalType.tsymbol.pkgID, null,
-                                                                originalType.tsymbol.owner, originalType.tsymbol.pos,
-                                                                VIRTUAL);
+                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                originalType.tsymbol.pkgID, null,
+                originalType.tsymbol.owner, originalType.tsymbol.pos,
+                VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
@@ -3586,6 +3628,188 @@ public class Types {
                 return isOrderedType(elementType);
             default:
                 return isSimpleBasicType(type.tag);
+        }
+    }
+
+    public boolean isUnionOfSimpleBasicTypes(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+            for (BType memType : memberTypes) {
+                if (!isSimpleBasicType(memType.tag)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return isSimpleBasicType(type.tag);
+    }
+
+    public boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(BType type) {
+        if (isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+            return true;
+        }
+
+        int tag = type.tag;
+
+        if (tag == TypeTags.OBJECT) {
+            return isIsolated(type);
+        }
+
+        if (tag != TypeTags.UNION) {
+            return false;
+        }
+
+        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            if (!isSubTypeOfReadOnlyOrIsolatedObjectUnion(memberType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isIsolated(BType type) {
+        return Symbols.isFlagOn(type.flags, Flags.ISOLATED);
+    }
+
+    private static class ListenerValidationModel {
+        private final Types types;
+        private final SymbolTable symtable;
+        private final BObjectType emptyServiceType;
+        private final BType serviceNameType;
+        boolean attachFound;
+        boolean detachFound;
+        boolean startFound;
+        boolean gracefulStopFound;
+        boolean immediateStopFound;
+
+        public ListenerValidationModel(Types types, SymbolTable symTable) {
+            this.types = types;
+            this.symtable = symTable;
+            this.emptyServiceType = new BObjectType(
+                    new BObjectTypeSymbol(SymTag.OBJECT,
+                            Flags.SERVICE & Flags.PUBLIC,
+                            new org.wso2.ballerinalang.compiler.util.Name(""),
+                            null, null, null, null, BUILTIN));
+            this.emptyServiceType.tsymbol.type = this.emptyServiceType;
+
+            this.serviceNameType =
+                    BUnionType.create(null, symtable.stringType, symtable.arrayStringType, symtable.nilType);
+        }
+
+        boolean isValidListener() {
+            return attachFound && detachFound && startFound && gracefulStopFound && immediateStopFound;
+        }
+
+        private boolean checkMethods(List<BAttachedFunction> rhsFuncs) {
+            for (BAttachedFunction func : rhsFuncs) {
+                switch (func.funcName.value) {
+                    case "attach":
+                        if (!checkAttachMethod(func)) {
+                            return false;
+                        }
+                        break;
+                    case "detach":
+                        if (!checkDetachMethod(func)) {
+                            return false;
+                        }
+                        break;
+                    case "start":
+                        if (!checkStartMethod(func)) {
+                            return true;
+                        }
+                        break;
+                    case "gracefulStop":
+                        if (!checkGracefulStop(func)) {
+                            return false;
+                        }
+                        break;
+                    case "immediateStop":
+                        if (!checkImmediateStop(func)) {
+                            return false;
+                        }
+                        break;
+                }
+            }
+            return isValidListener();
+        }
+
+        private boolean emptyParamList(BAttachedFunction func) {
+            return func.type.paramTypes.isEmpty() && func.type.restType != symtable.noType;
+        }
+
+        private boolean publicAndReturnsErrorOrNil(BAttachedFunction func) {
+            if (!Symbols.isPublic(func.symbol)) {
+                return false;
+            }
+
+            if (!types.isAssignable(func.type.retType, symtable.errorOrNilType)) {
+                return false;
+            }
+            return true;
+        }
+
+        private boolean isPublicNoParamReturnsErrorOrNil(BAttachedFunction func) {
+            if (!publicAndReturnsErrorOrNil(func)) {
+                return false;
+            }
+
+            if (!emptyParamList(func)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        private boolean checkImmediateStop(BAttachedFunction func) {
+            return immediateStopFound = isPublicNoParamReturnsErrorOrNil(func);
+        }
+
+        private boolean checkGracefulStop(BAttachedFunction func) {
+            return gracefulStopFound = isPublicNoParamReturnsErrorOrNil(func);
+        }
+
+        private boolean checkStartMethod(BAttachedFunction func) {
+            return startFound = publicAndReturnsErrorOrNil(func);
+        }
+
+        private boolean checkDetachMethod(BAttachedFunction func) {
+            if (!publicAndReturnsErrorOrNil(func)) {
+                return false;
+            }
+
+            if (func.type.paramTypes.size() != 1) {
+                return false;
+            }
+
+            BType firstParamType = func.type.paramTypes.get(0);
+            boolean isMatchingSignature = firstParamType.tag == TypeTags.OBJECT
+                    && types.isServiceObject((BObjectTypeSymbol) firstParamType.tsymbol);
+            return detachFound = isMatchingSignature;
+        }
+
+        private boolean checkAttachMethod(BAttachedFunction func) {
+            if (!publicAndReturnsErrorOrNil(func)) {
+                return false;
+            }
+
+            if (func.type.paramTypes.size() != 2) {
+                return false;
+            }
+
+            // todo: change is unions are allowed as service type.
+            BType firstParamType = func.type.paramTypes.get(0);
+            if (firstParamType.tag != TypeTags.OBJECT) {
+                return false;
+            }
+
+            if (!types.isServiceObject((BObjectTypeSymbol) firstParamType.tsymbol)) {
+                return false;
+            }
+
+            BType secondParamType = func.type.paramTypes.get(1);
+            boolean sameType = types.isSameType(this.serviceNameType, secondParamType);
+            return attachFound = sameType;
+
         }
     }
 }

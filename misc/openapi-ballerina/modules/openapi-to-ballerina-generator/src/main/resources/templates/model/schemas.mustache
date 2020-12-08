@@ -1,5 +1,0 @@
-{{#schemas}}{{#value}}
-{{#isArraySchema}}public type {{key}} {};{{/isArraySchema}}{{^isArraySchema}}
-public type {{key}} record { {{#properties}}
-    {{#value}}{{#equals ../../key type}}{{type}}?{{else}}{{type}}{{/equals}}{{/value}} {{{key}}};{{/properties}}
-};{{/isArraySchema}}{{/value}}{{/schemas}}

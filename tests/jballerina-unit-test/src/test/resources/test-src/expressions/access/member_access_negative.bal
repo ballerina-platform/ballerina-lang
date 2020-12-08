@@ -198,5 +198,6 @@ function testInvalidRecordMemberAccessByConst() {
 
 function testMemberAccessWithoutIndex() {
     int[] intArray = [];
-    int value = intArray[]; 
+    int value = intArray[];
+    intArray[]
 }

@@ -31,6 +31,7 @@ public interface PackageSource extends PackageEntity {
      * @deprecated
      * @return the package source entry names
      */
+    @Deprecated
     List<String> getEntryNames();
 
     /**
@@ -40,6 +41,7 @@ public interface PackageSource extends PackageEntity {
      * @deprecated
      * @return the package source entry
      */
+    @Deprecated
     CompilerInput getPackageSourceEntry(String name);
     
     /**

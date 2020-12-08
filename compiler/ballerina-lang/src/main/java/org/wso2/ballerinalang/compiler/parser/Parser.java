@@ -17,11 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler.parser;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -29,7 +26,6 @@ import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnostic;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
@@ -38,8 +34,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -82,35 +76,33 @@ public class Parser {
         this.pkgCache.put(pkgId, pkgNode);
 
         for (CompilerInput sourceInput : pkgSource.getPackageSourceEntries()) {
-            BDiagnosticSource diagnosticSource = getDiagnosticSource(sourceInput, pkgId);
             if (ProjectDirs.isTestSource(((FileSystemSourceInput) sourceInput).getPath(),
                     sourceRootPath, pkgId.getName().value)) {
                 // This check is added to ensure that there is exactly one testable package per bLangPackage
                 if (!pkgNode.containsTestablePkg()) {
                     BLangTestablePackage testablePkg = TreeBuilder.createTestablePackageNode();
                     testablePkg.flagSet.add(Flag.TESTABLE);
-                    testablePkg.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
+                    testablePkg.pos = new BLangDiagnosticLocation(pkgSource.getName(), 1, 1, 1, 1);
                     pkgNode.addTestablePkg(testablePkg);
                 }
                 pkgNode.getTestablePkg().addCompilationUnit(
-                        generateCompilationUnitNew(sourceInput, pkgId, diagnosticSource)
+                        generateCompilationUnitNew(sourceInput, pkgId)
                 );
             } else {
-                pkgNode.addCompilationUnit(generateCompilationUnitNew(sourceInput, pkgId, diagnosticSource));
+                pkgNode.addCompilationUnit(generateCompilationUnitNew(sourceInput, pkgId));
             }
         }
 
-        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
+        pkgNode.pos = new BLangDiagnosticLocation(pkgSource.getName(), 0, 0, 0, 0);
         pkgNode.repos = pkgSource.getRepoHierarchy();
         return pkgNode;
     }
 
-    private CompilationUnitNode generateCompilationUnitNew(CompilerInput sourceEntry, PackageID packageID,
-                                                           BDiagnosticSource diagnosticSource) {
+    private CompilationUnitNode generateCompilationUnitNew(CompilerInput sourceEntry, PackageID packageID) {
         String entryName = sourceEntry.getEntryName();
         BLangCompilationUnit compilationUnit;
         SyntaxTree tree = sourceEntry.getTree();
-        reportSyntaxDiagnostics(diagnosticSource, tree);
+        reportSyntaxDiagnostics(packageID, tree);
 
         //TODO: Get hash and length from tree
         byte[] code = sourceEntry.getCode();
@@ -122,8 +114,9 @@ public class Parser {
             return compilationUnit;
         }
 
-        BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(this.context, diagnosticSource);
+        BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(this.context, packageID, entryName);
         compilationUnit = (BLangCompilationUnit) bLangNodeTransformer.accept(tree.rootNode()).get(0);
+        compilationUnit.setPackageID(packageID);
         parserCache.put(packageID, entryName, hash, length, compilationUnit);
         // Node cloner will run for valid ASTs.
         // This will verify, any modification done to the AST will get handled properly.
@@ -131,31 +124,15 @@ public class Parser {
         return compilationUnit;
     }
 
-    private BDiagnosticSource getDiagnosticSource(CompilerInput sourceEntry, PackageID packageID) {
-        String entryName = sourceEntry.getEntryName();
-        return new BDiagnosticSource(packageID, entryName);
-    }
-
-
     private static int getHash(byte[] code) {
         // Assuming hash collision is unlikely in a modified source.
         // Additionally code.Length is considered to avoid hash collision.
         return Arrays.hashCode(code);
     }
 
-    private void reportSyntaxDiagnostics(BDiagnosticSource diagnosticSource, SyntaxTree tree) {
+    private void reportSyntaxDiagnostics(PackageID pkgID, SyntaxTree tree) {
         for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
-            // This conversion is needed because the compiler diagnostic locations starting index 
-            // is 1, where as syntax diagnostics locations starting index is 0.
-            Location syntaxLocation = syntaxDiagnostic.location();
-            LineRange lineRange = syntaxLocation.lineRange();
-            LinePosition startLine = lineRange.startLine();
-            LinePosition endLine = lineRange.startLine();
-            Location location = new BLangDiagnosticLocation(diagnosticSource.cUnitName, startLine.line() + 1,
-                    endLine.line() + 1, startLine.offset() + 1, endLine.offset() + 1);
-            BLangDiagnostic diag =
-                    new BLangDiagnostic(location, syntaxDiagnostic.message(), syntaxDiagnostic.diagnosticInfo());
-            dlog.logDiagnostic(diagnosticSource.pkgID, diag);
+            dlog.logDiagnostic(pkgID, syntaxDiagnostic);
         }
     }
 }

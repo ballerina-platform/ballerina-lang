@@ -29,6 +29,7 @@ function testReadonlyRecordFields() {
     testSubTypingWithReadOnlyFieldsNegative();
     testSubTypingWithReadOnlyFieldsPositiveComposite();
     testSubTypingWithReadOnlyFieldsNegativeComposite();
+    testSubTypingMapAsRecordWithReadOnlyFields();
 }
 
 type Student record {
@@ -626,6 +627,52 @@ function testSubTypingWithReadOnlyFieldsNegativeComposite() {
     a = b8;
     assertTrue(a is Qux);
     assertFalse(a is Baz);
+}
+
+type StudentParticulars record {|
+    readonly string name;
+    int id;
+|};
+
+type StudentParticularsWithMarks record {|
+    readonly string name;
+    float id?;
+    float...;
+|};
+
+function testSubTypingMapAsRecordWithReadOnlyFields() {
+    map<string|int> mutableMap = {
+        name: "Maryam",
+        id: 1234
+    };
+
+    map<string|int> & readonly immutableMap = {
+        name: "Maryam",
+        id: 1234
+    };
+
+    map<string|float> & readonly immutableMapWithFloatId = {
+        name: "Maryam",
+        id: 123.4
+    };
+
+    map<string|int|float> & readonly immutableMapWithMarks = {
+        name: "Maryam",
+        id: 123.4,
+        physics: 85.0
+    };
+
+    assertFalse(<any> mutableMap is StudentParticulars);
+    assertFalse(<any> mutableMap is StudentParticularsWithMarks);
+
+    assertTrue(<any> immutableMap is StudentParticulars);
+    assertFalse(<any> immutableMap is StudentParticularsWithMarks);
+
+    assertFalse(<any> immutableMapWithFloatId is StudentParticulars);
+    assertTrue(<any> immutableMapWithFloatId is StudentParticularsWithMarks);
+
+    assertFalse(<any> immutableMapWithMarks is StudentParticulars);
+    assertTrue(<any> immutableMapWithMarks is StudentParticularsWithMarks);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

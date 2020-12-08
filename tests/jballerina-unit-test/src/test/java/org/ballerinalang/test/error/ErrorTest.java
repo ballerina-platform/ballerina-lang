@@ -17,18 +17,18 @@
  */
 package org.ballerinalang.test.error;
 
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -187,14 +187,6 @@ public class ErrorTest {
     public void testErrorWithErrorConstructor() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testErrorWithErrorConstructor");
         Assert.assertEquals(returns[0].stringValue(), "test");
-    }
-
-    @Test(groups = { "disableOnOldParser" })
-    public void testGetCallStack() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
-        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
-                                                      "moduleName:\"ballerina.runtime.0_5_0.errors\"," +
-                                                      " fileName:\"errors.bal\", lineNumber:38}");
     }
 
     @Test
@@ -367,10 +359,9 @@ public class ErrorTest {
 
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
-        Assert.assertEquals(message,
-                "error: array index out of range: index: 4, size: 2\n\t" +
-                        "at ballerina.lang_array.1_1_0:slice(array.bal:106)\n\t" +
-                        "   error_test:testStackTraceInNative(error_test.bal:280)");
+        Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
+                "at ballerina.lang.array.1_1_0:slice(array.bal:126)\n\t" +
+                "   error_test:testStackTraceInNative(error_test.bal:276)");
     }
 
     @Test
@@ -403,9 +394,9 @@ public class ErrorTest {
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:344}";
+                "lineNumber:340}";
         String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:348}";
+                "lineNumber:344}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);

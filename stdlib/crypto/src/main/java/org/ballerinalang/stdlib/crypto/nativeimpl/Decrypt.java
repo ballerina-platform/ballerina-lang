@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
@@ -34,8 +34,8 @@ import java.security.PublicKey;
  */
 public class Decrypt {
 
-    public static Object decryptAesCbc(ArrayValue inputValue, ArrayValue keyValue,
-                                       ArrayValue ivValue, Object padding) {
+    public static Object decryptAesCbc(BArray inputValue, BArray keyValue,
+                                       BArray ivValue, Object padding) {
         byte[] input = inputValue.getBytes();
         byte[] key = keyValue.getBytes();
         byte[] iv = null;
@@ -46,15 +46,15 @@ public class Decrypt {
                 input, iv, -1);
     }
 
-    public static Object decryptAesEcb(ArrayValue inputValue, ArrayValue keyValue, Object padding) {
+    public static Object decryptAesEcb(BArray inputValue, BArray keyValue, Object padding) {
         byte[] input = inputValue.getBytes();
         byte[] key = keyValue.getBytes();
         return CryptoUtils.aesEncryptDecrypt(CryptoUtils.CipherMode.DECRYPT, Constants.ECB, padding.toString(), key,
                 input, null, -1);
     }
 
-    public static Object decryptAesGcm(ArrayValue inputValue, ArrayValue keyValue,
-                                       ArrayValue ivValue,  Object padding, long tagSize) {
+    public static Object decryptAesGcm(BArray inputValue, BArray keyValue,
+                                       BArray ivValue,  Object padding, long tagSize) {
         byte[] input = inputValue.getBytes();
         byte[] key = keyValue.getBytes();
         byte[] iv = null;
@@ -65,9 +65,9 @@ public class Decrypt {
                 input, iv, tagSize);
     }
 
-    public static Object decryptRsaEcb(ArrayValue inputValue, Object keys, Object padding) {
+    public static Object decryptRsaEcb(BArray inputValue, Object keys, Object padding) {
         byte[] input = inputValue.getBytes();
-        MapValue<?, ?> keyMap = (MapValue<?, ?>) keys;
+        BMap<?, ?> keyMap = (BMap<?, ?>) keys;
         Key key;
         if (keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY) != null) {
             key = (PrivateKey) keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);

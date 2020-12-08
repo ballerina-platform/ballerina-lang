@@ -35,7 +35,7 @@ public class SkipTestsTestCase extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = singleFilesProjectPath.resolve("skip-tests").toString();
+        projectPath = singleFileTestsPath.resolve("skip-tests").toString();
     }
 
     @Test

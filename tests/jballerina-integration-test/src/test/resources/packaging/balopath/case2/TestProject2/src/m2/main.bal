@@ -1,5 +1,9 @@
 import m1;
 
 public function main() {
-    m1:say();
+    string s = print();
+}
+
+public function print() returns string {
+    return m1:say();
 }

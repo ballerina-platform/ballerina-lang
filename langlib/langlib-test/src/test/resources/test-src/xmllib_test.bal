@@ -154,6 +154,20 @@ function testCreateComment() returns xml {
     return 'xml:createComment("This text should be wraped in xml comment");
 }
 
+function testCreateText() {
+    'xml:Text text1 = 'xml:createText("This is xml text");
+    'xml:Text text2 = 'xml:createText("");
+    'xml:Text text3 = 'xml:createText("T");
+    'xml:Text text4 = 'xml:createText("Thisisxmltext");
+    'xml:Text text5 = 'xml:createText("XML\ntext");
+
+    assert(<string>text1, "This is xml text");
+    assert(<string>text2, "");
+    assert(<string>text3, "T");
+    assert(<string>text4, "Thisisxmltext");
+    assert(<string>text5, "XML\ntext");
+}
+
 function testForEach() returns xml {
     xml r = 'xml:concat();
     foreach var x in catalog/* {
@@ -379,50 +393,5 @@ function assert(anydata actual, anydata expected) {
     }
 }
 
-function testXMLFunctionalCtor() {
-    'xml:Element x = 'xml:Element("hello");
-    'xml:Element y = xml `<hello></hello>`;
-    assertValueEquality(y, x);
-}
 
-function testXMLFunctionalConstructorWithAttributes() {
-    'xml:Element x = 'xml:Element("element", { "attr": "attrVal", "two": "Val2"});
-    'xml:Element y = xml `<element attr="attrVal" two="Val2"/>`;
-    assertValueEquality(y, x);
-}
-
-function testXMLFunctionalConstructorWithAChild() {
-    'xml:Element x = 'xml:Element("element", {attr: "hello"}, 'xml:Element("child"));
-    'xml:Element y = xml `<element attr="hello"><child/></element>`;
-    assertValueEquality(y, x);
-}
-
-function testXMLCommentCtor() {
-    'xml:Comment x = 'xml:Comment("comment content");
-    'xml:Comment y = xml `<!--comment content-->`;
-    assertValueEquality(y, x);
-}
-
-function testXMLPICtor() {
-    'xml:ProcessingInstruction x = 'xml:ProcessingInstruction("DONOT", "print this");
-    'xml:ProcessingInstruction y = xml `<?DONOT print this?>`;
-    assertValueEquality(y, x);
-}
-
-function testXMLTextCtor() {
-    'xml:Text x = 'xml:Text("this is a charactor sequence");
-    'xml:Text y = xml `this is a charactor sequence`;
-    assertValueEquality(y, x);
-}
-
-const ASSERTION_ERROR_REASON = "AssertionError";
-
-function assertValueEquality(anydata|error expected, anydata|error actual) {
-    if expected == actual {
-        return;
-    }
-
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
-}
 

@@ -14,9 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.test as test;
+
 xmlns "http://sample.com/wso2/a1" as ns;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
+
+final boolean serviceEPAvailable = false;
+final string LOCK_STORE = "lockStore";
 
 int name = 10;
 
@@ -183,4 +188,9 @@ function testTypeNameAsVariable5() {
     }
     var t = typeof name;
     panic error(ASSERTION_ERROR_REASON, message = "expected 'string', found '" + t.toString() + "'");
+}
+
+function testGeneratedNames() {
+    test:assertFalse(serviceEPAvailable);
+    test:assertValueEqual(LOCK_STORE, "lockStore");
 }

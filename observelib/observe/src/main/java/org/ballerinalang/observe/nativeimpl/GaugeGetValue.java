@@ -17,13 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.observability.metrics.Gauge;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.metrics.Gauge;
 
 /**
  * This is the native getValue function implementation of the Gauge object.
@@ -31,18 +26,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.980.0
  */
 
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "getValue",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.GAUGE,
-                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
-        returnType = @ReturnType(type = TypeKind.FLOAT),
-        isPublic = true
-)
 public class GaugeGetValue {
 
-    public static double getValue(Strand strand, ObjectValue guage) {
+    public static double getValue(BObject guage) {
         Gauge counter = (Gauge) guage.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         return counter.getValue();
     }

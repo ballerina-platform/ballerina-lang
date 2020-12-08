@@ -73,6 +73,7 @@ public class ItemResolverConstants {
     public static final String ANNOTATION = "annotation";
     public static final String XMLNS = "xmlns";
     public static final String CLASS = "class";
+    public static final String ENUM = "enum";
     public static final String DISTINCT = "distinct";
     public static final String HTTP_RESOURCE = "http resource";
     public static final String RESOURCE = "resource";

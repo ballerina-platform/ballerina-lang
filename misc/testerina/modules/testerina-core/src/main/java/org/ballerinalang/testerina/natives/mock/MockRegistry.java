@@ -17,10 +17,9 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
-import org.ballerinalang.jvm.api.values.BArray;
-import org.ballerinalang.jvm.api.values.BIterator;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +47,7 @@ public class MockRegistry {
      * @param returnVal value to return when the function is called
      * @param hittingCount count to check the return value from the sequence of return values provided
      */
-    public void registerCase(BObject mockObject, String functionName, ArrayValue argsList, Object returnVal,
+    public void registerCase(BObject mockObject, String functionName, BArray argsList, Object returnVal,
                              int hittingCount) {
         String caseId = constructCaseId(mockObject, functionName, argsList);
         if (!hasHitCount(caseId)) {

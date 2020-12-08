@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.model.values.BHandleValue;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BHandleValue;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithDefaultConstructor;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithOneParamConstructor;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithTwoParamConstructor;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

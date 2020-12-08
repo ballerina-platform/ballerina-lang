@@ -15,21 +15,22 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ErrorTypeParamsNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -48,7 +49,7 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ErrorTypeParamsNode node) {
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ErrorTypeParamsNode node) {
         /*
         Covers the following cases
         (1) error< <cursor> >
@@ -56,24 +57,28 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
         (3) error< module:<cursor> >
         (4) error< module:t<cursor> >
          */
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        Predicate<Scope.ScopeEntry> predicate = scopeEntry -> {
-            BSymbol symbol = scopeEntry.symbol;
-            return symbol instanceof BTypeSymbol
-                    && (symbol.type.getKind() == TypeKind.MAP || symbol.type.getKind() == TypeKind.RECORD);
+        Predicate<Symbol> predicate = symbol -> {
+            if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
+                return false;
+            }
+            TypeSymbol typeDesc = ((TypeDefinitionSymbol) symbol).typeDescriptor();
+            return (CommonUtil.getRawType(typeDesc).typeKind() == TypeDescKind.MAP
+                    || CommonUtil.getRawType(typeDesc).typeKind() == TypeDescKind.RECORD);
         };
-        List<Scope.ScopeEntry> mappingTypes;
+        List<Symbol> mappingTypes;
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             mappingTypes = QNameReferenceUtil.getModuleContent(context, (QualifiedNameReferenceNode) nodeAtCursor,
-                    predicate.and(scopeEntry -> (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC));
+                    predicate);
             return this.getCompletionItemList(mappingTypes, context);
         }
 
-        List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         mappingTypes = visibleSymbols.stream().filter(predicate).collect(Collectors.toList());
         List<LSCompletionItem> completionItems = this.getCompletionItemList(mappingTypes, context);
         completionItems.addAll(this.getModuleCompletionItems(context));
+        completionItems.add(new TypeCompletionItem(context, null, Snippet.TYPE_MAP.get().build(context)));
 
         return completionItems;
     }

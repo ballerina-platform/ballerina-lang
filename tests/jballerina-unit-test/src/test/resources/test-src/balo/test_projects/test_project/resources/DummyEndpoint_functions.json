@@ -1,0 +1,1 @@
+{"testorg/foo:1.0.0" : [{"function":{"name":"invoke1","requiredParams":[{"a":"string"}],"returnType":"()"}},{"function":{"name":"invoke2","requiredParams":[{"a":"string"}],"returnType":"string"}}]}

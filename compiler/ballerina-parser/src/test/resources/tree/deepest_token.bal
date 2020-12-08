@@ -3,5 +3,5 @@ public function add() {
 }
 
 public function multiply() {
-    int z = x * (z - x) + x / (y + (a+b));
+    int z = x * (z - x) + x / (y + (a + b));
 }

@@ -3,7 +3,6 @@
                   class
                Foo
            {
-
                 string
                    name
                           ;       }

@@ -1,8 +1,7 @@
+import ballerina/java;
+import ballerina/java;
 
-
-import ballerina/math;
-import ballerina/math;
-
-function testFunc() {
-  math:pow(2,2);
-}
+function systemOut() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java.lang.System"
+} external;

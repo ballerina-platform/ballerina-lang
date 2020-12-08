@@ -31,6 +31,6 @@ public class ProgramFileConstants {
 
     // todo move this to a proper place
     public static final String IMPLEMENTATION_VERSION = "2020r2";
-    public static final String[] SUPPORTED_PLATFORMS = {"java8"};
+    public static final String[] SUPPORTED_PLATFORMS = {"java11"};
     public static final String ANY_PLATFORM = "any";
 }

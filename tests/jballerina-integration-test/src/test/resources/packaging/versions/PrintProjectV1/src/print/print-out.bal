@@ -1,6 +1,3 @@
-import ballerina/io;
-
-
-public function printText(string s) {
-    io:println("Print: " + s + " from v1");
+public function printText(string s) returns string {
+    return "Print: " + s + " from v1";
 }

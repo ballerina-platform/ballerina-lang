@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -37,7 +37,7 @@ public class ObjectTest {
         result = BCompileUtil.compile("test-src/javainterop/basic/object_test.bal");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testInteropsInsideObject() {
         BRunUtil.invoke(result, "testInteropsInsideObject");
     }

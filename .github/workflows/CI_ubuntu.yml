@@ -17,19 +17,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
-      - name: Use Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '8.x'
 
       - name: Initialize sub-modules
         run: git submodule update --init
 
-      - name: Set up JDK 1.8
+      - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 11
 
       - name: Cache Gradle packages
         uses: actions/cache@v2
@@ -42,7 +37,7 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build -x createJavadoc -x test --max-workers=2 --scan --no-daemon
+          ./gradlew build -x test --max-workers=2 --scan --no-daemon
           find ~/.gradle/caches/ -name "*.lock" -type f -delete 
 
   run_integration_test:
@@ -53,19 +48,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        
-      - name: Use Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '8.x'
 
       - name: Initialize sub-modules
         run: git submodule update --init
 
-      - name: Set up JDK 1.8
+      - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 11
 
       - name: Cache Gradle packages
         uses: actions/cache@v2
@@ -76,10 +66,9 @@ jobs:
 
       - name: Run integration test
         run: |
-          unset JAVA_TOOL_OPTIONS
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew :jballerina-integration-test:test --fail-fast -x createJavadoc --max-workers=1 --scan --no-daemon
+          ./gradlew :jballerina-integration-test:test --fail-fast --max-workers=1 --scan --no-daemon
 
   run_jbal_long_running_test:
     name: Run jbal & long running tests
@@ -89,19 +78,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        
-      - name: Use Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '8.x'
 
       - name: Initialize sub-modules
         run: git submodule update --init
 
-      - name: Set up JDK 1.8
+      - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 11
 
       - name: Cache Gradle packages
         uses: actions/cache@v2
@@ -112,7 +96,6 @@ jobs:
 
       - name: Run jballerina unit test
         run: |
-          unset JAVA_TOOL_OPTIONS
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew :jballerina-unit-test:test :testerina-integration-test:test --fail-fast -x createJavadoc --max-workers=1 --scan --no-daemon
@@ -125,19 +108,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        
-      - name: Use Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '8.x'
 
       - name: Initialize sub-modules
         run: git submodule update --init
 
-      - name: Set up JDK 1.8
+      - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 11
 
       - name: Cache Gradle packages
         uses: actions/cache@v2
@@ -148,7 +126,6 @@ jobs:
 
       - name: Run all the other unit test
         run: |
-          unset JAVA_TOOL_OPTIONS
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
           ./gradlew build -x createJavadoc -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :testerina-integration-test:test --max-workers=1 --scan --no-daemon

@@ -33,7 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.util.BLangConstants.USER_REPO_DEFAULT_DIRNAME;
+import static org.ballerinalang.core.util.BLangConstants.USER_REPO_DEFAULT_DIRNAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME;
@@ -45,7 +45,9 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
  * Class containing utility methods for creating BALO.
  * 
  * @since 0.975.0
+ * @deprecated use {@link org.ballerinalang.test.BCompileUtil} instead.
  */
+@Deprecated
 public class BaloCreator {
 
     private static final Path TEST_RESOURCES_SOURCE_PATH = Paths.get("src", "test", "resources");

@@ -29,8 +29,11 @@ public class BLangCompilerConstants {
     public static final String ITERABLE_OBJECT_ITERATOR_FUNC = "__iterator";
     public static final String RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC = "shouldRetry";
     public static final String NEXT_FUNC = "next";
+    public static final String CLOSE_FUNC = "close";
     public static final String VALUE_FIELD = "value";
 
+    // java module version
+    public static final String JAVA_VERSION = "0.9.0";
     // lang lib versions
     public static final String INTERNAL_VERSION = "0.1.0";
     public static final String ANNOTATIONS_VERSION = "1.0.0";
@@ -51,5 +54,10 @@ public class BLangCompilerConstants {
     public static final String XML_VERSION = "0.8.0";
     public static final String BOOLEAN_VERSION = "1.0.0";
     public static final String QUERY_VERSION = "0.0.1";
+    public static final String RUNTIME_VERSION = "0.0.1";
     public static final String TRANSACTION_VERSION = "0.0.1";
+    public static final String TRANSACTION_INTERNAL_VERSION = "1.0.3";
+
+    private BLangCompilerConstants() {
+    }
 }

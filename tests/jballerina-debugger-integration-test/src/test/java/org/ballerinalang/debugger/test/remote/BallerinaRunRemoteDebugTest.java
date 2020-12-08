@@ -18,53 +18,49 @@
 package org.ballerinalang.debugger.test.remote;
 
 import org.ballerinalang.debugger.test.BaseTestCase;
+import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.nio.file.Paths;
-
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
 /**
  * Test class to test positive scenarios of remote debugging ballerina run command.
  */
-@Test(enabled = false)
 public class BallerinaRunRemoteDebugTest extends BaseTestCase {
 
     private BMainInstance balClient;
-    private String projectPath;
-    private String singleFilePath;
+    DebugTestRunner debugTestRunner;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        balClient = new BMainInstance(balServer);
-        testProjectName = "basic-project";
-        testModuleName = "hello-world";
-        projectPath = testProjectBaseDir + File.separator + testProjectName;
-        singleFilePath = Paths.get(testSingleFileBaseDir.toString(), testSingleFileName).toString();
+        String testProjectName = "basic-project";
+        String testSingleFileName = "hello_world.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testSingleFileName, false);
+        balClient = new BMainInstance(debugTestRunner.getBalServer());
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSuspendOnBallerinaModuleRun() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port), testModuleName}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 10);
+        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port), "."}, null,
+                new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 10);
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSuspendOnBallerinaFileRun() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port), singleFilePath}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 10);
+        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port),
+            debugTestRunner.testEntryFilePath}, null, new String[]{}, new LogLeecher[]{clientLeecher},
+            debugTestRunner.testProjectPath, 10);
         clientLeecher.waitForText(20000);
     }
 }

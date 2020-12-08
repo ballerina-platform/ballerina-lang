@@ -17,17 +17,10 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
-import org.ballerinalang.test.runtime.util.TesterinaConstants;
+import io.ballerina.projects.Document;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Coverage analysis of a specific module used to generate the Json object.
@@ -42,25 +35,16 @@ public class ModuleCoverage {
     private float coveragePercentage;
     private List<SourceFile> sourceFiles = new ArrayList<>();
 
-    private static PrintStream errStream = System.err;
-
-    private static ModuleCoverage instance = new ModuleCoverage();
-
-    public static ModuleCoverage getInstance() {
-        return instance;
-    }
-
     /**
      * Adds the code snippet from the source file highlighted with covered and missed lines.
      *
-     * @param moduleName name of the module that the source file belongs to
-     * @param fileName source file name
+     * @param document source file
      * @param coveredLines list of lines covered
      * @param missedLines list of lines missed
      */
-    public void addSourceFileCoverage (String moduleName, String fileName, List<Integer> coveredLines,
+    public void addSourceFileCoverage (Document document, List<Integer> coveredLines,
                                        List<Integer> missedLines) {
-        SourceFile sourceFile = new SourceFile(moduleName, fileName, coveredLines, missedLines);
+        SourceFile sourceFile = new SourceFile(document, coveredLines, missedLines);
         this.sourceFiles.add(sourceFile);
         this.coveredLines += coveredLines.size();
         this.missedLines += missedLines.size();
@@ -102,12 +86,12 @@ public class ModuleCoverage {
         private float coveragePercentage;
         private String sourceCode;
 
-        private SourceFile(String moduleName, String fileName, List<Integer> coveredLines, List<Integer> missedLines) {
-            this.name = fileName;
+        private SourceFile(Document document, List<Integer> coveredLines, List<Integer> missedLines) {
+            this.name = document.name();
             this.coveredLines = coveredLines;
             this.missedLines = missedLines;
             setCoveragePercentage(coveredLines, missedLines);
-            setSourceCode(moduleName, fileName);
+            setSourceCode(document);
         }
 
         private void setCoveragePercentage(List<Integer> coveredLines, List<Integer> missedLines) {
@@ -115,21 +99,8 @@ public class ModuleCoverage {
             this.coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
         }
 
-        private void setSourceCode(String moduleName, String fileName) {
-            Path sourceFile;
-            if (TesterinaConstants.DOT.equals(moduleName)) {
-                sourceFile = Paths.get(fileName);
-            } else {
-                sourceFile = Paths.get(TesterinaConstants.SRC_DIR).resolve(moduleName).resolve(fileName);
-            }
-            StringBuilder contentBuilder = new StringBuilder();
-            try (Stream<String> stream = Files.lines(sourceFile, StandardCharsets.UTF_8)) {
-                stream.forEach(s -> contentBuilder.append(s).append("\n"));
-            } catch (IOException e) {
-                errStream.println("error while analyzing code coverage" + e);
-                Runtime.getRuntime().exit(1);
-            }
-            this.sourceCode = contentBuilder.toString();
+        private void setSourceCode(Document document) {
+            this.sourceCode = document.textDocument().toString();
         }
 
         public float getCoveragePercentage() {

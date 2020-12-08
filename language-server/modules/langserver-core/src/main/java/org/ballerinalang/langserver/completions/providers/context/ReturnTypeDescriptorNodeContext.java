@@ -15,19 +15,19 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ReturnTypeDescriptorNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ReturnTypeDescriptorNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -58,10 +58,10 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
             (2) function test() returns moduleName:F<cursor>
             */
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) node.type()));
-            Optional<Scope.ScopeEntry> moduleSymbol = CommonUtil.packageSymbolFromAlias(context, modulePrefix);
+            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, modulePrefix);
             if (moduleSymbol.isPresent()) {
                 moduleSymbol.ifPresent(scopeEntry -> {
-                    List<Scope.ScopeEntry> entries = this.filterTypesInModule(moduleSymbol.get().symbol);
+                    List<Symbol> entries = this.filterTypesInModule(moduleSymbol.get());
                     completionItems.addAll(this.getCompletionItemList(entries, context));
                 });
             }
@@ -78,9 +78,9 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
         return completionItems;
     }
 
-    private boolean withinIdentifierContext(LSContext context, QualifiedNameReferenceNode node) {
+    private boolean withinIdentifierContext(CompletionContext context, QualifiedNameReferenceNode node) {
         LineRange colonLineRange = node.colon().lineRange();
-        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position cursor = context.getCursorPosition();
 
         return colonLineRange.endLine().line() == cursor.getLine()
                 && colonLineRange.endLine().offset() <= cursor.getCharacter();

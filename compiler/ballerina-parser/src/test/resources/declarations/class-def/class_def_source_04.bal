@@ -5,7 +5,9 @@ class Foo {
     function getName() {
     }
 
-    private remote function get() {
+    private function getAge() {
     }
 
+    remote function get() {
+    }
 }

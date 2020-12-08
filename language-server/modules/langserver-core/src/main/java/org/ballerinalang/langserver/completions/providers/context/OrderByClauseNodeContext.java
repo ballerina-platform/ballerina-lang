@@ -15,21 +15,20 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.OrderByClauseNode;
-import io.ballerinalang.compiler.syntax.tree.OrderKeyNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
+import io.ballerina.compiler.syntax.tree.OrderKeyNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,8 +46,8 @@ public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderBy
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, OrderByClauseNode node) {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+    public List<LSCompletionItem> getCompletions(CompletionContext context, OrderByClauseNode node) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (onSuggestDirectionKeywords(context, node)) {
             return Arrays.asList(
@@ -62,7 +61,7 @@ public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderBy
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Scope.ScopeEntry> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
             return this.getCompletionItemList(exprEntries, context);
         }
 
@@ -70,14 +69,14 @@ public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderBy
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, OrderByClauseNode node) {
+    public boolean onPreValidation(CompletionContext context, OrderByClauseNode node) {
         return !node.orderKeyword().isMissing();
     }
 
-    private boolean onSuggestDirectionKeywords(LSContext context, OrderByClauseNode node) {
+    private boolean onSuggestDirectionKeywords(CompletionContext context, OrderByClauseNode node) {
         SeparatedNodeList<OrderKeyNode> orderKeyNodes = node.orderKey();
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        int cursor = context.getCursorPositionInTree();
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (orderKeyNodes.isEmpty() || nodeAtCursor.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return false;

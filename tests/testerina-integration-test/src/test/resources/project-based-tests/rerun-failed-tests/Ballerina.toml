@@ -1,6 +1,7 @@
-[project]
-org-name= "rerun-failed-tests"
-version= "0.1.0"
+[package]
+org = "intg_tests"
+name = "rerun_failed"
+version = "0.0.0"
 
 [build-options]
 observability-included=true
