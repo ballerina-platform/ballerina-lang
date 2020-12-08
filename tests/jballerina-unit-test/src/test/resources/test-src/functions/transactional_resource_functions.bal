@@ -1,5 +1,3 @@
-import ballerina/lang.'object;
-
 listener ABC ep = new;
 
 int startCount = 0;

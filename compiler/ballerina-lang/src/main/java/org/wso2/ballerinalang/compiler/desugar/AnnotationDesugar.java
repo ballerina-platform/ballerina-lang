@@ -172,13 +172,14 @@ public class AnnotationDesugar {
             SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition, initFunction.symbol.scope, env);
             BLangLambdaFunction lambdaFunction = defineAnnotations(classDefinition, pkgNode, classEnv, pkgID, owner);
             if (lambdaFunction != null) {
-                if (Symbols.isService(classDefinition.type.tsymbol)) {
+                BType type = classDefinition.type;
+                if (Symbols.isService(type.tsymbol) || Symbols.isFlagOn(type.flags, Flags.OBJECT_CTOR)) {
                     // Add the lambda/invocation in a temporary block.
                     BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
                     BLangBlockFunctionBody initBody = (BLangBlockFunctionBody) initFunction.body;
                     target.pos = initBody.pos;
                     addLambdaToGlobalAnnotMap(classDefinition.name.value, lambdaFunction, target);
-                    int index = calculateIndex((initBody).stmts, classDefinition.type.tsymbol);
+                    int index = calculateIndex((initBody).stmts, type.tsymbol);
                     for (BLangStatement stmt : target.stmts) {
                         initBody.stmts.add(index++, stmt);
                     }

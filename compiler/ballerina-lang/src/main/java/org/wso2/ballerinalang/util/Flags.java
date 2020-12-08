@@ -67,7 +67,8 @@ public class Flags {
     public static final long CLASS = DISTINCT << 1;                             //  28
     public static final long ISOLATED = CLASS << 1;                             //  29
     public static final long ISOLATED_PARAM = ISOLATED << 1;                    //  30
-    public static final long CONFIGURABLE = ISOLATED_PARAM << 1;                 //  31
+    public static final long CONFIGURABLE = ISOLATED_PARAM << 1;                //  31
+    public static final long OBJECT_CTOR = CONFIGURABLE << 1;                   //  32
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -160,6 +161,9 @@ public class Flags {
                 case CONFIGURABLE:
                     mask |= CONFIGURABLE;
                     break;
+                case OBJECT_CTOR:
+                    mask |= OBJECT_CTOR;
+                    break;
             }
         }
         return mask;
@@ -250,6 +254,9 @@ public class Flags {
                     break;
                 case CONFIGURABLE:
                     flagVal = CONFIGURABLE;
+                    break;
+                case OBJECT_CTOR:
+                    flagVal = OBJECT_CTOR;
                     break;
                 default:
                     continue;

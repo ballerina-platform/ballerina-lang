@@ -22,10 +22,6 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.ResourceFunctionType;
 import io.ballerina.runtime.api.types.ServiceType;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.AnnotationUtils;
-import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.values.MapValue;
 
 import java.util.ArrayList;
 
@@ -41,10 +37,6 @@ public class BServiceType extends BObjectType implements ServiceType {
 
     public BServiceType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags);
-    }
-
-    public void setAttachedFuncsAndProcessAnnots(BMap globalAnnotationMap, Strand strand) {
-        AnnotationUtils.processServiceAnnotations((MapValue) globalAnnotationMap, this, strand);
     }
 
     public void setResourceFunctions(ResourceFunctionType[] resourceFunctions) {
@@ -92,9 +84,5 @@ public class BServiceType extends BObjectType implements ServiceType {
     @Override
     public int getTag() {
         return TypeTags.SERVICE_TAG;
-    }
-
-    public boolean hasAnnotations() {
-        return !annotations.isEmpty();
     }
 }

@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BServiceType;
+import io.ballerina.runtime.internal.values.MapValue;
 
 /**
  * Populate annotations on service objects.
@@ -31,6 +32,6 @@ import io.ballerina.runtime.internal.types.BServiceType;
 public class ServiceAnnotations {
 
     public static void populateAnnotations(BObject service, BMap annotMap) {
-        ((BServiceType) service.getType()).setAttachedFuncsAndProcessAnnots(annotMap, Scheduler.getStrand());
+        ((BServiceType) service.getType()).processObjectCtorAnnots((MapValue) annotMap, Scheduler.getStrand());
     }
 }

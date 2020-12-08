@@ -518,6 +518,11 @@ public class MethodGen {
                 continue;
             }
             BType bType = optionalTypeDef.type;
+            if ((bType.flags & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR) {
+                // Annotations for object ctors are populated at object init site.
+                continue;
+            }
+
             if (bType.tag != TypeTags.FINITE) {
                 loadAnnots(mv, typePkgName, optionalTypeDef, localVarOffset);
             }
