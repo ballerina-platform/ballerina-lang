@@ -14,13 +14,22 @@ public class MyRetryManager {
 }
 
 function testRetryStatement() {
-    string|error x = retryError();
-    if(x is string) {
-        assertEquality("start attempt 1:error, attempt 2:error, attempt 3:result returned end.", x);
+    string|error retrySuccessRes = retrySuccess();
+    if(retrySuccessRes is string) {
+        assertEquality("start attempt 1:error, attempt 2:error, attempt 3:result returned end.", retrySuccessRes);
+    } else {
+        panic error("Expected a string");
+    }
+
+    string|error retryFailureRes = retryFailure();
+    if(retryFailureRes is error) {
+        assertEquality("Custom Error", retryFailureRes.message());
+    } else {
+        panic error("Expected an error");
     }
 }
 
-function retryError() returns string |error {
+function retrySuccess() returns string |error {
     string str = "start";
     int count = 0;
     retry<MyRetryManager> (3) {
@@ -28,6 +37,20 @@ function retryError() returns string |error {
         if (count < 3) {
             str += (" attempt " + count.toString() + ":error,");
             return trxError();
+        }
+        str += (" attempt "+ count.toString() + ":result returned end.");
+        return str;
+    }
+}
+
+function retryFailure() returns string |error {
+    string str = "start";
+    int count = 0;
+    retry<MyRetryManager> (3) {
+        count = count+1;
+        if (count < 5) {
+            str += (" attempt " + count.toString() + ":error,");
+            fail error("Custom Error");
         }
         str += (" attempt "+ count.toString() + ":result returned end.");
         return str;
