@@ -145,16 +145,52 @@ public class ObjectTypeReferenceTest {
     }
 
     @Test
-    public void testInvalidInclusion() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object_inclusion_negative.bal");
+    public void testInclusionWithQualifiers() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_inclusion_with_qualifiers.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+    }
+
+    @Test
+    public void testInvalidInclusionWithQualifiers() {
+        CompileResult negativeResult =
+                BCompileUtil.compile("test-src/object/object_inclusion_with_qualifiers_negative.bal");
 
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 26, 6);
         BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 27, 6);
         BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 33, 6);
         BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 34, 6);
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 37, 18);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 37, 30);
         BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 43, 21);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated' qualifier" +
+                "(s) in the referencing object", 69, 6);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 69, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'client' qualifier(s) " +
+                "in the referencing object", 70, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'service' qualifier(s)" +
+                " in the referencing object", 71, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated client' " +
+                "qualifier(s) in the referencing object", 72, 6);
+        BAssertUtil.validateError(negativeResult, i++, "remote qualifier only allowed in client and service objects",
+                                  79, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated' qualifier" +
+                "(s) in the referencing object", 85, 6);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 85, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'client' qualifier(s) " +
+                "in the referencing object", 86, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'service' qualifier(s)" +
+                " in the referencing object", 87, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated client' " +
+                "qualifier(s) in the referencing object", 88, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated' qualifier" +
+                "(s) in the referencing object", 91, 18);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION, 91, 18);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'client' qualifier(s) " +
+                "in the referencing object", 95, 24);
+        BAssertUtil.validateError(negativeResult, i++, "remote qualifier only allowed in client and service objects",
+                                  98, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated client' " +
+                "qualifier(s) in the referencing object", 104, 21);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

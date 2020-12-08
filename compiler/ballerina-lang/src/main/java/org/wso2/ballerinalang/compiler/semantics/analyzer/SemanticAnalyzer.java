@@ -468,7 +468,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeClassDefinition(classDefinition);
 
-        checkForReadOnlyClassInclusions(classDefinition.typeRefs);
+        validateInclusions(classDefinition.flagSet, classDefinition.typeRefs);
     }
 
     @Override
@@ -574,7 +574,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions
                 .forEach(func -> validateReferencedFunction(objectTypeNode.pos, func, env));
 
-        checkForReadOnlyClassInclusions(objectTypeNode.typeRefs);
+        validateInclusions(objectTypeNode.flagSet, objectTypeNode.typeRefs);
 
         if (objectTypeNode.initFunction == null) {
             return;
@@ -3407,13 +3407,44 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void checkForReadOnlyClassInclusions(List<BLangType> typeRefs) {
+    private void validateInclusions(Set<Flag> referencingTypeFlags, List<BLangType> typeRefs) {
+        boolean nonIsolated = !referencingTypeFlags.contains(Flag.ISOLATED);
+        boolean nonService = !referencingTypeFlags.contains(Flag.SERVICE);
+        boolean nonClient = !referencingTypeFlags.contains(Flag.CLIENT);
+
         for (BLangType typeRef : typeRefs) {
             BType type = typeRef.type;
+            long flags = type.flags;
+
+            List<Flag> mismatchedFlags = new ArrayList<>();
+
+            if (nonIsolated && Symbols.isFlagOn(flags, Flags.ISOLATED)) {
+                mismatchedFlags.add(Flag.ISOLATED);
+            }
+
+            if (nonService && Symbols.isFlagOn(flags, Flags.SERVICE)) {
+                mismatchedFlags.add(Flag.SERVICE);
+            }
+
+            if (nonClient && Symbols.isFlagOn(flags, Flags.CLIENT)) {
+                mismatchedFlags.add(Flag.CLIENT);
+            }
+
+            if (!mismatchedFlags.isEmpty()) {
+                StringBuilder qualifierString = new StringBuilder(mismatchedFlags.get(0).toString().toLowerCase());
+
+                for (int i = 1; i < mismatchedFlags.size(); i++) {
+                    qualifierString.append(" ").append(mismatchedFlags.get(i).toString().toLowerCase());
+                }
+
+                dlog.error(typeRef.pos, DiagnosticErrorCode.INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS,
+                           qualifierString.toString());
+            }
+
             BTypeSymbol tsymbol = type.tsymbol;
             if (tsymbol == null ||
                     !Symbols.isFlagOn(tsymbol.flags, Flags.CLASS) ||
-                    !Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                    !Symbols.isFlagOn(flags, Flags.READONLY)) {
                 continue;
             }
 

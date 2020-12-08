@@ -538,6 +538,10 @@ public class ImmutableTypeCloner {
         }
         immutableStructureType.fields = fields;
 
+        if (origStructureType.tag == TypeTags.OBJECT) {
+            return;
+        }
+
         BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
                 ASTBuilderUtil.createIdentifier(pos, getPackageAlias(env, pos.lineRange().filePath(),
                                                                      origStructureType.tsymbol.pkgID)),

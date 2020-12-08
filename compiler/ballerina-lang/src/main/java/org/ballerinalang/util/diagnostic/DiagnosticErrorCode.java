@@ -653,6 +653,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3969", "unsupported.rest.path.param.type"),
 
     INVALID_READ_ONLY_CLASS_INCLUSION("BCE3970", "invalid.read.only.class.inclusion"),
+    INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS("BCE3971", "invalid.inclusion.with.mismatched.qualifiers"),
     ;
 
     private String diagnosticId;
