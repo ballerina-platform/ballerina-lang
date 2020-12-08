@@ -494,12 +494,17 @@ public class BIRGen extends BLangNodeVisitor {
 
         for (BAttachedFunction func : ((BObjectTypeSymbol) classDefinition.symbol).referencedFunctions) {
             BInvokableSymbol funcSymbol = func.symbol;
+            if (Symbols.isService(classDefinition.symbol)
+                    && (Symbols.isResource(funcSymbol) || Symbols.isRemote(funcSymbol))
+                    && Symbols.isFunctionDeclaration(funcSymbol)) {
+                // Service classes are not required to implement reference resource and remote functions.
+                continue;
+            }
             BIRFunction birFunc = new BIRFunction(classDefinition.pos, func.funcName, funcSymbol.flags, func.type,
                     names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable(), funcSymbol.origin.toBIROrigin());
 
             if (funcSymbol.receiverSymbol != null) {
-                birFunc.receiver = getSelf(funcSymbol.receiverSymbol
-                );
+                birFunc.receiver = getSelf(funcSymbol.receiverSymbol);
             }
 
             birFunc.setMarkdownDocAttachment(funcSymbol.markdownDocumentation);

@@ -546,10 +546,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (field.flagSet.contains(Flag.PRIVATE)) {
                 this.dlog.error(field.pos, DiagnosticErrorCode.PRIVATE_FIELD_ABSTRACT_OBJECT, field.symbol.name);
             }
-
-//            if (field.expr != null) {
-//                this.dlog.error(field.expr.pos, DiagnosticErrorCode.FIELD_WITH_DEFAULT_VALUE_ABSTRACT_OBJECT);
-//            }
         });
 
         // Visit functions as they are not in the same scope/env as the object fields
@@ -3409,6 +3405,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (!Symbols.isFunctionDeclaration(func.symbol)) {
+            return;
+        }
+
+        // Service typing does not consider remote and resource methods when type checking.
+        if (Symbols.isService(func.symbol.receiverSymbol)
+                && (Symbols.isRemote(func.symbol) || Symbols.isResource(func.symbol))) {
             return;
         }
 

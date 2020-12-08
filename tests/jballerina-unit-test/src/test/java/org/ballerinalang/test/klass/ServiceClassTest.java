@@ -60,6 +60,13 @@ public class ServiceClassTest {
         Assert.assertEquals(index, 3);
     }
 
+    @Test
+    public void testResourceFunctionReferences() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/klass/service_class_resource_remote_function_references_neg.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+    }
+
     @AfterClass
     public void reset() {
         ServiceValue.reset();

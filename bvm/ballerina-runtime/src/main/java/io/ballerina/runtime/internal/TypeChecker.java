@@ -1634,6 +1634,13 @@ public class TypeChecker {
                                                         String targetTypeModule, String sourceTypeModule,
                                                         BObjectType sourceType, BObjectType targetType) {
         for (MemberFunctionType lhsFunc : targetFuncs) {
+            if (SymbolFlags.isFlagOn(targetType.getFlags(), SymbolFlags.SERVICE)) {
+                if (SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.RESOURCE)
+                        || SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.REMOTE)) {
+                    continue;
+                }
+            }
+
             MemberFunctionType rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
                     !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsFunc.getFlags(),
