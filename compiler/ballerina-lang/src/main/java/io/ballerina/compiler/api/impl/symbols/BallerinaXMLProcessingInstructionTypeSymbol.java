@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLProcessingInstructionTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Optional;
 
@@ -46,11 +47,16 @@ public class BallerinaXMLProcessingInstructionTypeSymbol extends AbstractTypeSym
 
     @Override
     public String name() {
-        return "ProcessingInstruction";
+        return Names.STRING_XML_PI;
+    }
+
+    @Override
+    public Kind xmlKind() {
+        return Kind.PROCESSING_INSTRUCTION;
     }
 
     @Override
     public String signature() {
-        return "ProcessingInstruction";
+        return Names.STRING_XML_PI;
     }
 }

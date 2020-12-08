@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTextTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Optional;
 
@@ -44,11 +45,16 @@ public class BallerinaXMLTextTypeSymbol extends AbstractTypeSymbol implements XM
 
     @Override
     public String name() {
-        return "Text";
+        return Names.STRING_XML_TEXT;
+    }
+
+    @Override
+    public Kind xmlKind() {
+        return Kind.TEXT;
     }
 
     @Override
     public String signature() {
-        return "Text";
+        return Names.STRING_XML_TEXT;
     }
 }

@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLCommentTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Optional;
 
@@ -44,11 +45,16 @@ public class BallerinaXMLCommentTypeSymbol extends AbstractTypeSymbol implements
 
     @Override
     public String name() {
-        return "Comment";
+        return Names.STRING_XML_COMMENT;
+    }
+
+    @Override
+    public Kind xmlKind() {
+        return Kind.COMMENT;
     }
 
     @Override
     public String signature() {
-        return "Comment";
+        return Names.STRING_XML_COMMENT;
     }
 }

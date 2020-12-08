@@ -32,4 +32,33 @@ public interface XMLTypeSymbol extends TypeSymbol {
      * @return The type parameter
      */
     Optional<TypeSymbol> typeParameter();
+
+    /**
+     * Retrieves the XML kind represented by the type symbol. Intended to be used when one needs to differentiate
+     * between the different kinds of XML subtypes.
+     *
+     * @return The kind of XML represented
+     */
+    Kind xmlKind();
+
+    /**
+     * Represents the possible XML types.
+     */
+    enum Kind {
+        XML("xml"),
+        ELEMENT("Element"),
+        PROCESSING_INSTRUCTION("ProcessingInstruction"),
+        COMMENT("Comment"),
+        TEXT("Text");
+
+        private final String name;
+
+        Kind(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
 }
