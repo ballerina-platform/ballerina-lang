@@ -6,10 +6,10 @@
   "source": "expression_context/source/query_expr_ctx_source18.bal",
   "items": [
     {
-      "label": "ballerina/lang.array",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'array",
+      "insertText": "'test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -23,7 +23,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'array;\n"
+          "newText": "import ballerina/lang.'test;\n"
         }
       ]
     },
@@ -72,10 +72,10 @@
       ]
     },
     {
-      "label": "ballerina/module1",
+      "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "module1",
+      "insertText": "'array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -89,7 +89,29 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/module1;\n"
+          "newText": "import ballerina/lang.'array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'runtime;\n"
         }
       ]
     },
@@ -116,10 +138,10 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/module1",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'runtime",
+      "insertText": "module1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -133,7 +155,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'runtime;\n"
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -248,13 +270,6 @@
       "kind": "Module",
       "detail": "Module",
       "insertText": "'typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "$anonType$_0",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "$anonType$_0",
       "insertTextFormat": "Snippet"
     },
     {

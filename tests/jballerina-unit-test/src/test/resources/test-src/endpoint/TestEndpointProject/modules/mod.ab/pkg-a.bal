@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 public client class DummyEndpoint {
-    public remote function invoke1 (string a) returns error? {
+    remote function invoke1 (string a) returns error? {
         error e = error("i1");
         return e;
     }
 
-    public remote function invoke2 (string a) returns string {
+    remote function invoke2 (string a) returns string {
         return "done" + a;
     }
 }

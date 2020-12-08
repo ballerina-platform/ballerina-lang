@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.formatter.cli;
 
-import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.tool.BLauncherException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -35,7 +34,7 @@ public class FormatCmdTest {
     private static final String NOT_A_PROJECT = "notAProject";
 
     @Test(description = "Test to check the exception for too many argument provided.")
-    public void formatCLITooManyArgumentsTest() throws FormatterException {
+    public void formatCLITooManyArgumentsTest() {
         Path sourceRoot = RES_DIR.resolve(NOT_A_PROJECT);
         List<String> argList = new ArrayList<>();
         argList.add("pkg2");
@@ -55,7 +54,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for not a ballerina project.")
-    public void formatCLINotAProjectTest() throws FormatterException {
+    public void formatCLINotAProjectTest() {
         Path sourceRoot = RES_DIR.resolve(NOT_A_PROJECT);
         try {
             FormatUtil.execute(null, false, false, sourceRoot);
@@ -72,7 +71,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for not a ballerina project when given a module name.")
-    public void formatCLINotAProjectInModuleTest() throws FormatterException {
+    public void formatCLINotAProjectInModuleTest() {
         Path sourceRoot = RES_DIR.resolve(NOT_A_PROJECT);
         List<String> argList = new ArrayList<>();
         argList.add("pkg1");
@@ -81,8 +80,7 @@ public class FormatCmdTest {
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
-                Assert.assertEquals(exception.get(0), "error: " + Messages.getNotBallerinaProject(),
-                        "actual exception didn't match the expected.");
+                Assert.assertEquals(exception.get(0), "error: couldn't find an existing module by the name: pkg1");
             } else {
                 Assert.fail("failed the test with " + exception.size()
                         + " exceptions where there needs to be 1 exception");
@@ -91,7 +89,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for no ballerina module found for a given module name.")
-    public void formatCLINotAModuleTest() throws FormatterException {
+    public void formatCLINotAModuleTest() {
         Path sourceRoot = RES_DIR.resolve("project");
         List<String> argList = new ArrayList<>();
         argList.add("pkg2");
@@ -110,7 +108,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for file that is not a ballerina file.")
-    public void formatCLINotABalFileTest() throws FormatterException {
+    public void formatCLINotABalFileTest() {
         List<String> argList = new ArrayList<>();
         argList.add(RES_DIR.resolve("invalidFile.txt").toString());
         try {
@@ -129,7 +127,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for no existing ballerina file.")
-    public void formatCLINoBallerinaFileTest() throws FormatterException {
+    public void formatCLINoBallerinaFileTest() {
         List<String> argList = new ArrayList<>();
         argList.add(RES_DIR.resolve("invalidFile.bal").toString());
         try {
@@ -148,11 +146,12 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for no existing ballerina file or module.")
-    public void formatCLINotABallerinaFileOrModuleTest() throws FormatterException {
+    public void formatCLINotABallerinaFileOrModuleTest() {
+        Path sourceRoot = RES_DIR.resolve("project");
         List<String> argList = new ArrayList<>();
         argList.add("invalid.pkg2");
         try {
-            FormatUtil.execute(argList, false, false, RES_DIR);
+            FormatUtil.execute(argList, false, false, sourceRoot);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -167,7 +166,7 @@ public class FormatCmdTest {
     }
 
     @Test(description = "Test to check the exception for general error in File IO or a argument.")
-    public void formatCLIGeneralExceptionTest() throws FormatterException {
+    public void formatCLIGeneralExceptionTest() {
         try {
             FormatUtil.execute(null, false, false, null);
         } catch (BLauncherException e) {

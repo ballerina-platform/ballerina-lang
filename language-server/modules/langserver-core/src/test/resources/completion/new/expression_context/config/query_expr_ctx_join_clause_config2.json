@@ -13,10 +13,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.array",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'array",
+      "insertText": "'test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -30,7 +30,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'array;\n"
+          "newText": "import ballerina/lang.'test;\n"
         }
       ]
     },
@@ -79,10 +79,10 @@
       ]
     },
     {
-      "label": "ballerina/lang.transaction",
+      "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'transaction",
+      "insertText": "'array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -96,7 +96,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'transaction;\n"
+          "newText": "import ballerina/lang.'array;\n"
         }
       ]
     },
@@ -119,6 +119,28 @@
             }
           },
           "newText": "import ballerina/lang.'runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'transaction",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'transaction;\n"
         }
       ]
     },
@@ -233,13 +255,6 @@
       "kind": "Module",
       "detail": "Module",
       "insertText": "'typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "$anonType$_0",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "$anonType$_0",
       "insertTextFormat": "Snippet"
     },
     {

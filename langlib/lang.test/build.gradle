@@ -26,4 +26,12 @@ dependencies {
     implementation 'org.slf4j:slf4j-api'
 }
 
+task updateVersion {
+    ant.replaceregexp(
+            file: "${projectDir}/src/main/ballerina/Ballerina.toml",
+            match: "${project.name}-(.*).jar",
+            replace: "${project.name}-${project.version}.jar"
+    )
+}
+
 description = 'ballerina/lang.test Implementation'

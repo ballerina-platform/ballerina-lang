@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -216,7 +217,8 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         if (PositionUtil.withinBlock(this.linePosition, serviceNode.getPosition())) {
-            SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, this.symbolEnv);
+            SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.getServiceClass().symbol.scope,
+                    this.symbolEnv);
             this.scope = serviceEnv;
             serviceNode.getResources().forEach(function -> this.acceptNode(function, serviceEnv));
             return;
@@ -233,6 +235,11 @@ public class EnvironmentResolver extends BLangNodeVisitor {
             return;
         }
         funcNode.getAnnotationAttachments().forEach(annotation -> this.acceptNode(annotation, this.symbolEnv));
+    }
+
+    @Override
+    public void visit(BLangResourceFunction resourceFunction) {
+        visit((BLangFunction) resourceFunction);
     }
 
     // TODO: Add the expression and the external

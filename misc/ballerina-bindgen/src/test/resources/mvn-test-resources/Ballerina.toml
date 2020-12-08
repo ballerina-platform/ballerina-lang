@@ -5,37 +5,34 @@ version= "0.1.0"
 
 [dependencies]
 
-[platform]
-target = "java11"
+[[platform.java11.dependency]]
+modules = ["balModule1"]
+path = "./lib/snakeyaml-1.25.jar"
 
-    [[platform.libraries]]
-    modules = ["balModule1"]
-    path = "./lib/snakeyaml-1.25.jar"
+[[platform.java11.dependency]]
+groupId = "commons-logging"
+artifactId = "commons-logging"
+version = "1.1.1"
 
-    [[platform.libraries]]
-    groupId = "commons-logging"
-    artifactId = "commons-logging"
-    version = "1.1.1"
+[[platform.java11.dependency]]
+groupId = "org.yaml"
+artifactId = "snakeyaml"
+version = "1.25"
 
-    [[platform.libraries]]
-    groupId = "org.yaml"
-    artifactId = "snakeyaml"
-    version = "1.25"
+# transitive dependency of commons-logging:commons-logging:1.1.1
+[[platform.java11.dependency]]
+groupId = "log4j"
+artifactId = "log4j"
+version = "1.2.12"
 
-    # transitive dependency of commons-logging:commons-logging:1.1.1
-    [[platform.libraries]]
-    groupId = "log4j"
-    artifactId = "log4j"
-    version = "1.2.12"
+# transitive dependency of commons-logging:commons-logging:1.1.1
+[[platform.java11.dependency]]
+groupId = "logkit"
+artifactId = "logkit"
+version = "1.0.1"
 
-    # transitive dependency of commons-logging:commons-logging:1.1.1
-    [[platform.libraries]]
-    groupId = "logkit"
-    artifactId = "logkit"
-    version = "1.0.1"
-
-    # transitive dependency of commons-logging:commons-logging:1.1.1
-    [[platform.libraries]]
-    groupId = "avalon-framework"
-    artifactId = "avalon-framework"
-    version = "4.1.3"
+# transitive dependency of commons-logging:commons-logging:1.1.1
+[[platform.java11.dependency]]
+groupId = "avalon-framework"
+artifactId = "avalon-framework"
+version = "4.1.3"

@@ -237,12 +237,12 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
-                "Creating balos\n" +
-                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
-                "\n" +
                 "Running Tests\n\n" +
                 "\twinery\n" +
                 "\tNo tests found\n" +
+                "\n" +
+                "Creating balo\n" +
+                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");
@@ -269,12 +269,12 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
-                "Creating balos\n" +
-                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
-                "\n" +
                 "Running Tests\n\n" +
                 "\twinery\n" +
                 "\tNo tests found\n" +
+                "\n" +
+                "Creating balo\n" +
+                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");
@@ -302,11 +302,11 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
-                "Creating balos\n" +
-                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
-                "\n" +
                 "Running Tests\n" +
                 "\twinery\n" +
+                "\n" +
+                "Creating balo\n" +
+                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");
@@ -323,6 +323,23 @@ public class BuildCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Build a valid ballerina project")
+    public void testArtifactCreationWhenTestsFail() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithFailingTests");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        // non existing bal file
+        new CommandLine(buildCommand).parse();
+        try {
+            buildCommand.execute();
+            Assert.fail("exception expected");
+        } catch (BLauncherException e) {
+            Assert.assertFalse(projectPath.resolve("target").resolve("balo").resolve("foo-winery-any-0.1.0.balo")
+                    .toFile().exists());
+            Assert.assertFalse(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
+        }
+    }
+
+    @Test(description = "Build a valid ballerina project")
     public void testBuildMultiModuleProject() throws IOException {
         Path projectPath = this.testResources.resolve("validMultiModuleProject");
         System.setProperty("user.dir", projectPath.toString());
@@ -334,24 +351,24 @@ public class BuildCommandTest extends BaseCommandTest {
         String actualOutput1 = "\nCompiling source\n" +
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
-                "Creating balos\n" +
-                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
-                "\n" +
                 "Running Tests\n" +
                 "\twinery\n" +
                 "\twinery.storage\n" +
+                "\n" +
+                "Creating balo\n" +
+                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n";
         String actualOutput2 = "\nCompiling source\n" +
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
-                "Creating balos\n" +
-                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
-                "\n" +
                 "Running Tests\n" +
                 "\twinery.storage\n" +
                 "\twinery\n" +
+                "\n" +
+                "Creating balo\n" +
+                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n";
@@ -388,7 +405,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
-                "Creating balos\n" +
+                "Creating balo\n" +
                 "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
                 "\n" +
                 "Generating executable\n" +
@@ -420,17 +437,17 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
-                "Creating balos\n" +
-                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
-                "\n" +
                 "Running Tests\n" +
                 "\twinery\n" +
                 "\n" +
                 "Generating Test Report\n" +
-                "\t" + projectPath.resolve("target").resolve("test_results.json").toString() + "\n" +
+                "\t" + projectPath.resolve("target").resolve("report").resolve("test_results.json").toString() + "\n" +
                 "\n" +
                 "warning: Could not find the required HTML report tools for code coverage at " +
                 "<ballerina.home>/lib/tools/coverage/report.zip\n" +
+                "\n" +
+                "Creating balo\n" +
+                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");
@@ -448,7 +465,8 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.bir").toFile().exists());
 
-        Assert.assertTrue(projectPath.resolve("target").resolve("test_results.json").toFile().exists());
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("report").resolve("test_results.json").toFile().exists());
     }
 
     @Test(description = "Build a valid ballerina project with build options in toml")
@@ -463,17 +481,17 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
-                "Creating balos\n" +
-                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
-                "\n" +
                 "Running Tests\n" +
                 "\twinery\n" +
                 "\n" +
                 "Generating Test Report\n" +
-                "\t" + projectPath.resolve("target").resolve("test_results.json").toString() + "\n" +
+                "\t" + projectPath.resolve("target").resolve("report").resolve("test_results.json").toString() + "\n" +
                 "\n" +
                 "warning: Could not find the required HTML report tools for code coverage at " +
                 "<ballerina.home>/lib/tools/coverage/report.zip\n" +
+                "\n" +
+                "Creating balo\n" +
+                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");
@@ -491,7 +509,8 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.bir").toFile().exists());
 
-        Assert.assertTrue(projectPath.resolve("target").resolve("test_results.json").toFile().exists());
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("report").resolve("test_results.json").toFile().exists());
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

@@ -32,10 +32,12 @@ import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
@@ -44,7 +46,9 @@ import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
@@ -82,6 +86,8 @@ public class Type {
     public boolean isTuple;
     @Expose
     public boolean isIntersectionType;
+    @Expose
+    public boolean isParenthesisedType;
     @Expose
     public boolean isRestParam;
     @Expose
@@ -134,10 +140,8 @@ public class Type {
             Optional<Symbol> symbol = null;
             try {
                     symbol = semanticModel.symbol(fileName,
-                            LinePosition.from(qualifiedNameReferenceNode.parent().children().get(1).lineRange()
-                                            .startLine().line(),
-                                    qualifiedNameReferenceNode.parent().children().get(1).lineRange().startLine()
-                                            .offset()));
+                            LinePosition.from(qualifiedNameReferenceNode.identifier().lineRange().startLine().line(),
+                                    qualifiedNameReferenceNode.identifier().lineRange().startLine().offset()));
 
             } catch (NullPointerException nullException) {
                 System.out.print(Arrays.toString(nullException.getStackTrace()));
@@ -148,6 +152,13 @@ public class Type {
         } else if (node instanceof BuiltinSimpleNameReferenceNode) {
             BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode = (BuiltinSimpleNameReferenceNode) node;
             type.name = builtinSimpleNameReferenceNode.name().text();
+            type.category = "builtin";
+        } else if (node instanceof XmlTypeDescriptorNode) {
+            XmlTypeDescriptorNode xmlType = (XmlTypeDescriptorNode) node;
+            type.name = xmlType.xmlKeywordToken().text();
+            type.category = "builtin";
+        } else if (node instanceof NilTypeDescriptorNode) {
+            type.name = node.toString();
             type.category = "builtin";
         } else if (node instanceof ArrayTypeDescriptorNode) {
             ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
@@ -219,6 +230,15 @@ public class Type {
             SingletonTypeDescriptorNode singletonTypeDesc = (SingletonTypeDescriptorNode) node;
             type.name = singletonTypeDesc.simpleContExprNode().toString();
             type.category = "builtin";
+        } else if (node instanceof ParenthesisedTypeDescriptorNode) {
+            ParenthesisedTypeDescriptorNode parenthesisedNode = (ParenthesisedTypeDescriptorNode) node;
+            type.elementType = fromNode(parenthesisedNode.typedesc(), semanticModel, fileName);
+            type.isParenthesisedType = true;
+        } else if (node instanceof TupleTypeDescriptorNode) {
+            TupleTypeDescriptorNode typeDescriptor = (TupleTypeDescriptorNode) node;
+            type.memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(memberType ->
+                    Type.fromNode(memberType, semanticModel, fileName)).collect(Collectors.toList()));
+            type.isTuple = true;
         } else {
             type.category = "UNKNOWN";
         }
@@ -245,7 +265,7 @@ public class Type {
             if (typeDescriptor.typeKind().equals(TypeDescKind.RECORD)) {
                 return "records";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.OBJECT)) {
-                return "abstractobjects";
+                return "abstractObjects";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.ERROR)) {
                 return "errors";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.UNION)) {

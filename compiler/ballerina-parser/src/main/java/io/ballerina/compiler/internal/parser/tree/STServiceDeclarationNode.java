@@ -34,27 +34,36 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
     public final STNode qualifiers;
     public final STNode serviceKeyword;
-    public final STNode serviceName;
+    public final STNode typeDescriptor;
+    public final STNode absoluteResourcePath;
     public final STNode onKeyword;
     public final STNode expressions;
-    public final STNode serviceBody;
+    public final STNode openBraceToken;
+    public final STNode members;
+    public final STNode closeBraceToken;
 
     STServiceDeclarationNode(
             STNode metadata,
             STNode qualifiers,
             STNode serviceKeyword,
-            STNode serviceName,
+            STNode typeDescriptor,
+            STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
-            STNode serviceBody) {
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken) {
         this(
                 metadata,
                 qualifiers,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody,
+                openBraceToken,
+                members,
+                closeBraceToken,
                 Collections.emptyList());
     }
 
@@ -62,28 +71,37 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             STNode metadata,
             STNode qualifiers,
             STNode serviceKeyword,
-            STNode serviceName,
+            STNode typeDescriptor,
+            STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
-            STNode serviceBody,
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.SERVICE_DECLARATION, diagnostics);
         this.metadata = metadata;
         this.qualifiers = qualifiers;
         this.serviceKeyword = serviceKeyword;
-        this.serviceName = serviceName;
+        this.typeDescriptor = typeDescriptor;
+        this.absoluteResourcePath = absoluteResourcePath;
         this.onKeyword = onKeyword;
         this.expressions = expressions;
-        this.serviceBody = serviceBody;
+        this.openBraceToken = openBraceToken;
+        this.members = members;
+        this.closeBraceToken = closeBraceToken;
 
         addChildren(
                 metadata,
                 qualifiers,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody);
+                openBraceToken,
+                members,
+                closeBraceToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -91,10 +109,13 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 this.metadata,
                 this.qualifiers,
                 this.serviceKeyword,
-                this.serviceName,
+                this.typeDescriptor,
+                this.absoluteResourcePath,
                 this.onKeyword,
                 this.expressions,
-                this.serviceBody,
+                this.openBraceToken,
+                this.members,
+                this.closeBraceToken,
                 diagnostics);
     }
 
@@ -102,18 +123,24 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             STNode metadata,
             STNode qualifiers,
             STNode serviceKeyword,
-            STNode serviceName,
+            STNode typeDescriptor,
+            STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
-            STNode serviceBody) {
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken) {
         if (checkForReferenceEquality(
                 metadata,
                 qualifiers,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody)) {
+                openBraceToken,
+                members,
+                closeBraceToken)) {
             return this;
         }
 
@@ -121,10 +148,13 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 metadata,
                 qualifiers,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody,
+                openBraceToken,
+                members,
+                closeBraceToken,
                 diagnostics);
     }
 

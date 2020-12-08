@@ -18,7 +18,7 @@
 
 package org.ballerina.testobserve.listenerendpoint;
 
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BObject;
 
@@ -38,7 +38,7 @@ public class Service {
     public Service(BObject serviceObject) {
         this.serviceObject = serviceObject;
         this.serviceName = Utils.getServiceName(serviceObject);
-        for (AttachedFunctionType attachedFunction : serviceObject.getType().getAttachedFunctions()) {
+        for (MemberFunctionType attachedFunction : serviceObject.getType().getAttachedFunctions()) {
             int paramCount = attachedFunction.getParameterTypes().length;
             if (paramCount > 2) {
                 throw new IllegalArgumentException("Invalid number of arguments in resource function "

@@ -18,7 +18,7 @@ import ballerina/test;
 import object_mocking.TestHttpClient;
 
 public client class MockHttpClientSigErr {
-     public remote function get(int path) returns string {
+     remote function get(int path) returns string {
           return "/error";
      }
 }

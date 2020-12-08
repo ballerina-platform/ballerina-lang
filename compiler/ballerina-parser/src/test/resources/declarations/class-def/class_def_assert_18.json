@@ -90,6 +90,10 @@
                   "kind": "OBJECT_FIELD",
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "STRING_TYPE_DESC",
                       "children": [
                         {
@@ -215,6 +219,10 @@
                 {
                   "kind": "OBJECT_FIELD",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "STRING_TYPE_DESC",
                       "children": [

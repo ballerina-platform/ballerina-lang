@@ -647,6 +647,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "only.simple.variables.are.allowed.to.be.configurable"),
     CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED("BCE3966",
             "configurable.variable.currently.not.supported"),
+
+    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3967", "remote.function.in.non.network.object"),
+    UNSUPPORTED_PATH_PARAM_TYPE("BCE3968", "unsupported.path.param.type"),
+    UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3969", "unsupported.rest.path.param.type"),
     ;
 
     private String diagnosticId;

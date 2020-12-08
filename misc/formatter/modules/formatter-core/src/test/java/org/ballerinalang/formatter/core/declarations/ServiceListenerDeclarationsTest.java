@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Test the formatting of service and listener declarations.
@@ -43,5 +45,12 @@ public class ServiceListenerDeclarationsTest extends FormatterTest {
     @Override
     public String getTestResourceDir() {
         return Paths.get("declarations", "service-listener").toString();
+    }
+
+    @Override
+    public List<String> skipList() {
+        return Arrays.asList(
+                "service_listener_declaration_1.bal"
+        );
     }
 }

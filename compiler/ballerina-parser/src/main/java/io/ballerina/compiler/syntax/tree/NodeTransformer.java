@@ -268,10 +268,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(typeReferenceNode);
     }
 
-    public T transform(ServiceBodyNode serviceBodyNode) {
-        return transformSyntaxNode(serviceBodyNode);
-    }
-
     public T transform(AnnotationNode annotationNode) {
         return transformSyntaxNode(annotationNode);
     }
@@ -704,10 +700,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(transactionalExpressionNode);
     }
 
-    public T transform(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        return transformSyntaxNode(serviceConstructorExpressionNode);
-    }
-
     public T transform(ByteArrayLiteralNode byteArrayLiteralNode) {
         return transformSyntaxNode(byteArrayLiteralNode);
     }
@@ -808,8 +800,16 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(classDefinitionNode);
     }
 
+    public T transform(ResourcePathParameterNode resourcePathParameterNode) {
+        return transformSyntaxNode(resourcePathParameterNode);
+    }
+
     public T transform(RequiredExpressionNode requiredExpressionNode) {
         return transformSyntaxNode(requiredExpressionNode);
+    }
+
+    public T transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        return transformSyntaxNode(errorConstructorExpressionNode);
     }
 
     // Tokens

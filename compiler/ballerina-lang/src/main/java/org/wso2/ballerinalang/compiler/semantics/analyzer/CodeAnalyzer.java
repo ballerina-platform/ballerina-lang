@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -436,6 +437,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeNode(bLangErrorVariableDef.errorVariable, this.env);
     }
 
+    public void visit(BLangResourceFunction funcNode) {
+        visit((BLangFunction) funcNode);
+    }
+
     @Override
     public void visit(BLangFunction funcNode) {
         boolean isLambda = funcNode.flagSet.contains(Flag.LAMBDA);
@@ -623,7 +628,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithinTransactionCheckStack.pop();
         this.loopWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
-        transactionNode.transactionBody.isBreakable = transactionNode.onFailClause != null;
         analyzeOnFailClause(transactionNode.onFailClause);
         this.errorTypes.pop();
     }

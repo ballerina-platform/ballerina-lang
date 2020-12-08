@@ -24,7 +24,6 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
@@ -70,17 +69,10 @@ public class HoverUtil {
             // Handle Listener and Enum
             case FUNCTION:
                 return getFunctionHoverMarkupContent((FunctionSymbol) symbolAtCursor.get());
+            case TYPE_DEFINITION:
+                return getTypeDefHoverMarkupContent(((TypeDefinitionSymbol) symbolAtCursor.get()).typeDescriptor());
             case TYPE:
-                TypeSymbol typeSymbol;
-                if (symbolAtCursor.get() instanceof TypeReferenceTypeSymbol) {
-                    typeSymbol = ((TypeReferenceTypeSymbol) symbolAtCursor.get()).typeDescriptor();
-
-                } else if (symbolAtCursor.get() instanceof TypeDefinitionSymbol) {
-                    typeSymbol = ((TypeDefinitionSymbol) symbolAtCursor.get()).typeDescriptor();
-                } else {
-                    typeSymbol = (TypeSymbol) symbolAtCursor.get();
-                }
-                return getTypeDefHoverMarkupContent(typeSymbol);
+                return getTypeDefHoverMarkupContent(CommonUtil.getRawType((TypeSymbol) symbolAtCursor.get()));
             case CLASS:
                 return getClassHoverMarkupContent((ClassSymbol) symbolAtCursor.get());
             case CONSTANT:

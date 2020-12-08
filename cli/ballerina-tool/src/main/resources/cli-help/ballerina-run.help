@@ -4,13 +4,13 @@ NAME
 SYNOPSIS
        ballerina run [<options>]
                      <ballerina-file-path> | <executable-jar> [<arguments>] [<config properties>]
-       ballerina run [<options>] <.> [<arguments>] [<config properties>]
+       ballerina run [<options>] <.> | <ballerina-package-path> [<arguments>] [<config properties>]
 
 
 DESCRIPTION
        Run builds and executes the given .bal file, package, or program.
 
-       If a Ballerina source file (.bal file) or a project directory is given, the run
+       If a Ballerina source file (.bal file) or a package directory is given, the run
        command builds and runs it. Compilation is done internally and the
        executable will not be created.
 
