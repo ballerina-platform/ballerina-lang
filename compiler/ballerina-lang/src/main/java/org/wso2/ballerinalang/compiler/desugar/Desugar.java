@@ -3702,7 +3702,7 @@ public class Desugar extends BLangNodeVisitor {
                 Lists.of(errorVar), onFailReturnType, onFailClause.body.stmts,
                 env, onFailClause.body.scope);
 
-        onFailFunc.capturedClosureEnv = env.createClone();
+        onFailFunc.capturedClosureEnv = env;
         onFailFunc.parent = env.enclInvokable;
         BLangSimpleVarRef thrownErrorRef = ASTBuilderUtil.createVariableRef(onFailClause.pos, errorVar.symbol);
         onFailErrorVariableDef.var.expr = addConversionExprIfRequired(thrownErrorRef, onFailErrorVariableDef.var.type);
