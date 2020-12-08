@@ -49,7 +49,7 @@ public class JBallerinaBaloWriter extends BaloWriter {
     protected Optional<JsonArray> addPlatformLibs(ZipOutputStream baloOutputStream)
             throws IOException {
         // retrieve platform dependencies that have default scope
-        Collection<PlatformLibrary> jars = backend.platformLibraryDependencies(pkg.packageId(),
+        Collection<PlatformLibrary> jars = backend.platformLibraryDependencies(packageContext.packageId(),
                 PlatformLibraryScope.DEFAULT);
         if (jars.isEmpty()) {
             return Optional.empty();

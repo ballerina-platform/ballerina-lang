@@ -241,7 +241,7 @@ public class BuildCommandTest extends BaseCommandTest {
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
                 "Creating balos\n" +
-                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
+                "\ttarget/balo/foo-winery-java11-0.1.0.balo\n" +
                 "\n" +
                 "Running Tests\n\n" +
                 "\twinery\n" +

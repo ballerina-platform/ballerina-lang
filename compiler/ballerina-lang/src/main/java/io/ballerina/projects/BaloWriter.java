@@ -85,7 +85,7 @@ public abstract class BaloWriter {
      *
      * @param baloPath Directory where the .balo should be created.
      */
-    public void write(Path baloPath) {
+    public Path write(Path baloPath) {
         String baloName = getBaloName(this.packageContext.packageOrg().value(),
                                       this.packageContext.packageName().value(),
                                       this.packageContext.packageVersion().value().toString(),
@@ -106,6 +106,7 @@ public abstract class BaloWriter {
             }
             throw be;
         }
+        return baloPath.resolve(baloName);
     }
 
     private void populateBaloArchive(ZipOutputStream baloOutputStream)
