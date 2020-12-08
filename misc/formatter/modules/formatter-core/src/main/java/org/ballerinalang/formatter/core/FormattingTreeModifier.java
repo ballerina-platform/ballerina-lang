@@ -2797,8 +2797,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ReceiveActionNode transform(ReceiveActionNode receiveActionNode) {
         Token leftArrow = formatToken(receiveActionNode.leftArrow(), 1, 0);
-        SimpleNameReferenceNode receiveWorkers = formatNode(receiveActionNode.receiveWorkers(),
-                env.trailingWS, env.trailingNL);
+        Node receiveWorkers = formatNode(receiveActionNode.receiveWorkers(), env.trailingWS, env.trailingNL);
         return receiveActionNode.modify()
                 .withLeftArrow(leftArrow)
                 .withReceiveWorkers(receiveWorkers)
