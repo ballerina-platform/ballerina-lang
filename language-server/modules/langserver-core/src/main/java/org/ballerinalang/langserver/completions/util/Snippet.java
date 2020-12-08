@@ -50,57 +50,57 @@ public enum Snippet {
 
     DEF_ERROR_TYPE_DESC(SnippetGenerator.getErrorTypeDescSnippet()),
 
-    DEF_RESOURCE_HTTP(SnippetGenerator.getResourceDefinitionSnippet()),
+//    DEF_RESOURCE_HTTP(SnippetGenerator.getResourceDefinitionSnippet()),
+//
+//    DEF_RESOURCE_COMMON(SnippetGenerator.getCommonResourceDefinitionSnippet()),
+//
+//    DEF_RESOURCE_GRPC(SnippetGenerator.getGRPCResourceDefinitionSnippet()),
+//
+//    DEF_RESOURCE_WS_OPEN(SnippetGenerator.getWebSocketResourceOnOpenSnippet()),
+//
+//    DEF_RESOURCE_WS_TEXT(SnippetGenerator.getWebSocketResourceOnTextSnippet()),
+//
+//    DEF_RESOURCE_WS_BINARY(SnippetGenerator.getWebSocketResourceOnBinarySnippet()),
+//
+//    DEF_RESOURCE_WS_PING(SnippetGenerator.getWebSocketResourceOnPingSnippet()),
+//
+//    DEF_RESOURCE_WS_PONG(SnippetGenerator.getWebSocketResourceOnPongSnippet()),
+//
+//    DEF_RESOURCE_WS_IDLE(SnippetGenerator.getWebSocketResourceOnIdleTimeoutSnippet()),
+//
+//    DEF_RESOURCE_WS_ERROR(SnippetGenerator.getWebSocketResourceOnErrorSnippet()),
+//
+//    DEF_RESOURCE_WS_CLOSE(SnippetGenerator.getWebSocketResourceOnCloseSnippet()),
+//
+//    DEF_RESOURCE_WS_CS_TEXT(SnippetGenerator.getWebSocketClientServiceResourceOnTextSnippet()),
+//
+//    DEF_RESOURCE_WS_CS_BINARY(SnippetGenerator.getWebSocketClientServiceResourceOnBinarySnippet()),
+//
+//    DEF_RESOURCE_WS_CS_PING(SnippetGenerator.getWebSocketClientServiceResourceOnPingSnippet()),
+//
+//    DEF_RESOURCE_WS_CS_PONG(SnippetGenerator.getWebSocketClientServiceResourceOnPongSnippet()),
+//
+//    DEF_RESOURCE_WS_CS_IDLE(SnippetGenerator.getWebSocketClientServiceResourceOnIdleTimeoutSnippet()),
+//
+//    DEF_RESOURCE_WS_CS_ERROR(SnippetGenerator.getWebSocketClientServiceResourceOnErrorSnippet()),
+//
+//    DEF_RESOURCE_WS_CS_CLOSE(SnippetGenerator.getWebSocketClientServiceResourceOnCloseSnippet()),
+//
+//    DEF_RESOURCE_WEBSUB_INTENT(SnippetGenerator.getWebSubResourceOnIntentVerificationSnippet()),
+//
+//    DEF_RESOURCE_WEBSUB_NOTIFY(SnippetGenerator.getWebSubResourceOnNotificationSnippet()),
 
-    DEF_RESOURCE_COMMON(SnippetGenerator.getCommonResourceDefinitionSnippet()),
+//    DEF_SERVICE(SnippetGenerator.getServiceDefSnippet()),
 
-    DEF_RESOURCE_GRPC(SnippetGenerator.getGRPCResourceDefinitionSnippet()),
+//    DEF_SERVICE_VAR(SnippetGenerator.getServiceVarSnippet()),
 
-    DEF_RESOURCE_WS_OPEN(SnippetGenerator.getWebSocketResourceOnOpenSnippet()),
+//    DEF_SERVICE_WEBSOCKET(SnippetGenerator.getWebSocketServiceDefSnippet()),
 
-    DEF_RESOURCE_WS_TEXT(SnippetGenerator.getWebSocketResourceOnTextSnippet()),
+//    DEF_SERVICE_WS_CLIENT(SnippetGenerator.getWebSocketClientServiceDefSnippet()),
 
-    DEF_RESOURCE_WS_BINARY(SnippetGenerator.getWebSocketResourceOnBinarySnippet()),
+//    DEF_SERVICE_WEBSUB(SnippetGenerator.getWebSubServiceDefSnippet()),
 
-    DEF_RESOURCE_WS_PING(SnippetGenerator.getWebSocketResourceOnPingSnippet()),
-
-    DEF_RESOURCE_WS_PONG(SnippetGenerator.getWebSocketResourceOnPongSnippet()),
-
-    DEF_RESOURCE_WS_IDLE(SnippetGenerator.getWebSocketResourceOnIdleTimeoutSnippet()),
-
-    DEF_RESOURCE_WS_ERROR(SnippetGenerator.getWebSocketResourceOnErrorSnippet()),
-
-    DEF_RESOURCE_WS_CLOSE(SnippetGenerator.getWebSocketResourceOnCloseSnippet()),
-
-    DEF_RESOURCE_WS_CS_TEXT(SnippetGenerator.getWebSocketClientServiceResourceOnTextSnippet()),
-
-    DEF_RESOURCE_WS_CS_BINARY(SnippetGenerator.getWebSocketClientServiceResourceOnBinarySnippet()),
-
-    DEF_RESOURCE_WS_CS_PING(SnippetGenerator.getWebSocketClientServiceResourceOnPingSnippet()),
-
-    DEF_RESOURCE_WS_CS_PONG(SnippetGenerator.getWebSocketClientServiceResourceOnPongSnippet()),
-
-    DEF_RESOURCE_WS_CS_IDLE(SnippetGenerator.getWebSocketClientServiceResourceOnIdleTimeoutSnippet()),
-
-    DEF_RESOURCE_WS_CS_ERROR(SnippetGenerator.getWebSocketClientServiceResourceOnErrorSnippet()),
-
-    DEF_RESOURCE_WS_CS_CLOSE(SnippetGenerator.getWebSocketClientServiceResourceOnCloseSnippet()),
-
-    DEF_RESOURCE_WEBSUB_INTENT(SnippetGenerator.getWebSubResourceOnIntentVerificationSnippet()),
-
-    DEF_RESOURCE_WEBSUB_NOTIFY(SnippetGenerator.getWebSubResourceOnNotificationSnippet()),
-
-    DEF_SERVICE(SnippetGenerator.getServiceDefSnippet()),
-
-    DEF_SERVICE_VAR(SnippetGenerator.getServiceVarSnippet()),
-
-    DEF_SERVICE_WEBSOCKET(SnippetGenerator.getWebSocketServiceDefSnippet()),
-
-    DEF_SERVICE_WS_CLIENT(SnippetGenerator.getWebSocketClientServiceDefSnippet()),
-
-    DEF_SERVICE_WEBSUB(SnippetGenerator.getWebSubServiceDefSnippet()),
-
-    DEF_SERVICE_GRPC(SnippetGenerator.getGRPCServiceDefSnippet()),
+//    DEF_SERVICE_GRPC(SnippetGenerator.getGRPCServiceDefSnippet()),
 
     DEF_CLASS(SnippetGenerator.getClassDefSnippet()),
 

@@ -263,6 +263,13 @@
       "detail": "Module",
       "insertText": "'typedesc",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "on",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "on ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

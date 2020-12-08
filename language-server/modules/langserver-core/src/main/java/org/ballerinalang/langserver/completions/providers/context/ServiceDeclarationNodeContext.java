@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
@@ -77,6 +79,7 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
             List<Symbol> typeDescs = ModulePartNodeContextUtil.serviceTypeDescContextSymbols(context);
             List<LSCompletionItem> cItems = this.getCompletionItemList(typeDescs, context);
             cItems.addAll(this.getModuleCompletionItems(context));
+            cItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
 
             return cItems;
         }
@@ -107,8 +110,14 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
 
             return completionItems;
         }
-
-        return Collections.emptyList();
+        
+        /*
+        Covers the following cases
+        Eg:
+        (1) service / m<cursor>
+        function ...
+         */
+        return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
     }
 
     private boolean onTypeDescContext(CompletionContext context, ServiceDeclarationNode node) {
@@ -116,10 +125,13 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
         Token onKeyword = node.onKeyword();
         Token serviceKeyword = node.serviceKeyword();
         Optional<TypeDescriptorNode> tDesc = node.typeDescriptor();
+        NodeList<Node> resourcePath = node.absoluteResourcePath();
+        boolean afterResourcePath = resourcePath.isEmpty()
+                || cursor >= resourcePath.get(resourcePath.size() - 1).textRange().endOffset() + 1;
+        boolean afterTypeDesc = tDesc.isEmpty() || cursor < tDesc.get().textRange().endOffset() + 1;
+        boolean beforeOnKw = (onKeyword.isMissing() || onKeyword.textRange().startOffset() > cursor);
 
-        return cursor > serviceKeyword.textRange().endOffset()
-                && ((!onKeyword.isMissing() && onKeyword.textRange().startOffset() > cursor) || onKeyword.isMissing())
-                && (tDesc.isEmpty() || cursor < tDesc.get().textRange().endOffset() + 1);
+        return cursor > serviceKeyword.textRange().endOffset() && beforeOnKw && afterTypeDesc && afterResourcePath;
     }
 
     @Override
