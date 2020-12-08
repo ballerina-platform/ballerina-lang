@@ -31,7 +31,6 @@
                 <exclude name="brokenOnNewParser"/>
                 <exclude name="brokenOnErrorChange"/>
                 <exclude name="brokenOnClassChange"/>
-                <exclude name="disabledOnServiceChange"/>
             </run>
         </groups>
         <packages>

@@ -1629,13 +1629,9 @@ public class JvmInstructionGen {
             this.mv.visitInsn(DUP);
             this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
 
-            String pkgClassName;
-            if (packageID == null) {
-                pkgClassName = MODULE_INIT_CLASS_NAME;
-            } else {
-                String packageName = JvmCodeGenUtil.getPackageName(packageID);
-                pkgClassName = jvmPackageGen.lookupGlobalVarClassName(packageName, ANNOTATION_MAP_NAME);
-            }
+            String pkgClassName = currentPackageName.equals(".") || currentPackageName.equals("") ?
+                    MODULE_INIT_CLASS_NAME : jvmPackageGen.lookupGlobalVarClassName(currentPackageName,
+                    ANNOTATION_MAP_NAME);
 
             this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
             mv.visitVarInsn(ALOAD, strandIndex);

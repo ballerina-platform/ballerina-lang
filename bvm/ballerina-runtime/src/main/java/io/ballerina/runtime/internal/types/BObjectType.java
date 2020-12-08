@@ -137,7 +137,7 @@ public class BObjectType extends BStructureType implements ObjectType {
     }
 
     public void processObjectCtorAnnots(MapValue globalAnnotationMap, Strand strand) {
-        AnnotationUtils.processServiceOrObjectCtorAnnotations(globalAnnotationMap, this, strand);
+        AnnotationUtils.processObjectCtorAnnotations(globalAnnotationMap, this, strand);
     }
 
     public boolean hasAnnotations() {
