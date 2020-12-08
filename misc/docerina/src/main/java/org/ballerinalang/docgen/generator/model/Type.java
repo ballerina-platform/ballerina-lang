@@ -139,10 +139,8 @@ public class Type {
             Optional<Symbol> symbol = null;
             try {
                     symbol = semanticModel.symbol(fileName,
-                            LinePosition.from(qualifiedNameReferenceNode.parent().children().get(1).lineRange()
-                                            .startLine().line(),
-                                    qualifiedNameReferenceNode.parent().children().get(1).lineRange().startLine()
-                                            .offset()));
+                            LinePosition.from(qualifiedNameReferenceNode.identifier().lineRange().startLine().line(),
+                                    qualifiedNameReferenceNode.identifier().lineRange().startLine().offset()));
 
             } catch (NullPointerException nullException) {
                 System.out.print(Arrays.toString(nullException.getStackTrace()));
