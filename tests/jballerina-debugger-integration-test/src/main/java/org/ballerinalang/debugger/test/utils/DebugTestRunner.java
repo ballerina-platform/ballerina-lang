@@ -46,6 +46,7 @@ import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
+import org.testng.asserts.SoftAssert;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,21 +68,22 @@ import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
  */
 public class DebugTestRunner {
 
-    static BalServer balServer;
-    TestDAPClientConnector debugClientConnector;
     public List<BallerinaTestDebugPoint> testBreakpoints = new ArrayList<>();
-    boolean isConnected = false;
-    int port;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
-    protected static final int MAX_RETRY_COUNT = 3;
-    private BMainInstance balClient = null;
-    private Process debuggeeProcess;
-    DebugHitListener listener;
-
-    static Path testProjectBaseDir;
-    static Path testSingleFileBaseDir;
     public String testProjectPath;
     public String testEntryFilePath;
+
+    private static Path testProjectBaseDir;
+    private static Path testSingleFileBaseDir;
+    private static BalServer balServer;
+    private TestDAPClientConnector debugClientConnector;
+    private boolean isConnected = false;
+    private int port;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
+    private static final int MAX_RETRY_COUNT = 3;
+    private BMainInstance balClient = null;
+    private Process debuggeeProcess;
+    private DebugHitListener listener;
+    private SoftAssert softAsserter;
 
     public DebugTestRunner(String testProjectName, String testModuleFileName, boolean isProjectBasedTest) {
         if (isProjectBasedTest) {
@@ -92,7 +94,6 @@ public class DebugTestRunner {
             testEntryFilePath = Paths.get(testSingleFileBaseDir.toString(), testModuleFileName).toString();
         }
     }
-
 
     public static void initialize() throws BallerinaTestException, IOException {
         balServer = new BalServer();
@@ -454,8 +455,8 @@ public class DebugTestRunner {
     public void assertExpression(StoppedEventArguments context, String expression, String resultValue,
                                  String resultType) throws BallerinaTestException {
         Variable result = evaluateExpression(context, expression);
-        Assert.assertEquals(result.getValue(), resultValue);
-        Assert.assertEquals(result.getType(), resultType);
+        softAsserter.assertEquals(result.getValue(), resultValue);
+        softAsserter.assertEquals(result.getType(), resultType);
     }
 
     /**
@@ -469,8 +470,8 @@ public class DebugTestRunner {
     public void assertEvaluationError(StoppedEventArguments context, String expression, String errorMessage)
         throws BallerinaTestException {
         Variable result = evaluateExpression(context, expression);
-        Assert.assertEquals(result.getValue(), errorMessage);
-        Assert.assertTrue(result.getType().equals("string") || result.getType().equals("error"));
+        softAsserter.assertEquals(result.getValue(), errorMessage);
+        softAsserter.assertTrue(result.getType().equals("string") || result.getType().equals("error"));
     }
 
     /**
@@ -548,6 +549,14 @@ public class DebugTestRunner {
             balClient.terminateProcess(debuggeeProcess, String.valueOf(port));
             balClient = null;
         }
+    }
+
+    public void beginSoftAssertions() {
+        softAsserter = new SoftAssert();
+    }
+
+    public void endSoftAssertions() {
+        softAsserter.assertAll();
     }
 
     /**
