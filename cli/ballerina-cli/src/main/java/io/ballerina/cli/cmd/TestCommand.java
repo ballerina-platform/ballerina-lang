@@ -150,7 +150,7 @@ public class TestCommand implements BLauncherCmd {
             this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         } else {
             if (ProjectUtils.isBallerinaProject(this.projectPath) &&
-                    !ProjectUtils.isBallerinaProject(Paths.get(this.argList.get(0)))) {
+                    (this.argList.size() == 1) && !ProjectUtils.isBallerinaProject(Paths.get(this.argList.get(0)))) {
                 args = new String[0];
                 moduleName = argList.get(0);
                 isModule = true;
@@ -190,7 +190,7 @@ public class TestCommand implements BLauncherCmd {
                 return;
             }
             isSingleFile = true;
-        } else if (isModule == true) {
+        } else if (isModule) {
             try {
                 project = BuildProject.load(this.projectPath, buildOptions);
                 

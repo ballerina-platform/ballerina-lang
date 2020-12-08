@@ -24,6 +24,8 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
+
 
 /**
  * Test class to test Module test execution.
@@ -43,26 +45,31 @@ public class ModuleExecutionTest extends BaseTestCase {
     public void test_SingleModuleTestExecution() throws BallerinaTestException {
         String msg1 = "module_execution_tests.Module1";
         String msg2 = "1 passing";
-
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
-
         balClient.runMain("test", new String[]{"Module1"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
     }
 
-    @Test(enabled = false)
+    @Test()
     public void test_NonExistingModuleTextExecution() throws BallerinaTestException {
         String msg1 = "error: Cannot execute module ModuleA. Does not exist in the modules directory";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-
-        balClient.runMain("test", new String[]{"ModuleA"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher1}, projectPath);
-
-        clientLeecher1.waitForText(40000);
+        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"ModuleA"}, new HashMap<>(),
+                projectPath, true);
+        if (!errorOutput.contains(msg1)) {
+            throw new BallerinaTestException("Test failed since correct error message was not read");
+        }
     }
 
+    @Test()
+    public void test_TooManyModuleArguements() throws BallerinaTestException {
+        String msg1 = "ballerina: too many arguments.";
+        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"Module1", "Module2"}, new HashMap<>(),
+                projectPath, true);
+        if (!errorOutput.contains(msg1)) {
+            throw new BallerinaTestException("Test failed since correct error message was not read");
+        }
+    }
 }

@@ -203,7 +203,6 @@ public class RunTestsTask implements Task {
             if (isSingleTestExecution || isRerunTestExecution) {
                 suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
             }
-
             suite.setReportRequired(report || coverage);
             Collection<Path> dependencies = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
