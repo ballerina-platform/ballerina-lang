@@ -60,12 +60,18 @@ public class SemanticVersion {
         return version.getPatchVersion();
     }
 
-    public String preReleaseVersion() {
+    public String preReleasePart() {
         return version.getPreReleaseVersion();
     }
 
     public String buildMetadata() {
         return version.getBuildMetadata();
+    }
+
+    public boolean isStable() {
+        String preReleaseComp = version.getPreReleaseVersion();
+        String buildMetadata = version.getBuildMetadata();
+        return isNullOrEmpty(preReleaseComp) && isNullOrEmpty(buildMetadata);
     }
 
     @Override
@@ -100,11 +106,11 @@ public class SemanticVersion {
         }
 
         // Versions cannot be equal from this point onwards
-        if (this.major() == 0 && other.major() == 0) {
+        if ((this.major() == 0 && other.major() == 0) || this.major() != other.major()) {
             return VersionCompatibilityResult.INCOMPATIBLE;
         }
 
-        if (this.major() != other.major()) {
+        if (!this.isStable() || !other.isStable()) {
             return VersionCompatibilityResult.INCOMPATIBLE;
         }
 
@@ -116,6 +122,10 @@ public class SemanticVersion {
         } else {
             return VersionCompatibilityResult.GREATER_THAN;
         }
+    }
+
+    private static boolean isNullOrEmpty(String value) {
+        return value == null || value.trim().isEmpty();
     }
 
     /**
