@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
@@ -155,6 +156,9 @@ public class Type {
         } else if (node instanceof XmlTypeDescriptorNode) {
             XmlTypeDescriptorNode xmlType = (XmlTypeDescriptorNode) node;
             type.name = xmlType.xmlKeywordToken().text();
+            type.category = "builtin";
+        } else if (node instanceof NilTypeDescriptorNode) {
+            type.name = node.toString();
             type.category = "builtin";
         } else if (node instanceof ArrayTypeDescriptorNode) {
             ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
