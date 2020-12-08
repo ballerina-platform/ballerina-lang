@@ -74,6 +74,22 @@ public class SemanticVersion {
         return isNullOrEmpty(preReleaseComp) && isNullOrEmpty(buildMetadata);
     }
 
+    public boolean greaterThan(SemanticVersion other) {
+        return this.version.greaterThan(other.version);
+    }
+
+    public boolean greaterThanOrEqualTo(SemanticVersion other) {
+        return this.version.greaterThanOrEqualTo(other.version);
+    }
+
+    public boolean lessThan(SemanticVersion other) {
+        return this.version.lessThan(other.version);
+    }
+
+    public boolean lessThanOrEqualTo(SemanticVersion other) {
+        return this.version.lessThanOrEqualTo(other.version);
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) {
