@@ -45,6 +45,7 @@ import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.docgen.Generator;
@@ -226,6 +227,11 @@ public class Type {
             ParenthesisedTypeDescriptorNode parenthesisedNode = (ParenthesisedTypeDescriptorNode) node;
             type.elementType = fromNode(parenthesisedNode.typedesc(), semanticModel, fileName);
             type.isParenthesisedType = true;
+        } else if (node instanceof TupleTypeDescriptorNode) {
+            TupleTypeDescriptorNode typeDescriptor = (TupleTypeDescriptorNode) node;
+            type.memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(memberType ->
+                    Type.fromNode(memberType, semanticModel, fileName)).collect(Collectors.toList()));
+            type.isTuple = true;
         } else {
             type.category = "UNKNOWN";
         }
