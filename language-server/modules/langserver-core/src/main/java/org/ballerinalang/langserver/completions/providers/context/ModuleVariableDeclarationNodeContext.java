@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
@@ -52,8 +53,31 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
 
     @Override
     public List<LSCompletionItem> getCompletions(CompletionContext context, ModuleVariableDeclarationNode node) {
+        TypeDescriptorNode tDescNode = node.typedBindingPattern().typeDescriptor();
         if (this.withinInitializerContext(context, node)) {
-            return this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
+            return this.initializerContextCompletions(context, tDescNode);
+        }
+
+        if (tDescNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
+                && ModulePartNodeContextUtil.onServiceTypeDescContext(((SimpleNameReferenceNode) tDescNode).name(),
+                context)) {
+            /*
+            Covers the following cases
+            Eg
+            (1) service m<cursor>
+            (2) isolated service m<cursor>
+            
+            Bellow cases are being handled by ModulePartNodeContext
+            Eg:
+            (1) service <cursor>
+            (2) isolated service <cursor>
+             */
+            List<Symbol> objectSymbols = ModulePartNodeContextUtil.serviceTypeDescContextSymbols(context);
+            List<LSCompletionItem> items = this.getCompletionItemList(objectSymbols, context);
+            items.addAll(this.getModuleCompletionItems(context));
+            items.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+
+            return items;
         }
 
         if (withinServiceOnKeywordContext(context, node)) {

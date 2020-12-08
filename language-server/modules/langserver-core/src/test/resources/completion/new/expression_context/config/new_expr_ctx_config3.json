@@ -436,7 +436,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "testNewFunction();",
+      "insertText": "testNewFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -449,7 +449,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "new();",
+      "insertText": "new()",
       "insertTextFormat": "Snippet"
     },
     {

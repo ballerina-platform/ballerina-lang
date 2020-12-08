@@ -460,7 +460,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `string` url  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "new(${1});",
+      "insertText": "new(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

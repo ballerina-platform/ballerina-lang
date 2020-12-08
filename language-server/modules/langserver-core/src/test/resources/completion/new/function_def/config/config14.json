@@ -428,7 +428,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` testParam1  \n- `int` testParam2(Defaultable)  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "testFunction1(${1});",
+      "insertText": "testFunction1(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

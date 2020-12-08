@@ -414,7 +414,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "main();",
+      "insertText": "main()",
       "insertTextFormat": "Snippet"
     },
     {

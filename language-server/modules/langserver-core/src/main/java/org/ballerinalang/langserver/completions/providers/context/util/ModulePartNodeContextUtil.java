@@ -17,7 +17,16 @@
  */
 package org.ballerinalang.langserver.completions.providers.context.util;
 
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.Minutiae;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.SnippetBlock;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -28,12 +37,15 @@ import org.eclipse.lsp4j.CompletionItem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
 
 /**
  * Utilities for the module part node context.
- * 
+ *
  * @since 2.0.0
  */
 public class ModulePartNodeContextUtil {
@@ -62,7 +74,12 @@ public class ModulePartNodeContextUtil {
 
         return completionItems;
     }
-    
+
+    /**
+     * Sort the list of completion items.
+     *
+     * @param items {@link List} of completion items to be sorted
+     */
     public static void sort(List<LSCompletionItem> items) {
         for (LSCompletionItem item : items) {
             CompletionItem cItem = item.getCompletionItem();
@@ -86,6 +103,52 @@ public class ModulePartNodeContextUtil {
         }
     }
 
+    /**
+     * Check whether the cursor at service type descriptor context.
+     *
+     * @param evalToken {@link Token}
+     * @return {@link Boolean} whether the cursor at type desc context or not
+     */
+    public static boolean onServiceTypeDescContext(Token evalToken, CompletionContext context) {
+        Optional<Minutiae> tokenValueAtCursor = ModulePartNodeContextUtil.findTokenValueInMinutiae(evalToken);
+        int cursor = context.getCursorPositionInTree();
+        
+        return ((evalToken.text().equals(SyntaxKind.SERVICE_KEYWORD.stringValue())
+                && cursor > evalToken.textRange().endOffset())
+                || (tokenValueAtCursor.isPresent()
+                && tokenValueAtCursor.get().text().equals(SyntaxKind.SERVICE_KEYWORD.stringValue())
+                && tokenValueAtCursor.get().textRange().endOffset() < cursor));
+    }
+
+    /**
+     * Get the object type symbols for the service type descriptor context.
+     *
+     * @param context {@link CompletionContext}
+     * @return {@link List} of object symbols filtered
+     */
+    public static List<Symbol> serviceTypeDescContextSymbols(CompletionContext context) {
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        return visibleSymbols.stream().filter(serviceTypeDescPredicate()).collect(Collectors.toList());
+    }
+
+    /**
+     * Get the predicate to filter the service type descriptor context symbols.
+     * 
+     * @return {@link Predicate}
+     */
+    public static Predicate<Symbol> serviceTypeDescPredicate() {
+        return symbol -> {
+            if (symbol.kind() == SymbolKind.CLASS) {
+                return true;
+            }
+            if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
+                return false;
+            }
+            Optional<? extends TypeSymbol> objSymbol = SymbolUtil.getTypeDescriptor(symbol);
+            return objSymbol.isPresent() && CommonUtil.getRawType(objSymbol.get()).typeKind() == TypeDescKind.OBJECT;
+        };
+    }
+
     private static boolean isSnippetBlock(LSCompletionItem completionItem) {
         return completionItem instanceof SnippetCompletionItem
                 && (((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.SNIPPET
@@ -95,5 +158,24 @@ public class ModulePartNodeContextUtil {
     private static boolean isKeyword(LSCompletionItem completionItem) {
         return completionItem instanceof SnippetCompletionItem
                 && ((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.KEYWORD;
+    }
+    
+    /**
+     * Get the token value at the cursor. This identified token is not a whitespace or new line token.
+     *
+     * @param evalToken {@link Token}
+     * @return {@link String} value of the token identified at the cursor
+     */
+    private static Optional<Minutiae> findTokenValueInMinutiae(Token evalToken) {
+        List<Minutiae> tokensFromMinutiae = new ArrayList<>();
+        evalToken.leadingMinutiae().forEach(minutiae -> {
+            if (minutiae.kind() != SyntaxKind.WHITESPACE_MINUTIAE
+                    && minutiae.kind() != SyntaxKind.END_OF_LINE_MINUTIAE) {
+                tokensFromMinutiae.add(minutiae);
+            }
+        });
+        
+        return  !tokensFromMinutiae.isEmpty() ? Optional.of(tokensFromMinutiae.get(tokensFromMinutiae.size() - 1))
+                : Optional.empty();
     }
 }
