@@ -5353,7 +5353,8 @@ public class TypeChecker extends BLangNodeVisitor {
         int parameterCountForNamedArgs = parameterCountForPositionalArgs + incRecordParams.size();
         iExpr.requiredArgs = new ArrayList<>();
         for (BVarSymbol symbol : invokableSymbol.params) {
-            if (!Symbols.isFlagOn(Flags.asMask(symbol.getFlags()), Flags.INCLUDED)) {
+            if (!Symbols.isFlagOn(Flags.asMask(symbol.getFlags()), Flags.INCLUDED) ||
+                                                                            symbol.type.tag != TypeTags.RECORD) {
                 continue;
             }
             LinkedHashMap<String, BField> fields = ((BRecordType) symbol.type).fields;
