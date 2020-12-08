@@ -150,6 +150,8 @@ public class ObjectTypeReferenceTest {
     public void testInclusionWithQualifiers() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_inclusion_with_qualifiers.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
+
+        BRunUtil.invoke(result, "testObjectConstructorWithReadOnlyReference");
     }
 
     @Test
@@ -196,6 +198,12 @@ public class ObjectTypeReferenceTest {
                                   87, 5);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated client' " +
                 "qualifier(s) in the referencing object", 93, 21);
+        BAssertUtil.validateError(negativeResult, i++, "invalid field in an object constructor expression with a " +
+                "'readonly' reference: 'stream<int>' can never be 'readonly'", 106, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid field in an object constructor expression with a " +
+                "'readonly' reference: 'stream<int>' can never be 'readonly'", 119, 9);
+        BAssertUtil.validateError(negativeResult, i++, "invalid field in an object constructor expression with a " +
+                "'readonly' reference: 'future' can never be 'readonly'", 120, 9);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

@@ -94,3 +94,35 @@ function testInvalidInclusion() {
         final isolated object{} l = object {};
     };
 }
+
+readonly class Corge {
+    int x;
+}
+
+object {
+    int x;
+} invalidReadOnlyReferenceInObjectConstructorExpression = isolated object Foo {
+    int x = 1;
+    private stream<int> y;
+
+    function init() {
+        int[] arr = [1, 2];
+        self.y = arr.toStream();
+    }
+};
+
+function testInvalidReadOnlyReferenceInObjectConstructorExpression() {
+    object {
+        int x;
+    } ob = object Corge {
+        int x = 1;
+        stream<int> y;
+        future<()> z;
+
+        function init() {
+            int[] arr = [1, 2];
+            self.y = arr.toStream();
+            self.z = start testInvalidReadOnlyReferenceInObjectConstructorExpression();
+        }
+    };
+}

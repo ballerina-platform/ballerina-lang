@@ -102,3 +102,54 @@ function testInclusion() {
         final isolated object{} l = object {};
     };
 }
+
+readonly class Corge {
+    int x;
+    int y = 100;
+
+    function init(int x) {
+        self.x = x;
+    }
+
+    function getSum() returns int => 0;
+}
+
+function testObjectConstructorWithReadOnlyReference() {
+    object {} ob = object Corge {
+        int x;
+        int y;
+        int z = 202;
+
+        function init() {
+            self.x = 200;
+            self.y = 201;
+        }
+
+        function getSum() returns int => self.x + self.y + self.z;
+    };
+
+    any val = ob;
+    assertTrue(val is readonly & object {int x; int y; int z; function getSum() returns int;});
+
+    var obVal = <readonly & object {int x; int y; int z; function getSum() returns int; }> val;
+    assertEquality(200, obVal.x);
+    assertEquality(201, obVal.y);
+    assertEquality(202, obVal.z);
+    assertEquality(603, obVal.getSum());
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
