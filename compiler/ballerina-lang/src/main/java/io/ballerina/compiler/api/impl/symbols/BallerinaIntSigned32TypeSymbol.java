@@ -37,11 +37,16 @@ public class BallerinaIntSigned32TypeSymbol extends AbstractTypeSymbol implement
 
     @Override
     public String name() {
-        return Names.SIGNED32.value;
+        return Names.STRING_SIGNED32;
+    }
+
+    @Override
+    public Kind intKind() {
+        return Kind.SIGNED32;
     }
 
     @Override
     public String signature() {
-        return "Signed32";
+        return Names.STRING_SIGNED32;
     }
 }

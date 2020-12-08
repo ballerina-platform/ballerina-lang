@@ -37,11 +37,16 @@ public class BallerinaIntSigned8TypeSymbol extends AbstractTypeSymbol implements
 
     @Override
     public String name() {
-        return Names.SIGNED8.value;
+        return Names.STRING_SIGNED8;
+    }
+
+    @Override
+    public Kind intKind() {
+        return Kind.SIGNED8;
     }
 
     @Override
     public String signature() {
-        return "Signed8";
+        return Names.STRING_SIGNED8;
     }
 }

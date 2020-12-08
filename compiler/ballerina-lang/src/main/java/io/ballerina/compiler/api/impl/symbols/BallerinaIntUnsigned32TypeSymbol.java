@@ -37,11 +37,16 @@ public class BallerinaIntUnsigned32TypeSymbol extends AbstractTypeSymbol impleme
 
     @Override
     public String name() {
-        return Names.UNSIGNED32.value;
+        return Names.STRING_UNSIGNED32;
+    }
+
+    @Override
+    public Kind intKind() {
+        return Kind.UNSIGNED32;
     }
 
     @Override
     public String signature() {
-        return "Unsigned32";
+        return Names.STRING_UNSIGNED32;
     }
 }

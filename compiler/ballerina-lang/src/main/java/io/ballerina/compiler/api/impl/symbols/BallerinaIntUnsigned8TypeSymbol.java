@@ -37,11 +37,16 @@ public class BallerinaIntUnsigned8TypeSymbol extends AbstractTypeSymbol implemen
 
     @Override
     public String name() {
-        return Names.UNSIGNED8.value;
+        return Names.STRING_UNSIGNED8;
+    }
+
+    @Override
+    public Kind intKind() {
+        return Kind.UNSIGNED8;
     }
 
     @Override
     public String signature() {
-        return "Unsigned8";
+        return Names.STRING_UNSIGNED8;
     }
 }
