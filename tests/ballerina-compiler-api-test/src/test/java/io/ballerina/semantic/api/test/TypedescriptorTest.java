@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
+import io.ballerina.compiler.api.symbols.IntTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
@@ -35,6 +36,7 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
+import io.ballerina.compiler.api.symbols.StringTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
@@ -347,7 +349,7 @@ public class TypedescriptorTest {
     }
 
     @Test(dataProvider = "BuiltinTypePosProvider")
-    public void testBuiltinSubtypes(int line, int column, TypeDescKind kind, String name) {
+    public void testBuiltinSubtypes(int line, int column, TypeDescKind kind, String name, Object subtypeKind) {
         Symbol symbol = getSymbol(line, column);
         TypeSymbol typeRef = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(typeRef.typeKind(), TYPE_REFERENCE);
@@ -355,22 +357,36 @@ public class TypedescriptorTest {
         TypeSymbol type = ((TypeReferenceTypeSymbol) typeRef).typeDescriptor();
         assertEquals(type.typeKind(), kind);
         assertEquals(type.name(), name);
+
+        switch (type.typeKind()) {
+            case INT:
+                assertEquals(((IntTypeSymbol) type).intKind(), subtypeKind);
+                break;
+            case STRING:
+                assertEquals(((StringTypeSymbol) type).stringKind(), subtypeKind);
+                break;
+            case XML:
+                assertEquals(((XMLTypeSymbol) type).xmlKind(), subtypeKind);
+                break;
+            default:
+                throw new IllegalStateException("Invalid type kind: " + type.typeKind());
+        }
     }
 
     @DataProvider(name = "BuiltinTypePosProvider")
     public Object[][] getBuiltinTypePos() {
         return new Object[][]{
-                {77, 20, INT, "Unsigned32"},
-                {78, 18, INT, "Signed32"},
-                {79, 19, INT, "Unsigned8"},
-                {80, 17, INT, "Signed8"},
-                {81, 20, INT, "Unsigned16"},
-                {82, 18, INT, "Signed16"},
-                {84, 17, STRING, "Char"},
-                {86, 17, XML, "Element"},
-                {87, 31, XML, "ProcessingInstruction"},
-                {88, 17, XML, "Comment"},
-                {89, 14, XML, "Text"},
+                {77, 20, INT, "Unsigned32", IntTypeSymbol.Kind.UNSIGNED32},
+                {78, 18, INT, "Signed32", IntTypeSymbol.Kind.SIGNED32},
+                {79, 19, INT, "Unsigned8", IntTypeSymbol.Kind.UNSIGNED8},
+                {80, 17, INT, "Signed8", IntTypeSymbol.Kind.SIGNED8},
+                {81, 20, INT, "Unsigned16", IntTypeSymbol.Kind.UNSIGNED16},
+                {82, 18, INT, "Signed16", IntTypeSymbol.Kind.SIGNED16},
+                {84, 17, STRING, "Char", StringTypeSymbol.Kind.CHAR},
+                {86, 17, XML, "Element", XMLTypeSymbol.Kind.ELEMENT},
+                {87, 31, XML, "ProcessingInstruction", XMLTypeSymbol.Kind.PROCESSING_INSTRUCTION},
+                {88, 17, XML, "Comment", XMLTypeSymbol.Kind.COMMENT},
+                {89, 14, XML, "Text", XMLTypeSymbol.Kind.TEXT},
         };
     }
 
