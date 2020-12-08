@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.CharTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
  * Represents the string:Char type descriptor.
@@ -36,11 +37,16 @@ public class BallerinaCharTypeSymbol extends AbstractTypeSymbol implements CharT
 
     @Override
     public String name() {
-        return "Char";
+        return Names.STRING_CHAR;
+    }
+
+    @Override
+    public Kind stringKind() {
+        return Kind.CHAR;
     }
 
     @Override
     public String signature() {
-        return "Char";
+        return Names.STRING_CHAR;
     }
 }
