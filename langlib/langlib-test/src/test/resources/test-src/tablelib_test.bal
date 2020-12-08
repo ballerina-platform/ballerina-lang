@@ -683,3 +683,43 @@ function testPutValidDataToKeylessTbl() returns boolean {
     testPassed = testPassed && tableToList[2] == intern1;
     return testPassed;
 }
+
+function testReadOnlyTableFilter() {
+    PersonalTable & readonly personTable = table [
+      { name: "Harry", age: 14 },
+      { name: "Hermione", age: 28 },
+      { name: "Ron", age: 11 },
+      { name: "Draco", age: 23 }
+    ];
+    table<Person> children = personTable.filter(function (Person person) returns boolean {
+                                                      return person.age < 18;
+                                                  });
+    assertEquals(children.length(), 2);
+    children.forEach(function(Person person) {
+        assertTrue(person.age < 18);
+        assertTrue(person.isReadOnly());
+    });
+    assertFalse(children.isReadOnly());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(boolean actual) {
+    assertEquals(true, actual);
+}
+
+function assertFalse(boolean actual) {
+    assertEquals(false, actual);
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if (expected == actual) {
+        return;
+    }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(ASSERTION_ERROR_REASON, message = msg);
+}
+
