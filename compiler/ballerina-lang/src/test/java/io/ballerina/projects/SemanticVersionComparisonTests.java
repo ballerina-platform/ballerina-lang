@@ -137,7 +137,7 @@ public class SemanticVersionComparisonTests {
 
         Assert.assertTrue(SemanticVersion.from("1.1.0").lessThan(
                 SemanticVersion.from("1.5.0")));
-        Assert.assertTrue(SemanticVersion.from("1.0.0+kjkjkj").lessThan(
+        Assert.assertFalse(SemanticVersion.from("1.0.0+kjkjkj").lessThan(
                 SemanticVersion.from("1.0.0+kjkjkj")));
     }
 

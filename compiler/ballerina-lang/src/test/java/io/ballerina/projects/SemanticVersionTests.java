@@ -48,11 +48,11 @@ public class SemanticVersionTests {
         Assert.assertEquals(version.minor(), 0);
         Assert.assertEquals(version.patch(), 1);
         Assert.assertEquals(version.buildMetadata(), "20130313144700");
-        Assert.assertFalse(version.isStable());
+        Assert.assertTrue(version.isStable());
 
         version = SemanticVersion.from("1.0.1+20130313144700.A1234.34343a");
         Assert.assertEquals(version.buildMetadata(), "20130313144700.A1234.34343a");
-        Assert.assertFalse(version.isStable());
+        Assert.assertTrue(version.isStable());
     }
 
     @Test
@@ -73,5 +73,14 @@ public class SemanticVersionTests {
         Assert.assertEquals(version.minor(), 0);
         Assert.assertEquals(version.patch(), 1);
         Assert.assertTrue(version.isStable());
+    }
+
+    @Test
+    public void testInitialVersions() {
+        SemanticVersion version = SemanticVersion.from("0.1.0-alpha");
+        Assert.assertEquals(version.major(), 0);
+        Assert.assertEquals(version.minor(), 1);
+        Assert.assertEquals(version.patch(), 0);
+        Assert.assertFalse(version.isStable());
     }
 }
