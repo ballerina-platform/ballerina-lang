@@ -652,8 +652,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNSUPPORTED_PATH_PARAM_TYPE("BCE3968", "unsupported.path.param.type"),
     UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3969", "unsupported.rest.path.param.type"),
 
-    INVALID_READ_ONLY_CLASS_INCLUSION("BCE3970", "invalid.read.only.class.inclusion"),
+    INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPE_DESCRIPTOR(
+            "BCE3970", "invalid.read.only.class.inclusion.in.object.type.descriptor"),
     INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS("BCE3971", "invalid.inclusion.with.mismatched.qualifiers"),
+    INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS(
+            "BCE3972", "invalid.read.only.class.inclusion.in.non.read.only.class"),
+    INVALID_FIELD_IN_OBJECT_CONSTUCTOR_EXPR_WITH_READONLY_REFERENCE(
+            "BCE3973", "invalid.field.in.object.constructor.expr.with.readonly.reference")
     ;
 
     private String diagnosticId;

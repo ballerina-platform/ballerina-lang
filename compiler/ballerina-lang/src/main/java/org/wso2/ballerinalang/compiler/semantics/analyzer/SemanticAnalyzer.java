@@ -468,7 +468,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeClassDefinition(classDefinition);
 
-        validateInclusions(classDefinition.flagSet, classDefinition.typeRefs);
+        validateInclusions(classDefinition.flagSet, classDefinition.typeRefs, false,
+                           Symbols.isFlagOn(classDefinition.type.tsymbol.flags, Flags.ANONYMOUS));
     }
 
     @Override
@@ -574,7 +575,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions
                 .forEach(func -> validateReferencedFunction(objectTypeNode.pos, func, env));
 
-        validateInclusions(objectTypeNode.flagSet, objectTypeNode.typeRefs);
+        validateInclusions(objectTypeNode.flagSet, objectTypeNode.typeRefs, true, false);
 
         if (objectTypeNode.initFunction == null) {
             return;
@@ -3407,10 +3408,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void validateInclusions(Set<Flag> referencingTypeFlags, List<BLangType> typeRefs) {
+    private void validateInclusions(Set<Flag> referencingTypeFlags, List<BLangType> typeRefs, boolean objectTypeDesc,
+                                    boolean objectConstructorExpr) {
         boolean nonIsolated = !referencingTypeFlags.contains(Flag.ISOLATED);
         boolean nonService = !referencingTypeFlags.contains(Flag.SERVICE);
         boolean nonClient = !referencingTypeFlags.contains(Flag.CLIENT);
+        boolean nonReadOnly = !referencingTypeFlags.contains(Flag.READONLY);
 
         for (BLangType typeRef : typeRefs) {
             BType type = typeRef.type;
@@ -3448,7 +3451,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 continue;
             }
 
-            dlog.error(typeRef.pos, DiagnosticErrorCode.INVALID_READ_ONLY_CLASS_INCLUSION);
+            if (objectTypeDesc) {
+                dlog.error(typeRef.pos,
+                           DiagnosticErrorCode.INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPE_DESCRIPTOR);
+                continue;
+            }
+
+            if (nonReadOnly && !objectConstructorExpr) {
+                dlog.error(typeRef.pos, DiagnosticErrorCode.INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS);
+            }
         }
     }
 

@@ -34,17 +34,6 @@ type ObjectFour object {
     *ObjectTwo;
 };
 
-ObjectThree obThree = object ObjectOne {
-    int i = 20;
-    int j = 30;
-};
-
-function testInvalidReadOnlyClassInclusion() {
-    var ob = object ObjectTwo {
-        int j = 40;
-    };
-}
-
 isolated class Foo {
     final int i = 1;
 }

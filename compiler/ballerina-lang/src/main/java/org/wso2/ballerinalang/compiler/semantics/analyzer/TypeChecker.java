@@ -174,6 +174,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -2978,11 +2979,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (isObjectConstructorExpr(cIExpr, actualObjectType)) {
                     BLangClassDefinition classDefForConstructor = getClassDefinitionForObjectConstructorExpr(cIExpr,
                                                                                                              env);
+                    List<BLangType> typeRefs = classDefForConstructor.typeRefs;
 
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
 
                     if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
-                        handleObjectConstrExprForReadOnlyCET(cIExpr, actualObjectType, classDefForConstructor, pkgEnv);
+                        handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
+                                                          false);
+                    } else if (!typeRefs.isEmpty() && Symbols.isFlagOn(typeRefs.get(0).type.flags, Flags.READONLY)) {
+                        handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
+                                                          true);
                     } else {
                         semanticAnalyzer.analyzeNode(classDefForConstructor, pkgEnv);
                     }
@@ -7459,15 +7465,30 @@ public class TypeChecker extends BLangNodeVisitor {
         return null; // Won't reach here.
     }
 
-    private void handleObjectConstrExprForReadOnlyCET(BLangTypeInit cIExpr, BObjectType actualObjectType,
-                                                      BLangClassDefinition classDefForConstructor, SymbolEnv env) {
+    private void handleObjectConstrExprForReadOnly(BLangTypeInit cIExpr, BObjectType actualObjectType,
+                                                   BLangClassDefinition classDefForConstructor, SymbolEnv env,
+                                                   boolean logErrors) {
+        boolean hasNeverReadOnlyField = false;
+
         for (BField field : actualObjectType.fields.values()) {
             BType fieldType = field.type;
             if (!types.isInherentlyImmutableType(fieldType) &&
                     !types.isSelectivelyImmutableType(fieldType, false, false)) {
                 semanticAnalyzer.analyzeNode(classDefForConstructor, env);
-                return;
+                hasNeverReadOnlyField = true;
+
+                if (!logErrors) {
+                    return;
+                }
+
+                dlog.error(field.pos,
+                           DiagnosticErrorCode.INVALID_FIELD_IN_OBJECT_CONSTUCTOR_EXPR_WITH_READONLY_REFERENCE,
+                           fieldType);
             }
+        }
+
+        if (hasNeverReadOnlyField) {
+            return;
         }
 
         classDefForConstructor.flagSet.add(Flag.READONLY);
