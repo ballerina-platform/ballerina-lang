@@ -30,6 +30,10 @@ public enum Snippet {
 
     DEF_FUNCTION(SnippetGenerator.getFunctionDefSnippet()),
 
+    DEF_RESOURCE_FUNCTION(SnippetGenerator.getResourceFunctionDefSnippet()),
+
+    DEF_RESOURCE_FUNCTION_SIGNATURE(SnippetGenerator.getResourceFunctionSignatureSnippet()),
+
     DEF_FUNCTION_SIGNATURE(SnippetGenerator.getFunctionSignatureSnippet()),
 
     DEF_MAIN_FUNCTION(SnippetGenerator.getMainFunctionSnippet()),
@@ -245,6 +249,8 @@ public enum Snippet {
     KW_ASCENDING(SnippetGenerator.getAscendingKeywordSnippet()),
 
     KW_DESCENDING(SnippetGenerator.getDescendingKeywordSnippet()),
+
+    KW_TRANSACTIONAL(SnippetGenerator.getTransactionalKeywordSnippet()),
 
     // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),

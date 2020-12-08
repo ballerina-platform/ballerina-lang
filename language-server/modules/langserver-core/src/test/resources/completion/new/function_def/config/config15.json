@@ -342,6 +342,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "transactional",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",

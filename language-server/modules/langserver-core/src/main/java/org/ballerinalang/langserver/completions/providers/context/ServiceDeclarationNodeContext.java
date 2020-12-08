@@ -33,6 +33,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
+import org.ballerinalang.langserver.completions.providers.context.util.ObjectConstructorBodyContextUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.Position;
 
@@ -58,6 +59,10 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
     @Override
     public List<LSCompletionItem> getCompletions(CompletionContext context, ServiceDeclarationNode node)
             throws LSCompletionException {
+        if (this.onMemberContext(context, node)) {
+            return this.getMemberContextCompletions(context, node);
+        }
+        
         Token onKeyword = node.onKeyword();
         Position cursor = context.getCursorPosition();
         if (this.onTypeDescContext(context, node)) {
@@ -132,6 +137,27 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
         boolean beforeOnKw = (onKeyword.isMissing() || onKeyword.textRange().startOffset() > cursor);
 
         return cursor > serviceKeyword.textRange().endOffset() && beforeOnKw && afterTypeDesc && afterResourcePath;
+    }
+    
+    private boolean onMemberContext(CompletionContext context, ServiceDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token openBrace = node.openBraceToken();
+        Token closeBrace = node.closeBraceToken();
+        
+        if (openBrace.isMissing() || closeBrace.isMissing()) {
+            return false;
+        }
+        
+        return cursor > openBrace.textRange().startOffset() && cursor < closeBrace.textRange().endOffset();
+    }
+    
+    private List<LSCompletionItem> getMemberContextCompletions(CompletionContext context, ServiceDeclarationNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        completionItems.addAll(this.getTypeItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
+        completionItems.addAll(ObjectConstructorBodyContextUtil.getBodyContextSnippets(context));
+        
+        return completionItems;
     }
 
     @Override

@@ -6,55 +6,6 @@
   "source": "expression_context/source/object_constructor_expr_ctx_source4.bal",
   "items": [
     {
-      "label": "private",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "private ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "public",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "public ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "final",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "final ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "remote",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "remote",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "remote function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "public remote function ${1:name}(${2}) {\n\t${3}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "function ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "$anonType$_0",
       "kind": "Interface",
       "detail": "Object",
@@ -502,6 +453,76 @@
       "kind": "Module",
       "detail": "Module",
       "insertText": "'typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "private",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "private ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "public",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "public ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "final",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "final ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "remote",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "remote",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "remote function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "public remote function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resource",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "resource ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "transactional",
       "insertTextFormat": "Snippet"
     }
   ]

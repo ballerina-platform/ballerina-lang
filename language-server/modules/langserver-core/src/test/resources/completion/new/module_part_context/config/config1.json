@@ -118,6 +118,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "A",
+      "insertText": "transactional",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function",
       "kind": "Snippet",
       "detail": "Snippet",
