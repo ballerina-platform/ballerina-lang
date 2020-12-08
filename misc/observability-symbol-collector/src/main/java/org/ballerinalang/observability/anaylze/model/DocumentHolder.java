@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,22 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.ballerinalang.observability.anaylze.model;
 
-package org.wso2.ballerinalang.compiler.spi;
-
-import io.ballerina.projects.Project;
-
-import java.io.IOException;
-import java.nio.file.Path;
+import com.google.gson.JsonElement;
 
 /**
- * Implementation of this interface analyze the AST of the Ballerina program
- * and generate symbol data to be used for observability purposes.
+ * Holds data related to a document.
  *
  * @since 2.0.0
  */
-public interface ObservabilitySymbolCollector {
-    void process(Project project);
+public class DocumentHolder {
+    private final String documentName;
+    private final JsonElement syntaxTree;
 
-    void writeToExecutable(Path executableFile) throws IOException;
+    DocumentHolder(String documentName, JsonElement syntaxTree) {
+        this.documentName = documentName;
+        this.syntaxTree = syntaxTree;
+    }
+
+    public String getDocumentName() {
+        return documentName;
+    }
+
+    public JsonElement getSyntaxTree() {
+        return syntaxTree;
+    }
 }
