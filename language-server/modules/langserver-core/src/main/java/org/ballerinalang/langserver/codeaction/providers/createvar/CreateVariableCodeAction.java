@@ -31,7 +31,6 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,8 +56,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
-        String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
-        if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
+        if (!(diagnostic.getMessage().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return actions;
         }
         if (context.positionDetails().matchedExprType() == null) {
@@ -66,7 +64,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         }
 
         String uri = context.fileUri();
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic.getRange(), context);
         List<String> types = createVarTextEdits.types;
         for (int i = 0; i < types.size(); i++) {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
@@ -85,7 +83,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    CreateVariableOut getCreateVariableTextEdits(Diagnostic diagnostic,
+    CreateVariableOut getCreateVariableTextEdits(Range range,
                                                  CodeActionContext context) {
         Symbol matchedSymbol = context.positionDetails().matchedSymbol();
         TypeSymbol typeDescriptor = context.positionDetails().matchedExprType();
@@ -100,7 +98,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         List<TextEdit> importEdits = new ArrayList<>();
         List<TextEdit> edits = new ArrayList<>();
         List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, importEdits, context);
-        Position pos = diagnostic.getRange().getStart();
+        Position pos = range.getStart();
         for (String type : types) {
             Position insertPos = new Position(pos.getLine(), pos.getCharacter());
             String edit = type + " " + name + " = ";

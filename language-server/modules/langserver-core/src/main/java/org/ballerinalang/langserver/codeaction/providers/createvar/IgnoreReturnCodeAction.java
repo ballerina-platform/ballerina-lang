@@ -31,7 +31,6 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Code Action for ignore variable assignment.
@@ -47,8 +46,7 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     CodeActionContext context) {
-        String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
-        if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
+        if (!(diagnostic.getMessage().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
 

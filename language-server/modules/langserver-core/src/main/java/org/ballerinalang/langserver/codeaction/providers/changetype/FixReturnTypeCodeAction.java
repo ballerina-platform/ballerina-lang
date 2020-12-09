@@ -40,7 +40,6 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -57,7 +56,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
-        if (!(diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES))) {
+        if (!(diagnostic.getMessage().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
 
