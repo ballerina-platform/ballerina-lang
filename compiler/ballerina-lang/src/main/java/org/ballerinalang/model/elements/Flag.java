@@ -142,7 +142,11 @@ public enum Flag {
      */
     CONFIGURABLE,
     /**
+     * Indicates flagged node is a object constructor.
+     */
+    OBJECT_CTOR,
+    /**
      * Indicates flagged node is an enum.
      */
-    ENUM
+    ENUM;
 }
