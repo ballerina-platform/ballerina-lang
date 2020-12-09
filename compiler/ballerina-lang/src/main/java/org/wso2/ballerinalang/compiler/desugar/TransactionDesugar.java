@@ -168,10 +168,15 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionBlockStmt.stmts.add(shouldCleanUpVariableDef);
         shouldCleanUpVariableRef = ASTBuilderUtil.createVariableRef(pos, shouldCleanUpVariable.symbol);
 
-        //transactions:Info? prevAttempt = ();
-        BLangSimpleVariableDef prevAttemptVarDef = createPrevAttemptInfoVarDef(env, pos);
-        transactionBlockStmt.stmts.add(prevAttemptVarDef);
-        this.prevAttemptInfoRef = ASTBuilderUtil.createVariableRef(pos, prevAttemptVarDef.var.symbol);
+        if (transactionNode.prevAttemptInfo == null) {
+            //transactions:Info? prevAttempt = ();
+            BLangSimpleVariableDef prevAttemptVarDef = createPrevAttemptInfoVarDef(env, pos);
+            transactionBlockStmt.stmts.add(prevAttemptVarDef);
+            transactionBlockStmt.scope.define(prevAttemptVarDef.var.symbol.name, prevAttemptVarDef.var.symbol);
+            this.prevAttemptInfoRef = ASTBuilderUtil.createVariableRef(pos, prevAttemptVarDef.var.symbol);
+        } else {
+            this.prevAttemptInfoRef = (BLangSimpleVarRef) transactionNode.prevAttemptInfo;
+        }
 
         // Invoke startTransaction method and get a transaction id
         //string transactionId = "";
@@ -188,7 +193,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionIDVariable.symbol.closure = true;
 
         transactionBlockStmt.scope.define(transactionIDVarSymbol.name, transactionIDVarSymbol);
-        transactionBlockStmt.scope.define(prevAttemptVarDef.var.symbol.name, prevAttemptVarDef.var.symbol);
         transactionBlockStmt.scope.define(shouldCleanUpVariable.symbol.name, shouldCleanUpVariable.symbol);
 
         BType transactionReturnType = symTable.errorOrNilType;
@@ -237,8 +241,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         // transactionId = startTransaction(1, prevAttempt)
         BLangInvocation startTransactionInvocation = createStartTransactionInvocation(pos,
-                ASTBuilderUtil.createLiteral(pos, symTable.stringType, uniqueId),
-                ASTBuilderUtil.createVariableRef(pos, prevAttemptVarDef.var.symbol));
+                ASTBuilderUtil.createLiteral(pos, symTable.stringType, uniqueId), prevAttemptInfoRef);
         BLangAssignment startTrxAssignment =
                 ASTBuilderUtil.createAssignmentStmt(pos, ASTBuilderUtil.createVariableRef(pos, transactionIDVarSymbol),
                         startTransactionInvocation);
@@ -327,7 +330,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return startTransactionInvocation;
     }
 
-    private BLangSimpleVariableDef createPrevAttemptInfoVarDef(SymbolEnv env, Location pos) {
+    BLangSimpleVariableDef createPrevAttemptInfoVarDef(SymbolEnv env, Location pos) {
         BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
         BLangSimpleVariable prevAttemptVariable = createPrevAttemptVariable(env, pos);
         prevAttemptVariable.expr = nilLiteral;

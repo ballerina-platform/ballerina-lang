@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -60,7 +59,6 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     private List<ClassSymbol> classes;
     private List<FunctionSymbol> functions;
     private List<ConstantSymbol> constants;
-    private List<ObjectTypeSymbol> listeners;
     private List<Symbol> allSymbols;
 
     protected BallerinaModule(CompilerContext context, String name, PackageID moduleID, BPackageSymbol packageSymbol) {
@@ -169,22 +167,6 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
 
         this.constants = Collections.unmodifiableList(constants);
         return this.constants;
-    }
-
-    /**
-     * Get the listeners in the Module.
-     *
-     * @return {@link List} of listeners
-     */
-    @Override
-    public List<ObjectTypeSymbol> listeners() {
-        if (this.listeners != null) {
-            return listeners;
-        }
-
-        // TODO:
-        this.listeners = new ArrayList<>();
-        return this.listeners;
     }
 
     /**
