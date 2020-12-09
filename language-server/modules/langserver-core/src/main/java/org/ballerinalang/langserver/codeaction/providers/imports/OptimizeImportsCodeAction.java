@@ -97,7 +97,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
             // Remove any matching imports on-the-go
             boolean rmMatched = toBeRemovedImports.stream()
                     .anyMatch(rmImport -> rmImport[0].equals(importModel.orgName() + importModel.moduleName()) &&
-                            rmImport[1].equals(importModel.version()) && rmImport[2].equals(importModel.alias())
+                            rmImport[1].equals(importModel.version()) && rmImport[2].equals(importModel.modulePrefix())
                     );
             if (rmMatched) {
                 fileImports = fileImports.remove(i);

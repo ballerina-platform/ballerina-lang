@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -35,7 +36,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.ballerinalang.langserver.codeaction.CodeActionUtil.codeActionNodeType;
 import static org.ballerinalang.langserver.codeaction.CodeActionUtil.computePositionDetails;
 
 /**
@@ -56,8 +56,8 @@ public class CodeActionRouter {
         CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder.getInstance();
 
         // Get available node-type based code-actions
-        Optional<Node> matchedNode = CommonUtil.getTopLevelNode(ctx.cursorPosition(), ctx);
-        CodeActionNodeType matchedNodeType = codeActionNodeType(matchedNode.orElse(null));
+        Optional<Node> matchedNode = CodeActionUtil.getTopLevelNode(ctx.cursorPosition(), ctx);
+        CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(matchedNode.orElse(null));
         SemanticModel semanticModel = ctx.workspace().semanticModel(ctx.filePath()).orElseThrow();
         Path fileName = ctx.filePath().getFileName();
         if (fileName == null) {
@@ -65,7 +65,10 @@ public class CodeActionRouter {
         }
         String relPath = fileName.toString();
         if (matchedNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
-            TypeSymbol matchedTypeSymbol = semanticModel.type(relPath, matchedNode.get().lineRange()).orElse(null);
+            Range range = CommonUtil.toRange(matchedNode.get().lineRange());
+            Node expressionNode = CodeActionUtil.largestExpressionNode(matchedNode.get(), range);
+            TypeSymbol matchedTypeSymbol = semanticModel.type(relPath, expressionNode.lineRange()).orElse(null);
+
             PositionDetails posDetails = CodeActionPositionDetails.from(matchedNode.get(), null, matchedTypeSymbol);
             ctx.setPositionDetails(posDetails);
             codeActionProvidersHolder.getActiveNodeBasedProviders(matchedNodeType).forEach(provider -> {

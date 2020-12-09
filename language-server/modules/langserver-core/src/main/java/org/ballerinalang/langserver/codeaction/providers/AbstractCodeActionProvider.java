@@ -37,8 +37,8 @@ import java.util.List;
  * @since 1.1.1
  */
 public abstract class AbstractCodeActionProvider implements LSCodeActionProvider {
-    private List<CodeActionNodeType> codeActionNodeTypes;
-    private final boolean isNodeTypeBased;
+    protected List<CodeActionNodeType> codeActionNodeTypes;
+    protected boolean isNodeTypeBased;
 
     @Override
     public boolean isEnabled() {
