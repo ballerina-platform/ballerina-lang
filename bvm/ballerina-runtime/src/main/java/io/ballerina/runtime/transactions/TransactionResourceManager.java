@@ -128,7 +128,11 @@ public class TransactionResourceManager {
         // Therefore create a transaction_log_dir in root directory if not exists.
         final Path projectRoot = findProjectRoot(Paths.get(System.getProperty("user.dir")));
         if (projectRoot != null) {
-            String logPath = projectRoot.toAbsolutePath().toString() + "/transaction_log_dir";
+            String logDir = getTransactionLogDirectory();
+            if (logDir.isEmpty()) {
+                logDir = "transaction_log_dir";
+            }
+            String logPath = projectRoot.toAbsolutePath().toString() + "/" + logDir;
             Path transactionLogDirectory = Paths.get(logPath);
             if (!Files.exists(transactionLogDirectory)) {
                 try {
@@ -156,18 +160,29 @@ public class TransactionResourceManager {
     }
 
     /**
-     * This method check whether the atomikos transaction manager should be enabled or not.
+     * This method checks whether the atomikos transaction manager should be enabled or not.
      *
      * @return boolean whether the atomikos transaction manager should be enabled or not
      */
     private boolean getTransactionManagerEnabled() {
         String transactionManagerEnabled = CONFIG_REGISTRY.getAsString("b7a.transaction.manager.enabled");
-        if (transactionManagerEnabled != null) {
-            if (transactionManagerEnabled.equals("false")) {
+        if (transactionManagerEnabled != null && transactionManagerEnabled.equals("false")) {
                 return false;
-            }
         }
         return true;
+    }
+
+    /**
+     * This method gets the user specified config for log directory name.
+     *
+     * @return string log directory name
+     */
+    private String getTransactionLogDirectory() {
+        String transactionLogDirectory = CONFIG_REGISTRY.getAsString("b7a.transaction.log.base");
+        if (transactionLogDirectory != null) {
+            return transactionLogDirectory;
+        }
+        return "";
     }
 
     /**
@@ -249,7 +264,7 @@ public class TransactionResourceManager {
                     }
                 } catch (XAException e) {
                     log.error("error at transaction prepare phase in transaction " + transactionId
-                            + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
+                            + ":" + e.getMessage(), e);
                     return false;
                 }
             }
@@ -285,8 +300,7 @@ public class TransactionResourceManager {
                     }
                 } catch (SystemException | HeuristicMixedException | HeuristicRollbackException
                         | RollbackException e) {
-                    log.error("error when committing transaction " + transactionId
-                            + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
+                    log.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 }
             }
@@ -307,8 +321,7 @@ public class TransactionResourceManager {
                         }
                     }
                 } catch (XAException e) {
-                    log.error("error when committing transaction " + transactionId
-                            + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
+                    log.error("error when committing transaction " + transactionId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 } finally {
                     ctx.close();
@@ -345,8 +358,7 @@ public class TransactionResourceManager {
                         trx.rollback();
                     }
                 } catch (SystemException e) {
-                    log.error("error when aborting transaction " + transactionId
-                            + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
+                    log.error("error when aborting transaction " + transactionId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 }
             }
@@ -367,8 +379,7 @@ public class TransactionResourceManager {
                         }
                     }
                 } catch (XAException e) {
-                    log.error("error when aborting the transaction, " + transactionId
-                            + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
+                    log.error("error when aborting the transaction " + transactionId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 } finally {
                     ctx.close();
@@ -409,8 +420,7 @@ public class TransactionResourceManager {
                 }
                 trx.enlistResource(xaResource);
             } catch (RollbackException | SystemException | NotSupportedException e) {
-                log.error("error in initiating transaction " + transactionId
-                        + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
+                log.error("error in initiating transaction " + transactionId + ":" + e.getMessage(), e);
             }
         } else {
             Xid xid = xidRegistry.get(combinedId);
@@ -421,8 +431,7 @@ public class TransactionResourceManager {
             try {
                 xaResource.start(xid, TMNOFLAGS);
             } catch (XAException e) {
-                log.error("error in starting XA transaction " + transactionId
-                        + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
+                log.error("error in starting XA transaction " + transactionId + ":" + e.getMessage(), e);
             }
         }
     }
@@ -517,7 +526,7 @@ public class TransactionResourceManager {
                             }
                         } catch (IllegalStateException | SystemException e) {
                             log.error("error in ending the XA transaction " + transactionId
-                                    + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
+                                    + ":" + e.getMessage(), e);
                         }
                     }
                 }
@@ -534,8 +543,7 @@ public class TransactionResourceManager {
                                 ctx.getXAResource().end(xid, TMSUCCESS);
                             }
                         } catch (XAException e) {
-                            log.error("error in ending XA transaction " + transactionId
-                                    + " in transaction block " + transactionBlockId + ":" + e.getMessage(), e);
+                            log.error("error in ending XA transaction " + transactionId + ":" + e.getMessage(), e);
                         }
                     }
                 }
