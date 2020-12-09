@@ -61,10 +61,23 @@ public class ClassDefinitionDeclarationsTest extends FormatterTest {
         return Paths.get("declarations", "class-definition").toString();
     }
 
+    /**
+     * Specify the file names to be tested during the test execution.
+     *
+     * @return Test scenarios for execution
+     */
+    @Override
+    public Object[][] testSubset() {
+
+        return new Object[][]{
+                {"class_definition_declaration_3.bal", this.getTestResourceDir()}
+        };
+    }
+
     @Override
     public List<String> skipList() {
         return Arrays.asList(
-                "class_definition_declaration_7.bal",
+
                 "class_definition_declaration_17.bal",
                 "class_definition_declaration_3.bal"
         );

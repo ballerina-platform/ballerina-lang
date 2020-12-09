@@ -2225,7 +2225,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public ObjectFieldNode transform(ObjectFieldNode objectFieldNode) {
         MetadataNode metadata = formatNode(objectFieldNode.metadata().orElse(null), 0, 1);
         Token visibilityQualifier = formatToken(objectFieldNode.visibilityQualifier().orElse(null), 1, 0);
-        //Token finalKeyword = formatToken(objectFieldNode.finalKeyword().orElse(null), 1, 0);
+        NodeList<Token> qualifierList = formatNodeList(objectFieldNode.qualifierList(), 1, 0, 1, 0);
         Node typeName = formatNode(objectFieldNode.typeName(), 1, 0);
         Token fieldName;
         Token equalsToken = formatToken(objectFieldNode.equalsToken().orElse(null), 1, 0);
@@ -2240,7 +2240,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return objectFieldNode.modify()
                 .withMetadata(metadata)
                 .withVisibilityQualifier(visibilityQualifier)
-                //.withFinalKeyword(finalKeyword)
+                .withQualifierList(qualifierList)
                 .withTypeName(typeName)
                 .withFieldName(fieldName)
                 .withEqualsToken(equalsToken)
