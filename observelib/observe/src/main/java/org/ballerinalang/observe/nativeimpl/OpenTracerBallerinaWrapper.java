@@ -166,8 +166,7 @@ public class OpenTracerBallerinaWrapper {
         if (!enabled) {
             return null;
         }
-        String errorMsg = "Could not find the trace for given span id. Can not add tag {" + tagKey + ":" + tagValue +
-                "}";
+
         final BSpan span;
         if (spanId == -1) {
             ObserverContext observer = ObserveUtils.getObserverContextOfCurrentFrame(env);
@@ -180,6 +179,9 @@ public class OpenTracerBallerinaWrapper {
         } else {
             ObserverContext observerContext = observerContextMap.get(spanId);
             if (observerContext == null) {
+                String errorMsg =
+                        "Could not find the trace for given span id. Can not add tag {" + tagKey + ":" + tagValue +
+                                "}";
                 log.info(errorMsg);
                 return ErrorCreator.createError(StringUtils.fromString(errorMsg));
             }
