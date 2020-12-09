@@ -26,6 +26,9 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.AnnotationUtils;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.values.MapValue;
 
 import java.util.Map.Entry;
 import java.util.StringJoiner;
@@ -131,5 +134,13 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     public void setTypeIdSet(BTypeIdSet typeIdSet) {
         this.typeIdSet = typeIdSet;
+    }
+
+    public void processObjectCtorAnnots(MapValue globalAnnotationMap, Strand strand) {
+        AnnotationUtils.processObjectCtorAnnotations(globalAnnotationMap, this, strand);
+    }
+
+    public boolean hasAnnotations() {
+        return !annotations.isEmpty();
     }
 }

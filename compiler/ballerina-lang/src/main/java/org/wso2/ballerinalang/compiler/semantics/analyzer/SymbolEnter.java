@@ -606,7 +606,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangClassDefinition classDefinition) {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
         boolean isPublicType = flags.contains(Flag.PUBLIC);
-        boolean isServiceType = flags.contains(Flag.SERVICE);
         Name className = names.fromIdNode(classDefinition.name);
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
@@ -616,7 +615,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
 
-        int typeFlags = 0;
+        long typeFlags = 0;
 
         if (flags.contains(Flag.READONLY)) {
             typeFlags |= Flags.READONLY;
@@ -626,8 +625,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             typeFlags |= Flags.ISOLATED;
         }
 
-        if (isServiceType) {
+        if (flags.contains(Flag.SERVICE)) {
             typeFlags |= Flags.SERVICE;
+        }
+
+        if (flags.contains(Flag.OBJECT_CTOR)) {
+            typeFlags |= Flags.OBJECT_CTOR;
         }
 
         BObjectType objectType = new BObjectType(tSymbol, typeFlags);
