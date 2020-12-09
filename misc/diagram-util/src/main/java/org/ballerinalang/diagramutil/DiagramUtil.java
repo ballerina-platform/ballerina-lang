@@ -23,6 +23,9 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * This is the DiagramUtil class for Diagram related Utils which include the JSON conversion of the Syntax Tree.
  */
@@ -37,7 +40,9 @@ public class DiagramUtil {
      */
     public static JsonElement getSyntaxTreeJSON(SyntaxTree syntaxTree, SemanticModel semanticModel) {
         // Map each type data by looking at the line ranges and prepare the SyntaxTree JSON.
-        SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(syntaxTree.filePath(), semanticModel);
+        Path filePath = Paths.get(syntaxTree.filePath());
+        String fileName = filePath.getFileName().toString();
+        SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(fileName, semanticModel);
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         return mapGenerator.transform(modulePartNode);
     }
