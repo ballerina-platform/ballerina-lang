@@ -968,16 +968,16 @@ class SymbolFinder extends BLangNodeVisitor {
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
         // Becomes null for undefined types
-        if (userDefinedType.type.tsymbol == null) {
+        if (userDefinedType.symbol == null) {
             return;
         }
 
-        if (userDefinedType.type.tsymbol.origin == VIRTUAL
-                || setEnclosingNode(userDefinedType.type.tsymbol, userDefinedType.typeName.pos)) {
+        if (userDefinedType.symbol.origin == VIRTUAL
+                || setEnclosingNode(userDefinedType.symbol, userDefinedType.typeName.pos)) {
             return;
         }
 
-        setEnclosingNode(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
+        setEnclosingNode(userDefinedType.symbol.owner, userDefinedType.pkgAlias.pos);
     }
 
     @Override

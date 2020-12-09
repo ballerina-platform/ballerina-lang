@@ -20,7 +20,6 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -41,12 +40,8 @@ public class ListBindingPatternNode extends BindingPatternNode {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
-    public Optional<RestBindingPatternNode> restBindingPattern() {
-        return optionalChildInBucket(2);
-    }
-
     public Token closeBracket() {
-        return childInBucket(3);
+        return childInBucket(2);
     }
 
     @Override
@@ -64,19 +59,16 @@ public class ListBindingPatternNode extends BindingPatternNode {
         return new String[]{
                 "openBracket",
                 "bindingPatterns",
-                "restBindingPattern",
                 "closeBracket"};
     }
 
     public ListBindingPatternNode modify(
             Token openBracket,
             SeparatedNodeList<BindingPatternNode> bindingPatterns,
-            RestBindingPatternNode restBindingPattern,
             Token closeBracket) {
         if (checkForReferenceEquality(
                 openBracket,
                 bindingPatterns.underlyingListNode(),
-                restBindingPattern,
                 closeBracket)) {
             return this;
         }
@@ -84,7 +76,6 @@ public class ListBindingPatternNode extends BindingPatternNode {
         return NodeFactory.createListBindingPatternNode(
                 openBracket,
                 bindingPatterns,
-                restBindingPattern,
                 closeBracket);
     }
 
@@ -101,14 +92,12 @@ public class ListBindingPatternNode extends BindingPatternNode {
         private final ListBindingPatternNode oldNode;
         private Token openBracket;
         private SeparatedNodeList<BindingPatternNode> bindingPatterns;
-        private RestBindingPatternNode restBindingPattern;
         private Token closeBracket;
 
         public ListBindingPatternNodeModifier(ListBindingPatternNode oldNode) {
             this.oldNode = oldNode;
             this.openBracket = oldNode.openBracket();
             this.bindingPatterns = oldNode.bindingPatterns();
-            this.restBindingPattern = oldNode.restBindingPattern().orElse(null);
             this.closeBracket = oldNode.closeBracket();
         }
 
@@ -126,12 +115,6 @@ public class ListBindingPatternNode extends BindingPatternNode {
             return this;
         }
 
-        public ListBindingPatternNodeModifier withRestBindingPattern(
-                RestBindingPatternNode restBindingPattern) {
-            this.restBindingPattern = restBindingPattern;
-            return this;
-        }
-
         public ListBindingPatternNodeModifier withCloseBracket(
                 Token closeBracket) {
             Objects.requireNonNull(closeBracket, "closeBracket must not be null");
@@ -143,7 +126,6 @@ public class ListBindingPatternNode extends BindingPatternNode {
             return oldNode.modify(
                     openBracket,
                     bindingPatterns,
-                    restBindingPattern,
                     closeBracket);
         }
     }

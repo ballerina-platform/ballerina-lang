@@ -2654,6 +2654,12 @@ public class Desugar extends BLangNodeVisitor {
             retryBlockStmt.parent = env.enclInvokable;
             retryBlockStmt.scope = new Scope(env.scope.owner);
 
+            if (retryNode.commonStmtForRetries != null) {
+                BLangSimpleVariableDef prevAttemptDef = (BLangSimpleVariableDef) retryNode.commonStmtForRetries;
+                retryBlockStmt.scope.define(prevAttemptDef.var.symbol.name, prevAttemptDef.var.symbol);
+                retryBlockStmt.stmts.add(retryNode.commonStmtForRetries);
+            }
+
             // <RetryManagerType> $retryManager$ = new();
             BLangSimpleVariableDef retryManagerVarDef = createRetryManagerDef(retryNode.retrySpec, retryNode.pos);
             retryBlockStmt.stmts.add(retryManagerVarDef);
@@ -2960,7 +2966,15 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangRetryTransaction retryTransaction) {
         BLangBlockStmt retryBody = ASTBuilderUtil.createBlockStmt(retryTransaction.pos);
         retryBody.stmts.add(retryTransaction.transaction);
+
+        //transactions:Info? prevAttempt = ();
+        BLangSimpleVariableDef prevAttemptVarDef = transactionDesugar.createPrevAttemptInfoVarDef(env,
+                retryTransaction.pos);
+        retryTransaction.transaction.prevAttemptInfo = ASTBuilderUtil.createVariableRef(retryTransaction.pos,
+                prevAttemptVarDef.var.symbol);
+
         BLangRetry retry = (BLangRetry) TreeBuilder.createRetryNode();
+        retry.commonStmtForRetries = prevAttemptVarDef;
         retry.retryBody = retryBody;
         retry.retrySpec = retryTransaction.retrySpec;
         result = rewrite(retry, env);
@@ -3688,7 +3702,7 @@ public class Desugar extends BLangNodeVisitor {
                 Lists.of(errorVar), onFailReturnType, onFailClause.body.stmts,
                 env, onFailClause.body.scope);
 
-        onFailFunc.capturedClosureEnv = env.createClone();
+        onFailFunc.capturedClosureEnv = env;
         onFailFunc.parent = env.enclInvokable;
         BLangSimpleVarRef thrownErrorRef = ASTBuilderUtil.createVariableRef(onFailClause.pos, errorVar.symbol);
         onFailErrorVariableDef.var.expr = addConversionExprIfRequired(thrownErrorRef, onFailErrorVariableDef.var.type);

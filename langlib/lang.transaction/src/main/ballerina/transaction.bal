@@ -23,15 +23,22 @@ public type Info record {|
    // a previous one
    int retryNumber;
    // probably useful for timeouts and logs
-   int startTime;
+   Timestamp startTime;
    // maybe useful
    Info? prevAttempt;
 |};
 
+public type Timestamp object {
+    // Returns milliseconds since 1970-01-01T00:00:00Z, not including leap seconds
+    public function toMillisecondsInt() returns int;
+    // Returns string in ISO 8601 format
+    public function toString() returns string;
+};
+
 # This file contains default retry manager to be used with retry statement.
 
 public type RetriableError error;
-//todo use distinct when grammer allowes
+//todo use distinct when grammar allows
 //public type RetriableError distinct error;
 
 public type RetryManager object {

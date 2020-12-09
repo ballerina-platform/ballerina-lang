@@ -151,3 +151,12 @@ class EmployeeObj {
     *PersonObj;
     string designation;
 }
+
+enum Colour {
+    RED, BLUE, GREEN
+}
+
+function testEnumAsAType() {
+    Colour c = "RED";
+    string s = "Selected colour: " + c;
+}
