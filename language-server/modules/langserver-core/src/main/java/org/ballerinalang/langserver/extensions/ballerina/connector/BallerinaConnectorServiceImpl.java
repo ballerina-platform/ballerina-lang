@@ -25,11 +25,16 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.ParameterNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -168,26 +173,21 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 List<SyntaxTree> syntaxTreeList= new ArrayList<>();
                 // todo : use module1 from the to test out the semantic model stuff
 
-
-                // todo : get documentids and iterate them one by one
-
                 ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel); // check what type nodes are coming here and fix the visitor based on that
-
                 module.documentIds().forEach(documentId -> {
                     module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor);
                 });
 
                 Map<String, JsonElement> jsonRecords = new HashMap<>();
                 connectorNodeVisitor.getRecords().forEach((key, record) -> {
-                    JsonElement jsonRecordST = DiagramUtil.getSyntaxTreeJSON(record.syntaxTree().filePath(), record.syntaxTree(), semanticModel);
+                    JsonElement jsonRecordST = DiagramUtil.getSyntaxTreeJSON(record.syntaxTree(), semanticModel);
                     jsonRecords.put(key, jsonRecordST);
                 });
 
                 Gson gson = new Gson();
                 List<ClassDefinitionNode> connectorNodes = connectorNodeVisitor.getConnectors();
                 connectorNodes.forEach(connector -> {
-                    // todo : preseve the existing logic add the information to the typeData element of the syntax tree JSON and send to front end
-
+                    // todo : preserve the existing logic add the information to the typeData element of the syntax tree JSON and send to front end
                     Map<String, JsonElement> connectorRecords = new HashMap<>();
 
                     Iterator<Node> connectorChildIterator = connector.children().iterator();
@@ -196,12 +196,20 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                         Node child = connectorChildIterator.next();
                         Optional<TypeSymbol> typeSymbol = semanticModel.type(child.syntaxTree().filePath(), child.lineRange());
 
-
                         if (typeSymbol.isPresent()) {
                             TypeSymbol rawType = getRawType(typeSymbol.get());
                             if (rawType.typeKind() == TypeDescKind.FUNCTION) {
-                                if (rawType.typeKind().name() == "init") {
-                                    boolean test = false;
+                                FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) child;
+                                if (functionDefinitionNode.functionName().text().equals("init")) {
+                                    // get details regarding the init method
+                                    functionDefinitionNode.functionSignature().parameters().forEach(parameterNode -> {
+                                        boolean yeet = false;
+                                        Optional<TypeSymbol> paramTypeSymbol = semanticModel.type(parameterNode.syntaxTree().filePath(), parameterNode.lineRange());
+                                        populateConnectorRecords(parameterNode, connectorNodeVisitor.getRecords(), jsonRecords, connectorRecords);
+                                    });
+                                } else {
+                                    // remote function stuff goes here
+                                    boolean ye = false;
                                 }
                             }
                         }
@@ -237,7 +245,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 //                    connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
 //                            request.getVersion(), connector.getName().getValue(), jsonAST);
                     SyntaxTree syntaxTree = connector.syntaxTree();
-                    JsonElement jsonST = DiagramUtil.getSyntaxTreeJSON(syntaxTree.filePath(), syntaxTree, semanticModel);
+                    JsonElement jsonST = DiagramUtil.getSyntaxTreeJSON(syntaxTree, semanticModel);
                     connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
                             request.getVersion(), connector.className().text(), jsonST);
 
@@ -348,33 +356,34 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         return null;
     }
 
-    private void populateConnectorRecords(ValueType type, Map<String, BLangTypeDefinition> records,
+    private void populateConnectorRecords(ParameterNode parameterNode, Map<String, TypeDefinitionNode> records,
                                           Map<String, JsonElement> jsonRecords,
                                           Map<String, JsonElement> connectorRecords) {
-
-
-        if (type instanceof BUnionType) {
-            ((BUnionType) type).getMemberTypes().forEach(
-                    m -> populateConnectorRecords(m, records, jsonRecords, connectorRecords));
-        } else if (type instanceof BArrayType) {
-            populateConnectorRecords(((BArrayType) type).eType, records, jsonRecords, connectorRecords);
-        } else if (type instanceof BRecordType) {
-            String recordName = type.toString();
-            BLangTypeDefinition recordNode = records.get(recordName);
-            if (recordNode != null) {
-                connectorRecords.put(recordName, jsonRecords.get(recordName));
-                ((RecordTypeNode) recordNode.getTypeNode()).getFields().forEach(f -> {
-                            populateConnectorRecords(((BLangVariable) f).type, records, jsonRecords, connectorRecords);
-                        }
-                );
-
-                ((RecordTypeNode) recordNode.getTypeNode()).getTypeReferences().forEach(r -> {
-                            populateConnectorRecords(((BLangUserDefinedType) r).type, records,
-                                    jsonRecords, connectorRecords);
-                        }
-                );
-            }
-        }
+//        Optional<TypeSymbol> typeSymbol =
+//        if (parameterNode.typeName().kind() == SyntaxKind.UNION_TYPE_DESC) {
+//            boolean ye = false;
+////            ((BUnionType) type).getMemberTypes().forEach(
+////                    m -> populateConnectorRecords(m, records, jsonRecords, connectorRecords));
+//        } else if (parameterNode.typeName().kind() == SyntaxKind.ARRAY_TYPE_DESC) {
+//            boolean ho = false;
+////            populateConnectorRecords(((BArrayType) type).eType, records, jsonRecords, connectorRecords);
+//        } else if (parameterNode.typeName().kind() == SyntaxKind.RECORD_TYPE_DESC) {
+////            String recordName = type.toString();
+////            BLangTypeDefinition recordNode = records.get(recordName);
+////            if (recordNode != null) {
+////                connectorRecords.put(recordName, jsonRecords.get(recordName));
+////                ((RecordTypeNode) recordNode.getTypeNode()).getFields().forEach(f -> {
+////                            populateConnectorRecords(((BLangVariable) f).type, records, jsonRecords, connectorRecords);
+////                        }
+////                );
+////
+////                ((RecordTypeNode) recordNode.getTypeNode()).getTypeReferences().forEach(r -> {
+////                            populateConnectorRecords(((BLangUserDefinedType) r).type, records,
+////                                    jsonRecords, connectorRecords);
+////                        }
+////                );
+////            }
+//        }
     }
 
 
