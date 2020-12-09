@@ -44,6 +44,8 @@ public class ChangeParamTypeTest extends AbstractCodeActionTest {
     public Object[][] dataProvider() {
         return new Object[][]{
                 {"changeParamType1.json", "changeParamType.bal"},
+                {"changeParamType2.json", "changeParamType.bal"},
+                {"changeParamType3.json", "changeParamType.bal"},
         };
     }
 }

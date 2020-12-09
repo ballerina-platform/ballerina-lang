@@ -1,6 +1,6 @@
 {
-    "line": 1,
-    "character": 12,
+    "line": 9,
+    "character": 13,
     "expected": [
         {
             "title": "Change parameter 'b' type to 'int'",
@@ -8,12 +8,12 @@
                 {
                     "range": {
                         "start": {
-                            "line": 0,
-                            "character": 20
+                            "line": 8,
+                            "character": 21
                         },
                         "end": {
-                            "line": 0,
-                            "character": 27
+                            "line": 8,
+                            "character": 28
                         }
                     },
                     "newText": "int"

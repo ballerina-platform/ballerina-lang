@@ -1,5 +1,5 @@
 {
-    "line": 1,
+    "line": 5,
     "character": 12,
     "expected": [
         {
@@ -8,12 +8,12 @@
                 {
                     "range": {
                         "start": {
-                            "line": 0,
-                            "character": 20
+                            "line": 4,
+                            "character": 21
                         },
                         "end": {
-                            "line": 0,
-                            "character": 27
+                            "line": 4,
+                            "character": 28
                         }
                     },
                     "newText": "int"
