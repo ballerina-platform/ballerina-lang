@@ -94,20 +94,17 @@ public class DebugTestRunner {
     }
 
 
-    public static void initialize() throws BallerinaTestException, IOException {
+    public static void initialize(Path projectResources, Path singleFileResources)
+        throws BallerinaTestException, IOException {
         balServer = new BalServer();
         Path tempProjectDirectory = Files.createTempDirectory("bal-test-integration-debugger-project-");
 
         // Copy all the test resources to a temp dir.
-        Path originalSingleFilesProj = Paths.get("src", "test", "resources", "single-file-tests")
-            .toAbsolutePath();
         testSingleFileBaseDir = tempProjectDirectory.resolve("single-file-tests");
-        FileUtils.copyFolder(originalSingleFilesProj, testSingleFileBaseDir);
+        FileUtils.copyFolder(singleFileResources, testSingleFileBaseDir);
 
-        Path originalMultiModulesProj = Paths.get("src", "test", "resources", "project-based-tests")
-            .toAbsolutePath();
         testProjectBaseDir = tempProjectDirectory.resolve("project-based-tests");
-        FileUtils.copyFolder(originalMultiModulesProj, testProjectBaseDir);
+        FileUtils.copyFolder(projectResources, testProjectBaseDir);
     }
 
     public void runDebuggeeProgram(String projectPath, int port) throws BallerinaTestException {

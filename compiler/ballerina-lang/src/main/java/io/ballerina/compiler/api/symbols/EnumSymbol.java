@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,31 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package io.ballerina.compiler.api.symbols;
 
-package org.ballerinalang.packerina.model;
+import java.util.List;
 
 /**
- * Model for Balo TOML file.
+ * Represents an enum.
  *
- * @since 1.0
+ * @since 2.0.0
  */
-public class BaloToml {
-    public String balo_version = "1.0.0";
-    public String built_by = "WSO2";
+public interface EnumSymbol extends TypeDefinitionSymbol, Qualifiable, Deprecatable {
 
-    public String getBalo_version() {
-        return balo_version;
-    }
-
-    public void setBalo_version(String balo_version) {
-        this.balo_version = balo_version;
-    }
-
-    public String getBuilt_by() {
-        return built_by;
-    }
-
-    public void setBuilt_by(String built_by) {
-        this.built_by = built_by;
-    }
+    /**
+     * Retrieves a list of the members of this enum.
+     *
+     * @return A {@link List} of enum members
+     */
+    List<ConstantSymbol> members();
 }

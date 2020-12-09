@@ -72,3 +72,14 @@ enum Colour {
 function testFunctionCall() {
     test();
 }
+
+# The key algorithms supported by the Crypto module.
+public type KeyAlgorithm RSA;
+
+# The RSA algorithm.
+public const RSA = "RSA";
+
+function testExprs()  {
+    RSA rsa = "RSA";
+    string s = RSA;
+}
