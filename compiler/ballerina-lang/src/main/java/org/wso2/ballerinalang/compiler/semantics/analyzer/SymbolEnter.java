@@ -1761,7 +1761,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
             var.type = type;
-            defineNode(var ,env);
+            defineNode(var, env);
         }
 
         if (!varNode.memberVariables.isEmpty() && ignoredCount == varNode.memberVariables.size()
