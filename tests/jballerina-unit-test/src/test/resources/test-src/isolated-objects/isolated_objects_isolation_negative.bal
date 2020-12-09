@@ -495,3 +495,17 @@ client isolated class InvalidIsolatedClientClassWithCopyInInsideBlock {
         }
     }
 }
+
+type IsolatedServiceObjectType isolated service object {
+    int a;
+    string[] b;
+};
+
+service isolated class InvalidIsolatedServiceClassNotOverridingMutableFieldsInIncludedIsolatedServiceObject {
+    *IsolatedServiceObjectType;
+
+    function init() {
+        self.a = 1;
+        self.b = [];
+    }
+}
