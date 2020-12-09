@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -76,6 +77,11 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
     @Override
     public boolean deprecated() {
         return this.deprecated;
+    }
+
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return Collections.unmodifiableList(new ArrayList<>());
     }
 
     /**

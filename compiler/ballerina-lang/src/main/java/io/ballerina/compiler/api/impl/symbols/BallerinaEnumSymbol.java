@@ -18,6 +18,7 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -48,6 +49,11 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
     @Override
     public List<ConstantSymbol> members() {
         return this.members;
+    }
+
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return Collections.unmodifiableList(new ArrayList<>());
     }
 
     @Override

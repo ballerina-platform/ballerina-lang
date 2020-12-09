@@ -17,15 +17,20 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -39,12 +44,14 @@ public class BallerinaFieldSymbol extends BallerinaSymbol implements FieldSymbol
     private final BField bField;
     private final CompilerContext context;
     private TypeSymbol typeDescriptor;
+    private boolean deprecated;
 
     public BallerinaFieldSymbol(CompilerContext context, BField bField) {
         super(bField.name.value, bField.symbol.pkgID, SymbolKind.FIELD, bField.symbol);
         this.context = context;
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
+        this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);
     }
 
     /**
@@ -79,6 +86,16 @@ public class BallerinaFieldSymbol extends BallerinaSymbol implements FieldSymbol
         }
 
         return this.typeDescriptor;
+    }
+
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return Collections.unmodifiableList(new ArrayList<>());
+    }
+
+    @Override
+    public boolean deprecated() {
+        return this.deprecated;
     }
 
     /**

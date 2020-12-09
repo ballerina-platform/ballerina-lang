@@ -87,6 +87,11 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
     }
 
     @Override
+    public List<AnnotationSymbol> annotations() {
+        return Collections.unmodifiableList(new ArrayList<>());
+    }
+
+    @Override
     public boolean deprecated() {
         return this.deprecated;
     }

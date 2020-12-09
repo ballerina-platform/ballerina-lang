@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -95,6 +96,11 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     @Override
     public List<TypeQualifier> typeQualifiers() {
         return this.typeDescriptor.typeQualifiers();
+    }
+
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return Collections.unmodifiableList(new ArrayList<>());
     }
 
     @Override
