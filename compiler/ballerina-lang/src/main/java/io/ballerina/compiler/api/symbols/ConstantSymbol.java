@@ -22,7 +22,7 @@ package io.ballerina.compiler.api.symbols;
  *
  * @since 2.0.0
  */
-public interface ConstantSymbol extends VariableSymbol {
+public interface ConstantSymbol extends VariableSymbol, SingletonTypeSymbol {
 
     /**
      * Get the constant value.
@@ -30,4 +30,11 @@ public interface ConstantSymbol extends VariableSymbol {
      * @return {@link Object} value of the constant
      */
     Object constValue();
+
+    /**
+     * Gets the broader type of constant expression associated with this symbol.
+     *
+     * @return {@link TypeSymbol} of the broader type
+     */
+    TypeSymbol broaderTypeDescriptor();
 }

@@ -3115,11 +3115,6 @@
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
-                    "name": "restBindingPattern",
-                    "type": "RestBindingPatternNode",
-                    "isOptional": true
-                },
-                {
                     "name": "closeBracket",
                     "type": "Token"
                 }
@@ -3136,13 +3131,8 @@
                 },
                 {
                     "name": "fieldBindingPatterns",
-                    "type": "FieldBindingPatternNode",
+                    "type": "BindingPatternNode",
                     "occurrences": "MULTIPLE_SEPARATED"
-                },
-                {
-                    "name": "restBindingPattern",
-                    "type": "RestBindingPatternNode",
-                    "isOptional": true
                 },
                 {
                     "name": "closeBrace",
@@ -3152,7 +3142,7 @@
         },
         {
             "name": "FieldBindingPatternNode",
-            "base": "Node",
+            "base": "BindingPatternNode",
             "isAbstract": true
         },
         {

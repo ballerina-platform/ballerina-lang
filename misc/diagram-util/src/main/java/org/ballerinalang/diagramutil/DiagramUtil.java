@@ -23,6 +23,9 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * This is the DiagramUtil class for Diagram related Utils which include the JSON conversion of the Syntax Tree.
  */
@@ -31,16 +34,23 @@ public class DiagramUtil {
     /**
      * Get the Modified JSON ST with type info.
      *
-     * @param fileName      File name of the source bal
      * @param syntaxTree    SyntaxTree to be modified and in need to convert to JSON.
      * @param semanticModel Semantic model for the syntax tree.
      * @return {@link JsonObject}   ST as a Json Object
      */
-    public static JsonElement getSyntaxTreeJSON(String fileName, SyntaxTree syntaxTree, SemanticModel semanticModel) {
-        // Map each type data by looking at the line ranges and prepare the SyntaxTree JSON.
-        SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(fileName, semanticModel);
-        ModulePartNode modulePartNode = syntaxTree.rootNode();
-        return mapGenerator.transform(modulePartNode);
-    }
+    public static JsonElement getSyntaxTreeJSON(SyntaxTree syntaxTree, SemanticModel semanticModel) {
+        JsonElement syntaxTreeJson;
+        try {
+            // Map each type data by looking at the line ranges and prepare the SyntaxTree JSON.
+            Path filePath = Paths.get(syntaxTree.filePath());
+            String fileName = filePath.getFileName() != null ? filePath.getFileName().toString() : "";
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(fileName, semanticModel);
+            ModulePartNode modulePartNode = syntaxTree.rootNode();
+            syntaxTreeJson = mapGenerator.transform(modulePartNode);
+        } catch (NullPointerException e) {
+            syntaxTreeJson = new JsonObject();
+        }
 
+        return syntaxTreeJson;
+    }
 }

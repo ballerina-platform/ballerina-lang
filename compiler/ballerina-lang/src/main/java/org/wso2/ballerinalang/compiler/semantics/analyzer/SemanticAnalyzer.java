@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -2834,6 +2835,46 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
             } else if (attachExpr.getKind() != NodeKind.TYPE_INIT_EXPR) {
                 dlog.error(attachExpr.pos, DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT);
+            }
+
+            if (exprType.getKind() == TypeKind.OBJECT) {
+                BObjectType listenerType = (BObjectType) exprType;
+                validateServicePathOnListener(serviceNode, attachExpr, listenerType);
+            }
+        }
+    }
+
+    private void validateServicePathOnListener(BLangService serviceNode, BLangExpression attachExpr,
+                                               BObjectType listenerType) {
+        for (var func : ((BObjectTypeSymbol) listenerType.tsymbol).attachedFuncs) {
+            if (func.funcName.value.equals("attach")) {
+                BType pathParam = func.type.paramTypes.get(1);
+                boolean isStringComponentAvailable = types.isAssignable(symTable.stringType, pathParam);
+                boolean isNullable = pathParam.isNullable();
+                boolean isArrayComponentAvailable = types.isAssignable(symTable.arrayStringType, pathParam);
+
+                boolean pathLiteral = serviceNode.serviceNameLiteral != null;
+                boolean absolutePath = !serviceNode.absoluteResourcePath.isEmpty();
+
+                Location pos = attachExpr.getPosition();
+
+                if (!pathLiteral && isStringComponentAvailable && !isArrayComponentAvailable && !isNullable) {
+                    dlog.error(pos, DiagnosticErrorCode.SERVICE_LITERAL_REQUIRED_BY_LISTENER);
+                } else if (!absolutePath && isArrayComponentAvailable && !isStringComponentAvailable && !isNullable) {
+                    dlog.error(pos, DiagnosticErrorCode.SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER);
+                } else if (!pathLiteral && !absolutePath && !isNullable) {
+                    dlog.error(pos, DiagnosticErrorCode.SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER);
+                }
+
+                // Path literal is provided, listener does not accept path literal
+                if (pathLiteral && !isStringComponentAvailable) {
+                    dlog.error(pos, DiagnosticErrorCode.SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER);
+                }
+
+                // Absolute path is provided, Listener does not accept abs path
+                if (absolutePath && !isArrayComponentAvailable) {
+                    dlog.error(pos, DiagnosticErrorCode.SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER);
+                }
             }
         }
     }

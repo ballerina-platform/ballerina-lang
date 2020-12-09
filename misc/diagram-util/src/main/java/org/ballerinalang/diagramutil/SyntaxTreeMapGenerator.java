@@ -123,7 +123,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 }
 
                 nodeJson.add("typeData", symbolJson);
-            } catch (NoSuchElementException | JSONGenerationException e) {
+            } catch (NoSuchElementException | JSONGenerationException | AssertionError e) {
+                // TODO: Remove the AssertionError catcher when fix the symbolVisitor to be extended from BaseVisitor.
                 // Ignore as semantic API calls cannot break the ST JSON creation.
             }
 

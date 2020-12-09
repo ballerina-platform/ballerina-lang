@@ -456,45 +456,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
       "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "type <ErrorName> error<?>",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "error<${1:map<anydata>}>;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "record {}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "record {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "record {||}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "record {|\n\t${1}\n|}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object {}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "object {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

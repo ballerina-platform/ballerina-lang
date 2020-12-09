@@ -63,6 +63,10 @@ function testOnFailStatement() {
     string failWithinOnFail4Res = testFailWithinOnFail4();
     assertEquality("-> Within do statement-> Error caught in inner on fail-> Error caught in outer on fail" +
     "-> Execution completed.", failWithinOnFail4Res);
+
+    string failWithinOnFail5Res = testFailWithinOnFail5();
+    assertEquality("-> Within do statement-> Error caught in inner on fail-> Error caught in L2 on fail" +
+    "-> Error caught in L1 on fail-> Execution completed.", failWithinOnFail5Res);
 }
 
 function testOnFail () returns string {
@@ -317,6 +321,29 @@ function testFailWithinOnFail4() returns string {
       str += "-> After do statement";
     } on fail error ee {
        str += "-> Error caught in outer on fail";
+    }
+    str += "-> Execution completed.";
+    return str;
+}
+
+function testFailWithinOnFail5 () returns string {
+    string str = "";
+    do {
+         do {
+              do {
+                  str += "-> Within do statement";
+                  fail error("L3");
+              } on fail error e {
+                 str += "-> Error caught in inner on fail";
+                 fail error("L3 On-Fail");
+              }
+              str += "-> After do statement";
+         } on fail error ee {
+              str += "-> Error caught in L2 on fail";
+              fail error("L2 On-Fail");
+         }
+    } on fail error eee {
+        str += "-> Error caught in L1 on fail";
     }
     str += "-> Execution completed.";
     return str;

@@ -61,7 +61,6 @@ import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FailStatementNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternFullNode;
-import io.ballerina.compiler.syntax.tree.FieldBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.FlushActionNode;
 import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
@@ -1075,6 +1074,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangClassDefinition transformObjectCtorExpressionBody(NodeList<Node> members) {
         BLangClassDefinition classDefinition = (BLangClassDefinition) TreeBuilder.createClassDefNode();
         classDefinition.flagSet.add(Flag.ANONYMOUS);
+        classDefinition.flagSet.add(Flag.OBJECT_CTOR);
 
         for (Node node : members) {
             BLangNode bLangNode = node.apply(this);
@@ -2309,20 +2309,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         recordVarRef.pos = getPosition(mappingBindingPatternNode);
 
         List<BLangRecordVarRefKeyValue> expressions = new ArrayList<>();
-        for (FieldBindingPatternNode expr : mappingBindingPatternNode.fieldBindingPatterns()) {
-            expressions.add(createRecordVarKeyValue(expr));
+        for (BindingPatternNode expr : mappingBindingPatternNode.fieldBindingPatterns()) {
+            if (expr.kind() == SyntaxKind.REST_BINDING_PATTERN) {
+                recordVarRef.restParam = createExpression(expr);
+            } else {
+                expressions.add(createRecordVarKeyValue(expr));
+            }
         }
         recordVarRef.recordRefFields = expressions;
-
-        Optional<RestBindingPatternNode> restBindingPattern = mappingBindingPatternNode.restBindingPattern();
-        if (restBindingPattern.isPresent()) {
-            recordVarRef.restParam = createExpression(restBindingPattern.get());
-        }
-
         return recordVarRef;
     }
 
-    private BLangRecordVarRefKeyValue createRecordVarKeyValue(FieldBindingPatternNode expr) {
+    private BLangRecordVarRefKeyValue createRecordVarKeyValue(BindingPatternNode expr) {
         BLangRecordVarRefKeyValue keyValue = new BLangRecordVarRefKeyValue();
         if (expr instanceof FieldBindingPatternFullNode) {
             FieldBindingPatternFullNode fullNode = (FieldBindingPatternFullNode) expr;
@@ -2346,15 +2344,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) TreeBuilder.createTupleVariableReferenceNode();
         List<BLangExpression> expressions = new ArrayList<>();
         for (BindingPatternNode expr : listBindingPatternNode.bindingPatterns()) {
-            expressions.add(createExpression(expr));
+            if (expr.kind() == SyntaxKind.REST_BINDING_PATTERN) {
+                tupleVarRef.restParam = createExpression(expr);
+            } else {
+                expressions.add(createExpression(expr));
+            }
         }
         tupleVarRef.expressions = expressions;
         tupleVarRef.pos = getPosition(listBindingPatternNode);
-        Optional<RestBindingPatternNode> restBindingPattern = listBindingPatternNode.restBindingPattern();
-        if (restBindingPattern.isPresent()) {
-            tupleVarRef.restParam = createExpression(restBindingPattern.get());
-        }
-
         return tupleVarRef;
     }
 
@@ -3408,6 +3405,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (publicQualifier) {
             bLangTypeDefinition.flagSet.add(Flag.PUBLIC);
         }
+        bLangTypeDefinition.flagSet.add(Flag.ENUM);
 
         bLangTypeDefinition.setName((BLangIdentifier) transform(enumDeclarationNode.identifier()));
         bLangTypeDefinition.pos = getPosition(enumDeclarationNode);
@@ -4135,17 +4133,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return value.toString();
     }
 
-    private List<BLangRecordVariableKeyValue>
-            createVariableListForMappingBindingPattern(MappingBindingPatternNode mappingBindingPatternNode) {
-
+    private BLangRecordVariable createBLangRecordVariable(MappingBindingPatternNode mappingBindingPatternNode) {
+        BLangRecordVariable recordVariable = (BLangRecordVariable) TreeBuilder.createRecordVariableNode();
         List<BLangRecordVariableKeyValue> fieldBindingPatternsList = new ArrayList<>();
-        for (FieldBindingPatternNode node : mappingBindingPatternNode.fieldBindingPatterns()) {
+
+        for (BindingPatternNode node : mappingBindingPatternNode.fieldBindingPatterns()) {
             BLangRecordVariableKeyValue recordKeyValue = new BLangRecordVariableKeyValue();
             if (node instanceof FieldBindingPatternFullNode) {
                 FieldBindingPatternFullNode fullNode = (FieldBindingPatternFullNode) node;
                 recordKeyValue.key = createIdentifier(fullNode.variableName().name());
                 recordKeyValue.valueBindingPattern = getBLangVariableNode(fullNode.bindingPattern());
-            } else {
+            } else if (node instanceof FieldBindingPatternVarnameNode) {
                 FieldBindingPatternVarnameNode varnameNode = (FieldBindingPatternVarnameNode) node;
                 recordKeyValue.key = createIdentifier(varnameNode.variableName().name());
                 BLangSimpleVariable value = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
@@ -4154,12 +4152,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 ((BLangIdentifier) name).pos = value.pos;
                 value.setName(name);
                 recordKeyValue.valueBindingPattern = value;
+            } else { // rest-binding-pattern
+                recordVariable.restParam = getBLangVariableNode(node);
+                break;
             }
 
             fieldBindingPatternsList.add(recordKeyValue);
         }
 
-        return fieldBindingPatternsList;
+        recordVariable.variableList = fieldBindingPatternsList;
+        recordVariable.pos = getPosition(mappingBindingPatternNode);
+        return recordVariable;
     }
 
     private BLangLiteral createEmptyLiteral() {
@@ -4186,28 +4189,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         switch (bindingPattern.kind()) {
             case MAPPING_BINDING_PATTERN:
                 MappingBindingPatternNode mappingBindingPatternNode = (MappingBindingPatternNode) bindingPattern;
-                BLangRecordVariable recordVariable = (BLangRecordVariable) TreeBuilder.createRecordVariableNode();
-                recordVariable.pos = getPosition(mappingBindingPatternNode);
-                recordVariable.variableList = createVariableListForMappingBindingPattern(mappingBindingPatternNode);
-                if (mappingBindingPatternNode.restBindingPattern().isPresent()) {
-                    recordVariable.restParam =
-                            getBLangVariableNode(mappingBindingPatternNode.restBindingPattern().get());
-                }
-
-                return recordVariable;
+                return createBLangRecordVariable(mappingBindingPatternNode);
             case LIST_BINDING_PATTERN:
                 ListBindingPatternNode listBindingPatternNode = (ListBindingPatternNode) bindingPattern;
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
                 tupleVariable.pos = getPosition(listBindingPatternNode);
 
-                Optional<RestBindingPatternNode> restBindingPattern = listBindingPatternNode.restBindingPattern();
-                if (restBindingPattern.isPresent()) {
-                    tupleVariable.restVariable = getBLangVariableNode(restBindingPattern.get());
-                }
-
                 for (BindingPatternNode memberBindingPattern : listBindingPatternNode.bindingPatterns()) {
-                    BLangVariable member = getBLangVariableNode(memberBindingPattern);
-                    tupleVariable.memberVariables.add(member);
+                    if (memberBindingPattern.kind() == SyntaxKind.REST_BINDING_PATTERN) {
+                        tupleVariable.restVariable = getBLangVariableNode(memberBindingPattern);
+                    } else {
+                        BLangVariable member = getBLangVariableNode(memberBindingPattern);
+                        tupleVariable.memberVariables.add(member);
+                    }
                 }
 
                 return tupleVariable;

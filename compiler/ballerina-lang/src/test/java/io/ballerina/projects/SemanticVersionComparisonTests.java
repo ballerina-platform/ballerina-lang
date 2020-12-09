@@ -75,7 +75,7 @@ public class SemanticVersionComparisonTests {
 
         v1 = SemanticVersion.from("1.1.1");
         v2 = SemanticVersion.from("2.1.1");
-        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.LESS_THAN);
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.INCOMPATIBLE);
 
         v1 = SemanticVersion.from("1.1.2");
         v2 = SemanticVersion.from("1.1.1");
@@ -87,6 +87,6 @@ public class SemanticVersionComparisonTests {
 
         v1 = SemanticVersion.from("2.1.1");
         v2 = SemanticVersion.from("1.1.1");
-        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.GREATER_THAN);
+        Assert.assertEquals(v1.compareTo(v2), VersionCompatibilityResult.INCOMPATIBLE);
     }
 }
