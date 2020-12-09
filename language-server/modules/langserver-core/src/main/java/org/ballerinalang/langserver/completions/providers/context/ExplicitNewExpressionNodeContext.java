@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -62,12 +62,12 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
             (1) public listener mod:Listener test = new <cursor>
             (2) public listener mod:Listener test = new a<cursor>
              */
-            List<ObjectTypeSymbol> filteredList = visibleSymbols.stream()
+            List<ClassSymbol> filteredList = visibleSymbols.stream()
                     .filter(SymbolUtil::isListener)
-                    .map(symbol -> (ObjectTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor())
+                    .map(SymbolUtil::getTypeDescForClassSymbol)
                     .collect(Collectors.toList());
-            for (ObjectTypeSymbol objectTypeDesc : filteredList) {
-                completionItems.add(this.getExplicitNewCompletionItem(objectTypeDesc, context));
+            for (ClassSymbol classSymbol : filteredList) {
+                completionItems.add(this.getExplicitNewCompletionItem(classSymbol, context));
             }
             completionItems.addAll(this.getModuleCompletionItems(context));
         } else if (this.onQualifiedNameIdentifier(context, typeDescriptor)) {
@@ -77,12 +77,19 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
             if (module.isEmpty()) {
                 return completionItems;
             }
-            List<ObjectTypeSymbol> filteredList = module.get().allSymbols().stream()
-                    .filter(SymbolUtil::isListener)
-                    .map(symbol -> (ObjectTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor())
-                    .collect(Collectors.toList());
-            for (ObjectTypeSymbol objectTypeDesc : filteredList) {
-                completionItems.add(this.getExplicitNewCompletionItem(objectTypeDesc, context));
+            List<ClassSymbol> filteredList = new ArrayList<>();
+            for (Symbol symbol : module.get().allSymbols()) {
+                if (SymbolUtil.isListener(symbol)) {
+                    Optional<? extends TypeSymbol> typeSymbol = SymbolUtil.getTypeDescriptor(symbol);
+                    if (typeSymbol.isEmpty()) {
+                        continue;
+                    }
+                    ClassSymbol classSymbol = (ClassSymbol) typeSymbol.get();
+                    filteredList.add(classSymbol);
+                }
+            }
+            for (ClassSymbol classSymbol : filteredList) {
+                completionItems.add(this.getExplicitNewCompletionItem(classSymbol, context));
             }
         }
 

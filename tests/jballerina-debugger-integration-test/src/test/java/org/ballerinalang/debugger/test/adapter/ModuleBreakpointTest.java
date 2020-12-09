@@ -18,8 +18,9 @@
 package org.ballerinalang.debugger.test.adapter;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
+import org.ballerinalang.debugger.test.BaseTestCase;
 import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
@@ -28,39 +29,39 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.nio.file.Paths;
+import static org.ballerinalang.debugger.test.utils.DebugTestRunner.DebugResumeKind;
 
 /**
  * Test class for ballerina breakpoints related test scenarios.
  */
-public class ModuleBreakpointTest extends DebugAdapterBaseTestCase {
+public class ModuleBreakpointTest extends BaseTestCase {
+
+    DebugTestRunner debugTestRunner;
 
     @BeforeClass
     public void setup() {
-        testProjectName = "breakpoint-tests";
-        testModuleFileName = "main.bal";
-        testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
-        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
+        String testProjectName = "breakpoint-tests";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
     @Test
     public void testMultipleBreakpointsInSameFile() throws BallerinaTestException {
 
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 19));
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 33));
-        initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 19));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 33));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
-        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
 
-        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo2 = waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo2.getLeft(), testBreakpoints.get(1));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo2 = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo2.getLeft(), debugTestRunner.testBreakpoints.get(1));
     }
 
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
-        terminateDebugSession();
+        debugTestRunner.terminateDebugSession();
     }
 }

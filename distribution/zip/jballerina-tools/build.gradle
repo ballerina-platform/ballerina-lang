@@ -112,7 +112,6 @@ dependencies {
     dist project(':maven-resolver')
     dist project(':language-server:language-server-compiler')
     dist project(':language-server:language-server-commons')
-    dist project(':ballerina-packerina')
     dist project(':docerina')
     dist project(':observerability-symbol-collector')
     dist project(':testerina:testerina-runtime')

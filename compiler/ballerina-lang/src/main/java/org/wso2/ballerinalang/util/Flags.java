@@ -69,8 +69,10 @@ public class Flags {
     public static final long ISOLATED_PARAM = ISOLATED << 1;                    //  30
     public static final long CONFIGURABLE = ISOLATED_PARAM << 1;                 //  31
 
-    public static int asMask(Set<Flag> flagSet) {
-        int mask = 0;
+    public static final long ENUM = CONFIGURABLE << 1;                          // 32
+
+    public static long asMask(Set<Flag> flagSet) {
+        long mask = 0;
         for (Flag flag : flagSet) {
             switch (flag) {
                 case PUBLIC:
@@ -159,6 +161,9 @@ public class Flags {
                     break;
                 case CONFIGURABLE:
                     mask |= CONFIGURABLE;
+                    break;
+                case ENUM:
+                    mask |= ENUM;
                     break;
             }
         }
@@ -250,6 +255,9 @@ public class Flags {
                     break;
                 case CONFIGURABLE:
                     flagVal = CONFIGURABLE;
+                    break;
+                case ENUM:
+                    flagVal = ENUM;
                     break;
                 default:
                     continue;

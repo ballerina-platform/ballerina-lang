@@ -2304,14 +2304,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(listBindingPatternNode.openBracket());
         SeparatedNodeList<BindingPatternNode> bindingPatterns =
                 modifySeparatedNodeList(listBindingPatternNode.bindingPatterns());
-        RestBindingPatternNode restBindingPattern =
-                modifyNode(listBindingPatternNode.restBindingPattern().orElse(null));
         Token closeBracket =
                 modifyToken(listBindingPatternNode.closeBracket());
         return listBindingPatternNode.modify(
                 openBracket,
                 bindingPatterns,
-                restBindingPattern,
                 closeBracket);
     }
 
@@ -2320,16 +2317,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             MappingBindingPatternNode mappingBindingPatternNode) {
         Token openBrace =
                 modifyToken(mappingBindingPatternNode.openBrace());
-        SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatterns =
+        SeparatedNodeList<BindingPatternNode> fieldBindingPatterns =
                 modifySeparatedNodeList(mappingBindingPatternNode.fieldBindingPatterns());
-        RestBindingPatternNode restBindingPattern =
-                modifyNode(mappingBindingPatternNode.restBindingPattern().orElse(null));
         Token closeBrace =
                 modifyToken(mappingBindingPatternNode.closeBrace());
         return mappingBindingPatternNode.modify(
                 openBrace,
                 fieldBindingPatterns,
-                restBindingPattern,
                 closeBrace);
     }
 
