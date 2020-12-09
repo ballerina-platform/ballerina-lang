@@ -295,7 +295,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
     private boolean queryToTableWithKey;
-    private List<BType> matchExprTypes;
     private BType matchExprType;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
@@ -634,7 +633,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!withinTransactionScope || !commitRollbackAllowed) {
+        if (!withinTransactionScope || !commitRollbackAllowed ||
+                (!this.loopWithinTransactionCheckStack.empty() && this.loopWithinTransactionCheckStack.peek())) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_NOT_ALLOWED);
             return;
         }
@@ -653,7 +653,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!withinTransactionScope || !commitRollbackAllowed) {
+        if (!withinTransactionScope || !commitRollbackAllowed ||
+                (!this.loopWithinTransactionCheckStack.empty() && this.loopWithinTransactionCheckStack.peek())) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_NOT_ALLOWED);
             return;
         }
