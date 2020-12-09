@@ -169,7 +169,7 @@ public class RunTestsTask implements Task {
             ModuleName moduleName = module.moduleName();
 
             if (isModuleTestExecution) {
-                if (moduleName.moduleNamePart() == null) {
+                if (!(project.currentPackage().moduleIds().size() == 1) && (moduleName.moduleNamePart() == null)) {
                     continue;
                 }
             }

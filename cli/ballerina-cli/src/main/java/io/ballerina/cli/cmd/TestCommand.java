@@ -209,7 +209,8 @@ public class TestCommand implements BLauncherCmd {
                     }
                 }
 
-                if (modifiedPackage.moduleIds().size() <= 1) {
+                if (!moduleName.equals(modifiedPackage.packageName().toString())
+                        && modifiedPackage.moduleIds().size() <= 1) {
                     errStream.println("error: Cannot execute module " + moduleName + ". Does not exist in the modules" +
                             " directory");
                     return;

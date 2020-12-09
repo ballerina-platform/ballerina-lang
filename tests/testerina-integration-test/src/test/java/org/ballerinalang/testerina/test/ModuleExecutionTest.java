@@ -54,6 +54,18 @@ public class ModuleExecutionTest extends BaseTestCase {
     }
 
     @Test()
+    public void test_DefaultModuleTestExecution() throws BallerinaTestException {
+        String msg1 = "module_execution_tests";
+        String msg2 = "2 passing";
+        LogLeecher clientLeecher1 = new LogLeecher(msg1);
+        LogLeecher clientLeecher2 = new LogLeecher(msg2);
+        balClient.runMain("test", new String[]{"module_execution_tests"}, null, new String[]{},
+                new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
+        clientLeecher1.waitForText(20000);
+        clientLeecher2.waitForText(20000);
+    }
+
+    @Test()
     public void test_NonExistingModuleTextExecution() throws BallerinaTestException {
         String msg1 = "error: Cannot execute module ModuleA. Does not exist in the modules directory";
         String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"ModuleA"}, new HashMap<>(),
