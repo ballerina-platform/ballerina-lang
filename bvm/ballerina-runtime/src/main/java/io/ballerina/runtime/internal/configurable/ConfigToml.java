@@ -59,14 +59,18 @@ public class ConfigToml {
         parseToml();
         List<Diagnostic> diagnosticList = getDiagnostics();
         if (diagnosticList.size() != 0) {
-            throw new TomlException(INVALID_TOML_FILE + getErrorMessage(diagnosticList.get(0)));
+            throw new TomlException(INVALID_TOML_FILE + getErrorMessage(diagnosticList));
         }
         return tomlAstNode;
     }
 
-    private String getErrorMessage(Diagnostic diagnostic) {
-        LineRange lineRange = diagnostic.location().lineRange();
-        return diagnostic.message() + " [" + lineRange.filePath() + ":" + lineRange + "]";
+    private String getErrorMessage(List<Diagnostic> diagnosticList) {
+        StringBuilder errorMessage = new StringBuilder("\n");
+        for (Diagnostic diagnostic : diagnosticList) {
+            LineRange lineRange = diagnostic.location().lineRange();
+            errorMessage.append(diagnostic.message() + " [" + lineRange.filePath() + ":" + lineRange + "]\n");
+        }
+        return errorMessage.toString();
     }
 
     private TextDocument textDocument() {

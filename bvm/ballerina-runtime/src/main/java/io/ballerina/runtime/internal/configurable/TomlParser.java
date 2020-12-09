@@ -81,7 +81,7 @@ public class TomlParser {
             for (VariableKey key : moduleEntry.getValue()) {
                 if (!moduleNode.entries().containsKey(key.variable)) {
                     //It is an optional configurable variable
-                    break;
+                    continue;
                 }
                 Object value = validateNodeAndExtractValue(key, moduleNode.entries());
                 ConfigurableMap.put(key, value);
