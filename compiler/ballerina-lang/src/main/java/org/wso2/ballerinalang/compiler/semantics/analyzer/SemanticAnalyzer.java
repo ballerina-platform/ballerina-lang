@@ -1029,6 +1029,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     tupleVariable.type = symTable.semanticError;
                     return;
                 }
+                tupleVariable.annAttachments.forEach(annotationAttachment -> {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+                    annotationAttachment.accept(this);
+                });
+
+                validateAnnotationAttachmentCount(tupleVariable.annAttachments);
                 break;
             case RECORD_VARIABLE:
                 if (varRefExpr == null) {

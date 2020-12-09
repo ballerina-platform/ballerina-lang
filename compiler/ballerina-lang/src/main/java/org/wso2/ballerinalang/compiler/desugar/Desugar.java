@@ -858,8 +858,9 @@ public class Desugar extends BLangNodeVisitor {
                             initFnBody.stmts.add(rewrite(bLangStatement, this.initFunctionEnv));
                             continue;
                         }
-                        rewrite(bLangStatement, env);
                         BLangSimpleVariableDef simpleVarDef = (BLangSimpleVariableDef) bLangStatement;
+                        simpleVarDef.var.annAttachments = globalVar.getAnnotationAttachments();
+                        rewrite(simpleVarDef, env);
                         addToInitFunction(simpleVarDef.var, initFnBody);
                         desugaredGlobalVarList.add(simpleVarDef.var);
                     }

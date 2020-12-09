@@ -29,3 +29,8 @@ public function testBasic() returns [int, float, string] {
 }
 // Only simple variables are allowed to be isolated
 isolated [int, string] [e, f] = [5, "Jhone"];
+
+const annotation annot on source function;
+
+@annot
+[int, int] [j, k] = [1, 2];

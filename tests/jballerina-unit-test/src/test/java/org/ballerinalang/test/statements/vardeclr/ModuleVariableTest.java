@@ -62,6 +62,7 @@ public class ModuleVariableTest {
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 23, 12);
         validateError(compileResultNegative, index++, "undefined symbol 'd'", 24, 9);
         validateError(compileResultNegative, index++, "only a simple variable can be marked as 'isolated'", 31, 1);
+        validateError(compileResultNegative, index++, "annotation 'annot' is not allowed on var", 35, 1);
         assertEquals(compileResultNegative.getErrorCount(), index);
     }
 

@@ -74,6 +74,10 @@ const annotation map<string> annot on source var;
     value: "annotationValue"
 }
 [int, int] [j, k] = [1, 2];
+@annot {
+    value: "annotationValue"
+}
+var [j1, k1] = g;
 public function testTupleVarWithAnnotations() {
     assertEquality(1, j);
     assertEquality(2, k);
