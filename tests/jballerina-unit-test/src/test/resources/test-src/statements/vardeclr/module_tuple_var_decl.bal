@@ -68,24 +68,28 @@ function testDeclaredWithVar() {
 }
 
 // Test tuple var declaration with annotations
-const annotation annot on source var;
+const annotation map<string> annot on source var;
 
-@annot
+@annot {
+    value: "annotationValue"
+}
 [int, int] [j, k] = [1, 2];
 public function testTupleVarWithAnnotations() {
     assertEquality(1, j);
     assertEquality(2, k);
+    assertEquality(1, j1);
+    assertEquality("", k1);
 }
 
 // Test tuple variable reordering/forward referencing
 [decimal, byte] [l, m] = [n ,o];
-decimal n = 2.25;
-byte o = 20;
+[decimal, byte] [n, o] = [2.25, 20];
 public function testVariableForwardReferencing() {
     assertEquality(<decimal> 2.25, l);
     assertEquality(20, m);
 }
 
+// Support codes
 type Foo record {
     string name;
     int age;
