@@ -61,6 +61,7 @@ public class LSConnectorUtil {
         if (Files.exists(destinationPath)) {
             return;
         }
+        // todo : fix the filepaths
         try {
             destinationPath = Files.createDirectories(CommonUtil.LS_CONNECTOR_CACHE_DIR.resolve(cacheableKey));
         } catch (IOException e) {
@@ -78,29 +79,30 @@ public class LSConnectorUtil {
             ZipEntry zipEntry = zis.getNextEntry();
             while (zipEntry != null) {
                 String fileName = zipEntry.getName();
-                if (zipEntry.isDirectory() && fileName.startsWith(ProjectDirConstants.SOURCE_DIR_NAME)) {
+                if (zipEntry.isDirectory() && fileName.startsWith(ProjectDirConstants.MODULES_ROOT)) {
                     Files.createDirectories(destinationPath.resolve(fileName));
-                } else {
-                    if (fileName.equalsIgnoreCase(ProjectDirConstants.BALO_METADATA_DIR_NAME +
-                            ZIPENTRY_FILE_SEPARATOR + ProjectDirConstants.MANIFEST_FILE_NAME)) {
-                        fileName = ProjectDirConstants.MANIFEST_FILE_NAME;
-                    } else if (!fileName.startsWith(ProjectDirConstants.SOURCE_DIR_NAME)) {
-                        fileName = null;
-                    }
-                    if (fileName != null) {
-                        File newFile = destinationPath.resolve(fileName).toFile();
-                        int length;
-                        try (FileOutputStream fos = new FileOutputStream(newFile)) {
-                            while ((length = zis.read(buffer)) > 0) {
-                                fos.write(buffer, 0, length);
-                            }
-                            boolean readOnly = newFile.setReadOnly();
-                            if (!readOnly) {
-                                logger.warn("Failed to set the cached source read only");
-                            }
-                        }
-                    }
                 }
+//                else {
+//                    if (fileName.equalsIgnoreCase(ProjectDirConstants.BALO_METADATA_DIR_NAME +
+//                            ZIPENTRY_FILE_SEPARATOR + ProjectDirConstants.MANIFEST_FILE_NAME)) {
+//                        fileName = ProjectDirConstants.MANIFEST_FILE_NAME;
+//                    } else if (!fileName.startsWith(ProjectDirConstants.MODULES_ROOT)) {
+//                        fileName = null;
+//                    }
+//                    if (fileName != null) {
+//                        File newFile = destinationPath.resolve(fileName).toFile();
+//                        int length;
+//                        try (FileOutputStream fos = new FileOutputStream(newFile)) {
+//                            while ((length = zis.read(buffer)) > 0) {
+//                                fos.write(buffer, 0, length);
+//                            }
+//                            boolean readOnly = newFile.setReadOnly();
+//                            if (!readOnly) {
+//                                logger.warn("Failed to set the cached source read only");
+//                            }
+//                        }
+//                    }
+//                }
                 zipEntry = zis.getNextEntry();
             }
         } catch (IOException e) {
