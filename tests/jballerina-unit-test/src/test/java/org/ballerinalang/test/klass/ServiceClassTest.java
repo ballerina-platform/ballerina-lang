@@ -64,7 +64,12 @@ public class ServiceClassTest {
     public void testResourceFunctionReferences() {
         CompileResult result =
                 BCompileUtil.compile("test-src/klass/service_class_resource_remote_function_references_neg.bal");
-        Assert.assertEquals(result.getErrorCount(), 0);
+        int index = 0;
+        validateError(result, index++,
+                "unsupported remote function declaration in service object type definition", 2, 5);
+        validateError(result, index++, "unsupported resource function declaration in object type definition", 3, 5);
+        validateError(result, index++, "unsupported resource function declaration in object type definition", 4, 5);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 
     @AfterClass

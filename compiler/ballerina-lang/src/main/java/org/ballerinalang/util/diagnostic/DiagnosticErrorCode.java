@@ -651,6 +651,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3967", "remote.function.in.non.network.object"),
     UNSUPPORTED_PATH_PARAM_TYPE("BCE3968", "unsupported.path.param.type"),
     UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3969", "unsupported.rest.path.param.type"),
+    OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC("BCE3970", "unsupported.resource.function.declaration.in.object.type"),
+    SERVICE_OBJECT_TYPE_DEF_DOES_NOT_ALLOW_REMOTE_FUNC("BCE3971",
+            "unsupported.remote.function.decl.in.service.obj.type")
     ;
 
     private String diagnosticId;

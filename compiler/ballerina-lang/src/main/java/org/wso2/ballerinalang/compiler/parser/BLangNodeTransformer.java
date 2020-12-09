@@ -1039,12 +1039,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     }
                 } else {
                     objectTypeNode.addFunction(bLangFunction);
+                    if (bLangFunction.flagSet.contains(Flag.REMOTE) && objectTypeNode.flagSet.contains(SERVICE)) {
+                        dlog.error(bLangFunction.pos,
+                                DiagnosticErrorCode.SERVICE_OBJECT_TYPE_DEF_DOES_NOT_ALLOW_REMOTE_FUNC);
+                    }
                 }
             } else if (bLangNode.getKind() == NodeKind.RESOURCE_FUNC) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
                 objectTypeNode.addFunction(bLangFunction);
+                dlog.error(getPosition(node), DiagnosticErrorCode.OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC);
             } else if (bLangNode.getKind() == NodeKind.VARIABLE) {
                 objectTypeNode.addField((BLangSimpleVariable) bLangNode);
             } else if (bLangNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
