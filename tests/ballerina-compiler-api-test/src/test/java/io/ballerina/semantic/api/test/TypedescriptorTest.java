@@ -478,14 +478,14 @@ public class TypedescriptorTest {
 
     @Test
     public void testNeverType() {
-        Symbol symbol = getSymbol(154, 9);
+        Symbol symbol = getSymbol(163, 9);
         TypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor().get();
         assertEquals(type.typeKind(), NEVER);
     }
 
     @Test
     public void testIntersectionType1() {
-        Symbol symbol = getSymbol(158, 6);
+        Symbol symbol = getSymbol(167, 6);
         TypeSymbol type = ((TypeDefinitionSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), INTERSECTION);
 
@@ -500,7 +500,7 @@ public class TypedescriptorTest {
 
     @Test
     public void testIntersectionType2() {
-        Symbol symbol = getSymbol(161, 25);
+        Symbol symbol = getSymbol(170, 25);
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), INTERSECTION);
 
@@ -511,14 +511,14 @@ public class TypedescriptorTest {
 
     @Test
     public void testIntersectionType3() {
-        Symbol symbol = getSymbol(162, 16);
+        Symbol symbol = getSymbol(171, 16);
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), INTERSECTION);
     }
 
     @Test
     public void testDistinctObjects() {
-        Symbol symbol = getSymbol(165, 12);
+        Symbol symbol = getSymbol(174, 12);
         TypeSymbol type = ((TypeDefinitionSymbol) symbol).typeDescriptor();
 
         assertTrue(((TypeDefinitionSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC));
@@ -529,14 +529,14 @@ public class TypedescriptorTest {
 
     @Test
     public void testCompileErrorType1() {
-        LineRange range = LineRange.from("typedesc_test.bal", from(172, 12), from(172, 17));
+        LineRange range = LineRange.from("typedesc_test.bal", from(181, 12), from(181, 17));
         Optional<TypeSymbol> type = model.type("typedesc_test.bal", range);
         assertEquals(type.get().typeKind(), COMPILATION_ERROR);
     }
 
     @Test
     public void testCompileErrorType2() {
-        Symbol symbol = getSymbol(173, 18);
+        Symbol symbol = getSymbol(182, 18);
         assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), COMPILATION_ERROR);
     }
 
