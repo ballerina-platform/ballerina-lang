@@ -1820,12 +1820,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STListBindingPatternNode listBindingPatternNode) {
         STNode openBracket = modifyNode(listBindingPatternNode.openBracket);
         STNode bindingPatterns = modifyNode(listBindingPatternNode.bindingPatterns);
-        STNode restBindingPattern = modifyNode(listBindingPatternNode.restBindingPattern);
         STNode closeBracket = modifyNode(listBindingPatternNode.closeBracket);
         return listBindingPatternNode.modify(
                 openBracket,
                 bindingPatterns,
-                restBindingPattern,
                 closeBracket);
     }
 
@@ -1834,12 +1832,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STMappingBindingPatternNode mappingBindingPatternNode) {
         STNode openBrace = modifyNode(mappingBindingPatternNode.openBrace);
         STNode fieldBindingPatterns = modifyNode(mappingBindingPatternNode.fieldBindingPatterns);
-        STNode restBindingPattern = modifyNode(mappingBindingPatternNode.restBindingPattern);
         STNode closeBrace = modifyNode(mappingBindingPatternNode.closeBrace);
         return mappingBindingPatternNode.modify(
                 openBrace,
                 fieldBindingPatterns,
-                restBindingPattern,
                 closeBrace);
     }
 
