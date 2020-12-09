@@ -378,6 +378,10 @@ public class SymbolFactory {
             symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType.getType()));
         }
 
+        for (BAnnotationSymbol annot : symbol.annots) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol(annot));
+        }
+
         return symbolBuilder.build();
     }
 
