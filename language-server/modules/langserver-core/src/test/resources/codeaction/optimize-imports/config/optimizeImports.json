@@ -3,7 +3,7 @@
     "character": 1,
     "expected": [
         {
-            "title": "Optimize All Imports",
+            "title": "Optimize all imports",
             "edits": [
                 {
                     "range": {
