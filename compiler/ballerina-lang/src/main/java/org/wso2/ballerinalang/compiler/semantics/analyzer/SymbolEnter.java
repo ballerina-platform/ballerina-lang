@@ -1640,10 +1640,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BComplexVarSymbol varSymbol = createComplexVarSymbol(varNode.flagSet, varNode.type, varName, env, varNode.pos,
                 varNode.internal);
-        if (isDeprecated(varNode.annAttachments)) {
-            varSymbol.flags |= Flags.DEPRECATED;
-        }
-        varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
 
         return checkTypeAndVarCountConsistency(varNode, null, env);
