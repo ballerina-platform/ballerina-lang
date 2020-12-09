@@ -855,8 +855,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
 
-        if (!(checkTypeAndVarCountConsistency(varNode))) {
+        int ownerSymTag = env.scope.owner.tag;
+        // If this is a module tuple variable, checkTypeAndVarCountConsistency already done at symbolEnter.
+        if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
+                !(this.symbolEnter.checkTypeAndVarCountConsistency(varNode, env))) {
             varNode.type = symTable.semanticError;
+            return;
+        }
+
+        if (varNode.type == symTable.semanticError) {
+            // This will return module tuple variables with type error
             return;
         }
 
@@ -1017,7 +1025,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
                 tupleVariable.type = rhsType;
 
-                if (!(checkTypeAndVarCountConsistency(tupleVariable))) {
+                if (!(this.symbolEnter.checkTypeAndVarCountConsistency(tupleVariable, env))) {
                     tupleVariable.type = symTable.semanticError;
                     return;
                 }
@@ -1095,19 +1103,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 tupleVariable.type = rhsType;
 
-                if (rhsType.tag == TypeTags.TUPLE && !(checkTypeAndVarCountConsistency(tupleVariable,
+                if (rhsType.tag == TypeTags.TUPLE && !(this.symbolEnter.checkTypeAndVarCountConsistency(tupleVariable,
                         (BTupleType) tupleVariable.type, blockEnv))) {
                     recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
                 }
 
-                if (rhsType.tag == TypeTags.UNION && !(checkTypeAndVarCountConsistency(tupleVariable, null,
-                        blockEnv))) {
+                if (rhsType.tag == TypeTags.UNION && !(this.symbolEnter.checkTypeAndVarCountConsistency(tupleVariable,
+                        null, blockEnv))) {
                     recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
                 }
 
-                symbolEnter.defineNode(tupleVariable, blockEnv);
+//                symbolEnter.defineNode(tupleVariable, blockEnv);
                 recursivelySetFinalFlag(tupleVariable);
                 break;
             case RECORD_VARIABLE:
@@ -1182,139 +1190,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         recursivelySetFinalFlag(bLangErrorDetailEntry.valueBindingPattern));
                 break;
         }
-    }
-
-    private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode) {
-        return checkTypeAndVarCountConsistency(varNode, null, env);
-    }
-
-    private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode,
-                                                    SymbolEnv env) {
-
-        if (tupleTypeNode == null) {
-        /*
-          This switch block will resolve the tuple type of the tuple variable.
-          For example consider the following - [int, string]|[boolean, float] [a, b] = foo();
-          Since the varNode type is a union, the types of 'a' and 'b' will be resolved as follows:
-          Type of 'a' will be (int | boolean) while the type of 'b' will be (string | float).
-          Consider anydata (a, b) = foo();
-          Here, the type of 'a'and type of 'b' will be both anydata.
-         */
-            switch (varNode.type.tag) {
-                case TypeTags.UNION:
-                    Set<BType> unionType = types.expandAndGetMemberTypesRecursive(varNode.type);
-                    List<BType> possibleTypes = unionType.stream()
-                            .filter(type -> {
-                                if (TypeTags.TUPLE == type.tag &&
-                                        (varNode.memberVariables.size() == ((BTupleType) type).tupleTypes.size())) {
-                                    return true;
-                                }
-                                return TypeTags.ANY == type.tag || TypeTags.ANYDATA == type.tag;
-                            })
-                            .collect(Collectors.toList());
-
-                    if (possibleTypes.isEmpty()) {
-                        dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
-                        return false;
-                    }
-
-                    if (possibleTypes.size() > 1) {
-                        List<BType> memberTupleTypes = new ArrayList<>();
-                        for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-                            for (BType possibleType : possibleTypes) {
-                                if (possibleType.tag == TypeTags.TUPLE) {
-                                    memberTypes.add(((BTupleType) possibleType).tupleTypes.get(i));
-                                } else {
-                                    memberTupleTypes.add(varNode.type);
-                                }
-                            }
-
-                            if (memberTypes.size() > 1) {
-                                memberTupleTypes.add(BUnionType.create(null, memberTypes));
-                            } else {
-                                memberTupleTypes.addAll(memberTypes);
-                            }
-                        }
-                        tupleTypeNode = new BTupleType(memberTupleTypes);
-                        break;
-                    }
-
-                    if (possibleTypes.get(0).tag == TypeTags.TUPLE) {
-                        tupleTypeNode = (BTupleType) possibleTypes.get(0);
-                        break;
-                    }
-
-                    List<BType> memberTypes = new ArrayList<>();
-                    for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        memberTypes.add(possibleTypes.get(0));
-                    }
-                    tupleTypeNode = new BTupleType(memberTypes);
-                    break;
-                case TypeTags.ANY:
-                case TypeTags.ANYDATA:
-                    List<BType> memberTupleTypes = new ArrayList<>();
-                    for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        memberTupleTypes.add(varNode.type);
-                    }
-                    tupleTypeNode = new BTupleType(memberTupleTypes);
-                    if (varNode.restVariable != null) {
-                        tupleTypeNode.restType = varNode.type;
-                    }
-                    break;
-                case TypeTags.TUPLE:
-                    tupleTypeNode = (BTupleType) varNode.type;
-                    break;
-                default:
-                    dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
-                    return false;
-            }
-        }
-
-        if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()
-                || (tupleTypeNode.restType == null && varNode.restVariable != null)
-                ||  (tupleTypeNode.restType != null && varNode.restVariable == null)) {
-            dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN);
-            return false;
-        }
-
-        int ignoredCount = 0;
-        List<BLangVariable> memberVariables = new ArrayList<>(varNode.memberVariables);
-        if (varNode.restVariable != null) {
-            memberVariables.add(varNode.restVariable);
-        }
-        for (int i = 0; i < memberVariables.size(); i++) {
-            BLangVariable var = memberVariables.get(i);
-            BType type = (i <= tupleTypeNode.tupleTypes.size() - 1) ? tupleTypeNode.tupleTypes.get(i) :
-                    new BArrayType(tupleTypeNode.restType);
-            if (var.getKind() == NodeKind.VARIABLE) {
-                // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
-                BLangSimpleVariable simpleVar = (BLangSimpleVariable) var;
-                Name varName = names.fromIdNode(simpleVar.name);
-                if (varName == Names.IGNORE) {
-                    ignoredCount++;
-                    simpleVar.type = symTable.anyType;
-                    types.checkType(varNode.pos, type, simpleVar.type,
-                            DiagnosticErrorCode.INCOMPATIBLE_TYPES);
-                    continue;
-                }
-                int ownerSymTag = env.scope.owner.tag;
-                // If this is a module tuple variable, symbols of member variables are already entered at symbolEnter.
-                // Since we do not resolve type there we need to update the type of the symbol here.
-                if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE) {
-                    var.symbol.type = type;
-                }
-            }
-            var.type = type;
-            analyzeNode(var, env);
-        }
-
-        if (!varNode.memberVariables.isEmpty() && ignoredCount == varNode.memberVariables.size()
-                && varNode.restVariable == null) {
-            dlog.error(varNode.pos, DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
-            return false;
-        }
-        return true;
     }
 
     private boolean validateRecordVariable(BLangRecordVariable recordVar) {
