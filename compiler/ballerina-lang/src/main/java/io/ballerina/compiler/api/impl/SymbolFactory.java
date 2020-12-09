@@ -338,6 +338,10 @@ public class SymbolFactory {
             type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
         }
 
+        for (BAnnotationSymbol annot : classSymbol.annots) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol(annot));
+        }
+
         return symbolBuilder.withTypeDescriptor((ObjectTypeSymbol) type).build();
     }
 
