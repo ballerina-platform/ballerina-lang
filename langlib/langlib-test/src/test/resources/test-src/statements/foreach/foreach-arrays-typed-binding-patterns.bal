@@ -85,35 +85,35 @@ function testArrayWithTupleInTupleWithType() returns string {
     return output;
 }
 
-function testArrayWithRecordInTupleWithoutType() returns string {
-    string output = "";
-
-    Data d1 = { i: 1, v: "A" };
-    Data d2 = { i: 2, v: "B" };
-    Data d3 = { i: 3, v: "C" };
-
-    [int, Data][] arr = [[1, d1], [2, d2], [3, d3]];
-
-    foreach var [i, {i: j, v: k}] in arr {
-        output = output + i.toString() + ":" + i.toString() + ":" + k.toString() + " ";
-    }
-    return output;
-}
-
-function testArrayWithRecordInTupleWithType() returns string {
-    string output = "";
-
-    Data d1 = { i: 1, v: "A" };
-    Data d2 = { i: 2, v: "B" };
-    Data d3 = { i: 3, v: "C" };
-
-    [int, Data][] arr = [[1, d1], [2, d2], [3, d3]];
-
-    foreach [int, Data] [i, {i: j, v: k}] in arr {
-        output = output + i.toString() + ":" + i.toString() + ":" + k.toString() + " ";
-    }
-    return output;
-}
+//function testArrayWithRecordInTupleWithoutType() returns string {
+//    string output = "";
+//
+//    Data d1 = { i: 1, v: "A" };
+//    Data d2 = { i: 2, v: "B" };
+//    Data d3 = { i: 3, v: "C" };
+//
+//    [int, Data][] arr = [[1, d1], [2, d2], [3, d3]];
+//
+//    foreach var [i, {i: j, v: k}] in arr {
+//        output = output + i.toString() + ":" + i.toString() + ":" + k.toString() + " ";
+//    }
+//    return output;
+//}
+//
+//function testArrayWithRecordInTupleWithType() returns string {
+//    string output = "";
+//
+//    Data d1 = { i: 1, v: "A" };
+//    Data d2 = { i: 2, v: "B" };
+//    Data d3 = { i: 3, v: "C" };
+//
+//    [int, Data][] arr = [[1, d1], [2, d2], [3, d3]];
+//
+//    foreach [int, Data] [i, {i: j, v: k}] in arr {
+//        output = output + i.toString() + ":" + i.toString() + ":" + k.toString() + " ";
+//    }
+//    return output;
+//}
 
 function testArrayWithRecordWithoutType() returns string {
     string output = "";

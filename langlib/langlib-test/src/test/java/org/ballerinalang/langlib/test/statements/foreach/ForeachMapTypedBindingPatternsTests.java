@@ -160,14 +160,16 @@ public class ForeachMapTypedBindingPatternsTests {
                 "{\"i\":3,\"v\":\"C\"} ");
     }
 
-    @Test
+    // TODO: enable the test case once module record variable is supported
+    @Test(enabled = false)
     public void testConstrainedMapWithRecordInTupleWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithoutType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:2:1:A 1:3:2:B 2:4:3:C ");
     }
 
-    @Test
+    // TODO: enable the test case once module record variable is supported
+    @Test(enabled = false)
     public void testConstrainedMapWithRecordInTupleWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithType");
         Assert.assertEquals(returns.length, 1);
