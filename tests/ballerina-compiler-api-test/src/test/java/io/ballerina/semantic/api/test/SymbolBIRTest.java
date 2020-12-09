@@ -64,7 +64,7 @@ public class SymbolBIRTest {
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSymbolLookupInBIR() {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_imports_test.bal");
         Package currentPackage = project.currentPackage();
