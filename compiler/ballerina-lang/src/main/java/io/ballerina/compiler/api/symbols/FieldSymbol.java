@@ -24,7 +24,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface FieldSymbol extends Symbol {
+public interface FieldSymbol extends Symbol, Annotatable, Deprecatable {
 
     /**
      * Whether optional field or not.
