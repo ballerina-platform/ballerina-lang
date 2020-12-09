@@ -21,25 +21,17 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
-import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
 /**
  * Code Action for type guard variable assignment.
@@ -59,8 +51,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     CodeActionContext context) {
-        String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
-        if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
+        if (!(diagnostic.getMessage().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
 
@@ -77,11 +68,12 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
             return Collections.emptyList();
         }
 
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic, context);
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic.getRange(), context);
 
         // Add type guard code action
-        String commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, matchedSymbol.name());
-        List<TextEdit> edits = getTypeGuardCodeActionEdits(createVarTextEdits.name, diagnostic, unionType);
+        String commandTitle = String.format(CommandConstants.CREATE_VAR_TYPE_GUARD_TITLE, matchedSymbol.name());
+        List<TextEdit> edits = CodeActionUtil.getTypeGuardCodeActionEdits(createVarTextEdits.name,
+                                                                          diagnostic.getRange(), unionType, context);
         if (edits.isEmpty()) {
             return Collections.emptyList();
         }
@@ -89,75 +81,5 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         edits.add(createVarTextEdits.edits.get(0));
         edits.addAll(createVarTextEdits.imports);
         return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(commandTitle, edits, uri));
-    }
-
-    private static List<TextEdit> getTypeGuardCodeActionEdits(String varName, Diagnostic diagnostic,
-                                                              UnionTypeSymbol unionType) {
-        Position startPos = diagnostic.getRange().getEnd();
-
-        Range newTextRange = new Range(startPos, startPos);
-
-        List<TextEdit> edits = new ArrayList<>();
-        String spaces = StringUtils.repeat(' ', diagnostic.getRange().getStart().getCharacter());
-        String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
-
-        boolean hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
-
-        List<TypeSymbol> members = new ArrayList<>((unionType).memberTypeDescriptors());
-        long errorTypesCount = unionType.memberTypeDescriptors().stream()
-                .filter(t -> t.typeKind() == TypeDescKind.ERROR)
-                .count();
-        if (members.size() == 1) {
-            // Skip type guard
-            return edits;
-        }
-        boolean transitiveBinaryUnion = unionType.memberTypeDescriptors().size() - errorTypesCount == 1;
-        if (transitiveBinaryUnion) {
-            members.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
-        }
-        // Check is binary union type with error type
-        if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && hasError) {
-            members.forEach(bType -> {
-                if (bType.typeKind() == TypeDescKind.NIL) {
-                    // if (foo() is error) {...}
-                    String newText = String.format("%s%sif (%s is error) {%s}%s", LINE_SEPARATOR, spaces,
-                            varName,
-                            padding, LINE_SEPARATOR);
-                    edits.add(new TextEdit(newTextRange, newText));
-                } else {
-                    // if (foo() is int) {...} else {...}
-                    String type = bType.signature();
-                    String newText = String.format("%s%sif (%s is %s) {%s} else {%s}%s", LINE_SEPARATOR, spaces,
-                            varName, type, padding, padding, LINE_SEPARATOR);
-                    edits.add(new TextEdit(newTextRange, newText));
-                }
-            });
-        } else if (hasError) {
-            boolean addErrorTypeAtEnd;
-            List<TypeSymbol> tMembers = new ArrayList<>((unionType).memberTypeDescriptors());
-            if (errorTypesCount > 1) {
-                tMembers.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
-                addErrorTypeAtEnd = true;
-            } else {
-                addErrorTypeAtEnd = false;
-            }
-            List<String> memberTypes = new ArrayList<>();
-            IntStream.range(0, tMembers.size())
-                    .forEachOrdered(value -> {
-                        memberTypes.add(tMembers.get(value).signature());
-                    });
-
-            if (addErrorTypeAtEnd) {
-                memberTypes.add("error");
-            }
-
-            String newText = spaces + IntStream.range(0, memberTypes.size() - 1)
-                    .mapToObj(value -> String.format("%sif (%s is %s) {%s}", LINE_SEPARATOR, varName,
-                            memberTypes.get(value), padding))
-                    .collect(Collectors.joining(" else "));
-            newText += String.format(" else {%s}%s", padding, LINE_SEPARATOR);
-            edits.add(new TextEdit(newTextRange, newText));
-        }
-        return edits;
     }
 }

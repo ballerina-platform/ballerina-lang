@@ -338,6 +338,126 @@ public class CodeActionUtil {
         return CodeActionPositionDetails.from(matchedNode, matchedSymbol, matchedExprTypeSymbol.orElse(null));
     }
 
+    public static List<TextEdit> getTypeGuardCodeActionEdits(String varName, Range range, UnionTypeSymbol unionType,
+                                                             CodeActionContext context) {
+        Position startPos = range.getEnd();
+
+        Range newTextRange = new Range(startPos, startPos);
+
+        List<TextEdit> edits = new ArrayList<>();
+        String spaces = StringUtils.repeat(' ', range.getStart().getCharacter());
+        String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
+
+        boolean hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
+
+        List<TypeSymbol> members = new ArrayList<>(unionType.memberTypeDescriptors());
+        long errorTypesCount = unionType.memberTypeDescriptors().stream()
+                .filter(t -> t.typeKind() == TypeDescKind.ERROR)
+                .count();
+        if (members.size() == 1) {
+            // Skip type guard
+            return edits;
+        }
+        boolean transitiveBinaryUnion = unionType.memberTypeDescriptors().size() - errorTypesCount == 1;
+        if (transitiveBinaryUnion) {
+            members.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
+        }
+        // Check is binary union type with error type
+        if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && hasError) {
+            members.forEach(bType -> {
+                if (bType.typeKind() == TypeDescKind.NIL) {
+                    // if (foo() is error) {...}
+                    String newText = generateIfElseText(varName, spaces, padding, Collections.singletonList("error"));
+                    edits.add(new TextEdit(newTextRange, newText));
+                } else {
+                    // if (foo() is int) {...} else {...}
+                    String type = CodeActionUtil.getPossibleType(bType, edits, context).orElseThrow();
+                    String newText = generateIfElseText(varName, spaces, padding, Collections.singletonList(type));
+                    edits.add(new TextEdit(newTextRange, newText));
+                }
+            });
+        } else {
+            boolean addErrorTypeAtEnd;
+            List<TypeSymbol> tMembers = new ArrayList<>((unionType).memberTypeDescriptors());
+            if (errorTypesCount > 1) {
+                // merge all error types into generic `error` type
+                tMembers.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
+                addErrorTypeAtEnd = true;
+            } else {
+                addErrorTypeAtEnd = false;
+            }
+            List<String> memberTypes = new ArrayList<>();
+            for (TypeSymbol tMember : tMembers) {
+                memberTypes.add(CodeActionUtil.getPossibleType(tMember, edits, context).orElseThrow());
+            }
+            if (addErrorTypeAtEnd) {
+                memberTypes.add("error");
+            }
+            edits.add(new TextEdit(newTextRange, generateIfElseText(varName, spaces, padding, memberTypes)));
+        }
+        return edits;
+    }
+
+    public static List<TextEdit> getAddCheckTextEdits(Position pos, CodeActionContext context) {
+        Optional<FunctionDefinitionNode> enclosedFunc = getEnclosedFunction(context.positionDetails().matchedNode());
+        if (enclosedFunc.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<TextEdit> edits = new ArrayList<>();
+        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
+        Optional<Symbol> optEnclosedFuncSymbol = semanticModel.symbol(context.filePath().getFileName().toString(),
+                                                                      enclosedFunc.get().functionName().lineRange()
+                                                                              .startLine());
+        String returnText = "";
+        Range returnRange = null;
+        if (optEnclosedFuncSymbol.isPresent() && optEnclosedFuncSymbol.get().kind() == SymbolKind.FUNCTION) {
+            FunctionSymbol enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
+            boolean hasFuncNodeReturn = enclosedFunc.get().functionSignature().returnTypeDesc().isPresent();
+            boolean hasFuncSymbolReturn = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().isPresent();
+            if (hasFuncNodeReturn && hasFuncSymbolReturn) {
+                // Parent function already has a return-type
+                TypeSymbol enclosedRetTypeDesc = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().get();
+                ReturnTypeDescriptorNode enclosedRetTypeDescNode =
+                        enclosedFunc.get().functionSignature().returnTypeDesc().get();
+                if (enclosedRetTypeDesc.typeKind() == TypeDescKind.UNION) {
+                    // Parent function already has a union return-type
+                    UnionTypeSymbol parentUnionRetTypeDesc = (UnionTypeSymbol) enclosedRetTypeDesc;
+                    boolean hasErrorMember = parentUnionRetTypeDesc.memberTypeDescriptors().stream()
+                            .anyMatch(m -> m.typeKind() == TypeDescKind.ERROR);
+                    if (!hasErrorMember) {
+                        // Union has no error member-type
+                        String typeName =
+                                CodeActionUtil.getPossibleType(parentUnionRetTypeDesc, edits, context).orElseThrow();
+                        returnText = "returns " + typeName + "|error";
+                        returnRange = CommonUtil.toRange(enclosedRetTypeDescNode.lineRange());
+                    }
+                } else {
+                    // Parent function already has a other return-type
+                    String typeName = CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
+                    returnText = "returns " + typeName + "|error";
+                    returnRange = CommonUtil.toRange(enclosedRetTypeDescNode.lineRange());
+                }
+            } else {
+                // Parent function has no return
+                returnText = " returns error?";
+                Position position = CommonUtil.toPosition(
+                        enclosedFunc.get().functionSignature().closeParenToken().lineRange().endLine());
+                returnRange = new Range(position, position);
+            }
+        }
+
+        // Add `check` expression text edit
+        Position insertPos = new Position(pos.getLine(), pos.getCharacter());
+        edits.add(new TextEdit(new Range(insertPos, insertPos), "check "));
+
+        // Add parent function return change text edits
+        if (!returnText.isEmpty()) {
+            edits.add(new TextEdit(returnRange, returnText));
+        }
+        return edits;
+    }
+
     /**
      * Returns largest expression node for this range from bottom-up approach.
      *
@@ -376,5 +496,37 @@ public class CodeActionUtil {
         Symbol matchedSymbol = optMatchedSymbol.get();
         NonTerminalNode matchedNode = scopedSymbolFinder.node().get();
         return Optional.of(new ImmutablePair<>(matchedNode, matchedSymbol));
+    }
+
+    private static Optional<FunctionDefinitionNode> getEnclosedFunction(Node matchedNode) {
+        FunctionDefinitionNode functionDefNode = null;
+        Node parentNode = matchedNode;
+        while (parentNode.kind() != SyntaxKind.FUNCTION_DEFINITION || parentNode.kind() != SyntaxKind.MODULE_PART) {
+            parentNode = parentNode.parent();
+            if (parentNode == null) {
+                break;
+            }
+            if (parentNode.kind() == SyntaxKind.FUNCTION_DEFINITION &&
+                    parentNode.parent() != null && parentNode.parent().kind() == SyntaxKind.MODULE_PART) {
+                functionDefNode = (FunctionDefinitionNode) parentNode;
+                break;
+            }
+        }
+        return Optional.ofNullable(functionDefNode);
+    }
+
+    private static String generateIfElseText(String varName, String spaces, String padding,
+                                             List<String> memberTypes) {
+        if (memberTypes.size() == 1) {
+            return LINE_SEPARATOR + String.format("%sif (%s is %s) {%s}", spaces, varName, memberTypes.get(0), padding);
+        }
+        StringBuilder newTextBuilder = new StringBuilder();
+        for (int i = 0; i < memberTypes.size() - 1; i++) {
+            String memberType = memberTypes.get(i);
+            String prefix = (i == 0) ? spaces : " else ";
+            newTextBuilder.append(String.format("%sif (%s is %s) {%s}", prefix, varName, memberType, padding));
+        }
+        newTextBuilder.append(String.format(" else {%s}%s", padding, LINE_SEPARATOR));
+        return LINE_SEPARATOR + newTextBuilder.toString();
     }
 }
