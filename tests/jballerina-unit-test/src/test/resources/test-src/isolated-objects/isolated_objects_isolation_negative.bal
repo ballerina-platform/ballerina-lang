@@ -472,3 +472,26 @@ isolated class IsolatedClassWithInvalidVarRefs {
         }
     }
 }
+
+isolated service class InvalidIsolatedServiceClassWithNonPrivateMutableFields {
+    int a;
+    public map<int> b;
+    private final string c = "invalid";
+
+    function init(int a, map<int> b) {
+        self.a = a;
+        self.b = b.clone();
+    }
+}
+
+client isolated class InvalidIsolatedClientClassWithCopyInInsideBlock {
+    private string[] uniqueGreetings = [];
+
+    isolated function add(string[] greetings) {
+        lock {
+            if self.uniqueGreetings.length() == 0 {
+                self.uniqueGreetings = greetings;
+            }
+        }
+    }
+}

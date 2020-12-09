@@ -53,6 +53,7 @@ public class ReadonlyObjectTest {
                 "'readonly object'", 55, 5);
         validateError(result, index++, "invalid 'readonly object' 'InvalidReadOnlyObject': cannot have fields that " +
                 "are never 'readonly'", 58, 1);
+        validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 71, 18);
         assertEquals(result.getErrorCount(), index);
     }
 }
