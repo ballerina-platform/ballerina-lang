@@ -241,6 +241,10 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
+        for (BAnnotationSymbol annot : symbol.annots) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol(annot));
+        }
+
         return symbolBuilder
                 .withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.type))
                 .build();
@@ -361,6 +365,10 @@ public class SymbolFactory {
 
         if ((constantSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+
+        for (BAnnotationSymbol annot : constantSymbol.annots) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol(annot));
         }
 
         return symbolBuilder.build();
