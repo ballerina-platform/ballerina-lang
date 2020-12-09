@@ -13,3 +13,24 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.'error as errors;
+
+public type RetryManager object {
+ public function shouldRetry(error? e) returns boolean;
+};
+
+# Default retry manager to be used with retry statement.
+public class DefaultRetryManager {
+    private int count;
+    public function init(int count = 3) {
+        self.count = count;
+    }
+    public function shouldRetry(error? e) returns boolean {
+        if e is errors:Retriable && self.count >  0 {
+          self.count -= 1;
+          return true;
+        } else {
+           return false;
+        }
+    }
+}
