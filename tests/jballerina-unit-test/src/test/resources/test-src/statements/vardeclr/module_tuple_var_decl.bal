@@ -85,6 +85,16 @@ public function testTupleVarWithAnnotations() {
     assertEquality("", k1);
 }
 
+annotation record {int i;} x on function;
+@x {
+    i: h
+}
+public function testVariableDeclaredInTupleAsAnnotationValue() {
+    typedesc<function ()> td = typeof testVariableDeclaredInTupleAsAnnotationValue;
+    record {int i;}? xVal = td.@x;
+    assertEquality(<record {int i;}>{i:1}, xVal);
+}
+
 // Test tuple variable reordering/forward referencing
 [decimal, byte] [l, m] = [n ,o];
 [decimal, byte] [n, o] = [2.25, 20];

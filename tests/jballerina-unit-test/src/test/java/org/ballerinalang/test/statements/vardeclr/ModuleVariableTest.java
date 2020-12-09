@@ -52,6 +52,7 @@ public class ModuleVariableTest {
         BRunUtil.invoke(compileResult, "testDeclaredWithVar");
         BRunUtil.invoke(compileResult, "testTupleVarWithAnnotations");
         BRunUtil.invoke(compileResult, "testVariableForwardReferencing");
+        BRunUtil.invoke(compileResult, "testVariableDeclaredInTupleAsAnnotationValue");
     }
 
     @Test
