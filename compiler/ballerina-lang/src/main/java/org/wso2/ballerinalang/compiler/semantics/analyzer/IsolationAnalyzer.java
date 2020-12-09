@@ -2043,9 +2043,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isDefinitionReference(BSymbol symbol) {
-        return Symbols.isTagOn(symbol, SymTag.SERVICE) ||
-                Symbols.isTagOn(symbol, SymTag.TYPE_DEF) ||
-                Symbols.isTagOn(symbol, SymTag.FUNCTION);
+        return Symbols.isTagOn(symbol, SymTag.TYPE_DEF) || Symbols.isTagOn(symbol, SymTag.FUNCTION);
     }
 
     private boolean isIsolated(long flags) {

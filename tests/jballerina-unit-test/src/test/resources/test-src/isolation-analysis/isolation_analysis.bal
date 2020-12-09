@@ -444,6 +444,19 @@ function testIsolationOfBoundMethods() {
     //assertEquality(2, func5(2));
 }
 
+service readonly class ReadOnlyService {
+    int[] x = [1, 2, 3];
+
+    resource function get foo() returns int[] => self.x;
+}
+
+final ReadOnlyService s = new;
+
+isolated function testFinalReadOnlyServiceAccessInIsolatedFunction() {
+    ReadOnlyService rs = s;
+    assertEquality(<int[]> [1, 2, 3], rs.x);
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
