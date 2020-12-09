@@ -47,7 +47,8 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     private SemanticModel semanticModel;
     private String fileName;
 
-    public UnusedSymbolsVisitor(String fileName, SemanticModel semanticModel, Map<LineRange, ASTModification> deleteRanges) {
+    public UnusedSymbolsVisitor(String fileName, SemanticModel semanticModel, Map<LineRange,
+            ASTModification> deleteRanges) {
         this.semanticModel = semanticModel;
         this.deleteRanges = deleteRanges;
         this.toBeDeletedRanges.putAll(deleteRanges);

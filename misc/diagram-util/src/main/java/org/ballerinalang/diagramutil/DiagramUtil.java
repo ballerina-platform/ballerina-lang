@@ -39,11 +39,18 @@ public class DiagramUtil {
      * @return {@link JsonObject}   ST as a Json Object
      */
     public static JsonElement getSyntaxTreeJSON(SyntaxTree syntaxTree, SemanticModel semanticModel) {
-        // Map each type data by looking at the line ranges and prepare the SyntaxTree JSON.
-        Path filePath = Paths.get(syntaxTree.filePath());
-        String fileName = filePath.getFileName().toString();
-        SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(fileName, semanticModel);
-        ModulePartNode modulePartNode = syntaxTree.rootNode();
-        return mapGenerator.transform(modulePartNode);
+        JsonElement syntaxTreeJson;
+        try {
+            // Map each type data by looking at the line ranges and prepare the SyntaxTree JSON.
+            Path filePath = Paths.get(syntaxTree.filePath());
+            String fileName = filePath.getFileName() != null ? filePath.getFileName().toString() : "";
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(fileName, semanticModel);
+            ModulePartNode modulePartNode = syntaxTree.rootNode();
+            syntaxTreeJson = mapGenerator.transform(modulePartNode);
+        } catch (NullPointerException e) {
+            syntaxTreeJson = new JsonObject();
+        }
+
+        return syntaxTreeJson;
     }
 }
