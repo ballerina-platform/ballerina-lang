@@ -941,6 +941,7 @@ public class BallerinaParser extends AbstractParser {
                 // Treat readonly as a top level qualifier only with class definition.
                 switch (nextNextToken.kind) {
                     case CLIENT_KEYWORD:
+                    case SERVICE_KEYWORD:
                     case DISTINCT_KEYWORD:
                     case ISOLATED_KEYWORD:
                     case CLASS_KEYWORD:
@@ -955,6 +956,7 @@ public class BallerinaParser extends AbstractParser {
                 // Treat distinct as a top level qualifier only with class definition.
                 switch (nextNextToken.kind) {
                     case CLIENT_KEYWORD:
+                    case SERVICE_KEYWORD:
                     case READONLY_KEYWORD:
                     case ISOLATED_KEYWORD:
                     case CLASS_KEYWORD:
