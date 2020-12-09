@@ -21,41 +21,31 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
 /**
- * Used to analyze ballerina code and store observabilty symbols in the Ballerina program artifact.
+ * Used to analyze ballerina code and store observability symbols in the Ballerina program artifact.
  *
  * @since 2.0.0
  */
-public class ObserverbilitySymbolCollectorRunner {
-    private static final CompilerContext.Key<ObservabilitySymbolCollector> OBSERVARBILITY_SYMBOL_COLLECTOR_KEY =
+public class ObservabilitySymbolCollectorRunner {
+    private static final CompilerContext.Key<ObservabilitySymbolCollector> OBSERVABILITY_SYMBOL_COLLECTOR_KEY =
             new CompilerContext.Key<>();
 
-    private static final String NAME = "name";
-
-    private static final PrintStream console = System.out;;
-
-    private ObserverbilitySymbolCollectorRunner(CompilerContext context) {
-        console.println("Choreo compiler plugin initialized");
-    }
-
     public static synchronized ObservabilitySymbolCollector getInstance(CompilerContext context) {
-        ObservabilitySymbolCollector observabilitySymbolCollector = context.get(OBSERVARBILITY_SYMBOL_COLLECTOR_KEY);
+        ObservabilitySymbolCollector observabilitySymbolCollector = context.get(OBSERVABILITY_SYMBOL_COLLECTOR_KEY);
         if (observabilitySymbolCollector == null) {
-            ServiceLoader<ObservabilitySymbolCollector> observerbilitySymbolCollectors
+            ServiceLoader<ObservabilitySymbolCollector> observabilitySymbolCollectors
                     = ServiceLoader.load(ObservabilitySymbolCollector.class);
 
-            Iterator<ObservabilitySymbolCollector> collectorIterator = observerbilitySymbolCollectors.iterator();
+            Iterator<ObservabilitySymbolCollector> collectorIterator = observabilitySymbolCollectors.iterator();
             if (collectorIterator.hasNext()) {
                 observabilitySymbolCollector = collectorIterator.next();
-                observabilitySymbolCollector.init(context);
             } else {
-                observabilitySymbolCollector = new NullObservabiltySymbolCollector();
+                observabilitySymbolCollector = new NoOpObservabilitySymbolCollector();
             }
-            context.put(OBSERVARBILITY_SYMBOL_COLLECTOR_KEY, observabilitySymbolCollector);
+            context.put(OBSERVABILITY_SYMBOL_COLLECTOR_KEY, observabilitySymbolCollector);
         }
 
         return observabilitySymbolCollector;

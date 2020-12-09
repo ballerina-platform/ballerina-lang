@@ -114,7 +114,7 @@ dependencies {
     dist project(':language-server:language-server-compiler')
     dist project(':language-server:language-server-commons')
     dist project(':docerina')
-    dist project(':observerability-symbol-collector')
+    dist project(':observability-symbol-collector')
     dist project(':testerina:testerina-runtime')
     docerina project(':docerina-gradle-plugin')
 
