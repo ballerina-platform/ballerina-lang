@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@code BClassSymbol} represents a class symbol in a scope.
@@ -34,11 +35,13 @@ import java.util.ArrayList;
 public class BClassSymbol extends BObjectTypeSymbol {
 
     public boolean isServiceDecl;
+    public List<BAnnotationSymbol> annots;
 
     public BClassSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type,
                         BSymbol owner, Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);
         this.referencedFunctions = new ArrayList<>();
+        this.annots = new ArrayList<>();
     }
 
     @Override

@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
@@ -610,10 +611,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         boolean isPublicType = flags.contains(Flag.PUBLIC);
         Name className = names.fromIdNode(classDefinition.name);
 
-        BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
-                                                        env.scope.owner, classDefinition.name.pos,
-                                                        getOrigin(className, flags), classDefinition.isServiceDecl);
+        BClassSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
+                                                         env.scope.owner, classDefinition.name.pos,
+                                                         getOrigin(className, flags), classDefinition.isServiceDecl);
         tSymbol.scope = new Scope(tSymbol);
+        tSymbol.annots = getAnnotationSymbols(classDefinition.annAttachments);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
 
@@ -677,6 +679,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                             annotName, env.enclPkg.symbol.pkgID, null,
                                                                             env.scope.owner, annotationNode.pos,
                                                                             getOrigin(annotName));
+        annotationSymbol.annots = getAnnotationSymbols(annotationNode.annAttachments);
         annotationSymbol.markdownDocumentation =
                 getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
         if (isDeprecated(annotationNode.annAttachments)) {
@@ -1174,6 +1177,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
             definedType.tsymbol = createEnumSymbol(typeDefinition, definedType);
+            ((BEnumSymbol) definedType.tsymbol).annots = getAnnotationSymbols(typeDefinition.annAttachments);
         }
 
         typeDefinition.setPrecedence(this.typePrecedence++);
@@ -1498,6 +1502,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             staticType = symTable.semanticError;
         }
         BConstantSymbol constantSymbol = getConstantSymbol(constant);
+        constantSymbol.annots = getAnnotationSymbols(constant.annAttachments);
         constant.symbol = constantSymbol;
 
         NodeKind nodeKind = constant.expr.getKind();
@@ -2753,6 +2758,14 @@ public class SymbolEnter extends BLangNodeVisitor {
     private Name getFieldSymbolName(BLangSimpleVariable receiver, BLangSimpleVariable variable) {
         return names.fromString(Symbols.getAttachedFuncSymbolName(
                 receiver.type.tsymbol.name.value, variable.name.value));
+    }
+
+    private List<BAnnotationSymbol> getAnnotationSymbols(List<BLangAnnotationAttachment> annots) {
+        List<BAnnotationSymbol> annotSymbols = new ArrayList<>();
+        for (BLangAnnotationAttachment annot : annots) {
+            annotSymbols.add(annot.annotationSymbol);
+        }
+        return annotSymbols;
     }
 
     private MarkdownDocAttachment getMarkdownDocAttachment(BLangMarkdownDocumentation docNode) {

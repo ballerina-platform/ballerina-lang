@@ -24,6 +24,9 @@ import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VARIABLE;
 
 /**
@@ -31,6 +34,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VAR
  */
 public class BVarSymbol extends BSymbol implements VariableSymbol {
 
+    public List<BAnnotationSymbol> annots;
     public boolean defaultableParam = false;
 
     // Only used for type-narrowing. Cache of the original symbol.
@@ -44,6 +48,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
     public BVarSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
                       SymbolOrigin origin) {
         super(VARIABLE, flags, name, pkgID, type, owner, pos, origin);
+        this.annots = new ArrayList<>();
     }
 
     @Override

@@ -25,6 +25,7 @@ import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,11 +36,13 @@ import java.util.List;
 public class BEnumSymbol extends BTypeSymbol {
 
     public List<BConstantSymbol> members;
+    public List<BAnnotationSymbol> annots;
 
     public BEnumSymbol(List<BConstantSymbol> members, long flags, Name name, PackageID pkgID, BType type,
                        BSymbol owner, Location pos, SymbolOrigin origin) {
         super(SymTag.ENUM, flags, name, pkgID, type, owner, pos, origin);
         this.members = members;
         this.kind = SymbolKind.ENUM;
+        this.annots = new ArrayList<>();
     }
 }
