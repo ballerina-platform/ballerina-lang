@@ -67,6 +67,30 @@ public class SymbolUtil {
     }
 
     /**
+     * Check whether the given symbol is a class symbol.
+     *
+     * @param symbol to evaluate
+     * @return {@link Boolean}
+     */
+    public static boolean isClass(Symbol symbol) {
+        TypeSymbol typeDescriptor;
+        switch (symbol.kind()) {
+            case TYPE:
+                typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
+                break;
+            case VARIABLE:
+                typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
+                break;
+            case CLASS:
+                return true;
+            default:
+                return false;
+        }
+
+        return CommonUtil.getRawType(typeDescriptor).kind() == SymbolKind.CLASS;
+    }
+
+    /**
      * Check whether the given symbol is a symbol with the type Record.
      *
      * @param symbol to evaluate
@@ -133,6 +157,21 @@ public class SymbolUtil {
     }
 
     /**
+     * Get the type descriptor for the class symbol.
+     *
+     * @param symbol to evaluate
+     * @return {@link ClassSymbol}
+     */
+    public static ClassSymbol getTypeDescForClassSymbol(Symbol symbol) {
+        Optional<? extends TypeSymbol> typeDescriptor = getTypeDescriptor(symbol);
+        if (typeDescriptor.isEmpty() || !isObject(symbol)) {
+            throw new UnsupportedOperationException("Cannot find a valid type descriptor");
+        }
+
+        return (ClassSymbol) CommonUtil.getRawType(typeDescriptor.get());
+    }
+
+    /**
      * Get the type descriptor for the record symbol.
      *
      * @param symbol to evaluate
@@ -156,10 +195,10 @@ public class SymbolUtil {
     public static boolean isListener(Symbol symbol) {
         Optional<? extends TypeSymbol> symbolTypeDesc = getTypeDescriptor(symbol);
         
-        if (symbolTypeDesc.isEmpty() || CommonUtil.getRawType(symbolTypeDesc.get()).typeKind() != TypeDescKind.OBJECT) {
+        if (symbolTypeDesc.isEmpty() || CommonUtil.getRawType(symbolTypeDesc.get()).kind() != SymbolKind.CLASS) {
             return false;
         }
-        List<String> attachedMethods = ((ObjectTypeSymbol) CommonUtil.getRawType(symbolTypeDesc.get())).methods()
+        List<String> attachedMethods = ((ClassSymbol) CommonUtil.getRawType(symbolTypeDesc.get())).methods()
                 .stream()
                 .map(Symbol::name)
                 .collect(Collectors.toList());

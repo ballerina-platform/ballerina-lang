@@ -33,18 +33,15 @@ import java.util.Collections;
 public class STMappingBindingPatternNode extends STBindingPatternNode {
     public final STNode openBrace;
     public final STNode fieldBindingPatterns;
-    public final STNode restBindingPattern;
     public final STNode closeBrace;
 
     STMappingBindingPatternNode(
             STNode openBrace,
             STNode fieldBindingPatterns,
-            STNode restBindingPattern,
             STNode closeBrace) {
         this(
                 openBrace,
                 fieldBindingPatterns,
-                restBindingPattern,
                 closeBrace,
                 Collections.emptyList());
     }
@@ -52,19 +49,16 @@ public class STMappingBindingPatternNode extends STBindingPatternNode {
     STMappingBindingPatternNode(
             STNode openBrace,
             STNode fieldBindingPatterns,
-            STNode restBindingPattern,
             STNode closeBrace,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.MAPPING_BINDING_PATTERN, diagnostics);
         this.openBrace = openBrace;
         this.fieldBindingPatterns = fieldBindingPatterns;
-        this.restBindingPattern = restBindingPattern;
         this.closeBrace = closeBrace;
 
         addChildren(
                 openBrace,
                 fieldBindingPatterns,
-                restBindingPattern,
                 closeBrace);
     }
 
@@ -72,7 +66,6 @@ public class STMappingBindingPatternNode extends STBindingPatternNode {
         return new STMappingBindingPatternNode(
                 this.openBrace,
                 this.fieldBindingPatterns,
-                this.restBindingPattern,
                 this.closeBrace,
                 diagnostics);
     }
@@ -80,12 +73,10 @@ public class STMappingBindingPatternNode extends STBindingPatternNode {
     public STMappingBindingPatternNode modify(
             STNode openBrace,
             STNode fieldBindingPatterns,
-            STNode restBindingPattern,
             STNode closeBrace) {
         if (checkForReferenceEquality(
                 openBrace,
                 fieldBindingPatterns,
-                restBindingPattern,
                 closeBrace)) {
             return this;
         }
@@ -93,7 +84,6 @@ public class STMappingBindingPatternNode extends STBindingPatternNode {
         return new STMappingBindingPatternNode(
                 openBrace,
                 fieldBindingPatterns,
-                restBindingPattern,
                 closeBrace,
                 diagnostics);
     }

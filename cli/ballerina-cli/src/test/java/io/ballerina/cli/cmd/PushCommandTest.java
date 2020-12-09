@@ -96,12 +96,12 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
-                "Creating balos\n" +
-                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
-                "\n" +
                 "Running Tests\n\n" +
                 "\twinery\n" +
                 "\tNo tests found\n" +
+                "\n" +
+                "Creating balo\n" +
+                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
                 "\n" +
                 "Generating executable\n" +
                 "\ttarget/bin/winery.jar\n");

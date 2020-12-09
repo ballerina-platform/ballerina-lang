@@ -137,17 +137,12 @@ public class TransactionResourceManager {
      *
      * @param gTransactionId     global transaction id
      * @param transactionBlockId participant identifier
-     * @param committed          function pointer to invoke when this transaction committed
-     * @param aborted            function pointer to invoke when this transaction aborted
      * @since 0.990.0
      */
-    public void registerParticipation(String gTransactionId, String transactionBlockId, BFunctionPointer committed,
-                                      BFunctionPointer aborted) {
+    public void registerParticipation(String gTransactionId, String transactionBlockId) {
         localParticipants.computeIfAbsent(gTransactionId, gid -> new ConcurrentSkipListSet<>()).add(transactionBlockId);
 
         TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
-        registerCommittedFunction(transactionBlockId, committed);
-        registerAbortedFunction(transactionBlockId, aborted);
         transactionLocalContext.beginTransactionBlock(transactionBlockId);
     }
 
@@ -399,8 +394,8 @@ public class TransactionResourceManager {
 
     private void invokeCommittedFunction(Strand strand, String transactionId, String transactionBlockId) {
         List<BFunctionPointer> fpValueList = committedFuncRegistry.get(transactionId);
-        Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true };
         if (fpValueList != null) {
+            Object[] args = {strand, strand.currentTrxContext.getInfoRecord(), true};
             for (int i = fpValueList.size(); i > 0; i--) {
                 BFunctionPointer fp = fpValueList.get(i - 1);
                 //TODO: Replace fp.getFunction().apply
@@ -412,8 +407,8 @@ public class TransactionResourceManager {
     private void invokeAbortedFunction(Strand strand, String transactionId, String transactionBlockId, Object error) {
         List<BFunctionPointer> fpValueList = abortedFuncRegistry.get(transactionId);
         //TODO: Need to pass the retryManager to get the willRetry value.
-        Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true, error, true, false, true };
         if (fpValueList != null) {
+            Object[] args = {strand, strand.currentTrxContext.getInfoRecord(), true, error, true, false, true};
             for (int i = fpValueList.size(); i > 0; i--) {
                 BFunctionPointer fp = fpValueList.get(i - 1);
                 //TODO: Replace fp.getFunction().apply
