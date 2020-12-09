@@ -31,6 +31,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -57,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -184,6 +186,10 @@ public class SymbolFactory {
             builder.withQualifier(Qualifier.TRANSACTIONAL);
         }
 
+        for (BLangAnnotationAttachment annAttachment : invokableSymbol.annAttachments) {
+            builder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
+        }
+
         return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory.getTypeDescriptor(invokableSymbol.type))
                 .build();
     }
@@ -251,9 +257,14 @@ public class SymbolFactory {
     }
 
     public BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol, String name) {
-        return new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol.pkgID, symbol)
-                .withReturnType(typesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint))
-                .build();
+        BallerinaWorkerSymbol.WorkerSymbolBuilder builder =
+                new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol.pkgID, symbol);
+
+        for (BAnnotationSymbol annot : symbol.annots) {
+            builder.withAnnotation(createAnnotationSymbol(annot));
+        }
+
+        return builder.withReturnType(typesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint)).build();
     }
 
     /**
@@ -273,7 +284,13 @@ public class SymbolFactory {
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             qualifiers.add(Qualifier.PUBLIC);
         }
-        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, kind);
+
+        List<AnnotationSymbol> annotSymbols = new ArrayList<>();
+        for (BAnnotationSymbol annot : symbol.annots) {
+            annotSymbols.add(createAnnotationSymbol(annot));
+        }
+
+        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind);
     }
 
     /**
