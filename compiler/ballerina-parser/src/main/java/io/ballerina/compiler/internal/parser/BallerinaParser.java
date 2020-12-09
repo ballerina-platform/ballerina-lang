@@ -1952,8 +1952,12 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case AT_TOKEN:
-                inclusionSymbol = STNodeFactory.createEmptyNode();
                 annots = parseOptionalAnnotations();
+                if (peek().kind == SyntaxKind.ASTERISK_TOKEN) {
+                    inclusionSymbol = parseAsteriskToken();
+                } else {
+                    inclusionSymbol = STNodeFactory.createEmptyNode();
+                }
                 break;
             case ASTERISK_TOKEN:
                 inclusionSymbol = parseAsteriskToken();
@@ -2058,12 +2062,12 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         // Required parameters
         if (isEndOfParameter(nextToken.kind)) {
-            if (inclusionSymbol != null && inclusionSymbol.kind == SyntaxKind.ASTERISK_TOKEN) {
+            if (inclusionSymbol != null) {
                 return STNodeFactory.createRequiredParameterNode(SyntaxKind.INCLUDED_RECORD_PARAM,
                         annots, inclusionSymbol, type, paramName);
             } else {
                 return STNodeFactory.createRequiredParameterNode(SyntaxKind.REQUIRED_PARAM,
-                        annots, null, type, paramName);
+                        annots, STNodeFactory.createEmptyNode(), type, paramName);
             }
         } else if (nextToken.kind == SyntaxKind.EQUAL_TOKEN) {
             // If we were processing required params so far and found a defualtable
