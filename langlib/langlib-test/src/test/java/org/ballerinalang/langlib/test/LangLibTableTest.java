@@ -430,4 +430,9 @@ public class LangLibTableTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidDataToKeylessTbl");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test
+    public void testReadOnlyTableFilter() {
+        BRunUtil.invoke(compileResult, "testReadOnlyTableFilter");
+    }
 }

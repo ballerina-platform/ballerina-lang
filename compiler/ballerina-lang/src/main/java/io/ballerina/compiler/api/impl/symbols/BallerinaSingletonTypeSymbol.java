@@ -17,11 +17,16 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.LangLibrary;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+
+import java.util.List;
 
 /**
  * Represents a singleton type descriptor.
@@ -36,6 +41,19 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
                                         BType bType) {
         super(context, TypeDescKind.SINGLETON, moduleID, bType);
         this.typeName = shape.toString();
+    }
+
+    @Override
+    public List<FunctionSymbol> langLibMethods() {
+        if (this.langLibFunctions == null) {
+            LangLibrary langLibrary = LangLibrary.getInstance(this.context);
+            BFiniteType internalType = (BFiniteType) this.getBType();
+            BType valueType = internalType.getValueSpace().iterator().next().type;
+            List<FunctionSymbol> functions = langLibrary.getMethods(valueType.getKind());
+            this.langLibFunctions = filterLangLibMethods(functions, valueType);
+        }
+
+        return this.langLibFunctions;
     }
 
     @Override
