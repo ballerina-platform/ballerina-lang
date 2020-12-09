@@ -45,12 +45,14 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.tools.text.LineRange;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
@@ -435,6 +437,21 @@ public class TypedescriptorTest {
         for (TypeSymbol inclusion : typeInclusions) {
             assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), OBJECT);
             assertTrue(expTypes.contains(inclusion.name()));
+        }
+    }
+
+    @Test
+    public void testEnumsAsTypes() {
+        Optional<TypeSymbol> type = model.type("typedesc_test.bal",
+                                               LineRange.from("typedesc_test.bal", from(160, 37), from(160, 38)));
+        assertEquals(type.get().typeKind(), TYPE_REFERENCE);
+        assertEquals(type.get().name(), "Colour");
+
+        TypeSymbol enumType = ((TypeReferenceTypeSymbol) type.get()).typeDescriptor();
+        assertEquals(enumType.typeKind(), UNION);
+
+        for (TypeSymbol memberType : ((UnionTypeSymbol) enumType).memberTypeDescriptors()) {
+            assertEquals(memberType.typeKind(), SINGLETON);
         }
     }
 

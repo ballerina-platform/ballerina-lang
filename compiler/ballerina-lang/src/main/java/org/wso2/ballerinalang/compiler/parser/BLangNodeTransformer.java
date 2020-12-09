@@ -3408,6 +3408,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (publicQualifier) {
             bLangTypeDefinition.flagSet.add(Flag.PUBLIC);
         }
+        bLangTypeDefinition.flagSet.add(Flag.ENUM);
 
         bLangTypeDefinition.setName((BLangIdentifier) transform(enumDeclarationNode.identifier()));
         bLangTypeDefinition.pos = getPosition(enumDeclarationNode);
