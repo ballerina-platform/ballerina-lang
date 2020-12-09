@@ -15,7 +15,13 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Represents a module information in ballerina.
@@ -25,7 +31,7 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
  *
  * @since 2.0.0
  */
-public class CodeActionModuleId {
+public class CodeActionModuleId implements ModuleID {
     private static final String ORG_SEPARATOR = "/";
     private final String orgName;
     private final String moduleName;
@@ -39,6 +45,12 @@ public class CodeActionModuleId {
         this.version = version;
     }
 
+    public static CodeActionModuleId from(String orgName, String moduleName, String version) {
+        List<String> names = Arrays.stream(moduleName.split("\\.")).collect(Collectors.toList());
+        String alias = moduleName.equals(".") ? moduleName : names.get(names.size() - 1);
+        return new CodeActionModuleId(orgName, moduleName, alias, version);
+    }
+
     public static CodeActionModuleId from(ImportDeclarationNode importPkg) {
         String orgName = importPkg.orgName().isPresent() ? importPkg.orgName().get().orgName() + ORG_SEPARATOR : "";
         StringBuilder pkgNameBuilder = new StringBuilder();
@@ -48,19 +60,42 @@ public class CodeActionModuleId {
         return new CodeActionModuleId(orgName, pkgName, alias, "");
     }
 
+    @Override
     public String orgName() {
         return orgName;
     }
 
+    @Override
     public String moduleName() {
         return moduleName;
     }
 
+    @Override
     public String version() {
         return version;
     }
 
-    public String alias() {
+    @Override
+    public String modulePrefix() {
         return alias;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CodeActionModuleId that = (CodeActionModuleId) o;
+        return orgName.equals(that.orgName) &&
+                moduleName.equals(that.moduleName) &&
+                version.equals(that.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(orgName, moduleName, version);
     }
 }
