@@ -28,8 +28,6 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.tools.diagnostics.Location;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
