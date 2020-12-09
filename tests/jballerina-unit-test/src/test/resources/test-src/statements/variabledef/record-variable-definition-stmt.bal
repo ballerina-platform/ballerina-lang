@@ -189,18 +189,18 @@ function testRecordInsideTupleInsideRecord() returns [string[], string, map<anyd
     return [namesOfChildren, children[0].name, child];
 }
 
-function testRecordInsideTupleInsideRecord2() returns [string, int, int, string] {
-    [int, Age] yearAndAge1 = [1992, {age: 26, format: "Y"}];
-    [int, Age] yearAndAge2 = [1994, {age: 24, format: "X"}];
-    [int, Age] yearAndAge3 = [1996, {age: 22, format: "Z"}];
-    Child ch1 = {name: "A", yearAndAge: yearAndAge1};
-    Child ch2 = {name: "B", yearAndAge: yearAndAge2};
-    Child ch3 = {name: "C", yearAndAge: yearAndAge3};
-
-    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
-    Parent {namesOfChildren, children, child: {name, yearAndAge: [yearInt, {age, format}]}} = parent;
-    return [name, yearInt, age, format];
-}
+//function testRecordInsideTupleInsideRecord2() returns [string, int, int, string] {
+//    [int, Age] yearAndAge1 = [1992, {age: 26, format: "Y"}];
+//    [int, Age] yearAndAge2 = [1994, {age: 24, format: "X"}];
+//    [int, Age] yearAndAge3 = [1996, {age: 22, format: "Z"}];
+//    Child ch1 = {name: "A", yearAndAge: yearAndAge1};
+//    Child ch2 = {name: "B", yearAndAge: yearAndAge2};
+//    Child ch3 = {name: "C", yearAndAge: yearAndAge3};
+//
+//    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
+//    Parent {namesOfChildren, children, child: {name, yearAndAge: [yearInt, {age, format}]}} = parent;
+//    return [name, yearInt, age, format];
+//}
 
 function testRecordInsideTupleInsideRecordWithVar() returns [string[], string, map<anydata|error>] {
     [int, Age] yearAndAge1 = [1992, {age: 26, format: "Y"}];
@@ -215,18 +215,18 @@ function testRecordInsideTupleInsideRecordWithVar() returns [string[], string, m
     return [namesOfChildren, children[0].name, child];
 }
 
-function testRecordInsideTupleInsideRecord2WithVar() returns [string, int, int, string] {
-    [int, Age] yearAndAge1 = [1992, {age: 26, format: "Y"}];
-    [int, Age] yearAndAge2 = [1994, {age: 24, format: "X"}];
-    [int, Age] yearAndAge3 = [1998, {age: 20, format: "A"}];
-    Child ch1 = {name: "A", yearAndAge: yearAndAge1};
-    Child ch2 = {name: "B", yearAndAge: yearAndAge2};
-    Child ch3 = {name: "D", yearAndAge: yearAndAge3};
-
-    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
-    var {namesOfChildren, children, child: {name, yearAndAge: [yearInt, {age, format}]}} = parent;
-    return [name, yearInt, age, format];
-}
+//function testRecordInsideTupleInsideRecord2WithVar() returns [string, int, int, string] {
+//    [int, Age] yearAndAge1 = [1992, {age: 26, format: "Y"}];
+//    [int, Age] yearAndAge2 = [1994, {age: 24, format: "X"}];
+//    [int, Age] yearAndAge3 = [1998, {age: 20, format: "A"}];
+//    Child ch1 = {name: "A", yearAndAge: yearAndAge1};
+//    Child ch2 = {name: "B", yearAndAge: yearAndAge2};
+//    Child ch3 = {name: "D", yearAndAge: yearAndAge3};
+//
+//    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
+//    var {namesOfChildren, children, child: {name, yearAndAge: [yearInt, {age, format}]}} = parent;
+//    return [name, yearInt, age, format];
+//}
 
 type UnionOne record {
     boolean var1;

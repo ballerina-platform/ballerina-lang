@@ -104,18 +104,18 @@ function testErrorInTupleWithVar() returns [int, string, string, anydata|readonl
     return [intVar, stringVar, erroVar.message(), errorVar2.detail()["message"], fooVar.fatal];
 }
 
-function testErrorInTupleWithDestructure() returns [int, string, string, map<anydata|readonly>, boolean] {
-    [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
-    [int, string, [error, boolean]] [intVar, stringVar, [error(reasonVar, ... detailVar), booleanVar]] = t1;
-
-    return [intVar, stringVar, reasonVar, detailVar, booleanVar];
-}
-
-function testErrorInTupleWithDestructure2() returns [int, string, string, anydata|readonly, boolean] {
-    [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
-    [int, string, [error, boolean]] [intVar, stringVar, [error(reasonVar, message = message), booleanVar]] = t1;
-    return [intVar, stringVar, reasonVar, message, booleanVar];
-}
+//function testErrorInTupleWithDestructure() returns [int, string, string, map<anydata|readonly>, boolean] {
+//    [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
+//    [int, string, [error, boolean]] [intVar, stringVar, [error(reasonVar, ... detailVar), booleanVar]] = t1;
+//
+//    return [intVar, stringVar, reasonVar, detailVar, booleanVar];
+//}
+//
+//function testErrorInTupleWithDestructure2() returns [int, string, string, anydata|readonly, boolean] {
+//    [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
+//    [int, string, [error, boolean]] [intVar, stringVar, [error(reasonVar, message = message), booleanVar]] = t1;
+//    return [intVar, stringVar, reasonVar, message, booleanVar];
+//}
 
 type Bar record {
     int x;

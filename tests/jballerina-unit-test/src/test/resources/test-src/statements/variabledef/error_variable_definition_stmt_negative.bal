@@ -57,12 +57,12 @@ function testBasicErrorVariable2() {
     var error (reason11, detail = detail11) = 12; // invalid error variable; expecting an error type but found 'int' in type definition
 }
 
-function errorVarInTupleVar() {
-    [int, error] tuple = [100, error("Error Code")];
-    var [a, error(reason, message = message)] = tuple;
-    boolean r = reason; // incompatible types: expected 'boolean', found 'string'
-    string m = message; // incompatible types: expected 'string', found 'anydata|readonly'
-}
+//function errorVarInTupleVar() {
+//    [int, error] tuple = [100, error("Error Code")];
+//    var [a, error(reason, message = message)] = tuple;
+//    boolean r = reason; // incompatible types: expected 'boolean', found 'string'
+//    string m = message; // incompatible types: expected 'string', found 'anydata|readonly'
+//}
 
 function errorVarWithConstrainedMap() {
     error err = error("Error Code", message = "Fatal");
