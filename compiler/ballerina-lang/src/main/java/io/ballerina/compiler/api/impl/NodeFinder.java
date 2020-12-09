@@ -193,9 +193,6 @@ class NodeFinder extends BaseVisitor {
 
             if (this.enclosingNode != null) {
                 break;
-            } else if (!((BLangNode) node).internal) {
-                this.enclosingNode = ((BLangNode) node);
-                break;
             }
         }
 

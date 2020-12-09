@@ -15,6 +15,12 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -26,7 +32,6 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -55,18 +60,21 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         if (!(diagnostic.getMessage().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
-        PositionDetails positionDetails = context.positionDetails();
-        if (positionDetails.matchedNode().kind() != SyntaxKind.LOCAL_VAR_DECL &&
-                positionDetails.matchedNode().kind() != SyntaxKind.MODULE_VAR_DECL) {
+        Node matchedNode = context.positionDetails().matchedNode();
+        if (matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
+                matchedNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
+                matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
             return Collections.emptyList();
         }
-        Optional<ExpressionNode> initializer = getInitializer(positionDetails.matchedNode());
-        if (initializer.isEmpty() || initializer.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
+        Optional<ExpressionNode> expressionNode = getExpression(matchedNode);
+        Optional<TypeSymbol> variableTypeSymbol = getVariableTypeSymbol(matchedNode, context);
+        if (expressionNode.isEmpty() || variableTypeSymbol.isEmpty() ||
+                expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Collections.emptyList();
         }
-        Position editPos = CommonUtil.toPosition(initializer.get().lineRange().startLine());
+        Position editPos = CommonUtil.toPosition(expressionNode.get().lineRange().startLine());
         List<TextEdit> edits = new ArrayList<>();
-        Optional<String> typeName = CodeActionUtil.getPossibleType(positionDetails.matchedExprType(), edits, context);
+        Optional<String> typeName = CodeActionUtil.getPossibleType(variableTypeSymbol.get(), edits, context);
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
@@ -76,13 +84,42 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }
 
-    private Optional<ExpressionNode> getInitializer(Node node) {
+    private Optional<ExpressionNode> getExpression(Node node) {
         if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             return ((VariableDeclarationNode) node).initializer();
         } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
             return ((ModuleVariableDeclarationNode) node).initializer();
+        } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
+            return Optional.of(((AssignmentStatementNode) node).expression());
         } else {
             return Optional.empty();
         }
+    }
+
+    protected Optional<TypeSymbol> getVariableTypeSymbol(Node matchedNode, CodeActionContext context) {
+        switch (matchedNode.kind()) {
+            case LOCAL_VAR_DECL:
+            case MODULE_VAR_DECL:
+                return Optional.of(context.positionDetails().matchedExprType());
+            case ASSIGNMENT_STATEMENT:
+                Optional<VariableSymbol> optVariableSymbol = getVariableSymbol(context, matchedNode);
+                if (optVariableSymbol.isEmpty()) {
+                    return Optional.empty();
+                }
+                return Optional.of(optVariableSymbol.get().typeDescriptor());
+            default:
+                return Optional.empty();
+        }
+    }
+
+    private Optional<VariableSymbol> getVariableSymbol(CodeActionContext context, Node matchedNode) {
+        AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
+        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
+        Optional<Symbol> symbol = semanticModel.symbol(context.filePath().toFile().getName(),
+                                                       assignmentStmtNode.varRef().lineRange().startLine());
+        if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.VARIABLE) {
+            return Optional.empty();
+        }
+        return Optional.of((VariableSymbol) symbol.get());
     }
 }
