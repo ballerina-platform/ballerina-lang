@@ -87,6 +87,9 @@ public class SymbolAtCursorTest {
                 {63, 41, "lname"},
                 {72, 4, "test"},
                 {72, 7, "test"},
+                {76, 25, "RSA"},
+                {82, 8, "rsa"},
+                {83, 15, "RSA"},
         };
     }
 
@@ -107,11 +110,11 @@ public class SymbolAtCursorTest {
     public Object[][] getEnumPos() {
         return new Object[][]{
                 {17, 6, "RED"},
-//                {21, 18, "RED"}, // TODO: issue #25841
+                {21, 18, "RED"},
                 {22, 8, "Colour"},
                 {26, 45, "Colour"},
-//                {30, 17, "GREEN"}, // TODO: issue #25841
-//                {31, 28, "BLUE"}, // TODO: issue #25841
+                {30, 17, "GREEN"},
+                {31, 28, "BLUE"},
         };
     }
 

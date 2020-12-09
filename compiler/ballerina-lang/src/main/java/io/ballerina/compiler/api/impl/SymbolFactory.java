@@ -326,7 +326,9 @@ public class SymbolFactory {
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
                 new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID, constantSymbol);
         symbolBuilder.withConstValue(constantSymbol.getConstValue())
-                .withTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.literalType));
+                .withTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.type))
+                .withBroaderTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.literalType));
+
         if ((constantSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
