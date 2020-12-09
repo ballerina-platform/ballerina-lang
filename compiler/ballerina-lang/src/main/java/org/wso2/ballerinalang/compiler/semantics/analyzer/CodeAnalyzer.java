@@ -291,12 +291,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int commitCount;
     private int rollbackCount;
     private boolean withinTransactionScope;
-    private boolean withinTransactionLoop;
     private boolean commitRollbackAllowed;
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
     private boolean queryToTableWithKey;
-    private List<BType> matchExprTypes;
     private BType matchExprType;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
