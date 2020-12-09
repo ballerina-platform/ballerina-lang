@@ -41,6 +41,7 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> anonForkCount;
     private Map<PackageID, Integer> errorTypeIdCount;
     private Map<PackageID, Integer> rawTemplateTypeCount;
+    private Map<PackageID, Integer> tupleVarCount;
 
     private static final String ANON_TYPE = "$anonType$";
     public static final String LAMBDA = "$lambda$";
@@ -51,6 +52,7 @@ public class BLangAnonymousModelHelper {
     private static final String FORK = "$fork$";
     private static final String ANON_TYPE_ID = "$anonTypeid$";
     private static final String RAW_TEMPLATE_TYPE = "$rawTemplate$";
+    private static final String TUPLE_VAR = "$tupleVar$";
 
     private static final CompilerContext.Key<BLangAnonymousModelHelper> ANONYMOUS_MODEL_HELPER_KEY =
             new CompilerContext.Key<>();
@@ -63,6 +65,7 @@ public class BLangAnonymousModelHelper {
         anonForkCount = new HashMap<>();
         errorTypeIdCount = new HashMap<>();
         rawTemplateTypeCount = new HashMap<>();
+        tupleVarCount = new HashMap<>();
     }
 
     public static BLangAnonymousModelHelper getInstance(CompilerContext context) {
@@ -116,6 +119,12 @@ public class BLangAnonymousModelHelper {
         Integer nextValue = rawTemplateTypeCount.getOrDefault(packageID, 0);
         rawTemplateTypeCount.put(packageID, nextValue + 1);
         return RAW_TEMPLATE_TYPE + rawTemplateTypeName.value + "$" + UNDERSCORE + nextValue;
+    }
+
+    public String getNextTupleVarKey(PackageID packageID) {
+        Integer nextValue = tupleVarCount.getOrDefault(packageID, 0);
+        tupleVarCount.put(packageID, nextValue + 1);
+        return TUPLE_VAR + UNDERSCORE + nextValue;
     }
 
     public boolean isAnonymousType(BSymbol symbol) {
