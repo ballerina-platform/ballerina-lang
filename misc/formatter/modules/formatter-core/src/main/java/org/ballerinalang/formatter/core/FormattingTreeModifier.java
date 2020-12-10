@@ -597,6 +597,7 @@ public class FormattingTreeModifier extends TreeModifier {
         MetadataNode metadata = formatNode(serviceDeclarationNode.metadata().orElse(null), 0, 1);
         Token serviceKeyword = formatToken(serviceDeclarationNode.serviceKeyword(), 1, 0);
         TypeDescriptorNode typeDescriptor = formatNode(serviceDeclarationNode.typeDescriptor().orElse(null), 1, 0);
+        NodeList<Node> absoluteResourcePath = formatNodeList(serviceDeclarationNode.absoluteResourcePath(), 1, 0, 1, 0);
         Token onKeyword = formatToken(serviceDeclarationNode.onKeyword(), 1, 0);
         SeparatedNodeList<ExpressionNode> expressions =
                 formatSeparatedNodeList(serviceDeclarationNode.expressions(), 0, 0, 1, 0);
@@ -610,6 +611,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withMetadata(metadata)
                 .withServiceKeyword(serviceKeyword)
                 .withTypeDescriptor(typeDescriptor)
+                .withAbsoluteResourcePath(absoluteResourcePath)
                 .withOnKeyword(onKeyword)
                 .withExpressions(expressions)
                 .withOpenBraceToken(openBrace)
@@ -2313,19 +2315,10 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public AnnotationAttachPointNode transform(AnnotationAttachPointNode annotationAttachPointNode) {
         Token sourceKeyword = formatToken(annotationAttachPointNode.sourceKeyword().orElse(null), 1, 0);
-//        Token firstIdent;
-//        if (annotationAttachPointNode.secondIdent().isPresent()) {
-//            firstIdent = formatToken(annotationAttachPointNode.firstIdent(), 1, 0);
-//        } else {
-//            firstIdent = formatToken(annotationAttachPointNode.firstIdent(), env.trailingWS, env.trailingNL);
-//        }
-//
-//        Token secondIdent = formatToken(annotationAttachPointNode.secondIdent().orElse(null), env.trailingWS,
-//                env.trailingNL);
+        NodeList<Token> identifiers = formatNodeList(annotationAttachPointNode.identifiers(), 1, 0, 0, 0);
         return annotationAttachPointNode.modify()
                 .withSourceKeyword(sourceKeyword)
-//                .withFirstIdent(firstIdent)
-//                .withSecondIdent(secondIdent)
+                .withIdentifiers(identifiers)
                 .apply();
     }
 
