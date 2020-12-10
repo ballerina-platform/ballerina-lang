@@ -49,12 +49,16 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return childInBucket(3);
     }
 
+    public NodeList<Node> relativeResourcePath() {
+        return new NodeList<>(childInBucket(4));
+    }
+
     public FunctionSignatureNode functionSignature() {
-        return childInBucket(4);
+        return childInBucket(5);
     }
 
     public FunctionBodyNode functionBody() {
-        return childInBucket(5);
+        return childInBucket(6);
     }
 
     @Override
@@ -74,6 +78,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
                 "qualifierList",
                 "functionKeyword",
                 "functionName",
+                "relativeResourcePath",
                 "functionSignature",
                 "functionBody"};
     }
@@ -84,6 +89,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken functionName,
+            NodeList<Node> relativeResourcePath,
             FunctionSignatureNode functionSignature,
             FunctionBodyNode functionBody) {
         if (checkForReferenceEquality(
@@ -91,6 +97,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
                 qualifierList.underlyingListNode(),
                 functionKeyword,
                 functionName,
+                relativeResourcePath.underlyingListNode(),
                 functionSignature,
                 functionBody)) {
             return this;
@@ -102,6 +109,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
                 qualifierList,
                 functionKeyword,
                 functionName,
+                relativeResourcePath,
                 functionSignature,
                 functionBody);
     }
@@ -121,6 +129,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         private NodeList<Token> qualifierList;
         private Token functionKeyword;
         private IdentifierToken functionName;
+        private NodeList<Node> relativeResourcePath;
         private FunctionSignatureNode functionSignature;
         private FunctionBodyNode functionBody;
 
@@ -130,6 +139,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             this.qualifierList = oldNode.qualifierList();
             this.functionKeyword = oldNode.functionKeyword();
             this.functionName = oldNode.functionName();
+            this.relativeResourcePath = oldNode.relativeResourcePath();
             this.functionSignature = oldNode.functionSignature();
             this.functionBody = oldNode.functionBody();
         }
@@ -161,6 +171,13 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
+        public FunctionDefinitionNodeModifier withRelativeResourcePath(
+                NodeList<Node> relativeResourcePath) {
+            Objects.requireNonNull(relativeResourcePath, "relativeResourcePath must not be null");
+            this.relativeResourcePath = relativeResourcePath;
+            return this;
+        }
+
         public FunctionDefinitionNodeModifier withFunctionSignature(
                 FunctionSignatureNode functionSignature) {
             Objects.requireNonNull(functionSignature, "functionSignature must not be null");
@@ -182,6 +199,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
                     qualifierList,
                     functionKeyword,
                     functionName,
+                    relativeResourcePath,
                     functionSignature,
                     functionBody);
         }

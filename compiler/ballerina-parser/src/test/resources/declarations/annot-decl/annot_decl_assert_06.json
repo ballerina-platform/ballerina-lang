@@ -51,14 +51,20 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "OBJECT_KEYWORD"
-                    },
-                    {
-                      "kind": "FUNCTION_KEYWORD",
-                      "isMissing": true,
+                      "kind": "LIST",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_FUNCTION_KEYWORD"
+                      "children": [
+                        {
+                          "kind": "OBJECT_KEYWORD"
+                        },
+                        {
+                          "kind": "FUNCTION_KEYWORD",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_FUNCTION_KEYWORD"
+                          ]
+                        }
                       ]
                     }
                   ]
@@ -77,14 +83,101 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "RESOURCE_KEYWORD"
-                    },
-                    {
-                      "kind": "FUNCTION_KEYWORD",
-                      "isMissing": true,
+                      "kind": "LIST",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_FUNCTION_KEYWORD"
+                      "children": [
+                        {
+                          "kind": "RECORD_KEYWORD"
+                        },
+                        {
+                          "kind": "FIELD_KEYWORD",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_FIELD_KEYWORD"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "ANNOTATION_DECLARATION",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "ANNOTATION_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "Bar",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "ON_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "SERVICE_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "REMOTE_KEYWORD"
+                        },
+                        {
+                          "kind": "FUNCTION_KEYWORD",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_FUNCTION_KEYWORD"
+                          ]
+                        }
                       ]
                     }
                   ]
@@ -103,14 +196,74 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "RECORD_KEYWORD"
-                    },
-                    {
-                      "kind": "FIELD_KEYWORD",
-                      "isMissing": true,
+                      "kind": "LIST",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_FIELD_KEYWORD"
+                      "children": [
+                        {
+                          "kind": "SERVICE_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "REMOTE_KEYWORD",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_SYNTAX_ERROR"
+                          ]
+                        },
+                        {
+                          "kind": "FUNCTION_KEYWORD"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "ANNOTATION_ATTACH_POINT",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "FUNCTION_KEYWORD",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN"
+                          ],
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "REMOTE_KEYWORD"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
                       ]
                     }
                   ]

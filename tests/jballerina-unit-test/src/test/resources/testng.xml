@@ -338,41 +338,6 @@
                     <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.error.ErrorTest">
-                <methods>
-                    <exclude name="customErrorDetailsTest"/>
-                    <exclude name="errorConstructDetailTest"/>
-                    <exclude name="errorConstructReasonTest"/>
-                    <exclude name="errorPanicTest"/>
-                    <exclude name="errorReasonSubtypeTest"/>
-                    <exclude name="errorTrapTest"/>
-                    <exclude name="indirectErrorCtorTest"/>
-                    <exclude name="testConsecutiveTraps"/>
-                    <exclude name="testCustomErrorDetails2"/>
-                    <exclude name="testDefaultErrorTypeDescriptionInferring"/>
-                    <exclude name="testErrorTrapVarReuse"/>
-                    <exclude name="testErrorTypeDescriptionInferring"/>
-                    <exclude name="testErrorUnionPassedToErrorParam"/>
-                    <exclude name="testErrorWithConstantAsReason"/>
-                    <exclude name="testErrorWithConstantAsReason"/>
-                    <exclude name="testErrorWithErrorConstructor"/>
-                    <exclude name="testErrorWithUserDefinedReasonType"/>
-                    <exclude name="testErrorWithUserDefinedReasonType"/>
-                    <exclude name="testGenericErrorWithDetailRecord"/>
-                    <exclude name="testIndirectErrorCtor"/>
-                    <exclude name="testIndirectErrorReturn"/>
-                    <exclude name="testOneLinePanic"/>
-                    <exclude name="testOptionalErrorReturn"/>
-                    <exclude name="testPanicOnErrorUnion"/>
-                    <exclude name="testPanicOnErrorUnionCustomError"/>
-                    <exclude name="testPanicOnErrorUnionCustomError2"/>
-                    <exclude name="testStackOverFlow"/>
-                    <exclude name="testTrapSuccessScenario"/>
-                    <exclude name="testUnionErrorTypeDescriptionInferring"/>
-                    <exclude name="testUnionLhsWithIndirectErrorRhs"/>
-                    <exclude name="testUnspecifiedErrorDetailFrozenness"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.object.ObjectTest">
                 <methods>
                     <exclude name="testObjectAttachFuncReturningTuple"/>
@@ -598,7 +563,7 @@
             </class>
             <class name="org.ballerinalang.test.javainterop.basic.JavaToBallerinaTest">
                 <methods>
-                    <exclude name="testUsingExistingBallerinaRuntime"/>
+<!--                    <exclude name="testUsingExistingBallerinaRuntime"/>-->
                 </methods>
             </class>
             <class name="org.ballerinalang.test.worker.NotSoBasicWorkerTest">

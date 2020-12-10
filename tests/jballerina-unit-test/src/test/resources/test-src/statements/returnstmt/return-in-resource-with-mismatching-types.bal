@@ -16,17 +16,17 @@
 
 import ballerina/lang.test;
 
-service helloWorld on new test:MockListener(9090) {
+service /helloWorld on new test:MockListener(9090) {
 
-    resource function sayHelloWithString(int x) returns error? {
+    resource function get sayHelloWithString(int x) returns error? {
         return x;
     }
 
-    resource function sayHelloWithInt(string x) returns () {
+    resource function get sayHelloWithInt(string x) returns () {
         return x;
     }
 
-    resource function sayHelloWithNil(string x) {
+    resource function get sayHelloWithNil(string x) {
         return x;
     }
 }

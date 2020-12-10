@@ -50,7 +50,7 @@ public class TokensUtil {
         TextDocument textDocument = document.get().textDocument();
 
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
-        Token tokenAtPosition = ((ModulePartNode) document.get().syntaxTree().rootNode()).findToken(txtPos);
+        Token tokenAtPosition = ((ModulePartNode) document.get().syntaxTree().rootNode()).findToken(txtPos, true);
 
         if (tokenAtPosition == null) {
             throw new TokenOrSymbolNotFoundException("Couldn't find a valid identifier token at position!");

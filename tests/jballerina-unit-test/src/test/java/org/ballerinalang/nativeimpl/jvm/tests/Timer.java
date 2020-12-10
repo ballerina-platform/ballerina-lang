@@ -41,7 +41,7 @@ public class Timer {
         }).start();
     }
 
-    private static void sleep(int millis) {
+    public static void sleep(int millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {

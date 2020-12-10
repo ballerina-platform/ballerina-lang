@@ -58,7 +58,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -131,11 +130,9 @@ public class JvmPackageGen {
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
     private final MethodGen methodGen;
-    private final ModuleStopMethodGen moduleStopMethodGen;
     private final FrameClassGen frameClassGen;
     private final InitMethodGen initMethodGen;
     private final ConfigMethodGen configMethodGen;
-    private final MainMethodGen mainMethodGen;
     private final LambdaGen lambdaGen;
     private final Map<String, BIRFunctionWrapper> birFunctionMap;
     private final Map<String, String> externClassMap;
@@ -153,10 +150,8 @@ public class JvmPackageGen {
         this.dlog = dlog;
         methodGen = new MethodGen(this);
         initMethodGen = new InitMethodGen(symbolTable);
-        mainMethodGen = new MainMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
         lambdaGen = new LambdaGen(this);
-        moduleStopMethodGen = new ModuleStopMethodGen(symbolTable);
         frameClassGen = new FrameClassGen();
         typeBuilder = new ResolvedTypeBuilder();
 
@@ -486,9 +481,8 @@ public class JvmPackageGen {
                             .cleanupPathSeparators(mainFunc.pos.lineRange().filePath()));
                 }
 
-                serviceEPAvailable = listenerDeclarationFound(module.globalVars)
-                        || isServiceDefAvailable(module.typeDefs);
-
+                serviceEPAvailable = listenerDeclarationFound(module.globalVars);
+                MainMethodGen mainMethodGen = new MainMethodGen(symbolTable);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
                                                  asyncDataCollector);
                 if (mainFunc != null) {
@@ -499,8 +493,8 @@ public class JvmPackageGen {
                 generateLockForVariable(cw);
                 generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass);
-                moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
-                                                                asyncDataCollector);
+                new ModuleStopMethodGen(symbolTable).generateExecutionStopMethod(cw, moduleInitClass, module,
+                                                                                 moduleImports, asyncDataCollector);
             } else {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
@@ -529,16 +523,6 @@ public class JvmPackageGen {
     private boolean listenerDeclarationFound(List<BIRGlobalVariableDcl> variableDcls) {
         for (BIRGlobalVariableDcl globalVariableDcl : variableDcls) {
             if (Symbols.isFlagOn(globalVariableDcl.flags, Flags.LISTENER)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isServiceDefAvailable(List<BIRTypeDefinition> typeDefs) {
-        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
-            if (bType instanceof BServiceType) {
                 return true;
             }
         }
@@ -622,9 +606,7 @@ public class JvmPackageGen {
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
 
-            if ((bType.tag != TypeTags.OBJECT ||
-                    !Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) &&
-                    !(bType instanceof BServiceType)) {
+            if ((bType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS))) {
                 continue;
             }
 

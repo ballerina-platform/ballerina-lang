@@ -28,24 +28,24 @@ public class MockListener {
     private int port = 0;
     private ListenerConfiguration config = {};
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
         return self.startEndpoint();
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
         return self.register();
     }
 
-    public function __detach(service s) returns error? {
-        return self.detach();
+    public function detach(service object {} s) returns error? {
+        return self._detach(s);
     }
 
     public function init(int port, ListenerConfiguration? config = ()) {
@@ -69,16 +69,17 @@ public class MockListener {
         return externMockStart();
     }
 
-    public function detach() returns error? {
+    public function _detach(service object {} s) returns error? {
         return externMockDetach();
     }
 }
 
 public client class Caller {
-    public remote function respond(string message) returns string {
+    remote function respond(string message) returns string {
         return message;
     }
-     public remote function badRequest(string message) returns string {
+
+    remote function badRequest(string message) returns string {
         string response = message;
         return self->respond(response);
     }

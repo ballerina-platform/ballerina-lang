@@ -43,7 +43,7 @@ public class OptimizeImportsTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"optimizeImports.json", "optimizeImports.bal"},
+//                {"optimizeImports.json", "optimizeImports.bal"},
         };
     }
 }

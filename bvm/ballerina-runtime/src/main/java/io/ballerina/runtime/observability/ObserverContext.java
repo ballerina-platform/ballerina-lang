@@ -41,6 +41,11 @@ public class ObserverContext {
      */
     private final Map<String, Tag> tags;
 
+    /**
+     * {@link Map} of custom Tags, which are relevant to metrics  .
+     */
+    public Map<String, Tag> customMetricTags;
+
     private String serviceName;
 
     private String resourceName;

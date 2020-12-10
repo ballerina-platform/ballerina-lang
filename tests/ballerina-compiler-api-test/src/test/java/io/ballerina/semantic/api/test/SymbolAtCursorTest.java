@@ -69,7 +69,7 @@ public class SymbolAtCursorTest {
                 {40, 7, "Person"},
                 {41, 7, "PersonObj"},
                 {42, 20, "pObj"},
-                {42, 29, "PersonObj.getFullName"},
+                {42, 29, "getFullName"},
                 {43, 11, "p"},
                 {43, 15, "name"},
                 {44, 19, "p"},
@@ -87,6 +87,9 @@ public class SymbolAtCursorTest {
                 {63, 41, "lname"},
                 {72, 4, "test"},
                 {72, 7, "test"},
+                {76, 25, "RSA"},
+                {82, 8, "rsa"},
+                {83, 15, "RSA"},
         };
     }
 
@@ -106,12 +109,13 @@ public class SymbolAtCursorTest {
     @DataProvider(name = "EnumPosProvider")
     public Object[][] getEnumPos() {
         return new Object[][]{
+                {16, 5, "Colour"},
                 {17, 6, "RED"},
-//                {21, 18, "RED"}, // TODO: issue #25841
+                {21, 18, "RED"},
                 {22, 8, "Colour"},
                 {26, 45, "Colour"},
-//                {30, 17, "GREEN"}, // TODO: issue #25841
-//                {31, 28, "BLUE"}, // TODO: issue #25841
+                {30, 17, "GREEN"},
+                {31, 28, "BLUE"},
         };
     }
 

@@ -6,13 +6,6 @@
   "source": "expression_context/source/query_expr_ctx_let_clause_source2.bal",
   "items": [
     {
-      "label": "$anonType$_0",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "$anonType$_0",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",

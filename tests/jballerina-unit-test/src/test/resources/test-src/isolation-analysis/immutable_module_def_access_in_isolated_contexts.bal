@@ -30,23 +30,23 @@ function MyFunction() {
 
 listener Listener lstnr = new Listener();
 
-service MyService on lstnr {
+service /MyService on lstnr {
 }
 
 readonly class Listener {
-    public isolated function __attach(service s, string? name = ()) returns error? {
+    public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
     }
 
-    public isolated function __detach(service s) returns error? {
+    public isolated function detach(service object {} s) returns error? {
     }
 
-    public isolated function __start() returns error? {
+    public isolated function 'start() returns error? {
     }
 
-    public isolated function __gracefulStop() returns error? {
+    public isolated function gracefulStop() returns error? {
     }
 
-    public isolated function __immediateStop() returns error? {
+    public isolated function immediateStop() returns error? {
     }
 }
 
@@ -59,7 +59,6 @@ public isolated function main() {
     typedesc t4 = MyError;
 
     function () f = MyFunction;
-    service ser = MyService;
     Listener l = lstnr;
     MyConstant mc = MyConstant;
 }

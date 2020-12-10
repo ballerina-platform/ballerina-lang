@@ -142,4 +142,7 @@
     <Match>
         <Package name="org.ballerinalang.langserver"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager"/>
+    </Match>
 </FindBugsFilter>

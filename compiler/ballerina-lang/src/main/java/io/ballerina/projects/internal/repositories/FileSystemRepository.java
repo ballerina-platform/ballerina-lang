@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.internal.repositories;
 
+import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
@@ -84,12 +85,17 @@ public class FileSystemRepository implements PackageRepository {
         String orgName = resolutionRequest.orgName().value();
         String version = resolutionRequest.version().isPresent() ?
                 resolutionRequest.version().get().toString() : "0.0.0";
+
+        //First we will check for a balo that match any platform
         String baloName = ProjectUtils.getBaloName(orgName, packageName, version, null);
-
         Path baloPath = this.balo.resolve(orgName).resolve(packageName).resolve(version).resolve(baloName);
-
         if (!Files.exists(baloPath)) {
-            return Optional.empty();
+            //If balo for any platform not exist check for specific platform
+            String javaBaloName = ProjectUtils.getBaloName(orgName, packageName, version, JdkVersion.JAVA_11.code());
+            baloPath = this.balo.resolve(orgName).resolve(packageName).resolve(version).resolve(javaBaloName);
+            if (!Files.exists(baloPath)) {
+                return Optional.empty();
+            }
         }
 
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);

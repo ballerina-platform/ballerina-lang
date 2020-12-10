@@ -3,7 +3,7 @@ NAME
 
 SYNOPSIS
        ballerina test [<options>]
-                      [<ballerina-file-path> | <ballerina-project-directory>] [<config properties>]
+                      [<ballerina-file-path> | <ballerina-package-path>] [<config properties>]
 
 
 DESCRIPTION
@@ -14,7 +14,7 @@ DESCRIPTION
        Use 'ballerina test to execute tests in the current package.
 
        Use 'ballerina test <balfile>' to execute the given Ballerina test file.
-              Note that testing single BAL files will not work within a Ballerina project.
+              Note that testing single BAL files that belongs to a Ballerina package is not allowed.
               File path can be relative or absolute.
 
 
@@ -58,7 +58,7 @@ OPTIONS
 
        --code-coverage
            Enables code coverage. This will analyze the line coverage of
-           source .bal files in the Ballerina project and add a section
+           source .bal files in the Ballerina package and add a section
            to the testerina report with code coverage details.
            This feature is not supported with single file executions.
 

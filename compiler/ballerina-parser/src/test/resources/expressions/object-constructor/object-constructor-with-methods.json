@@ -121,6 +121,10 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "INT_TYPE_DESC",
                   "children": [
                     {
@@ -190,6 +194,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "init"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",
@@ -357,6 +365,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "inc"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",
@@ -560,6 +572,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "getN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",
@@ -774,6 +790,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "getIncrementN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",

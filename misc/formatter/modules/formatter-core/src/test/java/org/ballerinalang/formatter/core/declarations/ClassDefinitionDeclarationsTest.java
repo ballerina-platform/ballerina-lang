@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Test the formatting of class definition declarations.
@@ -57,5 +59,14 @@ public class ClassDefinitionDeclarationsTest extends FormatterTest {
     @Override
     public String getTestResourceDir() {
         return Paths.get("declarations", "class-definition").toString();
+    }
+
+    @Override
+    public List<String> skipList() {
+        return Arrays.asList(
+                "class_definition_declaration_7.bal",
+                "class_definition_declaration_17.bal",
+                "class_definition_declaration_3.bal"
+        );
     }
 }
