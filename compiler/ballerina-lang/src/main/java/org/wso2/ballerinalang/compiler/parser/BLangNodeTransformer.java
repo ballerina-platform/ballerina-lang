@@ -3747,6 +3747,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         service.serviceClass = annonClassDef;
         service.absoluteResourcePath = absResourcePathPath;
         service.serviceNameLiteral = serviceNameLiteral;
+        service.annAttachments = annonClassDef.annAttachments;
         service.pos = pos;
         service.name = createIdentifier(pos, anonymousModelHelper.getNextAnonymousServiceVarKey(packageID));
         return service;
