@@ -19,12 +19,12 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.TaskExecutor;
+import io.ballerina.cli.launcher.BLauncherCmd;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.cli.launcher.BLauncherCmd;
 import picocli.CommandLine;
 
 import java.io.PrintStream;

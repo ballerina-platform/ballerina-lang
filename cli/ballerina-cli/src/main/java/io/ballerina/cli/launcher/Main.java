@@ -18,12 +18,12 @@
 
 package io.ballerina.cli.launcher;
 
+import io.ballerina.cli.launcher.utils.BCompileUtil;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
-import io.ballerina.cli.launcher.utils.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;

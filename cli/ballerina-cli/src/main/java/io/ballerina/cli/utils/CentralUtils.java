@@ -17,10 +17,10 @@
  */
 package io.ballerina.cli.utils;
 
+import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.SettingsProcessor;
-import io.ballerina.cli.launcher.LauncherUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;

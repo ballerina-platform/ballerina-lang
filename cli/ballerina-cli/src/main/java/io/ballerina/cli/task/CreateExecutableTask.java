@@ -37,9 +37,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ServiceLoader;
 
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
-import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 
 /**
  * Task for creating the executable jar file.
