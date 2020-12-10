@@ -41,17 +41,19 @@ import java.util.Optional;
 public abstract class AbstractTypeSymbol implements TypeSymbol {
 
     protected final CompilerContext context;
+    protected List<FunctionSymbol> langLibFunctions;
 
     private final TypeDescKind typeDescKind;
     private final ModuleID moduleID;
     private final BType bType;
-    private List<FunctionSymbol> langLibFunctions;
+    private final Documentation docAttachment;
 
     public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
         this.context = context;
         this.typeDescKind = typeDescKind;
         this.moduleID = moduleID;
         this.bType = bType;
+        this.docAttachment = getDocAttachment(bType);
     }
 
     @Override
@@ -79,7 +81,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
 
     @Override
     public Optional<Documentation> docAttachment() {
-        return Optional.empty();
+        return Optional.ofNullable(this.docAttachment);
     }
 
     @Override
@@ -98,17 +100,22 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         return this.langLibFunctions;
     }
 
+    @Override
+    public boolean assignableTo(TypeSymbol targetType) {
+        Types types = Types.getInstance(this.context);
+        return types.isAssignable(this.bType, getTargetBType(targetType));
+    }
+
     /**
      * Get the BType.
      *
      * @return {@link BType} associated with the type desc
      */
-    protected BType getBType() {
+    public BType getBType() {
         return bType;
     }
 
-    // Private util methods
-    private List<FunctionSymbol> filterLangLibMethods(List<FunctionSymbol> functions, BType internalType) {
+    protected List<FunctionSymbol> filterLangLibMethods(List<FunctionSymbol> functions, BType internalType) {
         Types types = Types.getInstance(this.context);
         List<FunctionSymbol> filteredFunctions = new ArrayList<>();
 
@@ -122,5 +129,20 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         }
 
         return filteredFunctions;
+    }
+
+    // Private util methods
+
+    private BType getTargetBType(TypeSymbol typeSymbol) {
+        if (typeSymbol.kind() == SymbolKind.TYPE) {
+            return ((AbstractTypeSymbol) typeSymbol).getBType();
+        }
+
+        return ((BallerinaClassSymbol) typeSymbol).getBType();
+    }
+
+    private Documentation getDocAttachment(BType bType) {
+        return (bType == null || bType.tsymbol == null) ? null
+                : new BallerinaDocumentation(bType.tsymbol.markdownDocumentation);
     }
 }

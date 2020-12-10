@@ -1,11 +1,14 @@
-function foo() {
-    service s;
+// Test resource path with missing slash tokens
+service foo /bar baz/yay hey on listner {
 
+}
 
-service serviceName1 on someListner1 {
-    function bar() {
+// Test resource path with missing identifiers
+service foo  / / / on listner {
 
+}
 
+// Test invalid tokens before and after resource path
+service foo  from /bar in on listner {
 
-service someListner2 on l1 {
 }

@@ -21,11 +21,14 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.AnnotationUtils;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.values.MapValue;
 
 import java.util.Map.Entry;
 import java.util.StringJoiner;
@@ -37,9 +40,9 @@ import java.util.StringJoiner;
  */
 public class BObjectType extends BStructureType implements ObjectType {
 
-    private AttachedFunctionType[] attachedFunctions;
-    public AttachedFunctionType initializer;
-    public AttachedFunctionType generatedInitializer;
+    private MemberFunctionType[] attachedFunctions;
+    public MemberFunctionType initializer;
+    public MemberFunctionType generatedInitializer;
 
     private final boolean readonly;
     private IntersectionType immutableType;
@@ -52,7 +55,7 @@ public class BObjectType extends BStructureType implements ObjectType {
      * @param pkg package of the struct
      * @param flags flags of the object type
      */
-    public BObjectType(String typeName, Module pkg, int flags) {
+    public BObjectType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags, Object.class);
         this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
     }
@@ -77,19 +80,19 @@ public class BObjectType extends BStructureType implements ObjectType {
         return TypeTags.OBJECT_TYPE_TAG;
     }
 
-    public AttachedFunctionType[] getAttachedFunctions() {
+    public MemberFunctionType[] getAttachedFunctions() {
         return attachedFunctions;
     }
 
-    public void setAttachedFunctions(AttachedFunctionType[] attachedFunctions) {
+    public void setAttachedFunctions(MemberFunctionType[] attachedFunctions) {
         this.attachedFunctions = attachedFunctions;
     }
 
-    public void setInitializer(AttachedFunction initializer) {
+    public void setInitializer(BMemberFunctionType initializer) {
         this.initializer = initializer;
     }
 
-    public void setGeneratedInitializer(AttachedFunction generatedInitializer) {
+    public void setGeneratedInitializer(BMemberFunctionType generatedInitializer) {
         this.generatedInitializer = generatedInitializer;
     }
 
@@ -107,7 +110,7 @@ public class BObjectType extends BStructureType implements ObjectType {
             sj.add(field.getKey() + " : " + field.getValue().getFieldType());
         }
 
-        for (AttachedFunctionType func : attachedFunctions) {
+        for (MemberFunctionType func : attachedFunctions) {
             sj.add(func.toString());
         }
 
@@ -131,5 +134,13 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     public void setTypeIdSet(BTypeIdSet typeIdSet) {
         this.typeIdSet = typeIdSet;
+    }
+
+    public void processObjectCtorAnnots(MapValue globalAnnotationMap, Strand strand) {
+        AnnotationUtils.processObjectCtorAnnotations(globalAnnotationMap, this, strand);
+    }
+
+    public boolean hasAnnotations() {
+        return !annotations.isEmpty();
     }
 }

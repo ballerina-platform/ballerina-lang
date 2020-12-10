@@ -23,10 +23,10 @@ import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -161,15 +161,14 @@ public class ClosedRecordTest {
                         "family:{spouse:\"Jane\", noOfChildren:0, children:[\"Alex\", \"Bob\"]}}");
     }
 
-    @Test(description = "Negative test to test attaching functions to record literal",
-            groups = { "disableOnOldParser" })
+    @Test(description = "Negative test to test attaching functions to record literal")
     public void testStructLiteralAttachedFunc() {
         CompileResult result =
                 BCompileUtil.compile("test-src/record/sealed_record_literal_with_attached_functions_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 4);
         BAssertUtil.validateError(result, 0, "redeclared symbol 'Person'", 7, 10);
-        BAssertUtil.validateError(result, 1, "invalid token '.'", 7, 24);
-        BAssertUtil.validateError(result, 2, "invalid token 'getName'", 7, 24);
+        BAssertUtil.validateError(result, 1, "invalid token 'getName'", 7, 24);
+        BAssertUtil.validateError(result, 2, "resource path in function definition", 7, 24);
         BAssertUtil.validateError(result, 3, "undefined symbol 'self'", 8, 12);
     }
 

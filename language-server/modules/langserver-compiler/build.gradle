@@ -58,3 +58,7 @@ compileJava {
         classpath = files()
     }
 }
+
+spotbugsMain {
+    enabled = false
+}

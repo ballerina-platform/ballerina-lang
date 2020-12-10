@@ -252,7 +252,7 @@ public class BTypeBValueProviders {
         public BPacket toBValue(BObjectType objType, BValueSerializer serializer) {
             String packagePath = objType.getPackagePath();
             String typeName = objType.getName();
-            int flags = objType.flags;
+            var flags = objType.flags;
             BValue fields = serializer.toBValue(objType.getFields(), null);
             BValue attachedFunctions = serializer.toBValue(objType.getAttachedFunctions(), null);
             BValue initializer = serializer.toBValue(objType.initializer, null);
@@ -324,7 +324,7 @@ public class BTypeBValueProviders {
         public BPacket toBValue(BRecordType recType, BValueSerializer serializer) {
             String packagePath = recType.getPackagePath();
             String typeName = recType.getName();
-            int flags = recType.flags;
+            var flags = recType.flags;
 
             BPacket packet = BPacket.from(typeName(), serializer.toBValue(recType.getFields(), null));
             packet.putString(PACKAGE_PATH, packagePath);

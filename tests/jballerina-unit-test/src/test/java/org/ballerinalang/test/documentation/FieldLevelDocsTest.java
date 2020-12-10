@@ -22,22 +22,16 @@ import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Module;
+import org.ballerinalang.docgen.generator.model.ModuleDoc;
 import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.generator.model.Record;
-import org.ballerinalang.docgen.model.ModuleDoc;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -68,17 +62,11 @@ public class FieldLevelDocsTest {
     public void setup() throws IOException {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "record_object_fields_project";
-        CompileResult result = BCompileUtil.compile(sourceRoot, "test_module");
-
-        List<BLangPackage> modules = new LinkedList<>();
-        modules.add((BLangPackage) result.getAST());
-        Map<String, ModuleDoc> docsMap = BallerinaDocGenerator.generateModuleDocs(
-                Paths.get("src", "test", "resources", sourceRoot).toAbsolutePath().toString(), modules);
-        List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
-        moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
-
-        Project project = BallerinaDocGenerator.getDocsGenModel(moduleDocList);
-        Module testModule = project.modules.get(0);
+        io.ballerina.projects.Project project = BCompileUtil.getProject(sourceRoot);
+        Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
+        Project docerinaProject = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
+                .packageOrg().toString(), project.currentPackage().packageVersion().toString());
+        Module testModule = docerinaProject.modules.get(0);
 
         for (Record record : testModule.records) {
             String recordName = record.name;

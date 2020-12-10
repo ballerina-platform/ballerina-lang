@@ -18,7 +18,6 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
@@ -29,6 +28,7 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -44,15 +44,16 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
-import org.ballerinalang.test.util.CompileResult;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.tools.text.LineRange;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
@@ -80,7 +81,6 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
-import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.compile;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -94,14 +94,11 @@ import static org.testng.Assert.assertTrue;
  */
 public class TypedescriptorTest {
 
-    SemanticModel model;
+    private SemanticModel model;
 
     @BeforeClass
     public void setup() {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/typedesc_test.bal", context);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        model = new BallerinaSemanticModel(pkg, context);
+        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/typedesc_test.bal");
     }
 
     @Test
@@ -115,8 +112,10 @@ public class TypedescriptorTest {
     @Test
     public void testConstantType() {
         Symbol symbol = getSymbol(16, 7);
+        assertEquals(((ConstantSymbol) symbol).typeKind(), SINGLETON);
+
         TypeSymbol type = ((ConstantSymbol) symbol).typeDescriptor();
-        assertEquals(type.typeKind(), FLOAT);
+        assertEquals(type.typeKind(), SINGLETON);
     }
 
     @Test
@@ -393,6 +392,67 @@ public class TypedescriptorTest {
                 {94, 23, TYPE_REFERENCE, NIL},
                 {95, 45, RECORD, ERROR}
         };
+    }
+
+    @Test(dataProvider = "RecordTypeInclusionPosProvider")
+    public void testRecordTypeInclusion(int line, int col, TypeDescKind typeKind, Set<String> expTypes) {
+        Symbol symbol = getSymbol(line, col);
+        RecordTypeSymbol type = (RecordTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
+        List<TypeSymbol> typeInclusions = type.typeInclusions();
+
+        for (TypeSymbol inclusion : typeInclusions) {
+            assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), typeKind);
+            assertTrue(expTypes.contains(inclusion.name()));
+        }
+    }
+
+    @DataProvider(name = "RecordTypeInclusionPosProvider")
+    public Object[][] getRecordTypeInclusionPos() {
+        return new Object[][]{
+                {113, 6, RECORD, Set.of("Person")},
+                {126, 6, RECORD, Set.of("Foo", "Bar")},
+        };
+    }
+
+    @Test
+    public void testObjectTypeInclusion() {
+        Set<String> expTypes = Set.of("FooObj", "BarObj");
+        Symbol symbol = getSymbol(144, 6);
+        ObjectTypeSymbol type = (ObjectTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
+        List<TypeSymbol> typeInclusions = type.typeInclusions();
+
+        for (TypeSymbol inclusion : typeInclusions) {
+            assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), OBJECT);
+            assertTrue(expTypes.contains(inclusion.name()));
+        }
+    }
+
+    @Test
+    public void testObjectTypeInclusionInClasses() {
+        Set<String> expTypes = Set.of("PersonObj");
+        Symbol symbol = getSymbol(149, 6);
+        ClassSymbol clazz = (ClassSymbol) symbol;
+        List<TypeSymbol> typeInclusions = clazz.typeInclusions();
+
+        for (TypeSymbol inclusion : typeInclusions) {
+            assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), OBJECT);
+            assertTrue(expTypes.contains(inclusion.name()));
+        }
+    }
+
+    @Test
+    public void testEnumsAsTypes() {
+        Optional<TypeSymbol> type = model.type("typedesc_test.bal",
+                                               LineRange.from("typedesc_test.bal", from(160, 37), from(160, 38)));
+        assertEquals(type.get().typeKind(), TYPE_REFERENCE);
+        assertEquals(type.get().name(), "Colour");
+
+        TypeSymbol enumType = ((TypeReferenceTypeSymbol) type.get()).typeDescriptor();
+        assertEquals(enumType.typeKind(), UNION);
+
+        for (TypeSymbol memberType : ((UnionTypeSymbol) enumType).memberTypeDescriptors()) {
+            assertEquals(memberType.typeKind(), SINGLETON);
+        }
     }
 
     private Symbol getSymbol(int line, int column) {

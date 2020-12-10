@@ -17,38 +17,31 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.compiler.CompilerOptionName;
-import org.ballerinalang.compiler.JarResolver;
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import io.ballerina.projects.CompilerBackend;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PlatformLibrary;
+import io.ballerina.projects.PlatformLibraryScope;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import static org.ballerinalang.compiler.JarResolver.JAR_RESOLVER_KEY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.getInteropAnnotValue;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getBooleanValueIfSet;
 
 /**
  * Java interop validation class for both field access and method invocations.
@@ -60,19 +53,11 @@ public class InteropValidator {
     private static final CompilerContext.Key<InteropValidator> INTEROP_VALIDATE = new CompilerContext.Key<>();
     private final SymbolTable symbolTable;
     private final BLangDiagnosticLog dlog;
-    private boolean baloGen;
-    private CompilerContext compilerContext;
-    private boolean skipModuleDependencies;
 
     private InteropValidator(CompilerContext compilerContext) {
         compilerContext.put(INTEROP_VALIDATE, this);
         this.symbolTable = SymbolTable.getInstance(compilerContext);
         this.dlog = BLangDiagnosticLog.getInstance(compilerContext);
-        this.compilerContext = compilerContext;
-        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-        this.baloGen = getBooleanValueIfSet(compilerOptions, CompilerOptionName.BALO_GENERATION);
-        this.skipModuleDependencies = getBooleanValueIfSet(compilerOptions,
-                                                           CompilerOptionName.SKIP_MODULE_DEPENDENCIES);
     }
 
     public static InteropValidator getInstance(CompilerContext context) {
@@ -84,53 +69,67 @@ public class InteropValidator {
         return interopValidator;
     }
 
-    public BLangPackage validate(BLangPackage bLangPackage) {
-        dlog.setCurrentPackageId(bLangPackage.symbol.pkgID);
+    public void validate(ModuleId moduleId, CompilerBackend compilerBackend, BLangPackage bLangPackage) {
+        validateModulePackages(moduleId, compilerBackend, bLangPackage);
+        validateTestPackages(moduleId, compilerBackend, bLangPackage);
+    }
+
+    private void validateModulePackages(ModuleId moduleId, CompilerBackend compilerBackend,
+                                        BLangPackage bLangPackage) {
         // find module dependencies path
-        Set<Path> moduleDependencies = findDependencies(bLangPackage.packageID);
-        ClassLoader classLoader = makeClassLoader(moduleDependencies);
+        Set<Path> moduleDependencyPaths = getPlatformDependencyPaths(
+                moduleId, compilerBackend, PlatformLibraryScope.DEFAULT);
+
+        // Add runtime library
+        Path runtimeJar = compilerBackend.runtimeLibrary().path();
+        // We check if the runtime jar exist to support bootstrap
+        if (Files.exists(runtimeJar)) {
+            moduleDependencyPaths.add(runtimeJar);
+        }
+
+        ClassLoader classLoader = makeClassLoader(moduleDependencyPaths);
         BIRNode.BIRPackage birPackage = bLangPackage.symbol.bir;
         // validate module functions with class names
-        validateModuleFunctions(birPackage, classLoader);
-        // validate type functions with class names
-        validateTypeDefinitions(birPackage, classLoader);
+        validateFunctions(classLoader, birPackage);
+    }
+
+    private void validateTestPackages(ModuleId moduleId, CompilerBackend compilerBackend,
+                                      BLangPackage bLangPackage) {
+        if (!bLangPackage.hasTestablePackage()) {
+            return;
+        }
+        Set<Path> testDependencies = getPlatformDependencyPaths(moduleId, compilerBackend,
+                                                                PlatformLibraryScope.DEFAULT);
+        testDependencies.addAll(getPlatformDependencyPaths(moduleId, compilerBackend,
+                                                           PlatformLibraryScope.TEST_ONLY));
+
+        // Add runtime library
+        Path runtimeJar = compilerBackend.runtimeLibrary().path();
+        // We check if the runtime jar exist to support bootstrap
+        if (Files.exists(runtimeJar)) {
+            testDependencies.add(runtimeJar);
+        }
+        ClassLoader classLoader = makeClassLoader(testDependencies);
         bLangPackage.getTestablePkgs().forEach(testablePackage -> {
             BIRNode.BIRPackage testBirPackage = testablePackage.symbol.bir;
-            // validate test module functions with class names
-            validateModuleFunctions(testBirPackage, classLoader);
-            // validate test module type functions with class names
-            validateTypeDefinitions(testBirPackage, classLoader);
+            validateFunctions(classLoader, testBirPackage);
         });
-        return bLangPackage;
     }
 
-    private Set<Path> findDependencies(PackageID packageID) {
-        Set<Path> moduleDependencies = new HashSet<>();
-        if (skipModuleDependencies) {
-            return moduleDependencies;
-        }
-        if (baloGen) {
-            moduleDependencies.addAll(readInteropDependencies());
-        }
-        JarResolver jarResolver = compilerContext.get(JAR_RESOLVER_KEY);
-        if (jarResolver != null) {
-            moduleDependencies.addAll(jarResolver.nativeDependencies(packageID));
-        }
-        return moduleDependencies;
+    private void validateFunctions(ClassLoader classLoader, BIRNode.BIRPackage testBirPackage) {
+        // validate test module functions with class names
+        validateModuleFunctions(testBirPackage, classLoader);
+        // validate test module type functions with class names
+        validateTypeAttachedFunctions(testBirPackage, classLoader);
     }
 
-    private HashSet<Path> readInteropDependencies() {
-        HashSet<Path> interopDependencies = new HashSet<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                new FileInputStream("build/interopJars.txt"), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                interopDependencies.add(Paths.get(line));
-            }
-        } catch (IOException e) {
-            throw new BLangCompilerException("error reading interop jar file names", e);
-        }
-        return interopDependencies;
+    private Set<Path> getPlatformDependencyPaths(ModuleId moduleId, CompilerBackend compilerBackend,
+                                                 PlatformLibraryScope scope) {
+        return getPlatformDependencyPaths(compilerBackend.platformLibraryDependencies(moduleId.packageId(), scope));
+    }
+
+    public Set<Path> getPlatformDependencyPaths(Collection<PlatformLibrary> platformLibraries) {
+        return platformLibraries.stream().map(PlatformLibrary::path).collect(Collectors.toSet());
     }
 
     private void validateModuleFunctions(BIRNode.BIRPackage module, ClassLoader classLoader) {
@@ -147,10 +146,8 @@ public class InteropValidator {
         module.functions = jBirFunctions;
     }
 
-    private void validateTypeDefinitions(BIRNode.BIRPackage module, ClassLoader classLoader) {
-
+    private void validateTypeAttachedFunctions(BIRNode.BIRPackage module, ClassLoader classLoader) {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
-
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             List<BIRNode.BIRFunction> attachedFuncs = optionalTypeDef.attachedFuncs;
             List<BIRNode.BIRFunction> jAttachedFuncs = new ArrayList<>(attachedFuncs.size());
@@ -166,7 +163,6 @@ public class InteropValidator {
     }
 
     private ClassLoader makeClassLoader(Set<Path> moduleDependencies) {
-
         if (moduleDependencies == null || moduleDependencies.size() == 0) {
             return Thread.currentThread().getContextClassLoader();
         }
@@ -178,7 +174,6 @@ public class InteropValidator {
                 // ignore
             }
         }
-
         return new URLClassLoader(dependentJars.toArray(new URL[]{}), ClassLoader.getPlatformClassLoader());
     }
 
@@ -247,11 +242,9 @@ public class InteropValidator {
             Field field = clazz.getField(fieldName);
             javaField = new JavaField(method, field);
         } catch (NoSuchFieldException e) {
-            throw new JInteropException(DiagnosticCode.FIELD_NOT_FOUND, "No such field '" + fieldName +
+            throw new JInteropException(DiagnosticErrorCode.FIELD_NOT_FOUND, "No such field '" + fieldName +
                     "' found in class '" + className + "'");
         }
-
         return javaField;
     }
-
 }

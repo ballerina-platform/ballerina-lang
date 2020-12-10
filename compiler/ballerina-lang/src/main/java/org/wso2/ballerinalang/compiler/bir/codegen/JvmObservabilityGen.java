@@ -62,7 +62,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -115,23 +114,23 @@ class JvmObservabilityGen {
     private int desugaredBBIndex;
     private int constantIndex;
 
-    private Map<Object, BIROperand> compileTimeConstants;
+    private final Map<Object, BIROperand> compileTimeConstants;
 
-    JvmObservabilityGen(JvmPackageGen pkgGen) {
-        compileTimeConstants = new HashMap<>();
-        packageCache = pkgGen.packageCache;
-        symbolTable = pkgGen.symbolTable;
-        lambdaIndex = 0;
-        desugaredBBIndex = 0;
-        constantIndex = 0;
+    JvmObservabilityGen(PackageCache packageCache, SymbolTable symbolTable) {
+        this.compileTimeConstants = new HashMap<>();
+        this.packageCache = packageCache;
+        this.symbolTable = symbolTable;
+        this.lambdaIndex = 0;
+        this.desugaredBBIndex = 0;
+        this.constantIndex = 0;
     }
 
     /**
-     * Rewrite all observable functions in a package.
+     * Instrument the package by rewriting the BIR to add relevant Observability related instructions.
      *
      * @param pkg The package to instrument
      */
-    void rewriteObservableFunctions(BIRPackage pkg) {
+    void instrumentPackage(BIRPackage pkg) {
         for (int i = 0; i < pkg.functions.size(); i++) {
             BIRFunction func = pkg.functions.get(i);
             rewriteAsyncInvocations(func, null, pkg);
@@ -148,7 +147,7 @@ class JvmObservabilityGen {
             if ((typeDef.flags & Flags.CLASS) != Flags.CLASS && typeDef.type.tag == TypeTags.OBJECT) {
                 continue;
             }
-            boolean isService = typeDef.type instanceof BServiceType;
+            boolean isService = (typeDef.type.flags & Flags.SERVICE) == Flags.SERVICE;
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
                 BIRFunction func = typeDef.attachedFuncs.get(i);
                 rewriteAsyncInvocations(func, typeDef, pkg);
@@ -863,11 +862,7 @@ class JvmObservabilityGen {
      */
     private String cleanUpServiceName(String serviceName) {
         if (serviceName.contains(SERVICE_IDENTIFIER)) {
-            if (serviceName.contains(ANONYMOUS_SERVICE_IDENTIFIER)) {
-                return serviceName.replace(SERVICE_IDENTIFIER, "_");
-            } else {
-                return serviceName.substring(0, serviceName.lastIndexOf(SERVICE_IDENTIFIER));
-            }
+            return serviceName.substring(0, serviceName.indexOf(SERVICE_IDENTIFIER));
         }
         return serviceName;
     }

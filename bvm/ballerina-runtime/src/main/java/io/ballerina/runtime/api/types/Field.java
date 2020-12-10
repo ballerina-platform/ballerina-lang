@@ -24,7 +24,7 @@ package io.ballerina.runtime.api.types;
  */
 public interface Field {
 
-    int getFlags();
+    long getFlags();
 
     Type getFieldType();
 

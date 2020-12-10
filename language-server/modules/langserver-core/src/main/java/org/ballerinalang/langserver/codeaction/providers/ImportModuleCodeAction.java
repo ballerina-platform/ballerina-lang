@@ -15,22 +15,18 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.projects.Package;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
-import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
@@ -41,59 +37,47 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Code Action for importing a module.
  *
  * @since 1.2.0
  */
-
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ImportModuleCodeAction extends AbstractCodeActionProvider {
     private static final String UNDEFINED_MODULE = "undefined module";
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, PositionDetails positionDetails,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         if (!(diagnostic.getMessage().startsWith(UNDEFINED_MODULE))) {
             return actions;
         }
-        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String uri = context.fileUri();
         List<Diagnostic> diagnostics = new ArrayList<>();
         String diagnosticMessage = diagnostic.getMessage();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
-                                                          diagnosticMessage.lastIndexOf("'"));
-        LSDocumentIdentifier sourceDocument = new LSDocumentIdentifierImpl(uri);
-        String sourceRoot = LSCompilerUtil.getProjectRoot(sourceDocument.getPath());
-        sourceDocument.setProjectRootRoot(sourceRoot);
-        List<BallerinaPackage> packagesList = new ArrayList<>();
-        packagesList.addAll(LSPackageLoader.getSdkPackages());
-        packagesList.addAll(LSPackageLoader.getHomeRepoPackages());
-
-        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        packagesList.addAll(LSPackageLoader.getCurrentProjectModules(bLangPackage, context));
+                diagnosticMessage.lastIndexOf("'"));
+        List<Package> packagesList = new ArrayList<>(LSPackageLoader.getDistributionRepoPackages());
 
         packagesList.stream()
                 .filter(pkgEntry -> {
-                    String fullPkgName = pkgEntry.getFullPackageNameAlias();
-                    return fullPkgName.endsWith("." + packageAlias) || fullPkgName.endsWith("/" + packageAlias);
+                    String pkgName = pkgEntry.packageName().value();
+                    return pkgName.endsWith("." + packageAlias) || pkgName.endsWith(packageAlias);
                 })
                 .forEach(pkgEntry -> {
-                    String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
-                                                        pkgEntry.getFullPackageNameAlias());
-                    String moduleName = CommonUtil.escapeModuleName(context, pkgEntry.getFullPackageNameAlias());
+                    String pkgName = pkgEntry.packageName().value();
+                    String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE, pkgName);
+                    String moduleName = CommonUtil.escapeModuleName(context, pkgName);
                     CodeAction action = new CodeAction(commandTitle);
-                    Position insertPos = getImportPosition(bLangPackage, context);
-                    String importText = ItemResolverConstants.IMPORT + " " + moduleName
-                            + CommonKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
+                    Position insertPos = getImportPosition(context);
+                    String importText = ItemResolverConstants.IMPORT + " " + pkgEntry.packageOrg().value() + "/"
+                            + moduleName + CommonKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
                     List<TextEdit> edits = Collections.singletonList(
                             new TextEdit(new Range(insertPos, insertPos), importText));
                     action.setKind(CodeActionKind.QuickFix);
@@ -105,29 +89,15 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    private static Position getImportPosition(BLangPackage bLangPackage, LSContext context) {
+    private static Position getImportPosition(CodeActionContext context) {
         // Calculate initial import insertion line
-        List<TopLevelNode> nodes = CommonUtil.getCurrentFileTopLevelNodes(bLangPackage, context);
-        int lowestLine = 1;
-        if (!nodes.isEmpty()) {
-            lowestLine = nodes.get(0).getPosition().lineRange().startLine().line();
-            for (TopLevelNode node : nodes) {
-                Location position = node.getPosition();
-                if (lowestLine > position.lineRange().startLine().line()) {
-                    lowestLine = position.lineRange().startLine().line();
-                }
-            }
+        Optional<SyntaxTree> syntaxTree = context.workspace().syntaxTree(context.filePath());
+        ModulePartNode modulePartNode = syntaxTree.orElseThrow().rootNode();
+        NodeList<ImportDeclarationNode> imports = modulePartNode.imports();
+        if (imports.isEmpty()) {
+            return new Position(0, 0);
         }
-
-        // Filter the imports except the runtime import
-        context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(context);
-
-        Position insertPos = new Position(lowestLine - 1, 0);
-        if (!imports.isEmpty()) {
-            BLangImportPackage last = CommonUtil.getLastItem(imports);
-            insertPos = new Position(last.getPosition().lineRange().endLine().line(), 0);
-        }
-        return insertPos;
+        ImportDeclarationNode lastImport = imports.get(imports.size() - 1);
+        return new Position(lastImport.lineRange().endLine().line() + 1, 0);
     }
 }

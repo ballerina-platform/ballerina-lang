@@ -19,9 +19,8 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -41,9 +40,9 @@ public class TypeCastExpressionNodeContext extends AbstractCompletionProvider<Ty
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, TypeCastExpressionNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, TypeCastExpressionNode node)
             throws LSCompletionException {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
@@ -55,12 +54,12 @@ public class TypeCastExpressionNodeContext extends AbstractCompletionProvider<Ty
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, TypeCastExpressionNode node) {
+    public boolean onPreValidation(CompletionContext context, TypeCastExpressionNode node) {
         /*
         Resolves the completions within the type cast expression only if the cursor is within the <>. Otherwise will be
         handled by the parent context. Because the expressions are to be suggested at the expression context.
          */
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int cursor = context.getCursorPositionInTree();
         int gtTokenEnd = node.gtToken().textRange().endOffset();
 
         return cursor <= gtTokenEnd;

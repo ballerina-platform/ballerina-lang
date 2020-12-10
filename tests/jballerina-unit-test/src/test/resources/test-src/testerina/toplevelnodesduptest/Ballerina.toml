@@ -1,0 +1,6 @@
+[package]
+org = "abc"
+name = "toplevelnodesduptest"
+version= "0.1.0"
+
+[dependencies]

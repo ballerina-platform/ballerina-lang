@@ -21,9 +21,9 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -44,6 +44,7 @@ import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BObjectType;
+import io.ballerina.runtime.internal.types.BParameterizedType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -627,6 +628,15 @@ public class TypeChecker {
             return checkIsType(sourceType, ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
         }
 
+        if (sourceTypeTag == TypeTags.PARAMETERIZED_TYPE_TAG) {
+            if (targetTypeTag != TypeTags.PARAMETERIZED_TYPE_TAG) {
+                return checkIsType(((BParameterizedType) sourceType).getParamValueType(), targetType, unresolvedTypes);
+            }
+
+            return checkIsType(((BParameterizedType) sourceType).getParamValueType(),
+                               ((BParameterizedType) targetType).getParamValueType(), unresolvedTypes);
+        }
+
         switch (targetTypeTag) {
             case TypeTags.BYTE_TAG:
             case TypeTags.SIGNED32_INT_TAG:
@@ -1139,7 +1149,7 @@ public class TypeChecker {
         Type constraintType = sourceType.getConstrainedType();
 
         for (Field field : targetType.getFields().values()) {
-            int flags = field.getFlags();
+            var flags = field.getFlags();
             if (!SymbolFlags.isFlagOn(flags, SymbolFlags.OPTIONAL)) {
                 return false;
             }
@@ -1516,7 +1526,7 @@ public class TypeChecker {
 
     private static boolean checkObjectEquivalency(Object sourceVal, Type sourceType, BObjectType targetType,
                                                   List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
+        if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG && sourceType.getTag() != TypeTags.SERVICE_TAG) {
             return false;
         }
         // If we encounter two types that we are still resolving, then skip it.
@@ -1536,8 +1546,8 @@ public class TypeChecker {
 
         Map<String, Field> targetFields = targetType.getFields();
         Map<String, Field> sourceFields = sourceObjectType.getFields();
-        AttachedFunctionType[] targetFuncs = targetType.getAttachedFunctions();
-        AttachedFunctionType[] sourceFuncs = sourceObjectType.getAttachedFunctions();
+        MemberFunctionType[] targetFuncs = targetType.getAttachedFunctions();
+        MemberFunctionType[] sourceFuncs = sourceObjectType.getAttachedFunctions();
 
         if (targetType.getFields().values().stream().anyMatch(field -> SymbolFlags
                 .isFlagOn(field.getFlags(), SymbolFlags.PRIVATE))
@@ -1619,12 +1629,12 @@ public class TypeChecker {
     }
 
     private static boolean checkObjectSubTypeForMethods(List<TypePair> unresolvedTypes,
-                                                        AttachedFunctionType[] targetFuncs,
-                                                        AttachedFunctionType[] sourceFuncs,
+                                                        MemberFunctionType[] targetFuncs,
+                                                        MemberFunctionType[] sourceFuncs,
                                                         String targetTypeModule, String sourceTypeModule,
                                                         BObjectType sourceType, BObjectType targetType) {
-        for (AttachedFunctionType lhsFunc : targetFuncs) {
-            AttachedFunctionType rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
+        for (MemberFunctionType lhsFunc : targetFuncs) {
+            MemberFunctionType rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
                     !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsFunc.getFlags(),
                                               rhsFunc.getFlags())) {
@@ -1650,7 +1660,8 @@ public class TypeChecker {
         return sourceTypeIdSet.containsAll(targetTypeIdSet);
     }
 
-    private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, int lhsFlags, int rhsFlags) {
+    private static boolean isInSameVisibilityRegion(String lhsTypePkg, String rhsTypePkg, long lhsFlags,
+                                                    long rhsFlags) {
         if (SymbolFlags.isFlagOn(lhsFlags, SymbolFlags.PRIVATE)) {
             return lhsTypePkg.equals(rhsTypePkg);
         } else if (SymbolFlags.isFlagOn(lhsFlags, SymbolFlags.PUBLIC)) {
@@ -1661,9 +1672,9 @@ public class TypeChecker {
                 lhsTypePkg.equals(rhsTypePkg);
     }
 
-    private static AttachedFunctionType getMatchingInvokableType(AttachedFunctionType[] rhsFuncs,
-                                                              AttachedFunctionType lhsFunc,
-                                                             List<TypePair> unresolvedTypes) {
+    private static MemberFunctionType getMatchingInvokableType(MemberFunctionType[] rhsFuncs,
+                                                               MemberFunctionType lhsFunc,
+                                                               List<TypePair> unresolvedTypes) {
         return Arrays.stream(rhsFuncs)
                 .filter(rhsFunc -> lhsFunc.getName().equals(rhsFunc.getName()))
                 .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.getType(), lhsFunc.getType(),
@@ -1731,7 +1742,7 @@ public class TypeChecker {
         }
 
         if (sourceType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            int flags = ((BObjectType) sourceType).flags;
+            var flags = ((BObjectType) sourceType).flags;
             return (flags & SymbolFlags.SERVICE) == SymbolFlags.SERVICE;
         }
 
@@ -1928,6 +1939,17 @@ public class TypeChecker {
         if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
             return checkIsLikeOnValue(sourceValue, sourceType, ((BIntersectionType) targetType).getEffectiveType(),
                                       unresolvedValues, allowNumericConversion);
+        }
+
+        if (sourceTypeTag == TypeTags.PARAMETERIZED_TYPE_TAG) {
+            if (targetTypeTag != TypeTags.PARAMETERIZED_TYPE_TAG) {
+                return checkIsLikeOnValue(sourceValue, ((BParameterizedType) sourceType).getParamValueType(),
+                                          targetType, unresolvedValues, allowNumericConversion);
+            }
+
+            return checkIsLikeOnValue(sourceValue, ((BParameterizedType) sourceType).getParamValueType(),
+                                      ((BParameterizedType) targetType).getParamValueType(), unresolvedValues,
+                                      allowNumericConversion);
         }
 
         switch (targetTypeTag) {
@@ -2837,7 +2859,7 @@ public class TypeChecker {
         if (type.getTag() == TypeTags.SERVICE_TAG) {
             return false;
         } else {
-            AttachedFunctionType generatedInitializer = type.generatedInitializer;
+            MemberFunctionType generatedInitializer = type.generatedInitializer;
             if (generatedInitializer == null) {
                 // abstract objects doesn't have a filler value.
                 return false;

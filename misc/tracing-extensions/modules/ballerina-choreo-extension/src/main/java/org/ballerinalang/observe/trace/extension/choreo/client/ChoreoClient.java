@@ -82,7 +82,7 @@ public class ChoreoClient implements AutoCloseable {
 
         NegotiatorOuterClass.RegisterResponse registerResponse = null;
         try {
-            registerResponse = registrationClient.register(handshakeRequest);
+            registerResponse = registrationClient.withCompression("gzip").register(handshakeRequest);
         } catch (StatusRuntimeException e) {
             switch (e.getStatus().getCode()) {
                 case UNAVAILABLE:
@@ -165,7 +165,7 @@ public class ChoreoClient implements AutoCloseable {
                     i++;
                 }
             }
-            telemetryClient.publishMetrics(requestBuilder.setObservabilityId(id)
+            telemetryClient.withCompression("gzip").publishMetrics(requestBuilder.setObservabilityId(id)
                                                          .setNodeId(nodeId)
                                                          .setVersion(version)
                                                          .setProjectSecret(projectSecret)
@@ -214,7 +214,7 @@ public class ChoreoClient implements AutoCloseable {
                     i++;
                 }
             }
-            telemetryClient.publishTraces(requestBuilder.setObservabilityId(id)
+            telemetryClient.withCompression("gzip").publishTraces(requestBuilder.setObservabilityId(id)
                                                         .setNodeId(nodeId)
                                                         .setVersion(version)
                                                         .setProjectSecret(projectSecret)

@@ -44,7 +44,8 @@ public class LexerTerminals {
 
     // Arithmetic operators
     public static final char EQUAL = '=';
-    public static final char BACKSLASH = '\\';
+    public static final char PLUS = '+';
+    public static final char MINUS = '-';
 
     //Numbers
     public static final String INF = "inf";
@@ -56,6 +57,7 @@ public class LexerTerminals {
     public static final char TAB = 0x9;
     public static final char SPACE = 0x20;
     public static final char FORM_FEED = 0xC;
+    public static final char BACKSLASH = '\\';
 
     //New
 }

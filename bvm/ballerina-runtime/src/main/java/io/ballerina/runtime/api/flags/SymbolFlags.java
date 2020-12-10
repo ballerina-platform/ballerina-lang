@@ -24,21 +24,22 @@ package io.ballerina.runtime.api.flags;
  */
 public class SymbolFlags {
 
-    public static final int PUBLIC = 1;
-    public static final int NATIVE = 2;
-    public static final int FINAL = 4;
-    public static final int ATTACHED = 8;
-    public static final int READONLY = 32;
-    public static final int REQUIRED = 256;
-    public static final int PRIVATE = 1024;
-    public static final int OPTIONAL = 4096;
-    public static final int REMOTE = 32768;
-    public static final int RESOURCE = 131072;
-    public static final int SERVICE = 262144;
-    public static final int CLASS = 268435456;
-    public static final int ISOLATED = 536870912;
+    public static final long PUBLIC = 1;
+    public static final long NATIVE = 2;
+    public static final long FINAL = 4;
+    public static final long ATTACHED = 8;
+    public static final long READONLY = 32;
+    public static final long REQUIRED = 256;
+    public static final long PRIVATE = 1024;
+    public static final long OPTIONAL = 4096;
+    public static final long REMOTE = 32768;
+    public static final long RESOURCE = 131072;
+    public static final long SERVICE = 262144;
+    public static final long TRANSACTIONAL = 33554432;
+    public static final long CLASS = 268435456;
+    public static final long ISOLATED = 536870912;
 
-    public static boolean isFlagOn(int bitmask, int flag) {
+    public static boolean isFlagOn(long bitmask, long flag) {
         return (bitmask & flag) == flag;
     }
 }

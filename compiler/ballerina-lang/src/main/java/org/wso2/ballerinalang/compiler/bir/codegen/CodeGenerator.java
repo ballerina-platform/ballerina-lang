@@ -18,6 +18,11 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.CompilerOptionName;
+import io.ballerina.projects.CompilerBackend;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PlatformLibrary;
+import io.ballerina.projects.PlatformLibraryScope;
+import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -32,8 +37,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.encodeModuleIdentifiers;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getBooleanValueIfSet;
 
 /**
  * JVM byte code generator from BIR model.
@@ -47,7 +57,6 @@ public class CodeGenerator {
     private PackageCache packageCache;
     private BLangDiagnosticLog dlog;
     private CompilerContext compilerContext;
-    private boolean skipTests;
 
     private CodeGenerator(CompilerContext compilerContext) {
 
@@ -56,8 +65,6 @@ public class CodeGenerator {
         this.packageCache = PackageCache.getInstance(compilerContext);
         this.dlog = BLangDiagnosticLog.getInstance(compilerContext);
         this.compilerContext = compilerContext;
-        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-        this.skipTests = getBooleanValueIfSet(compilerOptions, CompilerOptionName.SKIP_TESTS);
     }
 
     public static CodeGenerator getInstance(CompilerContext context) {
@@ -70,21 +77,20 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    public BLangPackage generate(BLangPackage bLangPackage) {
-
-        // generate module jar
-        generate(bLangPackage.symbol);
-        if (skipTests || !bLangPackage.hasTestablePackage()) {
-            return bLangPackage;
-        }
-        bLangPackage.getTestablePkgs().forEach(testablePackage -> {
-            // generate test module jar
-            generate(testablePackage.symbol);
-        });
-        return bLangPackage;
+    public CompiledJarFile generate(BLangPackage bLangPackage) {
+        // generate module
+        return generate(bLangPackage.symbol);
     }
 
-    private void generate(BPackageSymbol packageSymbol) {
+    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage) {
+        return generate(bLangTestablePackage.symbol);
+    }
+
+    private CompiledJarFile generate(BPackageSymbol packageSymbol) {
+
+        // Desugar BIR to include the observations
+        JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
+        jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
 
         dlog.setCurrentPackageId(packageSymbol.pkgID);
         final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog);
@@ -94,7 +100,9 @@ public class CodeGenerator {
         //Rewrite identifier names with encoding special characters
         encodeModuleIdentifiers(packageSymbol.bir, Names.getInstance(this.compilerContext));
 
+        // TODO Get-rid of the following assignment
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
+        return packageSymbol.compiledJarFile;
     }
 
     private void populateExternalMap(JvmPackageGen jvmPackageGen) {

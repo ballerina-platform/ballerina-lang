@@ -57,7 +57,7 @@ public class BArrayType extends BType implements ArrayType {
         this.state = state;
     }
 
-    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state, int flags) {
+    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state, long flags) {
         super(TypeTags.ARRAY, tsymbol, flags);
         this.eType = elementType;
         this.size = size;

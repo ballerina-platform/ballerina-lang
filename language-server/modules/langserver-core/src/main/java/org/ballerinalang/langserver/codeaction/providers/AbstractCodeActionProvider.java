@@ -16,12 +16,9 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
@@ -70,9 +67,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -80,10 +75,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -147,9 +139,10 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         }
 
         static ImportModel from(ImportDeclarationNode importPkg) {
-            String orgName = importPkg.orgName().isPresent() ? importPkg.orgName().get().orgName() + ORG_SEPARATOR : "";
+            String orgName = importPkg.orgName().isPresent() ?
+                    importPkg.orgName().get().orgName().text() + ORG_SEPARATOR : "";
             StringBuilder pkgNameBuilder = new StringBuilder();
-            importPkg.moduleName().forEach(pkgNameBuilder::append);
+            importPkg.moduleName().forEach(name -> pkgNameBuilder.append(name.text()));
             String pkgName = pkgNameBuilder.toString();
             String alias = importPkg.prefix().isEmpty() ? "" : importPkg.prefix().get().prefix().text();
             return new ImportModel(orgName, pkgName, alias, "");

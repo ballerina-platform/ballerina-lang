@@ -61,6 +61,7 @@ public class Names {
     public static final Name OBJECT = new Name("object");
     public static final Name STREAM = new Name("stream");
     public static final Name QUERY = new Name("query");
+    public static final Name RUNTIME = new Name("runtime");
     public static final Name TRANSACTION = new Name("transaction");
     public static final Name TABLE = new Name("table");
     public static final Name TYPEDESC = new Name("typedesc");
@@ -127,9 +128,12 @@ public class Names {
     public static final Name END_TRANSACTION = new Name("endTransaction");
     public static final Name GET_AND_CLEAR_FAILURE_TRANSACTION = new Name("getAndClearFailure");
     public static final Name CLEAN_UP_TRANSACTION = new Name("cleanupTransactionContext");
-    public static final Name CHECK_IF_TRANSACTIONAL = new Name("checkIfTransactional");
+    public static final Name BEGIN_REMOTE_PARTICIPANT = new Name("beginRemoteParticipant");
 
+    // Names related to streams
     public static final Name CONSTRUCT_STREAM = new Name("construct");
+    public static final Name ABSTRACT_ITERATOR = new Name("_Iterator");
+    public static final Name ABSTRACT_CLOSEABLE_ITERATOR = new Name("_CloseableIterator");
 
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
@@ -152,6 +156,7 @@ public class Names {
     public static final Name XML_VERSION = new Name(BLangCompilerConstants.XML_VERSION);
     public static final Name BOOLEAN_VERSION = new Name(BLangCompilerConstants.BOOLEAN_VERSION);
     public static final Name QUERY_VERSION = new Name(BLangCompilerConstants.QUERY_VERSION);
+    public static final Name RUNTIME_VERSION = new Name(BLangCompilerConstants.RUNTIME_VERSION);
     public static final Name TRANSACTION_VERSION = new Name(BLangCompilerConstants.TRANSACTION_VERSION);
     public static final Name TRANSACTION_INTERNAL_VERSION =
             new Name(BLangCompilerConstants.TRANSACTION_INTERNAL_VERSION);
@@ -192,7 +197,7 @@ public class Names {
     }
 
     public Name merge(Name... names) {
-        StringBuilder builder = new StringBuilder("");
+        StringBuilder builder = new StringBuilder();
         for (Name name : names) {
             builder.append(name.value);
         }

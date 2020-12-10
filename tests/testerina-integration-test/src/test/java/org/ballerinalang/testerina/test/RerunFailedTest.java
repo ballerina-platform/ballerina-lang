@@ -35,7 +35,7 @@ public class RerunFailedTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = rerunFailedProjectPath.toString();
+        projectPath = projectBasedTestsPath.toString();
     }
 
     @Test
@@ -45,7 +45,7 @@ public class RerunFailedTest extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
 
-        balClient.runMain("test", new String[]{"module_1"}, null, new String[]{},
+        balClient.runMain("test", new String[]{"rerun-failed-tests"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
 
         clientLeecher1.waitForText(20000);
@@ -59,21 +59,11 @@ public class RerunFailedTest extends BaseTestCase {
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
 
-        balClient.runMain("test", new String[]{"--rerun-failed", "module_1"}, null, new String[]{},
+        balClient.runMain("test", new String[]{"--rerun-failed", "rerun-failed-tests"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
 
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
     }
 
-    @Test
-    public void testRerunWithNoFailedTests() throws BallerinaTestException {
-        String msg1 = "No failed test/s found in cache";
-        LogLeecher clientLeecher = new LogLeecher(msg1);
-
-        balClient.runMain("test", new String[]{"--rerun-failed", "module_2"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-
-        clientLeecher.waitForText(20000);
-    }
 }

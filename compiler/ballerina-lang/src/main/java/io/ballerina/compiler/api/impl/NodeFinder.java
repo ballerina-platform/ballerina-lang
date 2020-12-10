@@ -35,7 +35,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -162,12 +164,27 @@ class NodeFinder extends BaseVisitor {
 
     private LineRange range;
     private BLangNode enclosingNode;
+    private BLangNode enclosingContainer;
+
+    BLangNode lookup(BLangPackage module, LineRange range) {
+        return lookupTopLevelNodes(module.topLevelNodes, range);
+    }
 
     BLangNode lookup(BLangCompilationUnit unit, LineRange range) {
+        return lookupTopLevelNodes(unit.topLevelNodes, range);
+    }
+
+    BLangNode lookupEnclosingContainer(BLangPackage module, LineRange range) {
+        this.enclosingContainer = module;
+        lookup(module, range);
+        return this.enclosingContainer;
+    }
+
+    private BLangNode lookupTopLevelNodes(List<TopLevelNode> nodes, LineRange range) {
         this.range = range;
         this.enclosingNode = null;
 
-        for (TopLevelNode node : unit.topLevelNodes) {
+        for (TopLevelNode node : nodes) {
             if (!PositionUtil.withinRange(this.range, node.getPosition()) || isLambdaFunction(node)) {
                 continue;
             }
@@ -220,6 +237,12 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        // Compare the target lookup pos with the function symbol pos to ensure that we are not looking for the
+        // container of the function.
+        if (!this.range.equals(funcNode.symbol.pos.lineRange())) {
+            this.enclosingContainer = funcNode;
+        }
+
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
         lookupNode(funcNode.returnTypeNode);
@@ -227,7 +250,13 @@ class NodeFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangResourceFunction resourceFunction) {
+        visit((BLangFunction) resourceFunction);
+    }
+
+    @Override
     public void visit(BLangBlockFunctionBody blockFuncBody) {
+        this.enclosingContainer = blockFuncBody;
         lookupNodes(blockFuncBody.stmts);
     }
 
@@ -243,8 +272,8 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        lookupNodes(serviceNode.resourceFunctions);
         lookupNodes(serviceNode.annAttachments);
+        lookupNode(serviceNode.serviceClass);
         lookupNodes(serviceNode.attachedExprs);
     }
 
@@ -291,6 +320,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
+        this.enclosingContainer = blockNode;
         lookupNodes(blockNode.stmts);
     }
 
@@ -356,6 +386,10 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
+        if (setEnclosingNode(exprStmtNode.expr, exprStmtNode.pos)) {
+            return;
+        }
+
         lookupNode(exprStmtNode.expr);
     }
 

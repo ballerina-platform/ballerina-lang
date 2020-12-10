@@ -14,26 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object;
-
 listener CustomListener listen = new CustomListener();
 
 class CustomListener {
-    *'object:Listener;
-
-    public function __attach(service s, string? name) returns error? {
+    public function attach(service object {} s, string[]|string? name) returns error? {
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
     }
 }
 
@@ -67,16 +63,14 @@ client class TestEP {
     }
 }
 
-service echo on listen {
-    resource function print() {
+service /echo on listen {
+    resource function get print() {
+
+    }
+
+    resource function post print() {
 
     }
 }
-
-//type PersonType distinct object {
-//    string name;
-//
-//    function getName() returns string;
-//};
 
 const PI = 3.14;

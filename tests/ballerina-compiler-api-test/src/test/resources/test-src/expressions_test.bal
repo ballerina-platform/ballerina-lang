@@ -98,6 +98,21 @@ function testIneferredRecordType() {
     {"name" : "foo"};
 }
 
+function testStartAction() {
+    start testAsync();
+}
+
+public function testAsync() {
+    // do something
+}
+
+function testFunctionCall() {
+    foo();
+
+    PersonObj p = new("Pubudu");
+    string s = p.getName();
+}
+
 // utils
 
 class PersonObj {

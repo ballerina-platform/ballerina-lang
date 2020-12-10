@@ -1,45 +1,45 @@
-import testorg/foo;
+import testorg/foo as test_project;
 
 // -----------------------------------------------------------
 
 type Ballerina "Ballerina";
 
 function testAccessConstantWithoutType() returns Ballerina {
-    return foo:constName;
+    return test_project:constName;
 }
 
 function testAccessConstantWithoutTypeAsString() returns string {
-    return foo:constName;
+    return test_project:constName;
 }
 
 type Colombo "Colombo";
 
 function testAccessConstantWithType() returns Colombo {
-    return foo:constAddress;
+    return test_project:constAddress;
 }
 
 // -----------------------------------------------------------
 
 type AB "A"|"B";
 
-function testAccessFiniteType() returns foo:AB {
-    return foo:getA();
+function testAccessFiniteType() returns test_project:AB {
+    return test_project:getA();
 }
 
 function testReturnFiniteType() returns AB {
-    return foo:getA(); // Valid because this is same as `return "A";`
+    return test_project:getA(); // Valid because this is same as `return "A";`
 }
 
-function testAccessTypeWithContInDef() returns foo:XY {
-    foo:XY x = "X";
+function testAccessTypeWithContInDef() returns test_project:XY {
+    test_project:XY x = "X";
     return x;
 }
 
 // -----------------------------------------------------------
 
-foo:XY test = "X";
+test_project:XY test = "X";
 
-function testTypeFromAnotherPackage() returns foo:XY {
+function testTypeFromAnotherPackage() returns test_project:XY {
     return test;
 }
 
@@ -48,7 +48,7 @@ function testTypeFromAnotherPackage() returns foo:XY {
 // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/11183.
 //type M record { string f; }|Z;
 //
-//M m1 = { f: "foo" };
+//M m1 = { f: "test_project" };
 //
 //M m2 = "V";
 //
@@ -75,7 +75,7 @@ const string X = "X";
 
 // -----------------------------------------------------------
 
-type BooleanTypeWithType foo:booleanWithType;
+type BooleanTypeWithType test_project:booleanWithType;
 
 function testBooleanTypeWithType() returns BooleanTypeWithType {
     BooleanTypeWithType t = false;
@@ -93,7 +93,7 @@ function testBooleanTypeWithoutType() returns BooleanTypeWithoutType {
 
 // -----------------------------------------------------------
 
-type IntTypeWithType foo:intWithType;
+type IntTypeWithType test_project:intWithType;
 
 function testIntTypeWithType() returns IntTypeWithType {
     IntTypeWithType t = 40;
@@ -101,7 +101,7 @@ function testIntTypeWithType() returns IntTypeWithType {
 }
 
 
-type IntTypeWithoutType foo:intWithoutType;
+type IntTypeWithoutType test_project:intWithoutType;
 
 function testIntTypeWithoutType() returns IntTypeWithoutType {
     IntTypeWithoutType t = 20;
@@ -110,7 +110,7 @@ function testIntTypeWithoutType() returns IntTypeWithoutType {
 
 // -----------------------------------------------------------
 
-type ByteTypeWithType foo:byteWithType;
+type ByteTypeWithType test_project:byteWithType;
 
 function testByteTypeWithType() returns ByteTypeWithType {
     ByteTypeWithType t = 240;
@@ -119,14 +119,14 @@ function testByteTypeWithType() returns ByteTypeWithType {
 
 // -----------------------------------------------------------
 
-type FloatTypeWithType foo:floatWithType;
+type FloatTypeWithType test_project:floatWithType;
 
 function testFloatTypeWithType() returns FloatTypeWithType {
     FloatTypeWithType t = 4.0;
     return t;
 }
 
-type FloatTypeWithoutType foo:floatWithoutType;
+type FloatTypeWithoutType test_project:floatWithoutType;
 
 function testFloatTypeWithoutType() returns FloatTypeWithoutType {
     FloatTypeWithoutType t = 2.0;
@@ -135,7 +135,7 @@ function testFloatTypeWithoutType() returns FloatTypeWithoutType {
 
 // -----------------------------------------------------------
 
-type DecimalTypeWithType foo:decimalWithType;
+type DecimalTypeWithType test_project:decimalWithType;
 
 function testDecimalTypeWithType() returns DecimalTypeWithType {
     DecimalTypeWithType t = 50.0;
@@ -144,14 +144,14 @@ function testDecimalTypeWithType() returns DecimalTypeWithType {
 
 // -----------------------------------------------------------
 
-type StringTypeWithType foo:stringWithType;
+type StringTypeWithType test_project:stringWithType;
 
 function testStringTypeWithType() returns StringTypeWithType {
     StringTypeWithType t = "Ballerina is awesome";
     return t;
 }
 
-type StringTypeWithoutType foo:stringWithoutType;
+type StringTypeWithoutType test_project:stringWithoutType;
 
 function testStringTypeWithoutType() returns StringTypeWithoutType {
     StringTypeWithoutType t = "Ballerina rocks";

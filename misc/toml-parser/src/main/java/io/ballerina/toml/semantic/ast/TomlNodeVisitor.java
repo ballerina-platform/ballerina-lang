@@ -25,17 +25,47 @@ package io.ballerina.toml.semantic.ast;
  */
 public abstract class TomlNodeVisitor {
 
-    public abstract void visit(TomlTableNode tomlTableNode);
+    public void visit(TomlTableNode tomlTableNode) {
+        throw new AssertionError();
+    }
 
-    public abstract void visit(TomlTableArrayNode tomlTableArrayNode);
+    public void visit(TomlTableArrayNode tomlTableArrayNode) {
+        throw new AssertionError();
+    }
 
-    public abstract void visit(TomlKeyValueNode keyValue);
+    public void visit(TomlKeyValueNode keyValue) {
+        throw new AssertionError();
+    }
 
-    public abstract void visit(TomlKeyNode tomlKeyNode);
+    public void visit(TomlKeyNode tomlKeyNode) {
+        throw new AssertionError();
+    }
 
-    public abstract void visit(TomlValueNode tomlValue);
+    public void visit(TomlValueNode tomlValue) {
+        throw new AssertionError();
+    }
 
-    public abstract void visit(TomlArrayValueNode tomlArrayValueNode);
+    public void visit(TomlArrayValueNode tomlArrayValueNode) {
+        throw new AssertionError();
+    }
 
-    public abstract void visit(TomlKeyEntryNode tomlKeyEntryNode);
+    public void visit(TomlKeyEntryNode tomlKeyEntryNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(TomlStringValueNode tomlStringValueNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(TomlDoubleValueNodeNode tomlDoubleValueNodeNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(TomlLongValueNode tomlLongValueNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(TomlBooleanValueNode tomlBooleanValueNode) {
+        throw new AssertionError();
+    }
 }

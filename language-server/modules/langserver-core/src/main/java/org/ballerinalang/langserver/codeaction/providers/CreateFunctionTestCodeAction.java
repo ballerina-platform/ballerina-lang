@@ -15,18 +15,14 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
@@ -57,14 +53,12 @@ public class CreateFunctionTestCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
-        String docUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
+        String docUri = context.fileUri();
         List<CodeAction> actions = new ArrayList<>();
         List<Object> args = new ArrayList<>();
         args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri));
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position position = context.cursorPosition();
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + position.getLine()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + position.getCharacter()));
 

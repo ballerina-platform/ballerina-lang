@@ -25,18 +25,18 @@ public class MockListener {
     private int port = 0;
     private ListenerConfiguration config = {};
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
         return self.startEndpoint();
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         return self.gracefulStop();
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
     }
 

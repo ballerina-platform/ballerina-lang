@@ -44,8 +44,6 @@ public enum CompilerPhase {
 
     COMPILER_PLUGIN("compilerPlugin"),
 
-    OBSERVABILITY_DATA_GEN("observabilityDataGen"),
-
     DESUGAR("desugar"),
 
     BIR_GEN("birGen"),
@@ -78,8 +76,6 @@ public enum CompilerPhase {
                 return CONSTANT_PROPAGATION;
             case "compilerPlugin":
                 return COMPILER_PLUGIN;
-            case "observabilityDataGen":
-                return OBSERVABILITY_DATA_GEN;
             case "desugar":
                 return DESUGAR;
             case "codeGen":

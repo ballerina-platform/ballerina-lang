@@ -15,37 +15,25 @@
  */
 package org.ballerinalang.datamapper;
 
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.datamapper.config.LSClientExtendedConfig;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
-import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +41,6 @@ import java.util.Locale;
 import java.util.Optional;
 
 import static org.ballerinalang.datamapper.AIDataMapperCodeActionUtil.getAIDataMapperCodeActionEdits;
-import static org.ballerinalang.langserver.util.references.ReferencesUtil.getReferenceAtCursor;
 
 /**
  * Code Action provider for automatic data mapping.
@@ -65,23 +52,10 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+                                                    CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
-            return actions;
-        }
-        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
-        try {
-            if (!filePath.isPresent()) {
-                return actions;
-            }
-            LSDocumentIdentifier document = documentManager.getLSDocument(filePath.get());
-            getAIDataMapperCommand(document, diagnostic, context).map(actions::add);
-        } catch (WorkspaceDocumentException e) {
-            // ignore
+            getAIDataMapperCommand(diagnostic, context).map(actions::add);
         }
         return actions;
     }
@@ -98,44 +72,27 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     /**
      * Return data mapping code action.
      *
-     * @param document   {@link LSDocumentIdentifier}
      * @param diagnostic {@link Diagnostic}
      * @param context    {@link LSContext}
      * @return data mapper code action
      */
-    private static Optional<CodeAction> getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
-                                                               LSContext context) {
-        Position startingPosition = diagnostic.getRange().getStart();
-        Position endingPosition = diagnostic.getRange().getEnd();
+    private static Optional<CodeAction> getAIDataMapperCommand(Diagnostic diagnostic,
+                                                               CodeActionContext context) {
         try {
-            Position diagnosticPosition;
-            if (endingPosition.getCharacter() - startingPosition.getCharacter() > 1) {
-                diagnosticPosition = new Position(startingPosition.getLine(),
-                        (startingPosition.getCharacter() + endingPosition.getCharacter()) / 2);
-            } else {
-                diagnosticPosition = startingPosition;
-            }
-            SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, diagnosticPosition);
-            BType symbolAtCursorType = refAtCursor.getSymbol().type;
-            if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess) {
-                return Optional.empty();
-            }
-            if (symbolAtCursorType instanceof BRecordType) {
+            if (CommonUtil.getRawType(context.positionDetails().matchedExprType()).typeKind() == TypeDescKind.RECORD) {
                 CodeAction action = new CodeAction("Generate mapping function");
                 action.setKind(CodeActionKind.QuickFix);
 
-                String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-                List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(context, refAtCursor, diagnostic);
+                String uri = context.fileUri();
+                List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(context, diagnostic);
                 action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
                         new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
                 action.setDiagnostics(new ArrayList<>());
                 return Optional.of(action);
             }
-        } catch (CompilationFailedException | WorkspaceDocumentException | IOException |
-                TokenOrSymbolNotFoundException e) {
-            // ignore
+        } catch (IOException e) {
+//             ignore
         }
         return Optional.empty();
     }
 }
-
