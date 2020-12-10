@@ -279,6 +279,7 @@ public class ObserveUtils {
      * @param logMessage message to be logged
      * @param isError    if its an error or not
      */
+    @Deprecated     // Discussion: https://groups.google.com/g/ballerina-dev/c/VMEk3t8boH0
     public static void logMessageToActiveSpan(String logLevel, Supplier<String> logMessage,
                                               boolean isError) {
         if (!tracingEnabled) {
