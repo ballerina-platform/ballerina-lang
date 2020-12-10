@@ -137,11 +137,9 @@ class JvmObservabilityGen {
             rewriteAsyncInvocations(func, null, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
             if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
-                rewriteObservableFunctionBody(func, null, pkg, false, false, true, false,
-                        func.name.value);
+                rewriteObservableFunctionBody(func, pkg, null, func.name.value, false, false, true, false);
             } else if ((func.flags & Flags.WORKER) == Flags.WORKER) {   // Identifying lambdas generated for workers
-                rewriteObservableFunctionBody(func, null, pkg, false, false, false, true,
-                        func.workerName.value);
+                rewriteObservableFunctionBody(func, pkg, null, func.workerName.value, false, false, false, true);
             }
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
@@ -155,9 +153,9 @@ class JvmObservabilityGen {
                 rewriteObservableFunctionInvocations(func, pkg);
                 if (isService) {
                     if ((func.flags & Flags.RESOURCE) == Flags.RESOURCE) {
-                        rewriteObservableFunctionBody(func, typeDef, pkg, true, false, false, false, func.name.value);
+                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, true, false, false, false);
                     } else if ((func.flags & Flags.REMOTE) == Flags.REMOTE) {
-                        rewriteObservableFunctionBody(func, typeDef, pkg, false, true, false, false, func.name.value);
+                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, false, true, false, false);
                     }
                 }
             }
@@ -299,17 +297,17 @@ class JvmObservabilityGen {
      * rewriteObservableFunctionInvocations method.
      *
      * @param func The function to instrument
-     * @param attachedTypeDef The type definition the function is attached to
      * @param pkg The package which contains the function
+     * @param attachedTypeDef The type definition the function is attached to
+     * @param functionName The name of the function which will be observed
      * @param isResource True if the function is a resource function
      * @param isRemote True if the function is a remote function
      * @param isMainEntryPoint True if the function is the main entry point
      * @param isWorker True if the function was a worker
-     * @param functionName The name of the function which will be observed
      */
-    private void rewriteObservableFunctionBody(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg,
-                                               boolean isResource, boolean isRemote, boolean isMainEntryPoint,
-                                               boolean isWorker, String functionName) {
+    private void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, BIRTypeDefinition attachedTypeDef,
+                                               String functionName, boolean isResource, boolean isRemote,
+                                               boolean isMainEntryPoint, boolean isWorker) {
         // Injecting observe start call at the start of the function body
         {
             BIRBasicBlock startBB = func.basicBlocks.get(0);    // Every non-abstract function should have function body

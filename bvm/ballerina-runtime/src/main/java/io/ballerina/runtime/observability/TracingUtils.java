@@ -113,8 +113,12 @@ public class TracingUtils {
             Map<String, String> traceTags = observerContext.getAllTags()
                     .stream()
                     .collect(Collectors.toMap(Tag::getKey, Tag::getValue));
-            traceTags.put(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, observerContext.getEntrypointFunctionModule());
-            traceTags.put(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION, observerContext.getEntrypointFunctionPosition());
+            if (observerContext.getEntrypointFunctionModule() != null) {
+                traceTags.put(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, observerContext.getEntrypointFunctionModule());
+            }
+            if (observerContext.getEntrypointFunctionPosition() != null) {
+                traceTags.put(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION, observerContext.getEntrypointFunctionPosition());
+            }
             span.addTags(traceTags);
             span.finishSpan();
         }
