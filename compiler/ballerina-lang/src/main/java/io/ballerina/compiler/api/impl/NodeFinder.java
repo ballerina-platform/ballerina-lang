@@ -395,11 +395,8 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        if (setEnclosingNode(exprStmtNode.expr, exprStmtNode.pos)) {
-            return;
-        }
-
         lookupNode(exprStmtNode.expr);
+        setEnclosingNode(exprStmtNode.expr, exprStmtNode.pos);
     }
 
     @Override
