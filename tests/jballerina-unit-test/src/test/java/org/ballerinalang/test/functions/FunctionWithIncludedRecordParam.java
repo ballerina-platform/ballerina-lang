@@ -68,6 +68,7 @@ public class FunctionWithIncludedRecordParam {
         BAssertUtil.validateError(result, i++, "redeclared symbol 'id'", 161, 53);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'name'", 161, 72);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'string'", 166, 49);
+        BAssertUtil.validateError(result, i++, "expected a record type as an included parameter", 169, 15);
 
         Assert.assertEquals(i, result.getErrorCount());
     }

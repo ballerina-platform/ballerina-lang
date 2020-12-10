@@ -165,3 +165,6 @@ function functionWithIncludedRecordParam11(int id, *OthRecord othRec, *Options o
 function testfunctionWithIncludedRecordParam8() {
     functionWithIncludedRecordParam11(1, name = "bar", options = {name: "baz"});
 }
+
+function foo(*int a) {
+}
