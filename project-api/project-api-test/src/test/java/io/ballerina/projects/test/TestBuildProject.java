@@ -441,10 +441,11 @@ public class TestBuildProject {
 
     @Test
     public void testAddDocument() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("db.bal").toAbsolutePath();
         String newFileContent = "import ballerina/io;\n";
 
-        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
+        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectPath);
         ModuleId moduleId = null;
         for (ModuleId moduleId1 : buildProject.currentPackage().moduleIds()) {
             Optional<Path> optionalPath = buildProject.modulePath(moduleId1);
@@ -482,12 +483,13 @@ public class TestBuildProject {
 
     @Test
     public void testAddTestDocument() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
         Path filePath =
                 RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.TEST_DIR_NAME).resolve("db_test.bal")
                         .toAbsolutePath();
         String newFileContent = "import ballerina/io;\n";
 
-        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
+        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectPath);
 
         ModuleId moduleId = null;
         for (ModuleId moduleId1 : buildProject.currentPackage().moduleIds()) {
@@ -695,10 +697,11 @@ public class TestBuildProject {
 
     @Test
     public void testAccessNonExistingDocument() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("db.bal").toAbsolutePath();
 
         // Load the project from document filepath
-        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
+        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectPath);
         Optional<DocumentId> oldDocumentId = ProjectLoader.getDocumentId(filePath, buildProject); // get the document ID
         Assert.assertFalse(oldDocumentId.isPresent());
     }
@@ -707,12 +710,12 @@ public class TestBuildProject {
     public void testLoadFromNonExistentModule() {
         Path filePath =
                 RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT)
-                        .resolve("db").resolve("main.bal").toAbsolutePath();
+                        .resolve("db");
 
         try {
             BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
         } catch (ProjectException e) {
-            Assert.assertTrue(e.getMessage().contains("module directory path does not exist"));
+            Assert.assertTrue(e.getMessage().contains("provided file path does not exist"));
         }
     }
 
