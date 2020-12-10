@@ -57,6 +57,7 @@ public class ObservabilityConstants {
     public static final String TAG_KEY_SRC_OBJECT_NAME = "object_name";
     public static final String TAG_KEY_SRC_ACTION_NAME = "action";
     public static final String TAG_KEY_CONNECTOR_NAME = "connector_name";
+    public static final String TAG_KEY_LISTENER_NAME = "listener.name";
 
     // Source related flag tags
     public static final String TAG_KEY_IS_SRC_MAIN_FUNCTION = "src.entry_point.main";

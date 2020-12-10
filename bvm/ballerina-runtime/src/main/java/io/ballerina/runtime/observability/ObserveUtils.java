@@ -102,7 +102,7 @@ public class ObserveUtils {
         }
 
         ObserverContext observerContext = getObserverContextOfCurrentFrame(env);
-        if (observerContext == null) {  // No context created by server connector
+        if (observerContext == null) {  // No context created by listener
             observerContext = new ObserverContext();
             setObserverContextToCurrentFrame(env, observerContext);
         }
@@ -115,7 +115,7 @@ public class ObserveUtils {
             newObserverContext.setEntrypointFunctionPosition(observerContext.getEntrypointFunctionPosition());
             newObserverContext.setParent(observerContext);
             observerContext = newObserverContext;
-        } else {    // If created now or the server connector created to add more tags
+        } else {    // If created now or the listener created to add more tags
             observerContext.setEntrypointFunctionModule(module.getValue());
             observerContext.setEntrypointFunctionPosition(position.getValue());
         }
@@ -125,21 +125,19 @@ public class ObserveUtils {
             observerContext.setOperationName(resourceAccessor.getValue() + " " + resourcePathOrFunction.getValue());
 
             observerContext.addTag(TAG_KEY_IS_SRC_SERVICE_RESOURCE, TAG_TRUE_VALUE);
-            observerContext.addTag(TAG_KEY_SRC_OBJECT_NAME, serviceName.getValue());
             observerContext.addTag(TAG_KEY_SRC_RESOURCE_ACCESSOR, resourceAccessor.getValue());
             observerContext.addTag(TAG_KEY_SRC_RESOURCE_PATH, resourcePathOrFunction.getValue());
         } else if (isRemote) {
             observerContext.setOperationName(serviceName.getValue() + ":" + resourcePathOrFunction.getValue());
 
             observerContext.addTag(TAG_KEY_IS_SRC_SERVICE_REMOTE, TAG_TRUE_VALUE);
-            observerContext.addTag(TAG_KEY_SRC_OBJECT_NAME, serviceName.getValue());
             observerContext.addTag(TAG_KEY_SRC_FUNCTION_NAME, resourcePathOrFunction.getValue());
         } else {
             observerContext.setOperationName(serviceName.getValue() + ":" + resourcePathOrFunction.getValue());
 
-            observerContext.addTag(TAG_KEY_SRC_OBJECT_NAME, serviceName.getValue());
             observerContext.addTag(TAG_KEY_SRC_FUNCTION_NAME, resourcePathOrFunction.getValue());
         }
+        observerContext.addTag(TAG_KEY_SRC_OBJECT_NAME, serviceName.getValue());
 
         observerContext.addTag(TAG_KEY_SRC_MODULE, module.getValue());
         observerContext.addTag(TAG_KEY_SRC_POSITION, position.getValue());
@@ -215,14 +213,13 @@ public class ObserveUtils {
 
         ObserverContext prevObserverCtx = getObserverContextOfCurrentFrame(env);
         ObserverContext newObContext = new ObserverContext();
-
-        newObContext.setParent(prevObserverCtx);
         setObserverContextToCurrentFrame(env, newObContext);
 
         if (prevObserverCtx != null) {
             newObContext.setServiceName(prevObserverCtx.getServiceName());
             newObContext.setEntrypointFunctionModule(prevObserverCtx.getEntrypointFunctionModule());
             newObContext.setEntrypointFunctionPosition(prevObserverCtx.getEntrypointFunctionPosition());
+            newObContext.setParent(prevObserverCtx);
         } else {
             newObContext.setServiceName(UNKNOWN_SERVICE);
             newObContext.setEntrypointFunctionModule(module.getValue());

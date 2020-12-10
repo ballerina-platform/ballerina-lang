@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_CONNECTOR_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_LISTENER_NAME;
 
 /**
  * Context object used for observation purposes.
@@ -167,6 +167,6 @@ public class ObserverContext {
     @Deprecated
     public void setObjectName(String objectName) {
         // TODO: Remove once connector usages are removed (Connectors should directly add connector tag instead)
-        addTag(TAG_KEY_CONNECTOR_NAME, objectName);
+        addTag(TAG_KEY_LISTENER_NAME, objectName);
     }
 }
