@@ -97,7 +97,7 @@ dependencies {
 
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
-    dist project(':ballerina-tool')
+    dist project(':ballerina-cli')
     dist project(':ballerina-tools-api')
     dist project(':ballerina-cli-module')
     dist project(':central-client')

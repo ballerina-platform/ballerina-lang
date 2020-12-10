@@ -31,7 +31,7 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.tool.BLauncherCmd;
+import io.ballerina.cli.launcher.BLauncherCmd;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 

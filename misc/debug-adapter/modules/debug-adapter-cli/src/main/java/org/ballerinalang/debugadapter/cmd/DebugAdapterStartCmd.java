@@ -16,8 +16,8 @@
 package org.ballerinalang.debugadapter.cmd;
 
 import org.ballerinalang.debugadapter.DebugAdapterLauncher;
-import org.ballerinalang.tool.BLauncherCmd;
-import org.ballerinalang.tool.LauncherUtils;
+import io.ballerina.cli.launcher.BLauncherCmd;
+import io.ballerina.cli.launcher.LauncherUtils;
 import picocli.CommandLine;
 
 import java.util.List;

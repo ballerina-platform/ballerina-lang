@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.tool.util;
+package io.ballerina.cli.launcher.utils;
 
 import org.ballerinalang.core.model.types.BType;
 import org.ballerinalang.core.model.types.BTypes;

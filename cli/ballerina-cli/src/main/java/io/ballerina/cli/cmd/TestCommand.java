@@ -33,7 +33,7 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
-import org.ballerinalang.tool.BLauncherCmd;
+import io.ballerina.cli.launcher.BLauncherCmd;
 import picocli.CommandLine;
 
 import java.io.PrintStream;

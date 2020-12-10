@@ -31,7 +31,7 @@ import io.ballerina.tools.text.LineRange;
 
 import java.io.PrintStream;
 
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 
 /**
  * Task for compiling a package.

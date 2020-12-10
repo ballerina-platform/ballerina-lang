@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.tool;
+package io.ballerina.cli.launcher;
 
-import org.ballerinalang.tool.util.BCompileUtil;
+import io.ballerina.cli.launcher.utils.BCompileUtil;
 import picocli.CommandLine;
 
 import java.io.IOException;

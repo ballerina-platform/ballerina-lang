@@ -29,7 +29,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
-import org.ballerinalang.tool.BLauncherCmd;
+import io.ballerina.cli.launcher.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import picocli.CommandLine;

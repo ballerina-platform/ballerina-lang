@@ -39,7 +39,7 @@ import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
-import org.ballerinalang.tool.LauncherUtils;
+import io.ballerina.cli.launcher.LauncherUtils;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedReader;
@@ -70,7 +70,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TOOLS_DIR_NAME;
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;

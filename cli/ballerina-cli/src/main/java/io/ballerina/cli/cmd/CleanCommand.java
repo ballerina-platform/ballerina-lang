@@ -24,7 +24,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.tool.BLauncherCmd;
+import io.ballerina.cli.launcher.BLauncherCmd;
 import picocli.CommandLine;
 
 import java.io.PrintStream;

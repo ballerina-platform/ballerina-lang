@@ -33,15 +33,17 @@ dependencies {
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-tool')
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-logging')
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-compress:1.18'
     implementation 'com.google.code.gson:gson:2.7'
     implementation project(':docerina')
     implementation project(':testerina:testerina-runtime')
-    testCompile 'org.testng:testng'
+    implementation 'org.testng:testng'
     testCompile 'org.mockito:mockito-all'
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
