@@ -797,6 +797,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(requiredExpressionNode);
     }
 
+    public void visit(STErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        visitSyntaxNode(errorConstructorExpressionNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

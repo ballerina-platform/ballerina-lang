@@ -50,6 +50,7 @@ import io.ballerina.compiler.syntax.tree.ElseBlockNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumMemberNode;
 import io.ballerina.compiler.syntax.tree.ErrorBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeParamsNode;
@@ -62,7 +63,6 @@ import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FailStatementNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternFullNode;
-import io.ballerina.compiler.syntax.tree.FieldBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.FieldMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.FlushActionNode;
@@ -952,6 +952,27 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
+    public ErrorConstructorExpressionNode transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        boolean hasTypeReference = errorConstructorExpressionNode.typeReference().isPresent();
+        Token errorKeyword = formatToken(errorConstructorExpressionNode.errorKeyword(), hasTypeReference ? 1 : 0, 0);
+        TypeDescriptorNode typeReference = formatNode(errorConstructorExpressionNode.typeReference().orElse(null),
+                0, 0);
+        Token openParenthesis = formatToken(errorConstructorExpressionNode.openParenToken(), 0, 0);
+        SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(errorConstructorExpressionNode
+                .arguments(), 0, 0, 0, 0);
+        Token closeParenthesis = formatToken(errorConstructorExpressionNode.closeParenToken(),
+                env.trailingWS, env.trailingNL);
+
+        return errorConstructorExpressionNode.modify()
+                .withErrorKeyword(errorKeyword)
+                .withTypeReference(typeReference)
+                .withOpenParenToken(openParenthesis)
+                .withArguments(arguments)
+                .withCloseParenToken(closeParenthesis)
+                .apply();
+    }
+
+    @Override
     public UnionTypeDescriptorNode transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
         TypeDescriptorNode leftTypeDesc = formatNode(unionTypeDescriptorNode.leftTypeDesc(), 0, 0);
         Token pipeToken = formatToken(unionTypeDescriptorNode.pipeToken(), 0, 0);
@@ -1320,17 +1341,13 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ListBindingPatternNode transform(ListBindingPatternNode listBindingPatternNode) {
         Token openBracket = formatToken(listBindingPatternNode.openBracket(), 0, 0);
-        boolean hasRestBP = listBindingPatternNode.restBindingPattern().isPresent();
         SeparatedNodeList<BindingPatternNode> bindingPatternNodes =
-                formatSeparatedNodeList(listBindingPatternNode.bindingPatterns(), 0, 0, hasRestBP ? 1 : 0, 0);
-        RestBindingPatternNode restBindingPattern = formatNode(listBindingPatternNode.restBindingPattern().orElse(null),
-                0, 0);
+                formatSeparatedNodeList(listBindingPatternNode.bindingPatterns(), 0, 0, 0, 0);
         Token closeBracket = formatToken(listBindingPatternNode.closeBracket(), env.trailingWS, env.trailingNL);
 
         return listBindingPatternNode.modify()
                 .withOpenBracket(openBracket)
                 .withBindingPatterns(bindingPatternNodes)
-                .withRestBindingPattern(restBindingPattern)
                 .withCloseBracket(closeBracket)
                 .apply();
     }
@@ -1602,15 +1619,12 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public MappingBindingPatternNode transform(MappingBindingPatternNode mappingBindingPatternNode) {
         Token openBraceToken = formatToken(mappingBindingPatternNode.openBrace(), 0, 0);
-        SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatternNodes =
+        SeparatedNodeList<BindingPatternNode> fieldBindingPatternNodes =
                 formatSeparatedNodeList(mappingBindingPatternNode.fieldBindingPatterns(), 0, 0, 0, 0);
-        RestBindingPatternNode restBindingPattern =
-                formatNode(mappingBindingPatternNode.restBindingPattern().orElse(null), 1, 0);
         Token closeBraceToken = formatToken(mappingBindingPatternNode.closeBrace(), env.trailingWS, env.trailingNL);
         return mappingBindingPatternNode.modify()
                 .withOpenBrace(openBraceToken)
                 .withFieldBindingPatterns(fieldBindingPatternNodes)
-                .withRestBindingPattern(restBindingPattern)
                 .withCloseBrace(closeBraceToken)
                 .apply();
     }

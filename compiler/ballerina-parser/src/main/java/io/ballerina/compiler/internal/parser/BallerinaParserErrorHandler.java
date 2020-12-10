@@ -180,7 +180,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] ARG_START =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.ELLIPSIS, ParserRuleContext.EXPRESSION };
 
-    private static final ParserRuleContext[] ARG_END = { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.COMMA };
+    private static final ParserRuleContext[] ARG_END =
+            { ParserRuleContext.ARG_LIST_END, ParserRuleContext.COMMA };
 
     private static final ParserRuleContext[] NAMED_OR_POSITIONAL_ARG_RHS =
             { ParserRuleContext.ARG_END, ParserRuleContext.ASSIGN_OP };
@@ -279,7 +280,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
             ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.OBJECT_CONSTRUCTOR,
-            ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.ISOLATED_KEYWORD };
+            ParserRuleContext.ERROR_CONSTRUCTOR, ParserRuleContext.TRANSACTIONAL_KEYWORD,
+            ParserRuleContext.ISOLATED_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -490,7 +492,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.WORKER_NAME_OR_METHOD_NAME, ParserRuleContext.DEFAULT_WORKER_NAME_IN_ASYNC_SEND };
 
     private static final ParserRuleContext[] REMOTE_CALL_OR_ASYNC_SEND_END =
-            { ParserRuleContext.ARG_LIST_START, ParserRuleContext.SEMICOLON };
+            { ParserRuleContext.ARG_LIST_OPEN_PAREN, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] RECEIVE_WORKERS =
             { ParserRuleContext.PEER_WORKER_NAME, ParserRuleContext.MULTI_RECEIVE_WORKERS };
@@ -532,7 +534,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.LT, ParserRuleContext.RETRY_TYPE_PARAM_RHS };
 
     private static final ParserRuleContext[] RETRY_TYPE_PARAM_RHS =
-            { ParserRuleContext.ARG_LIST_START, ParserRuleContext.RETRY_BODY };
+            { ParserRuleContext.ARG_LIST_OPEN_PAREN, ParserRuleContext.RETRY_BODY };
 
     private static final ParserRuleContext[] RETRY_BODY =
             { ParserRuleContext.BLOCK_STMT, ParserRuleContext.TRANSACTION_STMT };
@@ -695,6 +697,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] CONFIG_VAR_DECL_RHS =
             { ParserRuleContext.EXPRESSION, ParserRuleContext.QUESTION_MARK };
+
+    private static final ParserRuleContext[] ERROR_CONSTRUCTOR_RHS =
+            { ParserRuleContext.ARG_LIST_OPEN_PAREN, ParserRuleContext.TYPE_REFERENCE };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -953,10 +958,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case QUESTION_MARK:
                     hasMatch = nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN;
                     break;
-                case ARG_LIST_START:
+                case ARG_LIST_OPEN_PAREN:
                     hasMatch = nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN;
                     break;
-                case ARG_LIST_END:
+                case ARG_LIST_CLOSE_PAREN:
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN;
                     break;
                 case FIRST_OBJECT_CONS_QUALIFIER:
@@ -1145,6 +1150,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 // start a context, so that we know where to fall back, and continue
                 // having the qualified-identifier as the next rule.
                 case VARIABLE_REF:
+                case TYPE_REFERENCE_IN_TYPE_INCLUSION:
                 case TYPE_REFERENCE:
                 case ANNOT_REFERENCE:
                 case FIELD_ACCESS_IDENTIFIER:
@@ -1492,6 +1498,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_CONS_WITHOUT_FIRST_QUALIFIER:
             case CONFIG_VAR_DECL_RHS:
             case SERVICE_DECL_START:
+            case ERROR_CONSTRUCTOR_RHS:
                 return true;
             default:
                 return false;
@@ -2123,6 +2130,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return seekMatchInExpressionRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint, false);
             case VARIABLE_REF_RHS:
                 return seekMatchInExpressionRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint, true);
+            case ERROR_CONSTRUCTOR_RHS:
+                alternativeRules = ERROR_CONSTRUCTOR_RHS;
+                break;
             default:
                 throw new IllegalStateException(currentCtx.toString());
         }
@@ -2133,11 +2143,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     /**
      * Search for matching token sequences within different kinds of statements and returns the most optimal solution.
      *
-     * @param currentCtx Current context
-     * @param lookahead Position of the next token to consider, relative to the position of the original error
-     * @param currentDepth Amount of distance traveled so far
+     * @param currentCtx     Current context
+     * @param lookahead      Position of the next token to consider, relative to the position of the original error
+     * @param currentDepth   Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
-     * @param fixes Fixes made so far
+     * @param isEntryPoint   Flag indicating whether this is the entry point to the error recovery
      * @return Recovery result
      */
     private Result seekInStatements(ParserRuleContext currentCtx, int lookahead, int currentDepth, int currentMatches,
@@ -2158,11 +2168,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      * Search for matching token sequences within access expressions and returns the most optimal solution.
      * Access expression can be one of: method-call, field-access, member-access.
      *
-     * @param currentCtx Current context
-     * @param lookahead Position of the next token to consider, relative to the position of the original error
-     * @param currentDepth Amount of distance traveled so far
+     * @param currentCtx     Current context
+     * @param lookahead      Position of the next token to consider, relative to the position of the original error
+     * @param currentDepth   Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
-     * @param isEntryPoint
+     * @param isEntryPoint   Flag indicating whether this is the entry point to the error recovery
      * @return Recovery result
      */
     private Result seekInAccessExpression(ParserRuleContext currentCtx, int lookahead, int currentDepth,
@@ -2201,11 +2211,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      * Search for a match in rhs of an expression. RHS of an expression can be the end
      * of the expression or the rhs of a binary expression.
      *
-     * @param lookahead Position of the next token to consider, relative to the position of the original error
-     * @param currentDepth Amount of distance traveled so far
+     * @param lookahead      Position of the next token to consider, relative to the position of the original error
+     * @param currentDepth   Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
-     * @param isEntryPoint
-     * @param allowFuncCall Whether function call is allowed or not
+     * @param isEntryPoint   Flag indicating whether this is the entry point to the error recovery
+     * @param allowFuncCall  Whether function call is allowed or not
      * @return Recovery result
      */
     private Result seekMatchInExpressionRhs(int lookahead, int currentDepth, int currentMatches, boolean isEntryPoint,
@@ -2363,7 +2373,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private ParserRuleContext[] modifyAlternativesWithArgListStart(ParserRuleContext[] alternatives) {
         ParserRuleContext[] newAlternatives = new ParserRuleContext[alternatives.length + 1];
         System.arraycopy(alternatives, 0, newAlternatives, 0, alternatives.length);
-        newAlternatives[alternatives.length] = ParserRuleContext.ARG_LIST_START;
+        newAlternatives[alternatives.length] = ParserRuleContext.ARG_LIST_OPEN_PAREN;
         return newAlternatives;
     }
 
@@ -2411,7 +2421,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLOSE_BRACE:
                 return getNextRuleForCloseBrace(nextLookahead);
             case CLOSE_PARENTHESIS:
-                return getNextRuleForCloseParenthsis();
+                return getNextRuleForCloseParenthesis();
             case EXPRESSION:
             case BASIC_LITERAL:
             case TERMINAL_EXPRESSION:
@@ -2493,7 +2503,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     endContext();
                     return ParserRuleContext.XML_NAME_PATTERN_RHS;
                 }
-                return ParserRuleContext.TYPE_REFERENCE;
+                return ParserRuleContext.TYPE_REFERENCE_IN_TYPE_INCLUSION;
             case TYPE_NAME:
                 return ParserRuleContext.TYPE_DESC_IN_TYPE_DEF;
             case OBJECT_TYPE_DESCRIPTOR:
@@ -2606,6 +2616,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OPEN_BRACE;
             case VARIABLE_REF:
             case TYPE_REFERENCE:
+            case TYPE_REFERENCE_IN_TYPE_INCLUSION:
             case ANNOT_REFERENCE:
             case FIELD_ACCESS_IDENTIFIER:
                 return ParserRuleContext.QUALIFIED_IDENTIFIER;
@@ -2711,6 +2722,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RESOURCE_ACCESSOR_DEF_OR_DECL_RHS:
                 endContext(); // end relative-resource-path
                 return ParserRuleContext.OPEN_PARENTHESIS;
+            case ERROR_CONSTRUCTOR:
+                return ParserRuleContext.ERROR_KEYWORD;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
         }
@@ -2781,10 +2794,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TEMPLATE_STRING_RHS;
             case INTERPOLATION_START_TOKEN:
                 return ParserRuleContext.EXPRESSION;
-            case ARG_LIST_START:
+            case ARG_LIST_OPEN_PAREN:
                 return ParserRuleContext.ARG_LIST;
             case ARG_LIST_END:
-                endContext();
+                endContext(); // end arg-list
+                return ParserRuleContext.ARG_LIST_CLOSE_PAREN;
+            case ARG_LIST_CLOSE_PAREN:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.ERROR_CONSTRUCTOR) {
+                    endContext();
+                }
                 return ParserRuleContext.EXPRESSION_RHS;
             case ARG_LIST:
                 return ParserRuleContext.ARG_START_OR_ARG_LIST_END;
@@ -3164,17 +3183,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
                 return ParserRuleContext.OPEN_PARENTHESIS;
             case ERROR_KEYWORD:
-                if (isInTypeDescContext()) {
-                    return ParserRuleContext.ERROR_TYPE_PARAM_START;
-                }
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.ERROR_MATCH_PATTERN) {
-                    return ParserRuleContext.ERROR_MATCH_PATTERN_ERROR_KEYWORD_RHS;
-                }
-                if (parentCtx == ParserRuleContext.ERROR_BINDING_PATTERN) {
-                    return ParserRuleContext.ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS;
-                }
-                return ParserRuleContext.ARG_LIST_START;
+                return getNextRuleForErrorKeyword();
             case LET_KEYWORD:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
@@ -3353,6 +3362,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARRAY_TYPE_DESCRIPTOR:
             case ANNOTATIONS:
             case VARIABLE_REF:
+            case TYPE_REFERENCE_IN_TYPE_INCLUSION:
             case TYPE_REFERENCE:
             case ANNOT_REFERENCE:
             case FIELD_ACCESS_IDENTIFIER:
@@ -3416,6 +3426,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_CONSTRUCTOR:
             case ABSOLUTE_RESOURCE_PATH:
             case RELATIVE_RESOURCE_PATH:
+            case ERROR_CONSTRUCTOR:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -3451,7 +3462,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         }
     }
 
-    private ParserRuleContext getNextRuleForCloseParenthsis() {
+    private ParserRuleContext getNextRuleForCloseParenthesis() {
         ParserRuleContext parentCtx;
         parentCtx = getParentContext();
         if (parentCtx == ParserRuleContext.PARAM_LIST) {
@@ -3803,16 +3814,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
-                return ParserRuleContext.ARG_LIST_START;
+                return ParserRuleContext.ARG_LIST_OPEN_PAREN;
             case TYPE_DESC_IN_TUPLE:
             case STMT_START_BRACKETED_LIST:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS;
-            case TYPE_REFERENCE:
+            case TYPE_REFERENCE_IN_TYPE_INCLUSION:
                 endContext();
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR) {
-                    return ParserRuleContext.OPEN_BRACE;
-                }
                 return ParserRuleContext.SEMICOLON;
             case TYPE_DESC_IN_SERVICE:
                 endContext();
@@ -3846,7 +3853,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_PATH_PARAM:
             case STMT_START_BRACKETED_LIST:
             case BRACKETED_LIST:
-            case TYPE_REFERENCE:
+            case TYPE_REFERENCE_IN_TYPE_INCLUSION:
                 return true;
             default:
                 return false;
@@ -4507,6 +4514,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         return ParserRuleContext.EXPRESSION_RHS;
     }
 
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#IDENTIFIER}.
+     *
+     * @return Next parser context
+     */
     private ParserRuleContext getNextRuleForIdentifier() {
         ParserRuleContext parentCtx;
         parentCtx = getParentContext();
@@ -4516,13 +4528,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForExprStartsWithVarRef();
             case TYPE_REFERENCE:
                 endContext();
+                return getNextRuleForTypeReference();
+            case TYPE_REFERENCE_IN_TYPE_INCLUSION:
+                endContext();
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
-                }
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.ERROR_MATCH_PATTERN ||
-                        parentCtx == ParserRuleContext.ERROR_BINDING_PATTERN) {
-                    return ParserRuleContext.OPEN_PARENTHESIS;
                 }
                 return ParserRuleContext.SEMICOLON;
             case ANNOT_REFERENCE:
@@ -4553,6 +4563,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         }
     }
 
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#COLON}.
+     *
+     * @return Next parser context
+     */
     private ParserRuleContext getNextRuleForColon() {
         ParserRuleContext parentCtx;
         parentCtx = getParentContext();
@@ -4599,6 +4614,49 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             default:
                 return ParserRuleContext.OPTIONAL_MATCH_GUARD;
         }
+    }
+
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#TYPE_REFERENCE}.
+     *
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForTypeReference() {
+        ParserRuleContext parentCtx = getParentContext();
+        switch (parentCtx) {
+            case ERROR_CONSTRUCTOR:
+                return ParserRuleContext.ARG_LIST_OPEN_PAREN;
+            case OBJECT_CONSTRUCTOR:
+                return ParserRuleContext.OPEN_BRACE;
+            case ERROR_MATCH_PATTERN:
+            case ERROR_BINDING_PATTERN:
+                return ParserRuleContext.OPEN_PARENTHESIS;
+            default:
+                throw new IllegalStateException(parentCtx.toString());
+        }
+    }
+
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#ERROR_KEYWORD}.
+     *
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForErrorKeyword() {
+        if (isInTypeDescContext()) {
+            return ParserRuleContext.ERROR_TYPE_PARAM_START;
+        }
+
+        ParserRuleContext parentCtx = getParentContext();
+        switch (parentCtx) {
+            case ERROR_MATCH_PATTERN:
+                return ParserRuleContext.ERROR_MATCH_PATTERN_ERROR_KEYWORD_RHS;
+            case ERROR_BINDING_PATTERN:
+                return ParserRuleContext.ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS;
+            case ERROR_CONSTRUCTOR:
+                return ParserRuleContext.ERROR_CONSTRUCTOR_RHS;
+        }
+
+        return ParserRuleContext.ARG_LIST_OPEN_PAREN;
     }
 
     /**
@@ -4727,6 +4785,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
             case TYPE_NAME:
+            case TYPE_REFERENCE_IN_TYPE_INCLUSION:
             case TYPE_REFERENCE:
             case FIELD_ACCESS_IDENTIFIER:
             case FUNC_NAME:
@@ -4844,7 +4903,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLOSE_BRACE:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
             case CLOSE_PARENTHESIS:
-            case ARG_LIST_END:
+            case ARG_LIST_CLOSE_PAREN:
                 return SyntaxKind.CLOSE_PAREN_TOKEN;
             case COMMA:
             case ERROR_MESSAGE_BINDING_PATTERN_END_COMMA:
@@ -4852,7 +4911,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPEN_BRACE:
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case OPEN_PARENTHESIS:
-            case ARG_LIST_START:
+            case ARG_LIST_OPEN_PAREN:
             case PARENTHESISED_TYPE_DESC_START:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
             case SEMICOLON:

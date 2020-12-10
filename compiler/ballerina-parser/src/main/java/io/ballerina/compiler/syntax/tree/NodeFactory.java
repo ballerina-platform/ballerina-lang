@@ -2239,7 +2239,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ListBindingPatternNode createListBindingPatternNode(
             Token openBracket,
             SeparatedNodeList<BindingPatternNode> bindingPatterns,
-            RestBindingPatternNode restBindingPattern,
             Token closeBracket) {
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(bindingPatterns, "bindingPatterns must not be null");
@@ -2248,15 +2247,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stListBindingPatternNode = STNodeFactory.createListBindingPatternNode(
                 openBracket.internalNode(),
                 bindingPatterns.underlyingListNode().internalNode(),
-                getOptionalSTNode(restBindingPattern),
                 closeBracket.internalNode());
         return stListBindingPatternNode.createUnlinkedFacade();
     }
 
     public static MappingBindingPatternNode createMappingBindingPatternNode(
             Token openBrace,
-            SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatterns,
-            RestBindingPatternNode restBindingPattern,
+            SeparatedNodeList<BindingPatternNode> fieldBindingPatterns,
             Token closeBrace) {
         Objects.requireNonNull(openBrace, "openBrace must not be null");
         Objects.requireNonNull(fieldBindingPatterns, "fieldBindingPatterns must not be null");
@@ -2265,7 +2262,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stMappingBindingPatternNode = STNodeFactory.createMappingBindingPatternNode(
                 openBrace.internalNode(),
                 fieldBindingPatterns.underlyingListNode().internalNode(),
-                getOptionalSTNode(restBindingPattern),
                 closeBrace.internalNode());
         return stMappingBindingPatternNode.createUnlinkedFacade();
     }
@@ -3078,6 +3074,26 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stRequiredExpressionNode = STNodeFactory.createRequiredExpressionNode(
                 questionMarkToken.internalNode());
         return stRequiredExpressionNode.createUnlinkedFacade();
+    }
+
+    public static ErrorConstructorExpressionNode createErrorConstructorExpressionNode(
+            Token errorKeyword,
+            TypeDescriptorNode typeReference,
+            Token openParenToken,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
+            Token closeParenToken) {
+        Objects.requireNonNull(errorKeyword, "errorKeyword must not be null");
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(arguments, "arguments must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stErrorConstructorExpressionNode = STNodeFactory.createErrorConstructorExpressionNode(
+                errorKeyword.internalNode(),
+                getOptionalSTNode(typeReference),
+                openParenToken.internalNode(),
+                arguments.underlyingListNode().internalNode(),
+                closeParenToken.internalNode());
+        return stErrorConstructorExpressionNode.createUnlinkedFacade();
     }
 }
 

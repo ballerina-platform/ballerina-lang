@@ -82,7 +82,8 @@ function testLikeModuleQualifiedVarNameAsJsonField() {
     panic getFailureError(expectedM, m);
 }
 
-annotation Foo foo on class;
+annotation Foo foo on service;
+annotation param on parameter;
 
 service object {} serv1 =
 @foo {
@@ -102,6 +103,9 @@ function testVarNameFieldInAnnotation() {
         i: 100
     }
     service object {
+        resource function get foo(@param int i) {
+
+        }
 
     };
 

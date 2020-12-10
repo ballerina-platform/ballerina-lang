@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -51,19 +52,19 @@ public class Filter {
 
     public static BMap filter(BMap<?, ?> m, BFunctionPointer<Object, Boolean> func) {
         Type mapType = m.getType();
-        Type newMapType;
+        Type constraint;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                newMapType = mapType;
+                MapType type = (MapType) mapType;
+                constraint = type.getConstrainedType();
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                Type newConstraint = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
-                newMapType = TypeCreator.createMapType(newConstraint);
+                constraint = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
                 break;
             default:
                 throw createOpNotSupportedError(mapType, "filter()");
         }
-        BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);
+        BMap<BString, Object> newMap = ValueCreator.createMapValue(TypeCreator.createMapType(constraint));
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();

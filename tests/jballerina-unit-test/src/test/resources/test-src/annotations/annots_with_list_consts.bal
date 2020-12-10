@@ -26,7 +26,7 @@ public type Bar record {|
     int i = 10;
 |};
 
-public const annotation Bar v1 on source class, source listener;
+public const annotation Bar v1 on source service, source listener;
 
 const s2 = "s2";
 const t3 = "t3";

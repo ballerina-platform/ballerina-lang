@@ -37,6 +37,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,8 +64,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
         String uri = context.fileUri();
         String diagnosticMsg = diagnostic.getMessage().toLowerCase(Locale.ROOT);
         if (!(diagnosticMsg.contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
@@ -83,11 +83,12 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         }
 
         Optional<FunctionDefinitionNode> optParentFunction = getParentFunction(context.positionDetails().matchedNode());
-        if (optParentFunction.isEmpty()) {
+        Path fileName = context.filePath().getFileName();
+        if (optParentFunction.isEmpty() || fileName == null) {
             return Collections.emptyList();
         }
 
-        String filePath = context.filePath().getFileName().toString();
+        String filePath = fileName.toString();
         Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
         if (semanticModel.isEmpty()) {
             return Collections.emptyList();

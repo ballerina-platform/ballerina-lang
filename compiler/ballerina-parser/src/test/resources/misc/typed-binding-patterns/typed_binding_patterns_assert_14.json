@@ -186,25 +186,25 @@
                               "value": " "
                             }
                           ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "REST_BINDING_PATTERN",
-                      "children": [
-                        {
-                          "kind": "ELLIPSIS_TOKEN"
                         },
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "REST_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "d",
-                              "trailingMinutiae": [
+                              "kind": "ELLIPSIS_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -292,24 +292,25 @@
                     },
                     {
                       "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "REST_BINDING_PATTERN",
                       "children": [
                         {
-                          "kind": "ELLIPSIS_TOKEN"
-                        },
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "REST_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "d",
-                              "trailingMinutiae": [
+                              "kind": "ELLIPSIS_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -615,25 +616,25 @@
                                           "value": " "
                                         }
                                       ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "REST_BINDING_PATTERN",
-                                  "children": [
-                                    {
-                                      "kind": "ELLIPSIS_TOKEN"
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "REST_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "d",
-                                          "trailingMinutiae": [
+                                          "kind": "ELLIPSIS_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "d",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -727,24 +728,25 @@
                                 },
                                 {
                                   "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "REST_BINDING_PATTERN",
                                   "children": [
                                     {
-                                      "kind": "ELLIPSIS_TOKEN"
-                                    },
-                                    {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "REST_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "d",
-                                          "trailingMinutiae": [
+                                          "kind": "ELLIPSIS_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "d",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             }
                                           ]
                                         }

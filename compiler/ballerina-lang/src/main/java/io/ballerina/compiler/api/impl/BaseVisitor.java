@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -212,6 +213,10 @@ abstract class BaseVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+    }
+
+    @Override
+    public void visit(BLangResourceFunction resourceFunction) {
     }
 
     @Override

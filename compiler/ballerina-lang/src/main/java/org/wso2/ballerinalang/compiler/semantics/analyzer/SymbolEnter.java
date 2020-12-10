@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -605,7 +606,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangClassDefinition classDefinition) {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
         boolean isPublicType = flags.contains(Flag.PUBLIC);
-        boolean isServiceType = flags.contains(Flag.SERVICE);
         Name className = names.fromIdNode(classDefinition.name);
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
@@ -615,7 +615,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
 
-        int typeFlags = 0;
+        long typeFlags = 0;
 
         if (flags.contains(Flag.READONLY)) {
             typeFlags |= Flags.READONLY;
@@ -625,8 +625,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             typeFlags |= Flags.ISOLATED;
         }
 
-        if (isServiceType) {
+        if (flags.contains(Flag.SERVICE)) {
             typeFlags |= Flags.SERVICE;
+        }
+
+        if (flags.contains(Flag.OBJECT_CTOR)) {
+            typeFlags |= Flags.OBJECT_CTOR;
         }
 
         BObjectType objectType = new BObjectType(tSymbol, typeFlags);
@@ -1166,6 +1170,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                            env.scope.owner, typeDefinition.pos, SOURCE);
         }
 
+        if (typeDefinition.flagSet.contains(Flag.ENUM)) {
+            definedType.tsymbol = createEnumSymbol(typeDefinition, definedType);
+        }
+
         typeDefinition.setPrecedence(this.typePrecedence++);
         BTypeSymbol typeDefSymbol;
         if (definedType.tsymbol.name != Names.EMPTY) {
@@ -1240,6 +1248,18 @@ public class SymbolEnter extends BLangNodeVisitor {
             // constructors are only defined for named types.
             defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
         }
+    }
+
+    private BEnumSymbol createEnumSymbol(BLangTypeDefinition typeDefinition, BType definedType) {
+        List<BConstantSymbol> enumMembers = new ArrayList<>();
+
+        List<BLangType> members = ((BLangUnionTypeNode) typeDefinition.typeNode).memberTypeNodes;
+        for (BLangType member : members) {
+            enumMembers.add((BConstantSymbol) ((BLangUserDefinedType) member).symbol);
+        }
+
+        return new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
+                               definedType, env.scope.owner, typeDefinition.pos, SOURCE);
     }
 
     private BObjectType getDistinctObjectType(BLangTypeDefinition typeDefinition, BObjectType definedType,
@@ -2991,7 +3011,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private SymbolOrigin getOrigin(Name name, Set<Flag> flags) {
-        if (flags.contains(Flag.SERVICE) || missingNodesHelper.isMissingNode(name)) {
+        if ((flags.contains(Flag.ANONYMOUS) && flags.contains(Flag.SERVICE))
+                || missingNodesHelper.isMissingNode(name)) {
             return VIRTUAL;
         }
         return SOURCE;

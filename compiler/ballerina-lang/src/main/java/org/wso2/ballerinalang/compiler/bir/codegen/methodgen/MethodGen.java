@@ -465,7 +465,7 @@ public class MethodGen {
             pushShort(mv, stateVarIndex, caseIndex);
             caseIndex += 1;
 
-            processTerminator(mv, func, module, funcName, terminator);
+            processTerminator(mv, func, module, funcName, terminator, localVarOffset);
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
                                   attachedType, asyncDataCollector);
 
@@ -485,11 +485,11 @@ public class MethodGen {
     }
 
     private void processTerminator(MethodVisitor mv, BIRFunction func, BIRPackage module, String funcName,
-                                   BIRTerminator terminator) {
+                                   BIRTerminator terminator, int localVarOffset) {
         JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
         if ((MethodGenUtils.isModuleInitFunction(func) || isModuleTestInitFunction(func)) &&
                 terminator instanceof Return) {
-            generateAnnotLoad(mv, module.typeDefs, JvmCodeGenUtil.getPackageName(module));
+            generateAnnotLoad(mv, module.typeDefs, JvmCodeGenUtil.getPackageName(module), localVarOffset);
         }
         //set module start success to true for $_init class
         if (isModuleStartFunction(funcName) && terminator.kind == InstructionKind.RETURN) {
@@ -506,7 +506,8 @@ public class MethodGen {
                         .encodeModuleSpecialFuncName(".<testinit>"));
     }
 
-    private void generateAnnotLoad(MethodVisitor mv, List<BIRTypeDefinition> typeDefs, String pkgName) {
+    private void generateAnnotLoad(MethodVisitor mv, List<BIRTypeDefinition> typeDefs, String pkgName,
+                                   int localVarOffset) {
         String typePkgName = ".";
         if (!"".equals(pkgName)) {
             typePkgName = pkgName;
@@ -517,20 +518,26 @@ public class MethodGen {
                 continue;
             }
             BType bType = optionalTypeDef.type;
+            if ((bType.flags & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR) {
+                // Annotations for object ctors are populated at object init site.
+                continue;
+            }
+
             if (bType.tag != TypeTags.FINITE) {
-                loadAnnots(mv, typePkgName, optionalTypeDef);
+                loadAnnots(mv, typePkgName, optionalTypeDef, localVarOffset);
             }
 
         }
     }
 
-    private void loadAnnots(MethodVisitor mv, String pkgName, BIRTypeDefinition typeDef) {
+    private void loadAnnots(MethodVisitor mv, String pkgName, BIRTypeDefinition typeDef, int localVarOffset) {
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
                 jvmPackageGen.lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
         loadLocalType(mv, typeDef);
+        mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), "processAnnotations",
-                           String.format("(L%s;L%s;)V", MAP_VALUE, TYPE), false);
+                           String.format("(L%s;L%s;L%s;)V", MAP_VALUE, TYPE, STRAND_CLASS), false);
     }
 
     void loadLocalType(MethodVisitor mv, BIRTypeDefinition typeDefinition) {

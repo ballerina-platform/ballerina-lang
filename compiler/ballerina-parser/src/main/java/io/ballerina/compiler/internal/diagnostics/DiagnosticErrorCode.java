@@ -234,6 +234,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.missing.resource.path.in.resource.accessor.definition"),
     ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION("BCE0518",
             "error.missing.resource.path.in.resource.accessor.declaration"),
+    ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0519", "error.missing.positional.arg.in.error.constructor"),
+    ERROR_MISSING_ARG_WITHIN_PARENTHESIS("BCE0520", "error.missing.arg.within.parenthesis"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -309,6 +311,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION("BCE660", "error.resource.path.in.function.definition"),
     ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH("BCE0661",
             "error.rest.param.must.be.the.last.segment.of.resource.path"),
+    ERROR_REST_ARG_IN_ERROR_CONSTRUCTOR("BCE0662", "error.rest.arg.in.error.constructor"),
+    ERROR_ADDITIONAL_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0663",
+            "error.additional.positional.arg.in.error.constructor"),
     ;
 
     String diagnosticId;

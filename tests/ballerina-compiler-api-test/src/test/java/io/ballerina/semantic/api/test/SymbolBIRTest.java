@@ -130,7 +130,7 @@ public class SymbolBIRTest {
                 {20, 13, "testproject"},
                 {22, 5, "testproject"},
 //                {26, 12, "foo"}, // TODO: issue #25841
-                {31, 20, "PersonObj.getName"},
+                {31, 20, "getName"},
         };
     }
 }
