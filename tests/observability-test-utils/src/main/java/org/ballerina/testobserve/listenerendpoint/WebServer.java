@@ -229,7 +229,6 @@ public class WebServer {
             }
 
             ObserverContext observerContext = new ObserverContext();
-            observerContext.setObjectName("testobserve_listener");
             Map<String, String> httpHeaders = new HashMap<>();
             request.headers().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
             observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
