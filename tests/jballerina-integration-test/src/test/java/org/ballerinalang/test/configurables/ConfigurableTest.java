@@ -48,7 +48,7 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
-    public void testAccessConfigurablePrimitiveVariables() throws BallerinaTestException {
+    public void testAccessConfigurableVariables() throws BallerinaTestException {
         Path projectPath = Paths.get(testFileLocation, "configurableProject").toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("Tests passed");
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
