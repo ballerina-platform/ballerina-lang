@@ -24,7 +24,7 @@ configurable boolean booleanVar = ?;
 configurable decimal decimalVar = 10.1;
 
 configurable int[] & readonly intArr = ?;
-configurable float[] & readonly floatArr = [9.0,5.3, 5.6];
+configurable float[] & readonly floatArr = [9.0, 5.3, 5.6];
 configurable string[] & readonly stringArr = ["apple", "orange", "banana"];
 configurable boolean[] & readonly booleanArr = [true, true];
 configurable decimal[] & readonly decimalArr = ?;
