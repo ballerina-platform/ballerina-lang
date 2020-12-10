@@ -8,7 +8,7 @@ Running Tests
 Generating Test Report
 	<TEST_RESULTS_JSON_PATH>
 
-warning: Could not find the required HTML report tools for code coverage at <ballerina.home>/lib/tools/coverage/report.zip
+warning: Could not find the required HTML report tools for code coverage at <ballerina.home>\lib\tools\coverage\report.zip
 
 Creating balo
 	target\balo\foo-winery-any-0.1.0.balo
