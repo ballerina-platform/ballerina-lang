@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -1615,19 +1616,28 @@ public class JvmInstructionGen {
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
 
-//        if (type instanceof BServiceType) {
-//            // For services, create a new type for each new service value. TODO: do only for local vars
-//            String pkgClassName = currentPackageName.equals(".") || currentPackageName.equals("") ?
-//                    MODULE_INIT_CLASS_NAME : jvmPackageGen.lookupGlobalVarClassName(currentPackageName,
-//                    ANNOTATION_MAP_NAME);
-//            duplicateServiceTypeWithAnnots(this.mv, (BObjectType) type, pkgClassName, strandIndex);
-//        } else {
         loadType(mv, type);
-//        }
+        reloadObjectCtorAnnots(type, objectNewIns.externalPackageId, strandIndex);
         this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
         this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE_IMPL),
                 false);
         this.storeToVar(objectNewIns.lhsOp.variableDcl);
+    }
+
+    private void reloadObjectCtorAnnots(BType type, PackageID packageID, int strandIndex) {
+        if ((type.flags & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR) {
+            this.mv.visitInsn(DUP);
+            this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
+
+            String pkgClassName = currentPackageName.equals(".") || currentPackageName.equals("") ?
+                    MODULE_INIT_CLASS_NAME : jvmPackageGen.lookupGlobalVarClassName(currentPackageName,
+                    ANNOTATION_MAP_NAME);
+
+            this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
+            mv.visitVarInsn(ALOAD, strandIndex);
+            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "processObjectCtorAnnots",
+                    String.format("(L%s;L%s;)V", MAP_VALUE, STRAND_CLASS), false);
+        }
     }
 
     void generateFPLoadIns(BIRNonTerminator.FPLoad inst, AsyncDataCollector asyncDataCollector) {

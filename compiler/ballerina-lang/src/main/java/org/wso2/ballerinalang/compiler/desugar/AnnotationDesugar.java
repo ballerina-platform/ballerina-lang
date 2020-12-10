@@ -172,7 +172,20 @@ public class AnnotationDesugar {
             SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition, initFunction.symbol.scope, env);
             BLangLambdaFunction lambdaFunction = defineAnnotations(classDefinition, pkgNode, classEnv, pkgID, owner);
             if (lambdaFunction != null) {
-                addInvocationToGlobalAnnotMap(classDefinition.name.value, lambdaFunction, initFunction.body);
+                BType type = classDefinition.type;
+                if (Symbols.isService(type.tsymbol) || Symbols.isFlagOn(type.flags, Flags.OBJECT_CTOR)) {
+                    // Add the lambda/invocation in a temporary block.
+                    BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
+                    BLangBlockFunctionBody initBody = (BLangBlockFunctionBody) initFunction.body;
+                    target.pos = initBody.pos;
+                    addLambdaToGlobalAnnotMap(classDefinition.name.value, lambdaFunction, target);
+                    int index = calculateIndex((initBody).stmts, type.tsymbol);
+                    for (BLangStatement stmt : target.stmts) {
+                        initBody.stmts.add(index++, stmt);
+                    }
+                } else {
+                    addInvocationToGlobalAnnotMap(classDefinition.name.value, lambdaFunction, initFunction.body);
+                }
             }
         }
     }
@@ -801,8 +814,8 @@ public class AnnotationDesugar {
         for (int i = 0; i < statements.size(); i++) {
             BLangStatement stmt = statements.get(i);
             if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
-                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR) &&
-                    ((BLangServiceConstructorExpr) ((BLangAssignment) stmt).expr).type.tsymbol == symbol) {
+                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.TYPE_INIT_EXPR) &&
+                    ((BLangAssignment) stmt).expr.type.tsymbol == symbol) {
                 return i;
             }
         }
