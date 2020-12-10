@@ -44,6 +44,12 @@ import java.util.regex.Matcher;
 public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     private static final String UNDEFINED_FUNCTION = "undefined function";
 
+    @Override
+    public boolean isEnabled() {
+        //TODO: Need to get return type of the function invocation blocked due to #27211
+        return false;
+    }
+
     /**
      * {@inheritDoc}
      */
