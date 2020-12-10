@@ -148,5 +148,9 @@ public enum Flag {
     /**
      * Indicates flagged node is an enum.
      */
-    ENUM;
+    ENUM,
+    /**
+     * Indicates flagged parameter is a included record parameter.
+     */
+    INCLUDED;
 }
