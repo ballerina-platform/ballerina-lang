@@ -17,9 +17,6 @@
  */
 package io.ballerina.projects.directory;
 
-import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -72,40 +69,5 @@ public class ProjectLoader {
         } catch (ProjectException e) {
             return SingleFileProject.load(projectEnvironmentBuilder, path);
         }
-    }
-
-    /**
-     * Returns the documentId of the provided file path.
-     *
-     * @param documentFilePath file path of the document
-     * @param project project that the file belongs to
-     * @return documentId of the document
-     */
-
-    public static Optional<DocumentId> getDocumentId(Path documentFilePath, BuildProject project) {
-        Path parent = Optional.of(documentFilePath.getParent()).get();
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Optional<Path> modulePath = project.modulePath(moduleId);
-            if (modulePath.isPresent()) {
-                if (parent.equals(modulePath.get())
-                        || parent.equals(modulePath.get().resolve(ProjectConstants.TEST_DIR_NAME))) {
-                    Module module = project.currentPackage().module(moduleId);
-                    for (DocumentId documentId : module.documentIds()) {
-                        if (module.document(documentId).name().equals(
-                                Optional.of(documentFilePath.getFileName()).get().toString())) {
-                            return Optional.of(documentId);
-                        }
-                    }
-
-                    for (DocumentId documentId : module.testDocumentIds()) {
-                        if (module.document(documentId).name().equals(ProjectConstants.TEST_DIR_NAME + "/"
-                                + Optional.of(documentFilePath.getFileName()).get().toString())) {
-                            return Optional.of(documentId);
-                        }
-                    }
-                }
-            }
-        }
-        return Optional.empty();
     }
 }

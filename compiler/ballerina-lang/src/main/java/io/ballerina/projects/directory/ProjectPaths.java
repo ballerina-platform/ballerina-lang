@@ -4,6 +4,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.util.ProjectConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -21,7 +22,10 @@ public class ProjectPaths {
      * @return path to the package root directory
      * @throws ProjectException if the provided path is invalid or if it is a standalone ballerina file
      */
-    public static Path findPackageRoot(Path filepath) throws ProjectException{
+    public static Path findPackageRoot(Path filepath) throws ProjectException {
+        if (!Files.exists(filepath)) {
+            throw new ProjectException("provided path does not exist");
+        }
         if (!Files.isRegularFile(filepath) || !filepath.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
             throw new ProjectException("provided path is not a valid Ballerina file");
         }
@@ -89,7 +93,7 @@ public class ProjectPaths {
 
     static boolean isDefaultModuleSrcFile(Path filePath) {
         Path absFilePath = filePath.toAbsolutePath().normalize();
-        return hasBallerinaToml(absFilePath.getParent());
+        return hasBallerinaToml(Optional.of(absFilePath.getParent()).get());
     }
 
     static boolean isDefaultModuleTestFile(Path filePath) {
