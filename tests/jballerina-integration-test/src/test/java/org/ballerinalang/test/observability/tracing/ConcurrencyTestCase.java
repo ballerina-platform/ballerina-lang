@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Test(groups = "tracing-test")
 public class ConcurrencyTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "05_concurrency.bal";
-    private static final String SERVICE_NAME = "testServiceFour";
+    private static final String SERVICE_NAME = "testServiceFive";
     private static final String BASE_URL = "http://localhost:9095";
 
     @DataProvider(name = "async-call-data-provider")

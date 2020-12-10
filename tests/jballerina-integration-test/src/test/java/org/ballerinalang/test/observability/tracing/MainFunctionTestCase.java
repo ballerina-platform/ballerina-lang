@@ -48,6 +48,8 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         final String span4Position = FILE_NAME + ":24:15";
         final String span5Position = FILE_NAME + ":32:21";
         final String span6Position = FILE_NAME + ":38:16";
+        final String entryPointFunctionModule = "intg_tests/tracing_tests:0.0.1";
+        final String entryPointFunctionPosition = "01_main_function.bal:19:1";
 
         List<BMockSpan> spans = this.getFinishedSpans("Unknown Service");
         Assert.assertEquals(spans.stream()
@@ -67,6 +69,8 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "main");
             Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", entryPointFunctionPosition),
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
@@ -85,6 +89,8 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(),
                     MOCK_CLIENT_OBJECT_NAME + ":callAnotherRemoteFunction");
             Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", entryPointFunctionPosition),
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
@@ -103,6 +109,8 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getParentId(), span2.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithNoReturn");
             Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", entryPointFunctionPosition),
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", UTILS_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
@@ -121,6 +129,8 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":calculateSum");
             Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", entryPointFunctionPosition),
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span4Position),
@@ -139,6 +149,8 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithPanic");
             Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", entryPointFunctionPosition),
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span5Position),
@@ -158,6 +170,8 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithErrorReturn");
             Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", entryPointFunctionPosition),
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span6Position),

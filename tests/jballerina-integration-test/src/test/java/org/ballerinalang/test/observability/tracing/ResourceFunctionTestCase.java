@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Test(groups = "tracing-test")
 public class ResourceFunctionTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "02_resource_function.bal";
-    private static final String SERVICE_NAME = "testServiceOne";
+    private static final String SERVICE_NAME = "testServiceTwo";
     private static final String BASE_URL = "http://localhost:9092";
 
     @DataProvider(name = "success-response-data-provider")
