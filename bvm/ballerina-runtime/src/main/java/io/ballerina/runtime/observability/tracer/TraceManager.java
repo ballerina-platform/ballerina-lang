@@ -75,6 +75,10 @@ public class TraceManager {
         tags.forEach((key, value) -> bSpan.getSpan().setTag(key, String.valueOf(value)));
     }
 
+    public void addTag(BSpan bSpan, String tagKey, String tagValue) {
+        bSpan.getSpan().setTag(tagKey, tagValue);
+    }
+
     public Map<String, String> extractTraceContext(Span span, String serviceName) {
         Map<String, String> carrierMap = new HashMap<>();
         Tracer tracer = tracerStore.getTracer(serviceName);

@@ -23,6 +23,10 @@ service "testServiceFive" on new testobserve:Listener(9096) {
         _ = checkpanic observe:addTagToSpan("resource", "resourceOne", customSpanOneId);
         _ = checkpanic observe:addTagToSpan("custom", "true", customSpanOneId);
         _ = checkpanic observe:addTagToSpan("index", "1", customSpanOneId);
+
+        // Adding a metric tag and this should not be included in the tracing tags
+        checkpanic observe:addTagToMetrics("metric", "Metric Value" );
+
         var a = 12;
         var b = 27;
         var sum = calculateSumWithObservability(a, b);
