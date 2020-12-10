@@ -39,12 +39,12 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_M
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_CONNECTOR_NAME;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_ACTION_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_CLIENT_REMOTE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_MAIN_FUNCTION;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_WORKER;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_SERVICE_REMOTE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_SERVICE_RESOURCE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_WORKER;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_ACTION_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_FUNCTION_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_MODULE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_OBJECT_NAME;
@@ -200,15 +200,15 @@ public class ObserveUtils {
      * @param env              Ballerina environment
      * @param module           The module the resource belongs to
      * @param position         The source code position the resource in defined in
+     * @param typeDef          The type definition the function was attached to
+     * @param functionName     name of the function being invoked
      * @param isMainEntryPoint True if this was a main entry point invocation
      * @param isRemote         True if this was a remote function invocation
      * @param isWorker         True if this was a worker start
-     * @param typeDef          The type definition the function was attached to
-     * @param functionName     name of the function being invoked
      */
     public static void startCallableObservation(Environment env, BString module, BString position,
-                                                boolean isMainEntryPoint, boolean isRemote, boolean isWorker,
-                                                BObject typeDef, BString functionName) {
+                                                BObject typeDef, BString functionName, boolean isMainEntryPoint,
+                                                boolean isRemote, boolean isWorker) {
         if (!enabled) {
             return;
         }
