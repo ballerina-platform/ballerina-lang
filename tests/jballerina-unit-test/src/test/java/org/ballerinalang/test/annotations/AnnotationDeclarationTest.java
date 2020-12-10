@@ -63,8 +63,9 @@ public class AnnotationDeclarationTest {
         BAssertUtil.validateError(compileResult, 0, "annotation declaration requires " +
                 "a subtype of 'true', 'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'int'", 17, 12);
         BAssertUtil.validateError(compileResult, 1,
-                                  "annotation declaration requires a subtype of 'true', 'map<anydata|readonly>' or " +
-                                          "'map<anydata|readonly>[]', but found 'true[]'", 22, 12);
+                                  "annotation declaration requires a subtype of 'true', " +
+                                          "'map<value:Cloneable>' or 'map<value:Cloneable>[]', " +
+                                          "but found 'true[]", 22, 12);
     }
 
     @Test

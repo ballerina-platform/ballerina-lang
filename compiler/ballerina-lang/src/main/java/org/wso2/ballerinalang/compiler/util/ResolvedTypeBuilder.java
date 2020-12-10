@@ -306,6 +306,8 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
             return originalType;
         }
 
+        assert originalType.isCyclic == false;
+
         BUnionType type = BUnionType.create(null, newMemberTypes);
         setFlags(type, originalType.flags);
         return type;

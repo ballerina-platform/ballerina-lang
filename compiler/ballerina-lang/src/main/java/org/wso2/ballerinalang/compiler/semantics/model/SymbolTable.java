@@ -739,8 +739,8 @@ public class SymbolTable {
         cloneableType.add(mapCloneableType);
         cloneableType.add(tableMapCloneableType);
 
-        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, rootPkgSymbol.pkgID,
-                cloneableType, rootPkgSymbol, builtinPos, BUILTIN);
+        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
+                cloneableType, langValueModuleSymbol, builtinPos, BUILTIN);
 
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);
         errorType = new BErrorType(null, detailType);
@@ -794,7 +794,7 @@ public class SymbolTable {
 
         anydataType = new BAnydataType(anyDataInternal);
         anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, PackageID.ANNOTATIONS,
-                anydataType, rootPkgSymbol, this.builtinPos, BUILTIN);
+                anydataType, langAnnotationModuleSymbol, builtinPos, BUILTIN);
         arrayAnydataType = new BArrayType(anydataType);
         mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
         anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);

@@ -104,10 +104,11 @@ public class Bootstrap {
 
         if (langLib.equals(QUERY)) {
             // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
+            symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
+            symResolver.bootstrapCloneableType();
             symbolTable.langArrayModuleSymbol = loadLangLibFromBalr(ARRAY, compilerContext);
             symbolTable.langMapModuleSymbol = loadLangLibFromBalr(MAP, compilerContext);
             symbolTable.langStringModuleSymbol = loadLangLibFromBalr(STRING, compilerContext);
-            symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
             symbolTable.langXmlModuleSymbol = loadLangLibFromBalr(XML, compilerContext);
             symbolTable.langTableModuleSymbol = loadLangLibFromBalr(TABLE, compilerContext);
             symbolTable.langStreamModuleSymbol = loadLangLibFromBalr(STREAM, compilerContext);
@@ -115,19 +116,22 @@ public class Bootstrap {
 
         if (langLib.equals(TRANSACTION)) {
             // Transaction module requires array, map, string, value modules. Hence loading them.
+            symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
+            symResolver.bootstrapCloneableType();
             symbolTable.langArrayModuleSymbol = loadLangLibFromBalr(ARRAY, compilerContext);
             symbolTable.langMapModuleSymbol = loadLangLibFromBalr(MAP, compilerContext);
             symbolTable.langStringModuleSymbol = loadLangLibFromBalr(STRING, compilerContext);
-            symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
             symbolTable.langErrorModuleSymbol = loadLangLibFromBalr(ERROR, compilerContext);
         }
 
         if (langLib.equals(ERROR)) {
             symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
+            symResolver.bootstrapCloneableType();
         }
 
         symResolver.bootstrapCloneableType();
         symResolver.bootstrapIntRangeType();
+        symResolver.defineOperators();
     }
 
     public void loadLangLibSymbols(CompilerContext compilerContext) {
@@ -136,6 +140,7 @@ public class Bootstrap {
 
         // we will load any lang.lib found in cache directory
         symbolTable.langAnnotationModuleSymbol = loadLangLibFromBalr(ANNOTATIONS, compilerContext);
+        symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
         symbolTable.langJavaModuleSymbol = loadLangLibFromBalr(JAVA, compilerContext);
         symbolTable.langInternalModuleSymbol = loadLangLibFromBalr(INTERNAL, compilerContext);
         symResolver.bootstrapJsonType();
@@ -145,7 +150,6 @@ public class Bootstrap {
         symResolver.defineOperators();
         symbolTable.langArrayModuleSymbol = loadLangLibFromBalr(ARRAY, compilerContext);
         symbolTable.langDecimalModuleSymbol = loadLangLibFromBalr(DECIMAL, compilerContext);
-        symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
         symbolTable.langErrorModuleSymbol = loadLangLibFromBalr(ERROR, compilerContext);
         symbolTable.langFloatModuleSymbol = loadLangLibFromBalr(FLOAT, compilerContext);
         symbolTable.langFutureModuleSymbol = loadLangLibFromBalr(FUTURE, compilerContext);

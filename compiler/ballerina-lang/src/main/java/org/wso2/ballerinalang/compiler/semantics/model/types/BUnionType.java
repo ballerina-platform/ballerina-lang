@@ -81,6 +81,7 @@ public class BUnionType extends BType implements UnionType {
     }
 
     public void setMemberTypes(LinkedHashSet<BType> memberTypes) {
+        assert memberTypes.size() == 0;
         this.memberTypes = memberTypes;
     }
 
@@ -229,12 +230,12 @@ public class BUnionType extends BType implements UnionType {
             this.flags ^= Flags.READONLY;
         }
 
-        checkCyclicReference(type);
+        setCyclicFlag(type);
 
         this.nullable = this.nullable || type.isNullable();
     }
 
-    private void checkCyclicReference(BType type) {
+    private void setCyclicFlag(BType type) {
         if (isCyclic) {
             return;
         }
@@ -412,8 +413,7 @@ public class BUnionType extends BType implements UnionType {
 
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
-                .flatMap(type -> type.tag == TypeTags.UNION && !isTypeParamAvailable(type) &&
-                        !((BUnionType) type).isCyclic ?
+                .flatMap(type -> type.tag == TypeTags.UNION && !isTypeParamAvailable(type) ?
                         ((BUnionType) type).memberTypes.stream() : Stream.of(type))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }

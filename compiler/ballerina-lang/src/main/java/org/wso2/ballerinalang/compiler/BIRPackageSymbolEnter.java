@@ -1113,18 +1113,19 @@ public class BIRPackageSymbolEnter {
                     bMapType.constraint = readTypeFromCp();
                     return bMapType;
                 case TypeTags.INVOKABLE:
-                    BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
-                    bInvokableType.flags = flags;
+
                     int paramCount = inputStream.readInt();
                     List<BType> paramTypes = new ArrayList<>();
                     for (int i = 0; i < paramCount; i++) {
                         paramTypes.add(readTypeFromCp());
                     }
-                    bInvokableType.paramTypes = paramTypes;
+                    BType restType = null;
                     if (inputStream.readBoolean()) { //if rest param exist
-                        bInvokableType.restType = readTypeFromCp();
+                        restType = readTypeFromCp();
                     }
-                    bInvokableType.retType = readTypeFromCp();
+                    BType retType = readTypeFromCp();
+                    BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
+                    bInvokableType.flags = flags;
                     return bInvokableType;
                 // All the above types are branded types
                 case TypeTags.ANY:
@@ -1153,7 +1154,52 @@ public class BIRPackageSymbolEnter {
                     bArrayType.eType = readTypeFromCp();
                     return bArrayType;
                 case TypeTags.UNION:
-                    return readUnionType(flags, cpI);
+                    boolean isCyclic = inputStream.readByte() == 1;
+                    boolean hasName = inputStream.readByte() == 1;
+                    PackageID unionsPkgId = null;
+                    Name unionName = Names.EMPTY;
+                    if (hasName) {
+                        pkgCpIndex = inputStream.readInt();
+                        unionsPkgId = getPackageId(pkgCpIndex);
+                        String unionNameStr = getStringCPEntryValue(inputStream);
+                        unionName = names.fromString(unionNameStr);
+                    }
+                    BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE,
+                            Flags.asMask(EnumSet.of(Flag.PUBLIC)), unionName, env.pkgSymbol.pkgID,
+                            null, env.pkgSymbol.owner, symTable.builtinPos, COMPILED_SOURCE);
+
+                    int unionMemberCount = inputStream.readInt();
+                    BUnionType unionType = BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(unionMemberCount));
+                    unionType.name = unionName;
+
+                    addShapeCP(unionType, cpI);
+                    compositeStack.push(unionType);
+
+                    unionType.flags = flags;
+                    unionType.isCyclic = isCyclic;
+                    for (int i = 0; i < unionMemberCount; i++) {
+                        unionType.add(readTypeFromCp());
+                    }
+
+                    var poppedUnionType = compositeStack.pop();
+                    assert poppedUnionType == unionType;
+
+                    if (hasName && (unionsPkgId != null)) {
+                        if (unionsPkgId.equals(env.pkgSymbol.pkgID)) {
+                            return unionType;
+                        } else {
+                            pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(unionsPkgId));
+                            if (pkgEnv != null) {
+                                BType existingUnionType =
+                                        symbolResolver.lookupSymbolInMainSpace(pkgEnv, unionName).type;
+                                if (existingUnionType != symTable.noType) {
+                                    return existingUnionType;
+                                }
+                            }
+                        }
+                    }
+
+                    return unionType;
                 case TypeTags.INTERSECTION:
                     BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
                                                                                   Flags.asMask(EnumSet.of(Flag.PUBLIC)),
@@ -1406,56 +1452,7 @@ public class BIRPackageSymbolEnter {
             }
             return typeInclusions;
         }
-
-        private BType readUnionType(long flags, int cpI) throws IOException {
-            boolean isCyclic = inputStream.readBoolean();
-            Name unionNameValue;
-            PackageID pkgId = null;
-            String unionName = null;
-            if (isCyclic) {
-                int pkgCpIndex = inputStream.readInt();
-                pkgId = getPackageId(pkgCpIndex);
-                unionName = getStringCPEntryValue(inputStream);
-                unionNameValue = names.fromString(unionName);
-            } else {
-                unionNameValue = Names.EMPTY;
-            }
-            BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE,
-                    Flags.asMask(EnumSet.of(Flag.PUBLIC)), unionNameValue, env.pkgSymbol.pkgID,
-                    null, env.pkgSymbol.owner, symTable.builtinPos, COMPILED_SOURCE);
-
-            int unionMemberCount = inputStream.readInt();
-            BUnionType unionType = BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(unionMemberCount));
-            unionType.name = unionNameValue;
-            addShapeCP(unionType, cpI);
-            compositeStack.push(unionType);
-            unionType.flags = flags;
-            unionType.isCyclic = isCyclic;
-            for (int i = 0; i < unionMemberCount; i++) {
-                unionType.add(readTypeFromCp());
-            }
-
-            var poppedUnionType = compositeStack.pop();
-            assert poppedUnionType == unionType;
-
-            if (isCyclic && (pkgId != null)) {
-                if (pkgId.equals(env.pkgSymbol.pkgID)) {
-                    return unionType;
-                } else if (unionName != null) {
-                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
-                    if (pkgEnv != null) {
-                        BType existingUnionType = symbolResolver.lookupSymbolInMainSpace(pkgEnv,
-                                names.fromString(unionName)).type;
-                        if (existingUnionType != symTable.noType) {
-                            return existingUnionType;
-                        }
-                    }
-                }
-            }
-            return unionType;
-        }
     }
-
 
     private byte[] readDocBytes(DataInputStream inputStream) throws IOException {
         int docLength = inputStream.readInt();

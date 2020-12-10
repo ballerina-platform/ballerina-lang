@@ -407,7 +407,7 @@ public class ImmutableTypeCloner {
 
                 for (BType memberType : originalMemberList) {
                     if (types.isInherentlyImmutableType(memberType)) {
-                        readOnlyMemTypes.add(memberType);
+                        unionEffectiveImmutableType.add(memberType);
                         continue;
                     }
 
@@ -422,7 +422,7 @@ public class ImmutableTypeCloner {
                         types.fixSelfReferencingSameUnion(memberType, origUnionType, immutableMemberType,
                                 (BUnionType) immutableEffectiveType, readOnlyMemTypes);
                     } else {
-                        readOnlyMemTypes.add(immutableMemberType);
+                        unionEffectiveImmutableType.add(immutableMemberType);
                     }
                 }
 
@@ -478,7 +478,7 @@ public class ImmutableTypeCloner {
                                                              BLangAnonymousModelHelper anonymousModelHelper,
                                                              Names names) {
         BRecordType origRecordType = immutableRecordType.mutableType;
-        if (origRecordType.fields.size() != immutableRecordType.fields.size()) {
+        if (origRecordType != null && (origRecordType.fields.size() != immutableRecordType.fields.size())) {
 
             populateImmutableStructureFields(types, symTable, anonymousModelHelper, names,
                                              (BLangRecordTypeNode) immutableTypeDefinition.typeNode,

@@ -283,14 +283,17 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BUnionType bUnionType) {
         buff.writeBoolean(bUnionType.isCyclic);
-        if (bUnionType.isCyclic) {
-            BTypeSymbol tsymbol = bUnionType.tsymbol;
+        BTypeSymbol tsymbol = bUnionType.tsymbol;
+        if (bUnionType.isCyclic || (tsymbol != null && !tsymbol.name.getValue().isEmpty())) {
+            buff.writeBoolean(true);
             int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
             int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
             int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
             int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
             buff.writeInt(pkgIndex);
             buff.writeInt(addStringCPEntry(bUnionType.tsymbol.name.value));
+        } else {
+            buff.writeBoolean(false);
         }
         buff.writeInt(bUnionType.getMemberTypes().size());
         for (BType memberType : bUnionType.getMemberTypes()) {
