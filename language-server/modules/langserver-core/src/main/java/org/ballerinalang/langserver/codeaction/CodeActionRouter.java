@@ -30,9 +30,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,14 +54,11 @@ public class CodeActionRouter {
         CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder.getInstance();
 
         // Get available node-type based code-actions
-        Optional<Node> matchedNode = CodeActionUtil.getTopLevelNode(ctx.cursorPosition(), ctx);
+        SyntaxTree syntaxTree = ctx.workspace().syntaxTree(ctx.filePath()).orElseThrow();
+        Optional<Node> matchedNode = CodeActionUtil.getTopLevelNode(ctx.cursorPosition(), syntaxTree);
         CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(matchedNode.orElse(null));
         SemanticModel semanticModel = ctx.workspace().semanticModel(ctx.filePath()).orElseThrow();
-        Path fileName = ctx.filePath().getFileName();
-        if (fileName == null) {
-            return Collections.emptyList();
-        }
-        String relPath = fileName.toString();
+        String relPath = ctx.filePath().toFile().getName();
         if (matchedNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
             Range range = CommonUtil.toRange(matchedNode.get().lineRange());
             Node expressionNode = CodeActionUtil.largestExpressionNode(matchedNode.get(), range);
@@ -87,7 +82,6 @@ public class CodeActionRouter {
         // Get available diagnostics based code-actions
         List<Diagnostic> cursorDiagnostics = ctx.cursorDiagnostics();
         if (cursorDiagnostics != null && !cursorDiagnostics.isEmpty()) {
-            SyntaxTree syntaxTree = ctx.workspace().syntaxTree(ctx.filePath()).orElseThrow();
             for (Diagnostic diagnostic : cursorDiagnostics) {
                 PositionDetails positionDetails = computePositionDetails(diagnostic.getRange(), syntaxTree, ctx);
                 ctx.setPositionDetails(positionDetails);

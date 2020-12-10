@@ -90,7 +90,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         }
 
         Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
-        if (line == -1 || column == -1 || uri == null || filePath.isEmpty()) {
+        if (line == -1 || column == -1 || filePath.isEmpty()) {
             throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
@@ -113,6 +113,9 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         SemanticModel semanticModel = context.workspace().semanticModel(filePath.get()).orElseThrow();
         String relPath = filePath.get().toFile().getName();
         TypeSymbol matchedTypeSymbol = semanticModel.type(relPath, identifier.lineRange()).orElse(null);
+        if (matchedTypeSymbol == null) {
+            return Collections.emptyList();
+        }
         //TODO: Need to get return type of the function invocation blocked due to #27211
 //        Path path = CommonUtil.getPathFromURI(uri).get();
 //        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);

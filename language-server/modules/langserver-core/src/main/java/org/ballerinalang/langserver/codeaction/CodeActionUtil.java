@@ -478,12 +478,11 @@ public class CodeActionUtil {
     /**
      * Get the top level node type at the cursor line.
      *
-     * @param position {@link Position}
-     * @param context  {@link LSContext}
+     * @param position   {@link Position}
+     * @param syntaxTree {@link SyntaxTree}
      * @return {@link String}   Top level node
      */
-    public static Optional<Node> getTopLevelNode(Position position, DocumentServiceContext context) {
-        SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
+    public static Optional<Node> getTopLevelNode(Position position, SyntaxTree syntaxTree) {
         NonTerminalNode member = CommonUtil.findNode(new Range(position, position), syntaxTree);
         LinePosition cursorPosition = LinePosition.from(position.getLine(), position.getCharacter());
         int cursorPosOffset = syntaxTree.textDocument().textPositionFrom(cursorPosition);
