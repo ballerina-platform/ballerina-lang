@@ -25,11 +25,9 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
-import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -79,24 +77,6 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
         }
 
         return moduleName.toString();
-    }
-
-    private boolean isUnused(LineRange lineRange) {
-        boolean isUnused = false;
-        List<Diagnostic> diagnostics = this.semanticModel.diagnostics(lineRange);
-        for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.diagnosticInfo().code().equals(DiagnosticErrorCode.UNUSED_IMPORT_MODULE.diagnosticId())) {
-                isUnused = true;
-                break;
-            }
-        }
-        return isUnused;
-    }
-
-    private void addToUsedImportNode(ImportDeclarationNode importDeclarationNode) {
-        this.usedImports.put(getImportModuleName(importDeclarationNode.orgName().isPresent()
-                        ? importDeclarationNode.orgName().get() : null, importDeclarationNode.moduleName()),
-                importDeclarationNode);
     }
 
     private LineRange getDeleteRange(LineRange lineRange) {
