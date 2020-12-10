@@ -378,7 +378,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangAssignment safeNavigationAssignment;
     static boolean isJvmTarget = false;
 
-    private int serviceStartedCount = 0;
+    private boolean serviceStarted = false;
 
     private Map<BSymbol, Set<BVarSymbol>> globalVariablesDependsOn;
     private List<BLangStatement> matchStmtsForPattern = new ArrayList<>();
@@ -1179,11 +1179,11 @@ public class Desugar extends BLangNodeVisitor {
         BType currentReturnType = this.forceCastReturnType;
         this.forceCastReturnType = null;
         funcNode.body = rewrite(funcNode.body, funcEnv);
-        if (serviceStartedCount == 1) {
+        if (serviceStarted) {
             BLangExpressionStmt trxCoordnStmt = new BLangExpressionStmt(transactionDesugar.
                     createStartTransactionCoordinatorInvocation(funcNode.pos));
             ((BLangBlockFunctionBody) funcNode.body).stmts.add(0, trxCoordnStmt);
-            serviceStartedCount++;
+            serviceStarted = false;
         }
         this.forceCastReturnType = currentReturnType;
         funcNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
@@ -4954,8 +4954,9 @@ public class Desugar extends BLangNodeVisitor {
     private void startTransactionalServices(BLangNode node) {
         BLangNode parent = node.parent;
         while (parent != null) {
-            if (parent instanceof TransactionNode && serviceStartedCount == 0) {
-                serviceStartedCount++;
+            if (parent instanceof TransactionNode && !serviceDesugar.getTransactionCoordinatorStarted()) {
+                serviceStarted = true;
+                serviceDesugar.setTransactionCoordinatorStarted(true);
                 break;
             } else {
                 parent = parent.parent;
