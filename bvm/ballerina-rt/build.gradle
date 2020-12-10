@@ -110,6 +110,7 @@ dependencies {
     dist 'org.apache.thrift:libthrift:0.12.0'
     dist 'com.squareup.okhttp3:okhttp:3.14.0'
     dist 'com.squareup.okio:okio:2.2.2'
+    dist 'io.netty:netty-all:4.1.39.Final'
 
     // Temporary adding . Need to Remove once fix #17878
     dist 'com.google.code.gson:gson:2.7'
