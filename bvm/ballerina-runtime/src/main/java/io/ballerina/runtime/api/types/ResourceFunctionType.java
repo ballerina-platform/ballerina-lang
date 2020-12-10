@@ -26,4 +26,5 @@ public interface ResourceFunctionType extends MemberFunctionType {
     String[] getParamNames();
     String getAccessor();
     String[] getResourcePath();
+    Boolean[] getParamDefaultability();
 }

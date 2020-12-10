@@ -32,15 +32,18 @@ public class BResourceFunctionType extends BMemberFunctionType implements Resour
     public final String accessor;
     public final String[] resourcePath;
     public final String[] paramNames;
+    public final Boolean[] paramDefaultability;
 
     public BResourceFunctionType(String funcName, BObjectType parent, BFunctionType type, long flags,
-                                 String accessor, String[] resourcePath, String[] paramNames) {
+                                 String accessor, String[] resourcePath, String[] paramNames,
+                                 Boolean[] paramDefaultbility) {
         super(funcName, parent, type, flags);
         this.type = type;
         this.flags = flags;
         this.accessor = accessor;
         this.resourcePath = resourcePath;
         this.paramNames = paramNames;
+        this.paramDefaultability = paramDefaultbility;
     }
 
     @Override
@@ -72,5 +75,10 @@ public class BResourceFunctionType extends BMemberFunctionType implements Resour
     @Override
     public String[] getResourcePath() {
         return resourcePath;
+    }
+
+    @Override
+    public Boolean[] getParamDefaultability() {
+        return paramDefaultability;
     }
 }
