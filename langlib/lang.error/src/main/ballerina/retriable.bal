@@ -15,6 +15,4 @@
 // under the License.
 
 # Represents the Retriable error.
-//todo use distinct when grammar allows
-//public type Retriable distinct error;
-public type Retriable error;
+public type Retriable distinct error;
