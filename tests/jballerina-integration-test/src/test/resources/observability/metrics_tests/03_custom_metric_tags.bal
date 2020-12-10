@@ -15,24 +15,15 @@
 // under the License.
 
 import ballerina/testobserve;
-import ballerina/lang.'int;
+import ballerina/observe;
 
-service /testServiceOne on new testobserve:Listener(9091) {
-    resource function post resourceOne(testobserve:Caller caller) {
-        var ret = caller->respond("Hello from Resource One");
-    }
-
-    resource function post resourceTwo(testobserve:Caller caller, string body) returns error? {
-        int numberCount = check 'int:fromString(body);
-        var sum = 0;
-        foreach var i in 1 ... numberCount {
-            sum = sum + i;
-        }
-        var ret = caller->respond("Sum of numbers: " + sum.toString());
-    }
-
-    resource function post resourceThree(testobserve:Caller caller) returns error? {
-        error e = error("Test Error");
-        panic e;
+service testServiceTwo on new testobserve:Listener(10092) {
+    # Resource function for test custom tags
+    resource function testAddTagToMetrics(testobserve:Caller caller) {
+         // Add a custom tag to span, this should not be included in system metrics
+         var res = observe:addTagToSpan("tracing", "Tracing Value");
+        // Add a custom tag to system metrics
+        _ = checkpanic observe:addTagToMetrics("metric", "Metric Value");
+        checkpanic caller->respond("Invocation Successful");
     }
 }
