@@ -17,9 +17,9 @@
 import ballerina/testobserve;
 import ballerina/observe;
 
-service testServiceTwo on new testobserve:Listener(10092) {
+service /testServiceTwo on new testobserve:Listener(10092) {
     # Resource function for test custom tags
-    resource function testAddTagToMetrics(testobserve:Caller caller) {
+    resource function post testAddTagToMetrics(testobserve:Caller caller) {
          // Add a custom tag to span, this should not be included in system metrics
          var res = observe:addTagToSpan("tracing", "Tracing Value");
         // Add a custom tag to system metrics
