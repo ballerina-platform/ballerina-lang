@@ -33,18 +33,15 @@ import java.util.Collections;
 public class STListBindingPatternNode extends STBindingPatternNode {
     public final STNode openBracket;
     public final STNode bindingPatterns;
-    public final STNode restBindingPattern;
     public final STNode closeBracket;
 
     STListBindingPatternNode(
             STNode openBracket,
             STNode bindingPatterns,
-            STNode restBindingPattern,
             STNode closeBracket) {
         this(
                 openBracket,
                 bindingPatterns,
-                restBindingPattern,
                 closeBracket,
                 Collections.emptyList());
     }
@@ -52,19 +49,16 @@ public class STListBindingPatternNode extends STBindingPatternNode {
     STListBindingPatternNode(
             STNode openBracket,
             STNode bindingPatterns,
-            STNode restBindingPattern,
             STNode closeBracket,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.LIST_BINDING_PATTERN, diagnostics);
         this.openBracket = openBracket;
         this.bindingPatterns = bindingPatterns;
-        this.restBindingPattern = restBindingPattern;
         this.closeBracket = closeBracket;
 
         addChildren(
                 openBracket,
                 bindingPatterns,
-                restBindingPattern,
                 closeBracket);
     }
 
@@ -72,7 +66,6 @@ public class STListBindingPatternNode extends STBindingPatternNode {
         return new STListBindingPatternNode(
                 this.openBracket,
                 this.bindingPatterns,
-                this.restBindingPattern,
                 this.closeBracket,
                 diagnostics);
     }
@@ -80,12 +73,10 @@ public class STListBindingPatternNode extends STBindingPatternNode {
     public STListBindingPatternNode modify(
             STNode openBracket,
             STNode bindingPatterns,
-            STNode restBindingPattern,
             STNode closeBracket) {
         if (checkForReferenceEquality(
                 openBracket,
                 bindingPatterns,
-                restBindingPattern,
                 closeBracket)) {
             return this;
         }
@@ -93,7 +84,6 @@ public class STListBindingPatternNode extends STBindingPatternNode {
         return new STListBindingPatternNode(
                 openBracket,
                 bindingPatterns,
-                restBindingPattern,
                 closeBracket,
                 diagnostics);
     }
