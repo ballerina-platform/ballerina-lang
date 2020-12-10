@@ -25,6 +25,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
@@ -110,5 +111,29 @@ public class BuildProject extends Project {
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public DocumentId documentId(Path file) {
+        ProjectPaths.findPackageRoot(file);
+        Path parent = Optional.of(file.toAbsolutePath().getParent()).get();
+        for (ModuleId moduleId : this.currentPackage().moduleIds()) {
+            Module module = this.currentPackage().module(moduleId);
+            if (moduleId.moduleName().equals(parent.getFileName().toString())) {
+                for (DocumentId documentId : module.documentIds()) {
+                    if (module.document(documentId).name().equals(Optional.of(file.getFileName()).get().toString())) {
+                        return documentId;
+                    }
+                }
+            } else if (ProjectConstants.TEST_DIR_NAME.equals(parent.getFileName().toString())) {
+                for (DocumentId documentId : module.testDocumentIds()) {
+                    if (module.document(documentId).name().split(ProjectConstants.TEST_DIR_NAME + "/")[1]
+                            .equals(Optional.of(file.getFileName()).get().toString())) {
+                        return documentId;
+                    }
+                }
+            }
+        }
+        throw new ProjectException("provided path does not belong to the project");
     }
 }

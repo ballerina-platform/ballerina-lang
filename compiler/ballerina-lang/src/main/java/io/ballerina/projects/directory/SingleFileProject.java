@@ -19,6 +19,9 @@ package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -30,6 +33,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * {@code SingleFileProject} represents a Ballerina standalone file.
@@ -76,5 +80,14 @@ public class SingleFileProject extends Project {
         } catch (IOException e) {
             throw new ProjectException("error while creating project root directory for single file execution. ", e);
         }
+    }
+
+    @Override
+    public DocumentId documentId(Path file) {
+        //TODO: enable the check once the SingleFile sourceRoot is set to have the filepath
+//        if (!this.sourceRoot.toString().equals(file.toString())) {
+//            throw new ProjectException("provided path does not belong to the project");
+//        }
+        return this.currentPackage().getDefaultModule().documentIds().iterator().next();
     }
 }
