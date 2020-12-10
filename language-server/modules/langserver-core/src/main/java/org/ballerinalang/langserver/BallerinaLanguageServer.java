@@ -142,6 +142,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setRenameProvider(false);
         res.getCapabilities().setWorkspaceSymbolProvider(false);
         res.getCapabilities().setImplementationProvider(false);
+        res.getCapabilities().setFoldingRangeProvider(true);
 //        res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
         HashMap experimentalClientCapabilities = null;
