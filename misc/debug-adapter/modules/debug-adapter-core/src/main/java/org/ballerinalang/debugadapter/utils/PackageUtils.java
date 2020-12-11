@@ -208,13 +208,4 @@ public class PackageUtils {
         }
         return srcNames;
     }
-
-    private static String replaceSeparators(String path) {
-        if (path.contains("/")) {
-            return path.replaceAll("/", ".");
-        } else if (path.contains("\\")) {
-            return path.replaceAll("\\\\", ".");
-        }
-        return path;
-    }
 }
