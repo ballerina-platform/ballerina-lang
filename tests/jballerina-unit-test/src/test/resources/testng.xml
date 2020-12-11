@@ -247,29 +247,6 @@
                     <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.lock.LocksInMainTest">
-                <methods>
-                    <exclude name="testBreakInsideLock"/>
-                    <exclude name="testForGlobalRefUpdateInsideConditional"/>
-                    <exclude name="testForGlobalRefUpdateInsideWorker"/>
-                    <exclude name="testLockInsideWhileLoop"/>
-                    <exclude name="testLockNegativeCases"/>
-                    <exclude name="testLockWithinFunctionsDownTheLine"/>
-                    <exclude name="testLockWithinLock"/>
-                    <exclude name="testLockWithinLockInWorkers"/>
-                    <exclude name="testLockWithinLockInWorkersForBlobAndBoolean"/>
-                    <exclude name="testLocksWhenGlobalVariablesReferToSameValue"/>
-                    <exclude name="testNextInsideLock"/>
-                    <exclude name="testParallelRunWithChainedInvocationDependencies"/>
-                    <exclude name="testParallelRunWithImportInvocationDependencies"/>
-                    <exclude name="testParallelRunWithInvocationDependencies"/>
-                    <exclude name="testParallelRunWithRecursiveInvocationDependencies"/>
-                    <exclude name="testThrowErrorInsideLockInsideTrap"/>
-                    <exclude name="testThrowErrorInsideLockInsideTryCatch"/>
-                    <exclude name="testThrowErrorInsideTryCatchFinallyInsideLock"/>
-                    <exclude name="testThrowErrorInsideTryCatchInsideLock"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments">
                 <methods>
                     <exclude name="testAttachedAsyncDefaultParam"/>
