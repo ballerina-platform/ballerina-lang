@@ -34,6 +34,7 @@ import java.util.Optional;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
+import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
@@ -84,6 +85,8 @@ public class AnnotationsTest {
                 {98, 18, VARIABLE, of("v5")},
                 {103, 22, METHOD, of("v3")},
 //                {112, 11, WORKER, of("v1")} // TODO: Uncomment after fixing #27461
+                {121, 5, ENUM, of("v1", "v5")},
+                {125, 4, CONSTANT, of("v1")}
         };
     }
 }

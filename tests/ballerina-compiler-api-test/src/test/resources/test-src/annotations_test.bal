@@ -35,7 +35,7 @@ type Annot record {
     int bar?;
 };
 
-public annotation Annot v1 on type, class, service, annotation, var, const, worker;
+public const annotation Annot v1 on source type, class, service, annotation, var, const, worker;
 annotation Annot[] v2 on class;
 public annotation Annot v3 on function;
 annotation Annot v4 on parameter;
@@ -96,12 +96,12 @@ type Greet service object {
 service Greet / on new Listener() {
 
     @v5
-    public string msg = "Hello"
+    public string msg = "Hello";
 
     @v3 {
         foo: "annot on resource function"
     }
-    resource function get greeting() returns json => { output: msg };
+    resource function get greeting() returns json => { output: self.msg };
 }
 
 function test() {
@@ -115,11 +115,24 @@ function test() {
     }
 }
 
+@v1 {
+    foo: "annot on enum"
+}
+@v5
+enum Colour {
+    @v1 {
+        foo: "annot on enum member"
+    }
+    RED,
+    GREEN,
+    BLUE
+}
+
 // util
 
 public class Listener {
 
-    public function start() returns error? {
+    public function 'start() returns error? {
     }
 
     public function gracefulStop() returns error? {
