@@ -265,29 +265,6 @@
                     <exclude name="testSyncSendAfterSend"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.javainterop.basic.StaticMethodTest">
-                <methods>
-                    <exclude name="testAcceptNothingAndReturnNothing"/>
-                    <exclude name="testAcceptNothingButReturnDate"/>
-                    <exclude name="testAcceptNothingButReturnString"/>
-                    <exclude name="testAcceptSomethingAndReturnSomething"/>
-                    <exclude name="testBalEnvFastAsync"/>
-                    <exclude name="testBalEnvFastAsyncVoidSig"/>
-                    <exclude name="testBalEnvSlowAsync"/>
-                    <exclude name="testBalEnvSlowAsyncVoidSig"/>
-                    <exclude name="testDecimalParamAndReturn"/>
-                    <exclude name="testFuncWithAsyncDefaultParamExpression"/>
-                    <exclude name="testInteropFunctionWithDifferentName"/>
-                    <exclude name="testJavaInteropFunctionThatAcceptsThreeParameters"/>
-                    <exclude name="testJavaInteropFunctionThatAcceptsTwoParameters"/>
-                    <exclude name="testMapValueOrErrorReturn"/>
-                    <exclude name="testReturnObjectValueOrError"/>
-                    <exclude name="testStaticResolve"/>
-                    <exclude name="testStringParamAndReturn"/>
-                    <exclude name="testTupleReturn"/>
-                    <exclude name="testUsingParamValues"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.action.start.StartActionTest">
                 <methods>
                     <exclude name="testStartActionNegative"/>
