@@ -87,6 +87,7 @@ type Foo4 record {
 };
 
 public type KeyValues record {|int[]...;|};
+public type Pairs record {|float[]...;|};
 
 function functionOfFunctionTypedParamWithIncludedRecordParam(*NewPerson person) returns string {
     return person.firstName + " " + person.secondName;
@@ -170,6 +171,10 @@ function functionOfFunctionTypedParamWithIncludedRecordParam20(*Bar2 bar) return
 
 function functionOfFunctionTypedParamWithIncludedRecordParam21(*KeyValues values) returns int[] {
     return <int[]>values["a"];
+}
+
+function functionOfFunctionTypedParamWithIncludedRecordParam22(*Pairs values) returns float[] {
+    return <float[]>values["a"];
 }
 
 function testFunctionOfFunctionTypedParamWithIncludedRecordParam() {
@@ -286,6 +291,12 @@ function testFunctionOfFunctionTypedParamWithIncludedRecordParam20() {
 function testFunctionOfFunctionTypedParamWithIncludedRecordParam21() {
     int[] x = [1, 2];
     int[] val = functionOfFunctionTypedParamWithIncludedRecordParam21(a = [1, 2]);
+    assertEquality(x, val);
+}
+
+function testFunctionOfFunctionTypedParamWithIncludedRecordParam22() {
+    float[] x = [1, 2];
+    float[] val = functionOfFunctionTypedParamWithIncludedRecordParam22(a = [1, 2]);
     assertEquality(x, val);
 }
 

@@ -5682,8 +5682,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (incRecordParamAllowAdditionalFields != null) {
             BRecordType incRecordType = (BRecordType) incRecordParamAllowAdditionalFields.type;
             checkExpr(expr, env, incRecordType.restFieldType);
-            LinkedHashMap<String, BField> fields = incRecordType.fields;
-            if (!fields.containsKey(argName.value)) {
+            if (!incRecordType.fields.containsKey(argName.value)) {
                 return new BVarSymbol(0, names.fromIdNode(argName), null, symTable.noType, null, argName.pos, VIRTUAL);
             }
         }
