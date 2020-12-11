@@ -2159,15 +2159,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         switch (kind) {
             case XML_TEMPLATE_EXPRESSION:
                 SyntaxKind contentKind = expressionNode.content().get(0).kind();
+                BLangNode expr;
                 switch (contentKind) {
                     case XML_COMMENT:
                     case XML_PI:
                     case XML_ELEMENT:
                     case XML_EMPTY_ELEMENT:
-                        return createExpression(expressionNode.content().get(0));
+                        expr = createExpression(expressionNode.content().get(0));
+                        break;
                     default:
-                        return createXMLLiteral(expressionNode);
+                        expr = createXMLLiteral(expressionNode);
+                        break;
                 }
+                expr.pos = getPosition(expressionNode);
+                return expr;
             case STRING_TEMPLATE_EXPRESSION:
                 return createStringTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             case RAW_TEMPLATE_EXPRESSION:
