@@ -508,6 +508,7 @@ public class CodeActionUtil {
                             return Optional.of(memberNode);
                         }
                     }
+                    return Optional.of(member);
                 }
             } else if (isWithinStartSegment && member.kind() == SyntaxKind.FUNCTION_DEFINITION) {
                 return Optional.of(member);
@@ -531,6 +532,7 @@ public class CodeActionUtil {
                             return Optional.of(memberNode);
                         }
                     }
+                    return Optional.of(member);
                 }
             } else if (member.kind() == SyntaxKind.CLASS_DEFINITION) {
                 if (isWithinStartSegment) {
@@ -546,6 +548,7 @@ public class CodeActionUtil {
                             return Optional.of(memberNode);
                         }
                     }
+                    return Optional.of(member);
                 }
             } else if (isWithinBody && member.kind() == SyntaxKind.IMPORT_DECLARATION) {
                 return Optional.of(member);
