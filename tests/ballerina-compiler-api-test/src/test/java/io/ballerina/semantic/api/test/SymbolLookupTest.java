@@ -140,21 +140,22 @@ public class SymbolLookupTest {
 
     @DataProvider(name = "PositionProvider3")
     public Object[][] getPositionsForTypedefs() {
-        List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes", "Person", "PersonObj");
+        List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes", "Person", "PersonObj",
+                                                 "Colour", "RED", "GREEN", "BLUE");
         return new Object[][]{
-                {18, 0, 6, moduleLevelSymbols},
+                {18, 0, 10, moduleLevelSymbols},
 //                {22, 20, 6, moduleLevelSymbols}, // TODO: Filter out field symbols
 //                {28, 22, 6, moduleLevelSymbols}, // TODO: Filter out field symbols
-                {30, 65, 14, getSymbolNames(moduleLevelSymbols, "parent", "pParent", "name", "pName", "age", "pAge",
+                {30, 65, 18, getSymbolNames(moduleLevelSymbols, "parent", "pParent", "name", "pName", "age", "pAge",
                                             "self", "init")},
-                {39, 8, 13, getSymbolNames(moduleLevelSymbols, "parent", "name", "age", "self", "getAge", "getName",
+                {39, 8, 17, getSymbolNames(moduleLevelSymbols, "parent", "name", "age", "self", "getAge", "getName",
                                            "init")},
-                {46, 9, 7, getSymbolNames(moduleLevelSymbols, "x")},
-                {48, 19, 7, getSymbolNames(moduleLevelSymbols, "x")},
+                {46, 9, 11, getSymbolNames(moduleLevelSymbols, "x")},
+                {48, 19, 11, getSymbolNames(moduleLevelSymbols, "x")},
                 // TODO: Fix filtering out 'person'
-                {50, 15, 8, getSymbolNames(moduleLevelSymbols, "x", "person")},
+                {50, 15, 12, getSymbolNames(moduleLevelSymbols, "x", "person")},
 //                {50, 16, 9, getSymbolNames(moduleLevelSymbols, "x", "person", "name", "age")},
-                {51, 0, 8, getSymbolNames(moduleLevelSymbols, "x", "person")},
+                {51, 0, 12, getSymbolNames(moduleLevelSymbols, "x", "person")},
 //                {52, 17, 11, getSymbolNames(moduleLevelSymbols, "x", "person", "p2", "name", "age")},
         };
     }

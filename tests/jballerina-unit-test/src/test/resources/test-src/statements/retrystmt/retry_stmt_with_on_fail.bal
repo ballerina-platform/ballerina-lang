@@ -1,3 +1,5 @@
+import ballerina/lang.'error as errors;
+
 public class MyRetryManager {
     private int count;
     public function init(int count = 3) {
@@ -183,7 +185,7 @@ function testRetryReturnVal() returns string {
 function testAppendOnFailError () returns string {
    string str = "";
    retry(3) {
-     error err = error("custom error", message = "error value");
+     error err = errors:Retriable("custom error", message = "error value");
      str += "-> Before failure throw";
      fail err;
    }

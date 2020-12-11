@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.common.utils;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Module;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -58,7 +59,6 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.createModuleID;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getModulePrefix;
 
 /**
@@ -131,22 +131,31 @@ public class FunctionGenerator {
      *
      * @param importsAcceptor imports acceptor
      * @param typeDescriptor  {@link BLangNode}
+     * @param context         {@link DocumentServiceContext}
      * @return return type signature
      */
     public static String generateTypeDefinition(ImportsAcceptor importsAcceptor,
                                                 TypeSymbol typeDescriptor, DocumentServiceContext context) {
-        return processModuleIDsInText(importsAcceptor, context, typeDescriptor.signature());
+        return processModuleIDsInText(importsAcceptor, typeDescriptor.signature(), context);
     }
 
-    private static String processModuleIDsInText(ImportsAcceptor importsAcceptor, DocumentServiceContext context,
-                                                 String text) {
+    /**
+     * Returns imports processed of the type text.
+     *
+     * @param importsAcceptor imports acceptor
+     * @param text            generated type text
+     * @param context         {@link DocumentServiceContext}
+     * @return return type signature
+     */
+    public static String processModuleIDsInText(ImportsAcceptor importsAcceptor, String text,
+                                                DocumentServiceContext context) {
         Module module = context.workspace().module(context.filePath()).orElseThrow();
         String currentOrg = module.packageInstance().descriptor().org().value();
         String currentModule = module.descriptor().name().packageName().value();
         String currentVersion = module.packageInstance().descriptor().version().value().toString();
 
         StringBuilder newText = new StringBuilder();
-        ModuleID currentModuleID = createModuleID(currentOrg, currentModule, currentVersion);
+        ModuleID currentModuleID = CodeActionModuleId.from(currentOrg, currentModule, currentVersion);
         Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(text);
         int nextStart = 0;
         // Matching Fully-Qualified-Module-IDs (eg.`abc/mod1:1.0.0`)
@@ -156,7 +165,7 @@ public class FunctionGenerator {
             // Append up-to start of the match
             newText.append(text, nextStart, matcher.start(1));
             // Append module prefix(empty when in same module) and identify imports
-            ModuleID moduleID = createModuleID(matcher.group(1), matcher.group(2), matcher.group(3));
+            ModuleID moduleID = CodeActionModuleId.from(matcher.group(1), matcher.group(2), matcher.group(3));
             newText.append(getModulePrefix(importsAcceptor, currentModuleID, moduleID, context));
             // Update next-start position
             nextStart = matcher.end(3) + 1;

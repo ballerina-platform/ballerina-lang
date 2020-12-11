@@ -43,7 +43,9 @@ public interface LSCodeActionProvider {
      *
      * @return True if code action is enabled, False otherwise
      */
-    boolean isEnabled();
+    default boolean isEnabled() {
+        return true;
+    }
 
     /**
      * Returns the list of code actions based on node type or diagnostics.

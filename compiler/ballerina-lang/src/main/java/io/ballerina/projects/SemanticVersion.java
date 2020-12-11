@@ -17,9 +17,11 @@
  */
 package io.ballerina.projects;
 
+import com.github.zafarkhaja.semver.ParseException;
+import com.github.zafarkhaja.semver.UnexpectedCharacterException;
+import com.github.zafarkhaja.semver.Version;
+
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Represents a semantic version according to the semvar specification.
@@ -27,105 +29,118 @@ import java.util.regex.Pattern;
  * @since 2.0.0
  */
 public class SemanticVersion {
-    private static final Pattern pattern = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.)?(\\d*)");
-    private final int major;
-    private final int minor;
-    private final int patch;
+    private final Version version;
 
-    public SemanticVersion(int major, int minor, int patch) {
-        this.major = major;
-        this.minor = minor;
-        this.patch = patch;
-    }
-
-    public static SemanticVersion from(int major, int minor, int patch) {
-        return new SemanticVersion(major, minor, patch);
+    private SemanticVersion(Version version) {
+        this.version = version;
     }
 
     public static SemanticVersion from(String versionString) {
-        Matcher matcher = pattern.matcher(versionString);
-        if (!matcher.matches()) {
-            // TODO Proper error handling
-            throw new ProjectException("Specified version: '" + versionString + "' is not semvar compatible");
+        try {
+            Version v = Version.valueOf(versionString);
+            return new SemanticVersion(v);
+        } catch (IllegalArgumentException e) {
+            throw new ProjectException("Version cannot be empty");
+        } catch (UnexpectedCharacterException e) {
+            throw new ProjectException("Invalid version: '" + versionString + "'. " + e.toString());
+        } catch (ParseException e) {
+            throw new ProjectException("Invalid version: '" + versionString + "'. " + e.toString());
         }
-
-        int major = Integer.parseInt(matcher.group(1));
-        int minor = Integer.parseInt(matcher.group(2));
-        String patchStr = matcher.group(3);
-        int patch = (patchStr != null && !patchStr.isEmpty()) ? Integer.parseInt(patchStr) : 0;
-        return SemanticVersion.from(major, minor, patch);
     }
 
     public int major() {
-        return major;
+        return version.getMajorVersion();
     }
 
     public int minor() {
-        return minor;
+        return version.getMinorVersion();
     }
 
     public int patch() {
-        return patch;
+        return version.getPatchVersion();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
+    public String preReleasePart() {
+        return version.getPreReleaseVersion();
+    }
 
-        if (o == null || getClass() != o.getClass()) {
+    public String buildMetadata() {
+        return version.getBuildMetadata();
+    }
+
+    public boolean isStable() {
+        if (this.major() == 0) {
             return false;
         }
 
-        SemanticVersion that = (SemanticVersion) o;
-        return major == that.major &&
-                minor == that.minor &&
-                patch == that.patch;
+        String preReleaseComp = version.getPreReleaseVersion();
+        return preReleaseComp == null || preReleaseComp.trim().isEmpty();
+    }
+
+    public boolean greaterThan(SemanticVersion other) {
+        return this.version.greaterThan(other.version);
+    }
+
+    public boolean greaterThanOrEqualTo(SemanticVersion other) {
+        return this.version.greaterThanOrEqualTo(other.version);
+    }
+
+    public boolean lessThan(SemanticVersion other) {
+        return this.version.lessThan(other.version);
+    }
+
+    public boolean lessThanOrEqualTo(SemanticVersion other) {
+        return this.version.lessThanOrEqualTo(other.version);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+
+        SemanticVersion otherSemVer = (SemanticVersion) other;
+        return version.equals(otherSemVer.version);
     }
 
     @Override
     public String toString() {
-        return major + "." + minor + "." + patch;
+        return version.toString();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(major, minor, patch);
+        return version.hashCode();
     }
 
     public VersionCompatibilityResult compareTo(SemanticVersion other) {
         Objects.requireNonNull(other);
 
-        if (this.major == other.major && this.minor == other.minor && this.patch == other.patch) {
+        if (this.equals(other)) {
             return VersionCompatibilityResult.EQUAL;
         }
 
-        // Versions cannot be equal from this point onwards
-        if (this.major == 0 && other.major == 0) {
+        // Eliminate initial versions, pre-release and build metadata
+        if (!this.isStable() || !other.isStable()) {
             return VersionCompatibilityResult.INCOMPATIBLE;
         }
 
-        if (this.major == 0 || other.major == 0) {
+        if (this.major() != other.major()) {
             return VersionCompatibilityResult.INCOMPATIBLE;
         }
 
-        // We've eliminated initial versions now.
-        if (this.major == other.major && this.minor == other.minor) {
-            return this.patch < other.patch ?
-                    VersionCompatibilityResult.LESS_THAN :
-                    VersionCompatibilityResult.GREATER_THAN;
+        // We've eliminated initial versions and versions with different major component.
+        // Now we just need to check minor, patch and pre-release components.
+        int result = this.version.compareTo(other.version);
+        if (result < 0) {
+            return VersionCompatibilityResult.LESS_THAN;
+        } else {
+            return VersionCompatibilityResult.GREATER_THAN;
         }
-
-        if (this.major == other.major) {
-            return this.minor < other.minor ?
-                    VersionCompatibilityResult.LESS_THAN :
-                    VersionCompatibilityResult.GREATER_THAN;
-        }
-
-        return this.major < other.major ?
-                VersionCompatibilityResult.LESS_THAN :
-                VersionCompatibilityResult.GREATER_THAN;
     }
 
     /**

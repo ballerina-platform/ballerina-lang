@@ -31,4 +31,5 @@ module io.ballerina.language.server.core {
     requires org.slf4j;
     requires gson;
     requires com.google.common;
+    requires io.ballerina.diagram.util;
 }

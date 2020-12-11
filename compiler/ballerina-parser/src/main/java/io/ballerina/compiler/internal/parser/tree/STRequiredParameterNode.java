@@ -32,57 +32,73 @@ import java.util.Collections;
  */
 public class STRequiredParameterNode extends STParameterNode {
     public final STNode annotations;
+    public final STNode asteriskToken;
     public final STNode typeName;
     public final STNode paramName;
 
     STRequiredParameterNode(
+            SyntaxKind kind,
             STNode annotations,
+            STNode asteriskToken,
             STNode typeName,
             STNode paramName) {
         this(
+                kind,
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName,
                 Collections.emptyList());
     }
 
     STRequiredParameterNode(
+            SyntaxKind kind,
             STNode annotations,
+            STNode asteriskToken,
             STNode typeName,
             STNode paramName,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.REQUIRED_PARAM, diagnostics);
+        super(kind, diagnostics);
         this.annotations = annotations;
+        this.asteriskToken = asteriskToken;
         this.typeName = typeName;
         this.paramName = paramName;
 
         addChildren(
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRequiredParameterNode(
+                this.kind,
                 this.annotations,
+                this.asteriskToken,
                 this.typeName,
                 this.paramName,
                 diagnostics);
     }
 
     public STRequiredParameterNode modify(
+            SyntaxKind kind,
             STNode annotations,
+            STNode asteriskToken,
             STNode typeName,
             STNode paramName) {
         if (checkForReferenceEquality(
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName)) {
             return this;
         }
 
         return new STRequiredParameterNode(
+                kind,
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName,
                 diagnostics);
