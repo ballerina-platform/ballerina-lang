@@ -152,11 +152,12 @@ public class BUnionType extends BType implements UnionType {
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
 
-        if (types.isEmpty()) {
-            return new BUnionType(tsymbol, memberTypes, false, false);
-        }
-
         boolean isImmutable = true;
+        boolean hasNilableType = false;
+
+        if (types.isEmpty()) {
+            return new BUnionType(tsymbol, memberTypes, hasNilableType, isImmutable);
+        }
 
         for (BType memBType : toFlatTypeSet(types)) {
             if (memBType.tag != TypeTags.NEVER) {
@@ -168,7 +169,6 @@ public class BUnionType extends BType implements UnionType {
             }
         }
 
-        boolean hasNilableType = false;
         for (BType memberType : memberTypes) {
             if (memberType.isNullable() && memberType.tag != TypeTags.NIL) {
                 hasNilableType = true;
