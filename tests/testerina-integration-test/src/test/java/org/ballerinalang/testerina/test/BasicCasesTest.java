@@ -93,7 +93,7 @@ public class BasicCasesTest extends BaseTestCase {
 
     @Test
     public void testAnnotationAccess() throws BallerinaTestException {
-        String msg = "3 passing";
+        String msg = "4 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"annotation-access"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);

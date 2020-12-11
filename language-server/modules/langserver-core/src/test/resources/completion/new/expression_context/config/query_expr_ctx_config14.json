@@ -300,6 +300,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "transactional",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -386,7 +393,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` c  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "doTask(${1});",
+      "insertText": "doTask(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -403,7 +410,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "testFunction();",
+      "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
     {

@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.util;
 
+import io.ballerina.cli.utils.JarFileWriter;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
@@ -25,7 +26,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;

@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 8,
+    "character": 11
+  },
+  "source": "service_decl/source/source9.bal",
+  "items": [
+    {
+      "label": "on",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "on ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

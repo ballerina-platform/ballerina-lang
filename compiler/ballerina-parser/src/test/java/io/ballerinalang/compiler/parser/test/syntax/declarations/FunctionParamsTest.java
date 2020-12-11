@@ -66,4 +66,34 @@ public class FunctionParamsTest extends AbstractDeclarationTest {
     public void testMoreParamsAfterRestParam() {
         test("func-definition/func_params_source_07.bal", "func-definition/func_params_assert_07.json");
     }
+
+    @Test
+    public void testIncludedRecordParam() {
+        test("func-definition/func_params_source_09.bal", "func-definition/func_params_assert_09.json");
+    }
+
+    @Test
+    public void testIncludedRecordParamWithDefaultValues() {
+        test("func-definition/func_params_source_10.bal", "func-definition/func_params_assert_10.json");
+    }
+
+    @Test
+    public void testIncludedRecordParamWithAdditionalTokenAfterAsterisk() {
+        test("func-definition/func_params_source_11.bal", "func-definition/func_params_assert_11.json");
+    }
+
+    @Test
+    public void testIncludedRecordParamWithAdditionalTokenBeforeAsterisk() {
+        test("func-definition/func_params_source_12.bal", "func-definition/func_params_assert_12.json");
+    }
+
+    @Test
+    public void testIncludedRecordParamWithMissingIdentifier() {
+        test("func-definition/func_params_source_13.bal", "func-definition/func_params_assert_13.json");
+    }
+
+    @Test
+    public void testIncludedRecordParamWithMissingIdentifierAndTypedesc() {
+        test("func-definition/func_params_source_14.bal", "func-definition/func_params_assert_14.json");
+    }
 }

@@ -540,12 +540,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createRequiredParameterNode(
+            SyntaxKind kind,
             STNode annotations,
+            STNode asteriskToken,
             STNode typeName,
             STNode paramName) {
 
         return new STRequiredParameterNode(
+                kind,
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName);
     }
@@ -1700,26 +1704,22 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createListBindingPatternNode(
             STNode openBracket,
             STNode bindingPatterns,
-            STNode restBindingPattern,
             STNode closeBracket) {
 
         return new STListBindingPatternNode(
                 openBracket,
                 bindingPatterns,
-                restBindingPattern,
                 closeBracket);
     }
 
     public static STNode createMappingBindingPatternNode(
             STNode openBrace,
             STNode fieldBindingPatterns,
-            STNode restBindingPattern,
             STNode closeBrace) {
 
         return new STMappingBindingPatternNode(
                 openBrace,
                 fieldBindingPatterns,
-                restBindingPattern,
                 closeBrace);
     }
 

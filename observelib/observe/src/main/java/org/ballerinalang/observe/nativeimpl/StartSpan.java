@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.observability.ObservabilityConstants;
 
 /**
  * This function which implements the startSpan method for observe.
@@ -38,7 +37,6 @@ public class StartSpan {
         } else {
             long spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(
                     env,
-                    (String) env.getStrandLocal(ObservabilityConstants.SERVICE_NAME),
                     spanName.getValue(),
                     Utils.toStringMap((BMap<BString, ?>) tags), parentSpanId);
             if (spanId == -1) {

@@ -144,5 +144,13 @@ public enum Flag {
     /**
      * Indicates flagged node is a object constructor.
      */
-    OBJECT_CTOR;
+    OBJECT_CTOR,
+    /**
+     * Indicates flagged node is an enum.
+     */
+    ENUM,
+    /**
+     * Indicates flagged parameter is a included record parameter.
+     */
+    INCLUDED;
 }

@@ -54,37 +54,7 @@ public class CodeActionProvidersHolder {
         for (LSCodeActionProvider provider : serviceLoader) {
             if (provider.isNodeBasedSupported()) {
                 for (CodeActionNodeType nodeType : provider.getCodeActionNodeTypes()) {
-                    switch (nodeType) {
-                        case IMPORTS:
-                            nodeBasedProviders.get(CodeActionNodeType.IMPORTS).add(provider);
-                            break;
-                        case FUNCTION:
-                            nodeBasedProviders.get(CodeActionNodeType.FUNCTION).add(provider);
-                            break;
-                        case OBJECT:
-                            nodeBasedProviders.get(CodeActionNodeType.OBJECT).add(provider);
-                            break;
-                        case CLASS:
-                            nodeBasedProviders.get(CodeActionNodeType.CLASS).add(provider);
-                            break;
-                        case SERVICE:
-                            nodeBasedProviders.get(CodeActionNodeType.SERVICE).add(provider);
-                            break;
-                        case RECORD:
-                            nodeBasedProviders.get(CodeActionNodeType.RECORD).add(provider);
-                            break;
-                        case RESOURCE:
-                            nodeBasedProviders.get(CodeActionNodeType.RESOURCE).add(provider);
-                            break;
-                        case OBJECT_FUNCTION:
-                            nodeBasedProviders.get(CodeActionNodeType.OBJECT_FUNCTION).add(provider);
-                            break;
-                        case CLASS_FUNCTION:
-                            nodeBasedProviders.get(CodeActionNodeType.CLASS_FUNCTION).add(provider);
-                            break;
-                        default:
-                            break;
-                    }
+                    nodeBasedProviders.get(nodeType).add(provider);
                 }
             }
             if (provider.isDiagBasedSupported()) {

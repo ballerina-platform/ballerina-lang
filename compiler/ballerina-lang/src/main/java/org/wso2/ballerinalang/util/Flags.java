@@ -70,8 +70,13 @@ public class Flags {
     public static final long CONFIGURABLE = ISOLATED_PARAM << 1;                //  31
     public static final long OBJECT_CTOR = CONFIGURABLE << 1;                   //  32
 
-    public static int asMask(Set<Flag> flagSet) {
-        int mask = 0;
+
+    public static final long ENUM = OBJECT_CTOR << 1;                           //  33
+    public static final long INCLUDED = ENUM << 1;                              //  34
+
+
+    public static long asMask(Set<Flag> flagSet) {
+        long mask = 0;
         for (Flag flag : flagSet) {
             switch (flag) {
                 case PUBLIC:
@@ -163,6 +168,12 @@ public class Flags {
                     break;
                 case OBJECT_CTOR:
                     mask |= OBJECT_CTOR;
+                    break;
+                case ENUM:
+                    mask |= ENUM;
+                    break;
+                case INCLUDED:
+                    mask |= INCLUDED;
                     break;
             }
         }
@@ -257,6 +268,12 @@ public class Flags {
                     break;
                 case OBJECT_CTOR:
                     flagVal = OBJECT_CTOR;
+                    break;
+                case ENUM:
+                    flagVal = ENUM;
+                    break;
+                case INCLUDED:
+                    flagVal = INCLUDED;
                     break;
                 default:
                     continue;
