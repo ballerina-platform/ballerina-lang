@@ -85,4 +85,15 @@ public class BServiceType extends BObjectType implements ServiceType {
     public int getTag() {
         return TypeTags.SERVICE_TAG;
     }
+
+    @Override
+    BObjectType cloneThis() {
+        BServiceType type = new BServiceType(this.typeName, this.pkg, this.flags);
+        type.setFields(fields);
+        type.setMemberFunctionTypes(getMemberFunctionTypes());
+        type.immutableType = this.immutableType;
+        type.typeIdSet = this.typeIdSet;
+        type.setResourceFunctions(resourceFunctions);
+        return type;
+    }
 }

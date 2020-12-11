@@ -1626,7 +1626,6 @@ public class JvmInstructionGen {
 
     private void reloadObjectCtorAnnots(BType type, PackageID packageID, int strandIndex) {
         if ((type.flags & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR) {
-            this.mv.visitInsn(DUP);
             this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
 
             String pkgClassName = currentPackageName.equals(".") || currentPackageName.equals("") ?
@@ -1635,8 +1634,8 @@ public class JvmInstructionGen {
 
             this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
             mv.visitVarInsn(ALOAD, strandIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "processObjectCtorAnnots",
-                    String.format("(L%s;L%s;)V", MAP_VALUE, STRAND_CLASS), false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "duplicateTypeAndprocessObjectCtorAnnots",
+                    String.format("(L%s;L%s;)L%s;", MAP_VALUE, STRAND_CLASS, OBJECT_TYPE_IMPL), false);
         }
     }
 

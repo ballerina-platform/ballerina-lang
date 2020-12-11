@@ -45,7 +45,7 @@ public class BObjectType extends BStructureType implements ObjectType {
     public MemberFunctionType generatedInitializer;
 
     private final boolean readonly;
-    private IntersectionType immutableType;
+    protected IntersectionType immutableType;
     public BTypeIdSet typeIdSet;
 
     /**
@@ -136,8 +136,19 @@ public class BObjectType extends BStructureType implements ObjectType {
         this.typeIdSet = typeIdSet;
     }
 
-    public void processObjectCtorAnnots(MapValue globalAnnotationMap, Strand strand) {
-        AnnotationUtils.processObjectCtorAnnotations(globalAnnotationMap, this, strand);
+    public BObjectType duplicateTypeAndprocessObjectCtorAnnots(MapValue globalAnnotationMap, Strand strand) {
+        BObjectType clone = cloneThis();
+        AnnotationUtils.processObjectCtorAnnotations(globalAnnotationMap, clone, strand);
+        return clone;
+    }
+
+    BObjectType cloneThis() {
+        BObjectType type = new BObjectType(this.typeName, this.pkg, this.flags);
+        type.setFields(fields);
+        type.setMemberFunctionTypes(memberFunctionTypes);
+        type.immutableType = this.immutableType;
+        type.typeIdSet = this.typeIdSet;
+        return type;
     }
 
     public boolean hasAnnotations() {
