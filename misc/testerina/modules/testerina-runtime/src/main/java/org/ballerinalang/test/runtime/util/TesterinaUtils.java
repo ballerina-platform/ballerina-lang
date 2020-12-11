@@ -198,12 +198,38 @@ public class TesterinaUtils {
     /**
      * Provides the updated test functions for single Execution after adding the dependent tests.
      *
-     * @param currentTests the tests available in current test suite
-     * @param functions    the list of test functions provided by user
+     * @param suite         current test suite
+     * @param functions     the list of test functions provided by user
      * @return updated list of test functions
      */
-    public static List<Test> getSingleExecutionTests(List<Test> currentTests, List<String> functions) {
-        List<String> updatedFunctionList = getUpdatedFunctionList(currentTests, functions);
+    public static List<Test> getSingleExecutionTests(TestSuite suite, List<String> functions) {
+        List<String> filteredList = new ArrayList<>();
+
+        // Go through each function in the functionsList
+        for (String function : functions) {
+            if (function.contains(":")) {
+                String[] functionDetail = function.split(":");
+
+                if (functionDetail[0].equals(suite.getPackageID())) {
+                    if (functionDetail[1].equals(TesterinaConstants.WILDCARD)) {
+                        handleWildCard(filteredList, suite.getTests());
+                    } else if (functionDetail[1].endsWith(TesterinaConstants.WILDCARD)) {
+                        handleEndingWithWildCard(filteredList, suite.getTests(), functionDetail[1]);
+                    } else {
+                        filteredList.add(functionDetail[1]);
+                    }
+                }
+            } else {
+                if (function.endsWith(TesterinaConstants.WILDCARD)) {
+                    handleEndingWithWildCard(filteredList, suite.getTests(), function);
+                } else {
+                    filteredList.add(function);
+                }
+            }
+        }
+
+        List<Test> currentTests = suite.getTests();
+        List<String> updatedFunctionList = getUpdatedFunctionList(currentTests, filteredList);
         List<Test> updatedTestList = new ArrayList<>();
         for (Test test : currentTests) {
             if (updatedFunctionList.contains(test.getTestName())) {
@@ -211,6 +237,21 @@ public class TesterinaUtils {
             }
         }
         return updatedTestList;
+    }
+
+    private static void handleWildCard(List<String> filteredList, List<Test> suiteTests) {
+        for (Test test : suiteTests) {
+            filteredList.add(test.getTestName());
+        }
+    }
+
+    private static void handleEndingWithWildCard(List<String> filteredList, List<Test> suiteTests, String function) {
+        String fn = function.replace(TesterinaConstants.WILDCARD, "");
+        for (Test test : suiteTests) {
+            if (test.getTestName().startsWith(fn)) {
+                filteredList.add(test.getTestName());
+            }
+        }
     }
 
     public static List<org.ballerinalang.test.runtime.entity.Test> getSingleExecutionTestsOld(

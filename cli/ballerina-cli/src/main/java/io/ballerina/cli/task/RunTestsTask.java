@@ -176,13 +176,13 @@ public class RunTestsTask implements Task {
                     out.println();
                     out.println("\t" + moduleName.toString());
                 }
-                out.println("\t" + "No tests found");
+                out.println("\t" + "    No tests found here");
                 continue;
             } else if (isRerunTestExecution && suite.getTests().isEmpty()) {
-                out.println("\t" + "No failed test/s found in cache");
+                out.println("\t" + "    No failed test/s found in cache");
                 continue;
             } else if (isSingleTestExecution && suite.getTests().isEmpty()) {
-                out.println("\t" + "No tests found with the given name/s");
+                out.println("\t" + "    No tests found with the given name/s");
                 continue;
             }
             //Set 'hasTests' flag if there are any tests available in the package
@@ -194,9 +194,11 @@ public class RunTestsTask implements Task {
                 singleExecTests = readFailedTestsFromFile(target.path());
             }
 
+            // Check if the suite contains information regarding the module
             if (isSingleTestExecution || isRerunTestExecution) {
-                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
+                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
             }
+
             suite.setReportRequired(report || coverage);
             Collection<Path> dependencies = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
