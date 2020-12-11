@@ -254,18 +254,6 @@
                     <exclude name="inFunctionGlobalReferenceCauseCycle"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest">
-                <methods>
-                    <exclude name="testCreatingRecordWithOverriddenFields"/>
-                    <exclude name="testDefaultValueInit"/>
-                    <exclude name="testDefaultValueInitInBALOs"/>
-                    <exclude name="testOrdering"/>
-                    <exclude name="testRefTypes"/>
-                    <exclude name="testReferenceChains"/>
-                    <exclude name="testTypeReferencingInBALOs"/>
-                    <exclude name="testValRefType"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.lock.FieldLockTest">
                 <methods>
                     <exclude name="testLockInAttachedFunc"/>
