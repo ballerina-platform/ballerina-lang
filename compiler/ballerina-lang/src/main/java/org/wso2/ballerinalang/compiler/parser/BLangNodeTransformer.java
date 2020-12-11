@@ -1039,10 +1039,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     }
                 } else {
                     objectTypeNode.addFunction(bLangFunction);
-                    if (bLangFunction.flagSet.contains(Flag.REMOTE) && objectTypeNode.flagSet.contains(SERVICE)) {
-                        dlog.error(bLangFunction.pos,
-                                DiagnosticErrorCode.SERVICE_OBJECT_TYPE_DEF_DOES_NOT_ALLOW_REMOTE_FUNC);
-                    }
                 }
             } else if (bLangNode.getKind() == NodeKind.RESOURCE_FUNC) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;

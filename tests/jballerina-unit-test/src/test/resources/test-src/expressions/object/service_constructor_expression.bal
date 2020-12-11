@@ -18,7 +18,6 @@ import ballerina/java;
 
 public type S service object {
     remote function foo();
-    resource function get bar() returns int;
 };
 
 function testServiceCtor() {

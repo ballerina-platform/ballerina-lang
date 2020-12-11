@@ -1362,8 +1362,8 @@ public class Types {
                 continue;
             }
 
-            // Service remote and resource methods are not considered as part of service objects type.
-            if (isLhsAService && (Symbols.isResource(lhsFunc.symbol) || Symbols.isRemote(lhsFunc.symbol))) {
+            // Service resource methods are not considered as part of service objects type.
+            if (isLhsAService && Symbols.isResource(lhsFunc.symbol)) {
                 continue;
             }
 

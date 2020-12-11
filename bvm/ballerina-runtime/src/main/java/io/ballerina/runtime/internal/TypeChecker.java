@@ -1634,11 +1634,10 @@ public class TypeChecker {
                                                         String targetTypeModule, String sourceTypeModule,
                                                         BObjectType sourceType, BObjectType targetType) {
         for (MemberFunctionType lhsFunc : targetFuncs) {
-            if (SymbolFlags.isFlagOn(targetType.getFlags(), SymbolFlags.SERVICE)) {
-                if (SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.RESOURCE)
-                        || SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.REMOTE)) {
-                    continue;
-                }
+            // As of state-2 of service typing changes, resource functions are not considered for sub-typing.
+            if (SymbolFlags.isFlagOn(targetType.getFlags(), SymbolFlags.SERVICE)
+                    && SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.RESOURCE)) {
+                continue;
             }
 
             MemberFunctionType rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);

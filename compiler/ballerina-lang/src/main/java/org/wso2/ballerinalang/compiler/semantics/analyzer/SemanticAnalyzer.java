@@ -3408,9 +3408,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // Service typing does not consider remote and resource methods when type checking.
-        if (Symbols.isService(func.symbol.receiverSymbol)
-                && (Symbols.isRemote(func.symbol) || Symbols.isResource(func.symbol))) {
+        // Service typing does not consider resource methods when type checking.
+        if (Symbols.isService(func.symbol.receiverSymbol) && Symbols.isResource(func.symbol)) {
             return;
         }
 

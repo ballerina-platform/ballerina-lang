@@ -76,7 +76,6 @@ function reset() = @java:Method {
 listener Listener lsn = new();
 
 type S service object {
-    resource function get processRequest() returns json;
 };
 
 service S / on lsn {
