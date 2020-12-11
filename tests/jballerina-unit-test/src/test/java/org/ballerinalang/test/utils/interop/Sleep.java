@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.javainterop.utils;
+package org.ballerinalang.test.utils.interop;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;

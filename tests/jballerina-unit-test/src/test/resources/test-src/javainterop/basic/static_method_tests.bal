@@ -288,6 +288,6 @@ function getValue() returns MyType = @java:Method {
 
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.javainterop.utils.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
 } external;
 

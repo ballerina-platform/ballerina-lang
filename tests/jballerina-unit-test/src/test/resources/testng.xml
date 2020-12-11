@@ -233,27 +233,6 @@
 
             <!-- Disabled tests related to ProjectAPI change -->
             <!-- ########################## START ############################# -->
-            <class name="org.ballerinalang.test.worker.WorkerSyncSendTest">
-                <methods>
-                    <exclude name="basicSyncSendTest"/>
-                    <exclude name="errorAfterSendTest"/>
-                    <exclude name="errorResultWithMultipleWorkers"/>
-                    <exclude name="multiWorkerTest"/>
-                    <exclude name="multipleSendsToErroredWorker"/>
-                    <exclude name="multipleSyncSendTest"/>
-                    <exclude name="multipleSyncSendWithPanic"/>
-                    <exclude name="multipleSyncSendWithPanicInSend"/>
-                    <exclude name="nilReturnTest"/>
-                    <exclude name="panicAfterSendTest"/>
-                    <exclude name="panicWithMultipleSendStmtsTest"/>
-                    <exclude name="simpleSyncSendTest"/>
-                    <exclude name="syncSendWithPanicInReceive"/>
-                    <exclude name="testComplexTypeSend"/>
-                    <exclude name="testFailureForReceiveWithError"/>
-                    <exclude name="testNoFailureForReceiveWithError"/>
-                    <exclude name="testSyncSendAfterSend"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.action.start.StartActionTest">
                 <methods>
                     <exclude name="testStartActionNegative"/>
