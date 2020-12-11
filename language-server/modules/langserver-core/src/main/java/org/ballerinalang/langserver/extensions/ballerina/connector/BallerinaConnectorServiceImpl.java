@@ -18,19 +18,12 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
-import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.moandjiezana.toml.Toml;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -43,6 +36,19 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
+import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.diagramutil.DiagramUtil;
+import org.ballerinalang.langserver.LSGlobalContext;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.exception.LSConnectorException;
+import org.ballerinalang.model.elements.PackageID;
+import org.eclipse.lsp4j.Position;
+import org.wso2.ballerinalang.compiler.packaging.Patten;
+import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -59,24 +65,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.compiler.CompilerOptionName;
-import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.diagramutil.DiagramUtil;
-import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.exception.LSConnectorException;
-import org.ballerinalang.model.elements.PackageID;
-import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
-import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+
+import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 
 /**
  * Implementation of the BallerinaConnectorService.
@@ -119,7 +109,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         Path baloPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module).
                 resolve(version.isEmpty() ?
                         ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version).
-                resolve(String.format("%s-%s-any-%s%s", org, module, version, ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT));
+                resolve(String.format("%s-%s-any-%s%s", org, module, version,
+                        ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT));
         if (!Files.exists(baloPath.toAbsolutePath())) {
             //check external modules
             PackageID packageID = new PackageID(new Name(org), new Name(module), new Name(version));
@@ -130,7 +121,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             if (path.isPresent() && Files.exists(path.get().toAbsolutePath())) {
                 baloPath = path.get().toAbsolutePath();
             } else {
-                throw new LSConnectorException("No file exist in '" + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT + path.get().toAbsolutePath() + "'");
+                throw new LSConnectorException("No file exist in '" + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT
+                        + path.get().toAbsolutePath() + "'");
             }
         }
         return baloPath;
@@ -153,10 +145,9 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
                 ModuleId moduleId = baloProject.currentPackage().moduleIds().stream().findFirst().get();
                 Module module = baloProject.currentPackage().module(moduleId);
-                SemanticModel semanticModel = module.getCompilation().getSemanticModel(); // get the semantic model for the module
-                // todo : use module1 from the to test out the semantic model stuff
+                SemanticModel semanticModel = module.getCompilation().getSemanticModel();
 
-                ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel); // check what type nodes are coming here and fix the visitor based on that
+                ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
                 module.documentIds().forEach(documentId -> {
                     module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor);
                 });
@@ -168,15 +159,16 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 List<ClassDefinitionNode> connectorNodes = connectorNodeVisitor.getConnectors();
 
                 connectorNodes.forEach(connector -> {
-                    // todo : preserve the existing logic add the information to the typeData element of the syntax tree JSON and send to front end
+                    // todo : preserve the existing logic add the information to the typeData element of
+                    //  the syntax tree JSON and send to front end
                     Map<String, JsonElement> connectorRecords = new HashMap<>();
 
                     for (Node child : connector.members()) {
                         if (child.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
                             FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) child;
-                            // function params go brrr
                             functionDefinitionNode.functionSignature().parameters().forEach(parameterNode -> {
-                                populateConnectorFunctionParamRecords(parameterNode, semanticModel, jsonRecords, connectorRecords);
+                                populateConnectorFunctionParamRecords(parameterNode, semanticModel, jsonRecords,
+                                        connectorRecords);
                             });
                         }
                     }
@@ -246,7 +238,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     private void populateConnectorRecords(TypeDefinitionNode recordTypeDefinition, SemanticModel semanticModel,
                                           Map<String, TypeDefinitionNode> jsonRecords,
                                           Map<String, JsonElement> connectorRecords) {
-        RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) recordTypeDefinition.typeDescriptor();
+        RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) recordTypeDefinition
+                                                                                            .typeDescriptor();
 
         recordTypeDescriptorNode.fields().forEach(field -> {
             Optional<TypeSymbol> fieldType = semanticModel.type(field.syntaxTree().filePath(), field.lineRange());
@@ -289,7 +282,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 SemanticModel semanticModel = module.getCompilation().getSemanticModel();
 
                 Map<String, JsonElement> recordDefJsonMap = new HashMap<>();
-                ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel); // check what type nodes are coming here and fix the visitor based on that
+                ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
                 module.documentIds().forEach(documentId -> {
                     module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor);
                 });
@@ -298,15 +291,16 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 TypeDefinitionNode recordNode = null;
                 JsonElement recordJson = null;
 
-                for (Map.Entry<String, TypeDefinitionNode> recordEntry: connectorNodeVisitor.getRecords().entrySet()) {
+                for (Map.Entry<String, TypeDefinitionNode> recordEntry
+                        : connectorNodeVisitor.getRecords().entrySet()) {
                     String key = recordEntry.getKey();
                     TypeDefinitionNode record = recordEntry.getValue();
 
                     JsonElement jsonST = DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel);
 
                     if (record.typeName().text().equals(request.getName())) {
-                       recordNode = record;
-                       recordJson = jsonST;
+                        recordNode = record;
+                        recordJson = jsonST;
                     } else {
                         recordDefJsonMap.put(key, jsonST);
                     }
@@ -353,22 +347,5 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             }
             return toml.to(BallerinaConnectorsResponse.class);
         }
-    }
-
-    private CompilerContext createNewCompilerContext(String projectDir) {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, projectDir);
-        options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
-        options.put(PRESERVE_WHITESPACE, Boolean.toString(false));
-        options.put(OFFLINE, Boolean.toString(true));
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(true));
-        context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(projectDir)));
-        return context;
-    }
-
-    private TypeSymbol getRawType(TypeSymbol typeDescriptor) {
-        return typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE
-                ? ((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor() : typeDescriptor;
     }
 }
