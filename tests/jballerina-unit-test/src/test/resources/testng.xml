@@ -247,16 +247,6 @@
                     <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.object.ObjectTest">
-                <methods>
-                    <exclude name="testObjectAttachFuncReturningTuple"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.types.constant.ConstantAssignmentTest">
-                <methods>
-                    <exclude name="testConstantAssignmentExpression"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.lock.LocksInMainTest">
                 <methods>
                     <exclude name="testBreakInsideLock"/>
