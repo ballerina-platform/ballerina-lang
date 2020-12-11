@@ -1510,18 +1510,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // If a terminator statement has not been set for the then-block then just add it.
         if (this.env.enclBB.terminator == null) {
-            if (astIfStmt.body.pos != null) {
-                Location newLocation = new BLangDiagnosticLocation(
-                        astIfStmt.body.pos.lineRange().filePath(),
-                        astIfStmt.body.pos.lineRange().endLine().line(),
-                        astIfStmt.body.pos.lineRange().endLine().line(),
-                        astIfStmt.body.pos.lineRange().endLine().offset(),
-                        astIfStmt.body.pos.lineRange().endLine().offset());
-
-                this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, nextBB);
-            } else {
-                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB);
-            }
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB);
         }
 
         // Check whether there exists an else-if or an else block.
