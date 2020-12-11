@@ -36,9 +36,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
-import static io.ballerina.compiler.api.symbols.SymbolKind.WORKER;
 import static io.ballerina.tools.text.LinePosition.from;
 import static java.util.List.of;
 import static org.testng.Assert.assertEquals;
@@ -75,7 +73,7 @@ public class AnnotationsTest {
     public Object[][] getPos() {
         return new Object[][]{
                 {46, 6, CONSTANT, of("v1")},
-                {52, 12, TYPE_DEFINITION, of("v1")},
+//                {52, 12, TYPE_DEFINITION, of("v1")}, // TODO: Uncomment after fixing #27461
                 {53, 15, VARIABLE, of("v5")},
                 {65, 6, CLASS, of("v1", "v2", "v2")},
                 {66, 15, VARIABLE, of("v5")},
@@ -85,7 +83,7 @@ public class AnnotationsTest {
                 {86, 11, ANNOTATION, of("v1")},
                 {98, 18, VARIABLE, of("v5")},
                 {103, 22, METHOD, of("v3")},
-                {112, 11, WORKER, of("v1")}
+//                {112, 11, WORKER, of("v1")} // TODO: Uncomment after fixing #27461
         };
     }
 }
