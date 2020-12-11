@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipOutputStream;
 
@@ -37,10 +36,11 @@ import java.util.zip.ZipOutputStream;
  */
 public class JBallerinaBaloWriter extends BaloWriter {
 
-    private JBallerinaBackend backend;
+    JBallerinaBackend backend;
 
-    public JBallerinaBaloWriter(PackageContext packageContext) {
-        super(packageContext);
+    public JBallerinaBaloWriter(JBallerinaBackend backend) {
+        this.backend = backend;
+        this.packageContext = backend.packageContext();
         this.target = getTargetPlatform(packageContext.getResolution()).code();
     }
 

@@ -123,6 +123,10 @@ public class JBallerinaBackend extends CompilerBackend {
         performCodeGen();
     }
 
+    PackageContext packageContext() {
+        return this.packageContext;
+    }
+
     private void performCodeGen() {
         if (codeGenCompleted) {
             return;
@@ -165,7 +169,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private Path emitBalo(Path filePath) {
-        JBallerinaBaloWriter writer = new JBallerinaBaloWriter(this.packageContext);
+        JBallerinaBaloWriter writer = new JBallerinaBaloWriter(this);
         return writer.write(filePath);
     }
 
