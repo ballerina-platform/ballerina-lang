@@ -39,7 +39,7 @@ public class AnnotationUtils {
      * @return annotation value object.
      */
     public static Object externGetResourceAnnotations(BObject service, BString resourceName, BString annot) {
-        MemberFunctionType[] functions = service.getType().getAttachedFunctions();
+        MemberFunctionType[] functions = service.getType().getMemberFunctionTypes();
 
         for (MemberFunctionType function : functions) {
             if (function.getName().equals(resourceName.getValue())) {

@@ -38,7 +38,7 @@ public class Detach extends AbstractHttpNativeFunction {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
         Type param;
-        AttachedFunctionType[] resourceList = serviceObj.getType().getAttachedFunctions();
+        AttachedFunctionType[] resourceList = serviceObj.getType().getMemberFunctionTypes();
         try {
             if (resourceList.length > 0 && (param = resourceList[0].getParameterType()[0]) != null) {
                 String callerType = param.getQualifiedName();

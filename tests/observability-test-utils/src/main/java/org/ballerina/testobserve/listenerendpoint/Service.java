@@ -38,7 +38,7 @@ public class Service {
     public Service(BObject serviceObject) {
         this.serviceObject = serviceObject;
         this.serviceName = Utils.getServiceName(serviceObject);
-        for (MemberFunctionType attachedFunction : serviceObject.getType().getAttachedFunctions()) {
+        for (MemberFunctionType attachedFunction : serviceObject.getType().getMemberFunctionTypes()) {
             int paramCount = attachedFunction.getParameterTypes().length;
             if (paramCount > 2) {
                 throw new IllegalArgumentException("Invalid number of arguments in resource function "

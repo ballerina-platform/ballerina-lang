@@ -64,11 +64,11 @@ public abstract class BStructureType extends BType {
         this.fieldTypeCount = fieldCount;
     }
 
-    public BAttachedFunction[] getAttachedFunctions() {
+    public BAttachedFunction[] getMemberFunctionTypes() {
         return attachedFunctions;
     }
 
-    public void setAttachedFunctions(BAttachedFunction[] attachedFunctions) {
+    public void setMemberFunctionTypes(BAttachedFunction[] attachedFunctions) {
         this.attachedFunctions = attachedFunctions;
     }
 

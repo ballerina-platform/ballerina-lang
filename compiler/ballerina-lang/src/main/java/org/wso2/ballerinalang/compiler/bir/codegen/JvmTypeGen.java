@@ -905,7 +905,7 @@ public class JvmTypeGen {
         }
 
         // Set the fields of the object
-        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setAttachedFunctions",
+        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setMemberFunctionTypes",
                            String.format("([L%s;)V", ATTACHED_FUNCTION), false);
     }
 

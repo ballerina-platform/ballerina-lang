@@ -59,7 +59,7 @@ public class AnnotationUtils {
             return;
         }
         BObjectType objectType = (BObjectType) type;
-        for (MemberFunctionType attachedFunction : objectType.getAttachedFunctions()) {
+        for (MemberFunctionType attachedFunction : objectType.getMemberFunctionTypes()) {
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
             if (globalAnnotMap.containsKey(annotationKey)) {
                 ((BMemberFunctionType) attachedFunction).setAnnotations((MapValue<BString, Object>)
@@ -78,7 +78,7 @@ public class AnnotationUtils {
             Object annotValue = ((FPValue) annot).call(new Object[]{strand});
             bType.setAnnotations((MapValue<BString, Object>) annotValue);
         }
-        for (MemberFunctionType attachedFunction : bType.getAttachedFunctions()) {
+        for (MemberFunctionType attachedFunction : bType.getMemberFunctionTypes()) {
             processObjectMethodLambdaAnnotation(globalAnnotMap, strand, attachedFunction);
         }
         if (bType instanceof BServiceType) {

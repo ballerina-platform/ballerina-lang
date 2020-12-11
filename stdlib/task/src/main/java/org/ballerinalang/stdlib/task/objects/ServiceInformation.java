@@ -49,7 +49,7 @@ public class ServiceInformation {
     }
 
     public MemberFunctionType getOnTriggerFunction() {
-        for (MemberFunctionType resource : service.getType().getAttachedFunctions()) {
+        for (MemberFunctionType resource : service.getType().getMemberFunctionTypes()) {
             if (RESOURCE_ON_TRIGGER.equals(resource.getName())) {
                 return resource;
             }

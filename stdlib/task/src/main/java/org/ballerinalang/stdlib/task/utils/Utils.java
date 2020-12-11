@@ -114,7 +114,7 @@ public class Utils {
      *       Issue: https://github.com/ballerina-platform/ballerina-lang/issues/14148
      */
     public static void validateService(ServiceInformation serviceInformation) throws SchedulingException {
-        MemberFunctionType[] resources = serviceInformation.getService().getType().getAttachedFunctions();
+        MemberFunctionType[] resources = serviceInformation.getService().getType().getMemberFunctionTypes();
         if (resources.length != VALID_RESOURCE_COUNT) {
             throw new SchedulingException(
                     "Invalid number of resources found in service \'" + serviceInformation.getServiceName()

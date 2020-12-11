@@ -40,7 +40,7 @@ import java.util.StringJoiner;
  */
 public class BObjectType extends BStructureType implements ObjectType {
 
-    private MemberFunctionType[] attachedFunctions;
+    private MemberFunctionType[] memberFunctionTypes;
     public MemberFunctionType initializer;
     public MemberFunctionType generatedInitializer;
 
@@ -80,12 +80,12 @@ public class BObjectType extends BStructureType implements ObjectType {
         return TypeTags.OBJECT_TYPE_TAG;
     }
 
-    public MemberFunctionType[] getAttachedFunctions() {
-        return attachedFunctions;
+    public MemberFunctionType[] getMemberFunctionTypes() {
+        return memberFunctionTypes;
     }
 
-    public void setAttachedFunctions(MemberFunctionType[] attachedFunctions) {
-        this.attachedFunctions = attachedFunctions;
+    public void setMemberFunctionTypes(MemberFunctionType[] memberFunctionTypes) {
+        this.memberFunctionTypes = memberFunctionTypes;
     }
 
     public void setInitializer(BMemberFunctionType initializer) {
@@ -110,7 +110,7 @@ public class BObjectType extends BStructureType implements ObjectType {
             sj.add(field.getKey() + " : " + field.getValue().getFieldType());
         }
 
-        for (MemberFunctionType func : attachedFunctions) {
+        for (MemberFunctionType func : memberFunctionTypes) {
             sj.add(func.toString());
         }
 

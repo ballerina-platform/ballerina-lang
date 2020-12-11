@@ -51,7 +51,7 @@ public class ObjectMock {
     public static BObject mock(BTypedesc bTypedesc, BObject objectValue) {
         if (!objectValue.getType().getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             // handle user-defined mock object
-            if (objectValue.getType().getAttachedFunctions().length == 0 &&
+            if (objectValue.getType().getMemberFunctionTypes().length == 0 &&
                     objectValue.getType().getFields().size() == 0) {
                 String detail = "mock object type '" + objectValue.getType().getName()
                         + "' should have at least one member function or field declared.";
@@ -59,9 +59,9 @@ public class ObjectMock {
                         MockConstants.INVALID_MOCK_OBJECT_ERROR, MockConstants.TEST_PACKAGE_ID,
                         StringUtils.fromString(detail));
             } else {
-                for (MemberFunctionType attachedFunction : objectValue.getType().getAttachedFunctions()) {
+                for (MemberFunctionType attachedFunction : objectValue.getType().getMemberFunctionTypes()) {
                     BError error = validateFunctionSignatures(attachedFunction,
-                            ((ObjectType) bTypedesc.getDescribingType()).getAttachedFunctions());
+                            ((ObjectType) bTypedesc.getDescribingType()).getMemberFunctionTypes());
                     if (error != null) {
                         throw  error;
                     }
@@ -110,7 +110,7 @@ public class ObjectMock {
 
     public static BError validateFunctionName(String functionName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
-        if (!validateFunctionName(functionName, genericMock.getType().getAttachedFunctions())) {
+        if (!validateFunctionName(functionName, genericMock.getType().getMemberFunctionTypes())) {
             String detail = "invalid function name '" + functionName + " ' provided";
             return ErrorCreator.createDistinctError(
                     MockConstants.FUNCTION_NOT_FOUND_ERROR, MockConstants.TEST_PACKAGE_ID,
@@ -149,7 +149,7 @@ public class ObjectMock {
         String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
         BArray argsList = caseObj.getArrayValue(StringUtils.fromString("args"));
 
-        for (MemberFunctionType attachedFunction : genericMock.getType().getAttachedFunctions()) {
+        for (MemberFunctionType attachedFunction : genericMock.getType().getMemberFunctionTypes()) {
             if (attachedFunction.getName().equals(functionName)) {
 
                 // validate the number of arguments provided
@@ -220,7 +220,7 @@ public class ObjectMock {
         if (functionName != null) {
             // register return value for member function
             BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
-            if (!validateReturnValue(functionName, returnVal, genericMock.getType().getAttachedFunctions())) {
+            if (!validateReturnValue(functionName, returnVal, genericMock.getType().getMemberFunctionTypes())) {
                 String detail =
                         "return value provided does not match the return type of function " + functionName + "()";
                 return ErrorCreator.createDistinctError(
@@ -263,7 +263,7 @@ public class ObjectMock {
                 break;
             }
             if (!validateReturnValue(functionName, returnVals.getValues()[i],
-                    genericMock.getType().getAttachedFunctions())) {
+                    genericMock.getType().getMemberFunctionTypes())) {
                 String details = "return value provided at position '" + i
                         + "' does not match the return type of function " + functionName + "()";
                 return ErrorCreator.createDistinctError(

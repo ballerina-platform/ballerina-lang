@@ -51,7 +51,7 @@ public class BServiceType extends BObjectType implements ServiceType {
     @Override
     public MemberFunctionType[] getRemoteFunctions() {
         if (remoteFunctions == null) {
-            MemberFunctionType[] funcs = getRemoteFunctions(getAttachedFunctions());
+            MemberFunctionType[] funcs = getRemoteFunctions(getMemberFunctionTypes());
             synchronized (this) {
                 if (remoteFunctions == null) {
                     remoteFunctions = funcs;

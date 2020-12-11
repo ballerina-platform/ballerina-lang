@@ -200,7 +200,7 @@ public class WebServer {
             // Preparing the arguments for dispatching the resource function
             BObject serviceObject = serviceMap.get(serviceName).getServiceObject();
             int paramCount = 0;
-            for (MemberFunctionType attachedFunction : serviceObject.getType().getAttachedFunctions()) {
+            for (MemberFunctionType attachedFunction : serviceObject.getType().getMemberFunctionTypes()) {
                 if (Objects.equals(attachedFunction.getName(), resourceName)) {
                     paramCount = attachedFunction.getParameterTypes().length;
                     break;

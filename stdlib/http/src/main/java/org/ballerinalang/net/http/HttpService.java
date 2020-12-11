@@ -258,7 +258,7 @@ public class HttpService implements Cloneable {
     private static void processResources(HttpService httpService) {
         List<HttpResource> httpResources = new ArrayList<>();
         List<HttpResource> upgradeToWebSocketResources = new ArrayList<>();
-        for (AttachedFunctionType resource : httpService.getBalService().getType().getAttachedFunctions()) {
+        for (AttachedFunctionType resource : httpService.getBalService().getType().getMemberFunctionTypes()) {
             if (!Flags.isFlagOn(resource.flags, Flags.RESOURCE)) {
                 continue;
             }

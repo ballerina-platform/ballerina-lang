@@ -1546,8 +1546,8 @@ public class TypeChecker {
 
         Map<String, Field> targetFields = targetType.getFields();
         Map<String, Field> sourceFields = sourceObjectType.getFields();
-        MemberFunctionType[] targetFuncs = targetType.getAttachedFunctions();
-        MemberFunctionType[] sourceFuncs = sourceObjectType.getAttachedFunctions();
+        MemberFunctionType[] targetFuncs = targetType.getMemberFunctionTypes();
+        MemberFunctionType[] sourceFuncs = sourceObjectType.getMemberFunctionTypes();
 
         if (targetType.getFields().values().stream().anyMatch(field -> SymbolFlags
                 .isFlagOn(field.getFlags(), SymbolFlags.PRIVATE))

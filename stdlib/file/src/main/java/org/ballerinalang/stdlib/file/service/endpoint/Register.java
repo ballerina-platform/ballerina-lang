@@ -66,7 +66,7 @@ public class Register {
 
     private static Map<String, MemberFunctionType> getResourceRegistry(BObject service) {
         Map<String, MemberFunctionType> registry = new HashMap<>(5);
-        final MemberFunctionType[] attachedFunctions = service.getType().getAttachedFunctions();
+        final MemberFunctionType[] attachedFunctions = service.getType().getMemberFunctionTypes();
         for (MemberFunctionType resource : attachedFunctions) {
             switch (resource.getName()) {
                 case DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE:
