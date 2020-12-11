@@ -22,7 +22,6 @@ package org.ballerinalang.observe.nativeimpl;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.observability.ObservabilityConstants;
 
 import static org.ballerinalang.observe.nativeimpl.OpenTracerBallerinaWrapper.ROOT_SPAN_INDICATOR;
 
@@ -34,7 +33,6 @@ public class StartRootSpan {
 
     public static long startRootSpan(Environment env,  BString spanName, Object tags) {
         return OpenTracerBallerinaWrapper.getInstance().startSpan(env,
-                        (String) env.getStrandLocal(ObservabilityConstants.SERVICE_NAME),
                         spanName.getValue(), Utils.toStringMap((BMap<BString, ?>) tags), ROOT_SPAN_INDICATOR);
     }
 }

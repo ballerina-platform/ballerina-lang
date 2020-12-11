@@ -813,9 +813,16 @@ public class AnnotationDesugar {
     private int calculateIndex(List<BLangStatement> statements, BTypeSymbol symbol) {
         for (int i = 0; i < statements.size(); i++) {
             BLangStatement stmt = statements.get(i);
-            if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
-                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.TYPE_INIT_EXPR) &&
-                    ((BLangAssignment) stmt).expr.type.tsymbol == symbol) {
+
+            if (stmt.getKind() != NodeKind.ASSIGNMENT) {
+                continue;
+            }
+
+            BLangExpression expr = ((BLangAssignment) stmt).expr;
+            NodeKind kind = expr.getKind();
+
+            if ((kind == NodeKind.TYPE_INIT_EXPR || kind == NodeKind.OBJECT_CTOR_EXPRESSION) &&
+                    expr.type.tsymbol == symbol) {
                 return i;
             }
         }

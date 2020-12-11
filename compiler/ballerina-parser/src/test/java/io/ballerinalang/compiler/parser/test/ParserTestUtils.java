@@ -1046,6 +1046,8 @@ public class ParserTestUtils {
                 return SyntaxKind.EXTERNAL_FUNCTION_BODY;
             case "REQUIRED_PARAM":
                 return SyntaxKind.REQUIRED_PARAM;
+            case "INCLUDED_RECORD_PARAM":
+                return SyntaxKind.INCLUDED_RECORD_PARAM;
             case "DEFAULTABLE_PARAM":
                 return SyntaxKind.DEFAULTABLE_PARAM;
             case "REST_PARAM":

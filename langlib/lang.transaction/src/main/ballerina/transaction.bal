@@ -35,31 +35,6 @@ public type Timestamp object {
     public function toString() returns string;
 };
 
-# This file contains default retry manager to be used with retry statement.
-
-public type RetriableError error;
-//todo use distinct when grammar allows
-//public type RetriableError distinct error;
-
-public type RetryManager object {
- public function shouldRetry(error? e) returns boolean;
-};
-
-public class DefaultRetryManager {
-    private int count;
-    public function init(int count = 3) {
-        self.count = count;
-    }
-    public function shouldRetry(error? e) returns boolean {
-        if e is RetriableError && self.count >  0 {
-          self.count -= 1;
-          return true;
-        } else {
-           return false;
-        }
-    }
-}
-
 public type CommitHandler function(Info info);
 public type RollbackHandler function(Info info, error? cause, boolean willRetry);
 

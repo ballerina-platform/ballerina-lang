@@ -189,7 +189,7 @@ public class TypeParamAnalyzer {
             case TypeTags.MAP:
                 return containsTypeParam(((BMapType) type).constraint, resolvedTypes);
             case TypeTags.STREAM:
-                return containsTypeParam(((BStreamType) type).constraint, resolvedTypes);
+                 return containsTypeParam(((BStreamType) type).constraint, resolvedTypes);
             case TypeTags.TABLE:
                 return (containsTypeParam(((BTableType) type).constraint, resolvedTypes) ||
                         ((BTableType) type).keyTypeConstraint != null
@@ -327,7 +327,10 @@ public class TypeParamAnalyzer {
                     findTypeParamInStream(loc, ((BStreamType) expType), ((BStreamType) actualType), env, resolvedTypes,
                                           result);
                 }
-                // TODO : Handle unions after - github.com/ballerina-platform/ballerina-lang/issues/22570
+                if (actualType.tag == TypeTags.UNION) {
+                    findTypeParamInStreamForUnion(loc, ((BStreamType) expType), ((BUnionType) actualType), env,
+                            resolvedTypes, result);
+                }
                 return;
             case TypeTags.TABLE:
                 if (actualType.tag == TypeTags.TABLE) {
@@ -424,6 +427,29 @@ public class TypeParamAnalyzer {
         findTypeParam(loc, expType.constraint, actualType.constraint, env, resolvedTypes, result);
         findTypeParam(loc, expType.error, (actualType.error != null) ? actualType.error : symTable.nilType, env,
                       resolvedTypes, result);
+    }
+
+    private void findTypeParamInStreamForUnion(Location loc, BStreamType expType, BUnionType actualType,
+                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
+        LinkedHashSet<BType> constraints = new LinkedHashSet<>();
+        LinkedHashSet<BType> errors = new LinkedHashSet<>();
+        for (BType type : actualType.getMemberTypes()) {
+            if (type.tag == TypeTags.STREAM) {
+                constraints.add(((BStreamType) type).constraint);
+                if (((BStreamType) type).error != null) {
+                    errors.add(((BStreamType) type).error);
+                }
+            }
+        }
+
+        BUnionType cUnionType = BUnionType.create(null, constraints);
+        findTypeParam(loc, expType.constraint, cUnionType, env, resolvedTypes, result);
+        if (!errors.isEmpty()) {
+            BUnionType eUnionType = BUnionType.create(null, errors);
+            findTypeParam(loc, expType.error, eUnionType, env, resolvedTypes, result);
+        } else {
+            findTypeParam(loc, expType.error, symTable.nilType, env, resolvedTypes, result);
+        }
     }
 
     private void findTypeParamInTable(Location loc, BTableType expType, BTableType actualType,
