@@ -209,15 +209,18 @@ public class TesterinaUtils {
         for (String function : functions) {
             if (function.contains(":")) {
                 String[] functionDetail = function.split(":");
-
-                if (functionDetail[0].equals(suite.getPackageID())) {
-                    if (functionDetail[1].equals(TesterinaConstants.WILDCARD)) {
-                        handleWildCard(filteredList, suite.getTests());
-                    } else if (functionDetail[1].endsWith(TesterinaConstants.WILDCARD)) {
-                        handleEndingWithWildCard(filteredList, suite.getTests(), functionDetail[1]);
-                    } else {
-                        filteredList.add(functionDetail[1]);
+                try {
+                    if (functionDetail[0].equals(suite.getPackageID())) {
+                        if (functionDetail[1].equals(TesterinaConstants.WILDCARD)) {
+                            handleWildCard(filteredList, suite.getTests());
+                        } else if (functionDetail[1].endsWith(TesterinaConstants.WILDCARD)) {
+                            handleEndingWithWildCard(filteredList, suite.getTests(), functionDetail[1]);
+                        } else {
+                            filteredList.add(functionDetail[1]);
+                        }
                     }
+                } catch (IndexOutOfBoundsException e) {
+                    errStream.println("Error occured while executing tests. Test list cannot be empty");
                 }
             } else {
                 if (function.endsWith(TesterinaConstants.WILDCARD)) {
