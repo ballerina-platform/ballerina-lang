@@ -1,4 +1,4 @@
 [package]
 org = "testorg"
-name ="records"
+name = "records"
 version = "1.0.0"

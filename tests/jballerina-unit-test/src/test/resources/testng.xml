@@ -254,19 +254,9 @@
                     <exclude name="inFunctionGlobalReferenceCauseCycle"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.lock.FieldLockTest">
-                <methods>
-                    <exclude name="testLockInAttachedFunc"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.documentation.ErrorsTest">
                 <methods>
                     <exclude name="testErrorAsAType"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.javainterop.basic.JavaToBallerinaTest">
-                <methods>
-<!--                    <exclude name="testUsingExistingBallerinaRuntime"/>-->
                 </methods>
             </class>
             <class name="org.ballerinalang.test.bir.BirVariableOptimizationTest">
