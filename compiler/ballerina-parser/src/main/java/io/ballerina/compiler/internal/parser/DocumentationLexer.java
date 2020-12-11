@@ -36,16 +36,29 @@ import java.util.List;
  */
 public class DocumentationLexer extends AbstractLexer {
 
+    /**
+     * Character array of "Deprecated" keyword.
+     */
+    private static final char[] deprecatedChars = { 'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd' };
+
+    /**
+     * Current backing reference mode.
+     */
+    private BacktickReferenceMode referenceMode = BacktickReferenceMode.NO_KEYWORD;
+
+    /**
+     * Modes of backtick reference parsing.
+     */
     private enum BacktickReferenceMode {
         NO_KEYWORD, SPECIAL_KEYWORD, FUNCTION_KEYWORD
     }
 
-    private BacktickReferenceMode referenceMode = BacktickReferenceMode.NO_KEYWORD;
-    private static final char[] deprecatedChars = { 'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd' };
-
-    // Used only for backtick content validation
-    private int lookAheadNumber = 0;
-    private boolean hasMatch = true;
+    /**
+     * Represents the current position in a char-sequence-search.
+     */
+    private static class Lookahead {
+        private int lookaheadOffset = 0;
+    }
 
     public DocumentationLexer(CharReader charReader,
                               List<STNode> leadingTriviaList,
@@ -184,7 +197,6 @@ public class DocumentationLexer extends AbstractLexer {
                     continue;
                 case LexerTerminals.CARRIAGE_RETURN:
                 case LexerTerminals.NEWLINE:
-                    break;
                 default:
                     break;
             }
@@ -235,28 +247,21 @@ public class DocumentationLexer extends AbstractLexer {
     }
 
     /**
-     * Reset search properties.
-     * This method is only used in DOCUMENTATION_BACKTICK_CONTENT Mode
+     * Returns the next character in the char-sequence-search.
+     *
+     * @param lookahead Current position
+     * @return Lookahead character
      */
-    private void resetSearchProperties() {
-        lookAheadNumber = 0;
-        hasMatch = true;
+    private int getLookaheadChar(Lookahead lookahead) {
+        return reader.peek(lookahead.lookaheadOffset);
     }
 
     /**
-     * Get current char in the search.
-     * This method is only used in DOCUMENTATION_BACKTICK_CONTENT Mode
+     * Advance the position in a char-sequence-search.
+     * @param lookahead Current position
      */
-    private int getLookAheadChar() {
-        return reader.peek(lookAheadNumber);
-    }
-
-    /**
-     * Mark current char as a validated one.
-     * This method is only used in DOCUMENTATION_BACKTICK_CONTENT Mode
-     */
-    private void consumeChar() {
-        lookAheadNumber++;
+    private void advanceLookahead(Lookahead lookahead) {
+        lookahead.lookaheadOffset++;
     }
 
     private STToken getDocumentationSyntaxToken(SyntaxKind kind) {
@@ -672,13 +677,13 @@ public class DocumentationLexer extends AbstractLexer {
             return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.BACKTICK_TOKEN);
         }
 
-        processBacktickContent();
-        if (hasMatch && getLookAheadChar() == LexerTerminals.BACKTICK) {
+        Lookahead lookahead = new Lookahead();
+        if (!processBacktickContent(lookahead) && getLookaheadChar(lookahead) == LexerTerminals.BACKTICK) {
             switchMode(ParserMode.DOCUMENTATION_BACKTICK_EXPR);
             resetReferenceMode();
             return readDocumentationBacktickExprToken();
         } else {
-            reader.advance(lookAheadNumber);
+            reader.advance(lookahead.lookaheadOffset);
             processInvalidChars();
             if (referenceMode != BacktickReferenceMode.NO_KEYWORD) {
                 // No warning is logged for invalid backtick content which is not preceded by a special keyword
@@ -707,82 +712,100 @@ public class DocumentationLexer extends AbstractLexer {
         }
     }
 
-    private void processBacktickContent() {
-        resetSearchProperties();
+    /**
+     * Process the backtick content and see if it is valid before tokenizing.
+     *
+     * @param lookahead Starting position
+     * @return <code>true</code> if content is invalid<code>false</code> otherwise.
+     */
+    private boolean processBacktickContent(Lookahead lookahead) {
         switch (referenceMode) {
             case SPECIAL_KEYWORD:
                 // Look for a x, m:x match
-                processQualifiedIdentifier();
-                break;
+                return processQualifiedIdentifier(lookahead);
             case FUNCTION_KEYWORD:
                 // Look for a x, m:x, x(), m:x(), T.y(), m:T.y() match
-                processBacktickExpr(false);
-                break;
+                return processBacktickExpr(lookahead, false);
             case NO_KEYWORD:
                 // Look for a x(), m:x(), T.y(), m:T.y() match
-                processBacktickExpr(true);
-                break;
+                return processBacktickExpr(lookahead, true);
+            default:
+                throw new IllegalStateException("Unknown reference mode: " + referenceMode);
         }
     }
 
-    private void processBacktickExpr(boolean isNotFunctionKeyword) {
-        processQualifiedIdentifier();
-        int nextChar = getLookAheadChar();
+    private boolean processBacktickExpr(Lookahead lookahead, boolean isNotFunctionKeyword) {
+        if (processQualifiedIdentifier(lookahead)) {
+            return true;
+        }
+
+        int nextChar = getLookaheadChar(lookahead);
         if (nextChar == LexerTerminals.OPEN_PARANTHESIS) {
-            processFuncSignature();
+            return processFuncSignature(lookahead);
         } else if (nextChar == LexerTerminals.DOT) {
-            consumeChar();
-            processIdentifier();
-            processFuncSignature();
-        } else if (isNotFunctionKeyword) {
-            hasMatch = false;
-        }
-    }
-
-    private void processFuncSignature() {
-        processOpenParenthesis();
-        processCloseParenthesis();
-    }
-
-    private void processOpenParenthesis() {
-        int nextChar = getLookAheadChar();
-        if (nextChar == LexerTerminals.OPEN_PARANTHESIS) {
-            consumeChar();
-        } else {
-            hasMatch = false;
-        }
-    }
-
-    private void processCloseParenthesis() {
-        int nextChar = getLookAheadChar();
-        if (nextChar == LexerTerminals.CLOSE_PARANTHESIS) {
-            consumeChar();
-        } else {
-            hasMatch = false;
-        }
-    }
-
-    private void processQualifiedIdentifier() {
-        processIdentifier();
-        int nextChar = getLookAheadChar();
-        if (nextChar == LexerTerminals.COLON) {
-            consumeChar();
-            processIdentifier();
-        }
-    }
-
-    private void processIdentifier() {
-        int nextChar = getLookAheadChar();
-        if (isIdentifierInitialChar(nextChar)) {
-            consumeChar();
-            nextChar = getLookAheadChar();
-            while (isIdentifierFollowingChar(nextChar)) {
-                consumeChar();
-                nextChar = getLookAheadChar();
+            advanceLookahead(lookahead);
+            if (processIdentifier(lookahead)) {
+                return true;
             }
-        } else {
-            hasMatch = false;
+            return processFuncSignature(lookahead);
         }
+
+        return isNotFunctionKeyword;
+    }
+
+    private boolean processFuncSignature(Lookahead lookahead) {
+        if (processOpenParenthesis(lookahead)) {
+            return true;
+        }
+        return processCloseParenthesis(lookahead);
+    }
+
+    private boolean processOpenParenthesis(Lookahead lookahead) {
+        int nextChar = getLookaheadChar(lookahead);
+        if (nextChar == LexerTerminals.OPEN_PARANTHESIS) {
+            advanceLookahead(lookahead);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private boolean processCloseParenthesis(Lookahead lookahead) {
+        int nextChar = getLookaheadChar(lookahead);
+        if (nextChar == LexerTerminals.CLOSE_PARANTHESIS) {
+            advanceLookahead(lookahead);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private boolean processQualifiedIdentifier(Lookahead lookahead) {
+        if (processIdentifier(lookahead)) {
+            return true;
+        }
+
+        int nextChar = getLookaheadChar(lookahead);
+        if (nextChar == LexerTerminals.COLON) {
+            advanceLookahead(lookahead);
+            return processIdentifier(lookahead);
+        }
+
+        return false;
+    }
+
+    private boolean processIdentifier(Lookahead lookahead) {
+        int nextChar = getLookaheadChar(lookahead);
+        if (isIdentifierInitialChar(nextChar)) {
+            advanceLookahead(lookahead);
+            nextChar = getLookaheadChar(lookahead);
+            while (isIdentifierFollowingChar(nextChar)) {
+                advanceLookahead(lookahead);
+                nextChar = getLookaheadChar(lookahead);
+            }
+            return false;
+        }
+        return true;
     }
 
     /*
