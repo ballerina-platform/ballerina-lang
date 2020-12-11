@@ -86,6 +86,8 @@ type Foo4 record {
     never d?;
 };
 
+public type KeyValues record {|int[]...;|};
+
 function functionOfFunctionTypedParamWithIncludedRecordParam(*NewPerson person) returns string {
     return person.firstName + " " + person.secondName;
 }
@@ -164,6 +166,10 @@ function functionOfFunctionTypedParamWithIncludedRecordParam19(*Foo foo) returns
 
 function functionOfFunctionTypedParamWithIncludedRecordParam20(*Bar2 bar) returns int {
     return <int> bar.c;
+}
+
+function functionOfFunctionTypedParamWithIncludedRecordParam21(*KeyValues values) returns int[] {
+    return <int[]>values["a"];
 }
 
 function testFunctionOfFunctionTypedParamWithIncludedRecordParam() {
@@ -275,6 +281,12 @@ function testFunctionOfFunctionTypedParamWithIncludedRecordParam19() {
 function testFunctionOfFunctionTypedParamWithIncludedRecordParam20() {
     int val = functionOfFunctionTypedParamWithIncludedRecordParam20(c = 5);
     assertEquality(5, val);
+}
+
+function testFunctionOfFunctionTypedParamWithIncludedRecordParam21() {
+    int[] x = [1, 2];
+    int[] val = functionOfFunctionTypedParamWithIncludedRecordParam21(a = [1, 2]);
+    assertEquality(x, val);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
