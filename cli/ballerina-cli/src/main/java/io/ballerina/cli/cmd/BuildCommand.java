@@ -112,9 +112,6 @@ public class BuildCommand implements BLauncherCmd {
                                                               "dependencies.")
     private Boolean offline;
 
-//    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
-//    private boolean skipLock;
-
     @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
     private Boolean skipTests;
 
@@ -229,13 +226,11 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory
 //                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
-//                .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
-                                                            // the given skipLock flag does not exist(projects only)
-                .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
                 .addTask(new RunTestsTask(outStream, errStream, args),
                         project.buildOptions().skipTests() || isSingleFileBuild)
                     // run tests (projects only)
+                .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
                 .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();

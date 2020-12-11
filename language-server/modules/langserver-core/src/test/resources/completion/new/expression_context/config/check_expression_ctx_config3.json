@@ -8,7 +8,7 @@
     {
       "label": "TEST_INT_CONST1",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "1",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -21,7 +21,7 @@
     {
       "label": "TEST_STRING_CONST1",
       "kind": "Variable",
-      "detail": "string",
+      "detail": "HELLO WORLD",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -60,10 +60,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "TestObject1",
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
     {
@@ -87,13 +87,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Listener",
       "kind": "Interface",
       "detail": "Object",
@@ -101,10 +94,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestClass1",
+      "label": "TestObject1",
       "kind": "Interface",
       "detail": "Object",
-      "insertText": "TestClass1",
+      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -128,13 +121,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "listener1",
-      "kind": "Variable",
-      "detail": "ballerina/module1:0.1.0:Listener",
-      "insertText": "listener1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "function1()",
       "kind": "Function",
       "detail": "Function",
@@ -144,7 +130,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "function1()",
+      "insertText": "function1();",
       "insertTextFormat": "Snippet"
     },
     {
@@ -157,7 +143,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "function2()",
+      "insertText": "function2();",
       "insertTextFormat": "Snippet"
     },
     {
@@ -187,7 +173,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "function4(${1})",
+      "insertText": "function4(${1});",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

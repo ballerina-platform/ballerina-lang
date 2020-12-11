@@ -18,8 +18,10 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -34,15 +36,18 @@ import java.util.List;
 public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements ConstantSymbol {
 
     private final Object constValue;
+    private TypeSymbol broaderType;
 
     private BallerinaConstantSymbol(String name,
                                     PackageID moduleID,
                                     List<Qualifier> qualifiers,
                                     TypeSymbol typeDescriptor,
+                                    TypeSymbol broaderType,
                                     Object constValue,
                                     BSymbol bSymbol) {
         super(name, moduleID, SymbolKind.CONSTANT, qualifiers, typeDescriptor, bSymbol);
         this.constValue = constValue;
+        this.broaderType = broaderType;
     }
 
     /**
@@ -55,12 +60,38 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
         return constValue;
     }
 
+    @Override
+    public TypeSymbol broaderTypeDescriptor() {
+        return this.broaderType;
+    }
+
+    @Override
+    public TypeDescKind typeKind() {
+        return TypeDescKind.SINGLETON;
+    }
+
+    @Override
+    public String signature() {
+        return this.typeDescriptor().signature();
+    }
+
+    @Override
+    public List<FunctionSymbol> langLibMethods() {
+        return this.typeDescriptor().langLibMethods();
+    }
+
+    @Override
+    public boolean assignableTo(TypeSymbol targetType) {
+        return this.typeDescriptor().assignableTo(targetType);
+    }
+
     /**
      * Represents Ballerina Constant Symbol Builder.
      */
     public static class ConstantSymbolBuilder extends VariableSymbolBuilder {
 
         private Object constantValue;
+        private TypeSymbol broaderType;
 
         public ConstantSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
             super(name, moduleID, symbol);
@@ -71,6 +102,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
                     this.moduleID,
                     this.qualifiers,
                     this.typeDescriptor,
+                    this.broaderType,
                     this.constantValue,
                     this.bSymbol);
         }
@@ -83,6 +115,11 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
         @Override
         public ConstantSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
             super.withTypeDescriptor(typeDescriptor);
+            return this;
+        }
+
+        public ConstantSymbolBuilder withBroaderTypeDescriptor(TypeSymbol typeDescriptor) {
+            this.broaderType = typeDescriptor;
             return this;
         }
     }

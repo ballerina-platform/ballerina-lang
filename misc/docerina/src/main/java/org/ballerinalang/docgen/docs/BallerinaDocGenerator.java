@@ -91,14 +91,29 @@ public class BallerinaDocGenerator {
             return;
         }
         Arrays.sort(fList);
-        List<Module> moduleList = new ArrayList<>(fList.length);
+        Project project = new Project();
         for (File file : fList) {
             if (file.isDirectory()) {
                 Path docJsonPath = Paths.get(file.getAbsolutePath(), "data", "doc_data" + JSON);
                 if (docJsonPath.toFile().exists()) {
                     try (BufferedReader br = Files.newBufferedReader(docJsonPath, StandardCharsets.UTF_8)) {
-                        Project project = gson.fromJson(br, Project.class);
-                        moduleList.addAll(project.modules);
+                        Project jsonProject = gson.fromJson(br, Project.class);
+                        project.resources.addAll(getResourcePaths(Paths.get(file.getAbsolutePath())));
+                        project.modules.addAll(jsonProject.modules);
+
+                        File newIndex = new File(file.getAbsolutePath() + File.separator + "index.html");
+                        String htmlData = "<!DOCTYPE html>\n" +
+                                "<html>\n" +
+                                "<head>\n" +
+                                "\t<meta http-equiv=\"refresh\" content=\"0; URL=../index.html#/" + jsonProject.name +
+                                "\" />\n" +
+                                "</head>\n" +
+                                "<body>\n" +
+                                "\t<h1>If you are not redirected please click this <a href=\"../index.html#/" +
+                                jsonProject.name + "\">link</a> </h1>\n" +
+                                "</body>\n" +
+                                "</html>";
+                        FileUtils.write(newIndex, htmlData, StandardCharsets.UTF_8, false);
                     } catch (IOException e) {
                         String errorMsg = String.format("API documentation generation failed. Cause: %s",
                                                         e.getMessage());
@@ -109,8 +124,6 @@ public class BallerinaDocGenerator {
                 }
             }
         }
-        Project project = new Project();
-        project.modules = moduleList;
         writeAPIDocs(project, apiDocsRoot, true);
     }
 
@@ -154,28 +167,26 @@ public class BallerinaDocGenerator {
             }
 
         }
-        for (Module module : project.modules) {
-            if (!module.resources.isEmpty()) {
-                String resourcesDir = output + File.separator + "resources";
-                if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("docerina: copying project resources ");
+        if (!project.resources.isEmpty()) {
+            String resourcesDir = output + File.separator + "resources";
+            if (BallerinaDocUtils.isDebugEnabled()) {
+                out.println("docerina: copying project resources ");
+            }
+            for (Path resourcePath : project.resources) {
+                File resourcesDirFile = new File(resourcesDir);
+                try {
+                    FileUtils.copyFileToDirectory(resourcePath.toFile(), resourcesDirFile);
+                } catch (IOException e) {
+                    out.println(String.format("docerina: failed to copy [resource] %s into " +
+                            "[resources directory] %s. Cause: %s", resourcePath.toString(),
+                            resourcesDirFile.toString(), e.getMessage()));
+                    log.error(String.format("docerina: failed to copy [resource] %s into [resources directory] "
+                            + "%s. Cause: %s", resourcePath.toString(), resourcesDirFile.toString(),
+                            e.getMessage()), e);
                 }
-                for (Path resourcePath : module.resources) {
-                    File resourcesDirFile = new File(resourcesDir);
-                    try {
-                        FileUtils.copyFileToDirectory(resourcePath.toFile(), resourcesDirFile);
-                    } catch (IOException e) {
-                        out.println(String.format("docerina: failed to copy [resource] %s into " +
-                                "[resources directory] %s. Cause: %s", resourcePath.toString(),
-                                resourcesDirFile.toString(), e.getMessage()));
-                        log.error(String.format("docerina: failed to copy [resource] %s into [resources directory] "
-                                + "%s. Cause: %s", resourcePath.toString(), resourcesDirFile.toString(),
-                                e.getMessage()), e);
-                    }
-                }
-                if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("docerina: successfully copied project resources into " + resourcesDir);
-                }
+            }
+            if (BallerinaDocUtils.isDebugEnabled()) {
+                out.println("docerina: successfully copied project resources into " + resourcesDir);
             }
         }
 
@@ -438,7 +449,7 @@ public class BallerinaDocGenerator {
             module.description = moduleDoc.getValue().description;
 
             // collect module's doc resources
-            module.resources.addAll(moduleDoc.getValue().resources);
+            project.resources.addAll(moduleDoc.getValue().resources);
 
             boolean hasPublicConstructs = false;
             // Loop through bal files

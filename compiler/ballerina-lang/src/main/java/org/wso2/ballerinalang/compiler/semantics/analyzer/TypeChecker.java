@@ -5294,16 +5294,77 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(iExpr, actualType, this.expType);
     }
 
+    private BVarSymbol incRecordParamAllowAdditionalFields(List<BVarSymbol> openIncRecordParams,
+                                                           Set<String> requiredParamNames) {
+        if (openIncRecordParams.size() != 1) {
+            return null;
+        }
+        LinkedHashMap<String, BField> fields = ((BRecordType) openIncRecordParams.get(0).type).fields;
+        for (String paramName : requiredParamNames) {
+            if (!fields.containsKey(paramName)) {
+                return null;
+            }
+        }
+        return openIncRecordParams.get(0);
+    }
+
+    private BVarSymbol checkForIncRecordParamAllowAdditionalFields(BInvokableSymbol invokableSymbol,
+                                                                   List<BVarSymbol> incRecordParams) {
+        Set<String> requiredParamNames = new HashSet<>();
+        List<BVarSymbol> openIncRecordParams = new ArrayList<>();
+        for (BVarSymbol paramSymbol : invokableSymbol.params) {
+            if (Symbols.isFlagOn(Flags.asMask(paramSymbol.getFlags()), Flags.INCLUDED) &&
+                                                                        paramSymbol.type.getKind() == TypeKind.RECORD) {
+                boolean recordWithDisallowFieldsOnly = true;
+                LinkedHashMap<String, BField> fields = ((BRecordType) paramSymbol.type).fields;
+                for (String fieldName : fields.keySet()) {
+                    BField field = fields.get(fieldName);
+                    if (field.symbol.type.tag != TypeTags.NEVER) {
+                        recordWithDisallowFieldsOnly = false;
+                        incRecordParams.add(field.symbol);
+                        requiredParamNames.add(fieldName);
+                    }
+                }
+                if (recordWithDisallowFieldsOnly && ((BRecordType) paramSymbol.type).restFieldType != symTable.noType) {
+                    openIncRecordParams.add(paramSymbol);
+                }
+            } else {
+                requiredParamNames.add(paramSymbol.name.value);
+            }
+        }
+        return incRecordParamAllowAdditionalFields(openIncRecordParams, requiredParamNames);
+    }
+
     private BType checkInvocationParam(BLangInvocation iExpr) {
         if (iExpr.symbol.type.tag != TypeTags.INVOKABLE) {
             dlog.error(iExpr.pos, DiagnosticErrorCode.INVALID_FUNCTION_INVOCATION, iExpr.symbol.type);
             return symTable.noType;
         }
 
-        List<BType> paramTypes = ((BInvokableType) iExpr.symbol.type).getParameterTypes();
-
-        int parameterCount = paramTypes.size();
+        BInvokableSymbol invokableSymbol = ((BInvokableSymbol) iExpr.symbol);
+        List<BType> paramTypes = ((BInvokableType) invokableSymbol.type).getParameterTypes();
+        List<BVarSymbol> incRecordParams = new ArrayList<>();
+        BVarSymbol incRecordParamAllowAdditionalFields = checkForIncRecordParamAllowAdditionalFields(invokableSymbol,
+                                                                                                     incRecordParams);
+        int parameterCountForPositionalArgs = paramTypes.size();
+        int parameterCountForNamedArgs = parameterCountForPositionalArgs + incRecordParams.size();
         iExpr.requiredArgs = new ArrayList<>();
+        for (BVarSymbol symbol : invokableSymbol.params) {
+            if (!Symbols.isFlagOn(Flags.asMask(symbol.getFlags()), Flags.INCLUDED) ||
+                                                                            symbol.type.tag != TypeTags.RECORD) {
+                continue;
+            }
+            LinkedHashMap<String, BField> fields = ((BRecordType) symbol.type).fields;
+            if (fields.isEmpty()) {
+                continue;
+            }
+            for (String field : fields.keySet()) {
+                if (fields.get(field).type.tag != TypeTags.NEVER) {
+                    parameterCountForNamedArgs = parameterCountForNamedArgs - 1;
+                    break;
+                }
+            }
+        }
 
         // Split the different argument types: required args, named args and rest args
         int i = 0;
@@ -5313,7 +5374,7 @@ public class TypeChecker extends BLangNodeVisitor {
             switch (expr.getKind()) {
                 case NAMED_ARGS_EXPR:
                     foundNamedArg = true;
-                    if (i < parameterCount) {
+                    if (i < parameterCountForNamedArgs || incRecordParamAllowAdditionalFields != null) {
                         iExpr.requiredArgs.add(expr);
                     } else {
                         // can not provide a rest parameters as named args
@@ -5332,7 +5393,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     if (foundNamedArg) {
                         dlog.error(expr.pos, DiagnosticErrorCode.POSITIONAL_ARG_DEFINED_AFTER_NAMED_ARG);
                     }
-                    if (i < parameterCount) {
+                    if (i < parameterCountForPositionalArgs) {
                         iExpr.requiredArgs.add(expr);
                     } else {
                         iExpr.restArgs.add(expr);
@@ -5342,10 +5403,13 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        return checkInvocationArgs(iExpr, paramTypes, vararg);
+        return checkInvocationArgs(iExpr, paramTypes, vararg, incRecordParams,
+                                    incRecordParamAllowAdditionalFields);
     }
 
-    private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, BLangExpression vararg) {
+    private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, BLangExpression vararg,
+                                      List<BVarSymbol> incRecordParams,
+                                      BVarSymbol incRecordParamAllowAdditionalFields) {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
         BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
         BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
@@ -5355,6 +5419,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BVarSymbol> valueProvidedParams = new ArrayList<>();
 
         List<BVarSymbol> requiredParams = new ArrayList<>();
+        List<BVarSymbol> requiredIncRecordParams = new ArrayList<>();
 
         for (BVarSymbol nonRestParam : nonRestParams) {
             if (nonRestParam.defaultableParam) {
@@ -5364,16 +5429,22 @@ public class TypeChecker extends BLangNodeVisitor {
             requiredParams.add(nonRestParam);
         }
 
+        for (BVarSymbol incRecordParam : incRecordParams) {
+            if (Symbols.isFlagOn(Flags.asMask(incRecordParam.getFlags()), Flags.REQUIRED)) {
+                requiredIncRecordParams.add(incRecordParam);
+            }
+        }
+
         int i = 0;
         for (; i < nonRestArgs.size(); i++) {
             BLangExpression arg = nonRestArgs.get(i);
-            BType expectedType = paramTypes.get(i);
 
             // Special case handling for the first param because for parameterized invocations, we have added the
             // value on which the function is invoked as the first param of the function call. If we run checkExpr()
             // on it, it will recursively add the first param to argExprs again, resulting in a too many args in
             // function call error.
             if (i == 0 && arg.typeChecked && iExpr.expr != null && iExpr.expr == arg) {
+                BType expectedType = paramTypes.get(i);
                 types.checkType(arg.pos, arg.type, expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
                 types.setImplicitCastExpr(arg, arg.type, expectedType);
             }
@@ -5394,19 +5465,15 @@ public class TypeChecker extends BLangNodeVisitor {
             if (arg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                 // if arg is named, function should have a parameter with this name.
                 BLangIdentifier argName = ((NamedArgNode) arg).getName();
-                BVarSymbol varSym = null;
-
-                for (BVarSymbol nonRestParam : nonRestParams) {
-                    if (nonRestParam.getName().value.equals(argName.value)) {
-                        varSym = nonRestParam;
-                    }
-                }
+                BVarSymbol varSym = checkParameterNameForDefaultArgument(argName, ((BLangNamedArgsExpression) arg).expr,
+                                            nonRestParams, incRecordParams, incRecordParamAllowAdditionalFields);
 
                 if (varSym == null) {
                     dlog.error(arg.pos, DiagnosticErrorCode.UNDEFINED_PARAMETER, argName);
                     break;
                 }
                 requiredParams.remove(varSym);
+                requiredIncRecordParams.remove(varSym);
                 if (valueProvidedParams.contains(varSym)) {
                     dlog.error(arg.pos, DiagnosticErrorCode.DUPLICATE_NAMED_ARGS, varSym.name.value);
                     continue;
@@ -5424,10 +5491,26 @@ public class TypeChecker extends BLangNodeVisitor {
             // Log errors if any required parameters are not given as positional/named args and there is
             // no vararg either.
             for (BVarSymbol requiredParam : requiredParams) {
-                dlog.error(iExpr.pos, DiagnosticErrorCode.MISSING_REQUIRED_PARAMETER, requiredParam.name,
-                        iExpr.name.value);
+                if (!Symbols.isFlagOn(Flags.asMask(requiredParam.getFlags()), Flags.INCLUDED)) {
+                    dlog.error(iExpr.pos, DiagnosticErrorCode.MISSING_REQUIRED_PARAMETER, requiredParam.name,
+                            iExpr.name.value);
+                    errored = true;
+                }
             }
-            errored = true;
+        }
+
+        if (!requiredIncRecordParams.isEmpty() && !requiredParams.isEmpty()) {
+            // Log errors if any non-defaultable required record fields of included record parameters are not given as
+            // named args.
+            for (BVarSymbol requiredIncRecordParam : requiredIncRecordParams) {
+                for (BVarSymbol requiredParam : requiredParams) {
+                    if (requiredParam.type == requiredIncRecordParam.owner.type) {
+                        dlog.error(iExpr.pos, DiagnosticErrorCode.MISSING_REQUIRED_PARAMETER,
+                                requiredIncRecordParam.name, iExpr.name.value);
+                        errored = true;
+                    }
+                }
+            }
         }
 
         if (restParam == null &&
@@ -5580,6 +5663,30 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!types.isOrderedType(returnType)) {
             dlog.error(pos, DiagnosticErrorCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
+    }
+
+    private BVarSymbol checkParameterNameForDefaultArgument(BLangIdentifier argName, BLangExpression expr,
+                                                            List<BVarSymbol> nonRestParams,
+                                                            List<BVarSymbol> incRecordParams,
+                                                            BVarSymbol incRecordParamAllowAdditionalFields) {
+        for (BVarSymbol nonRestParam : nonRestParams) {
+            if (nonRestParam.getName().value.equals(argName.value)) {
+                return nonRestParam;
+            }
+        }
+        for (BVarSymbol incRecordParam : incRecordParams) {
+            if (incRecordParam.getName().value.equals(argName.value)) {
+                return incRecordParam;
+            }
+        }
+        if (incRecordParamAllowAdditionalFields != null) {
+            LinkedHashMap<String, BField> fields = ((BRecordType) incRecordParamAllowAdditionalFields.type).fields;
+            if (!fields.containsKey(argName.value) && types.isAssignable(expr.type,
+                                            ((BRecordType) incRecordParamAllowAdditionalFields.type).restFieldType)) {
+                return new BVarSymbol(0, names.fromIdNode(argName), null, symTable.noType, null, argName.pos, VIRTUAL);
+            }
+        }
+        return null;
     }
 
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol, BType retType) {

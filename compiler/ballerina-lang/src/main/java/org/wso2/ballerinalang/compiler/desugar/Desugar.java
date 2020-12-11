@@ -2654,6 +2654,12 @@ public class Desugar extends BLangNodeVisitor {
             retryBlockStmt.parent = env.enclInvokable;
             retryBlockStmt.scope = new Scope(env.scope.owner);
 
+            if (retryNode.commonStmtForRetries != null) {
+                BLangSimpleVariableDef prevAttemptDef = (BLangSimpleVariableDef) retryNode.commonStmtForRetries;
+                retryBlockStmt.scope.define(prevAttemptDef.var.symbol.name, prevAttemptDef.var.symbol);
+                retryBlockStmt.stmts.add(retryNode.commonStmtForRetries);
+            }
+
             // <RetryManagerType> $retryManager$ = new();
             BLangSimpleVariableDef retryManagerVarDef = createRetryManagerDef(retryNode.retrySpec, retryNode.pos);
             retryBlockStmt.stmts.add(retryManagerVarDef);
@@ -2907,8 +2913,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     protected BLangSimpleVariableDef createRetryManagerDef(BLangRetrySpec retrySpec, Location pos) {
-        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) transactionDesugar
-                .getTransactionLibInvokableSymbol(names.fromString("DefaultRetryManager"));
+        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langObjectModuleSymbol.scope
+                .lookup(names.fromString("DefaultRetryManager")).symbol;
         BType retryManagerType = retryManagerTypeSymbol.type;
         if (retrySpec.retryManagerType != null) {
             retryManagerType = retrySpec.retryManagerType.type;
@@ -2960,7 +2966,15 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangRetryTransaction retryTransaction) {
         BLangBlockStmt retryBody = ASTBuilderUtil.createBlockStmt(retryTransaction.pos);
         retryBody.stmts.add(retryTransaction.transaction);
+
+        //transactions:Info? prevAttempt = ();
+        BLangSimpleVariableDef prevAttemptVarDef = transactionDesugar.createPrevAttemptInfoVarDef(env,
+                retryTransaction.pos);
+        retryTransaction.transaction.prevAttemptInfo = ASTBuilderUtil.createVariableRef(retryTransaction.pos,
+                prevAttemptVarDef.var.symbol);
+
         BLangRetry retry = (BLangRetry) TreeBuilder.createRetryNode();
+        retry.commonStmtForRetries = prevAttemptVarDef;
         retry.retryBody = retryBody;
         retry.retrySpec = retryTransaction.retrySpec;
         result = rewrite(retry, env);
@@ -3688,7 +3702,7 @@ public class Desugar extends BLangNodeVisitor {
                 Lists.of(errorVar), onFailReturnType, onFailClause.body.stmts,
                 env, onFailClause.body.scope);
 
-        onFailFunc.capturedClosureEnv = env.createClone();
+        onFailFunc.capturedClosureEnv = env;
         onFailFunc.parent = env.enclInvokable;
         BLangSimpleVarRef thrownErrorRef = ASTBuilderUtil.createVariableRef(onFailClause.pos, errorVar.symbol);
         onFailErrorVariableDef.var.expr = addConversionExprIfRequired(thrownErrorRef, onFailErrorVariableDef.var.type);
@@ -6944,6 +6958,8 @@ public class Desugar extends BLangNodeVisitor {
                 .forEach(expr -> namedArgs.put(((NamedArgNode) expr).getName().value, expr));
 
         List<BVarSymbol> params = invokableSymbol.params;
+        List<BLangRecordLiteral> incRecordLiterals = new ArrayList<>();
+        BLangRecordLiteral incRecordParamAllowAdditionalFields = null;
 
         int varargIndex = 0;
 
@@ -6963,7 +6979,16 @@ public class Desugar extends BLangNodeVisitor {
                 args.add(iExpr.requiredArgs.get(i));
             } else if (namedArgs.containsKey(param.name.value)) {
                 // Else check if named arg is given.
-                args.add(namedArgs.get(param.name.value));
+                args.add(namedArgs.remove(param.name.value));
+            } else if (param.getFlags().contains(Flag.INCLUDED)) {
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+                BType paramType = param.type;
+                recordLiteral.type = paramType;
+                args.add(recordLiteral);
+                incRecordLiterals.add(recordLiteral);
+                if (((BRecordType) paramType).restFieldType != symTable.noType) {
+                    incRecordParamAllowAdditionalFields = recordLiteral;
+                }
             } else if (varargRef == null) {
                 // Else create a dummy expression with an ignore flag.
                 BLangExpression expr = new BLangIgnoreExpr();
@@ -6983,7 +7008,39 @@ public class Desugar extends BLangNodeVisitor {
                 args.add(addConversionExprIfRequired(memberAccessExpr, param.type));
             }
         }
+        if (namedArgs.size() > 0) {
+            setFieldsForIncRecordLiterals(namedArgs, incRecordLiterals, incRecordParamAllowAdditionalFields);
+        }
         iExpr.requiredArgs = args;
+    }
+
+    private void setFieldsForIncRecordLiterals(Map<String, BLangExpression> namedArgs,
+                                               List<BLangRecordLiteral> incRecordLiterals,
+                                               BLangRecordLiteral incRecordParamAllowAdditionalFields) {
+        for (String name : namedArgs.keySet()) {
+            boolean isAdditionalField = true;
+            BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
+            for (BLangRecordLiteral recordLiteral : incRecordLiterals) {
+                LinkedHashMap<String, BField> fields = ((BRecordType) recordLiteral.type).fields;
+                if (fields.containsKey(name) && fields.get(name).type.tag != TypeTags.NEVER) {
+                    isAdditionalField = false;
+                    createAndAddRecordFieldForIncRecordLiteral(recordLiteral, expr);
+                    break;
+                }
+            }
+            if (isAdditionalField) {
+                createAndAddRecordFieldForIncRecordLiteral(incRecordParamAllowAdditionalFields, expr);
+            }
+        }
+    }
+
+    private void createAndAddRecordFieldForIncRecordLiteral(BLangRecordLiteral recordLiteral,
+                                                            BLangNamedArgsExpression expr) {
+        BLangSimpleVarRef varRef = new BLangSimpleVarRef();
+        varRef.variableName = expr.name;
+        BLangRecordLiteral.BLangRecordKeyValueField recordKeyValueField = ASTBuilderUtil.
+                createBLangRecordKeyValue(varRef, expr.expr);
+        recordLiteral.fields.add(recordKeyValueField);
     }
 
     private BLangMatchTypedBindingPatternClause getSafeAssignErrorPattern(Location location,
