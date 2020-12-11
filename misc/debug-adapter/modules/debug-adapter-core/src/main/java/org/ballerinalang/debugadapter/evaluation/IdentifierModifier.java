@@ -17,15 +17,17 @@
 package org.ballerinalang.debugadapter.evaluation;
 
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TreeModifier;
+import io.ballerina.runtime.internal.IdentifierUtils;
 
-import static io.ballerina.runtime.internal.IdentifierUtils.encodeIdentifier;
 import static io.ballerina.runtime.internal.IdentifierUtils.unescapeUnicodeCodepoints;
 
 /**
  * Identifier specific expression modifier implementation.
  */
-public class ExpressionIdentifierModifier extends TreeModifier {
+public class IdentifierModifier extends TreeModifier {
 
     private static final String QUOTED_IDENTIFIER_PREFIX = "'";
 
@@ -38,7 +40,27 @@ public class ExpressionIdentifierModifier extends TreeModifier {
         }
         // Processes escaped unicode codepoints.
         String unescapedIdentifier = unescapeUnicodeCodepoints(identifierText);
+
         // Encodes the user provided identifier in order to be aligned with JVM runtime identifiers.
-        return identifier.modify(encodeIdentifier(unescapedIdentifier));
+        NonTerminalNode parent = identifier.parent();
+        boolean isFunctionName = parent != null && (parent.kind() == SyntaxKind.FUNCTION_DEFINITION
+                || parent.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION);
+
+        return isFunctionName ? identifier.modify(encodeIdentifier(unescapedIdentifier, IdentifierType.METHOD_NAME)) :
+                identifier.modify(encodeIdentifier(unescapedIdentifier, IdentifierType.OTHER));
+    }
+
+    public static String encodePackageName(String identifier) {
+        return encodeIdentifier(identifier, IdentifierType.OTHER);
+    }
+
+    public static String encodeIdentifier(String identifier, IdentifierType type) {
+        return type == IdentifierType.METHOD_NAME ? IdentifierUtils.encodeFunctionIdentifier(identifier) :
+                IdentifierUtils.encodeNonFunctionIdentifier(identifier);
+    }
+
+    public enum IdentifierType {
+        METHOD_NAME,
+        OTHER
     }
 }

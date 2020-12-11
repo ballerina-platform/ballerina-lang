@@ -25,8 +25,7 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.internal.IdentifierUtils.encodeIdentifier;
-import static io.ballerina.runtime.internal.IdentifierUtils.encodeNonFunctionIdentifier;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodePackageName;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getGeneratedMethod;
 import static org.ballerinalang.debugadapter.variable.BVariableType.ARRAY;
 import static org.ballerinalang.debugadapter.variable.BVariableType.INT;
@@ -78,7 +77,7 @@ public class LangLibUtils {
         try {
             return new StringJoiner(".")
                     .add(LANG_LIB_ORG)
-                    .add(encodeIdentifier(encodeNonFunctionIdentifier(LANG_LIB_PACKAGE_PREFIX + langLibName)))
+                    .add(encodePackageName(LANG_LIB_PACKAGE_PREFIX + langLibName))
                     .add(context.getLoadedLangLibVersions().get(langLibName))
                     .add(langLibName)
                     .toString();

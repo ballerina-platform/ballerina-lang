@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
-import static io.ballerina.runtime.internal.IdentifierUtils.encodeNonFunctionIdentifier;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodePackageName;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_ORG;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
@@ -181,7 +181,7 @@ public class SuspendedContext {
     }
 
     private void populateLangLibVersions() {
-        String langLibPrefix = LANG_LIB_ORG + "." + encodeNonFunctionIdentifier(LANG_LIB_PACKAGE_PREFIX);
+        String langLibPrefix = LANG_LIB_ORG + "." + encodePackageName(LANG_LIB_PACKAGE_PREFIX);
         for (ReferenceType referenceType : attachedVm.allClasses()) {
             if (!referenceType.name().startsWith(langLibPrefix)) {
                 continue;

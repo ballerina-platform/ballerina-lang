@@ -145,10 +145,6 @@ public class PackageUtils {
         }
     }
 
-    public static boolean isBlank(String str) {
-        return str == null || str.isEmpty() || str.chars().allMatch(Character::isWhitespace);
-    }
-
     /**
      * Returns full-qualified class name for a given JDI class reference instance.
      *
