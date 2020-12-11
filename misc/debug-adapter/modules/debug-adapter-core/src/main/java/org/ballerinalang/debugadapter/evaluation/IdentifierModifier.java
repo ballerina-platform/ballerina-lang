@@ -50,7 +50,7 @@ public class IdentifierModifier extends TreeModifier {
                 identifier.modify(encodeIdentifier(unescapedIdentifier, IdentifierType.OTHER));
     }
 
-    public static String encodePackageName(String identifier) {
+    public static String encodeModuleName(String identifier) {
         return encodeIdentifier(identifier, IdentifierType.OTHER);
     }
 

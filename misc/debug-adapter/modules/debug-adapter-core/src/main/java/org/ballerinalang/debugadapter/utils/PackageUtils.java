@@ -18,7 +18,6 @@ package org.ballerinalang.debugadapter.utils;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
-import com.sun.jdi.ReferenceType;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -26,7 +25,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
-import org.ballerinalang.debugadapter.DebugContext;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -40,15 +38,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
+
 /**
  * Package Utils.
  */
 public class PackageUtils {
 
-    public static final String MODULE_DIR_NAME = "modules";
     public static final String BAL_FILE_EXT = ".bal";
     public static final String INIT_CLASS_NAME = "$_init";
     public static final String GENERATED_VAR_PREFIX = "$";
+    private static final String MODULE_DIR_NAME = "modules";
     private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
     /**
@@ -74,9 +75,11 @@ public class PackageUtils {
             if (!srcPaths[0].equals(orgName)) {
                 return null;
             }
-            String modulePart = srcPaths[1].replaceFirst(defaultModuleName, "");
-            if (modulePart.startsWith("_")) {
-                modulePart = modulePart.replaceFirst("_", "");
+
+            String modulePart = decodeIdentifier(srcPaths[1]);
+            modulePart = modulePart.replaceFirst(defaultModuleName, "");
+            if (modulePart.startsWith(".")) {
+                modulePart = modulePart.replaceFirst(".", "");
             }
 
             if (modulePart.isBlank()) {
@@ -146,32 +149,6 @@ public class PackageUtils {
     }
 
     /**
-     * Returns full-qualified class name for a given JDI class reference instance.
-     *
-     * @param context       Debug context
-     * @param referenceType JDI class reference instance
-     * @return full-qualified class name
-     */
-    public static String getQualifiedClassName(DebugContext context, ReferenceType referenceType) {
-        try {
-            List<String> paths = referenceType.sourcePaths(null);
-            if (paths.isEmpty()) {
-                return referenceType.name();
-            }
-            String path = paths.get(0);
-            if (!path.endsWith(BAL_FILE_EXT) || (context.getSourceProject() instanceof BuildProject &&
-                    !path.startsWith(context.getSourceProject().currentPackage().packageOrg().value()))) {
-                return referenceType.name();
-            }
-            // Removes ".bal" extension if exists.
-            path = path.replaceAll(BAL_FILE_EXT + "$", "");
-            return replaceSeparators(path);
-        } catch (Exception e) {
-            return referenceType.name();
-        }
-    }
-
-    /**
      * Returns full-qualified class name for a given ballerina JVM generated class name.
      *
      * @param context   suspended context
@@ -214,7 +191,7 @@ public class PackageUtils {
 
         StringJoiner classNameJoiner = new StringJoiner(".");
         classNameJoiner.add(document.module().packageInstance().packageOrg().value())
-                .add(document.module().moduleName().toString().replace(".", "_"))
+                .add(encodeModuleName(document.module().moduleName().toString()))
                 .add(document.module().packageInstance().packageVersion().toString().replace(".", "_"))
                 .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".").replace("/", "."));
         return classNameJoiner.toString();
