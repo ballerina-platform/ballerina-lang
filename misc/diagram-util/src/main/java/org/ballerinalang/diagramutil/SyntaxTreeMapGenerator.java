@@ -39,6 +39,8 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.ClassUtils;
@@ -120,6 +122,24 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
                 if (symbol.isPresent()) {
                     symbolJson.add("symbol", generateTypeJson(symbol.get()));
+                }
+
+                List<Diagnostic> diagnostics = this.semanticModel.diagnostics(lineRange);
+                if (diagnostics != null) {
+                    JsonArray diagnosticsArray = new JsonArray();
+                    for (Diagnostic diagnostic : diagnostics) {
+                        JsonObject diagnosticJson = new JsonObject();
+                        diagnosticJson.addProperty("message", diagnostic.message());
+                        DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
+                        if (diagnosticInfo != null) {
+                            JsonObject diagnosticInfoJson = new JsonObject();
+                            diagnosticInfoJson.addProperty("code", diagnosticInfo.code());
+                            diagnosticInfoJson.addProperty("severity", diagnosticInfo.severity().name());
+                            diagnosticJson.add("diagnosticInfo", diagnosticInfoJson);
+                        }
+                        diagnosticsArray.add(diagnosticJson);
+                    }
+                    symbolJson.add("diagnostics", diagnosticsArray);
                 }
 
                 nodeJson.add("typeData", symbolJson);
