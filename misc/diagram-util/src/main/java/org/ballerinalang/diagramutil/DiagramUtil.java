@@ -20,9 +20,12 @@ package org.ballerinalang.diagramutil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -53,4 +56,43 @@ public class DiagramUtil {
 
         return syntaxTreeJson;
     }
+
+//    public static JsonElement getSyntaxNodeJson(String fileName,Node node, SemanticModel semanticModel) {
+//        JsonElement syntaxTreeJson;
+//        try {
+//            // Map each type data by looking at the line ranges and prepare the SyntaxTree JSON.
+//            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(fileName, semanticModel);
+//            syntaxTreeJson = mapGenerator.transform(node);
+//        } catch (NullPointerException e) {
+//            syntaxTreeJson = new JsonObject();
+//        }
+//
+//        return syntaxTreeJson;
+//
+//    }
+
+    public static  JsonElement getClassDefinitionSyntaxJson(ClassDefinitionNode classDefinitionNode, SemanticModel semanticModel) {
+        JsonElement syntaxTreeJson;
+        try {
+           SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(classDefinitionNode.syntaxTree().filePath(), semanticModel);
+           syntaxTreeJson = mapGenerator.transform(classDefinitionNode);
+        } catch (NullPointerException e) {
+            syntaxTreeJson = new JsonObject();
+        }
+
+        return  syntaxTreeJson;
+    }
+
+    public static  JsonElement getTypeDefinitionSyntaxJson(TypeDefinitionNode typeDefinitionNode, SemanticModel semanticModel) {
+        JsonElement syntaxTreeJson;
+        try {
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(typeDefinitionNode.syntaxTree().filePath(), semanticModel);
+            syntaxTreeJson = mapGenerator.transform(typeDefinitionNode);
+        } catch (NullPointerException e) {
+            syntaxTreeJson = new JsonObject();
+        }
+
+        return  syntaxTreeJson;
+    }
+
 }
