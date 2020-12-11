@@ -233,11 +233,6 @@
 
             <!-- Disabled tests related to ProjectAPI change -->
             <!-- ########################## START ############################# -->
-            <class name="org.ballerinalang.test.action.start.StartActionTest">
-                <methods>
-                    <exclude name="testStartActionNegative"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.WaitForAllActionsTest">
                 <methods>
                     <exclude name="waitTest1"/>
