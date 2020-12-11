@@ -316,7 +316,8 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         Token ellipsisToken = formatToken(resourcePathParameterNode.ellipsisToken().orElse(null), 1, 0);
         Token paramName = formatToken(resourcePathParameterNode.paramName(), 0, 0);
-        Token closeBracketToken = formatToken(resourcePathParameterNode.closeBracketToken(), env.trailingWS, env.trailingNL);
+        Token closeBracketToken = formatToken(resourcePathParameterNode.closeBracketToken(), env.trailingWS,
+                env.trailingNL);
 
         return resourcePathParameterNode.modify()
                 .withOpenBracketToken(openBracketToken)
