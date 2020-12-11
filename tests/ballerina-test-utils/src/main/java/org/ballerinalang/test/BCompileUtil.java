@@ -34,7 +34,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.UUID;
 
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
@@ -47,7 +46,6 @@ public class BCompileUtil {
 
     private static final Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath().normalize();
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath().normalize();
-    public static final String TEST_COMPILATION_CACHE_DIR_NAME = "test_compilation_cache";
 
     public static Project loadProject(String sourceFilePath) {
         Path sourcePath = Paths.get(sourceFilePath);
@@ -71,15 +69,6 @@ public class BCompileUtil {
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
-    }
-
-    public static Project getProject(String sourceFilePath) {
-        Path sourcePath = Paths.get(sourceFilePath);
-        String sourceFileName = sourcePath.getFileName().toString();
-        Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
-
-        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        return ProjectLoader.loadProject(projectPath);
     }
 
     public static CompileResult compileAndCacheBalo(String sourceFilePath) {
@@ -177,8 +166,7 @@ public class BCompileUtil {
         }
 
         private static TestCompilationCache from(Project project) {
-            Path testCompilationCachePath = testBuildDirectory.resolve(TEST_COMPILATION_CACHE_DIR_NAME).
-                    resolve(UUID.randomUUID().toString());
+            Path testCompilationCachePath = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
             return new TestCompilationCache(project, testCompilationCachePath);
         }
     }

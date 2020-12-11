@@ -21,6 +21,7 @@ package io.ballerina.compiler.api.impl;
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaClassSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaEnumSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
@@ -30,6 +31,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
@@ -45,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -133,6 +136,10 @@ public class SymbolFactory {
             if (symbol instanceof BClassSymbol) {
                 return createClassSymbol((BClassSymbol) symbol, name);
             }
+            if (Symbols.isFlagOn(symbol.flags, Flags.ENUM)) {
+                return createEnumSymbol((BEnumSymbol) symbol, name);
+            }
+
             // create the typeDefs
             return createTypeDefinition((BTypeSymbol) symbol, name);
         }
@@ -283,6 +290,25 @@ public class SymbolFactory {
         return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type, true)).build();
     }
 
+    public BallerinaEnumSymbol createEnumSymbol(BEnumSymbol enumSymbol, String name) {
+        BallerinaEnumSymbol.EnumSymbolBuilder symbolBuilder =
+                new BallerinaEnumSymbol.EnumSymbolBuilder(name, enumSymbol.pkgID, enumSymbol);
+
+        if (isFlagOn(enumSymbol.flags, Flags.PUBLIC)) {
+            symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+
+        List<ConstantSymbol> members = new ArrayList<>();
+        for (BConstantSymbol member : enumSymbol.members) {
+            members.add(this.createConstantSymbol(member, member.name.value));
+        }
+
+        return symbolBuilder
+                .withMembers(members)
+                .withTypeDescriptor(typesFactory.getTypeDescriptor(enumSymbol.type, true))
+                .build();
+    }
+
     public BallerinaClassSymbol createClassSymbol(BClassSymbol classSymbol, String name) {
         TypeSymbol type = typesFactory.getTypeDescriptor(classSymbol.type, true);
         return createClassSymbol(classSymbol, name, type);
@@ -326,7 +352,9 @@ public class SymbolFactory {
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
                 new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID, constantSymbol);
         symbolBuilder.withConstValue(constantSymbol.getConstValue())
-                .withTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.literalType));
+                .withTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.type))
+                .withBroaderTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.literalType));
+
         if ((constantSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }

@@ -18,16 +18,14 @@
 
 package io.ballerina.projects;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipOutputStream;
 
@@ -38,9 +36,11 @@ import java.util.zip.ZipOutputStream;
  */
 public class JBallerinaBaloWriter extends BaloWriter {
 
+    JBallerinaBackend backend;
 
-    public JBallerinaBaloWriter(PackageContext packageContext) {
-        super(packageContext);
+    public JBallerinaBaloWriter(JBallerinaBackend backend) {
+        this.backend = backend;
+        this.packageContext = backend.packageContext();
         this.target = getTargetPlatform(packageContext.getResolution()).code();
     }
 
@@ -48,10 +48,10 @@ public class JBallerinaBaloWriter extends BaloWriter {
     @Override
     protected Optional<JsonArray> addPlatformLibs(ZipOutputStream baloOutputStream)
             throws IOException {
-        Path sourceRoot = this.packageContext.project().sourceRoot();
-        //If platform libs are defined add them to balo
-        PackageManifest.Platform platform = this.packageContext.manifest().platform(target);
-        if (platform == null) {
+        // retrieve platform dependencies that have default scope
+        Collection<PlatformLibrary> jars = backend.platformLibraryDependencies(packageContext.packageId(),
+                PlatformLibraryScope.DEFAULT);
+        if (jars.isEmpty()) {
             return Optional.empty();
         }
         // Iterate through native dependencies and add them to balo
@@ -63,17 +63,10 @@ public class JBallerinaBaloWriter extends BaloWriter {
         //         - java-library1.jar
         //         - java-library2.jar
         JsonArray newPlatformLibs = new JsonArray();
-        // Iterate platforms and create directories for each target
-        for (Map<String, Object> dependency : platform.dependencies()) {
-            // todo in the future dependency object can be complex than this
-            String path;
-            if (dependency.get(PATH) instanceof String) {
-                path = (String) dependency.get(PATH);
-            } else {
-                // This cannot be the case if we have proper Ballerina.toml validation
-                continue;
-            }
-            Path libPath = sourceRoot.resolve(path);
+        // Iterate jars and create directories for each target
+        for (PlatformLibrary platformLibrary : jars) {
+            JarLibrary jar = (JarLibrary) platformLibrary;
+            Path libPath = jar.path();
             // null check is added for spot bug with the toml validation filename cannot be null
             String fileName = Optional.ofNullable(libPath.getFileName())
                     .map(p -> p.toString()).orElse("annon");
@@ -84,9 +77,13 @@ public class JBallerinaBaloWriter extends BaloWriter {
             putZipEntry(baloOutputStream, entryPath, new FileInputStream(libPath.toString()));
 
             // Create the Package.json entry
-            Gson gson = new Gson();
-            JsonElement newDependency = gson.toJsonTree(dependency);
-            newDependency.getAsJsonObject().addProperty(PATH, entryPath.toString());
+            JsonObject newDependency = new JsonObject();
+            newDependency.addProperty(JarLibrary.KEY_PATH, entryPath.toString());
+            if (jar.artifactId().isPresent() && jar.groupId().isPresent() && jar.version().isPresent()) {
+                newDependency.addProperty(JarLibrary.KEY_ARTIFACT_ID, jar.artifactId().get());
+                newDependency.addProperty(JarLibrary.KEY_GROUP_ID, jar.groupId().get());
+                newDependency.addProperty(JarLibrary.KEY_VERSION, jar.version().get());
+            }
             newPlatformLibs.add(newDependency);
         }
 

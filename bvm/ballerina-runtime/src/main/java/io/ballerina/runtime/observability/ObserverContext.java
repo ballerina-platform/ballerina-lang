@@ -22,8 +22,9 @@ import io.ballerina.runtime.observability.metrics.Tag;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_LISTENER_NAME;
 
 /**
  * Context object used for observation purposes.
@@ -41,13 +42,18 @@ public class ObserverContext {
      */
     private final Map<String, Tag> tags;
 
+    /**
+     * {@link Map} of custom Tags, which are relevant to metrics  .
+     */
+    public Map<String, Tag> customMetricTags;
+
+    private String entrypointFunctionModule;
+
+    private String entrypointFunctionPosition;
+
     private String serviceName;
 
-    private String resourceName;
-
-    private String objectName;
-
-    private String functionName;
+    private String operationName;
 
     private boolean server;
 
@@ -72,12 +78,6 @@ public class ObserverContext {
         return properties.get(key);
     }
 
-    @Deprecated
-    public void addMainTag(String key, String value) {
-        // TODO: Remove this method once all the usages in the standard libraries had been updated.
-        addTag(key, value);
-    }
-
     public void addTag(String key, String value) {
         String sanitizedValue = value != null ? value : "";
         Tag tag = Tag.of(key, sanitizedValue);
@@ -92,36 +92,36 @@ public class ObserverContext {
         return new HashSet<>(tags.values());
     }
 
+    public String getEntrypointFunctionModule() {
+        return entrypointFunctionModule;
+    }
+
+    public void setEntrypointFunctionModule(String entrypointFunctionModule) {
+        this.entrypointFunctionModule = entrypointFunctionModule;
+    }
+
+    public String getEntrypointFunctionPosition() {
+        return entrypointFunctionPosition;
+    }
+
+    public void setEntrypointFunctionPosition(String entrypointFunctionPosition) {
+        this.entrypointFunctionPosition = entrypointFunctionPosition;
+    }
+
     public String getServiceName() {
         return serviceName;
     }
 
     public void setServiceName(String serviceName) {
-        this.serviceName = Objects.requireNonNull(serviceName);
+        this.serviceName = serviceName;
     }
 
-    public String getResourceName() {
-        return resourceName;
+    public String getOperationName() {
+        return operationName;
     }
 
-    public void setResourceName(String resourceName) {
-        this.resourceName = Objects.requireNonNull(resourceName);
-    }
-
-    public String getObjectName() {
-        return objectName;
-    }
-
-    public void setObjectName(String objectName) {
-        this.objectName = Objects.requireNonNull(objectName);
-    }
-
-    public String getFunctionName() {
-        return functionName;
-    }
-
-    public void setFunctionName(String functionName) {
-        this.functionName = Objects.requireNonNull(functionName);
+    public void setOperationName(String operationName) {
+        this.operationName = operationName;
     }
 
     public boolean isServer() {
@@ -162,5 +162,11 @@ public class ObserverContext {
 
     public void setSystemSpan(boolean userSpan) {
         isSystemSpan = userSpan;
+    }
+
+    @Deprecated
+    public void setObjectName(String objectName) {
+        // TODO: Remove once connector usages are removed (Connectors should directly add connector tag instead)
+        addTag(TAG_KEY_LISTENER_NAME, objectName);
     }
 }

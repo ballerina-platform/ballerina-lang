@@ -22,36 +22,30 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.moandjiezana.toml.Toml;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.balo.BaloProject;
+import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.compiler.CompilerOptionName;
-import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
-import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.exception.LSConnectorException;
-import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
-import org.ballerinalang.langserver.util.definition.LSStdLibCacheUtil;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.types.RecordTypeNode;
-import org.ballerinalang.model.types.ValueType;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
-import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
@@ -62,17 +56,16 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 
 /**
@@ -83,11 +76,15 @@ import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 public class BallerinaConnectorServiceImpl implements BallerinaConnectorService {
 
     public static final String DEFAULT_CONNECTOR_FILE_KEY = "DEFAULT_CONNECTOR_FILE";
-    private static final Path STD_LIB_SOURCE_ROOT = Paths.get(CommonUtil.BALLERINA_HOME).resolve("lib").resolve("repo");
+    private static final Path STD_LIB_SOURCE_ROOT = Paths.get(CommonUtil.BALLERINA_HOME)
+            .resolve("repo")
+            .resolve("balo");
     private String connectorConfig;
     private LSGlobalContext lsContext;
+    private WorkspaceManager workspaceManager;
 
-    public BallerinaConnectorServiceImpl(LSGlobalContext lsContext) {
+    public BallerinaConnectorServiceImpl(WorkspaceManager workspaceManager, LSGlobalContext lsContext) {
+        this.workspaceManager = workspaceManager;
         this.lsContext = lsContext;
         connectorConfig = System.getenv(DEFAULT_CONNECTOR_FILE_KEY);
         if (connectorConfig == null) {
@@ -104,6 +101,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             String msg = "Operation 'ballerinaConnector/connectors' failed!";
             logError(msg, e, null, (Position) null);
         }
+
         return CompletableFuture.supplyAsync(BallerinaConnectorsResponse::new);
     }
 
@@ -111,7 +109,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         Path baloPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module).
                 resolve(version.isEmpty() ?
                         ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version).
-                resolve(module + ProjectDirConstants.BLANG_COMPILED_PKG_EXT);
+                resolve(String.format("%s-%s-any-%s%s", org, module, version,
+                        ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT));
         if (!Files.exists(baloPath.toAbsolutePath())) {
             //check external modules
             PackageID packageID = new PackageID(new Name(org), new Name(module), new Name(version));
@@ -122,7 +121,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             if (path.isPresent() && Files.exists(path.get().toAbsolutePath())) {
                 baloPath = path.get().toAbsolutePath();
             } else {
-                throw new LSConnectorException("No file exist in '" + path.get().toAbsolutePath() + "'");
+                throw new LSConnectorException("No file exist in '" + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT
+                        + path.get().toAbsolutePath() + "'");
             }
         }
         return baloPath;
@@ -133,83 +133,56 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
         String cacheableKey = getCacheableKey(request.getOrg(), request.getModule(), request.getVersion());
         LSConnectorCache connectorCache = LSConnectorCache.getInstance(lsContext);
-
-        JsonElement ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName());
+        JsonElement st = connectorCache
+                .getConnectorConfig(request.getOrg(), request.getModule(), request.getVersion(), request.getName());
         String error = "";
-        if (ast == null) {
+        if (st == null) {
             try {
                 Path baloPath = getBaloPath(request.getOrg(), request.getModule(), request.getVersion());
-                boolean isExternalModule = baloPath.toString().endsWith(".balo");
-                String moduleName = request.getModule();
-                String projectDir = CommonUtil.LS_CONNECTOR_CACHE_DIR.resolve(cacheableKey).toString();
-                if (isExternalModule) {
-                    LSConnectorUtil.extract(baloPath, cacheableKey);
-                } else {
-                    Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).
-                            resolve(ProjectDirConstants.SOURCE_DIR_NAME);
-                    if (!Files.exists(destinationRoot)) {
-                        LSStdLibCacheUtil.extract(baloPath, destinationRoot, moduleName, cacheableKey);
-                    }
-                    projectDir = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).toString();
-                    moduleName = cacheableKey;
-                }
-                CompilerContext compilerContext = createNewCompilerContext(projectDir);
-                Compiler compiler = LSStdLibCacheUtil.getCompiler(compilerContext);
-                BLangPackage bLangPackage = compiler.compile(moduleName);
 
-                ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName());
-                bLangPackage.accept(connectorNodeVisitor);
+                ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+                defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+                BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
+                ModuleId moduleId = baloProject.currentPackage().moduleIds().stream().findFirst().get();
+                Module module = baloProject.currentPackage().module(moduleId);
+                SemanticModel semanticModel = module.getCompilation().getSemanticModel();
 
-                VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
-                visibleEndpointVisitor.visit(bLangPackage);
-
-                Map<String, JsonElement> jsonRecords = new HashMap<>();
-                connectorNodeVisitor.getRecords().forEach((key, record) -> {
-                    JsonElement jsonAST = null;
-                    try {
-                        jsonAST = TextDocumentFormatUtil.generateJSON(record, new HashMap<>(),
-                                visibleEndpointVisitor.getVisibleEPsByNode());
-                    } catch (JSONGenerationException e) {
-                        String msg = "Operation 'ballerinaConnector/connector' loading record " +
-                                key + " failed!";
-                        logError(msg, e, null, (Position) null);
-                    }
-                    jsonRecords.put(key, jsonAST);
+                ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
+                module.documentIds().forEach(documentId -> {
+                    module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor);
                 });
+
+                Map<String, TypeDefinitionNode> jsonRecords = new HashMap<>();
+                connectorNodeVisitor.getRecords().forEach(jsonRecords::put);
 
                 Gson gson = new Gson();
-                List<BLangTypeDefinition> connectorNode = connectorNodeVisitor.getConnectors();
-                connectorNode.forEach(connector -> {
+                List<ClassDefinitionNode> connectorNodes = connectorNodeVisitor.getConnectors();
 
+                connectorNodes.forEach(connector -> {
+                    // todo : preserve the existing logic add the information to the typeData element of
+                    //  the syntax tree JSON and send to front end
                     Map<String, JsonElement> connectorRecords = new HashMap<>();
-                    FunctionNode initFunction = ((BLangObjectTypeNode) connector.getTypeNode()).getInitFunction();
-                    if (initFunction != null) {
-                        initFunction.getParameters().forEach(
-                                param -> populateConnectorRecords(((BLangVariable) param).type,
-                                        connectorNodeVisitor.getRecords(), jsonRecords, connectorRecords));
-                    }
-                    ((BLangObjectTypeNode) connector.getTypeNode()).getFunctions().forEach(f -> f.getParameters().
-                            forEach(param -> populateConnectorRecords(param.type,
-                                    connectorNodeVisitor.getRecords(), jsonRecords, connectorRecords)));
 
-                    JsonElement jsonAST = null;
-                    try {
-                        jsonAST = TextDocumentFormatUtil.generateJSON(connector, new HashMap<>(),
-                                visibleEndpointVisitor.getVisibleEPsByNode());
-                    } catch (JSONGenerationException e) {
-                        String msg = "Operation 'ballerinaConnector/connector' loading " + cacheableKey + ":" +
-                                connector.getName().getValue() + " failed!";
-                        logError(msg, e, null, (Position) null);
+                    for (Node child : connector.members()) {
+                        if (child.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                            FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) child;
+                            functionDefinitionNode.functionSignature().parameters().forEach(parameterNode -> {
+                                populateConnectorFunctionParamRecords(parameterNode, semanticModel, jsonRecords,
+                                        connectorRecords);
+                            });
+                        }
                     }
-                    if (jsonAST instanceof JsonObject) {
+
+                    JsonElement jsonST = DiagramUtil.getClassDefinitionSyntaxJson(connector, semanticModel);
+                    if (jsonST instanceof JsonObject) {
                         JsonElement recordsJson = gson.toJsonTree(connectorRecords);
-                        ((JsonObject) jsonAST).add("records", recordsJson);
+                        ((JsonObject) jsonST).add("records", recordsJson);
                     }
                     connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
-                            request.getVersion(), connector.getName().getValue(), jsonAST);
+                            request.getVersion(), connector.className().text(), jsonST);
+
                 });
-                ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
+                st = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
                         request.getVersion(), request.getName());
             } catch (Exception e) {
                 String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
@@ -219,8 +192,75 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             }
         }
         BallerinaConnectorResponse response = new BallerinaConnectorResponse(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName(), request.getDisplayName(), ast, error, request.getBeta());
+                request.getVersion(), request.getName(), request.getDisplayName(), st, error, request.getBeta());
         return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    private void populateConnectorFunctionParamRecords(Node parameterNode, SemanticModel semanticModel,
+                                                       Map<String, TypeDefinitionNode> jsonRecords,
+                                                       Map<String, JsonElement> connectorRecords) {
+        Optional<TypeSymbol> paramType = semanticModel
+                .type(parameterNode.syntaxTree().filePath(), parameterNode.lineRange());
+        if (paramType.isPresent()) {
+            if (paramType.get().typeKind() == TypeDescKind.UNION) {
+                Arrays.stream(paramType.get().signature().split("\\|")).forEach(type -> {
+                    /* todo : need a better way to get types other than string splitting and checking regex */
+                    String typeName = type;
+                    Pattern typeRefPattern = Pattern.compile("\\w+/\\w+:[\\d.]+:(\\w+)");
+                    Matcher typeRefPatternMatcher = typeRefPattern.matcher(type);
+                    if (typeRefPatternMatcher.find()) {
+                        typeName = typeRefPatternMatcher.group(1);
+                    }
+                    TypeDefinitionNode record = jsonRecords.get(typeName);
+                    if (record != null) {
+                        connectorRecords.put(typeName, DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
+                        populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
+                    }
+                });
+            } else if (paramType.get().typeKind() == TypeDescKind.ARRAY) {
+                Pattern arraySignaturePattern = Pattern.compile("(\\w+)\\[\\]$");
+                Matcher signatureMatcher = arraySignaturePattern.matcher(paramType.get().signature());
+
+                if (signatureMatcher.find()) {
+                    // there is only one group in the regex and array signature always matches
+                    TypeDefinitionNode record = jsonRecords.get(signatureMatcher.group(1));
+                    if (record != null) {
+                        connectorRecords.put(signatureMatcher.group(1),
+                                DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
+                        populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
+                    }
+                }
+
+            }
+        }
+    }
+
+    private void populateConnectorRecords(TypeDefinitionNode recordTypeDefinition, SemanticModel semanticModel,
+                                          Map<String, TypeDefinitionNode> jsonRecords,
+                                          Map<String, JsonElement> connectorRecords) {
+        RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) recordTypeDefinition
+                                                                                            .typeDescriptor();
+
+        recordTypeDescriptorNode.fields().forEach(field -> {
+            Optional<TypeSymbol> fieldType = semanticModel.type(field.syntaxTree().filePath(), field.lineRange());
+
+            if (fieldType.isPresent() && fieldType.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                String type = fieldType.get().signature();
+                String typeName = type;
+                Pattern typeRefPattern = Pattern.compile("\\w+/\\w+:[\\d.]+:(\\w+)");
+                Matcher typeRefPatternMatcher = typeRefPattern.matcher(typeName);
+
+                if (typeRefPatternMatcher.find()) {
+                    typeName = typeRefPatternMatcher.group(1);
+                }
+
+                TypeDefinitionNode record = jsonRecords.get(typeName);
+                if (record != null && !recordTypeDefinition.typeName().text().equals(typeName)) {
+                    connectorRecords.put(typeName, DiagramUtil.getSyntaxTreeJSON(record.syntaxTree(), semanticModel));
+                    populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
+                }
+            }
+        });
     }
 
     @Override
@@ -233,63 +273,43 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         String error = "";
         if (ast == null) {
             try {
-                int versionSeparator = request.getModule().lastIndexOf("_");
-                int modNameSeparator = request.getModule().indexOf("_");
-                String version = request.getModule().substring(versionSeparator + 1);
-                String moduleName = request.getModule().substring(modNameSeparator + 1, versionSeparator);
-                String orgName = request.getModule().substring(0, modNameSeparator);
-                Path baloPath = getBaloPath(orgName, moduleName, version);
-                boolean isExternalModule = baloPath.toString().endsWith(".balo");
+                Path baloPath = getBaloPath(request.getOrg(), request.getModule(), request.getVersion());
+                ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+                defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+                BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
+                ModuleId moduleId = baloProject.currentPackage().moduleIds().stream().findFirst().get();
+                Module module = baloProject.currentPackage().module(moduleId);
+                SemanticModel semanticModel = module.getCompilation().getSemanticModel();
 
-                String projectDir = CommonUtil.LS_CONNECTOR_CACHE_DIR.resolve(cacheableKey).toString();
-                if (isExternalModule) {
-                    LSConnectorUtil.extract(baloPath, cacheableKey);
-                } else {
-                    Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).
-                            resolve(ProjectDirConstants.SOURCE_DIR_NAME);
-                    if (!Files.exists(destinationRoot)) {
-                        LSStdLibCacheUtil.extract(baloPath, destinationRoot, moduleName, cacheableKey);
-                    }
-                    projectDir = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).toString();
-                    moduleName = cacheableKey;
-                }
-                CompilerContext compilerContext = createNewCompilerContext(projectDir);
-                Compiler compiler = LSStdLibCacheUtil.getCompiler(compilerContext);
-                BLangPackage bLangPackage = compiler.compile(moduleName);
+                Map<String, JsonElement> recordDefJsonMap = new HashMap<>();
+                ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
+                module.documentIds().forEach(documentId -> {
+                    module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor);
+                });
 
-                ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName());
-                bLangPackage.accept(connectorNodeVisitor);
 
-                VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
-                visibleEndpointVisitor.visit(bLangPackage);
-
-                Map<String, JsonElement> jsonRecords = new HashMap<>();
-                BLangTypeDefinition recordNode = null;
+                TypeDefinitionNode recordNode = null;
                 JsonElement recordJson = null;
-                for (Map.Entry<String, BLangTypeDefinition> recordEntry
+
+                for (Map.Entry<String, TypeDefinitionNode> recordEntry
                         : connectorNodeVisitor.getRecords().entrySet()) {
                     String key = recordEntry.getKey();
-                    BLangTypeDefinition record = recordEntry.getValue();
-                    JsonElement jsonAST = null;
-                    try {
-                        jsonAST = TextDocumentFormatUtil.generateJSON(record, new HashMap<>(),
-                                visibleEndpointVisitor.getVisibleEPsByNode());
-                    } catch (JSONGenerationException e) {
-                        String msg = "Operation 'ballerinaConnector/record' loading records" +
-                                key + " failed!";
-                        logError(msg, e, null, (Position) null);
-                    }
-                    if (record.getName() != null && record.getName().value.equals(request.getName())) {
+                    TypeDefinitionNode record = recordEntry.getValue();
+
+                    JsonElement jsonST = DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel);
+
+                    if (record.typeName().text().equals(request.getName())) {
                         recordNode = record;
-                        recordJson = jsonAST;
+                        recordJson = jsonST;
                     } else {
-                        jsonRecords.put(key, jsonAST);
+                        recordDefJsonMap.put(key, jsonST);
                     }
                 }
+
                 Gson gson = new Gson();
                 if (recordNode != null) {
                     if (recordJson instanceof JsonObject) {
-                        JsonElement recordsJson = gson.toJsonTree(jsonRecords);
+                        JsonElement recordsJson = gson.toJsonTree(recordDefJsonMap);
                         ((JsonObject) recordJson).add("records", recordsJson);
                     }
                     recordCache.addRecordAST(request.getOrg(), request.getModule(),
@@ -311,35 +331,6 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         return CompletableFuture.supplyAsync(() -> response);
     }
 
-    private void populateConnectorRecords(ValueType type, Map<String, BLangTypeDefinition> records,
-                                          Map<String, JsonElement> jsonRecords,
-                                          Map<String, JsonElement> connectorRecords) {
-
-
-        if (type instanceof BUnionType) {
-            ((BUnionType) type).getMemberTypes().forEach(
-                    m -> populateConnectorRecords(m, records, jsonRecords, connectorRecords));
-        } else if (type instanceof BArrayType) {
-            populateConnectorRecords(((BArrayType) type).eType, records, jsonRecords, connectorRecords);
-        } else if (type instanceof BRecordType) {
-            String recordName = type.toString();
-            BLangTypeDefinition recordNode = records.get(recordName);
-            if (recordNode != null) {
-                connectorRecords.put(recordName, jsonRecords.get(recordName));
-                ((RecordTypeNode) recordNode.getTypeNode()).getFields().forEach(f -> {
-                            populateConnectorRecords(((BLangVariable) f).type, records, jsonRecords, connectorRecords);
-                        }
-                );
-
-                ((RecordTypeNode) recordNode.getTypeNode()).getTypeReferences().forEach(r -> {
-                            populateConnectorRecords(((BLangUserDefinedType) r).type, records,
-                                    jsonRecords, connectorRecords);
-                        }
-                );
-            }
-        }
-    }
-
 
     private String getCacheableKey(String orgName, String moduleName, String version) {
         return orgName + "_" + moduleName + "_" +
@@ -356,17 +347,5 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             }
             return toml.to(BallerinaConnectorsResponse.class);
         }
-    }
-
-    private CompilerContext createNewCompilerContext(String projectDir) {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, projectDir);
-        options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
-        options.put(PRESERVE_WHITESPACE, Boolean.toString(false));
-        options.put(OFFLINE, Boolean.toString(true));
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(true));
-        context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(projectDir)));
-        return context;
     }
 }

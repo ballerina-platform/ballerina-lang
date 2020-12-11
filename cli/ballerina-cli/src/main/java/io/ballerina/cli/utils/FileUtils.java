@@ -18,12 +18,8 @@
 
 package io.ballerina.cli.utils;
 
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
+import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
 
 /**
@@ -93,26 +89,25 @@ public class FileUtils {
             return Math.max(lastUnixPos, lastWindowsPos);
         }
     }
-    
+
     /**
-     * Iterate and delete all files and subdirectories of a given path.
+     * Delete the given directory along with all files and sub directories.
      *
-     * @param directory Directory path.
-     * @throws IOException Exception when walking the file tree.
+     * @param directoryPath Directory to delete.
      */
-    public static void deleteDirectory(Path directory) throws IOException {
-        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
+    public static boolean deleteDirectory(Path directoryPath) {
+        File directory = new File(String.valueOf(directoryPath));
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    boolean success = deleteDirectory(f.toPath());
+                    if (!success) {
+                        return false;
+                    }
+                }
             }
-            
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
+        }
+        return directory.delete();
     }
 }

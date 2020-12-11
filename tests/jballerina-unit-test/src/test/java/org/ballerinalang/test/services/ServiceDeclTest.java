@@ -21,7 +21,10 @@ package org.ballerinalang.test.services;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Tests calling of a function with error return inside a service.
@@ -38,5 +41,25 @@ public class ServiceDeclTest {
     public void testServiceNameLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_service_name_literal.bal");
         BRunUtil.invoke(compileResult, "testServiceName");
+    }
+
+    @Test
+    public void testServiceAbsolutePathOrNameLiteralWithRespectToListenerAttach() {
+        CompileResult result = BCompileUtil.compile("test-src/services/service_decl_negative.bal");
+        int i = 0;
+
+        validateError(result, i++, "service absolute path is not supported by listener", 36, 16);
+        validateError(result, i++, "service absolute path is not supported by listener", 57, 14);
+        validateError(result, i++, "service absolute path is not supported by listener", 61, 17);
+        validateError(result, i++, "service absolute path is not supported by listener", 65, 21);
+        validateError(result, i++, "service path literal is not supported by listener", 69, 27);
+        validateError(result, i++, "service path literal is required by the listener", 92, 12);
+        validateError(result, i++, "service absolute path is not supported by listener", 96, 14);
+        validateError(result, i++, "service path literal is required by the listener", 96, 14);
+        validateError(result, i++, "service absolute path is not supported by listener", 123, 14);
+        validateError(result, i++, "service absolute path is required by the listener", 142, 27);
+        validateError(result, i++, "service path literal is not supported by listener", 142, 27);
+        validateError(result, i++, "service absolute path is required by the listener", 146, 12);
+        Assert.assertEquals(i, result.getErrorCount());
     }
 }

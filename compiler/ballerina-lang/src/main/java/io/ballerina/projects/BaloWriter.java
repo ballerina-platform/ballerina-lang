@@ -76,8 +76,7 @@ public abstract class BaloWriter {
     protected String implemetationVendor = "WSO2";
     protected PackageContext packageContext;
 
-    protected BaloWriter(PackageContext packageContext) {
-        this.packageContext = packageContext;
+    protected BaloWriter() {
     }
 
     /**
