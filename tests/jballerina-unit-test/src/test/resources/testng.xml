@@ -233,37 +233,6 @@
 
             <!-- Disabled tests related to ProjectAPI change -->
             <!-- ########################## START ############################# -->
-            <class name="org.ballerinalang.test.worker.WaitForAllActionsTest">
-                <methods>
-                    <exclude name="waitTest1"/>
-                    <exclude name="waitTest10"/>
-                    <exclude name="waitTest11"/>
-                    <exclude name="waitTest12"/>
-                    <exclude name="waitTest13"/>
-                    <exclude name="waitTest14"/>
-                    <exclude name="waitTest15"/>
-                    <exclude name="waitTest16"/>
-                    <exclude name="waitTest17"/>
-                    <exclude name="waitTest18"/>
-                    <exclude name="waitTest19"/>
-                    <exclude name="waitTest2"/>
-                    <exclude name="waitTest20"/>
-                    <exclude name="waitTest21"/>
-                    <exclude name="waitTest22"/>
-                    <exclude name="waitTest23"/>
-                    <exclude name="waitTest24"/>
-                    <exclude name="waitTest25"/>
-                    <exclude name="waitTest26"/>
-                    <exclude name="waitTest27"/>
-                    <exclude name="waitTest3"/>
-                    <exclude name="waitTest4"/>
-                    <exclude name="waitTest5"/>
-                    <exclude name="waitTest6"/>
-                    <exclude name="waitTest7"/>
-                    <exclude name="waitTest8"/>
-                    <exclude name="waitTest9"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.execution.ModuleExecutionFlowTests">
                 <methods>
                     <exclude name="testModuleInitPanic"/>
