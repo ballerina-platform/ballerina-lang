@@ -314,6 +314,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_REST_ARG_IN_ERROR_CONSTRUCTOR("BCE0662", "error.rest.arg.in.error.constructor"),
     ERROR_ADDITIONAL_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0663",
             "error.additional.positional.arg.in.error.constructor"),
+    ERROR_DEFAULTABLE_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE664",
+            "error.defaultable.parameter.cannot.be.included.record.parameter"),
     ;
 
     String diagnosticId;
