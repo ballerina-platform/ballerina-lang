@@ -39,7 +39,9 @@ import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Optional;
 
 /**
  * Helper methods to test properties of service values.
@@ -164,5 +166,26 @@ public class ServiceValue {
 
     public static BMap getAnnotationsAtServiceAttach() {
         return ServiceValue.annotationMap;
+    }
+
+    public static BArray getParamDefaultability(BObject service, BString name) {
+        ServiceType serviceType = (ServiceType) service.getType();
+        Optional<ResourceFunctionType> func = Arrays.stream(serviceType.getResourceFunctions())
+                .filter(r -> r.getName().equals(name.getValue())).findAny();
+
+        if (func.isEmpty()) {
+            return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, 0), 0);
+        }
+
+        ResourceFunctionType rt = func.get();
+
+        int len = rt.getParamDefaultability().length;
+        BArray arrayValue = ValueCreator.createArrayValue(
+                TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, len), len);
+        for (int i = 0; i < len; i++) {
+            boolean d = rt.getParamDefaultability()[i];
+            arrayValue.add(i, d);
+        }
+        return arrayValue;
     }
 }
