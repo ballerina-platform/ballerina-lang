@@ -23,6 +23,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.diagnostics.arguments.DiagnosticProperty;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,7 +42,7 @@ public class BLangDiagnostic extends Diagnostic {
 
     public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo,
                            DiagnosticCode diagnosticCode) {
-        this(location, msg, diagnosticInfo, diagnosticCode, null);
+        this(location, msg, diagnosticInfo, diagnosticCode, Collections.emptyList());
     }
 
     public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo,
