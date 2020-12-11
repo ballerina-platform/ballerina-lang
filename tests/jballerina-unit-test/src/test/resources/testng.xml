@@ -247,37 +247,6 @@
                     <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments">
-                <methods>
-                    <exclude name="testAttachedAsyncDefaultParam"/>
-                    <exclude name="testCombinedExprAsDefaultValue"/>
-                    <exclude name="testDefaultExprInFunctionPointers"/>
-                    <exclude name="testDefaultObject"/>
-                    <exclude name="testDefaultValueWithError"/>
-                    <exclude name="testDefaultValueWithTernary"/>
-                    <exclude name="testFuncWithAsyncDefaultParamExpression"/>
-                    <exclude name="testFunctionCallAsDefaultExpr"/>
-                    <exclude name="testPanicWithinDefaultExpr"/>
-                    <exclude name="testRecordAsDefaultExpr"/>
-                    <exclude name="testUsingParamValues"/>
-                    <exclude name="testUsingParamValuesInAttachedFunc"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.expressions.async.BasicAsyncOperationsTest">
-                <methods>
-                    <exclude name="testAsyncInvWithDefaultParams"/>
-                    <exclude name="testAsyncInvWithoutDefaultParams"/>
-                    <exclude name="testAsyncNegative"/>
-                    <exclude name="testAsyncNonNativeBasic1"/>
-                    <exclude name="testAsyncNonNativeBasic2"/>
-                    <exclude name="testAsyncNonNativeBasic3"/>
-                    <exclude name="testAsyncNonNativeBasic4"/>
-                    <exclude name="testAsyncNonNativeBasic5"/>
-                    <exclude name="testAsyncObjectAttachedFunctions"/>
-                    <exclude name="testAttachedAsyncInvWithDefaultParams"/>
-                    <exclude name="testAttachedAsyncInvWithoutDefaultParams"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.statements.variabledef.ForwardReferencingGlobalDefinitionTest">
                 <methods>
                     <exclude name="globalDefinitionsReOrdering"/>
