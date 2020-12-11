@@ -324,6 +324,10 @@ public class SymbolFactory {
             members.add(this.createConstantSymbol(member, member.name.value));
         }
 
+        for (BAnnotationSymbol annot : enumSymbol.annots) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol(annot));
+        }
+
         return symbolBuilder
                 .withMembers(members)
                 .withTypeDescriptor(typesFactory.getTypeDescriptor(enumSymbol.type, true))
