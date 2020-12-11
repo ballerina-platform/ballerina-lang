@@ -47,7 +47,6 @@ public class JBallerinaBaloWriter extends BaloWriter {
     @Override
     protected Optional<JsonArray> addPlatformLibs(ZipOutputStream baloOutputStream, Package pkg)
             throws IOException {
-        Path sourceRoot = pkg.project().sourceRoot();
         // retrieve platform dependencies that have default scope
         Collection<PlatformLibrary> jars = backend.platformLibraryDependencies(pkg.packageId(),
                 PlatformLibraryScope.DEFAULT);
