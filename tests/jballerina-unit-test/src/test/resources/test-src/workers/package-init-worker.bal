@@ -1,4 +1,4 @@
-import ballerina/runtime;
+import ballerina/java;
 
 int i = getInt();
 
@@ -9,7 +9,7 @@ function getInt() returns int {
     }
     @strand{thread:"any"}
     worker w2 {
-        runtime:sleep(10000);
+        sleep(10000);
     }
     return wait w1;
 }
@@ -17,3 +17,7 @@ function getInt() returns int {
 function test() returns int {
     return i;
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;
