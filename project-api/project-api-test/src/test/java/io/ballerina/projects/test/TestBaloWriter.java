@@ -179,6 +179,11 @@ public class TestBaloWriter {
                 .resolve("ballerina-io-1.0.0-java.txt");
         Assert.assertTrue(platformDependancy.toFile().exists());
 
+        // Check if test scoped platform dependencies not exists
+        Path testScopePlatformDependancy = BALO_PATH.resolve("platform").resolve("java11")
+                .resolve("ballerina-io-1.2.0-java.txt");
+        Assert.assertFalse(testScopePlatformDependancy.toFile().exists());
+
         // dependencies.json
         Path dependenciesJsonPath = BALO_PATH.resolve(DEPENDENCY_GRAPH_JSON);
         Assert.assertTrue(dependenciesJsonPath.toFile().exists());
