@@ -18,6 +18,7 @@
 package io.ballerina.projects.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -124,6 +125,27 @@ public class FileUtils {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Delete the given directory along with all files and sub directories.
+     *
+     * @param directoryPath Directory to delete.
+     */
+    public static boolean deleteDirectory(Path directoryPath) {
+        File directory = new File(String.valueOf(directoryPath));
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    boolean success = deleteDirectory(f.toPath());
+                    if (!success) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return directory.delete();
     }
 
     /**
