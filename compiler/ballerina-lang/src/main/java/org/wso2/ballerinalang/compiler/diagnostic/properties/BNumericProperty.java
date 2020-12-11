@@ -39,6 +39,7 @@ public class BNumericProperty implements ConstantProperty {
         return kind;
     }
 
+    @Override
     public Number value() {
         return value;
     }

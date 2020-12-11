@@ -42,7 +42,8 @@ public class BCollectionProperty implements ConstantProperty {
         return kind;
     }
 
-    public Collection<DiagnosticProperty> values() {
+    @Override
+    public Collection<DiagnosticProperty> value() {
         return values;
     }
 }

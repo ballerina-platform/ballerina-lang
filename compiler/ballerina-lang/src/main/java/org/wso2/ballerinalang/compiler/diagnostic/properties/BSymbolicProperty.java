@@ -40,6 +40,7 @@ public class BSymbolicProperty implements SymbolicProperty {
         return kind;
     }
 
+    @Override
     public Symbol value() {
         return value;
     }

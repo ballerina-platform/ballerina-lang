@@ -39,6 +39,7 @@ public class BStringProperty implements ConstantProperty {
         return kind;
     }
 
+    @Override
     public String value() {
         return value;
     }

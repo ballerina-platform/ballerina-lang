@@ -24,4 +24,6 @@ package io.ballerina.tools.diagnostics.properties;
  */
 public interface DiagnosticProperty {
     DiagnosticPropertyKind kind();
+
+    <T> T value();
 }

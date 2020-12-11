@@ -39,6 +39,7 @@ public class NonCatProperty implements DiagnosticProperty {
         return kind;
     }
 
+    @Override
     public Object value() {
         return value;
     }
