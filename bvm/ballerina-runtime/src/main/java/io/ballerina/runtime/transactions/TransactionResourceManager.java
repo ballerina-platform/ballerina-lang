@@ -100,7 +100,6 @@ public class TransactionResourceManager {
         transactionManagerEnabled = getTransactionManagerEnabled();
         if (transactionManagerEnabled) {
             trxRegistry = new HashMap<>();
-            addLogConfigToRegistry();
             setLogProperties();
             userTransactionManager = new UserTransactionManager();
         } else {
@@ -120,18 +119,13 @@ public class TransactionResourceManager {
     }
 
     /**
-     * This method adds configs for transaction log path and transaction log name.
+     * This method sets values for atomikos transaction log path and name properties using the available configs.
      *
      */
-    private void addLogConfigToRegistry() {
-        // Path to log directory given for atomikos log path property should exist.
-        // Therefore create a transaction_log_dir in root directory if not exists.
+    private void setLogProperties() {
         final Path projectRoot = findProjectRoot(Paths.get(System.getProperty("user.dir")));
         if (projectRoot != null) {
             String logDir = getTransactionLogDirectory();
-            if (logDir.isEmpty()) {
-                logDir = "transaction_log_dir";
-            }
             String logPath = projectRoot.toAbsolutePath().toString() + "/" + logDir;
             Path transactionLogDirectory = Paths.get(logPath);
             if (!Files.exists(transactionLogDirectory)) {
@@ -141,21 +135,8 @@ public class TransactionResourceManager {
                     stderr.println("error: failed to create transaction log directory");
                 }
             }
-            CONFIG_REGISTRY.addConfiguration("b7a.transaction.log.base", logPath);
-            CONFIG_REGISTRY.addConfiguration("b7a.transaction.log.name", "transaction_recovery");
-        }
-    }
-
-    /**
-     * This method sets values for atomikos transaction log path and name properties using the available configs.
-     *
-     */
-    private void setLogProperties() {
-        String logDirPath = CONFIG_REGISTRY.getAsString("b7a.transaction.log.base");
-        String logFileName = CONFIG_REGISTRY.getAsString("b7a.transaction.log.name");
-        if (logDirPath != null && logFileName != null) {
-            System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logDirPath);
-            System.setProperty(ATOMIKOS_LOG_NAME_PROPERTY, logFileName);
+            System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logPath);
+            System.setProperty(ATOMIKOS_LOG_NAME_PROPERTY, "transaction_recovery");
         }
     }
 
@@ -182,7 +163,7 @@ public class TransactionResourceManager {
         if (transactionLogDirectory != null) {
             return transactionLogDirectory;
         }
-        return "";
+        return "transaction_log_dir";
     }
 
     /**
