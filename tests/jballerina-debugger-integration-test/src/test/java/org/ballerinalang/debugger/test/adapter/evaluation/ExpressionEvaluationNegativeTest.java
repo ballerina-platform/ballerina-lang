@@ -19,31 +19,12 @@
 package org.ballerinalang.debugger.test.adapter.evaluation;
 
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
  * Test implementation for debug expression evaluation negative scenarios.
  */
 public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTest {
-
-    @BeforeClass
-    public void setup() throws BallerinaTestException {
-        prepareForEvaluation();
-    }
-
-    @BeforeMethod(alwaysRun = true)
-    public void beginSoftAssertions() {
-        debugTestRunner.beginSoftAssertions();
-    }
-
-    @AfterMethod(alwaysRun = true)
-    public void endSoftAssertions() {
-        debugTestRunner.endSoftAssertions();
-    }
 
     @Override
     @Test
@@ -325,11 +306,5 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // Todo - Enable
         // assignment statements
         // debugTestRunner.assertEvaluationError(context, "int x = 5;", "");
-    }
-
-    @AfterClass(alwaysRun = true)
-    private void cleanup() {
-        debugTestRunner.terminateDebugSession();
-        this.context = null;
     }
 }

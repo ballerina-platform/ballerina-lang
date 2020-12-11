@@ -83,6 +83,7 @@ public class DebugTestRunner {
     private BMainInstance balClient = null;
     private Process debuggeeProcess;
     private DebugHitListener listener;
+    private AssertionMode assertionMode;
     private SoftAssert softAsserter;
 
     public DebugTestRunner(String testProjectName, String testModuleFileName, boolean isProjectBasedTest) {
@@ -93,6 +94,9 @@ public class DebugTestRunner {
             testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
             testEntryFilePath = Paths.get(testSingleFileBaseDir.toString(), testModuleFileName).toString();
         }
+
+        // Hard assertions will be used by default.
+        assertionMode = AssertionMode.HARD_ASSERT;
     }
 
     public static void initialize() throws BallerinaTestException, IOException {
@@ -109,6 +113,14 @@ public class DebugTestRunner {
             .toAbsolutePath();
         testProjectBaseDir = tempProjectDirectory.resolve("project-based-tests");
         FileUtils.copyFolder(originalMultiModulesProj, testProjectBaseDir);
+    }
+
+    public void setAssertionMode(AssertionMode assertionMode) {
+        this.assertionMode = assertionMode;
+    }
+
+    public boolean isSoftAssertionsEnabled() {
+        return assertionMode == AssertionMode.SOFT_ASSERT;
     }
 
     public void runDebuggeeProgram(String projectPath, int port) throws BallerinaTestException {
@@ -438,9 +450,17 @@ public class DebugTestRunner {
      * @param type      variable type
      */
     public void assertVariable(Map<String, Variable> variables, String name, String value, String type) {
-        Assert.assertTrue(variables.containsKey(name));
-        Assert.assertEquals(variables.get(name).getValue(), value);
-        Assert.assertEquals(variables.get(name).getType(), type);
+        switch (assertionMode) {
+            case HARD_ASSERT:
+                Assert.assertTrue(variables.containsKey(name));
+                Assert.assertEquals(variables.get(name).getValue(), value);
+                Assert.assertEquals(variables.get(name).getType(), type);
+                return;
+            case SOFT_ASSERT:
+                softAsserter.assertTrue(variables.containsKey(name));
+                softAsserter.assertEquals(variables.get(name).getValue(), value);
+                softAsserter.assertEquals(variables.get(name).getType(), type);
+        }
     }
 
     /**
@@ -455,8 +475,15 @@ public class DebugTestRunner {
     public void assertExpression(StoppedEventArguments context, String expression, String resultValue,
                                  String resultType) throws BallerinaTestException {
         Variable result = evaluateExpression(context, expression);
-        softAsserter.assertEquals(result.getValue(), resultValue);
-        softAsserter.assertEquals(result.getType(), resultType);
+        switch (assertionMode) {
+            case HARD_ASSERT:
+                Assert.assertEquals(result.getValue(), resultValue);
+                Assert.assertEquals(result.getType(), resultType);
+                return;
+            case SOFT_ASSERT:
+                softAsserter.assertEquals(result.getValue(), resultValue);
+                softAsserter.assertEquals(result.getType(), resultType);
+        }
     }
 
     /**
@@ -468,10 +495,17 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if an error occurs when evaluating the expression.
      */
     public void assertEvaluationError(StoppedEventArguments context, String expression, String errorMessage)
-        throws BallerinaTestException {
+            throws BallerinaTestException {
         Variable result = evaluateExpression(context, expression);
-        softAsserter.assertEquals(result.getValue(), errorMessage);
-        softAsserter.assertTrue(result.getType().equals("string") || result.getType().equals("error"));
+        switch (assertionMode) {
+            case HARD_ASSERT:
+                Assert.assertEquals(result.getValue(), errorMessage);
+                Assert.assertTrue(result.getType().equals("string") || result.getType().equals("error"));
+                return;
+            case SOFT_ASSERT:
+                softAsserter.assertEquals(result.getValue(), errorMessage);
+                softAsserter.assertTrue(result.getType().equals("string") || result.getType().equals("error"));
+        }
     }
 
     /**
@@ -483,9 +517,17 @@ public class DebugTestRunner {
      * @param source stack frame source.
      */
     public void assertCallStack(StackFrame frame, String name, int line, String source) {
-        Assert.assertEquals(frame.getName(), name);
-        Assert.assertEquals(frame.getLine().intValue(), line);
-        Assert.assertEquals(frame.getSource().getName(), source);
+        switch (assertionMode) {
+            case HARD_ASSERT:
+                Assert.assertEquals(frame.getName(), name);
+                Assert.assertEquals(frame.getLine().intValue(), line);
+                Assert.assertEquals(frame.getSource().getName(), source);
+                return;
+            case SOFT_ASSERT:
+                softAsserter.assertEquals(frame.getName(), name);
+                softAsserter.assertEquals(frame.getLine().intValue(), line);
+                softAsserter.assertEquals(frame.getSource().getName(), source);
+        }
     }
 
     /**
@@ -583,5 +625,13 @@ public class DebugTestRunner {
 
     public BalServer getBalServer() {
         return balServer;
+    }
+
+    /**
+     * Debugger test framework supports both modes (hard assertions and soft assertions).
+    */
+    public enum AssertionMode {
+        HARD_ASSERT,
+        SOFT_ASSERT,
     }
 }
