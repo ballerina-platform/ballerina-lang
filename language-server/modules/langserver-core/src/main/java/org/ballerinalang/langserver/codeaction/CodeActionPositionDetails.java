@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 
 /**
@@ -25,30 +25,30 @@ import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
  *
  * @since 2.0.0
  */
-public class PositionDetailsImpl implements PositionDetails {
-    private final NonTerminalNode matchedNode;
+public class CodeActionPositionDetails implements PositionDetails {
+    private final Node matchedNode;
     private final Symbol matchedSymbol;
     private final TypeSymbol matchedExprType;
 
-    private PositionDetailsImpl(NonTerminalNode matchedNode,
-                                Symbol matchedSymbol,
-                                TypeSymbol matchedExprType) {
+    private CodeActionPositionDetails(Node matchedNode,
+                                      Symbol matchedSymbol,
+                                      TypeSymbol matchedExprType) {
         this.matchedNode = matchedNode;
         this.matchedSymbol = matchedSymbol;
         this.matchedExprType = matchedExprType;
     }
 
-    public static PositionDetails from(NonTerminalNode matchedNode,
+    public static PositionDetails from(Node matchedNode,
                                        Symbol matchedSymbol,
                                        TypeSymbol optTypeDesc) {
-        return new PositionDetailsImpl(matchedNode, matchedSymbol, optTypeDesc);
+        return new CodeActionPositionDetails(matchedNode, matchedSymbol, optTypeDesc);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public NonTerminalNode matchedNode() {
+    public Node matchedNode() {
         return matchedNode;
     }
 
