@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal;
+package io.ballerina.runtime.api.utils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  */
 public class IdentifierUtils {
 
-    public static final String UNICODE_REGEX = "\\\\u\\{([a-fA-F0-9]+)\\}";
+    private static final String UNICODE_REGEX = "\\\\u\\{([a-fA-F0-9]+)\\}";
     public static final Pattern UNICODE_PATTERN = Pattern.compile(UNICODE_REGEX);
 
     private static final String CHAR_PREFIX = "$";
@@ -39,7 +39,7 @@ public class IdentifierUtils {
     private static final String ENCODABLE_CHAR_SET = JVM_RESERVED_CHAR_SET + CHAR_PREFIX;
     private static final Pattern UNESCAPED_SPECIAL_CHAR_SET =
             Pattern.compile("(?<!\\\\)(?:\\\\\\\\)*([$&+,:;=\\?@#|/' \\[\\}\\]<\\>.\"^*{}~`()%!-])");
-    public static final String GENERATED_METHOD_PREFIX = "$gen$";
+    private static final String GENERATED_METHOD_PREFIX = "$gen$";
 
     private IdentifierUtils() {
     }
