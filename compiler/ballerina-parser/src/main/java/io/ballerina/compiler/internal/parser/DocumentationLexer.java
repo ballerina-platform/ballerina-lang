@@ -117,59 +117,6 @@ public class DocumentationLexer extends AbstractLexer {
     }
 
     /**
-     * <p>
-     * Check whether a given char is an identifier start char.
-     * </p>
-     * <code>IdentifierInitialChar := A .. Z | a .. z | _ | UnicodeIdentifierChar</code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character is an identifier start char. <code>false</code> otherwise.
-     */
-    private boolean isIdentifierInitialChar(int c) {
-        // TODO: pre-mark all possible characters, using a mask. And use that mask here to check
-        if ('A' <= c && c <= 'Z') {
-            return true;
-        }
-
-        if ('a' <= c && c <= 'z') {
-            return true;
-        }
-
-        if (c == '_') {
-            return true;
-        }
-
-        // TODO: if (UnicodeIdentifierChar) return false;
-        return false;
-    }
-
-    /**
-     * <p>
-     * Check whether a given char is an identifier following char.
-     * </p>
-     * <code>IdentifierFollowingChar := IdentifierInitialChar | Digit</code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character is an identifier following char. <code>false</code> otherwise.
-     */
-    private boolean isIdentifierFollowingChar(int c) {
-        return isIdentifierInitialChar(c) || isDigit(c);
-    }
-
-    /**
-     * <p>
-     * Check whether a given char is a digit.
-     * </p>
-     * <code>Digit := 0..9</code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character represents a digit. <code>false</code> otherwise.
-     */
-    static boolean isDigit(int c) {
-        return ('0' <= c && c <= '9');
-    }
-
-    /**
      * Process leading trivia.
      */
     private void processLeadingTrivia() {
