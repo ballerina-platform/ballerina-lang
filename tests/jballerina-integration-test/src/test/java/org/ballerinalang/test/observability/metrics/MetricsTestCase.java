@@ -323,15 +323,15 @@ public class MetricsTestCase extends ObservabilityBaseTest {
 
         Metrics metrics = this.getMetrics();
         testFunctionMetrics(metrics, fileName + ":19:1", 1,
-                Tag.of("function", "main"),
-                Tag.of("src.entry_point.main", "true")
+                Tag.of("src.function.name", "main"),
+                Tag.of("src.main", "true")
         );
         testFunctionMetrics(metrics, fileName + ":24:24", 1,
-                Tag.of("object_name", OBSERVABLE_ADDER_OBJECT_NAME),
-                Tag.of("function", "getSum")
+                Tag.of("src.object.name", OBSERVABLE_ADDER_OBJECT_NAME),
+                Tag.of("src.function.name", "getSum")
         );
         testFunctionMetrics(metrics, fileName + ":38:12", 3,
-                Tag.of("function", "calculateSumWithObservability")
+                Tag.of("src.function.name", "calculateSumWithObservability")
         );
     }
 
@@ -349,8 +349,8 @@ public class MetricsTestCase extends ObservabilityBaseTest {
 
         Metrics metrics = this.getMetrics();
         testFunctionMetrics(metrics, fileName + ":23:5", 1,
-                Tag.of("src.entry_point.resource", "true"),
-                Tag.of("connector_name", SERVER_CONNECTOR_NAME),
+                Tag.of("src.service.resource", "true"),
+                Tag.of("src.object.name", SERVER_CONNECTOR_NAME),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
                 Tag.of("protocol", "http"),
@@ -359,20 +359,20 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("error", "true")
         );
         testFunctionMetrics(metrics, fileName + ":24:24", 1,
-                Tag.of("src.remote", "true"),
+                Tag.of("src.client.remote", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
                 Tag.of("error", "true"),
-                Tag.of("connector_name", MOCK_CLIENT_OBJECT_NAME),
-                Tag.of("action", "callWithPanic")
+                Tag.of("src.object.name", MOCK_CLIENT_OBJECT_NAME),
+                Tag.of("src.function.name", "callWithPanic")
         );
         testFunctionMetrics(metrics, fileName + ":29:20", 1,
-                Tag.of("src.remote", "true"),
+                Tag.of("src.client.remote", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
                 Tag.of("error", "true"),
-                Tag.of("connector_name", MOCK_CLIENT_OBJECT_NAME),
-                Tag.of("action", "callWithErrorReturn")
+                Tag.of("src.object.name", MOCK_CLIENT_OBJECT_NAME),
+                Tag.of("src.function.name", "callWithErrorReturn")
         );
     }
 
@@ -390,8 +390,8 @@ public class MetricsTestCase extends ObservabilityBaseTest {
 
         Metrics metrics = this.getMetrics();
         testFunctionMetrics(metrics, fileName + ":34:5", 1,
-                Tag.of("src.entry_point.resource", "true"),
-                Tag.of("connector_name", SERVER_CONNECTOR_NAME),
+                Tag.of("src.service.resource", "true"),
+                Tag.of("src.object.name", SERVER_CONNECTOR_NAME),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
                 Tag.of("protocol", "http"),
@@ -409,11 +409,11 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("resource", resourceName)
         );
         testFunctionMetrics(metrics, fileName + ":36:20", 1,
-                Tag.of("src.remote", "true"),
+                Tag.of("src.client.remote", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
-                Tag.of("connector_name", "ballerina/testobserve/Caller"),
-                Tag.of("action", "respond")
+                Tag.of("src.object.name", "ballerina/testobserve/Caller"),
+                Tag.of("src.function.name", "respond")
         );
     }
 
@@ -431,8 +431,8 @@ public class MetricsTestCase extends ObservabilityBaseTest {
 
 
         Tag[] startTags = {
-                Tag.of("src.entry_point.resource", "true"),
-                Tag.of("connector_name", SERVER_CONNECTOR_NAME),
+                Tag.of("src.service.resource", "true"),
+                Tag.of("src.object.name", SERVER_CONNECTOR_NAME),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
                 Tag.of("protocol", "http"),

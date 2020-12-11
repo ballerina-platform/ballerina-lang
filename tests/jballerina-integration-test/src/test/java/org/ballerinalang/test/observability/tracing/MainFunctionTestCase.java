@@ -74,8 +74,8 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
-                    new AbstractMap.SimpleEntry<>("src.entry_point.main", "true"),
-                    new AbstractMap.SimpleEntry<>("function", "main")
+                    new AbstractMap.SimpleEntry<>("src.main", "true"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "main")
             ));
         });
 
@@ -94,9 +94,9 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
-                    new AbstractMap.SimpleEntry<>("action", "callAnotherRemoteFunction")
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "callAnotherRemoteFunction")
             ));
         });
 
@@ -114,9 +114,9 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", UTILS_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
-                    new AbstractMap.SimpleEntry<>("action", "callWithNoReturn")
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "callWithNoReturn")
             ));
         });
 
@@ -134,9 +134,9 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span4Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
-                    new AbstractMap.SimpleEntry<>("action", "calculateSum")
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "calculateSum")
             ));
         });
 
@@ -154,9 +154,9 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span5Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
-                    new AbstractMap.SimpleEntry<>("action", "callWithPanic"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "callWithPanic"),
                     new AbstractMap.SimpleEntry<>("error", "true")
             ));
         });
@@ -175,9 +175,9 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span6Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("connector_name", MOCK_CLIENT_OBJECT_NAME),
-                    new AbstractMap.SimpleEntry<>("action", "callWithErrorReturn"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "callWithErrorReturn"),
                     new AbstractMap.SimpleEntry<>("error", "true")
             ));
         });
@@ -216,13 +216,13 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", resourceFunctionPosition),
-                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/" + serviceName + "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("service", serviceName),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", SERVER_CONNECTOR_NAME)
+                    new AbstractMap.SimpleEntry<>("src.object.name", SERVER_CONNECTOR_NAME)
             ));
         });
 
@@ -238,11 +238,11 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", callerResponsePosition),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", serviceName),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/testobserve/Caller"),
-                    new AbstractMap.SimpleEntry<>("action", "respond")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
         });
     }
