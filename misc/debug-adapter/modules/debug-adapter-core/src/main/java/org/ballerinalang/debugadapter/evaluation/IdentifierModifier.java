@@ -59,6 +59,9 @@ public class IdentifierModifier extends TreeModifier {
                 IdentifierUtils.encodeNonFunctionIdentifier(identifier);
     }
 
+    /**
+     * Identifier types based on different runtime identifier encoding mechanisms.
+     */
     public enum IdentifierType {
         METHOD_NAME,
         OTHER

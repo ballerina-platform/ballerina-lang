@@ -79,7 +79,7 @@ public class PackageUtils {
             String modulePart = decodeIdentifier(srcPaths[1]);
             modulePart = modulePart.replaceFirst(defaultModuleName, "");
             if (modulePart.startsWith(".")) {
-                modulePart = modulePart.replaceFirst(".", "");
+                modulePart = modulePart.replaceFirst("\\.", "");
             }
 
             if (modulePart.isBlank()) {
