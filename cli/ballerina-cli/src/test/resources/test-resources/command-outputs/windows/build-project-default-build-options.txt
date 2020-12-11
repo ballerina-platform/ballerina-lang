@@ -1,0 +1,9 @@
+
+Compiling source
+	foo/winery:0.1.0
+
+Creating balo
+	target\balo\foo-winery-any-0.1.0.balo
+
+Generating executable
+	target\bin\winery.jar

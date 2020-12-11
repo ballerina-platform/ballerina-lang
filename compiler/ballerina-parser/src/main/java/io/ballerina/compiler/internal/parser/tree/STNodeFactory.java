@@ -540,12 +540,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createRequiredParameterNode(
+            SyntaxKind kind,
             STNode annotations,
+            STNode asteriskToken,
             STNode typeName,
             STNode paramName) {
 
         return new STRequiredParameterNode(
+                kind,
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName);
     }
