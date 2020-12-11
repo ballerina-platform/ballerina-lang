@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -195,7 +196,8 @@ class NodeFinder extends BaseVisitor {
         this.enclosingNode = null;
 
         for (TopLevelNode node : nodes) {
-            if (!PositionUtil.withinRange(this.range, node.getPosition()) || isLambdaFunction(node)) {
+            if (!PositionUtil.withinRange(this.range, node.getPosition()) || isLambdaFunction(node)
+                    || isClassDefForObjectConstructor(node)) {
                 continue;
             }
 
@@ -235,7 +237,7 @@ class NodeFinder extends BaseVisitor {
 
         node.accept(this);
 
-        if (this.enclosingNode == null && !node.internal) {
+        if (this.enclosingNode == null && !node.internal && this.range.equals(node.pos.lineRange())) {
             this.enclosingNode = node;
         }
     }
@@ -902,7 +904,15 @@ class NodeFinder extends BaseVisitor {
         lookupNode(classDefinition.initFunction);
         lookupNodes(classDefinition.functions);
         lookupNodes(classDefinition.typeRefs);
-        setEnclosingNode(classDefinition, classDefinition.name.pos);
+
+        if (!classDefinition.flagSet.contains(Flag.OBJECT_CTOR)) {
+            setEnclosingNode(classDefinition, classDefinition.name.pos);
+        }
+    }
+
+    @Override
+    public void visit(BLangObjectConstructorExpression objConstructorExpr) {
+        lookupNode(objConstructorExpr.classNode);
     }
 
     @Override
@@ -1195,5 +1205,13 @@ class NodeFinder extends BaseVisitor {
 
         BLangFunction func = (BLangFunction) node;
         return func.flagSet.contains(Flag.LAMBDA);
+    }
+
+    private boolean isClassDefForObjectConstructor(TopLevelNode node) {
+        if (node.getKind() != NodeKind.CLASS_DEFN) {
+            return false;
+        }
+
+        return ((BLangClassDefinition) node).flagSet.contains(Flag.OBJECT_CTOR);
     }
 }

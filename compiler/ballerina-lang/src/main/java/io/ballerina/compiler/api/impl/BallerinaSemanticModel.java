@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
@@ -204,11 +205,11 @@ public class BallerinaSemanticModel implements SemanticModel {
         NodeFinder nodeFinder = new NodeFinder();
         BLangNode node = nodeFinder.lookup(compilationUnit, range);
 
-        if (node == null) {
-            return Optional.empty();
+        if (node instanceof BLangExpression) {
+            return Optional.ofNullable(typesFactory.getTypeDescriptor(node.type));
         }
 
-        return Optional.ofNullable(typesFactory.getTypeDescriptor(node.type));
+        return Optional.empty();
     }
 
     /**

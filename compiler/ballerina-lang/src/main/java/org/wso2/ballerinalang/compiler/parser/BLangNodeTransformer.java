@@ -4052,6 +4052,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     public BLangNode createXmlTemplateLiteral(TemplateExpressionNode expressionNode) {
+        BLangNode expr;
         SyntaxKind contentKind;
         if (expressionNode.content().isEmpty()) {
             contentKind = SyntaxKind.XML_TEXT;
@@ -4063,10 +4064,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case XML_PI:
             case XML_ELEMENT:
             case XML_EMPTY_ELEMENT:
-                return createExpression(expressionNode.content().get(0));
+                expr = createExpression(expressionNode.content().get(0));
             default:
-                return createXMLLiteral(expressionNode);
+                expr = createXMLLiteral(expressionNode);
         }
+        expr.pos = getPosition(expressionNode);
+        return expr;
     }
 
     private BLangMatchPattern transformMatchPattern(Node matchPattern) {
