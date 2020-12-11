@@ -66,7 +66,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             // If the expression result is an object, search for object methods.
             if (resultVar.getBType() == BVariableType.OBJECT) {
                 try {
-                    GeneratedInstanceMethod objectMethod = getObjectMethodByName(resultVar.getJvmValue(), methodName);
+                    GeneratedInstanceMethod objectMethod = getObjectMethodByName(resultVar, methodName);
                     objectMethod.setNamedArgValues(validateAndProcessArguments(context, methodName, argEvaluators));
                     invocationResult = objectMethod.invoke();
                 } catch (EvaluationException ignored) {
@@ -91,15 +91,15 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         }
     }
 
-    private GeneratedInstanceMethod getObjectMethodByName(Value objectValueRef, String methodName)
+    private GeneratedInstanceMethod getObjectMethodByName(BVariable objectVar, String methodName)
             throws EvaluationException {
 
-        ReferenceType objectRef = ((ObjectReference) objectValueRef).referenceType();
+        ReferenceType objectRef = ((ObjectReference) objectVar.getJvmValue()).referenceType();
         List<Method> methods = objectRef.methodsByName(methodName);
         if (methods == null || methods.size() != 1) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
-                    syntaxNode.methodName().toString().trim()));
+                    syntaxNode.methodName().toString().trim(), objectVar.computeValue()));
         }
-        return new GeneratedInstanceMethod(context, objectValueRef, methods.get(0));
+        return new GeneratedInstanceMethod(context, objectVar.getJvmValue(), methods.get(0));
     }
 }

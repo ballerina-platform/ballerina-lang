@@ -27,6 +27,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
+import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +74,7 @@ public class GeneratedInstanceMethod extends JvmMethod {
                     methodRef, argValueList, ObjectReference.INVOKE_SINGLE_THREADED);
         } catch (ClassNotLoadedException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
-                    methodRef.name()));
+                    methodRef.name(), VariableFactory.getVariable(context, objectValueRef).computeValue()));
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {

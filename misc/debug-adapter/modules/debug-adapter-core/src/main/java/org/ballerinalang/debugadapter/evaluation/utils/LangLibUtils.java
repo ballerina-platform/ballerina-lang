@@ -66,8 +66,8 @@ public class LangLibUtils {
             }
         }
         if (generatedMethod == null) {
-            throw new EvaluationException(String.join(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    "undefined function '" + methodName + "' in type '" + result.getType().getString() + "'"));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_METHOD_NOT_FOUND.getString(),
+                    methodName, result.getType().getString()));
         }
 
         return generatedMethod;
@@ -83,8 +83,8 @@ public class LangLibUtils {
                     .add(langLibName)
                     .toString();
         } catch (Exception ignored) {
-            throw new EvaluationException(String.join(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Failed to " +
-                    "load lang library: `" + langLibName + "'"));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_NOT_FOUND.getString(),
+                    langLibName));
         }
     }
 

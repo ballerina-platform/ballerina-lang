@@ -126,11 +126,11 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     public void methodCallEvaluationTest() throws BallerinaTestException {
         // undefined object methods.
         debugTestRunner.assertEvaluationError(context, OBJECT_VAR + ".calculate()",
-                EvaluationExceptionKind.PREFIX + "rest args are not allowed after named args.");
+                EvaluationExceptionKind.PREFIX + "Undefined function 'calculate' in type 'object'");
 
-        // undefined langlib methods.
+        // undefined lang library methods.
         debugTestRunner.assertEvaluationError(context, INT_VAR + ".foo()",
-                EvaluationExceptionKind.PREFIX + "rest args are not allowed after named args.");
+                EvaluationExceptionKind.PREFIX + "Undefined function 'foo' in type 'int'");
     }
 
     @Override
@@ -300,9 +300,6 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // syntactically incorrect expressions (additional semi-colon)
         debugTestRunner.assertEvaluationError(context, "x + 5;;",
             String.format(EvaluationExceptionKind.SYNTAX_ERROR.getString(), "invalid token ';'"));
-        // undefined object methods
-        debugTestRunner.assertEvaluationError(context, OBJECT_VAR + ".undefined()",
-                String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(), "undefined"));
         // Todo - Enable
         // assignment statements
         // debugTestRunner.assertEvaluationError(context, "int x = 5;", "");
