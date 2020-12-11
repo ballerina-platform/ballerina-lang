@@ -247,13 +247,6 @@
                     <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.statements.variabledef.ForwardReferencingGlobalDefinitionTest">
-                <methods>
-                    <exclude name="globalDefinitionsReOrdering"/>
-                    <exclude name="inFunctionGlobalReference"/>
-                    <exclude name="inFunctionGlobalReferenceCauseCycle"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.documentation.ErrorsTest">
                 <methods>
                     <exclude name="testErrorAsAType"/>
