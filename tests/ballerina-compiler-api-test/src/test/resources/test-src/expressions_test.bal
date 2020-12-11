@@ -111,6 +111,7 @@ function testFunctionCall() {
 
     PersonObj p = new("Pubudu");
     string s = p.getName();
+    boolean b = true;
 }
 
 // utils

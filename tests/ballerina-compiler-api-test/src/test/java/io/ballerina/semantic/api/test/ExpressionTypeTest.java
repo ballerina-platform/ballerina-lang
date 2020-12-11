@@ -33,6 +33,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
@@ -53,6 +54,8 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Tests for the checking the types of expressions.
@@ -83,27 +86,32 @@ public class ExpressionTypeTest {
                 {17, 44, 17, 46, NIL},
                 {17, 48, 17, 53, STRING},
                 {18, 13, 18, 17, NIL},
+                {113, 16, 113, 20, BOOLEAN}
         };
     }
 
     @Test
     public void testByteLiteral() {
-        TypeSymbol type = getExprType(19, 13, 19, 42);
+        TypeSymbol type = getExprType(19, 15, 19, 44);
         assertEquals(type.typeKind(), ARRAY);
         assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().typeKind(), BYTE);
+
+        Optional<TypeSymbol> optType = getOptionalType(19, 13, 19, 42);
+        assertTrue(optType.isEmpty());
     }
 
-    @Test(dataProvider = "TemplateExprProvider")
-    public void testTemplateExprs(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
-        assertType(sLine, sCol, eLine, eCol, kind);
+    @Test
+    public void testStringTemplateExpr() {
+        assertType(23, 15, 23, 36, STRING);
     }
 
-    @DataProvider(name = "TemplateExprProvider")
-    public Object[][] getTemplateExprPos() {
-        return new Object[][]{
-                {23, 15, 23, 36, STRING},
-                {24, 12, 24, 45, XML},
-        };
+    @Test
+    public void testXMLTemplateExpr() {
+        TypeSymbol type = getExprType(24, 12, 24, 45);
+
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.name(), "Element");
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), XML);
     }
 
     @Test
@@ -254,13 +262,16 @@ public class ExpressionTypeTest {
         return new Object[][]{
                 {72, 12, 72, 15, INT},
                 {73, 12, 73, 23, INT},
-                {73, 17, 73, 23, INT},
+                {73, 17, 73, 23, null},
+                {73, 12, 73, 19, INT},
                 {74, 12, 74, 23, INT},
                 {75, 16, 75, 22, BOOLEAN},
                 {76, 17, 76, 22, STRING},
                 {78, 8, 78, 20, BOOLEAN},
                 {78, 8, 78, 10, ANYDATA},
-                {78, 14, 78, 20, STRING},
+                {78, 14, 78, 20, null},
+                {78, 8, 78, 30, BOOLEAN},
+                {78, 24, 78, 30, BOOLEAN},
         };
     }
 
@@ -316,19 +327,30 @@ public class ExpressionTypeTest {
         return new Object[][]{
                 {109, 4, 109, 10, UNION},
                 {109, 4, 109, 9, UNION},
-                {112, 15, 112, 27, STRING},
+                {112, 15, 112, 27, null},
                 {112, 15, 112, 26, STRING}
         };
     }
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
-        TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
-        assertEquals(type.typeKind(), kind);
+        Optional<TypeSymbol> type = getOptionalType(sLine, sCol, eLine, eCol);
+
+        if (type.isPresent()) {
+            assertEquals(type.get().typeKind(), kind);
+        } else {
+            assertNull(kind, "Type symbol not found, but expected a type symbol of kind: " + kind);
+        }
     }
 
     private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {
         LinePosition start = LinePosition.from(sLine, sCol);
         LinePosition end = LinePosition.from(eLine, eCol);
         return model.type(LineRange.from("expressions_test.bal", start, end)).get();
+    }
+
+    private Optional<TypeSymbol> getOptionalType(int sLine, int sCol, int eLine, int eCol) {
+        LinePosition start = LinePosition.from(sLine, sCol);
+        LinePosition end = LinePosition.from(eLine, eCol);
+        return model.type("expressions_test.bal", LineRange.from("expressions_test.bal", start, end));
     }
 }
