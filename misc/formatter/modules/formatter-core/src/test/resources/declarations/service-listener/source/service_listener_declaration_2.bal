@@ -18,3 +18,6 @@ service       S      /       on     lsn     {
           }
    }
 
+        service        "sample.demo.foo"      on         listner1          {
+
+    }
