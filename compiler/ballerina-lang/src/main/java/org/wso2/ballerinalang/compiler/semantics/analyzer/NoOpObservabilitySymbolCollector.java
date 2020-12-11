@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,32 +16,26 @@
  * under the License.
  */
 
-package org.ballerinalang.observability.anaylze.model;
+package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import com.google.gson.JsonElement;
+import io.ballerina.projects.Project;
+import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
+
+import java.nio.file.Path;
 
 /**
- * Holds a compilation unit holding an AST JSON.
+ * Null Object for {@link ObservabilitySymbolCollector} interface.
  *
  * @since 2.0.0
  */
-public class CUnitASTHolder {
-    private String name;
-    private JsonElement ast;
-
-    public String getName() {
-        return name;
+public class NoOpObservabilitySymbolCollector implements ObservabilitySymbolCollector {
+    @Override
+    public void process(Project project) {
+        // Do nothing
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public JsonElement getAst() {
-        return ast;
-    }
-
-    public void setAst(JsonElement ast) {
-        this.ast = ast;
+    @Override
+    public void writeToExecutable(Path executableFile) {
+        // Do nothing
     }
 }
