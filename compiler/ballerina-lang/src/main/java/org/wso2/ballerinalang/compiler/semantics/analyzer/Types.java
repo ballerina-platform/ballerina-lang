@@ -238,9 +238,6 @@ public class Types {
     }
 
     private boolean isSameType(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        if (source == null || target == null) {
-            return false;
-        }
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(source, target);
@@ -301,13 +298,13 @@ public class Types {
     }
 
     public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BTupleType listMatchPatternType,
-                                                 SymbolEnv pkgEnv) {
+                                                 SymbolEnv env) {
 
         if (matchExpr == null) {
             return listMatchPatternType;
         }
         BType matchExprType = matchExpr.type;
-        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType, pkgEnv);
+        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType, env);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
         }
@@ -3091,7 +3088,7 @@ public class Types {
         }
     }
 
-    BType getTypeIntersection(BType lhsType, BType rhsType, SymbolEnv pkgEnv) {
+    BType getTypeIntersection(BType lhsType, BType rhsType, SymbolEnv env) {
         List<BType> narrowingTypes = getAllTypes(rhsType);
         LinkedHashSet<BType> intersection = narrowingTypes.stream().map(type -> {
             if (isAssignable(type, lhsType)) {
@@ -3121,27 +3118,27 @@ public class Types {
             } else if (type.tag == TypeTags.NULL_SET) {
                 return type;
             } else if (type.tag == TypeTags.ERROR && lhsType.tag == TypeTags.ERROR) {
-                BType intersectionType = getIntersectionForErrorTypes(lhsType, type, pkgEnv);
+                BType intersectionType = getIntersectionForErrorTypes(lhsType, type, env);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
             } else if (type.tag == TypeTags.RECORD && lhsType.tag == TypeTags.RECORD) {
-                BType intersectionType = createRecordIntersection(lhsType, type, pkgEnv);
+                BType intersectionType = createRecordIntersection(lhsType, type, env);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
             } else if (type.tag == TypeTags.MAP && lhsType.tag == TypeTags.RECORD) {
-                BType intersectionType = createRecordAndMapIntersection(lhsType, type, pkgEnv);
+                BType intersectionType = createRecordAndMapIntersection(lhsType, type, env);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
             } else if (type.tag == TypeTags.RECORD && lhsType.tag == TypeTags.MAP) {
-                BType intersectionType = createRecordAndMapIntersection(type, lhsType, pkgEnv);
+                BType intersectionType = createRecordAndMapIntersection(type, lhsType, env);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
             } else if (type.tag == TypeTags.MAP && lhsType.tag == TypeTags.MAP) {
-                BType intersectionType = createRecordAndMapIntersection(type, lhsType, pkgEnv);
+                BType intersectionType = createRecordAndMapIntersection(type, lhsType, env);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }

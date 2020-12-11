@@ -2534,8 +2534,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             matchPatternType.restType = restType;
         }
 
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
-        listMatchPattern.type = types.resolvePatternTypeFromMatchExpr(listMatchExpr, matchPatternType, pkgEnv);
+        listMatchPattern.type = types.resolvePatternTypeFromMatchExpr(listMatchExpr, matchPatternType, this.env);
         assignTypesToMemberPatterns(listMatchPattern, listMatchPattern.type);
     }
 
@@ -2620,8 +2619,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             wildCardMatchPattern.type = symTable.anyType;
             return;
         }
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(this.env.enclPkg.symbol);
-        BType intersectionType = types.getTypeIntersection(matchExprType, symTable.anyType, pkgEnv);
+
+        BType intersectionType = types.getTypeIntersection(matchExprType, symTable.anyType, this.env);
         if (intersectionType == symTable.semanticError) {
             wildCardMatchPattern.type = symTable.noType;
             return;
