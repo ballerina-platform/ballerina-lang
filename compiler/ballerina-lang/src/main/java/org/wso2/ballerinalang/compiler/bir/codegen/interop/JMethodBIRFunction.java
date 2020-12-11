@@ -18,9 +18,9 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 /**
- * A wrapper used with JInterop to wrap BFuntions with JFunc description and data.
+ * A wrapper @BIRFunction to keep java function with bir function data.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
 public class JMethodBIRFunction extends JBIRFunction {
 

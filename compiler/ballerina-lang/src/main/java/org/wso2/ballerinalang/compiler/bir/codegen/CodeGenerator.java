@@ -17,11 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import org.ballerinalang.compiler.CompilerOptionName;
-import io.ballerina.projects.CompilerBackend;
-import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.PlatformLibrary;
-import io.ballerina.projects.PlatformLibraryScope;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -29,19 +24,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.encodeModuleIdentifiers;
 

@@ -20,9 +20,9 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
 /**
- * A wrapper used with JInterop to wrap BFuntions with JFunc description and data.
+ * A wrapper used to wrap @BIRFunction with java constructs.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
 public class JBIRFunction extends BIRNode.BIRFunction {
 
