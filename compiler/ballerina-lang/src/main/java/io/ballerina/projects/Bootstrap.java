@@ -130,8 +130,8 @@ public class Bootstrap {
         }
 
         symResolver.bootstrapCloneableType();
-        symResolver.bootstrapIntRangeType();
         symResolver.defineOperators();
+        symResolver.bootstrapIntRangeType();
     }
 
     public void loadLangLibSymbols(CompilerContext compilerContext) {
@@ -148,6 +148,7 @@ public class Bootstrap {
         symResolver.boostrapErrorType();
         symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
+        symResolver.bootstrapIntRangeType();
         symbolTable.langArrayModuleSymbol = loadLangLibFromBalr(ARRAY, compilerContext);
         symbolTable.langDecimalModuleSymbol = loadLangLibFromBalr(DECIMAL, compilerContext);
         symbolTable.langErrorModuleSymbol = loadLangLibFromBalr(ERROR, compilerContext);
