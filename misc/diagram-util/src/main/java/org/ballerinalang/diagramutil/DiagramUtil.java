@@ -56,20 +56,6 @@ public class DiagramUtil {
         return syntaxTreeJson;
     }
 
-//    public static JsonElement getSyntaxNodeJson(String fileName,Node node, SemanticModel semanticModel) {
-//        JsonElement syntaxTreeJson;
-//        try {
-//            // Map each type data by looking at the line ranges and prepare the SyntaxTree JSON.
-//            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(fileName, semanticModel);
-//            syntaxTreeJson = mapGenerator.transform(node);
-//        } catch (NullPointerException e) {
-//            syntaxTreeJson = new JsonObject();
-//        }
-//
-//        return syntaxTreeJson;
-//
-//    }
-
     public static JsonElement getClassDefinitionSyntaxJson(ClassDefinitionNode classDefinitionNode,
                                                            SemanticModel semanticModel) {
         JsonElement syntaxTreeJson;
