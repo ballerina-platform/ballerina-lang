@@ -15,31 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.diagnostic.arguments;
-
-import io.ballerina.tools.diagnostics.arguments.ConstantProperty;
-import io.ballerina.tools.diagnostics.arguments.DiagnosticPropertyKind;
+package io.ballerina.tools.diagnostics.properties;
 
 /**
- * Represents string type constant-properties passed when diagnostic logging.
+ * Represents constants passed as properties when diagnostic logging.
  *
  * @since Swan Lake
  */
-public class BStringProperty implements ConstantProperty {
-    private DiagnosticPropertyKind kind;
-    private String value;
-
-    public BStringProperty(String value) {
-        this.kind = DiagnosticPropertyKind.STRING;
-        this.value = value;
-    }
-
-    @Override
-    public DiagnosticPropertyKind kind() {
-        return kind;
-    }
-
-    public String value() {
-        return value;
-    }
+public interface ConstantProperty extends DiagnosticProperty {
 }

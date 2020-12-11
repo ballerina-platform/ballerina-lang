@@ -15,10 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.diagnostic.arguments;
+package org.wso2.ballerinalang.compiler.diagnostic.properties;
 
-import io.ballerina.tools.diagnostics.arguments.ConstantProperty;
-import io.ballerina.tools.diagnostics.arguments.DiagnosticPropertyKind;
+import io.ballerina.tools.diagnostics.properties.ConstantProperty;
+import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
 
 /**
  * Represents numeric-type constant-properties passed when diagnostic logging.

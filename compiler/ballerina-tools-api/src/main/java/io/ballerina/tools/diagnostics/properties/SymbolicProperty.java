@@ -15,12 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.tools.diagnostics.arguments;
+package io.ballerina.tools.diagnostics.properties;
 
 /**
- * Represents constants passed as properties when diagnostic logging.
+ * Represents symbols passed as properties when diagnostic logging.
  *
  * @since Swan Lake
  */
-public interface ConstantProperty extends DiagnosticProperty {
+public interface SymbolicProperty extends DiagnosticProperty {
 }

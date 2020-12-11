@@ -17,7 +17,7 @@
  */
 package io.ballerina.tools.diagnostics;
 
-import io.ballerina.tools.diagnostics.arguments.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
 
 import java.util.List;
 

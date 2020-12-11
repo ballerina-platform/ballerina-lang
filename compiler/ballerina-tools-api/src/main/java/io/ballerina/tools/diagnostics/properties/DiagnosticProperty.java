@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.tools.diagnostics.arguments;
+package io.ballerina.tools.diagnostics.properties;
 
 /**
  * Represents properties passed when diagnostic logging.

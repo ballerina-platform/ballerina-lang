@@ -15,17 +15,31 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.tools.diagnostics.arguments;
+package org.wso2.ballerinalang.compiler.diagnostic.properties;
+
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
 
 /**
- * Represents the kind of the diagnostic property.
+ * Represents non-categorical properties passed when diagnostic logging.
  *
  * @since Swan Lake
  */
-public enum DiagnosticPropertyKind {
-    SYMBOLIC,
-    STRING,
-    NUMERIC,
-    COLLECTION,
-    OTHER
+public class NonCatProperty implements DiagnosticProperty {
+    private DiagnosticPropertyKind kind;
+    private Object value;
+
+    public NonCatProperty(Object value) {
+        this.kind = DiagnosticPropertyKind.OTHER;
+        this.value = value;
+    }
+
+    @Override
+    public DiagnosticPropertyKind kind() {
+        return kind;
+    }
+
+    public Object value() {
+        return value;
+    }
 }

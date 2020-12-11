@@ -15,23 +15,26 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.diagnostic.arguments;
+package org.wso2.ballerinalang.compiler.diagnostic.properties;
 
-import io.ballerina.tools.diagnostics.arguments.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.arguments.DiagnosticPropertyKind;
+import io.ballerina.tools.diagnostics.properties.ConstantProperty;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
+
+import java.util.Collection;
 
 /**
- * Represents non-categorical properties passed when diagnostic logging.
+ * Represents collection of properties passed when diagnostic logging.
  *
  * @since Swan Lake
  */
-public class NonCatProperty implements DiagnosticProperty {
+public class BCollectionProperty implements ConstantProperty {
     private DiagnosticPropertyKind kind;
-    private Object value;
+    private Collection<DiagnosticProperty> values;
 
-    public NonCatProperty(Object value) {
-        this.kind = DiagnosticPropertyKind.OTHER;
-        this.value = value;
+    public BCollectionProperty(Collection<DiagnosticProperty> values) {
+        this.kind = DiagnosticPropertyKind.COLLECTION;
+        this.values = values;
     }
 
     @Override
@@ -39,7 +42,7 @@ public class NonCatProperty implements DiagnosticProperty {
         return kind;
     }
 
-    public Object value() {
-        return value;
+    public Collection<DiagnosticProperty> values() {
+        return values;
     }
 }

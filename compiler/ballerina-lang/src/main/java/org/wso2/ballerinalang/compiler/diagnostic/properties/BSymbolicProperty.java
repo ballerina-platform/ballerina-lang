@@ -15,26 +15,24 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.diagnostic.arguments;
+package org.wso2.ballerinalang.compiler.diagnostic.properties;
 
-import io.ballerina.tools.diagnostics.arguments.ConstantProperty;
-import io.ballerina.tools.diagnostics.arguments.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.arguments.DiagnosticPropertyKind;
-
-import java.util.Collection;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
+import io.ballerina.tools.diagnostics.properties.SymbolicProperty;
 
 /**
- * Represents collection of properties passed when diagnostic logging.
+ * Represents symbolic-properties passed when diagnostic logging.
  *
  * @since Swan Lake
  */
-public class BCollectionProperty implements ConstantProperty {
+public class BSymbolicProperty implements SymbolicProperty {
     private DiagnosticPropertyKind kind;
-    private Collection<DiagnosticProperty> values;
+    private Symbol value;
 
-    public BCollectionProperty(Collection<DiagnosticProperty> values) {
-        this.kind = DiagnosticPropertyKind.COLLECTION;
-        this.values = values;
+    public BSymbolicProperty(Symbol symbol) {
+        this.kind = DiagnosticPropertyKind.SYMBOLIC;
+        this.value = symbol;
     }
 
     @Override
@@ -42,7 +40,7 @@ public class BCollectionProperty implements ConstantProperty {
         return kind;
     }
 
-    public Collection<DiagnosticProperty> values() {
-        return values;
+    public Symbol value() {
+        return value;
     }
 }
