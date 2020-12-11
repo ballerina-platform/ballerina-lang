@@ -233,17 +233,6 @@
 
             <!-- Disabled tests related to ProjectAPI change -->
             <!-- ########################## START ############################# -->
-
-            <class name="org.ballerinalang.test.record.AnonymousOpenRecordTest">
-                <methods>
-                    <exclude name="testAnonRecordAsRestFieldOfAnonRecord"/>
-                    <exclude name="testAnonRecordWithRestField"/>
-                    <exclude name="testAnonStructAsFuncParam"/>
-                    <exclude name="testAnonStructAsLocalVar"/>
-                    <exclude name="testAnonStructAsPkgVar"/>
-                    <exclude name="testAnonStructAsStructField"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.worker.WorkerSyncSendTest">
                 <methods>
                     <exclude name="basicSyncSendTest"/>
