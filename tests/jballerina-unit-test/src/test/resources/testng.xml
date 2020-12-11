@@ -235,10 +235,7 @@
             <!-- ########################## START ############################# -->
             <class name="org.ballerinalang.test.execution.ModuleExecutionFlowTests">
                 <methods>
-                    <exclude name="testModuleInitPanic"/>
-                    <exclude name="testModuleInitReturningError"/>
                     <exclude name="testModuleStartAndStopPanic"/>
-                    <exclude name="testModuleStartPanic"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.taintchecking.TaintedStatusPropagationTest">
