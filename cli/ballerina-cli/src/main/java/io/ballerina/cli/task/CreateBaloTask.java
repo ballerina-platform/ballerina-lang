@@ -48,7 +48,7 @@ public class CreateBaloTask implements Task {
     @Override
     public void execute(Project project) {
         this.out.println();
-        this.out.println("Creating balos");
+        this.out.println("Creating balo");
 
         Target target;
         Path baloPath;

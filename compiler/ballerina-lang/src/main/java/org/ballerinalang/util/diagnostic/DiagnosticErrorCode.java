@@ -148,6 +148,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     HEXADECIMAL_TOO_LARGE("BCE2112", "hexadecimal.too.large"),
     HEXADECIMAL_TOO_SMALL("BCE2113", "hexadecimal.too.small"),
 
+    EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER("BCE2114", "expected.a.record.type.as.an.included.parameter"),
+
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
     COMMIT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2301", "commit.cannot.be.outside.transaction.block"),
@@ -651,14 +653,20 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3967", "remote.function.in.non.network.object"),
     UNSUPPORTED_PATH_PARAM_TYPE("BCE3968", "unsupported.path.param.type"),
     UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3969", "unsupported.rest.path.param.type"),
+    SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER("BCE3970",
+            "error.service.absolute.path.or.literal.required.by.listener"),
+    SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER("BCE3971", "service.path.literal.is.not.supported.by.listener"),
+    SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER("BCE3972", "service.absolute.path.is.not.supported.by.listener"),
+    SERVICE_LITERAL_REQUIRED_BY_LISTENER("BCE3973", "service.path.literal.required.by.listener"),
+    SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER("BCE3974", "service.absolute.path.required.by.listener"),
 
     INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPE_DESCRIPTOR(
-            "BCE3970", "invalid.read.only.class.inclusion.in.object.type.descriptor"),
-    INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS("BCE3971", "invalid.inclusion.with.mismatched.qualifiers"),
+            "BCE3975", "invalid.read.only.class.inclusion.in.object.type.descriptor"),
+    INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS("BCE3976", "invalid.inclusion.with.mismatched.qualifiers"),
     INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS(
-            "BCE3972", "invalid.read.only.class.inclusion.in.non.read.only.class"),
+            "BCE3977", "invalid.read.only.class.inclusion.in.non.read.only.class"),
     INVALID_FIELD_IN_OBJECT_CONSTUCTOR_EXPR_WITH_READONLY_REFERENCE(
-            "BCE3973", "invalid.field.in.object.constructor.expr.with.readonly.reference")
+            "BCE3978", "invalid.field.in.object.constructor.expr.with.readonly.reference")
     ;
 
     private String diagnosticId;

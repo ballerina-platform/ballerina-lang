@@ -211,7 +211,7 @@ public class ServiceDesugar {
     private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env) {
         if (Symbols.isFlagOn(functionNode.symbol.flags, Flags.TRANSACTIONAL)) {
             BLangExpressionStmt stmt = new BLangExpressionStmt(transactionDesugar
-                    .createTransactionalCheckInvocation(functionNode.pos));
+                    .createBeginParticipantInvocation(functionNode.pos));
             ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
         }
 //        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);

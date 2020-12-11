@@ -306,6 +306,21 @@ public class ExpressionTypeTest {
         assertEquals(((FutureTypeSymbol) type).typeParameter().get().typeKind(), NIL);
     }
 
+    @Test(dataProvider = "CallExprPosProvider")
+    public void testFunctionCall(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
+        assertType(sLine, sCol, eLine, eCol, kind);
+    }
+
+    @DataProvider(name = "CallExprPosProvider")
+    public Object[][] getCallExprPos() {
+        return new Object[][]{
+                {109, 4, 109, 10, UNION},
+                {109, 4, 109, 9, UNION},
+                {112, 15, 112, 27, STRING},
+                {112, 15, 112, 26, STRING}
+        };
+    }
+
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), kind);
