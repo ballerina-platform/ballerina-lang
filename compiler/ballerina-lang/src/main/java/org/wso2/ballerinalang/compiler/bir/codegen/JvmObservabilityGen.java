@@ -131,7 +131,7 @@ class JvmObservabilityGen {
      * Instrument the package by rewriting the BIR to add relevant Observability related instructions.
      *
      * @param pkg The package to instrument
-     * @param entryPointExists
+     * @param entryPointExists The boolean to check if the pkg has entry points
      */
     void instrumentPackage(BIRPackage pkg, boolean entryPointExists) {
         for (int i = 0; i < pkg.functions.size(); i++) {
@@ -139,7 +139,13 @@ class JvmObservabilityGen {
 
             // If there is an entry point in the package, then we instrument with control flow checkpoints
             if (entryPointExists) {
-                rewriteControlFlowInvocation(func, pkg);
+                if (!(func.name.value.equalsIgnoreCase(".<init>") ||
+                        func.name.value.equalsIgnoreCase(".<start>") ||
+                        func.name.value.equalsIgnoreCase(".<stop>"))) {
+
+                    rewriteControlFlowInvocation(func, pkg);
+                }
+
             }
             rewriteAsyncInvocations(func, null, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
@@ -161,7 +167,12 @@ class JvmObservabilityGen {
 
                 // Instrumenting the control flow of attached functions
                 if (entryPointExists) {
-                    rewriteControlFlowInvocation(func, pkg);
+                    if (!(func.name.value.equalsIgnoreCase(".<init>") ||
+                            func.name.value.equalsIgnoreCase(".<start>") ||
+                            func.name.value.equalsIgnoreCase(".<stop>"))) {
+
+                        rewriteControlFlowInvocation(func, pkg);
+                    }
                 }
                 rewriteAsyncInvocations(func, typeDef, pkg);
                 rewriteObservableFunctionInvocations(func, pkg);
