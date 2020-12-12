@@ -1,0 +1,4 @@
+[package]
+org="testorg"
+name="isolation_tests"
+version="1.0.0"
