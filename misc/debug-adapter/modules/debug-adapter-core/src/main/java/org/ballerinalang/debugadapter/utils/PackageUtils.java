@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.utils;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
+import com.sun.jdi.ReferenceType;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -25,6 +26,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.debugadapter.DebugContext;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -197,6 +199,39 @@ public class PackageUtils {
         return classNameJoiner.toString();
     }
 
+    /**
+     * Returns full-qualified class name for a given JDI class reference instance.
+     *
+     * @param context       Debug context
+     * @param referenceType JDI class reference instance
+     * @return full-qualified class name
+     */
+    public static String getQualifiedClassName(DebugContext context, ReferenceType referenceType) {
+        try {
+            List<String> paths = referenceType.sourcePaths(null);
+            List<String> names = referenceType.sourceNames(null);
+            if (paths.isEmpty() || names.isEmpty()) {
+                return referenceType.name();
+            }
+            String path = paths.get(0);
+            String name = names.get(0);
+            String[] nameParts = getNameParts(name);
+            String srcFileName = nameParts[nameParts.length - 1];
+
+            if (!path.endsWith(BAL_FILE_EXT) || (context.getSourceProject() instanceof BuildProject &&
+                    !path.startsWith(context.getSourceProject().currentPackage().packageOrg().value()))) {
+                return referenceType.name();
+            }
+
+            // Removes ".bal" extension if exists.
+            srcFileName = srcFileName.replaceAll(BAL_FILE_EXT + "$", "");
+            path = path.replaceAll(name + "$", srcFileName);
+            return replaceSeparators(path);
+        } catch (Exception e) {
+            return referenceType.name();
+        }
+    }
+
     public static String[] getNameParts(String path) {
         String[] srcNames;
         if (path.contains("/")) {
@@ -207,5 +242,14 @@ public class PackageUtils {
             srcNames = new String[]{path};
         }
         return srcNames;
+    }
+
+    private static String replaceSeparators(String path) {
+        if (path.contains("/")) {
+            return path.replaceAll("/", ".");
+        } else if (path.contains("\\")) {
+            return path.replaceAll("\\\\", ".");
+        }
+        return path;
     }
 }
