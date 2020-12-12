@@ -40,7 +40,7 @@ public class LangLibUtils {
 
     public static final String LANG_LIB_ORG = "ballerina";
     public static final String LANG_LIB_PACKAGE_PREFIX = "lang.";
-    public static final String LANG_VALUE = "value";
+    private static final String LANG_VALUE = "value";
 
     private LangLibUtils() {
     }
