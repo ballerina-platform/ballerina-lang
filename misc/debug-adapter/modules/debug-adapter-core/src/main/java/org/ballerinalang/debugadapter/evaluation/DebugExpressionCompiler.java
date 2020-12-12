@@ -37,8 +37,6 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import static org.ballerinalang.debugadapter.utils.PackageUtils.isBlank;
-
 /**
  * A ballerina expression-specific implementation for validating, parsing and compiling ballerina expressions.
  *
@@ -63,7 +61,7 @@ public class DebugExpressionCompiler {
      */
     ExpressionNode validateAndCompile(String expression) throws EvaluationException {
         // validates for empty inputs.
-        if (isBlank(expression)) {
+        if (expression.isBlank()) {
             throw new EvaluationException(EvaluationExceptionKind.EMPTY.getString());
         }
 
