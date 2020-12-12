@@ -43,6 +43,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.exception.LSConnectorException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.Type;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
@@ -230,7 +231,12 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                         populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
                     }
                 }
-
+            } else if (paramType.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                TypeDefinitionNode record = jsonRecords.get(paramType.get().name());
+                if (record != null) {
+                    connectorRecords.put(paramType.get().name(), DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
+                    populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
+                }
             }
         }
     }
