@@ -265,11 +265,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int transactionCount;
     private boolean statementReturns;
     private boolean failureHandled;
-    private boolean matchClauseReturns;
     private boolean lastStatement;
     private boolean errorThrown;
     private boolean failVisited;
-    private boolean hasLastPatternInClause;
+    private boolean hasLastPatternInStatement;
     private boolean withinLockBlock;
     private SymbolTable symTable;
     private Types types;
@@ -332,10 +331,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void resetErrorThrown() {
         this.errorThrown = false;
-    }
-
-    private void resetLastPatternInClause() {
-        this.hasLastPatternInClause = false;
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -752,11 +747,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.returnWithinLambdaWrappingCheckStack.push(true);
         }
 
-        if (returnStmt.parent != null && returnStmt.parent.parent.getKind() == NodeKind.MATCH_CLAUSE) {
-            this.matchClauseReturns = true;
-        } else {
-            this.statementReturns = true;
-        }
+        this.statementReturns = true;
         analyzeExpr(returnStmt.expr);
         this.returnTypes.peek().add(returnStmt.expr.type);
     }
@@ -808,12 +799,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         matchExprType = matchStatement.expr.type;
 
         boolean currentErrorThrown = this.errorThrown;
-        this.hasLastPatternInClause = false;
-        boolean containsLastPatternInStatement = false;
+        this.hasLastPatternInStatement = false;
+        matchStatement.hasLasPattern = false;
         boolean allClausesReturns = true;
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
         for (int i = 0; i < matchClauses.size(); i++) {
-            this.matchClauseReturns = false;
             BLangMatchClause matchClause = matchClauses.get(i);
             for (int j = i; j > 0; j--) {
                 if (!checkSimilarMatchGuard(matchClause.matchGuard, matchClauses.get(j - 1).matchGuard)) {
@@ -823,12 +813,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             this.resetErrorThrown();
             analyzeNode(matchClause, env);
-            allClausesReturns = allClausesReturns && this.matchClauseReturns;
-            containsLastPatternInStatement =
-                    containsLastPatternInStatement || (matchClause.matchGuard == null && this.hasLastPatternInClause);
+            allClausesReturns = allClausesReturns && this.statementReturns;
+            resetStatementReturns();
+            matchStatement.hasLasPattern = matchStatement.hasLasPattern
+                    || (matchClause.matchGuard == null && matchClause.hasLastPatternInClause);
+            this.hasLastPatternInStatement = matchStatement.hasLasPattern;
         }
-        this.statementReturns = allClausesReturns && containsLastPatternInStatement;
-        resetLastPatternInClause();
+        this.statementReturns = allClausesReturns && matchStatement.hasLasPattern;
         this.errorThrown = currentErrorThrown;
         analyzeOnFailClause(matchStatement.onFailClause);
     }
@@ -837,11 +828,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatchClause matchClause) {
         Map<String, BVarSymbol> variablesInMatchPattern = new HashMap<>();
         boolean patternListContainsSameVars = true;
+        matchClause.hasLastPatternInClause = false;
 
         List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
         for (int i = 0; i < matchPatterns.size(); i++) {
             BLangMatchPattern matchPattern = matchPatterns.get(i);
-            if (this.hasLastPatternInClause && matchClause.matchGuard == null) {
+            if (this.hasLastPatternInStatement
+                    || (matchClause.hasLastPatternInClause && matchClause.matchGuard == null)) {
                 dlog.error(matchPattern.pos, DiagnosticErrorCode.MATCH_STMT_PATTERN_UNREACHABLE);
             }
             if (matchPattern.type == symTable.noType) {
@@ -858,7 +851,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             this.isJSONContext = types.isJSONContext(matchExprType);
             analyzeNode(matchPattern, env);
-            matchPattern.isLastPattern = this.hasLastPatternInClause;
+            matchClause.hasLastPatternInClause = matchClause.hasLastPatternInClause || matchPattern.isLastPattern;
         }
 
         if (!patternListContainsSameVars) {
@@ -867,7 +860,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         matchClause.declaredVars.putAll(matchClause.matchPatterns.get(0).declaredVars);
 
         analyzeNode(matchClause.blockStmt, env);
-        resetStatementReturns();
     }
 
     private void checkSimilarMatchPatternsBetweenClauses(BLangMatchClause firstClause, BLangMatchClause secondClause) {
@@ -1027,7 +1019,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
-        this.hasLastPatternInClause = wildCardMatchPattern.matchesAll =
+        wildCardMatchPattern.isLastPattern = wildCardMatchPattern.matchesAll =
                 wildCardMatchPattern.matchExpr != null && types.isAssignable(wildCardMatchPattern.matchExpr.type,
                         symTable.anyType);
     }
@@ -1036,8 +1028,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         BLangBindingPattern bindingPattern = varBindingPattern.getBindingPattern();
         analyzeNode(bindingPattern, env);
-        this.hasLastPatternInClause = varBindingPattern.matchExpr != null
-                && this.hasLastPatternInClause && !varBindingPattern.matchGuardIsAvailable;
+
+        // This switch-case will be extended when implementing other binding-patterns
+        switch (bindingPattern.getKind()) {
+            case CAPTURE_BINDING_PATTERN:
+                varBindingPattern.isLastPattern =
+                        varBindingPattern.matchExpr != null && !varBindingPattern.matchGuardIsAvailable;
+        }
     }
 
     @Override
@@ -1045,7 +1042,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (listMatchPattern.matchExpr == null) {
             return;
         }
-        this.hasLastPatternInClause = types.isSameType(listMatchPattern.type, listMatchPattern.matchExpr.type)
+        listMatchPattern.isLastPattern = types.isSameType(listMatchPattern.type, listMatchPattern.matchExpr.type)
                 && !isConstMatchPatternExist(listMatchPattern);
     }
 
@@ -1063,7 +1060,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCaptureBindingPattern captureBindingPattern) {
-        this.hasLastPatternInClause = true;
+
     }
 
     @Override

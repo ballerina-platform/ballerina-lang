@@ -440,10 +440,10 @@ function constPattern14(any a, any b) returns string {
         _ => {
             match b {
                 "bar" => {
-                    return "s1";
+                    return "s3";
                 }
                 _ => {
-                    return "s2";
+                    return "s4";
                 }
             }
         }
@@ -455,6 +455,59 @@ function testConstPattern14() {
     assertEquals("s1", constPattern14("foo", "bar"));
     assertEquals("s4", constPattern14(1, 2));
     assertEquals("s3", constPattern14(1, "bar"));
+}
+
+public function constPattern15(any animal) returns string {
+    int total = 1;
+    match animal {
+        "Mouse" => {
+            if (total == 2) {
+                return "Total 2";
+            }
+            else {
+                return "Not 2";
+            }
+        }
+        _ => {
+            return "!Mouse";
+        }
+    }
+}
+
+public function testConstPattern15() {
+    assertEquals("Not 2", constPattern15("Mouse"));
+    assertEquals("!Mouse", constPattern15("Dog"));
+}
+
+public function constPattern16(any animal) returns string {
+    int total = 1;
+    int age = 2;
+    match animal {
+        "Mouse" => {
+            if (total == 2) {
+                if (age > 3) {
+                    return "Age is greater that 3";
+                } else {
+                    return "Age is less than 3";
+                }
+            }
+            else {
+                if (age > 3) {
+                    return "Age is greater that 3";
+                } else {
+                    return "Age is less than 3";
+                }
+            }
+        }
+        _ => {
+            return "!Mouse";
+        }
+    }
+}
+
+public function testConstPattern16() {
+    assertEquals("Age is less than 3", constPattern16("Mouse"));
+    assertEquals("!Mouse", constPattern16("Dog"));
 }
 
 function assertEquals(anydata expected, anydata actual) {
