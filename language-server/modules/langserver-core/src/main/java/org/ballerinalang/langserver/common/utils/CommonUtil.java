@@ -45,8 +45,6 @@ import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.FieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -836,8 +834,8 @@ public class CommonUtil {
                                          ModuleID moduleID, DocumentServiceContext context) {
         String pkgPrefix = "";
         if (!moduleID.equals(currentModuleId)) {
-            boolean preDeclaredLangLib = moduleID.orgName().equals("ballerina") && PRE_DECLARED_LANG_LIBS.contains(
-                    moduleID.moduleName());
+            boolean preDeclaredLangLib = moduleID.orgName().equals(BALLERINA_ORG_NAME) &&
+                    PRE_DECLARED_LANG_LIBS.contains(moduleID.moduleName());
             String moduleName = escapeModuleName(context, moduleID.orgName() + "/" + moduleID.moduleName());
             String[] moduleParts = moduleName.split("/");
             String orgName = moduleParts[0];
@@ -851,36 +849,11 @@ public class CommonUtil {
         return pkgPrefix;
     }
 
-    public static ModuleID createModuleID(String orgName, String moduleName, String version) {
-        return new ModuleID() {
-            @Override
-            public String orgName() {
-                return orgName;
-            }
-
-            @Override
-            public String moduleName() {
-                return moduleName;
-            }
-
-            @Override
-            public String version() {
-                return version;
-            }
-
-            @Override
-            public String modulePrefix() {
-                List<String> names = Arrays.stream(moduleName.split("\\.")).collect(Collectors.toList());
-                return names.get(names.size() - 1);
-            }
-        };
-    }
-
     public static String escapeModuleName(DocumentServiceContext context, String fullPackageNameAlias) {
         Set<String> names = new HashSet<>();
         Predicate<Scope.ScopeEntry> nonPkgNames = scopeEntry -> !(scopeEntry.symbol instanceof BPackageSymbol);
         try {
-            // TODO: Fix
+            // TODO: Fix this, need an API to fetch all reserved keywords
 //            names = CommonUtil.getAllNameEntries(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), nonPkgNames);
         } catch (Exception e) {
             // ignore
@@ -1006,19 +979,35 @@ public class CommonUtil {
         }
     }
 
-    public static NonTerminalNode findNode(LSContext context, Position position, Path path)
-            throws WorkspaceDocumentException {
-        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        SyntaxTree syntaxTree = documentManager.getTree(path);
+    /**
+     * Find node of this range.
+     *
+     * @param range      {@link Range}
+     * @param syntaxTree {@link SyntaxTree}
+     * @return {@link NonTerminalNode}
+     */
+    public static NonTerminalNode findNode(Range range, SyntaxTree syntaxTree) {
         TextDocument textDocument = syntaxTree.textDocument();
-        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
-        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
+        Position rangeStart = range.getStart();
+        Position rangeEnd = range.getEnd();
+        int start = textDocument.textPositionFrom(LinePosition.from(rangeStart.getLine(), rangeStart.getCharacter()));
+        int end = textDocument.textPositionFrom(LinePosition.from(rangeEnd.getLine(), rangeEnd.getCharacter()));
+        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start));
     }
 
-    public static NonTerminalNode findNode(Position position, SyntaxTree syntaxTree) {
+    /**
+     * Find node of this symbol.
+     *
+     * @param symbol     {@link Symbol}
+     * @param syntaxTree {@link SyntaxTree}
+     * @return {@link NonTerminalNode}
+     */
+    public static NonTerminalNode findNode(Symbol symbol, SyntaxTree syntaxTree) {
         TextDocument textDocument = syntaxTree.textDocument();
-        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
-        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
+        LineRange symbolRange = symbol.location().lineRange();
+        int start = textDocument.textPositionFrom(symbolRange.startLine());
+        int len = symbolRange.endLine().offset() - symbolRange.startLine().offset();
+        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, len));
     }
 
     public static boolean isWithinLineRange(Position pos, LineRange lineRange) {

@@ -20,6 +20,7 @@ package io.ballerina.projects.test;
 
 import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.BallerinaTomlProcessor;
 import io.ballerina.projects.internal.model.BallerinaToml;
 import io.ballerina.projects.internal.model.Package;
@@ -197,9 +198,10 @@ public class TestBallerinaTomlProcessor {
         try {
             BallerinaTomlProcessor.validateBallerinaTomlPackage(ballerinaToml);
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof TomlException);
+            Assert.assertTrue(e instanceof ProjectException);
             Assert.assertEquals(e.getMessage(),
-                    "invalid Ballerina.toml file: 'version' under [package] is not semver");
+                    "invalid package version in Ballerina.toml. Invalid version: 'v1.0.0'. " +
+                            "Unexpected character 'LETTER(v)' at position '0', expecting '[DIGIT]'");
         }
     }
 }

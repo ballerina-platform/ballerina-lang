@@ -22,7 +22,8 @@ import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.MemberFunctionType;
+import io.ballerina.runtime.api.types.ResourceFunctionType;
+import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
@@ -56,7 +57,10 @@ import io.netty.handler.codec.http.HttpVersion;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,11 +80,10 @@ import static org.ballerina.testobserve.listenerendpoint.Constants.TEST_OBSERVE_
 public class WebServer {
     private static final String JSON_CONTENT_TYPE = "application/json; charset=UTF-8";
 
-    private final Map<String, Service> serviceMap = new ConcurrentHashMap<>();
+    private final Map<String, Resource> resourceMap = new ConcurrentHashMap<>();
     private final int port;
     private final EventLoopGroup loopGroup;
     private final Runtime runtime;
-    private boolean isRunning;
 
     public WebServer(int port, Runtime runtime) {
         this.port = port;
@@ -92,26 +95,38 @@ public class WebServer {
      * Attach a new service object to the listener.
      *
      * @param serviceObject The service object to be attached
-     * @return The attached service
+     * @param basePath The base path of the service
      */
-    public Service addService(BObject serviceObject) {
-        Service service = new Service(serviceObject);
-        this.serviceMap.put(service.getServiceName(), service);
-        return service;
+    public void addService(BObject serviceObject, String basePath) {
+        ResourceFunctionType[] resourceFunctions = ((ServiceType) serviceObject.getType()).getResourceFunctions();
+        for (ResourceFunctionType resourceFunctionType : resourceFunctions) {
+            Resource resource = new Resource(serviceObject, resourceFunctionType, basePath);
+            String resourceMapKey = generateResourceMapKey(resource.getAccessor(), resource.getResourcePath());
+            if (this.resourceMap.containsKey(resourceMapKey)) {
+                throw new IllegalArgumentException("Unable to register service with duplicate resource path");
+            }
+            this.resourceMap.put(resourceMapKey, resource);
+            Utils.logInfo("Registered resource path %s", resourceMapKey);
+        }
     }
 
     /**
      * Remove an attached service from the listener.
      *
      * @param serviceObject The service object to be detached
-     * @return The removed service
      */
-    public Service removeService(BObject serviceObject) {
-        if (this.isRunning) {
-            throw new IllegalStateException("Service cannot be detached while the endpoint is active");
+    public void removeService(BObject serviceObject) {
+        List<String> resourcesToBeRemoved = new ArrayList<>();
+        for (Resource resource : this.resourceMap.values()) {
+            if (Objects.equals(serviceObject, resource.getServiceObject())) {
+                String resourceMapKey = generateResourceMapKey(resource.getAccessor(), resource.getResourcePath());
+                resourcesToBeRemoved.add(resourceMapKey);
+            }
         }
-        String serviceName = Utils.getServiceName(serviceObject);
-        return this.serviceMap.remove(serviceName);
+        for (String resourcePath : resourcesToBeRemoved) {
+            this.resourceMap.remove(resourcePath);
+            Utils.logInfo("Removed resource path %s", resourcePath);
+        }
     }
 
     /**
@@ -121,7 +136,6 @@ public class WebServer {
      */
     public void start() throws InterruptedException {
         try {
-            this.isRunning = true;
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             Channel channel = serverBootstrap
                     .group(this.loopGroup)
@@ -133,7 +147,7 @@ public class WebServer {
                             pipeline.addLast("decoder", new HttpRequestDecoder(4096, 8192, 8192, false));
                             pipeline.addLast("aggregator", new HttpObjectAggregator(100 * 1024 * 1024));
                             pipeline.addLast("encoder", new HttpResponseEncoder());
-                            pipeline.addLast("handler", new WebServerInboundHandler(runtime, serviceMap));
+                            pipeline.addLast("handler", new WebServerInboundHandler(runtime, resourceMap));
                         }
                     })
                     .bind(this.port)
@@ -143,7 +157,6 @@ public class WebServer {
             channel.closeFuture().sync();
         } finally {
             this.loopGroup.shutdownGracefully().sync();
-            this.isRunning = false;
         }
     }
 
@@ -154,7 +167,6 @@ public class WebServer {
      */
     public void shutdownGracefully() throws InterruptedException {
         this.loopGroup.shutdownGracefully().sync();
-        this.isRunning = false;
     }
 
     /**
@@ -164,19 +176,18 @@ public class WebServer {
      */
     public void shutdownNow() throws InterruptedException {
         this.loopGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS).sync();
-        this.isRunning = false;
     }
 
     /**
      * Inbound message handler of the Web Server.
      */
     public static class WebServerInboundHandler extends SimpleChannelInboundHandler<Object> {
-        private Runtime runtime;
-        private Map<String, Service> serviceMap;
+        private final Runtime runtime;
+        private final Map<String, Resource> resourceMap;
 
-        public WebServerInboundHandler(Runtime runtime, Map<String, Service> serviceMap) {
+        public WebServerInboundHandler(Runtime runtime, Map<String, Resource> resourceMap) {
             this.runtime = runtime;
-            this.serviceMap = serviceMap;
+            this.resourceMap = resourceMap;
         }
 
         @Override
@@ -190,22 +201,22 @@ public class WebServer {
                 return;
             }
             final FullHttpRequest request = (FullHttpRequest) o;
-            String[] requestUriSplit = request.uri().split("/");
-            String serviceName = requestUriSplit[1];
-            String resourceName = requestUriSplit[2];
+            String httpMethod = request.method().name();
+            String resourcePath = Utils.normalizeResourcePath(request.uri());
+            String resourceMapKey = generateResourceMapKey(httpMethod, resourcePath);
 
             BObject callerObject = ValueCreator.createObjectValue(TEST_OBSERVE_PACKAGE, CALLER_TYPE_NAME);
             callerObject.addNativeData(NETTY_CONTEXT_NATIVE_DATA_KEY, ctx);
 
             // Preparing the arguments for dispatching the resource function
-            BObject serviceObject = serviceMap.get(serviceName).getServiceObject();
-            int paramCount = 0;
-            for (MemberFunctionType attachedFunction : serviceObject.getType().getAttachedFunctions()) {
-                if (Objects.equals(attachedFunction.getName(), resourceName)) {
-                    paramCount = attachedFunction.getParameterTypes().length;
-                    break;
-                }
+            Resource resource = this.resourceMap.get(resourceMapKey);
+            if (resource == null) {
+                writeResponse(ctx, HttpResponseStatus.NOT_FOUND, "resource " + resourcePath + " not found");
+                return;
             }
+            BObject serviceObject = resource.getServiceObject();
+            String resourceFunctionName = resource.getResourceFunctionName();
+            int paramCount = resource.getParamTypes().length;
             Object[] args = new Object[paramCount * 2];
             if (paramCount >= 1) {
                 args[0] = callerObject;
@@ -222,18 +233,19 @@ public class WebServer {
             Map<String, String> httpHeaders = new HashMap<>();
             request.headers().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
             observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
-            observerContext.addMainTag(TAG_KEY_HTTP_METHOD, request.method().name());
-            observerContext.addMainTag(TAG_KEY_PROTOCOL, "http");
-            observerContext.addMainTag(TAG_KEY_HTTP_URL, request.uri());
+            observerContext.addTag(TAG_KEY_HTTP_METHOD, request.method().name());
+            observerContext.addTag(TAG_KEY_PROTOCOL, "http");
+            observerContext.addTag(TAG_KEY_HTTP_URL, request.uri());
 
-            Map<String, Object> properties = new HashMap<String, Object>();
+            Map<String, Object> properties = new HashMap<>();
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
 
             StrandMetadata strandMetadata = new StrandMetadata(TEST_OBSERVE_PACKAGE.getOrg(),
-                    TEST_OBSERVE_PACKAGE.getName(), TEST_OBSERVE_PACKAGE.getVersion(), resourceName);
-            Utils.logInfo("Dispatching resource function " + serviceName + "." + resourceName);
-            runtime.invokeMethodAsync(serviceObject, resourceName, null, strandMetadata,
-                    new WebServerCallableUnitCallback(ctx, serviceName, resourceName), properties, args);
+                    TEST_OBSERVE_PACKAGE.getName(), TEST_OBSERVE_PACKAGE.getVersion(),
+                    resourceFunctionName);
+            Utils.logInfo("Dispatching resource " + resourcePath);
+            runtime.invokeMethodAsync(serviceObject, resourceFunctionName, null, strandMetadata,
+                    new WebServerCallableUnitCallback(ctx, resourcePath), properties, resource.getReturnType(), args);
         }
 
         @Override
@@ -250,14 +262,18 @@ public class WebServer {
             private final ChannelHandlerContext ctx;
             private final String resourceName;
 
-            public WebServerCallableUnitCallback(ChannelHandlerContext ctx, String serviceName, String resourceName) {
+            public WebServerCallableUnitCallback(ChannelHandlerContext ctx, String resourcePath) {
                 this.ctx = ctx;
-                this.resourceName = serviceName + "." + resourceName;
+                this.resourceName = resourcePath;
             }
 
             @Override
             public void notifySuccess(Object result) {
-                Utils.logInfo("Successfully executed resource " + this.resourceName);
+                if (result instanceof BError) {
+                    notifyFailure(((BError) result));
+                } else {
+                    Utils.logInfo("Successfully executed resource " + this.resourceName);
+                }
             }
 
             @Override
@@ -293,5 +309,16 @@ public class WebServer {
 
         // Close the non-keep-alive connection after the write operation is done.
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    /**
+     * Generate key for the resource map.
+     *
+     * @param accessor Ballerina resource function accessor or HTTP Method
+     * @param resourcePath Ballerina resource function full resource path or HTTP path
+     * @return The key for resource map
+     */
+    public static String generateResourceMapKey(String accessor, String resourcePath) {
+        return accessor.toLowerCase(Locale.ENGLISH) + " " + resourcePath.toLowerCase(Locale.ENGLISH);
     }
 }

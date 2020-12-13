@@ -62,7 +62,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Exception {
-        super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME, new int[] {10090, 10091});
+        super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME, new int[] {10090, 10091, 10092});
     }
 
     @AfterClass(alwaysRun = true)
@@ -125,21 +125,41 @@ public class MetricsTestCase extends ObservabilityBaseTest {
     /**
      * Test the metrics generated for a particular function invocation.
      *
-     * @param allMetrics All the metrics collected from Metrics Registry
+     * @param allMetrics         All the metrics collected from Metrics Registry
      * @param invocationPosition The invocation position of the function invocation
-     * @param invocationCount The number of times the function should have been called
-     * @param additionalTags Additional tags that should be present in the metrics
+     * @param invocationCount    The number of times the function should have been called
+     * @param additionalTags     Additional tags that should be present in the metrics
      */
     private void testFunctionMetrics(Metrics allMetrics, String invocationPosition, long invocationCount,
-                                       Tag ...additionalTags) {
+                                     Tag... additionalTags) {
+
+        testFunctionMetrics(allMetrics, invocationPosition, invocationCount, additionalTags, null);
+    }
+
+    /**
+     * Test the metrics generated for a particular function invocation for a given start and end tag set.
+     *
+     * @param allMetrics                All the metrics collected from Metrics Registry
+     * @param invocationPosition        The invocation position of the function invocation
+     * @param invocationCount           The number of times the function should have been called
+     * @param startObservationTags      tags at the observation start which should be present in the metrics
+     * @param additionalObservationTags tags added additionally which should be present in the metrics
+     */
+    private void testFunctionMetrics(Metrics allMetrics, String invocationPosition, long invocationCount,
+                                     Tag[] startObservationTags, Tag[] additionalObservationTags) {
+
         Metrics functionMetrics = filterByTag(allMetrics, "src.position", invocationPosition);
 
-        Set<Tag> tags = new HashSet<>(Arrays.asList(additionalTags));
-        tags.add(Tag.of("src.module", MODULE_ID));
-        tags.add(Tag.of("src.position", invocationPosition));
+        Set<Tag> startTags = new HashSet<>(Arrays.asList(startObservationTags));
+        startTags.add(Tag.of("src.module", MODULE_ID));
+        startTags.add(Tag.of("src.position", invocationPosition));
 
-        testFunctionCounters(invocationCount, functionMetrics, tags);
-        testFunctionGauges(invocationCount, functionMetrics, tags);
+        Set<Tag> endTags = new HashSet<>(startTags);
+        if (additionalObservationTags != null) {
+            endTags.addAll(Arrays.asList(additionalObservationTags));
+        }
+        testFunctionGauges(invocationCount, functionMetrics, startTags, endTags);
+        testFunctionCounters(invocationCount, functionMetrics, endTags);
         Assert.assertEquals(functionMetrics.getPolledGauges().size(), 0);
     }
 
@@ -175,13 +195,16 @@ public class MetricsTestCase extends ObservabilityBaseTest {
     }
 
     /**
-     * Test the gauge metrics generated for a particular function invocation.
+     * Test the gauge metrics generated for a particular function invocation for given start and end tag set.
      *
      * @param invocationCount The number of times the function should have been called
      * @param functionMetrics All the metrics generated for the function invocation
-     * @param tags Tags that should be present in metrics
+     * @param startTags       Tags that should be present in metrics at observation start
+     * @param endTags         Tags that should be present in metrics at observation end
      */
-    private void testFunctionGauges(long invocationCount, Metrics functionMetrics, Set<Tag> tags) {
+    private void testFunctionGauges(long invocationCount, Metrics functionMetrics, Set<Tag> startTags,
+                                    Set<Tag> endTags) {
+
         Assert.assertEquals(functionMetrics.getGauges().stream()
                         .map(gauge -> gauge.getId().getName())
                         .collect(Collectors.toSet()),
@@ -189,11 +212,11 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         Assert.assertEquals(functionMetrics.getGauges().size(), 2);
         functionMetrics.getGauges().forEach(gauge -> {
             if (Objects.equals(gauge.getId().getName(), "response_time_seconds")) {
-                testFunctionResponseTimeGaugeMetrics(invocationCount, tags, gauge);
+                testFunctionResponseTimeGaugeMetrics(invocationCount, endTags, gauge);
             } else if (Objects.equals(gauge.getId().getName(), "inprogress_requests")) {
                 // Creating a new tag set without error metric as it is added after the observation is started and
                 // hence not included in progress metrics
-                Set<Tag> inProgressGaugeTags = new HashSet<>(tags);
+                Set<Tag> inProgressGaugeTags = new HashSet<>(startTags);
                 inProgressGaugeTags.remove(Tag.of("error", "true"));
 
                 Assert.assertEquals(gauge.getId().getTags(), inProgressGaugeTags);
@@ -297,26 +320,22 @@ public class MetricsTestCase extends ObservabilityBaseTest {
     @Test
     public void testMainFunction() throws Exception {
         String fileName = "01_main_function.bal";
-        Metrics metrics = filterByTag(this.getMetrics(), "service", null);
 
-        Assert.assertEquals(metrics.getCounters().size(), 6);
-        Assert.assertEquals(metrics.getGauges().size(), 6);
-        Assert.assertEquals(metrics.getPolledGauges().size(), 0);
-
+        Metrics metrics = this.getMetrics();
         testFunctionMetrics(metrics, fileName + ":19:1", 1,
-                Tag.of("function", "main"),
-                Tag.of("src.entry_point.main", "true")
+                Tag.of("src.function.name", "main"),
+                Tag.of("src.main", "true")
         );
         testFunctionMetrics(metrics, fileName + ":24:24", 1,
-                Tag.of("object_name", OBSERVABLE_ADDER_OBJECT_NAME),
-                Tag.of("function", "getSum")
+                Tag.of("src.object.name", OBSERVABLE_ADDER_OBJECT_NAME),
+                Tag.of("src.function.name", "getSum")
         );
         testFunctionMetrics(metrics, fileName + ":38:12", 3,
-                Tag.of("function", "calculateSumWithObservability")
+                Tag.of("src.function.name", "calculateSumWithObservability")
         );
     }
 
-    @Test
+    @Test(enabled = false)
     public void testResourceFunction() throws Exception {
         String fileName = "02_resource_function.bal";
         String serviceName = "testServiceOne";
@@ -328,16 +347,10 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         Assert.assertEquals(httpResponse.getData(), "Test Error");
         Thread.sleep(1000);
 
-        Metrics metrics = filterByTag(this.getMetrics(), "service", serviceName);
-        metrics = filterByTag(metrics, "resource", resourceName);
-
-        Assert.assertEquals(metrics.getCounters().size(), 6);
-        Assert.assertEquals(metrics.getGauges().size(), 6);
-        Assert.assertEquals(metrics.getPolledGauges().size(), 0);
-
+        Metrics metrics = this.getMetrics();
         testFunctionMetrics(metrics, fileName + ":23:5", 1,
-                Tag.of("src.entry_point.resource", "true"),
-                Tag.of("connector_name", SERVER_CONNECTOR_NAME),
+                Tag.of("src.service.resource", "true"),
+                Tag.of("src.object.name", SERVER_CONNECTOR_NAME),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
                 Tag.of("protocol", "http"),
@@ -346,24 +359,24 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("error", "true")
         );
         testFunctionMetrics(metrics, fileName + ":24:24", 1,
-                Tag.of("src.remote", "true"),
+                Tag.of("src.client.remote", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
                 Tag.of("error", "true"),
-                Tag.of("connector_name", MOCK_CLIENT_OBJECT_NAME),
-                Tag.of("action", "callWithPanic")
+                Tag.of("src.object.name", MOCK_CLIENT_OBJECT_NAME),
+                Tag.of("src.function.name", "callWithPanic")
         );
         testFunctionMetrics(metrics, fileName + ":29:20", 1,
-                Tag.of("src.remote", "true"),
+                Tag.of("src.client.remote", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
                 Tag.of("error", "true"),
-                Tag.of("connector_name", MOCK_CLIENT_OBJECT_NAME),
-                Tag.of("action", "callWithErrorReturn")
+                Tag.of("src.object.name", MOCK_CLIENT_OBJECT_NAME),
+                Tag.of("src.function.name", "callWithErrorReturn")
         );
     }
 
-    @Test
+    @Test(enabled = false)
     public void testWorkers() throws Exception {
         String fileName = "02_resource_function.bal";
         String serviceName = "testServiceOne";
@@ -375,16 +388,10 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
         Thread.sleep(1000);
 
-        Metrics metrics = filterByTag(this.getMetrics(), "service", serviceName);
-        metrics = filterByTag(metrics, "resource", resourceName);
-
-        Assert.assertEquals(metrics.getCounters().size(), 8);
-        Assert.assertEquals(metrics.getGauges().size(), 8);
-        Assert.assertEquals(metrics.getPolledGauges().size(), 0);
-
+        Metrics metrics = this.getMetrics();
         testFunctionMetrics(metrics, fileName + ":34:5", 1,
-                Tag.of("src.entry_point.resource", "true"),
-                Tag.of("connector_name", SERVER_CONNECTOR_NAME),
+                Tag.of("src.service.resource", "true"),
+                Tag.of("src.object.name", SERVER_CONNECTOR_NAME),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
                 Tag.of("protocol", "http"),
@@ -402,11 +409,39 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("resource", resourceName)
         );
         testFunctionMetrics(metrics, fileName + ":36:20", 1,
-                Tag.of("src.remote", "true"),
+                Tag.of("src.client.remote", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
-                Tag.of("connector_name", "ballerina/testobserve/Caller"),
-                Tag.of("action", "respond")
+                Tag.of("src.object.name", "ballerina/testobserve/Caller"),
+                Tag.of("src.function.name", "respond")
         );
     }
+
+    @Test(enabled = false)
+    public void testCustomMetricTags() throws Exception {
+        String fileName = "03_custom_metric_tags.bal";
+        String serviceName = "testServiceTwo";
+        String resourceName = "testAddTagToMetrics";
+
+        HttpResponse httpResponse = HttpClientRequest.doPost(
+                "http://localhost:10092/" + serviceName + "/" + resourceName, "15", Collections.emptyMap());
+        Assert.assertEquals(httpResponse.getResponseCode(), 200);
+        Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
+        Thread.sleep(1000);
+
+
+        Tag[] startTags = {
+                Tag.of("src.service.resource", "true"),
+                Tag.of("src.object.name", SERVER_CONNECTOR_NAME),
+                Tag.of("service", serviceName),
+                Tag.of("resource", resourceName),
+                Tag.of("protocol", "http"),
+                Tag.of("http.url", "/testServiceTwo/testAddTagToMetrics"),
+                Tag.of("http.method", "POST")};
+        Tag[] endTags = {Tag.of("metric", "Metric Value")};
+
+        Metrics metrics = this.getMetrics();
+        testFunctionMetrics(metrics, fileName + ":22:5", 1, startTags, endTags);
+    }
+
 }

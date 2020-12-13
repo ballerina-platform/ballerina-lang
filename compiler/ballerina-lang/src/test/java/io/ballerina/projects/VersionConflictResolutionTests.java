@@ -61,6 +61,12 @@ public class VersionConflictResolutionTests {
                 getDependencyGraph(testSourcesDirectory.resolve("conflicts_2_expected.json")));
     }
 
+    @Test(expectedExceptions = ProjectException.class, expectedExceptionsMessageRegExp =
+            "Two incompatible versions exist in the dependency graph: samjs/package_b versions: 1.1.0, 2.1.0")
+    public void testVersionConflictsMajor() throws IOException {
+        getDependencyGraph(testSourcesDirectory.resolve("conflicts_negative_1.json"));
+    }
+
     private void compareGraphs(DependencyGraph<PackageDescriptor> actualDependencyGraph,
                                DependencyGraph<PackageDescriptor> expectedDependencyGraph) {
         Collection<PackageDescriptor> actualNodes = actualDependencyGraph.getNodes();

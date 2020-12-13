@@ -215,7 +215,7 @@ public class JDIEventProcessor {
             List<Location> allLocations = currentLocation.method().allLineLocations();
             Optional<Location> lastLocation = allLocations.stream().max(Comparator.comparingInt(Location::lineNumber));
             Optional<Location> firstLocation = allLocations.stream().min(Comparator.comparingInt(Location::lineNumber));
-            if (!firstLocation.isPresent()) {
+            if (firstLocation.isEmpty()) {
                 return;
             }
             // If the debug flow is in the last line of the method and the user wants to step over, the expected

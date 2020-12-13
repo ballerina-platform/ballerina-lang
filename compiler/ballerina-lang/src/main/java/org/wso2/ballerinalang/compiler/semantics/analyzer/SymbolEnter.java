@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -180,6 +181,8 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
@@ -607,7 +610,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangClassDefinition classDefinition) {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
         boolean isPublicType = flags.contains(Flag.PUBLIC);
-        boolean isServiceType = flags.contains(Flag.SERVICE);
         Name className = names.fromIdNode(classDefinition.name);
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
@@ -617,7 +619,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
 
-        int typeFlags = 0;
+        long typeFlags = 0;
 
         if (flags.contains(Flag.READONLY)) {
             typeFlags |= Flags.READONLY;
@@ -627,8 +629,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             typeFlags |= Flags.ISOLATED;
         }
 
-        if (isServiceType) {
+        if (flags.contains(Flag.SERVICE)) {
             typeFlags |= Flags.SERVICE;
+        }
+
+        if (flags.contains(Flag.OBJECT_CTOR)) {
+            typeFlags |= Flags.OBJECT_CTOR;
         }
 
         BObjectType objectType = new BObjectType(tSymbol, typeFlags);
@@ -1194,6 +1200,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                            env.scope.owner, typeDefinition.pos, SOURCE);
         }
 
+        if (typeDefinition.flagSet.contains(Flag.ENUM)) {
+            definedType.tsymbol = createEnumSymbol(typeDefinition, definedType);
+        }
+
         typeDefinition.setPrecedence(this.typePrecedence++);
         BTypeSymbol typeDefSymbol;
         if (definedType.tsymbol.name != Names.EMPTY) {
@@ -1270,6 +1280,18 @@ public class SymbolEnter extends BLangNodeVisitor {
             // constructors are only defined for named types.
             defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
         }
+    }
+
+    private BEnumSymbol createEnumSymbol(BLangTypeDefinition typeDefinition, BType definedType) {
+        List<BConstantSymbol> enumMembers = new ArrayList<>();
+
+        List<BLangType> members = ((BLangUnionTypeNode) typeDefinition.typeNode).memberTypeNodes;
+        for (BLangType member : members) {
+            enumMembers.add((BConstantSymbol) ((BLangUserDefinedType) member).symbol);
+        }
+
+        return new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
+                               definedType, env.scope.owner, typeDefinition.pos, SOURCE);
     }
 
     private BObjectType getDistinctObjectType(BLangTypeDefinition typeDefinition, BObjectType definedType,
@@ -2452,6 +2474,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                              SymbolEnv invokableEnv) {
         boolean foundDefaultableParam = false;
         List<BVarSymbol> paramSymbols = new ArrayList<>();
+        Set<String> requiredParamNames = new HashSet<>();
         invokableNode.clonedEnv = invokableEnv.shallowClone();
         for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
             defineNode(varNode, invokableEnv);
@@ -2465,6 +2488,24 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (varNode.expr != null) {
                 symbol.flags |= Flags.OPTIONAL;
                 symbol.defaultableParam = true;
+            }
+            if (varNode.flagSet.contains(Flag.INCLUDED)) {
+                if (varNode.type.getKind() == TypeKind.RECORD) {
+                    symbol.flags |= Flags.INCLUDED;
+                    LinkedHashMap<String, BField> fields = ((BRecordType) varNode.type).fields;
+                    for (String fieldName : fields.keySet()) {
+                        BField field = fields.get(fieldName);
+                        if (field.symbol.type.tag != TypeTags.NEVER) {
+                            if (!requiredParamNames.add(fieldName)) {
+                                dlog.error(varNode.pos, REDECLARED_SYMBOL, fieldName);
+                            }
+                        }
+                    }
+                } else {
+                    dlog.error(varNode.typeNode.pos, EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER);
+                }
+            } else {
+                requiredParamNames.add(symbol.name.value);
             }
             paramSymbols.add(symbol);
         }

@@ -348,7 +348,7 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "Foo {message:\"error msg\"}");
     }
 
-    @Test(groups = { "disableOnOldParser" }, enabled = false)
+    @Test(groups = { "disableOnOldParser" })
     public void testStackTraceInNative() {
         Exception expectedException = null;
         try {
@@ -359,10 +359,9 @@ public class ErrorTest {
 
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
-        Assert.assertEquals(message,
-                "error: array index out of range: index: 4, size: 2\n\t" +
-                        "at ballerina.lang_array.1_1_0:slice(array.bal:106)\n\t" +
-                        "   error_test:testStackTraceInNative(error_test.bal:280)");
+        Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
+                "at ballerina.lang.array.1_1_0:slice(array.bal:126)\n\t" +
+                "   error_test:testStackTraceInNative(error_test.bal:276)");
     }
 
     @Test

@@ -1114,6 +1114,17 @@ function testAsyncFpArgsWithArrays() returns [int, int[]] {
     return [reduce, filter];
 }
 
+function testReadOnlyArrayFilter() {
+    int[] & readonly numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    int[] evenNumbers = numbers.filter(val => val % 2 == 0);
+    int count = 0;
+    foreach int number in evenNumbers {
+        assertValueEquality(count * 2, number);
+        count += 1;
+    }
+    assertFalse(evenNumbers.isReadOnly());
+}
+
 function getRandomNumber(int i) returns int {
     return i + 2;
 }

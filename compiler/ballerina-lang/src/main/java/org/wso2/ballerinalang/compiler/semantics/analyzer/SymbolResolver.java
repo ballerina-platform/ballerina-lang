@@ -1433,6 +1433,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     tSymbol.type.flags |= Flags.PARAMETERIZED;
 
                     this.resultType = tSymbol.type;
+                    userDefinedTypeNode.symbol = tSymbol;
                     return;
                 }
             }
@@ -1453,6 +1454,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
 
+        userDefinedTypeNode.symbol = symbol;
         resultType = symbol.type;
     }
 
