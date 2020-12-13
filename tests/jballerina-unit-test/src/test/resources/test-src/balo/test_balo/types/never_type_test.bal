@@ -14,13 +14,8 @@ function testTypeOfNeverReturnTypedFunction() {
         return;
     }
 
-    string expectedValAsString = "";
-    if (expectedFunctionType is error) {
-        expectedValAsString = expectedFunctionType.toString();
-    } else {
-        expectedValAsString = expectedFunctionType.toString();
-    }
-
+    string expectedValAsString =
+                expectedFunctionType is error ? expectedFunctionType.toString() : expectedFunctionType.toString();
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expectedValAsString + "', found '" + actualFunctionType.toString() + "'");
 }

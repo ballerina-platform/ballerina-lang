@@ -30,14 +30,6 @@ function testArrayForeachAndTrap() returns int {
     return -1;
 }
 
-function testArrayForeachAndPanic() {
-    string[] invalidArray = ["2", "waruna", "7"];
-    int result = convertAndGetSumFromArray(invalidArray);
-    // This line should not be executed.
-    panic error(ASSERTION_ERROR_REASON,
-                message = "Program should be panic before this line");
-}
-
 function convertAndGetSumFromArray(string[] stringNumbers) returns int {
     int sum = 0;
     stringNumbers.forEach(function (string s) {
@@ -54,12 +46,6 @@ function assertTrue(any|error actual) {
         return;
     }
 
-    string actualValAsString = "";
-    if (actual is error) {
-        actualValAsString = actual.toString();
-    } else {
-        actualValAsString = actual.toString();
-    }
-
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found '" + actualValAsString + "'");
 }

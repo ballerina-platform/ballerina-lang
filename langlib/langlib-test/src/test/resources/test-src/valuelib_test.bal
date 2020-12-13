@@ -472,20 +472,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    string expectedValAsString = "";
-    string actualValAsString = "";
-    if (expected is error) {
-        expectedValAsString = expected.toString();
-    } else {
-        expectedValAsString = expected.toString();
-    }
-
-    if (actual is error) {
-        actualValAsString = actual.toString();
-    } else {
-        actualValAsString = actual.toString();
-    }
-
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic AssertionError(ASSERTION_ERROR_REASON,
             message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
@@ -507,13 +495,9 @@ function testCloneWithTypeJsonRec1() {
 
 function testCloneWithTypeJsonRec2() {
    json pj = { name : "tom", age: 2};
-   Person2|error pe = pj.cloneWithType(Person2);
-   assert(pe is Person2, true);
-
-   if (pe is Person2) {
-       assert(pe.name, "tom");
-       assert(pe.age, 2);
-   }
+   Person2 pe = checkpanic pj.cloneWithType(Person2);
+   assert(pe.name, "tom");
+   assert(pe.age, 2);
 
    Person2 s = { name : "bob", age: 4};
    json|error ss = s.cloneWithType(json);

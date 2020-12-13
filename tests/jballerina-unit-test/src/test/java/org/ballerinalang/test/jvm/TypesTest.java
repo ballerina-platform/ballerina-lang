@@ -572,13 +572,6 @@ public class TypesTest {
         Assert.assertEquals(returns[0].stringValue(), "[[1, 2, 3], [3, 4, 5], [7, 8, 9]]");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'string'.*",
-            enabled = false)
-    public void testGetFromNull() {
-        BRunUtil.invoke(compileResult, "testGetFromNull");
-    }
-
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)'" +
                                               " cannot be cast to 'map<json>'.*")

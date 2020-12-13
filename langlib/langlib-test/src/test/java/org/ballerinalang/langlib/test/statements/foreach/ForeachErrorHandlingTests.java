@@ -48,14 +48,4 @@ public class ForeachErrorHandlingTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 14);
     }
-
-    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
-            "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'error' cannot be cast to " +
-                    "'int'\"\\}\n" +
-                    "\tat foreach_error_handling:\\$lambda\\$_0\\(foreach_error_handling.bal:41\\)\n" +
-                    "\t   foreach_error_handling:\\$lambda\\$_0\\$lambda0\\$\\(foreach_error_handling.bal:40\\)",
-            enabled = false)
-    public void testArrayForeachAndPanic() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayForeachAndPanic");
-    }
 }

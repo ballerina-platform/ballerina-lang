@@ -583,12 +583,6 @@ function testJsonArrayToJsonCasting () returns (json) {
     return j2;
 }
 
-function testGetFromNull () returns (string) {
-    json j2 = {age:43, name:null};
-    string value = <string> checkpanic j2.name.fname;
-    return value;
-}
-
 function testAddToNull () returns (json) {
     json jjj = {name:"Supun", address:null};
     map<json> jj = <map<json>>jjj;
@@ -749,20 +743,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    string expectedValAsString = "";
-    string actualValAsString = "";
-    if (expected is error) {
-        expectedValAsString = expected.toString();
-    } else {
-        expectedValAsString = expected.toString();
-    }
-
-    if (actual is error) {
-        actualValAsString = actual.toString();
-    } else {
-        actualValAsString = actual.toString();
-    }
-
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic AssertionError(ASSERTION_ERROR_REASON,
                     message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

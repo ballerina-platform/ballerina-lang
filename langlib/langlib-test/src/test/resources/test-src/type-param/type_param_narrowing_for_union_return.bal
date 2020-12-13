@@ -21,13 +21,7 @@ function assertTrue(any|error actual) {
         return;
     }
 
-    string actualValAsString = "";
-    if (actual is error) {
-        actualValAsString = actual.toString();
-    } else {
-        actualValAsString = actual.toString();
-    }
-
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found '" + actualValAsString + "'");
 }
 
@@ -36,20 +30,8 @@ function assertEqual(anydata|error expected, anydata|error actual) {
         return;
     }
 
-    string expectedValAsString = "";
-    string actualValAsString = "";
-    if (expected is error) {
-        expectedValAsString = expected.toString();
-    } else {
-        expectedValAsString = expected.toString();
-    }
-
-    if (actual is error) {
-        actualValAsString = actual.toString();
-    } else {
-        actualValAsString = actual.toString();
-    }
-
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
