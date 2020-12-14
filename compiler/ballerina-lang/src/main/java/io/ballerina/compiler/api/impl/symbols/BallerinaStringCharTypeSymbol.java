@@ -18,7 +18,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.CharTypeSymbol;
+import io.ballerina.compiler.api.symbols.StringCharTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -29,9 +29,9 @@ import org.wso2.ballerinalang.compiler.util.Names;
  *
  * @since 2.0.0
  */
-public class BallerinaCharTypeSymbol extends AbstractTypeSymbol implements CharTypeSymbol {
+public class BallerinaStringCharTypeSymbol extends AbstractTypeSymbol implements StringCharTypeSymbol {
 
-    public BallerinaCharTypeSymbol(CompilerContext context, ModuleID moduleID, BStringSubType charType) {
+    public BallerinaStringCharTypeSymbol(CompilerContext context, ModuleID moduleID, BStringSubType charType) {
         super(context, TypeDescKind.STRING_CHAR, moduleID, charType);
     }
 

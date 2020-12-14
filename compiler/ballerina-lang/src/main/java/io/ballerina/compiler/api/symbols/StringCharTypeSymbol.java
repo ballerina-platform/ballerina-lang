@@ -22,5 +22,5 @@ package io.ballerina.compiler.api.symbols;
  *
  * @since 2.0.0
  */
-public interface CharTypeSymbol extends StringTypeSymbol {
+public interface StringCharTypeSymbol extends StringTypeSymbol {
 }

@@ -144,7 +144,7 @@ public class TypesFactory {
             case STRING:
                 if (bType instanceof BStringSubType) {
                     moduleID = new BallerinaModuleID(symbolTable.langStringModuleSymbol.pkgID);
-                    return new BallerinaCharTypeSymbol(this.context, moduleID, (BStringSubType) bType);
+                    return new BallerinaStringCharTypeSymbol(this.context, moduleID, (BStringSubType) bType);
                 }
                 return new BallerinaStringTypeSymbol(this.context, moduleID, bType);
             case ANY:
