@@ -35,7 +35,7 @@ import java.util.Optional;
 public class BallerinaXMLCommentTypeSymbol extends AbstractTypeSymbol implements XMLCommentTypeSymbol {
 
     public BallerinaXMLCommentTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLSubType commentType) {
-        super(context, TypeDescKind.XML, moduleID, commentType);
+        super(context, TypeDescKind.XML_COMMENT, moduleID, commentType);
     }
 
     @Override
@@ -46,11 +46,6 @@ public class BallerinaXMLCommentTypeSymbol extends AbstractTypeSymbol implements
     @Override
     public String name() {
         return Names.STRING_XML_COMMENT;
-    }
-
-    @Override
-    public Kind xmlKind() {
-        return Kind.COMMENT;
     }
 
     @Override

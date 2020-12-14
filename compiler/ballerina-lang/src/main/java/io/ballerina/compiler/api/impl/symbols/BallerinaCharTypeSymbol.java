@@ -32,17 +32,12 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BallerinaCharTypeSymbol extends AbstractTypeSymbol implements CharTypeSymbol {
 
     public BallerinaCharTypeSymbol(CompilerContext context, ModuleID moduleID, BStringSubType charType) {
-        super(context, TypeDescKind.STRING, moduleID, charType);
+        super(context, TypeDescKind.STRING_CHAR, moduleID, charType);
     }
 
     @Override
     public String name() {
         return Names.STRING_CHAR;
-    }
-
-    @Override
-    public Kind stringKind() {
-        return Kind.CHAR;
     }
 
     @Override

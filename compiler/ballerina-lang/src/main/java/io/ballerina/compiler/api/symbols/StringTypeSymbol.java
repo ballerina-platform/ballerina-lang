@@ -23,30 +23,4 @@ package io.ballerina.compiler.api.symbols;
  * @since 2.0.0
  */
 public interface StringTypeSymbol extends TypeSymbol {
-
-    /**
-     * Retrieves the string kind represented by the type symbol. Intended to be used when one needs to differentiate
-     * between the different kinds of string subtypes.
-     *
-     * @return The kind of string represented
-     */
-    Kind stringKind();
-
-    /**
-     * Represents the possible string types.
-     */
-    enum Kind {
-        STRING("string"),
-        CHAR("Char");
-
-        private final String name;
-
-        Kind(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
 }

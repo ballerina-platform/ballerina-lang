@@ -35,11 +35,6 @@ public class BallerinaStringTypeSymbol extends AbstractTypeSymbol implements Str
     }
 
     @Override
-    public Kind stringKind() {
-        return Kind.STRING;
-    }
-
-    @Override
     public String signature() {
         return "string";
     }

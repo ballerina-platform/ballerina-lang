@@ -32,17 +32,12 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BallerinaIntUnsigned8TypeSymbol extends AbstractTypeSymbol implements IntUnsigned8TypeSymbol {
 
     public BallerinaIntUnsigned8TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType unsigned8Type) {
-        super(context, TypeDescKind.INT, moduleID, unsigned8Type);
+        super(context, TypeDescKind.INT_UNSIGNED8, moduleID, unsigned8Type);
     }
 
     @Override
     public String name() {
         return Names.STRING_UNSIGNED8;
-    }
-
-    @Override
-    public Kind intKind() {
-        return Kind.UNSIGNED8;
     }
 
     @Override

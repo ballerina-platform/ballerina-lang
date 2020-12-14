@@ -18,15 +18,22 @@ package io.ballerina.compiler.api.symbols;
 
 /**
  * Represents the Type Kinds.
- * 
+ *
  * @since 2.0.0
  */
 public enum TypeDescKind {
     INT("int"),
+    INT_SIGNED8("Signed8"),
+    INT_UNSIGNED8("Unsigned8"),
+    INT_SIGNED16("Signed16"),
+    INT_UNSIGNED16("Unsigned16"),
+    INT_SIGNED32("Signed32"),
+    INT_UNSIGNED32("Unsigned32"),
     BYTE("byte"),
     FLOAT("float"),
     DECIMAL("decimal"),
     STRING("string"),
+    STRING_CHAR("Char"),
     BOOLEAN("boolean"),
     NIL("nil"),
     ANY("any"),
@@ -46,6 +53,10 @@ public enum TypeDescKind {
     INTERSECTION("intersection"),
     JSON("json"),
     XML("xml"),
+    XML_ELEMENT("Element"),
+    XML_PROCESSING_INSTRUCTION("ProcessingInstruction"),
+    XML_COMMENT("Comment"),
+    XML_TEXT("Text"),
     HANDLE("handle"),
     TABLE("table"),
     SINGLETON("singleton"),
@@ -62,5 +73,20 @@ public enum TypeDescKind {
     public String getName() {
         return name;
     }
-    
+
+    public boolean isIntegerType() {
+        switch (this) {
+            case INT:
+            case INT_SIGNED8:
+            case INT_UNSIGNED8:
+            case INT_SIGNED16:
+            case INT_UNSIGNED16:
+            case INT_SIGNED32:
+            case INT_UNSIGNED32:
+            case BYTE:
+                return true;
+        }
+
+        return false;
+    }
 }

@@ -68,11 +68,6 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
     }
 
     @Override
-    public Kind xmlKind() {
-        return Kind.XML;
-    }
-
-    @Override
     public String signature() {
         return name();
     }

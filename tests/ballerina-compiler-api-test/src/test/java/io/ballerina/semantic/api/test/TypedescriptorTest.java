@@ -26,7 +26,6 @@ import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
-import io.ballerina.compiler.api.symbols.IntTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
@@ -36,7 +35,6 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
-import io.ballerina.compiler.api.symbols.StringTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
@@ -72,6 +70,12 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT_SIGNED16;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT_SIGNED32;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT_SIGNED8;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT_UNSIGNED16;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT_UNSIGNED32;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT_UNSIGNED8;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NEVER;
@@ -82,12 +86,17 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING_CHAR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_COMMENT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_PROCESSING_INSTRUCTION;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_TEXT;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -349,7 +358,7 @@ public class TypedescriptorTest {
     }
 
     @Test(dataProvider = "BuiltinTypePosProvider")
-    public void testBuiltinSubtypes(int line, int column, TypeDescKind kind, String name, Object subtypeKind) {
+    public void testBuiltinSubtypes(int line, int column, String name, TypeDescKind kind) {
         Symbol symbol = getSymbol(line, column);
         TypeSymbol typeRef = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(typeRef.typeKind(), TYPE_REFERENCE);
@@ -357,36 +366,22 @@ public class TypedescriptorTest {
         TypeSymbol type = ((TypeReferenceTypeSymbol) typeRef).typeDescriptor();
         assertEquals(type.typeKind(), kind);
         assertEquals(type.name(), name);
-
-        switch (type.typeKind()) {
-            case INT:
-                assertEquals(((IntTypeSymbol) type).intKind(), subtypeKind);
-                break;
-            case STRING:
-                assertEquals(((StringTypeSymbol) type).stringKind(), subtypeKind);
-                break;
-            case XML:
-                assertEquals(((XMLTypeSymbol) type).xmlKind(), subtypeKind);
-                break;
-            default:
-                throw new IllegalStateException("Invalid type kind: " + type.typeKind());
-        }
     }
 
     @DataProvider(name = "BuiltinTypePosProvider")
     public Object[][] getBuiltinTypePos() {
         return new Object[][]{
-                {77, 20, INT, "Unsigned32", IntTypeSymbol.Kind.UNSIGNED32},
-                {78, 18, INT, "Signed32", IntTypeSymbol.Kind.SIGNED32},
-                {79, 19, INT, "Unsigned8", IntTypeSymbol.Kind.UNSIGNED8},
-                {80, 17, INT, "Signed8", IntTypeSymbol.Kind.SIGNED8},
-                {81, 20, INT, "Unsigned16", IntTypeSymbol.Kind.UNSIGNED16},
-                {82, 18, INT, "Signed16", IntTypeSymbol.Kind.SIGNED16},
-                {84, 17, STRING, "Char", StringTypeSymbol.Kind.CHAR},
-                {86, 17, XML, "Element", XMLTypeSymbol.Kind.ELEMENT},
-                {87, 31, XML, "ProcessingInstruction", XMLTypeSymbol.Kind.PROCESSING_INSTRUCTION},
-                {88, 17, XML, "Comment", XMLTypeSymbol.Kind.COMMENT},
-                {89, 14, XML, "Text", XMLTypeSymbol.Kind.TEXT},
+                {77, 20, "Unsigned32", INT_UNSIGNED32},
+                {78, 18, "Signed32", INT_SIGNED32},
+                {79, 19, "Unsigned8", INT_UNSIGNED8},
+                {80, 17, "Signed8", INT_SIGNED8},
+                {81, 20, "Unsigned16", INT_UNSIGNED16},
+                {82, 18, "Signed16", INT_SIGNED16},
+                {84, 17, "Char", STRING_CHAR},
+                {86, 17, "Element", XML_ELEMENT},
+                {87, 31, "ProcessingInstruction", XML_PROCESSING_INSTRUCTION},
+                {88, 17, "Comment", XML_COMMENT},
+                {89, 14, "Text", XML_TEXT},
         };
     }
 

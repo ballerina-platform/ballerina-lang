@@ -35,11 +35,6 @@ public class BallerinaIntTypeSymbol extends AbstractTypeSymbol implements IntTyp
     }
 
     @Override
-    public Kind intKind() {
-        return Kind.INT;
-    }
-
-    @Override
     public String signature() {
         return "int";
     }
