@@ -31,24 +31,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PackageHolder {
 
-    private static final PackageHolder INSTANCE = new PackageHolder();
-
     private String org;
     private String name;
     private String version;
     private final Map<String, ModuleHolder> modulesMap = new ConcurrentHashMap<>();
 
-    private PackageHolder() {   // Prevent initialization
-    }
-
     public void addSyntaxTree(ModuleDescriptor moduleDescriptor, String documentName, JsonElement syntaxTreeJson) {
         String moduleName = moduleDescriptor.name().toString();
         ModuleHolder moduleHolder = this.modulesMap.computeIfAbsent(moduleName, k -> new ModuleHolder(moduleName));
         moduleHolder.addSyntaxTree(documentName, syntaxTreeJson);
-    }
-
-    public static PackageHolder getInstance() {
-        return INSTANCE;
     }
 
     public Map<String, ModuleHolder> getModules() {
