@@ -3310,11 +3310,12 @@ public class Types {
 
         if (isAssignable(overlappingField.type, origField.type)) {
             return overlappingField.type;
-        } else if (isAssignable(origField.type, overlappingField.type)) {
+        } 
+        
+        if (isAssignable(origField.type, overlappingField.type)) {
             return origField.type;
-        } else {
-            return symTable.semanticError;
         }
+        return symTable.semanticError;
     }
 
     private BType getRemainingType(BUnionType originalType, List<BType> removeTypes) {

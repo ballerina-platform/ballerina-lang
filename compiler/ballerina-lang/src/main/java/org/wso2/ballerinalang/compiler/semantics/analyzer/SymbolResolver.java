@@ -1739,8 +1739,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 potentialIntersectionType = types.createErrorType(((BErrorType) potentialIntersectionType).detailType,
                                                                   potentialIntersectionType.flags, env);
             }
-            return defineIntersectionType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos, constituentBTypes,
-                                          isAlreadyExistingType, env);
+            return defineIntersectionType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos,
+                                          constituentBTypes, isAlreadyExistingType, env);
         }
 
         if (!hasReadOnlyType) {
