@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 3,
-    "character": 31
+    "character": 30
   },
   "source": "expression_context/source/new_expr_ctx_source5.bal",
   "items": [
@@ -342,6 +342,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "transactional",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -407,7 +414,7 @@
     {
       "label": "obj1",
       "kind": "Variable",
-      "detail": "ballerina/module1:0.1.0:TestObject1",
+      "detail": "ballerina/module1:0.1.0:TestClass1",
       "insertText": "obj1",
       "insertTextFormat": "Snippet"
     },
@@ -421,7 +428,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "testNewFunction();",
+      "insertText": "testNewFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -434,7 +441,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "new(${1});",
+      "insertText": "new(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

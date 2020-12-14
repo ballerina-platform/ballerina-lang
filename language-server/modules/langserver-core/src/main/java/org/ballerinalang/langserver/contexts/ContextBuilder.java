@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
@@ -143,6 +144,22 @@ public class ContextBuilder {
                                                                    LSClientCapabilities clientCapabilities,
                                                                    BallerinaLanguageServer languageServer) {
         return new ExecuteCommandContextImpl.ExecuteCommandContextBuilder(arguments, clientCapabilities, languageServer)
+                .withWorkspaceManager(workspaceManager)
+                .build();
+    }
+
+    /**
+     * Build the folding range context.
+     *
+     * @param uri              file uri
+     * @param workspaceManager workspace manager instance
+     * @param lineFoldingOnly  if line folding only or not
+     * @return {@link FoldingRangeContext} generated folding range context
+     */
+    public static FoldingRangeContext buildFoldingRangeContext(String uri, WorkspaceManager workspaceManager,
+                                                               boolean lineFoldingOnly) {
+        return new FoldingRangeContextImpl.FoldingRangeContextBuilder(lineFoldingOnly)
+                .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .build();
     }

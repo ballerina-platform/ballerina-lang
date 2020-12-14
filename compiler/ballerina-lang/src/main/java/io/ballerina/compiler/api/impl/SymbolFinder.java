@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
@@ -185,7 +184,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
  *
  * @since 2.0.0
  */
-class SymbolFinder extends BLangNodeVisitor {
+class SymbolFinder extends BaseVisitor {
 
     private LinePosition cursorPos;
     private BSymbol symbolAtCursor;

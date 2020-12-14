@@ -70,6 +70,8 @@ public class ServiceDesugar {
     private HttpFiltersDesugar httpFiltersDesugar;
     private TransactionDesugar transactionDesugar;
 
+    private boolean transactionCoordinatorStarted;
+
     public static ServiceDesugar getInstance(CompilerContext context) {
         ServiceDesugar desugar = context.get(SERVICE_DESUGAR_KEY);
         if (desugar == null) {
@@ -86,6 +88,7 @@ public class ServiceDesugar {
         this.names = Names.getInstance(context);
         this.httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
         this.transactionDesugar = TransactionDesugar.getInstance(context);
+        this.transactionCoordinatorStarted = false;
     }
 
     void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env, BLangFunction startFunction,
@@ -212,9 +215,25 @@ public class ServiceDesugar {
         if (Symbols.isFlagOn(functionNode.symbol.flags, Flags.TRANSACTIONAL)) {
             BLangExpressionStmt stmt = new BLangExpressionStmt(transactionDesugar
                     .createBeginParticipantInvocation(functionNode.pos));
-            ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
+            if (!transactionCoordinatorStarted) {
+                setTransactionCoordinatorStarted(true);
+                BLangExpressionStmt trxCoordnStmt = new BLangExpressionStmt(transactionDesugar.
+                        createStartTransactionCoordinatorInvocation(functionNode.pos));
+                ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, trxCoordnStmt);
+                ((BLangBlockFunctionBody) functionNode.body).stmts.add(1, stmt);
+            } else {
+                ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
+            }
         }
 //        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
 //        httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
+    }
+
+    boolean getTransactionCoordinatorStarted() {
+        return this.transactionCoordinatorStarted;
+    }
+
+    void setTransactionCoordinatorStarted(boolean started) {
+        this.transactionCoordinatorStarted = started;
     }
 }
