@@ -2734,7 +2734,14 @@ public class FormattingTreeModifier extends TreeModifier {
         MetadataNode metadata = formatNode(methodDeclarationNode.metadata().orElse(null), 0, 1);
         NodeList<Token> qualifierList = formatNodeList(methodDeclarationNode.qualifierList(), 1, 0, 1, 0);
         Token functionKeyword = formatToken(methodDeclarationNode.functionKeyword(), 1, 0);
-        IdentifierToken methodName = formatNode(methodDeclarationNode.methodName(), 0, 0);
+        IdentifierToken methodName;
+        if (methodDeclarationNode.relativeResourcePath().isEmpty() ||
+                methodDeclarationNode.relativeResourcePath().get(0).isMissing()) {
+            methodName = formatNode(methodDeclarationNode.methodName(), 0, 0);
+        } else {
+            methodName = formatNode(methodDeclarationNode.methodName(), 1, 0);
+        }
+        NodeList<Node> relativeResourcePath = formatNodeList(methodDeclarationNode.relativeResourcePath(), 0, 0, 0, 0);
         FunctionSignatureNode methodSignature = formatNode(methodDeclarationNode.methodSignature(), 0, 0);
         Token semicolon = formatToken(methodDeclarationNode.semicolon(), env.trailingWS, env.trailingNL);
 
@@ -2743,6 +2750,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withQualifierList(qualifierList)
                 .withFunctionKeyword(functionKeyword)
                 .withMethodName(methodName)
+                .withRelativeResourcePath(relativeResourcePath)
                 .withMethodSignature(methodSignature)
                 .withSemicolon(semicolon)
                 .apply();
