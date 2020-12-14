@@ -15,4 +15,5 @@ module io.ballerina.cli {
     requires jdk.httpserver;
     requires io.ballerina.config;
     requires io.ballerina.core;
+    requires slf4j.api;
 }
