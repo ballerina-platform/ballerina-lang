@@ -52,6 +52,6 @@ public class BallerinaXMLProcessingInstructionTypeSymbol extends AbstractTypeSym
 
     @Override
     public String signature() {
-        return Names.STRING_XML_PI;
+        return "xml:" + Names.STRING_XML_PI;
     }
 }

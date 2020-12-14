@@ -50,6 +50,6 @@ public class BallerinaXMLCommentTypeSymbol extends AbstractTypeSymbol implements
 
     @Override
     public String signature() {
-        return Names.STRING_XML_COMMENT;
+        return "xml:" + Names.STRING_XML_COMMENT;
     }
 }

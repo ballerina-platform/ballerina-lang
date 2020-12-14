@@ -42,6 +42,6 @@ public class BallerinaStringCharTypeSymbol extends AbstractTypeSymbol implements
 
     @Override
     public String signature() {
-        return Names.STRING_CHAR;
+        return "string:" + Names.STRING_CHAR;
     }
 }

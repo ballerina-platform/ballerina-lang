@@ -42,6 +42,6 @@ public class BallerinaIntSigned8TypeSymbol extends AbstractTypeSymbol implements
 
     @Override
     public String signature() {
-        return Names.STRING_SIGNED8;
+        return "int:" + Names.STRING_SIGNED8;
     }
 }

@@ -42,6 +42,6 @@ public class BallerinaIntSigned16TypeSymbol extends AbstractTypeSymbol implement
 
     @Override
     public String signature() {
-        return Names.STRING_SIGNED16;
+        return "int:" + Names.STRING_SIGNED16;
     }
 }

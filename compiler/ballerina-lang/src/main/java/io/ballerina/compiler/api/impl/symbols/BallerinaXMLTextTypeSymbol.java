@@ -50,6 +50,6 @@ public class BallerinaXMLTextTypeSymbol extends AbstractTypeSymbol implements XM
 
     @Override
     public String signature() {
-        return Names.STRING_XML_TEXT;
+        return "xml:" + Names.STRING_XML_TEXT;
     }
 }
