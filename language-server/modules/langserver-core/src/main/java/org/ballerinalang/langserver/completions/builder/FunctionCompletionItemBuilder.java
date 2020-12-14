@@ -237,9 +237,6 @@ public final class FunctionCompletionItemBuilder {
         signature.append(")");
         insertText.append(")");
         Optional<TypeSymbol> returnType = functionTypeDesc.returnTypeDescriptor();
-        if (returnType.isEmpty() || returnType.get().typeKind() == TypeDescKind.NIL) {
-            insertText.append(";");
-        }
         String initString = "(";
         String endString = ")";
 

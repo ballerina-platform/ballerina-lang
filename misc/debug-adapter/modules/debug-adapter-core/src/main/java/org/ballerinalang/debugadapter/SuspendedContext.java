@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.InvalidStackFrameException;
+import com.sun.jdi.ReferenceType;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -33,8 +34,14 @@ import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
+import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_ORG;
+import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
 /**
@@ -54,6 +61,7 @@ public class SuspendedContext {
     private int lineNumber;
     private Document document;
     private ClassLoaderReference classLoader;
+    private final Map<String, String> loadedLangLibVersions;
 
     SuspendedContext(Project project, String projectRoot, VirtualMachineProxyImpl vm,
                      ThreadReferenceProxyImpl threadRef, StackFrameProxyImpl frame) {
@@ -67,6 +75,7 @@ public class SuspendedContext {
         this.lineNumber = -1;
         this.fileName = null;
         this.breakPointSourcePath = null;
+        this.loadedLangLibVersions = new HashMap<>();
     }
 
     public Project getProject() {
@@ -162,6 +171,28 @@ public class SuspendedContext {
             loadDocument();
         }
         return document;
+    }
+
+    public Map<String, String> getLoadedLangLibVersions() {
+        if (loadedLangLibVersions.isEmpty()) {
+            populateLangLibVersions();
+        }
+        return loadedLangLibVersions;
+    }
+
+    private void populateLangLibVersions() {
+        String langLibPrefix = LANG_LIB_ORG + "." + encodeModuleName(LANG_LIB_PACKAGE_PREFIX);
+        for (ReferenceType referenceType : attachedVm.allClasses()) {
+            if (!referenceType.name().startsWith(langLibPrefix)) {
+                continue;
+            }
+            String[] split = referenceType.name().split("\\.");
+            String langLibVersion = split[2];
+            String langLibName = decodeIdentifier(split[1]).split("\\.")[1];
+            if (!loadedLangLibVersions.containsKey(langLibName)) {
+                loadedLangLibVersions.put(langLibName, langLibVersion);
+            }
+        }
     }
 
     private void loadDocument() {

@@ -26,7 +26,7 @@ import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.STRAND_VAR_NAME;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 
 /**
  * JDI based java method representation for a given ballerina function.

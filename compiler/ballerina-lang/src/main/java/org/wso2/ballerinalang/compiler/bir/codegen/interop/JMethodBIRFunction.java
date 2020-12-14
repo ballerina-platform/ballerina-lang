@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 /**
  * A wrapper @BIRFunction to keep java function with bir function data.
  *
- * @since 2.0.0
+ * @since 1.2.0
  */
 public class JMethodBIRFunction extends JBIRFunction {
 

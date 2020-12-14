@@ -103,8 +103,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
         this.textService = new BallerinaTextDocumentService(lsGlobalContext, workspaceManager);
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager);
-        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
-        this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(lsGlobalContext);
+        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(this, workspaceManager);
+        this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(workspaceManager, lsGlobalContext);
         this.ballerinaProjectService = new BallerinaProjectServiceImpl(lsGlobalContext);
         this.ballerinaExampleService = new BallerinaExampleServiceImpl();
         this.ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
@@ -142,6 +142,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setRenameProvider(false);
         res.getCapabilities().setWorkspaceSymbolProvider(false);
         res.getCapabilities().setImplementationProvider(false);
+        res.getCapabilities().setFoldingRangeProvider(true);
 //        res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
         HashMap experimentalClientCapabilities = null;

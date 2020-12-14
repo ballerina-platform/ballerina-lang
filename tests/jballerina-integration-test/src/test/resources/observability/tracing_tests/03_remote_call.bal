@@ -16,7 +16,7 @@
 
 import ballerina/testobserve;
 
-service /testServiceTwo on new testobserve:Listener(9093) {
+service /testServiceThree on new testobserve:Listener(9093) {
     # Resource function for testing remote call which calls another remote call
     resource function post resourceOne(testobserve:Caller caller) {
         testClient->callAnotherRemoteFunction();
