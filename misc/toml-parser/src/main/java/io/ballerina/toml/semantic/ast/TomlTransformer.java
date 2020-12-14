@@ -338,7 +338,10 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
 
     @Override
     public TomlNode transform(StringLiteralNode stringLiteralNode) {
-        String valueString = stringLiteralNode.content().text();
+        String valueString = "";
+        if (stringLiteralNode.content() != null) {
+            valueString = stringLiteralNode.content().text();
+        }
         String unescapedJava = StringEscapeUtils.unescapeJava(valueString);
         TomlNodeLocation position = getPosition(stringLiteralNode);
 
@@ -352,9 +355,25 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             sign = numericLiteralNode.sign().get().text();
         }
         Token valueToken = numericLiteralNode.value();
-        String value = sign + valueToken.text();
+        return getTomlNode(numericLiteralNode, sign + valueToken.text());
+    }
+
+    private TomlNode getTomlNode(NumericLiteralNode numericLiteralNode, String value) {
+        value = value.replace("_", "");
         if (numericLiteralNode.kind() == SyntaxKind.DEC_INT) {
             return new TomlLongValueNode(Long.parseLong(value),
+                    getPosition(numericLiteralNode));
+        } else if (numericLiteralNode.kind() == SyntaxKind.HEX_INT) {
+            value = value.replace("0x", "").replace("0X", "");
+            return new TomlLongValueNode(Long.parseLong(value, 16),
+                    getPosition(numericLiteralNode));
+        }  else if (numericLiteralNode.kind() == SyntaxKind.OCT_INT) {
+            value = value.replace("0o", "").replace("0O", "");
+            return new TomlLongValueNode(Long.parseLong(value, 8),
+                    getPosition(numericLiteralNode));
+        }  else if (numericLiteralNode.kind() == SyntaxKind.BINARY_INT) {
+            value = value.replace("0b", "").replace("0B", "");
+            return new TomlLongValueNode(Long.parseLong(value, 2),
                     getPosition(numericLiteralNode));
         } else {
             return new TomlDoubleValueNodeNode(Double.parseDouble(value),

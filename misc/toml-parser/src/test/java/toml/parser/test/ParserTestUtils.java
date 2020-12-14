@@ -451,6 +451,12 @@ public class ParserTestUtils {
                 return SyntaxKind.KEY;
             case "DEC_INT":
                 return SyntaxKind.DEC_INT;
+            case "HEX_INT":
+                return SyntaxKind.HEX_INT;
+            case "OCT_INT":
+                return SyntaxKind.OCT_INT;
+            case "BINARY_INT":
+                return SyntaxKind.BINARY_INT;
             case "FLOAT":
                 return SyntaxKind.FLOAT;
             case "INF_TOKEN":
@@ -463,6 +469,12 @@ public class ParserTestUtils {
                 return SyntaxKind.DECIMAL_INT_TOKEN;
             case "DECIMAL_FLOAT_TOKEN":
                 return SyntaxKind.DECIMAL_FLOAT_TOKEN;
+            case "HEX_INTEGER_LITERAL_TOKEN":
+                return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
+            case "OCTAL_INTEGER_LITERAL_TOKEN":
+                return SyntaxKind.OCTAL_INTEGER_LITERAL_TOKEN;
+            case "BINARY_INTEGER_LITERAL_TOKEN":
+                return SyntaxKind.BINARY_INTEGER_LITERAL_TOKEN;
             case "BOOLEAN":
                 return SyntaxKind.BOOLEAN;
             case "OFFSET_DATE_TIME":

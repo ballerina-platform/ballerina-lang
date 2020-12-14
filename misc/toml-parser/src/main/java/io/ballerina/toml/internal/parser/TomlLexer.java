@@ -96,7 +96,8 @@ public class TomlLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
                 break;
             case LexerTerminals.SINGLE_QUOTE:
-                if (this.reader.peek(1) == LexerTerminals.SINGLE_QUOTE) {
+                if (this.reader.peek() == LexerTerminals.SINGLE_QUOTE &&
+                        this.reader.peek(1) == LexerTerminals.SINGLE_QUOTE) {
                     this.reader.advance(2);
                     token = getDoubleQuoteToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
                 } else {
@@ -121,7 +122,8 @@ public class TomlLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
                 break;
             case LexerTerminals.DOUBLE_QUOTE:
-                if (this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
+                if (this.reader.peek() == LexerTerminals.DOUBLE_QUOTE &&
+                        this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
                     this.reader.advance(2);
                     token = getDoubleQuoteToken(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
                     startMode(ParserMode.MULTILINE_STRING);
@@ -544,37 +546,161 @@ public class TomlLexer extends AbstractLexer {
      */
     private STToken processNumericLiteral(int startChar) {
         int nextChar = peek();
-        if (nextChar == '+' || nextChar == '-') {
+        if (isHexIndicator(startChar, nextChar)) {
+            return processHexLiteral();
+        }
+        if (isOctalIndicator(startChar, nextChar)) {
+            return processOctalLiteral();
+        }
+        if (isBinaryIndicator(startChar, nextChar)) {
+            return processBinaryLiteral();
+        }
+
+        int len = 1;
+        while (!reader.isEOF()) {
+            switch (nextChar) {
+                case LexerTerminals.DOT:
+                case 'e':
+                case 'E':
+                    // If there's more than one dot, only capture the integer
+                    if (reader.peek(1) == LexerTerminals.DOT) {
+                        break;
+                    }
+
+                    // Integer part of the float cannot have a leading zero
+                    if (startChar == '0' && len > 1) {
+                        reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
+                    }
+
+                    // Code would not reach here if the floating point starts with a dot
+                    return processDecimalFloatLiteral();
+                default:
+                    if (isAlphabeticChar(nextChar)) {
+                        return processKey();
+                    }
+                    if (isValidNumericalDigit(nextChar)) {
+                        reader.advance();
+                        len++;
+                        nextChar = peek();
+                        continue;
+                    }
+                    break;
+            }
+            break;
+        }
+
+        // Integer cannot have a leading zero
+        if (startChar == '0' && len > 1) {
+            reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
+        }
+
+        return getLiteral(SyntaxKind.DECIMAL_INT_TOKEN);
+    }
+
+    /**
+     * Process Decimal Literal.
+     *
+     * @return Decimal Literal
+     */
+    private STToken processDecimalFloatLiteral() {
+        int nextChar = peek();
+        if (nextChar == LexerTerminals.DOT) {
             reader.advance();
             nextChar = peek();
         }
 
-        int len = 1;
-        SyntaxKind type = SyntaxKind.DECIMAL_INT_TOKEN;
-        boolean isString = false;
-        while (!reader.isEOF()) {
-            if (isDigit(nextChar) || nextChar == '.' || nextChar == '_') {
-                if (nextChar == '.') {
-                    type = SyntaxKind.DECIMAL_FLOAT_TOKEN;
-                }
-                reader.advance();
-                len++;
-                nextChar = peek();
-                continue;
-            } else if (Character.isLetter(nextChar)) {
-                isString = true;
-            }
-            break;
-        }
-        if (isString) {
-            type = SyntaxKind.IDENTIFIER_LITERAL;
-        }
-        // Integer cannot have a leading zero
-        if (startChar == '0' && len > 1 && type == SyntaxKind.DECIMAL_INT_TOKEN) {
-            reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
+        while (isValidNumericalDigit(nextChar)) {
+            reader.advance();
+            nextChar = peek();
         }
 
-        return getLiteral(type);
+        switch (nextChar) {
+            case 'e':
+            case 'E':
+                return processExponent();
+        }
+
+        return getLiteral(SyntaxKind.DECIMAL_FLOAT_TOKEN);
+    }
+
+    /**
+     * Process the Hex Literal.
+     *
+     * @return Hex Literal
+     */
+    private STToken processHexLiteral() {
+        reader.advance();
+        while (isHexDigit(peek())) {
+            reader.advance();
+        }
+        return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL_TOKEN);
+    }
+
+    /**
+     * Process the Octal Literal.
+     *
+     * @return Ocatal Literal
+     */
+    private STToken processOctalLiteral() {
+        reader.advance();
+        while (isOctalDigit(peek())) {
+            reader.advance();
+        }
+        return getLiteral(SyntaxKind.OCTAL_INTEGER_LITERAL_TOKEN);
+    }
+
+    /**
+     * Process the Binary Literal.
+     *
+     * @return Binary Literal
+     */
+    private STToken processBinaryLiteral() {
+        reader.advance();
+        while (isBinaryDigit(peek())) {
+            reader.advance();
+        }
+        return getLiteral(SyntaxKind.BINARY_INTEGER_LITERAL_TOKEN);
+    }
+
+    /**
+     * Process an exponent of Float.
+     *
+     * @return The decimal floating point literal.
+     */
+    private STToken processExponent() {
+        // Advance reader as exponent indicator is already validated
+        reader.advance();
+        int nextChar = peek();
+
+        // Capture if there is a sign
+        if (nextChar == LexerTerminals.PLUS || nextChar == LexerTerminals.MINUS) {
+            reader.advance();
+            nextChar = peek();
+        }
+
+        // Make sure at least one digit is present after the indicator
+        if (!isValidNumericalDigit(nextChar)) {
+            reportLexerError(DiagnosticErrorCode.ERROR_MISSING_DIGIT_AFTER_EXPONENT_INDICATOR);
+        }
+
+        while (isValidNumericalDigit(nextChar)) {
+            reader.advance();
+            nextChar = peek();
+        }
+
+        return getLiteral(SyntaxKind.DECIMAL_FLOAT_TOKEN);
+    }
+
+    private boolean isHexIndicator(int startChar, int nextChar) {
+        return startChar == '0' && (nextChar == 'x' || nextChar == 'X');
+    }
+
+    private boolean isOctalIndicator(int startChar, int nextChar) {
+        return startChar == '0' && (nextChar == 'o' || nextChar == 'O');
+    }
+
+    private boolean isBinaryIndicator(int startChar, int nextChar) {
+        return startChar == '0' && (nextChar == 'b' || nextChar == 'B');
     }
 
     /**
@@ -663,22 +789,8 @@ public class TomlLexer extends AbstractLexer {
      * @param c character to check
      * @return <code>true</code>, if the character is an identifier start char. <code>false</code> otherwise.
      */
-    private boolean isIdentifierInitialChar(int c) {
-        // TODO: pre-mark all possible characters, using a mask. And use that mask here to check
-        if ('A' <= c && c <= 'Z') {
-            return true;
-        }
-
-        if ('a' <= c && c <= 'z') {
-            return true;
-        }
-
-        if (c == '_' || c == '-') {
-            return true;
-        }
-
-        // TODO: if (UnicodeIdentifierChar) return false;
-        return false;
+    private boolean isAlphabeticChar(int c) {
+        return 'A' <= c && c <= 'Z' || 'a' <= c && c <= 'z';
     }
 
     /**
@@ -691,7 +803,12 @@ public class TomlLexer extends AbstractLexer {
      * @return <code>true</code>, if the character is an identifier following char. <code>false</code> otherwise.
      */
     private boolean isIdentifierFollowingChar(int c) {
-        return isIdentifierInitialChar(c) || isDigit(c);
+        return isAlphabeticChar(c) || isValidNumericalDigit(c) || c == '-';
+    }
+
+
+    private static boolean isValidNumericalDigit(int c) {
+        return c == '_' || isDigit(c);
     }
 
     /**
@@ -723,7 +840,15 @@ public class TomlLexer extends AbstractLexer {
         if ('A' <= c && c <= 'F') {
             return true;
         }
-        return isDigit(c);
+        return isValidNumericalDigit(c);
+    }
+
+    static boolean isOctalDigit(int c) {
+        return c == '_' || ('0' <= c && c <= '7');
+    }
+
+    static boolean isBinaryDigit(int c) {
+        return c == '0' || c == '1' || c == '_';
     }
 
     /**

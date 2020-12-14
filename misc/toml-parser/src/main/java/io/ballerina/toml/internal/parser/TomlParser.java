@@ -26,11 +26,18 @@ import io.ballerina.toml.syntax.tree.SyntaxKind;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.ballerina.toml.syntax.tree.SyntaxKind.BINARY_INT;
+import static io.ballerina.toml.syntax.tree.SyntaxKind.BINARY_INTEGER_LITERAL_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.CLOSE_BRACKET_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.DEC_INT;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.EOF_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.EQUAL_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.FLOAT;
+import static io.ballerina.toml.syntax.tree.SyntaxKind.HEX_INT;
+import static io.ballerina.toml.syntax.tree.SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
+import static io.ballerina.toml.syntax.tree.SyntaxKind.NEWLINE;
+import static io.ballerina.toml.syntax.tree.SyntaxKind.OCTAL_INTEGER_LITERAL_TOKEN;
+import static io.ballerina.toml.syntax.tree.SyntaxKind.OCT_INT;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.OPEN_BRACKET_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.SINGLE_QUOTE_TOKEN;
 
@@ -372,6 +379,9 @@ public class TomlParser extends AbstractParser {
                 return parseStringValue();
             case DECIMAL_INT_TOKEN:
             case DECIMAL_FLOAT_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case OCTAL_INTEGER_LITERAL_TOKEN:
+            case BINARY_INTEGER_LITERAL_TOKEN:
             case PLUS_TOKEN:
             case MINUS_TOKEN:
                 return parseNumericalNode();
@@ -389,25 +399,40 @@ public class TomlParser extends AbstractParser {
     private STNode parseNumericalNode() {
         STNode sign = parseSign();
         STNode token = parseNumericalToken();
-        SyntaxKind kind;
-        if (token.kind == SyntaxKind.DECIMAL_INT_TOKEN) {
-            kind = DEC_INT;
-        } else {
-            kind = FLOAT;
-        }
+        SyntaxKind kind = getNodeKindNumericNode(token.kind);
         return STNodeFactory.createNumericLiteralNode(kind, sign, token);
+    }
+
+    private SyntaxKind getNodeKindNumericNode(SyntaxKind tokenKind) {
+        if (tokenKind == SyntaxKind.DECIMAL_INT_TOKEN) {
+            return DEC_INT;
+        } else if (tokenKind == HEX_INTEGER_LITERAL_TOKEN) {
+            return HEX_INT;
+        } else if (tokenKind == OCTAL_INTEGER_LITERAL_TOKEN) {
+           return OCT_INT;
+        } else if (tokenKind == BINARY_INTEGER_LITERAL_TOKEN) {
+            return BINARY_INT;
+        } else {
+            return FLOAT;
+        }
     }
 
     private STNode parseNumericalToken() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.DECIMAL_INT_TOKEN) {
-            return consume();
-        } else if (token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN) {
+        if (isNumerticalLiteral(token)) {
             return consume();
         } else {
             recover(token, ParserRuleContext.NUMERICAL_LITERAL);
             return parseNumericalToken();
         }
+    }
+
+    private boolean isNumerticalLiteral(STToken token) {
+        return token.kind == SyntaxKind.DECIMAL_INT_TOKEN ||
+                token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN ||
+                token.kind == HEX_INTEGER_LITERAL_TOKEN ||
+                token.kind == OCTAL_INTEGER_LITERAL_TOKEN ||
+                token.kind == BINARY_INTEGER_LITERAL_TOKEN;
     }
 
     private STNode parseSign() {
@@ -416,16 +441,6 @@ public class TomlParser extends AbstractParser {
             return consume();
         }
         return STNodeFactory.createEmptyNode();
-    }
-
-    private STNode parseFloatToken() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL);
-            return parseFloatToken();
-        }
     }
 
     private STNode parseBoolean() {
@@ -446,6 +461,11 @@ public class TomlParser extends AbstractParser {
     private STNode parseStringValue() {
         STNode startingDoubleQuote = parseDoubleQuoteToken(ParserRuleContext.STRING_START);
         STNode content = parseStringContent();
+        //Empty String
+        if (content.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN) {
+            return STNodeFactory.createStringLiteralNode(startingDoubleQuote, STNodeFactory.createEmptyNode(), content);
+        }
+
         STNode endingDoubleQuote = parseDoubleQuoteToken(ParserRuleContext.STRING_END);
         return STNodeFactory.createStringLiteralNode(startingDoubleQuote, content, endingDoubleQuote);
     }
@@ -468,7 +488,7 @@ public class TomlParser extends AbstractParser {
 
     private STNode parseStringContent() {
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL) {
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL || nextToken.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN) {
             return consume();
         } else {
             recover(nextToken, ParserRuleContext.STRING_CONTENT);
@@ -549,6 +569,9 @@ public class TomlParser extends AbstractParser {
             case CLOSE_BRACKET_TOKEN:
                 // null marks the end of values
                 return null;
+            case NEWLINE:
+                consume();
+                return parseValueEnd();
             default:
                 recover(peek(), ParserRuleContext.ARRAY_VALUE_END);
                 return parseValueEnd();
@@ -565,6 +588,9 @@ public class TomlParser extends AbstractParser {
             return parseArray();
         } else if (nextToken.kind == CLOSE_BRACKET_TOKEN) {
             return null;
+        } else if (nextToken.kind == NEWLINE) {
+            consume();
+            return parseArrayValue();
         } else {
             recover(peek(), ParserRuleContext.ARRAY_VALUE_START);
             return parseArrayValue();
