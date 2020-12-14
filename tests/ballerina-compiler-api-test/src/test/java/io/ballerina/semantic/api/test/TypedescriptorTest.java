@@ -18,6 +18,13 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaBooleanTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaByteTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaDecimalTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaFloatTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaIntTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaNilTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaStringTypeSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
@@ -63,6 +70,8 @@ import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
@@ -533,6 +542,26 @@ public class TypedescriptorTest {
     public void testCompileErrorType2() {
         Symbol symbol = getSymbol(182, 18);
         assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), COMPILATION_ERROR);
+    }
+
+    @Test(dataProvider = "BasicTestPosProvider")
+    public void testTypeBasics(int line, int col, TypeDescKind typeKind, Class<? extends TypeSymbol> clazz) {
+        VariableSymbol symbol = (VariableSymbol) getSymbol(line, col);
+        assertEquals(symbol.typeDescriptor().typeKind(), typeKind);
+        assertEquals(symbol.typeDescriptor().getClass(), clazz);
+    }
+
+    @DataProvider(name = "BasicTestPosProvider")
+    public Object[][] getBasicTestPos() {
+        return new Object[][]{
+//                {186, 8, INT, BallerinaIntTypeSymbol.class},
+//                {187, 10, FLOAT, BallerinaFloatTypeSymbol.class},
+//                {188, 12, DECIMAL, BallerinaDecimalTypeSymbol.class},
+//                {189, 12, BOOLEAN, BallerinaBooleanTypeSymbol.class},
+//                {190, 7, NIL, BallerinaNilTypeSymbol.class},
+//                {191, 11, STRING, BallerinaStringTypeSymbol.class},
+                {192, 9, BYTE, BallerinaByteTypeSymbol.class},
+        };
     }
 
     private Symbol getSymbol(int line, int column) {
