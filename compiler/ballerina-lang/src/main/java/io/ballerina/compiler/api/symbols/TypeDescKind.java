@@ -89,4 +89,21 @@ public enum TypeDescKind {
 
         return false;
     }
+
+    public boolean isXMLType() {
+        switch (this) {
+            case XML:
+            case XML_COMMENT:
+            case XML_ELEMENT:
+            case XML_PROCESSING_INSTRUCTION:
+            case XML_TEXT:
+                return true;
+        }
+
+        return false;
+    }
+
+    public boolean isStringType() {
+        return this == STRING || this == STRING_CHAR;
+    }
 }

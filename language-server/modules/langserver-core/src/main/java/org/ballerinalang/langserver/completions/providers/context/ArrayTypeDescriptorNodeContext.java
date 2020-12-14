@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -74,7 +73,7 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
             }
 
             TypeSymbol constExprType = ((ConstantSymbol) symbol).broaderTypeDescriptor();
-            return constExprType != null && constExprType.typeKind() == TypeDescKind.INT;
+            return constExprType != null && constExprType.typeKind().isIntegerType();
         };
     }
 }

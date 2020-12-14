@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -70,7 +69,7 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
                         return false;
                     }
                     Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
-                    return typeDescriptor.isPresent() && typeDescriptor.get().typeKind() == TypeDescKind.XML;
+                    return typeDescriptor.isPresent() && typeDescriptor.get().typeKind().isXMLType();
                 });
                 moduleContent = QNameReferenceUtil.getModuleContent(context, refNode, predicate);
             } else {
@@ -100,7 +99,7 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
                             return false;
                         }
                         Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
-                        return typeDescriptor.isPresent() && typeDescriptor.get().typeKind() == TypeDescKind.XML;
+                        return typeDescriptor.isPresent() && typeDescriptor.get().typeKind().isXMLType();
                     })
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(xmlSubTypes, context));
