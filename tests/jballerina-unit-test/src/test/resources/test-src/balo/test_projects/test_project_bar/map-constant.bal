@@ -87,3 +87,7 @@ public const map<()> nm2_new = { "key3": (), "key4": () };
 
 public const map<map<()>> nm7 = { "key5": { "key1": (), "key2": () }, "key6": { "key3": (), "key4": () }, "key7": { "key8": (), "key9": () }};
 public const map<map<()>> nm8 = { "key5": { "key1": (), "key2": () }, "key6": { "key3": (), "key4": () }, "key7": { "key8": (), "key9": () }};
+
+public type Record record {
+    int i;
+};

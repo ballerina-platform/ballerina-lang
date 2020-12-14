@@ -466,6 +466,8 @@ function testSubTypingForDifferentOrgNameAndVersionWithAllPublicFields() {
     assertTrue((<any> ob3) is foo2:ObjectWithPublicFieldsAndMethods);
 }
 
+foo2:Record myRec = {i: 1};
+
 function assertTrue(anydata actual) {
     assertEquals(true, actual);
 }
