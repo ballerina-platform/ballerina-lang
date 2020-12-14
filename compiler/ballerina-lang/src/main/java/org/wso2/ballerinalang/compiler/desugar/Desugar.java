@@ -378,7 +378,8 @@ public class Desugar extends BLangNodeVisitor {
     private BLangAssignment safeNavigationAssignment;
     static boolean isJvmTarget = false;
 
-    private boolean serviceStarted = false;
+    private int serviceStartedCount = 0;
+    private boolean inTransactionContext;
 
     private Map<BSymbol, Set<BVarSymbol>> globalVariablesDependsOn;
     private List<BLangStatement> matchStmtsForPattern = new ArrayList<>();
@@ -1179,11 +1180,11 @@ public class Desugar extends BLangNodeVisitor {
         BType currentReturnType = this.forceCastReturnType;
         this.forceCastReturnType = null;
         funcNode.body = rewrite(funcNode.body, funcEnv);
-        if (serviceStarted) {
+        if (serviceStartedCount == 1) {
             BLangExpressionStmt trxCoordnStmt = new BLangExpressionStmt(transactionDesugar.
                     createStartTransactionCoordinatorInvocation(funcNode.pos));
             ((BLangBlockFunctionBody) funcNode.body).stmts.add(0, trxCoordnStmt);
-            serviceStarted = false;
+            serviceStartedCount++;
         }
         this.forceCastReturnType = currentReturnType;
         funcNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
@@ -4078,6 +4079,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+        boolean previousInTransactionContext = this.inTransactionContext;
+        this.inTransactionContext = true;
         if (transactionNode.onFailClause != null) {
             //rewrite user defined on fail within a do statement
             BLangOnFailClause onFailClause = transactionNode.onFailClause;
@@ -4179,6 +4182,7 @@ public class Desugar extends BLangNodeVisitor {
             this.trxBlockId = currentTrxBlockId;
             swapAndResetEnclosingOnFail(currOnFailClause, currOnFailCallDef);
         }
+        this.inTransactionContext = previousInTransactionContext;
     }
 
     @Override
@@ -4945,23 +4949,10 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
-        if (!actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
-            startTransactionalServices(actionInvocation);
+        if (!actionInvocation.async && this.inTransactionContext && serviceStartedCount == 0) {
+            serviceStartedCount++;
         }
         rewriteInvocation(actionInvocation, actionInvocation.async);
-    }
-
-    private void startTransactionalServices(BLangNode node) {
-        BLangNode parent = node.parent;
-        while (parent != null) {
-            if (parent instanceof TransactionNode && !serviceDesugar.getTransactionCoordinatorStarted()) {
-                serviceStarted = true;
-                serviceDesugar.setTransactionCoordinatorStarted(true);
-                break;
-            } else {
-                parent = parent.parent;
-            }
-        }
     }
 
     private void rewriteInvocation(BLangInvocation invocation, boolean async) {
