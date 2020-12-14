@@ -283,8 +283,7 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<Token> qualifierList = formatNodeList(functionDefinitionNode.qualifierList(), 1, 0, 1, 0);
         Token functionKeyword = formatToken(functionDefinitionNode.functionKeyword(), 1, 0);
         IdentifierToken functionName;
-        if (functionDefinitionNode.relativeResourcePath().isEmpty() ||
-                functionDefinitionNode.relativeResourcePath().get(0).isMissing()) {
+        if (functionDefinitionNode.relativeResourcePath().isEmpty()) {
             functionName = formatToken(functionDefinitionNode.functionName(), 0, 0);
         } else {
             functionName = formatToken(functionDefinitionNode.functionName(), 1, 0);
@@ -384,16 +383,13 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public FunctionBodyBlockNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
         Token openBrace = formatToken(functionBodyBlockNode.openBraceToken(), 0, 1);
+        env.preserveNewlines = true;
         indent(); // increase indentation for the statements to follow.
         NodeList<StatementNode> statements = formatNodeList(functionBodyBlockNode.statements(), 0, 1, 0, 1, true);
         NamedWorkerDeclarator namedWorkerDeclarator =
                 formatNode(functionBodyBlockNode.namedWorkerDeclarator().orElse(null), 0, 1);
 
         unindent(); // reset the indentation
-        if (functionBodyBlockNode.statements().isEmpty() &&
-                functionBodyBlockNode.namedWorkerDeclarator().isEmpty()) {
-            env.preserveNewlines = true;
-        }
         Token closeBrace = formatToken(functionBodyBlockNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return functionBodyBlockNode.modify()
@@ -629,6 +625,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ServiceDeclarationNode transform(ServiceDeclarationNode serviceDeclarationNode) {
         MetadataNode metadata = formatNode(serviceDeclarationNode.metadata().orElse(null), 0, 1);
+        NodeList<Token> qualifiers = formatNodeList(serviceDeclarationNode.qualifiers(), 1, 0, 1, 0);
         Token serviceKeyword = formatToken(serviceDeclarationNode.serviceKeyword(), 1, 0);
         TypeDescriptorNode typeDescriptor = formatNode(serviceDeclarationNode.typeDescriptor().orElse(null), 1, 0);
         NodeList<Node> absoluteResourcePath = formatNodeList(serviceDeclarationNode.absoluteResourcePath(), 0, 0, 1, 0);
@@ -639,13 +636,12 @@ public class FormattingTreeModifier extends TreeModifier {
         indent(); // increase the indentation of the following statements.
         NodeList<Node> members = formatNodeList(serviceDeclarationNode.members(), 0, 1, 0, 1, true);
         unindent(); // reset the indentation.
-        if (serviceDeclarationNode.members().isEmpty()) {
-            env.preserveNewlines = true;
-        }
+        env.preserveNewlines = true;
         Token closeBrace = formatToken(serviceDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return serviceDeclarationNode.modify()
                 .withMetadata(metadata)
+                .withQualifiers(qualifiers)
                 .withServiceKeyword(serviceKeyword)
                 .withTypeDescriptor(typeDescriptor)
                 .withAbsoluteResourcePath(absoluteResourcePath)
@@ -2352,7 +2348,8 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public AnnotationAttachPointNode transform(AnnotationAttachPointNode annotationAttachPointNode) {
         Token sourceKeyword = formatToken(annotationAttachPointNode.sourceKeyword().orElse(null), 1, 0);
-        NodeList<Token> identifiers = formatNodeList(annotationAttachPointNode.identifiers(), 1, 0, 0, 0);
+        NodeList<Token> identifiers = formatNodeList(annotationAttachPointNode.identifiers(), 1, 0, env.trailingWS,
+                env.trailingNL);
         return annotationAttachPointNode.modify()
                 .withSourceKeyword(sourceKeyword)
                 .withIdentifiers(identifiers)
@@ -2735,8 +2732,7 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<Token> qualifierList = formatNodeList(methodDeclarationNode.qualifierList(), 1, 0, 1, 0);
         Token functionKeyword = formatToken(methodDeclarationNode.functionKeyword(), 1, 0);
         IdentifierToken methodName;
-        if (methodDeclarationNode.relativeResourcePath().isEmpty() ||
-                methodDeclarationNode.relativeResourcePath().get(0).isMissing()) {
+        if (methodDeclarationNode.relativeResourcePath().isEmpty()) {
             methodName = formatNode(methodDeclarationNode.methodName(), 0, 0);
         } else {
             methodName = formatNode(methodDeclarationNode.methodName(), 1, 0);
