@@ -562,8 +562,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
-        boolean prevWithinTransactionBlock = this.withinTransactionBlock;
-        this.withinTransactionScope = true;
         //Check whether transaction statement occurred in a transactional scope
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
             this.dlog.error(transactionNode.pos,
@@ -578,7 +576,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         int previousCommitCount = this.commitCount;
         int previousRollbackCount = this.rollbackCount;
         boolean prevCommitRollbackAllowed = this.commitRollbackAllowed;
+        boolean prevWithinTransactionBlock = this.withinTransactionBlock;
         this.commitRollbackAllowed = true;
+        this.withinTransactionBlock = true;
         this.commitCount = 0;
         this.rollbackCount = 0;
 
@@ -2664,10 +2664,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (!actionInvocation.async && this.withinTransactionBlock) {
-            actionInvocation.invokedInsideTransaction = true;
-        }
-
         analyzeExpr(actionInvocation.expr);
         analyzeExprs(actionInvocation.requiredArgs);
         analyzeExprs(actionInvocation.restArgs);
@@ -2697,6 +2693,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         validateActionInvocation(actionInvocation.pos, actionInvocation);
+
+        if (!actionInvocation.async && (this.withinTransactionBlock ||
+                Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL))) {
+            actionInvocation.invokedInsideTransaction = true;
+        }
     }
 
     private void validateActionInvocation(Location pos, BLangInvocation iExpr) {
