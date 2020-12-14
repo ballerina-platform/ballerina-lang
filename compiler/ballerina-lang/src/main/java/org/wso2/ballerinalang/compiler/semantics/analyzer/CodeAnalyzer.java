@@ -294,7 +294,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean commitRollbackAllowed;
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
-    private boolean withinTransactionBlock;
     private boolean queryToTableWithKey;
     private BType matchExprType;
 
@@ -576,9 +575,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         int previousCommitCount = this.commitCount;
         int previousRollbackCount = this.rollbackCount;
         boolean prevCommitRollbackAllowed = this.commitRollbackAllowed;
-        boolean prevWithinTransactionBlock = this.withinTransactionBlock;
         this.commitRollbackAllowed = true;
-        this.withinTransactionBlock = true;
         this.commitCount = 0;
         this.rollbackCount = 0;
 
@@ -602,7 +599,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.commitCount = previousCommitCount;
         this.rollbackCount = previousRollbackCount;
         this.commitRollbackAllowed = prevCommitRollbackAllowed;
-        this.withinTransactionBlock = prevWithinTransactionBlock;
         this.returnWithinTransactionCheckStack.pop();
         this.loopWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
@@ -2694,8 +2690,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         validateActionInvocation(actionInvocation.pos, actionInvocation);
 
-        if (!actionInvocation.async && (this.withinTransactionBlock ||
-                Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL))) {
+        if (!actionInvocation.async && this.withinTransactionScope) {
             actionInvocation.invokedInsideTransaction = true;
         }
     }
