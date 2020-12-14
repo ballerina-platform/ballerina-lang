@@ -28,6 +28,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import org.ballerinalang.testerina.core.TestAnnotationProcessor;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.testsuite.TesterinaRegistry;
@@ -160,6 +161,7 @@ public class RunTestsTask implements Task {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
+        TestAnnotationProcessor testAnnotationProcessor = new TestAnnotationProcessor();
 
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
@@ -168,7 +170,8 @@ public class RunTestsTask implements Task {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
 
-            TestSuite suite = jBallerinaBackend.testSuite(module).orElse(null);
+            //TestSuite suite = jBallerinaBackend.testSuite(module).orElse(null);
+            TestSuite suite = testAnnotationProcessor.testSuite(module, project).orElse(null);
             Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
 
             if (suite == null) {
@@ -355,7 +358,7 @@ public class RunTestsTask implements Task {
                     File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator +
                     REPORT_ZIP_NAME;
             out.println("warning: Could not find the required HTML report tools for code coverage at "
-                + reportToolsPath);
+                    + reportToolsPath);
         }
     }
 

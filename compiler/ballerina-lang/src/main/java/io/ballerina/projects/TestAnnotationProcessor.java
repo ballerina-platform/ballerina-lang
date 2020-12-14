@@ -17,10 +17,19 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.testsuite.Test;
 import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.testsuite.TesterinaRegistry;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -53,8 +62,10 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -91,6 +102,7 @@ public class TestAnnotationProcessor {
     private Types typeChecker;
     private SymbolResolver symbolResolver;
     private BLangPackage parent;
+
     private PackageCache packageCache;
     private Map<BPackageSymbol, SymbolEnv> packageEnvironmentMap;
 
@@ -582,5 +594,140 @@ public class TestAnnotationProcessor {
             }
         }
         return null;
+    }
+
+    /**
+     * Generate and return the testsuite for module tests.
+     *
+     * @param module module
+     * @return test suite
+     */
+    public Optional<TestSuite> testSuite(Module module, Project project) {
+        if (module.project().kind() != ProjectKind.SINGLE_FILE_PROJECT
+                && !module.moduleContext().bLangPackage().hasTestablePackage()) {
+            return Optional.empty();
+        }
+        // skip generation of the testsuite if --skip-tests option is set to true
+        if (project.buildOptions().skipTests()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(generateTestSuite(module, project));
+    }
+
+    private TestSuite generateTestSuite(Module module, Project project) {
+        TestSuite testSuite = new TestSuite(module.descriptor().name().toString(),
+                module.descriptor().packageName().toString(),
+                module.descriptor().org().value(), module.descriptor().version().value().toString());
+        TesterinaRegistry.getInstance().getTestSuites().put(
+                module.moduleContext().descriptor().name().toString(), testSuite);
+
+        testSuite.setInitFunctionName(".<init>");
+        testSuite.setStartFunctionName(".<start>");
+        testSuite.setStopFunctionName(".<stop>");
+//        testSuite.setInitFunctionName(module.moduleContext().bLangPackage().initFunction.name.value);
+//        testSuite.setStartFunctionName(module.moduleContext().bLangPackage().startFunction.name.value);
+//        testSuite.setStopFunctionName(module.moduleContext().bLangPackage().stopFunction.name.value);
+        testSuite.setPackageName(module.descriptor().packageName().toString());
+        testSuite.setSourceRootPath(project.sourceRoot().toString());
+        //Get syntax tree for source files in the module
+        Map<String, SyntaxTree> syntaxTreeMap = new HashMap<>();
+        module.documentIds().forEach(documentId -> {
+            Document document = module.document(documentId);
+            syntaxTreeMap.put(document.name(), document.syntaxTree());
+        });
+        addUtilityFunctions(syntaxTreeMap, project, testSuite);
+        //Get syntax tree for test files in the module
+        syntaxTreeMap.clear();
+        module.testDocumentIds().forEach(documentId -> {
+            Document document = module.document(documentId);
+            syntaxTreeMap.put(document.name(), document.syntaxTree());
+        });
+        addUtilityFunctions(syntaxTreeMap, project, testSuite);
+        //set test init functions
+        BLangPackage testablePkg;
+        if (module.moduleContext().project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            testablePkg = module.moduleContext().bLangPackage();
+            testSuite.setTestInitFunctionName(".<init>");
+            testSuite.setTestStartFunctionName(".<start>");
+            testSuite.setTestStopFunctionName(".<stop>");
+        } else {
+            testablePkg = module.moduleContext().bLangPackage().getTestablePkg();
+            testSuite.setTestInitFunctionName(".<testinit>");
+            testSuite.setTestStartFunctionName(".<teststart>");
+            testSuite.setTestStopFunctionName(".<teststop>");
+        }
+//        testSuite.setTestInitFunctionName(testablePkg.initFunction.name.value);
+//        testSuite.setTestStartFunctionName(testablePkg.startFunction.name.value);
+//        testSuite.setTestStopFunctionName(testablePkg.stopFunction.name.value);
+        // process annotations in test functions
+        TestAnnotationProcessor testAnnotationProcessor = new TestAnnotationProcessor();
+        CompilerContext compilerContext = project.projectEnvironmentContext().getService(CompilerContext.class);
+        testAnnotationProcessor.init(compilerContext, testablePkg);
+        testablePkg.functions.forEach(testAnnotationProcessor::processFunction);
+        completeTestSuite(module, project);
+        return testSuite;
+    }
+
+    private void completeTestSuite(Module module, Project project) {
+        if (!enabled) {
+            return;
+        }
+        String packageName = module.descriptor().packageName().toString();
+        TestSuite suite = registry.getTestSuites().get(module.moduleContext().descriptor().name().toString());
+        SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+        // Check if the registry contains a test suite for the package
+//        if (suite == null) {
+//            //Set testable flag for single bal file execution
+//            if ((Names.DOT.getValue()).equals(packageName)) {
+//                parent.flagSet.add(Flag.TESTABLE);
+//            }
+//            // Skip adding test suite if no tests are available in the tests path
+//            if (parent.getFlags().contains(Flag.TESTABLE)) {
+//                // Add a test suite to the registry if it does not contain one pertaining to the package name
+//                suite = registry.getTestSuites().computeIfAbsent(packageName, func ->
+//                        new TestSuite(parent.packageID.name.value,
+//                                packageName,
+//                                parent.packageID.orgName.value,
+//                                parent.packageID.version.value));
+//            } else {
+//                return;
+//            }
+//        }
+    }
+
+    private void addUtilityFunctions(Map<String, SyntaxTree> syntaxTreeMap, Project project, TestSuite testSuite) {
+        for (Map.Entry<String, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
+            if (syntaxTreeEntry.getValue().containsModulePart()) {
+                ModulePartNode modulePartNode = syntaxTreeMap.get(syntaxTreeEntry.getKey()).rootNode();
+                for (Node node : modulePartNode.members()) {
+                    if ((node.kind() == SyntaxKind.FUNCTION_DEFINITION) && node instanceof FunctionDefinitionNode) {
+                        //Add test utility functions
+                        String functionName = ((FunctionDefinitionNode) node).functionName().text();
+                        Location pos = node.location();
+                        NodeList<Token> qualifiers = ((FunctionDefinitionNode) node).qualifierList();
+                        boolean isUtility = true;
+                        for (Token qualifier : qualifiers) {
+                            if (Flag.RESOURCE.name().equals(qualifier.text()) ||
+                                    Flag.REMOTE.name().equals(qualifier.text())) {
+                                isUtility = false;
+                                break;
+                            }
+                        }
+                        if (pos != null && isUtility) {
+                            // Remove the duplicated annotations.
+                            String className = pos.lineRange().filePath().replace(".bal", "")
+                                    .replace("/", ".");
+                            String functionClassName = JarResolver.getQualifiedClassName(
+                                    project.currentPackage().packageOrg().value(),
+                                    project.currentPackage().packageName().value(),
+                                    project.currentPackage().packageVersion().value().toString(),
+                                    className);
+                            testSuite.addTestUtilityFunction(functionName, functionClassName);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
