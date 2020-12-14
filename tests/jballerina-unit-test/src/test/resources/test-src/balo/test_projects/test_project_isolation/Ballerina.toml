@@ -1,4 +1,4 @@
 [package]
-org="testorg"
-name="isolation_tests"
+org="testorgthree"
+name="isolation"
 version="1.0.0"

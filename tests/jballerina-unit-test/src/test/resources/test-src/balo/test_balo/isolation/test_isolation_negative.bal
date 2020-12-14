@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/isolation_tests as isolation;
+import testorgthree/isolation;
 
 isolated function testInvalidNonIsolatedFunctionCallInIsolatedFunction() {
     int a = isolation:nonIsolatedFunction();
