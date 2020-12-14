@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
+import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
@@ -124,8 +125,14 @@ public class ObserveUtils {
         env.setStrandLocal(ObservabilityConstants.SERVICE_NAME, service);
     }
 
+    /**
+     * Add record checkpoint data to trace span.
+     *
+     * @param env The Environment the observable code segment belong to
+     * @param pkg The package the instrumented code belongs to
+     * @param position The source code position the instrumented code defined in
+     */
     public static void recordCheckpoint(Environment env, BString pkg, BString position) {
-
         if (!tracingEnabled) {
             return;
         }
@@ -135,16 +142,22 @@ public class ObserveUtils {
         eventAttributes.put(TAG_KEY_MODULE, pkg.getValue());
         eventAttributes.put(TAG_KEY_INVOCATION_POSITION, position.getValue());
 
-        addEventToActiveSpan("CHECKPOINT", eventAttributes);
+        addEventToActiveSpan(eventAttributes, env);
 
     }
 
-    private static void addEventToActiveSpan(String checkpoint, Map<String, String> eventAttributes) {
+    /**
+     * Add checkpoint event to the active span.
+     *
+     * @param eventAttributes The map of event attributes, the Module and the source code position
+     * @param env The Environment the observable code segment belong to
+     */
+    private static void addEventToActiveSpan(Map<String, String> eventAttributes, Environment env) {
         if (!tracingEnabled) {
             return;
         }
-        Environment balEnv = new Environment(Scheduler.getStrand());
-        ObserverContext observerContext = (ObserverContext) balEnv.getStrandLocal(KEY_OBSERVER_CONTEXT);
+
+        ObserverContext observerContext = (ObserverContext) env.getStrandLocal(KEY_OBSERVER_CONTEXT);
         if (observerContext == null) {
             return;
         }
@@ -153,7 +166,7 @@ public class ObserveUtils {
             return;
         }
         HashMap<String, Object> events = new HashMap<>(1);
-        events.put(checkpoint, eventAttributes);
+        events.put(CHECKPOINT, eventAttributes);
         span.log(events);
     }
 
