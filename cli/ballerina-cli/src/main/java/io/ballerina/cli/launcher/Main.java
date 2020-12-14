@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package org.ballerinalang.tool;
+package io.ballerina.cli.launcher;
 
+import io.ballerina.cli.launcher.util.BCompileUtil;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.tool.util.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;

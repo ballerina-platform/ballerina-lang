@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.tool.util;
+package io.ballerina.cli.launcher.util;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -41,7 +41,7 @@ public class BAssertUtil {
      * @param expectedErrCol  Expected column number of the error
      */
     public static void validateError(CompileResult result, int errorIndex, String expectedErrMsg, int expectedErrLine,
-            int expectedErrCol) {
+                                     int expectedErrCol) {
         Diagnostic diag = result.getDiagnostics()[errorIndex];
         Assert.assertEquals(diag.diagnosticInfo().severity(), DiagnosticSeverity.ERROR, "incorrect diagnostic type");
         Assert.assertEquals(diag.message().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
@@ -114,7 +114,7 @@ public class BAssertUtil {
      * @param expectedWarnCol  Expected column number of the warning
      */
     public static void validateWarning(CompileResult result, int warningIndex, String expectedWarnMsg,
-            int expectedWarnLine, int expectedWarnCol) {
+                                       int expectedWarnLine, int expectedWarnCol) {
         Diagnostic diag = result.getDiagnostics()[warningIndex];
         Assert.assertEquals(diag.diagnosticInfo().severity(), DiagnosticSeverity.WARNING, "incorrect diagnostic type");
         Assert.assertEquals(diag.message(), expectedWarnMsg, "incorrect warning message:");

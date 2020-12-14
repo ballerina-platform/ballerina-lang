@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.tool.util;
+package io.ballerina.cli.launcher.util;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.compiler.CompilerOptionName;
@@ -46,6 +46,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+
 
 /**
  * Utility methods for compile Ballerina files.

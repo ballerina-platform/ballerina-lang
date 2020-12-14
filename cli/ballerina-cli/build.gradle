@@ -33,7 +33,6 @@ dependencies {
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-tool')
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
     implementation 'info.picocli:picocli'
@@ -54,6 +53,9 @@ dependencies {
     balRt project(':ballerina-rt')
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
+    implementation 'org.testng:testng'
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-core')
 }
 
 task createTestDistributionCache(type: Copy) {
@@ -79,6 +81,12 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+}
+
+processResources {
+    include '**/tool.properties'
+    include 'cli-help/*'
+    filter { String line -> line.replace('${project.version}', "${project.version}" )}
 }
 
 description = 'Ballerina - CLI'
