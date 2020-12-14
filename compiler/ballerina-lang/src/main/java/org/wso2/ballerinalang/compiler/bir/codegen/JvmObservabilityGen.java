@@ -220,7 +220,9 @@ class JvmObservabilityGen {
                     swapBasicBlockContent(startBB, newBB);
                     injectCheckpointCall(startBB, pkg, desugaredPos);
                     startBB.terminator.thenBB = newBB;
-                    i += 1;
+                    //Fix error entries in the error entry table
+                    fixErrorTable(func, startBB, newBB);
+                    i += 1; // Number of inserted BBs
                 }
 
             } else {
@@ -230,7 +232,8 @@ class JvmObservabilityGen {
                     swapBasicBlockContent(startBB, newBB);
                     injectCheckpointCall(startBB, pkg, desugaredPos);
                     startBB.terminator.thenBB = newBB;
-                    i += 1; // Number of inserted BBs
+                    fixErrorTable(func, startBB, newBB);
+                    i += 1;
                 }
             }
             i += 1;
