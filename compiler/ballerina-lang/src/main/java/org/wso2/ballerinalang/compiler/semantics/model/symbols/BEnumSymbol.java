@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.Annotatable;
+import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -33,10 +35,10 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class BEnumSymbol extends BTypeSymbol {
+public class BEnumSymbol extends BTypeSymbol implements Annotatable {
 
     public List<BConstantSymbol> members;
-    public List<BAnnotationSymbol> annots;
+    private List<BAnnotationSymbol> annots;
 
     public BEnumSymbol(List<BConstantSymbol> members, long flags, Name name, PackageID pkgID, BType type,
                        BSymbol owner, Location pos, SymbolOrigin origin) {
@@ -44,5 +46,23 @@ public class BEnumSymbol extends BTypeSymbol {
         this.members = members;
         this.kind = SymbolKind.ENUM;
         this.annots = new ArrayList<>();
+    }
+
+    @Override
+    public void addAnnotation(AnnotationSymbol symbol) {
+        if (symbol != null) {
+            this.annots.add((BAnnotationSymbol) symbol);
+        }
+    }
+
+    public void addAnnotations(List<BAnnotationSymbol> annotSymbols) {
+        for (BAnnotationSymbol symbol : annotSymbols) {
+            addAnnotation(symbol);
+        }
+    }
+
+    @Override
+    public List<? extends AnnotationSymbol> getAnnotations() {
+        return this.annots;
     }
 }

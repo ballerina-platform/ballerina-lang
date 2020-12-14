@@ -43,7 +43,7 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public BTypeSymbol attachedType;
     public Set<AttachPoint> points;
     public int maskedPoints;
-    public List<BAnnotationSymbol> annots;
+    private List<BAnnotationSymbol> annots;
 
     public BAnnotationSymbol(Name name, long flags, Set<AttachPoint> points, PackageID pkgID,
                              BType type, BSymbol owner, Location pos, SymbolOrigin origin) {
@@ -51,6 +51,18 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
         this.points = points;
         this.maskedPoints = getMaskedPoints(points);
         this.annots = new ArrayList<>();
+    }
+
+    @Override
+    public void addAnnotation(AnnotationSymbol symbol) {
+        if (symbol != null) {
+            this.annots.add((BAnnotationSymbol) symbol);
+        }
+    }
+
+    @Override
+    public List<? extends AnnotationSymbol> getAnnotations() {
+        return this.annots;
     }
 
     @Override

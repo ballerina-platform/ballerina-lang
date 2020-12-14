@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.Annotatable;
+import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -32,9 +34,9 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VAR
 /**
  * @since 0.94
  */
-public class BVarSymbol extends BSymbol implements VariableSymbol {
+public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
 
-    public List<BAnnotationSymbol> annots;
+    private List<BAnnotationSymbol> annots;
     public boolean defaultableParam = false;
 
     // Only used for type-narrowing. Cache of the original symbol.
@@ -49,6 +51,18 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
                       SymbolOrigin origin) {
         super(VARIABLE, flags, name, pkgID, type, owner, pos, origin);
         this.annots = new ArrayList<>();
+    }
+
+    @Override
+    public void addAnnotation(AnnotationSymbol symbol) {
+        if (symbol != null) {
+            this.annots.add((BAnnotationSymbol) symbol);
+        }
+    }
+
+    @Override
+    public List<? extends AnnotationSymbol> getAnnotations() {
+        return this.annots;
     }
 
     @Override

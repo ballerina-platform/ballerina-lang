@@ -187,6 +187,9 @@ public class SymbolFactory {
         }
 
         for (BLangAnnotationAttachment annAttachment : invokableSymbol.annAttachments) {
+            if (annAttachment.annotationSymbol == null) {
+                continue;
+            }
             builder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
         }
 
@@ -247,8 +250,8 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
-        for (BAnnotationSymbol annot : symbol.annots) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol(annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder
@@ -260,8 +263,8 @@ public class SymbolFactory {
         BallerinaWorkerSymbol.WorkerSymbolBuilder builder =
                 new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol.pkgID, symbol);
 
-        for (BAnnotationSymbol annot : symbol.annots) {
-            builder.withAnnotation(createAnnotationSymbol(annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+            builder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return builder.withReturnType(typesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint)).build();
@@ -286,8 +289,8 @@ public class SymbolFactory {
         }
 
         List<AnnotationSymbol> annotSymbols = new ArrayList<>();
-        for (BAnnotationSymbol annot : symbol.annots) {
-            annotSymbols.add(createAnnotationSymbol(annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+            annotSymbols.add(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind);
@@ -324,8 +327,8 @@ public class SymbolFactory {
             members.add(this.createConstantSymbol(member, member.name.value));
         }
 
-        for (BAnnotationSymbol annot : enumSymbol.annots) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol(annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : enumSymbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder
@@ -363,8 +366,8 @@ public class SymbolFactory {
             type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
         }
 
-        for (BAnnotationSymbol annot : classSymbol.annots) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol(annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : classSymbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder.withTypeDescriptor((ObjectTypeSymbol) type).build();
@@ -388,8 +391,8 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
-        for (BAnnotationSymbol annot : constantSymbol.annots) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol(annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : constantSymbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder.build();
@@ -411,8 +414,8 @@ public class SymbolFactory {
             symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType.getType()));
         }
 
-        for (BAnnotationSymbol annot : symbol.annots) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol(annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder.build();

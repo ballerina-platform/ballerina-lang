@@ -99,8 +99,8 @@ public class BallerinaFieldSymbol extends BallerinaSymbol implements FieldSymbol
 
         List<AnnotationSymbol> annots = new ArrayList<>();
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        for (BAnnotationSymbol annot : bField.symbol.annots) {
-            annots.add(symbolFactory.createAnnotationSymbol(annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : bField.symbol.getAnnotations()) {
+            annots.add(symbolFactory.createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         this.annots = Collections.unmodifiableList(annots);

@@ -458,7 +458,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
-            ((BEnumSymbol) typeDefinition.symbol).annots = annotSymbols;
+            ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);
         }
 
         validateAnnotationAttachmentCount(typeDefinition.annAttachments);
@@ -475,7 +475,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         classDefinition.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(attachedPoint);
             annotationAttachment.accept(this);
-            symbol.annots.add(annotationAttachment.annotationSymbol);
+            symbol.addAnnotation(annotationAttachment.annotationSymbol);
         });
         validateAnnotationAttachmentCount(classDefinition.annAttachments);
 
@@ -626,7 +626,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         annotationNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.ANNOTATION);
             annotationAttachment.accept(this);
-            symbol.annots.add(annotationAttachment.annotationSymbol);
+            symbol.addAnnotation(annotationAttachment.annotationSymbol);
         });
         validateAnnotationAttachmentCount(annotationNode.annAttachments);
     }
@@ -703,7 +703,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
                 }
                 annotationAttachment.accept(this);
-                varNode.symbol.annots.add(annotationAttachment.annotationSymbol);
+                varNode.symbol.addAnnotation(annotationAttachment.annotationSymbol);
             });
         }
         validateAnnotationAttachmentCount(varNode.annAttachments);
@@ -783,7 +783,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangAnnotationAttachment annotationAttachment : varNode.annAttachments) {
             annotationAttachment.attachPoints.addAll(attachPointsList);
             annotationAttachment.accept(this);
-            varNode.symbol.annots.add(annotationAttachment.annotationSymbol);
+            varNode.symbol.addAnnotation(annotationAttachment.annotationSymbol);
         }
     }
 
@@ -3106,7 +3106,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         constant.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.CONST);
             annotationAttachment.accept(this);
-            constant.symbol.annots.add(annotationAttachment.annotationSymbol);
+            constant.symbol.addAnnotation(annotationAttachment.annotationSymbol);
         });
 
         BLangExpression expression = constant.expr;
