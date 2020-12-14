@@ -294,6 +294,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean commitRollbackAllowed;
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
+    private boolean withinTransactionBlock;
     private boolean queryToTableWithKey;
     private BType matchExprType;
 
@@ -561,6 +562,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
+        boolean prevWithinTransactionBlock = this.withinTransactionBlock;
+        this.withinTransactionScope = true;
         //Check whether transaction statement occurred in a transactional scope
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
             this.dlog.error(transactionNode.pos,
@@ -599,6 +602,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.commitCount = previousCommitCount;
         this.rollbackCount = previousRollbackCount;
         this.commitRollbackAllowed = prevCommitRollbackAllowed;
+        this.withinTransactionBlock = prevWithinTransactionBlock;
         this.returnWithinTransactionCheckStack.pop();
         this.loopWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
@@ -2658,6 +2662,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 !Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.USAGE_OF_START_WITHIN_TRANSACTION_IS_PROHIBITED);
             return;
+        }
+
+        if (!actionInvocation.async && this.withinTransactionBlock) {
+            actionInvocation.invokedInsideTransaction = true;
         }
 
         analyzeExpr(actionInvocation.expr);

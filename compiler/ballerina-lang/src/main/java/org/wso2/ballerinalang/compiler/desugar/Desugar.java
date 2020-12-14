@@ -378,7 +378,6 @@ public class Desugar extends BLangNodeVisitor {
     static boolean isJvmTarget = false;
 
     private int serviceStartedCount = 0;
-    private boolean inTransactionContext;
 
     private Map<BSymbol, Set<BVarSymbol>> globalVariablesDependsOn;
     private List<BLangStatement> matchStmtsForPattern = new ArrayList<>();
@@ -4078,8 +4077,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        boolean previousInTransactionContext = this.inTransactionContext;
-        this.inTransactionContext = true;
         if (transactionNode.onFailClause != null) {
             //rewrite user defined on fail within a do statement
             BLangOnFailClause onFailClause = transactionNode.onFailClause;
@@ -4181,7 +4178,6 @@ public class Desugar extends BLangNodeVisitor {
             this.trxBlockId = currentTrxBlockId;
             swapAndResetEnclosingOnFail(currOnFailClause, currOnFailCallDef);
         }
-        this.inTransactionContext = previousInTransactionContext;
     }
 
     @Override
@@ -4948,7 +4944,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
-        if (!actionInvocation.async && this.inTransactionContext && serviceStartedCount == 0) {
+        if (!actionInvocation.async && actionInvocation.invokedInsideTransaction && serviceStartedCount == 0) {
             serviceStartedCount++;
         }
         rewriteInvocation(actionInvocation, actionInvocation.async);
