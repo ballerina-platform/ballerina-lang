@@ -53,11 +53,13 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 
@@ -135,6 +137,55 @@ public class TestBuildProject {
         // This shows that all 4 modules has been compiled, even though the `utils`
         //   module is not imported by any of the other modules.
         Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 4);
+    }
+
+    @Test(description = "tests package diagnostics")
+    public void testDiagnostics() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the current package
+        PackageCompilation compilation = currentPackage.getCompilation();
+
+        // The current package has 4 modules and each module has one semantic or syntactic error.
+        // This shows that all 4 modules has been compiled, even though the `utils`
+        //   module is not imported by any of the other modules.
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 12);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        Assert.assertEquals(jBallerinaBackend.diagnosticResult().diagnosticCount(), 12);
+
+        List<String> expectedPaths = Arrays.asList(
+                Paths.get("modules").resolve("utils").resolve("utils.bal").toString(),
+                Paths.get("modules").resolve("storage").resolve("db.bal").toString(),
+                Paths.get("modules").resolve("services").resolve("svc.bal").toString(),
+                Paths.get("modules").resolve("services").resolve("tests").resolve("svc_tests.bal").toString(),
+                Paths.get("tests").resolve("main_tests.bal").toString(),
+                "main.bal", "utils.bal");
+
+        // Verify paths in packageCompilation diagnostics
+        List<String> diagnosticFilePaths = compilation.diagnosticResult().diagnostics().stream().map(diagnostic ->
+                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+
+        for (String path : expectedPaths) {
+            Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
+        }
+
+        // Verify paths in jBallerina backend diagnostics
+        diagnosticFilePaths = jBallerinaBackend.diagnosticResult().diagnostics().stream().map(diagnostic ->
+                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+
+        for (String path : expectedPaths) {
+            Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
+        }
     }
 
     @Test(description = "tests codegen with native libraries", enabled = false)

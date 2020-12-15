@@ -134,7 +134,8 @@ public class PackageCompilation {
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
             moduleContext.compile(compilerContext);
-            diagnostics.addAll(moduleContext.diagnostics());
+            moduleContext.diagnostics().forEach(diagnostic ->
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
 
         addOtherDiagnostics(diagnostics);

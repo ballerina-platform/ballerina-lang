@@ -98,7 +98,8 @@ public class ModuleCompilation {
             Package pkg = packageCache.getPackageOrThrow(sortedModuleId.packageId());
             ModuleContext moduleContext = pkg.module(sortedModuleId).moduleContext();
             moduleContext.compile(compilerContext);
-            diagnostics.addAll(moduleContext.diagnostics());
+            moduleContext.diagnostics().forEach(diagnostic ->
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
 
         // Create an immutable list

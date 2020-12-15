@@ -129,7 +129,8 @@ public class JBallerinaBackend extends CompilerBackend {
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
             moduleContext.generatePlatformSpecificCode(compilerContext, this);
-            diagnostics.addAll(moduleContext.diagnostics());
+            moduleContext.diagnostics().forEach(diagnostic ->
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
 
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
