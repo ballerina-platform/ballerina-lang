@@ -159,6 +159,7 @@ import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.RequiredExpressionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
@@ -650,6 +651,14 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOpenBraceToken(openBrace)
                 .withMembers(members)
                 .withCloseBraceToken(closeBrace)
+                .apply();
+    }
+
+    @Override
+    public RequiredExpressionNode transform(RequiredExpressionNode requiredExpressionNode) {
+        Token questionMarkToken = formatToken(requiredExpressionNode.questionMarkToken(), 0, 0);
+        return requiredExpressionNode.modify()
+                .withQuestionMarkToken(questionMarkToken)
                 .apply();
     }
 
