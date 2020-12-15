@@ -24,11 +24,13 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
 import java.util.List;
@@ -90,7 +92,8 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         LinePosition position = LinePosition.from(context.getLineNumber(), 0);
         List<Symbol> functionMatches = semanticContext.visibleSymbols(context.getFileNameWithExt().get(), position)
                 .stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION && symbol.name().equals(functionName))
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
+                        && modifyName(symbol.name()).equals(functionName))
                 .collect(Collectors.toList());
         if (functionMatches.isEmpty()) {
             return Optional.empty();
@@ -109,5 +112,14 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                 .add(moduleMeta.version().replaceAll("\\.", "_"))
                 .add(className)
                 .toString();
+    }
+
+    /**
+     * This util is used as a workaround till the ballerina identifier encoding/decoding mechanisms get fixed.
+     * Todo - remove
+     */
+    public static String modifyName(String identifier) {
+        return IdentifierUtils.decodeIdentifier(IdentifierModifier.encodeIdentifier(identifier,
+                IdentifierModifier.IdentifierType.OTHER));
     }
 }

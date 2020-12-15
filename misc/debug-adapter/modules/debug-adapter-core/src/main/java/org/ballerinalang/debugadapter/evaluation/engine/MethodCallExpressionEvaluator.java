@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator.modifyName;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.loadLangLibMethod;
 
@@ -71,6 +72,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             BExpressionValue result = objectExpressionEvaluator.evaluate();
             BVariable resultVar = VariableFactory.getVariable(context, result.getJdiValue());
             Value invocationResult = null;
+            boolean isFoundObjectMethod = false;
             // If the expression result is an object, search for object methods.
             if (resultVar.getBType() == BVariableType.OBJECT) {
                 try {
@@ -88,11 +90,17 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                                         syntaxNode.methodName().toString().trim(), className));
                     }
 
+                    isFoundObjectMethod = true;
                     GeneratedInstanceMethod objectMethod = getObjectMethodByName(resultVar, methodName);
                     objectMethod.setNamedArgValues(generateNamedArgs(context, methodName, objectMethodDef.get().
                             typeDescriptor(), argEvaluators));
                     invocationResult = objectMethod.invoke();
-                } catch (EvaluationException ignored) {
+                } catch (EvaluationException e) {
+                    // If the object method is not found, we have to ignore the Evaluation Exception and try find any
+                    // matching lang library functions.
+                    if (isFoundObjectMethod) {
+                        throw e;
+                    }
                 }
             }
             // Otherwise, search for matching lang-lib methods.
@@ -119,7 +127,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         LinePosition position = LinePosition.from(context.getLineNumber(), 0);
         List<Symbol> classMatches = semanticContext.visibleSymbols(context.getFileNameWithExt().get(), position)
                 .stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.CLASS && symbol.name().equals(className))
+                .filter(symbol -> symbol.kind() == SymbolKind.CLASS && modifyName(symbol.name()).equals(className))
                 .collect(Collectors.toList());
         if (classMatches.isEmpty()) {
             return Optional.empty();
@@ -131,7 +139,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
     private Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef, String methodName) {
         return classDef.methods()
                 .stream()
-                .filter(methodSymbol -> methodSymbol.name().equals(methodName))
+                .filter(methodSymbol -> modifyName(methodSymbol.name()).equals(methodName))
                 .findFirst();
     }
 
