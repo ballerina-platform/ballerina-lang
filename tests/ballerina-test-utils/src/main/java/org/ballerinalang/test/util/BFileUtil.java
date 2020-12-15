@@ -123,7 +123,7 @@ public class BFileUtil {
     }
 
     /**
-     * Delete the distribution package cache directory and files from give location.
+     * Delete the distribution package cache directory and files from given location, excluding the system balos.
      *
      * @param path Path to the package cache
      */
@@ -140,7 +140,8 @@ public class BFileUtil {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     if (Files.exists(file)) {
-                        if (file.toString().matches(patternToExclude)) {
+                        String path = file.toString().replaceAll("\\\\", "/");
+                        if (path.matches(patternToExclude)) {
                             return FileVisitResult.CONTINUE;
                         }
                         Files.delete(file);
@@ -151,7 +152,8 @@ public class BFileUtil {
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                     if (Files.exists(dir)) {
-                        if (dir.toString().matches(patternToExclude)) {
+                        String path = dir.toString().replaceAll("\\\\", "/");
+                        if (path.matches(patternToExclude)) {
                             return FileVisitResult.CONTINUE;
                         }
                         Files.list(dir).forEach(BFileUtil::delete);

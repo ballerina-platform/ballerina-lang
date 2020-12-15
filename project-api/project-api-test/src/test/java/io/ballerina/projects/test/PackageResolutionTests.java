@@ -34,7 +34,6 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -267,10 +266,5 @@ public class PackageResolutionTests {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_m_with_unstable_dep");
         BuildProject buildProject = BuildProject.load(projectDirPath);
         buildProject.currentPackage().getResolution();
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BCompileUtil.cleanBaloCache();
     }
 }
