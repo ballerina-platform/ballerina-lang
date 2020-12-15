@@ -30,8 +30,9 @@ public interface Callback {
     /**
      * This should be called when you want to notify that your operation
      * is done successfully.
+     * @param result
      */
-    void notifySuccess();
+    void notifySuccess(Object result);
 
     /**
      * This should be called to notify the listener that your operation

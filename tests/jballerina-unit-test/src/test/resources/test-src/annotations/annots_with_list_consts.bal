@@ -31,14 +31,14 @@ public const annotation Bar v1 on source service, source listener;
 const s2 = "s2";
 const t3 = "t3";
 
-service ser = @v1 {
+service object {} ser = @v1 {
     f1: [
         { s: "s", t: "t" },
         { s: s2, t: "t2" }
     ],
     f2: [{ s: "s3", t: t3 }, "test"]
-} service {
-    resource function res() {
+} service object {
+    resource function get res() {
 
     }
 };

@@ -25,13 +25,13 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 
 import java.util.Collections;
 
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_UNARY_EXPR_HELPER_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_UNARY_INVERT_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_UNARY_MINUS_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_UNARY_NOT_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_UNARY_PLUS_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getGeneratedMethod;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getValueAsObject;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_UNARY_EXPR_HELPER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_UNARY_INVERT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_UNARY_MINUS_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_UNARY_NOT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_UNARY_PLUS_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getGeneratedMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
  * Unary expression evaluator implementation.

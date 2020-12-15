@@ -92,7 +92,9 @@ public class ObjectConstructorTest {
                 "test-src/expressions/object/object_constructor_expression_negative.bal");
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: 'SampleRec' is not an object", 19, 39);
-        validateError(negativeResult, index++, "a remote function in a non client object", 22, 5);
+        validateError(negativeResult, index++, "remote method has a visibility qualifier", 22, 13);
+        validateError(negativeResult, index++,
+                "remote qualifier only allowed in client and service objects", 22, 13);
         validateError(negativeResult, index++, "object constructor 'init' method cannot have parameters",
                 26, 5);
         validateError(negativeResult, index++, "object initializer function can not be declared as " +

@@ -1,0 +1,24 @@
+{
+  "result":[
+    {
+      "startLine":3,
+      "endLine":4,
+      "kind":"region"
+    },
+    {
+      "startLine":7,
+      "endLine":8,
+      "kind":"comment"
+    },
+    {
+      "startLine":9,
+      "endLine":15,
+      "kind":"region"
+    },
+    {
+      "startLine":0,
+      "endLine":1,
+      "kind":"region"
+    }
+  ]
+}

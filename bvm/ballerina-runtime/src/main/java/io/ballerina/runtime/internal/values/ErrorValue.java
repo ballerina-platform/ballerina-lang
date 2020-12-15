@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.services.ErrorHandlerUtils;
 import io.ballerina.runtime.internal.types.BErrorType;
@@ -297,13 +298,16 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
-        String pkgName = stackTraceElement.getClassName();
+        String pkgName = IdentifierUtils.decodeIdentifier(stackTraceElement.getClassName());
         String fileName = stackTraceElement.getFileName();
 
         // clean file name from pkgName since we print the file name after the method name.
         fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
         fileName = fileName.replace("/", "-");
-        pkgName = pkgName.replace("." + fileName, "");
+        int index = pkgName.lastIndexOf("." + fileName);
+        if (index != -1) {
+            pkgName = pkgName.substring(0, index);
+        }
         // todo we need to seperate orgname and module name with '/'
 
         sb.append(tab);
@@ -312,7 +316,7 @@ public class ErrorValue extends BError implements RefValue {
         }
 
         // Append the method name
-        sb.append(stackTraceElement.getMethodName());
+        sb.append(IdentifierUtils.decodeIdentifier(stackTraceElement.getMethodName()));
         // Append the filename
         sb.append("(").append(stackTraceElement.getFileName());
         // Append the line number

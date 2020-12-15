@@ -30,6 +30,7 @@ public enum Qualifier {
     ISOLATED("isolated"),
     TRANSACTIONAL("transactional"),
     DISTINCT("distinct"),
+    SERVICE("service"),
     CLIENT("client"),
     READONLY("readonly"),
     REMOTE("remote"),

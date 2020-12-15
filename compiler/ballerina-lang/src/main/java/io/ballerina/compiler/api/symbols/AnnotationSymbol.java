@@ -25,7 +25,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface AnnotationSymbol extends Symbol, Qualifiable, Deprecatable {
+public interface AnnotationSymbol extends Symbol, Qualifiable, Deprecatable, Annotatable {
 
     /**
      * Get the type descriptor.

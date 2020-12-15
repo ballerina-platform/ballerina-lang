@@ -345,7 +345,7 @@ public class Scheduler {
                             item.future.strand.currentTrxContext.notifyLocalRemoteParticipantFailure();
                         }
                     } else {
-                        item.future.callback.notifySuccess();
+                        item.future.callback.notifySuccess(result);
                     }
                 }
 

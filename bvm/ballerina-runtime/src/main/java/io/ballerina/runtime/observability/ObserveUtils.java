@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.tracer.BSpan;
-import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.config.ConfigRegistry;
 
 import java.util.Collections;
@@ -39,23 +38,18 @@ import java.util.function.Supplier;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
-import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ACTION;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_CONNECTOR_NAME;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_FUNCTION;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_INVOCATION_POSITION;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_MAIN_ENTRY_POINT;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_REMOTE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_RESOURCE_ENTRY_POINT;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_WORKER;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_MODULE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_OBJECT_NAME;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_RESOURCE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SERVICE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_CLIENT_REMOTE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_MAIN_FUNCTION;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_SERVICE_REMOTE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_SERVICE_RESOURCE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_WORKER;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_FUNCTION_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_MODULE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_OBJECT_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_POSITION;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_RESOURCE_ACCESSOR;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_RESOURCE_PATH;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_TRUE_VALUE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
 
@@ -86,46 +80,77 @@ public class ObserveUtils {
         observers.add(observer);
     }
 
-
     /**
      * Start observation of a resource invocation.
      *
-     * @param serviceName name of the service to which the observer context belongs
-     * @param resourceName name of the resource being invoked
-     * @param pkg The package the resource belongs to
-     * @param position The source code position the resource in defined in
+     * @param env                    Ballerina environment
+     * @param module                 The module the resource belongs to
+     * @param position               The source code position the resource in defined in
+     * @param serviceName            Name of the service to which the observer context belongs
+     * @param resourcePathOrFunction Full path of the resource
+     * @param resourceAccessor       Accessor of the resource
+     * @param isResource             True if this was a resource function invocation
+     * @param isRemote               True if this was a remote function invocation
      */
-    public static void startResourceObservation(Environment env, BString serviceName, BString resourceName, BString pkg,
-                                                BString position) {
+    public static void startResourceObservation(Environment env, BString module, BString position,
+                                                BString serviceName, BString resourcePathOrFunction,
+                                                BString resourceAccessor, boolean isResource, boolean isRemote) {
         if (!enabled) {
             return;
         }
 
         ObserverContext observerContext = getObserverContextOfCurrentFrame(env);
-        if (observerContext == null) {
+        if (observerContext == null) {  // No context created by listener
             observerContext = new ObserverContext();
             setObserverContextToCurrentFrame(env, observerContext);
         }
-        String service = serviceName.getValue() == null ? UNKNOWN_SERVICE : serviceName.getValue();
-        observerContext.setServiceName(service);
-        observerContext.setResourceName(resourceName.getValue());
+
+        if (observerContext.isStarted()) { // If a remote or resource was called by user code itself
+            ObserverContext newObserverContext = new ObserverContext();
+            setObserverContextToCurrentFrame(env, newObserverContext);
+
+            newObserverContext.setEntrypointFunctionModule(observerContext.getEntrypointFunctionModule());
+            newObserverContext.setEntrypointFunctionPosition(observerContext.getEntrypointFunctionPosition());
+            newObserverContext.setParent(observerContext);
+            observerContext = newObserverContext;
+        } else {    // If created now or the listener created to add more tags
+            observerContext.setEntrypointFunctionModule(module.getValue());
+            observerContext.setEntrypointFunctionPosition(position.getValue());
+        }
+        observerContext.setServiceName(serviceName.getValue());
+
+        if (isResource) {
+            observerContext.setOperationName(resourceAccessor.getValue() + " " + resourcePathOrFunction.getValue());
+
+            observerContext.addTag(TAG_KEY_IS_SRC_SERVICE_RESOURCE, TAG_TRUE_VALUE);
+            observerContext.addTag(TAG_KEY_SRC_RESOURCE_ACCESSOR, resourceAccessor.getValue());
+            observerContext.addTag(TAG_KEY_SRC_RESOURCE_PATH, resourcePathOrFunction.getValue());
+        } else if (isRemote) {
+            observerContext.setOperationName(serviceName.getValue() + ":" + resourcePathOrFunction.getValue());
+
+            observerContext.addTag(TAG_KEY_IS_SRC_SERVICE_REMOTE, TAG_TRUE_VALUE);
+            observerContext.addTag(TAG_KEY_SRC_FUNCTION_NAME, resourcePathOrFunction.getValue());
+        } else {
+            observerContext.setOperationName(serviceName.getValue() + ":" + resourcePathOrFunction.getValue());
+
+            observerContext.addTag(TAG_KEY_SRC_FUNCTION_NAME, resourcePathOrFunction.getValue());
+        }
+        observerContext.addTag(TAG_KEY_SRC_OBJECT_NAME, serviceName.getValue());
+
+        observerContext.addTag(TAG_KEY_SRC_MODULE, module.getValue());
+        observerContext.addTag(TAG_KEY_SRC_POSITION, position.getValue());
+
         observerContext.setServer();
-
-        observerContext.addTag(TAG_KEY_MODULE, pkg.getValue());
-        observerContext.addTag(TAG_KEY_INVOCATION_POSITION, position.getValue());
-        observerContext.addTag(TAG_KEY_IS_RESOURCE_ENTRY_POINT, TAG_TRUE_VALUE);
-        observerContext.addTag(TAG_KEY_SERVICE, observerContext.getServiceName());
-        observerContext.addTag(TAG_KEY_RESOURCE, observerContext.getResourceName());
-        observerContext.addTag(TAG_KEY_CONNECTOR_NAME, observerContext.getObjectName());
-
         observerContext.setStarted();
-        ObserverContext copyOfObserverContext = observerContext;
-        observers.forEach(observer -> observer.startServerObservation(copyOfObserverContext));
-        env.setStrandLocal(ObservabilityConstants.SERVICE_NAME, service);
+        for (BallerinaObserver observer : observers) {
+            observer.startServerObservation(observerContext);
+        }
     }
 
     /**
      * Stop observation of an observer context.
+     *
+     * @param env Ballerina environment
      */
     public static void stopObservation(Environment env) {
         if (!enabled) {
@@ -134,11 +159,6 @@ public class ObserveUtils {
         ObserverContext observerContext = getObserverContextOfCurrentFrame(env);
         if (observerContext == null) {
             return;
-        }
-
-        Integer statusCode = (Integer) observerContext.getProperty(PROPERTY_KEY_HTTP_STATUS_CODE);
-        if (statusCode != null && statusCode >= 100) {
-            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, (statusCode / 100) + STATUS_CODE_GROUP_SUFFIX);
         }
 
         if (observerContext.isServer()) {
@@ -153,6 +173,7 @@ public class ObserveUtils {
     /**
      * Report an error to an observer context.
      *
+     * @param env        Ballerina environment
      * @param errorValue the error value to be attached to the observer context
      */
     public static void reportError(Environment env, ErrorValue errorValue) {
@@ -172,63 +193,64 @@ public class ObserveUtils {
     /**
      * Start observability for the synchronous function/action invocations.
      *
-     * @param isRemote True if this was a remove function invocation
+     * @param env              Ballerina environment
+     * @param module           The module the resource belongs to
+     * @param position         The source code position the resource in defined in
+     * @param typeDef          The type definition the function was attached to
+     * @param functionName     name of the function being invoked
      * @param isMainEntryPoint True if this was a main entry point invocation
-     * @param isWorker True if this was a worker start
-     * @param typeDef The type definition the function was attached to
-     * @param functionName name of the function being invoked
-     * @param pkg The package the resource belongs to
-     * @param position The source code position the resource in defined in
+     * @param isRemote         True if this was a remote function invocation
+     * @param isWorker         True if this was a worker start
      */
-    public static void startCallableObservation(Environment env, boolean isRemote, boolean isMainEntryPoint,
-                                                boolean isWorker, BObject typeDef, BString functionName, BString pkg,
-                                                BString position) {
+    public static void startCallableObservation(Environment env, BString module, BString position,
+                                                BObject typeDef, BString functionName, boolean isMainEntryPoint,
+                                                boolean isRemote, boolean isWorker) {
         if (!enabled) {
             return;
         }
-        ObserverContext observerCtx = getObserverContextOfCurrentFrame(env);
 
+        ObserverContext prevObserverCtx = getObserverContextOfCurrentFrame(env);
         ObserverContext newObContext = new ObserverContext();
-        newObContext.setParent(observerCtx);
-        newObContext.setServiceName(observerCtx == null ? UNKNOWN_SERVICE : observerCtx.getServiceName());
-        newObContext.setResourceName(observerCtx == null ? UNKNOWN_RESOURCE : observerCtx.getResourceName());
-        if (typeDef == null) {
-            newObContext.setObjectName(StringUtils.EMPTY);
-        } else {
-            ObjectType type = typeDef.getType();
-            Module module = type.getPackage();
-            newObContext.setObjectName(module.getOrg() + "/" + module.getName() + "/" + type.getName());
-        }
-        newObContext.setFunctionName(functionName.getValue());
+        setObserverContextToCurrentFrame(env, newObContext);
 
-        newObContext.addTag(TAG_KEY_MODULE, pkg.getValue());
-        newObContext.addTag(TAG_KEY_INVOCATION_POSITION, position.getValue());
-        if (isRemote) {
-            newObContext.addTag(TAG_KEY_IS_REMOTE, TAG_TRUE_VALUE);
-            newObContext.addTag(TAG_KEY_ACTION, newObContext.getFunctionName());
-            newObContext.addTag(TAG_KEY_CONNECTOR_NAME, newObContext.getObjectName());
+        if (prevObserverCtx != null) {
+            newObContext.setServiceName(prevObserverCtx.getServiceName());
+            newObContext.setEntrypointFunctionModule(prevObserverCtx.getEntrypointFunctionModule());
+            newObContext.setEntrypointFunctionPosition(prevObserverCtx.getEntrypointFunctionPosition());
+            newObContext.setParent(prevObserverCtx);
+        } else {
+            newObContext.setServiceName(UNKNOWN_SERVICE);
+            newObContext.setEntrypointFunctionModule(module.getValue());
+            newObContext.setEntrypointFunctionPosition(position.getValue());
         }
+
         if (isMainEntryPoint) {
-            newObContext.addTag(TAG_KEY_IS_MAIN_ENTRY_POINT, TAG_TRUE_VALUE);
+            newObContext.addTag(TAG_KEY_IS_SRC_MAIN_FUNCTION, TAG_TRUE_VALUE);
+        } else if (isRemote) {
+            newObContext.addTag(TAG_KEY_IS_SRC_CLIENT_REMOTE, TAG_TRUE_VALUE);
+        } else if (isWorker) {
+            newObContext.addTag(TAG_KEY_IS_SRC_WORKER, TAG_TRUE_VALUE);
+        }   // Else normal function
+
+        if (typeDef != null) {
+            ObjectType type = typeDef.getType();
+            Module typeModule = type.getPackage();
+            String objectName = typeModule.getOrg() + "/" + typeModule.getName() + "/" + type.getName();
+
+            newObContext.setOperationName(objectName + ":" + functionName.getValue());
+            newObContext.addTag(TAG_KEY_SRC_OBJECT_NAME, objectName);
+        } else {
+            newObContext.setOperationName(functionName.getValue());
         }
-        if (isWorker) {
-            newObContext.addTag(TAG_KEY_IS_WORKER, TAG_TRUE_VALUE);
-        }
-        if (!isRemote && !isWorker) {
-            newObContext.addTag(TAG_KEY_FUNCTION, newObContext.getFunctionName());
-            if (!StringUtils.isEmpty(newObContext.getObjectName())) {
-                newObContext.addTag(TAG_KEY_OBJECT_NAME, newObContext.getObjectName());
-            }
-        }
-        if (!UNKNOWN_SERVICE.equals(newObContext.getServiceName())) {
-            // If service is present, resource should be too
-            newObContext.addTag(TAG_KEY_SERVICE, newObContext.getServiceName());
-            newObContext.addTag(TAG_KEY_RESOURCE, newObContext.getResourceName());
-        }
+
+        newObContext.addTag(TAG_KEY_SRC_FUNCTION_NAME, functionName.getValue());
+        newObContext.addTag(TAG_KEY_SRC_MODULE, module.getValue());
+        newObContext.addTag(TAG_KEY_SRC_POSITION, position.getValue());
 
         newObContext.setStarted();
-        setObserverContextToCurrentFrame(env, newObContext);
-        observers.forEach(observer -> observer.startClientObservation(newObContext));
+        for (BallerinaObserver observer : observers) {
+            observer.startClientObservation(newObContext);
+        }
     }
 
     /**
@@ -252,6 +274,7 @@ public class ObserveUtils {
      * @param logMessage message to be logged
      * @param isError    if its an error or not
      */
+    @Deprecated     // Discussion: https://groups.google.com/g/ballerina-dev/c/VMEk3t8boH0
     public static void logMessageToActiveSpan(String logLevel, Supplier<String> logMessage,
                                               boolean isError) {
         if (!tracingEnabled) {
@@ -319,7 +342,7 @@ public class ObserveUtils {
     /**
      * Set the observer context to the current frame.
      *
-     * @param env current env
+     * @param env             current env
      * @param observerContext observer context to be set
      */
     public static void setObserverContextToCurrentFrame(Environment env, ObserverContext observerContext) {

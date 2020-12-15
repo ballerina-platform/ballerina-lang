@@ -62,18 +62,14 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         List<LSCompletionItem> completionItems = this.getTypeItems(context);
         completionItems.addAll(this.getModuleCompletionItems(context));
         completionItems.addAll(this.getObjectTypeQualifierItems(context));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR_TYPE_DESC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
 
         return completionItems;
     }
 
     private List<LSCompletionItem> getObjectTypeQualifierItems(CompletionContext context) {
+        // Note: here we do not add the service type qualifier since it is being added via getTypeItems call.
         return Arrays.asList(
                 new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()),
-                new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()),
                 new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
     }
 

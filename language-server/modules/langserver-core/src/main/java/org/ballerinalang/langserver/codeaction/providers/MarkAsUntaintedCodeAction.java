@@ -29,7 +29,6 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 
 /**
@@ -45,7 +44,7 @@ public class MarkAsUntaintedCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     CodeActionContext context) {
-        if (!(diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.TAINTED_PARAM_PASSED))) {
+        if (!(diagnostic.getMessage().contains(CommandConstants.TAINTED_PARAM_PASSED))) {
             return Collections.emptyList();
         }
 
