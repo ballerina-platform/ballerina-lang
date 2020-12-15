@@ -15,21 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.ballerina.compiler.api.symbols;
 
-import java.util.Optional;
+import java.util.List;
 
 /**
- * Represents a class symbol.
+ * Represents a symbol which may have annotations attached to it.
  *
  * @since 2.0.0
  */
-public interface ClassSymbol extends ObjectTypeSymbol, Qualifiable, Deprecatable, Annotatable {
+public interface Annotatable {
 
     /**
-     * Get the init method.
+     * Retrieves a list of the symbols of the annotations attached to the symbol.
      *
-     * @return {@link Optional} init method
+     * @return The list of annotation symbols
      */
-    Optional<MethodSymbol> initMethod();
+    List<AnnotationSymbol> annotations();
 }

@@ -15,21 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.api.symbols;
 
-import java.util.Optional;
+package org.ballerinalang.model.symbols;
+
+import java.util.List;
 
 /**
- * Represents a class symbol.
+ * Provides APIs for adding and getting annotations from an annotatable symbol.
  *
  * @since 2.0.0
  */
-public interface ClassSymbol extends ObjectTypeSymbol, Qualifiable, Deprecatable, Annotatable {
+public interface Annotatable {
 
     /**
-     * Get the init method.
+     * Adds the specified annotation symbol to the annotatable symbol. If the specified symbol is null, it's ignored.
      *
-     * @return {@link Optional} init method
+     * @param symbol The symbol of the annotation attached
      */
-    Optional<MethodSymbol> initMethod();
+    void addAnnotation(AnnotationSymbol symbol);
+
+    /**
+     * Returns a list of the annotations attached to this symbol.
+     *
+     * @return A list of annotation symbols
+     */
+    List<? extends AnnotationSymbol> getAnnotations();
 }
