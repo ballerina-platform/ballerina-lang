@@ -149,4 +149,9 @@ public class ImportDeclarationTest extends AbstractDeclarationTest {
     public void testImportWithVersionAndPrefixNegative() {
         test("import-decl/import_decl_source_08.bal", "import-decl/import_decl_assert_08.json");
     }
+
+    @Test
+    public void testImportWithPredefinedPrefixNegetive() {
+        testFile("import-decl/import_decl_source_25.bal", "import-decl/import_decl_assert_25.json");
+    }
 }
