@@ -58,7 +58,7 @@ public class CodeActionTest {
     private void init() throws Exception {
         serviceEndpoint = TestUtil.initializeLanguageSever();
         String startConfigPath = "codeaction" + File.separator + "config" + File.separator +
-                "codeActioinTestConfig.json";
+                "startConfig.json";
         JsonObject configs = FileUtils.fileContentAsObject(startConfigPath);
         TestUtil.setWorkspaceConfig(serviceEndpoint, configs);
 
