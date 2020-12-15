@@ -1,4 +1,4 @@
-import ballerina/runtime;
+import ballerina/java;
 string append = "";
 function singleFlush () returns string {
     @strand{thread:"any"}
@@ -70,7 +70,7 @@ function flushAll() returns string {
                  error err = error("err", message = "err msg");
                  return err;
             }
-            runtime:sleep(5);
+            sleep(5);
             foreach var i in 1 ... 5 {
                 append2 = append2 + "w2";
             }
@@ -81,7 +81,7 @@ function flushAll() returns string {
         }
         @strand{thread:"any"}
         worker w3 {
-            runtime:sleep(5);
+            sleep(5);
             foreach var i in 1 ... 5 {
                             append2 = append2 + "w3";
                         }
@@ -113,7 +113,7 @@ function errorTest() returns error? {
                  error err = error("err", message = "err msg");
                  return err;
             }
-            runtime:sleep(5);
+            sleep(5);
             foreach var i in 1 ... 5 {
                 append2 = append2 + "w2";
             }
@@ -124,7 +124,7 @@ function errorTest() returns error? {
         }
         @strand{thread:"any"}
         worker w3 returns error|string{
-            runtime:sleep(5);
+            sleep(5);
             int k;
             foreach var i in 1 ... 5 {
                 append2 = append2 + "w3";
@@ -165,7 +165,7 @@ function panicTest() returns error? {
                  error err = error("err", message = "err msg");
                  return err;
             }
-            runtime:sleep(5);
+            sleep(5);
             foreach var i in 1 ... 5 {
                 append2 = append2 + "w2";
             }
@@ -176,7 +176,7 @@ function panicTest() returns error? {
         }
         @strand{thread:"any"}
         worker w3 returns error|string{
-            runtime:sleep(5);
+            sleep(5);
             int k;
             foreach var i in 1 ... 5 {
                 append2 = append2 + "w3";
@@ -233,3 +233,7 @@ function flushInDefault() returns int {
     int c = <- w2;
     return c;
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

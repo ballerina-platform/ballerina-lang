@@ -39,6 +39,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -55,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -442,6 +445,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeDef(typeDefinition.typeNode, env);
         }
 
+        final List<BAnnotationSymbol> annotSymbols = new ArrayList<>();
+
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
             if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT);
@@ -449,7 +454,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
 
             annotationAttachment.accept(this);
+            annotSymbols.add(annotationAttachment.annotationSymbol);
         });
+
+        if (typeDefinition.flagSet.contains(Flag.ENUM)) {
+            ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);
+        }
+
         validateAnnotationAttachmentCount(typeDefinition.annAttachments);
         validateBuiltinTypeAnnotationAttachment(typeDefinition.annAttachments);
     }
@@ -459,10 +470,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         AttachPoint.Point attachedPoint = classDefinition.flagSet.contains(Flag.SERVICE)
                 ? AttachPoint.Point.SERVICE
                 : AttachPoint.Point.CLASS;
+        BClassSymbol symbol = (BClassSymbol) classDefinition.symbol;
 
         classDefinition.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(attachedPoint);
             annotationAttachment.accept(this);
+            symbol.addAnnotation(annotationAttachment.annotationSymbol);
         });
         validateAnnotationAttachmentCount(classDefinition.annAttachments);
 
@@ -609,9 +622,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
+        BAnnotationSymbol symbol = (BAnnotationSymbol) annotationNode.symbol;
         annotationNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.ANNOTATION);
             annotationAttachment.accept(this);
+            symbol.addAnnotation(annotationAttachment.annotationSymbol);
         });
         validateAnnotationAttachmentCount(annotationNode.annAttachments);
     }
@@ -688,6 +703,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
                 }
                 annotationAttachment.accept(this);
+                varNode.symbol.addAnnotation(annotationAttachment.annotationSymbol);
             });
         }
         validateAnnotationAttachmentCount(varNode.annAttachments);
@@ -767,6 +783,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangAnnotationAttachment annotationAttachment : varNode.annAttachments) {
             annotationAttachment.attachPoints.addAll(attachPointsList);
             annotationAttachment.accept(this);
+            varNode.symbol.addAnnotation(annotationAttachment.annotationSymbol);
         }
     }
 
@@ -2835,6 +2852,46 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             } else if (attachExpr.getKind() != NodeKind.TYPE_INIT_EXPR) {
                 dlog.error(attachExpr.pos, DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT);
             }
+
+            if (exprType.getKind() == TypeKind.OBJECT) {
+                BObjectType listenerType = (BObjectType) exprType;
+                validateServicePathOnListener(serviceNode, attachExpr, listenerType);
+            }
+        }
+    }
+
+    private void validateServicePathOnListener(BLangService serviceNode, BLangExpression attachExpr,
+                                               BObjectType listenerType) {
+        for (var func : ((BObjectTypeSymbol) listenerType.tsymbol).attachedFuncs) {
+            if (func.funcName.value.equals("attach")) {
+                BType pathParam = func.type.paramTypes.get(1);
+                boolean isStringComponentAvailable = types.isAssignable(symTable.stringType, pathParam);
+                boolean isNullable = pathParam.isNullable();
+                boolean isArrayComponentAvailable = types.isAssignable(symTable.arrayStringType, pathParam);
+
+                boolean pathLiteral = serviceNode.serviceNameLiteral != null;
+                boolean absolutePath = !serviceNode.absoluteResourcePath.isEmpty();
+
+                Location pos = attachExpr.getPosition();
+
+                if (!pathLiteral && isStringComponentAvailable && !isArrayComponentAvailable && !isNullable) {
+                    dlog.error(pos, DiagnosticErrorCode.SERVICE_LITERAL_REQUIRED_BY_LISTENER);
+                } else if (!absolutePath && isArrayComponentAvailable && !isStringComponentAvailable && !isNullable) {
+                    dlog.error(pos, DiagnosticErrorCode.SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER);
+                } else if (!pathLiteral && !absolutePath && !isNullable) {
+                    dlog.error(pos, DiagnosticErrorCode.SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER);
+                }
+
+                // Path literal is provided, listener does not accept path literal
+                if (pathLiteral && !isStringComponentAvailable) {
+                    dlog.error(pos, DiagnosticErrorCode.SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER);
+                }
+
+                // Absolute path is provided, Listener does not accept abs path
+                if (absolutePath && !isArrayComponentAvailable) {
+                    dlog.error(pos, DiagnosticErrorCode.SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER);
+                }
+            }
         }
     }
 
@@ -3049,6 +3106,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         constant.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.CONST);
             annotationAttachment.accept(this);
+            constant.symbol.addAnnotation(annotationAttachment.annotationSymbol);
         });
 
         BLangExpression expression = constant.expr;

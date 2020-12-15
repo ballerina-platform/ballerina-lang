@@ -171,9 +171,7 @@ public class BCompileUtil {
 
         BIRNode.BIRPackage birPackage = bLangPackage.symbol.bir;
 
-        String initClassName = BFileUtil.getQualifiedClassName(birPackage.org.value,
-                                                               birPackage.name.value,
-                                                               birPackage.version.value,
+        String initClassName = BFileUtil.getQualifiedClassName(birPackage.packageID,
                                                                TestConstant.MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
@@ -621,10 +619,7 @@ public class BCompileUtil {
     public static ExitDetails run(CompileResult compileResult, String[] args) {
 
         BIRNode.BIRPackage compiledPkg = ((BLangPackage) compileResult.getAST()).symbol.bir;
-        String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.org.value,
-                                                               compiledPkg.name.value,
-                                                               compiledPkg.version.value,
-                                                               MODULE_INIT_CLASS_NAME);
+        String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.packageID, MODULE_INIT_CLASS_NAME);
         URLClassLoader classLoader = compileResult.classLoader;
 
         try {

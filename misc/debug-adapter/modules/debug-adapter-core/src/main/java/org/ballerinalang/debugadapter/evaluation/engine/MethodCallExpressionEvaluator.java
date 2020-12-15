@@ -29,10 +29,12 @@ import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.validateAndProcessArguments;
+import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.loadLangLibMethod;
 
 /**
  * Evaluator implementation for method call invocation expressions.
@@ -58,17 +60,28 @@ public class MethodCallExpressionEvaluator extends Evaluator {
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            Map<String, Value> argValueMap = validateAndProcessArguments(context, methodName, argEvaluators);
             BExpressionValue result = objectExpressionEvaluator.evaluate();
             BVariable resultVar = VariableFactory.getVariable(context, result.getJdiValue());
-            if (resultVar.getBType() != BVariableType.OBJECT && resultVar.getBType() != BVariableType.INT) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Method" +
-                        " calls are not supported on type '" + resultVar.getBType() + "'."));
+            Value invocationResult = null;
+            // If the expression result is an object, search for object methods.
+            if (resultVar.getBType() == BVariableType.OBJECT) {
+                try {
+                    GeneratedInstanceMethod objectMethod = getObjectMethodByName(resultVar, methodName);
+                    objectMethod.setNamedArgValues(validateAndProcessArguments(context, methodName, argEvaluators));
+                    invocationResult = objectMethod.invoke();
+                } catch (EvaluationException ignored) {
+                }
             }
-            String methodName = syntaxNode.methodName().toString().trim();
-            GeneratedInstanceMethod method = getObjectMethodByName(resultVar.getJvmValue(), methodName);
-            method.setNamedArgValues(argValueMap);
-            Value invocationResult = method.invoke();
+            // Otherwise, search for matching lang-lib methods.
+            if (invocationResult == null) {
+                GeneratedStaticMethod langLibMethod = loadLangLibMethod(context, result, methodName);
+                argEvaluators.add(0, new AbstractMap.SimpleEntry<>("", objectExpressionEvaluator));
+                // Todo - IMPORTANT Enable after having a way to resolve lang lib method definition signature
+                //  information.
+                // langLibMethod.setNamedArgValues(validateAndProcessArguments(context, methodName, argEvaluators));
+                langLibMethod.setArgEvaluators(argEvaluators);
+                invocationResult = langLibMethod.invoke();
+            }
             return new BExpressionValue(context, invocationResult);
         } catch (EvaluationException e) {
             throw e;
@@ -78,15 +91,15 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         }
     }
 
-    private GeneratedInstanceMethod getObjectMethodByName(Value objectValueRef, String methodName)
+    private GeneratedInstanceMethod getObjectMethodByName(BVariable objectVar, String methodName)
             throws EvaluationException {
 
-        ReferenceType objectRef = ((ObjectReference) objectValueRef).referenceType();
+        ReferenceType objectRef = ((ObjectReference) objectVar.getJvmValue()).referenceType();
         List<Method> methods = objectRef.methodsByName(methodName);
         if (methods == null || methods.size() != 1) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
-                    syntaxNode.methodName().toString().trim()));
+                    syntaxNode.methodName().toString().trim(), objectVar.computeValue()));
         }
-        return new GeneratedInstanceMethod(context, objectValueRef, methods.get(0));
+        return new GeneratedInstanceMethod(context, objectVar.getJvmValue(), methods.get(0));
     }
 }

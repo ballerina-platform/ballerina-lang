@@ -16,6 +16,7 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -35,16 +36,18 @@ public class BallerinaParameterSymbol implements ParameterSymbol {
 
     // add the metadata field
     private List<Qualifier> qualifiers;
+    private List<AnnotationSymbol> annots;
     private String parameterName;
     private TypeSymbol typeDescriptor;
     private ParameterKind kind;
 
     public BallerinaParameterSymbol(String parameterName, TypeSymbol typeDescriptor, List<Qualifier> qualifiers,
-                                    ParameterKind kind) {
+                                    List<AnnotationSymbol> annots, ParameterKind kind) {
         // TODO: Add the metadata
         this.parameterName = parameterName;
         this.typeDescriptor = typeDescriptor;
         this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.annots = Collections.unmodifiableList(annots);
         this.kind = kind;
     }
 
@@ -76,6 +79,11 @@ public class BallerinaParameterSymbol implements ParameterSymbol {
     @Override
     public List<Qualifier> qualifiers() {
         return qualifiers;
+    }
+
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return this.annots;
     }
 
     /**

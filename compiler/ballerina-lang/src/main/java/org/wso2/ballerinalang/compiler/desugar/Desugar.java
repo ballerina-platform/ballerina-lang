@@ -377,6 +377,8 @@ public class Desugar extends BLangNodeVisitor {
     private BLangAssignment safeNavigationAssignment;
     static boolean isJvmTarget = false;
 
+    private int serviceStartedCount = 0;
+
     private Map<BSymbol, Set<BVarSymbol>> globalVariablesDependsOn;
     private List<BLangStatement> matchStmtsForPattern = new ArrayList<>();
     private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
@@ -1176,6 +1178,12 @@ public class Desugar extends BLangNodeVisitor {
         BType currentReturnType = this.forceCastReturnType;
         this.forceCastReturnType = null;
         funcNode.body = rewrite(funcNode.body, funcEnv);
+        if (serviceStartedCount == 1) {
+            BLangExpressionStmt trxCoordnStmt = new BLangExpressionStmt(transactionDesugar.
+                    createStartTransactionCoordinatorInvocation(funcNode.pos));
+            ((BLangBlockFunctionBody) funcNode.body).stmts.add(0, trxCoordnStmt);
+            serviceStartedCount++;
+        }
         this.forceCastReturnType = currentReturnType;
         funcNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
         if (funcNode.returnTypeNode != null) {
@@ -2913,8 +2921,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     protected BLangSimpleVariableDef createRetryManagerDef(BLangRetrySpec retrySpec, Location pos) {
-        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) transactionDesugar
-                .getTransactionLibInvokableSymbol(names.fromString("DefaultRetryManager"));
+        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langObjectModuleSymbol.scope
+                .lookup(names.fromString("DefaultRetryManager")).symbol;
         BType retryManagerType = retryManagerTypeSymbol.type;
         if (retrySpec.retryManagerType != null) {
             retryManagerType = retrySpec.retryManagerType.type;
@@ -4936,6 +4944,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        if (!actionInvocation.async && actionInvocation.invokedInsideTransaction && serviceStartedCount == 0) {
+            serviceStartedCount++;
+        }
         rewriteInvocation(actionInvocation, actionInvocation.async);
     }
 
@@ -6958,6 +6969,8 @@ public class Desugar extends BLangNodeVisitor {
                 .forEach(expr -> namedArgs.put(((NamedArgNode) expr).getName().value, expr));
 
         List<BVarSymbol> params = invokableSymbol.params;
+        List<BLangRecordLiteral> incRecordLiterals = new ArrayList<>();
+        BLangRecordLiteral incRecordParamAllowAdditionalFields = null;
 
         int varargIndex = 0;
 
@@ -6977,7 +6990,16 @@ public class Desugar extends BLangNodeVisitor {
                 args.add(iExpr.requiredArgs.get(i));
             } else if (namedArgs.containsKey(param.name.value)) {
                 // Else check if named arg is given.
-                args.add(namedArgs.get(param.name.value));
+                args.add(namedArgs.remove(param.name.value));
+            } else if (param.getFlags().contains(Flag.INCLUDED)) {
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+                BType paramType = param.type;
+                recordLiteral.type = paramType;
+                args.add(recordLiteral);
+                incRecordLiterals.add(recordLiteral);
+                if (((BRecordType) paramType).restFieldType != symTable.noType) {
+                    incRecordParamAllowAdditionalFields = recordLiteral;
+                }
             } else if (varargRef == null) {
                 // Else create a dummy expression with an ignore flag.
                 BLangExpression expr = new BLangIgnoreExpr();
@@ -6997,7 +7019,39 @@ public class Desugar extends BLangNodeVisitor {
                 args.add(addConversionExprIfRequired(memberAccessExpr, param.type));
             }
         }
+        if (namedArgs.size() > 0) {
+            setFieldsForIncRecordLiterals(namedArgs, incRecordLiterals, incRecordParamAllowAdditionalFields);
+        }
         iExpr.requiredArgs = args;
+    }
+
+    private void setFieldsForIncRecordLiterals(Map<String, BLangExpression> namedArgs,
+                                               List<BLangRecordLiteral> incRecordLiterals,
+                                               BLangRecordLiteral incRecordParamAllowAdditionalFields) {
+        for (String name : namedArgs.keySet()) {
+            boolean isAdditionalField = true;
+            BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
+            for (BLangRecordLiteral recordLiteral : incRecordLiterals) {
+                LinkedHashMap<String, BField> fields = ((BRecordType) recordLiteral.type).fields;
+                if (fields.containsKey(name) && fields.get(name).type.tag != TypeTags.NEVER) {
+                    isAdditionalField = false;
+                    createAndAddRecordFieldForIncRecordLiteral(recordLiteral, expr);
+                    break;
+                }
+            }
+            if (isAdditionalField) {
+                createAndAddRecordFieldForIncRecordLiteral(incRecordParamAllowAdditionalFields, expr);
+            }
+        }
+    }
+
+    private void createAndAddRecordFieldForIncRecordLiteral(BLangRecordLiteral recordLiteral,
+                                                            BLangNamedArgsExpression expr) {
+        BLangSimpleVarRef varRef = new BLangSimpleVarRef();
+        varRef.variableName = expr.name;
+        BLangRecordLiteral.BLangRecordKeyValueField recordKeyValueField = ASTBuilderUtil.
+                createBLangRecordKeyValue(varRef, expr.expr);
+        recordLiteral.fields.add(recordKeyValueField);
     }
 
     private BLangMatchTypedBindingPatternClause getSafeAssignErrorPattern(Location location,
