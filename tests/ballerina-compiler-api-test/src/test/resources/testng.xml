@@ -21,6 +21,7 @@
 <suite name="ballerina-semantic-api-test-suite">
     <test name="semantic-api-test" parallel="false">
         <classes>
+            <class name="io.ballerina.semantic.api.test.AnnotationsTest" />
             <class name="io.ballerina.semantic.api.test.ClassSymbolTest" />
             <class name="io.ballerina.semantic.api.test.DiagnosticsTest" />
             <class name="io.ballerina.semantic.api.test.ExpressionTypeTest" />

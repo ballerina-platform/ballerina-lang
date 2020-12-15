@@ -1,4 +1,4 @@
-import ballerina/runtime;
+import ballerina/java;
 
 // Test if worker actions are panicked if the worker is cancelled before sending
 function workerCancelledBeforeSend() {
@@ -8,7 +8,11 @@ function workerCancelledBeforeSend() {
             "message" -> default;
         }
         wy.cancel();
-        runtime:sleep(5);
+        sleep(5);
         "message" -> wy;
         string|error result = <- wy;
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
@@ -43,7 +44,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 public class FrameClassGen {
 
     public void generateFrameClasses(BIRNode.BIRPackage pkg, Map<String, byte[]> pkgEntries) {
-        pkg.functions.parallelStream().forEach(func -> generateFrameClassForFunction(pkg, func, pkgEntries, null));
+        pkg.functions.parallelStream().forEach(
+                func -> generateFrameClassForFunction(pkg.packageID, func, pkgEntries, null));
 
         for (BIRNode.BIRTypeDefinition typeDef : pkg.typeDefs) {
             List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
@@ -59,17 +61,16 @@ public class FrameClassGen {
             } else {
                 attachedType = typeDef.type;
             }
-            attachedFuncs.parallelStream().forEach(func ->
-                                                           generateFrameClassForFunction(pkg, func, pkgEntries,
-                                                                                         attachedType));
+            attachedFuncs.parallelStream().forEach(func -> generateFrameClassForFunction(
+                    pkg.packageID, func, pkgEntries, attachedType));
         }
     }
 
-    private void generateFrameClassForFunction(BIRNode.BIRPackage pkg, BIRNode.BIRFunction func,
+    private void generateFrameClassForFunction(PackageID packageID, BIRNode.BIRFunction func,
                                                Map<String, byte[]> pkgEntries,
                                                BType attachedType) {
-        String frameClassName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(pkg), func.name.value,
-                                                                 attachedType);
+        String frameClassName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(packageID),
+                                                                 func.name.value, attachedType);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (func.pos != null && func.pos.lineRange().filePath() != null) {
             cw.visitSource(func.pos.lineRange().filePath(), null);

@@ -23,10 +23,14 @@ package org.ballerinalang.docgen.generator.model.search;
 public class ModuleSearchJson {
     private String id;
     private String description;
+    private String orgName;
+    private String version;
 
-    public ModuleSearchJson(String id, String description) {
+    public ModuleSearchJson(String id, String orgName, String version, String description) {
         this.setId(id);
         this.setDescription(description);
+        this.setOrgName(orgName);
+        this.setVersion(version);
     }
 
     public String getId() {
@@ -43,5 +47,21 @@ public class ModuleSearchJson {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

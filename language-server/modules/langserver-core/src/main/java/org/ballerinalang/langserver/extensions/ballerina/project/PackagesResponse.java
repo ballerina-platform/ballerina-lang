@@ -18,19 +18,19 @@ package org.ballerinalang.langserver.extensions.ballerina.project;
 import com.google.gson.JsonElement;
 
 /**
- * Represents a Ballerina Project Modules response.
+ * Represents a Ballerina Project Packages response.
  */
-public class ModulesResponse {
-    private JsonElement modules;
+public class PackagesResponse {
+    private JsonElement packages;
 
     private boolean parseSuccess;
 
-    public JsonElement getModules() {
-        return modules;
+    public JsonElement getPackages() {
+        return packages;
     }
 
-    public void setModules(JsonElement ast) {
-        this.modules = ast;
+    public void setPackages(JsonElement packages) {
+        this.packages = packages;
     }
 
     public boolean isParseSuccess() {

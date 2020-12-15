@@ -30,6 +30,12 @@ import io.ballerina.tools.text.LineRange;
 class PositionUtil {
 
     static boolean withinBlock(LinePosition cursorPos, Location symbolPosition) {
+        /*
+        Temporary null check added
+         */
+        if (symbolPosition == null) {
+            return false;
+        }
         int startLine = symbolPosition.lineRange().startLine().line();
         int endLine = symbolPosition.lineRange().endLine().line();
         int startColumn = symbolPosition.lineRange().startLine().offset();
@@ -45,7 +51,10 @@ class PositionUtil {
     }
 
     static boolean withinRange(LineRange specifiedRange, Location nodePosition) {
-        if (!nodePosition.lineRange().filePath().equals(specifiedRange.filePath())) {
+        /*
+        Temporary null check added
+         */
+        if (nodePosition == null || !nodePosition.lineRange().filePath().equals(specifiedRange.filePath())) {
             return false;
         }
 

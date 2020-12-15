@@ -16,9 +16,9 @@
 package org.ballerinalang.langserver.extensions.ballerina.project;
 
 /**
- * Represents a Ballerina Project Modules request.
+ * Represents a Ballerina Project Packages request.
  */
-public class ModulesRequest {
+public class PackagesRequest {
     private String sourceRoot;
 
     public String getSourceRoot() {
