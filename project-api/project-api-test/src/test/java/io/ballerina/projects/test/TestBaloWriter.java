@@ -21,7 +21,7 @@ package io.ballerina.projects.test;
 import com.google.gson.Gson;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
@@ -88,7 +88,7 @@ public class TestBaloWriter {
         Target target = new Target(project.sourceRoot());
         Path baloPath = target.getBaloPath();
         // invoke write balo method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
         Assert.assertTrue(emitResult.successful());
 
@@ -237,7 +237,7 @@ public class TestBaloWriter {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, target.getBaloPath());
 
         // invoke write balo method
@@ -289,7 +289,7 @@ public class TestBaloWriter {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
         // invoke write balo method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, target.getBaloPath());
 
         // unzip balo
@@ -363,7 +363,7 @@ public class TestBaloWriter {
         Project project = BuildProject.load(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
 
 //        // invoke write balo method
