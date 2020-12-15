@@ -57,7 +57,8 @@ public class ServiceClassTest {
                 "only int, string, float, boolean, decimal types are supported as path params, found 'anydata'",
                 37, 40);
         validateError(result, index++,
-                "only int, string, float, boolean, decimal types are supported as rest path param, found 'anydata'", 37, 64);
+                "only int, string, float, boolean, decimal types are supported as rest path param, found 'anydata'",
+                37, 64);
         Assert.assertEquals(index, 3);
     }
 

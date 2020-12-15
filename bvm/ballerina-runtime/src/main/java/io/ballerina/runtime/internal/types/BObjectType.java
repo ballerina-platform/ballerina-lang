@@ -155,7 +155,7 @@ public class BObjectType extends BStructureType implements ObjectType {
     protected  <T extends MemberFunctionType> T[] duplicateArray(T[] memberFunctionTypes) {
         Class<?> elemType = memberFunctionTypes.getClass().getComponentType();
         T[] array = (T[]) Array.newInstance(elemType, memberFunctionTypes.length);
-        for(int i = 0; i < memberFunctionTypes.length; i++) {
+        for (int i = 0; i < memberFunctionTypes.length; i++) {
             BMemberFunctionType functionType = (BMemberFunctionType) memberFunctionTypes[i];
             array[i] = (T) functionType.duplicate();
         }
