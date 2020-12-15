@@ -34,7 +34,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObserverbilitySymbolCollectorRunner;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -156,7 +156,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private void emitBalo(Path filePath) {
-        JBallerinaBaloWriter writer = new JBallerinaBaloWriter(jdkVersion);
+        JBallerinaBaloWriter writer = new JBallerinaBaloWriter(this);
         Package pkg = packageCache.getPackageOrThrow(packageContext.packageId());
         writer.write(pkg, filePath);
     }
@@ -186,6 +186,9 @@ public class JBallerinaBackend extends CompilerBackend {
         List<PlatformLibrary> platformLibraries = new ArrayList<>();
         for (Map<String, Object> dependency : javaPlatform.dependencies()) {
             String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
+            String artifactId = (String) dependency.get(JarLibrary.KEY_ARTIFACT_ID);
+            String version = (String) dependency.get(JarLibrary.KEY_VERSION);
+            String groupId = (String) dependency.get(JarLibrary.KEY_GROUP_ID);
             // If the path is relative we will covert to absolute relative to Ballerina.toml file
             Path jarPath = Paths.get(dependencyFilePath);
             if (!jarPath.isAbsolute()) {
@@ -193,7 +196,7 @@ public class JBallerinaBackend extends CompilerBackend {
             }
 
             PlatformLibraryScope scope = getPlatformLibraryScope(dependency);
-            platformLibraries.add(new JarLibrary(jarPath, scope));
+            platformLibraries.add(new JarLibrary(jarPath, scope, artifactId, groupId, version));
         }
 
         return platformLibraries;
@@ -513,13 +516,9 @@ public class JBallerinaBackend extends CompilerBackend {
             // TODO: Move to a compiler extension once Compiler revamp is complete
             if (packageContext.compilationOptions().observabilityIncluded()) {
                 ObservabilitySymbolCollector observabilitySymbolCollector
-                        = ObserverbilitySymbolCollectorRunner.getInstance(compilerContext);
-                for (ModuleId moduleId : packageContext.moduleIds()) {
-                    ModuleContext moduleContext = packageContext.moduleContext(moduleId);
-                    BLangPackage bLangPackage = moduleContext.bLangPackage();
-                    observabilitySymbolCollector.process(bLangPackage);
-                }
-                observabilitySymbolCollector.writeCollectedSymbols(executableFilePath);
+                        = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
+                observabilitySymbolCollector.process(packageContext.project());
+                observabilitySymbolCollector.writeToExecutable(executableFilePath);
             }
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package: " +
@@ -554,5 +553,10 @@ public class JBallerinaBackend extends CompilerBackend {
         OutputType(String value) {
             this.value = value;
         }
+    }
+
+
+    JdkVersion jdkVersion() {
+        return jdkVersion;
     }
 }

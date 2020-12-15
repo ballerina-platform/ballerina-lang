@@ -118,11 +118,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service",
+      "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "A",
-      "insertText": "service",
+      "insertText": "transactional",
       "insertTextFormat": "Snippet"
     },
     {
@@ -140,98 +140,6 @@
       "sortText": "A",
       "insertText": "public function main() {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "service/http",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "A",
-      "insertText": "service ${1:serviceName} on new http:Listener(8080) {\n\tresource function ${2:newResource}(http:Caller ${3:caller}, http:Request ${5:request}) {\n\t\t\n\t}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "service/webSocket",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "A",
-      "insertText": "service ${1:serviceName} on new http:Listener(9090) {\n\tresource function onOpen(http:WebSocketCaller caller) {\n\t\t\n\t}\n\tresource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {\n\t\t\n\t}\n\tresource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {\n\t\t\n\t}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "service/webSocketClient",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "A",
-      "insertText": "service ${1:clientCallbackService} = @http:WebSocketServiceConfig {} service {\n\tresource function onText(http:WebSocketClient wsEp, string text) {\n\t\t\n\t}\n\tresource function onClose(http:WebSocketClient wsEp, int statusCode, string reason) {\n\t\t\n\t}\n};",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "service/gRPC",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "A",
-      "insertText": "service ${1:serviceName} on new grpc:Listener(9092) {\n\tresource function ${2:newResource}(grpc:Caller caller, ${3:string} request) {\n\t\t\n\t}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/grpc;\n"
-        }
-      ]
     },
     {
       "label": "annotation",

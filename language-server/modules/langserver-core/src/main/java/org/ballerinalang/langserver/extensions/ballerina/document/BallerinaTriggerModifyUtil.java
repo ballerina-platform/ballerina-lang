@@ -16,36 +16,37 @@
 package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextEdit;
-import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.diagramutil.DiagramUtil;
+import org.ballerinalang.diagramutil.JSONGenerationException;
+import org.ballerinalang.formatter.core.Formatter;
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
-import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
-import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
-import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
-import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
-import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.extensions.ballerina.document.visitor.FindNodes;
+import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedSymbolsVisitor;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Represents a request for a Ballerina AST Modify.
@@ -66,63 +67,98 @@ public class BallerinaTriggerModifyUtil {
     }
 
 
-    public static LSContext modifyTrigger(String type, JsonObject config, String fileUri, Path compilationPath,
-                                          WorkspaceDocumentManager documentManager)
-            throws CompilationFailedException, WorkspaceDocumentException, IOException, JSONGenerationException {
-        LSContext astContext = new DocumentOperationContext
-                .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
-                .withCommonParams(null, fileUri, documentManager)
-                .build();
-        LSModuleCompiler.getBLangPackage(astContext, documentManager, false, false);
-        BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+    public static JsonElement modifyTrigger(String type, JsonObject config, Path compilationPath,
+                                            WorkspaceManager workspaceManager)
+            throws WorkspaceDocumentException, JSONGenerationException,
+            FormatterException {
+        Optional<SyntaxTree> oldSyntaxTree = workspaceManager.syntaxTree(compilationPath);
+        boolean isFileEmpty = false;
+
+        if (oldSyntaxTree.isEmpty()) {
+            oldSyntaxTree.get();
+        }
+
         String fileName = compilationPath.toFile().getName();
 
-        TextDocument oldTextDocument = documentManager.getTree(compilationPath).textDocument();
+        TextDocument oldTextDocument = oldSyntaxTree.get().textDocument();
 
         List<TextEdit> edits =
-                BallerinaTriggerModifyUtil.createTriggerEdits(oldTextDocument, oldTree, type.toUpperCase(), config);
+                BallerinaTriggerModifyUtil.createTriggerEdits(oldTextDocument, oldSyntaxTree.get(),
+                        type.toUpperCase(), config);
 
         //perform edits
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new TextEdit[0]));
         TextDocument newTextDoc = oldTextDocument.apply(textDocumentChange);
-        documentManager.updateFile(compilationPath, Collections
-                .singletonList(new TextDocumentContentChangeEvent(newTextDoc.toString())));
+        SyntaxTree updatedSyntaxTree = SyntaxTree.from(newTextDoc);
+        SemanticModel updatedSemanticModel = updateWorkspaceDocument(compilationPath, updatedSyntaxTree.toSourceCode(),
+                workspaceManager);
 
         //remove unused imports
-        LSModuleCompiler.getBLangPackage(astContext, documentManager, false, false);
-        BLangPackage updatedTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        UnusedSymbolsVisitor unusedSymbolsVisitor = new UnusedSymbolsVisitor(fileName, updatedSemanticModel,
+                new HashMap<>());
+        unusedSymbolsVisitor.visit((ModulePartNode) updatedSyntaxTree.rootNode());
 
-        UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor(fileName, new HashMap<>());
-        updatedTree.accept(unusedNodeVisitor);
-        if (!unusedNodeVisitor.unusedImports().isEmpty()) {
+        if (!unusedSymbolsVisitor.getUnusedImports().isEmpty()) {
             TextDocument updatedTextDocument = TextDocuments.from(newTextDoc.toString());
             edits = BallerinaTreeModifyUtil.getUnusedImportRanges(
-                    unusedNodeVisitor.unusedImports(), updatedTextDocument);
+                    unusedSymbolsVisitor.getUnusedImports(), updatedTextDocument);
             textDocumentChange = TextDocumentChange.from(edits.toArray(
                     new TextEdit[0]));
             newTextDoc = newTextDoc.apply(textDocumentChange);
-            documentManager.updateFile(compilationPath, Collections
-                    .singletonList(new TextDocumentContentChangeEvent(newTextDoc.toString())));
         }
 
-        //Format bal file code
-        JsonObject jsonAST = TextDocumentFormatUtil.getAST(compilationPath, documentManager, astContext);
-        JsonObject model = jsonAST.getAsJsonObject("model");
-        FormattingSourceGen.build(model, "CompilationUnit");
-        FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
-        formattingUtil.accept(model);
+        // Use formatter to format the source document.
+        SyntaxTree syntaxTree = SyntaxTree.from(newTextDoc);
+        String formattedSource = Formatter.format(syntaxTree).toSourceCode();
 
-        newTextDoc = TextDocuments.from(FormattingSourceGen.getSourceOf(model));
-        documentManager.updateFile(compilationPath, Collections
-                .singletonList(new TextDocumentContentChangeEvent(newTextDoc.toString())));
+        SemanticModel newSemanticModel = updateWorkspaceDocument(compilationPath, formattedSource,
+                workspaceManager);
+        Optional<SyntaxTree> formattedSyntaxTree = workspaceManager.syntaxTree(compilationPath);
+        if (formattedSyntaxTree.isEmpty()) {
+            throw new JSONGenerationException("Modification error");
+        }
 
-//        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, newTextDoc.toString());
-        return astContext;
+        JsonElement syntaxTreeJson = DiagramUtil.getSyntaxTreeJSON(formattedSyntaxTree.get(), newSemanticModel);
+        JsonObject jsonTreeWithSource = new JsonObject();
+        jsonTreeWithSource.add("tree", syntaxTreeJson);
+        jsonTreeWithSource.addProperty("source", formattedSyntaxTree.get().toSourceCode());
+        return jsonTreeWithSource;
+    }
+
+    private static SemanticModel updateWorkspaceDocument(Path compilationPath, String content,
+                                                         WorkspaceManager workspaceManager)
+            throws WorkspaceDocumentException {
+        // TODO: Find a better way to get the semantic model for new TextDocument.
+        Optional<Document> document = workspaceManager.document(compilationPath);
+        if (document.isEmpty()) {
+            throw new WorkspaceDocumentException("Document does not exist in path: " + compilationPath.toString());
+        }
+
+
+        // Update file
+        Document updatedDoc = document.get().modify().withContent(content).apply();
+        // Update project instance
+        return updatedDoc.module().getCompilation().getSemanticModel();
+    }
+
+    private static List<FunctionDefinitionNode> getResourceFunctions(ServiceDeclarationNode serviceDeclarationNode) {
+        List<FunctionDefinitionNode> resources = new ArrayList<>();
+        for (Node node : serviceDeclarationNode.members()) {
+            if (node.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+                FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
+                List<String> qualifiers = functionDefinitionNode.qualifierList().stream().map(Token::text)
+                        .collect(Collectors.toList());
+                if (qualifiers.contains(SyntaxKind.RESOURCE_KEYWORD.stringValue())) {
+                    resources.add(functionDefinitionNode);
+                }
+            }
+        }
+        return resources;
     }
 
     private static List<TextEdit> createTriggerEdits(TextDocument oldTextDocument,
-                                                     BLangPackage oldTree,
+                                                     SyntaxTree oldSyntaxTree,
                                                      String type, JsonObject config) {
         List<TextEdit> edits = new ArrayList<>();
         Gson gson = new Gson();
@@ -130,7 +166,10 @@ public class BallerinaTriggerModifyUtil {
         if (config != null && config.has(CURRENT_TRIGGER)) {
             currentTrigger = config.get(CURRENT_TRIGGER).getAsString();
         }
-        if (oldTree.getFunctions().isEmpty() && oldTree.getServices().isEmpty()) {
+        FindNodes findNodes = new FindNodes();
+        findNodes.visit((ModulePartNode) oldSyntaxTree.rootNode());
+
+        if (findNodes.getFunctionDefinitionNodes().isEmpty() && findNodes.getServiceDeclarationNodes().isEmpty()) {
             //insert new
             if (MAIN.equalsIgnoreCase(type)) {
                 edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START",
@@ -148,100 +187,107 @@ public class BallerinaTriggerModifyUtil {
                         1, 1, 1, 1));
             }
         } else {
-            Optional<BLangFunction> mainFunction = oldTree.getFunctions().stream().
-                    filter(function -> function.getName().getValue().equals("main")).findFirst();
+            Optional<FunctionDefinitionNode> mainFunction = findNodes.getFunctionDefinitionNodes().stream().
+                    filter(function -> function.functionName().text().equals("main")).findFirst();
             if (mainFunction.isPresent()) {
                 //replace main
                 if (MAIN.equalsIgnoreCase(type)) {
-                    Optional<BLangImportPackage> httpImport = oldTree.getImports().stream().
-                            filter(aImport -> aImport.getOrgName().getValue().equalsIgnoreCase("ballerina")
-                                    && aImport.getPackageName().size() == 1 &&
-                                    aImport.getPackageName().get(0).getValue().equalsIgnoreCase("http")).
+                    Optional<ImportDeclarationNode> httpImport = findNodes.getImportDeclarationNodesList().stream().
+                            filter(aImport -> (aImport.orgName().isPresent()
+                                    ? aImport.orgName().get().orgName().text() : "")
+                                    .equalsIgnoreCase("ballerina")
+                                    && aImport.moduleName().size() == 1 &&
+                                    aImport.moduleName().get(0).text().equalsIgnoreCase("http")).
                             findFirst();
-                    if (!httpImport.isPresent()) {
+                    if (httpImport.isEmpty()) {
                         edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument,
                                 gson.fromJson("{\"TYPE\":\"ballerina/http\"}",
                                         JsonObject.class), "IMPORT",
                                 1, 1, 1, 1));
                     }
-                    int startLine = mainFunction.get().getPosition().lineRange().startLine().line();
+                    int startLine = mainFunction.get().lineRange().startLine().line();
                     if (SCHEDULE.equalsIgnoreCase(currentTrigger)) {
                         --startLine;
                     }
                     edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START_MODIFY",
                             startLine,
-                            mainFunction.get().getPosition().lineRange().startLine().offset(),
-                            mainFunction.get().getBody().getPosition().lineRange().startLine().line(),
-                            mainFunction.get().getBody().getPosition().lineRange().startLine().offset() + 1));
+                            mainFunction.get().lineRange().startLine().offset(),
+                            mainFunction.get().functionBody().lineRange().startLine().line(),
+                            mainFunction.get().functionBody().lineRange().startLine().offset() + 1));
                 } else if (SERVICE.equalsIgnoreCase(type)) {
-                    Optional<BLangImportPackage> httpImport = oldTree.getImports().stream().
-                            filter(aImport -> aImport.getOrgName().getValue().equalsIgnoreCase("ballerina")
-                                    && aImport.getPackageName().size() == 1 &&
-                                    aImport.getPackageName().get(0).getValue().equalsIgnoreCase("http")).
+                    Optional<ImportDeclarationNode> httpImport = findNodes.getImportDeclarationNodesList().stream().
+                            filter(aImport -> (aImport.orgName().isPresent()
+                                    ? aImport.orgName().get().orgName().text() : "")
+                                    .equalsIgnoreCase("ballerina")
+                                    && aImport.moduleName().size() == 1 &&
+                                    aImport.moduleName().get(0).text().equalsIgnoreCase("http")).
                             findFirst();
-                    if (!httpImport.isPresent()) {
+                    if (httpImport.isEmpty()) {
                         edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument,
                                 gson.fromJson("{\"TYPE\":\"ballerina/http\"}",
                                         JsonObject.class), "IMPORT",
                                 1, 1, 1, 1));
                     }
-                    int startLine =  mainFunction.get().getPosition().lineRange().startLine().line();
+                    int startLine = mainFunction.get().lineRange().startLine().line();
                     if (SCHEDULE.equalsIgnoreCase(currentTrigger)) {
                         --startLine;
                     }
                     edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "SERVICE_START",
                             startLine,
-                            mainFunction.get().getPosition().lineRange().startLine().offset(),
-                            mainFunction.get().getBody().getPosition().lineRange().startLine().line(),
-                            mainFunction.get().getBody().getPosition().lineRange().startLine().offset() + 1));
+                            mainFunction.get().lineRange().startLine().offset(),
+                            mainFunction.get().functionBody().lineRange().startLine().line(),
+                            mainFunction.get().functionBody().lineRange().startLine().offset() + 1));
                     edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "SERVICE_END",
-                            mainFunction.get().getBody().getPosition().lineRange().endLine().line(),
-                            mainFunction.get().getBody().getPosition().lineRange().endLine().offset() - 1,
-                            mainFunction.get().getPosition().lineRange().endLine().line(),
-                            mainFunction.get().getPosition().lineRange().endLine().offset()));
+                            mainFunction.get().functionBody().lineRange().endLine().line(),
+                            mainFunction.get().functionBody().lineRange().endLine().offset() - 1,
+                            mainFunction.get().lineRange().endLine().line(),
+                            mainFunction.get().lineRange().endLine().offset()));
                 }
             } else {
-                Optional<BLangService> service = oldTree.getServices().stream().findFirst();
+                Optional<ServiceDeclarationNode> service = findNodes.getServiceDeclarationNodes().stream().findFirst();
                 if (service.isPresent()) {
+                    List<FunctionDefinitionNode> resourceFunctions = getResourceFunctions(service.get());
+
                     //replace service
                     if (MAIN.equalsIgnoreCase(type)) {
-                        if (service.get().getAnnotationAttachments() != null &&
-                                service.get().getAnnotationAttachments().size() > 0) {
+                        if (service.get().metadata().isPresent()
+                                && service.get().metadata().get().annotations() != null &&
+                                service.get().metadata().get().annotations().size() > 0) {
                             edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config,
-                                    "MAIN_START", service.get().getAnnotationAttachments().get(0)
-                                            .getPosition().lineRange().startLine().line(),
-                                    service.get().getAnnotationAttachments().get(0).getPosition().lineRange()
+                                    "MAIN_START", service.get().metadata().get().annotations().get(0)
+                                            .lineRange().startLine().line(),
+                                    service.get().metadata().get().annotations().get(0).lineRange()
                                             .startLine().offset(),
-                                    service.get().getResources().get(0).getBody().getPosition().lineRange()
+                                    resourceFunctions.get(0).functionBody().lineRange()
                                             .startLine().line(),
-                                    service.get().getResources().get(0).getBody().getPosition().
+                                    resourceFunctions.get(0).functionBody().
                                             lineRange().startLine().offset() + 1));
                         } else {
                             edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config,
-                                    "MAIN_START", service.get().getPosition().lineRange().startLine().line(),
-                                    service.get().getPosition().lineRange().startLine().offset(),
-                                    service.get().getResources().get(0).getBody().getPosition().lineRange()
+                                    "MAIN_START", service.get().lineRange().startLine().line(),
+                                    service.get().lineRange().startLine().offset(),
+                                    resourceFunctions.get(0).functionBody().lineRange()
                                             .startLine().line(),
-                                    service.get().getResources().get(0).getBody().getPosition().lineRange()
+                                    resourceFunctions.get(0).functionBody().lineRange()
                                             .startLine().offset() + 1));
                         }
                         edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_END",
-                                service.get().getResources().get(0).getBody().getPosition()
+                                resourceFunctions.get(0).functionBody()
                                         .lineRange().endLine().line(),
-                                service.get().getResources().get(0).getBody().getPosition()
+                                resourceFunctions.get(0).functionBody()
                                         .lineRange().endLine().offset() - 1,
-                                service.get().getPosition().lineRange().endLine().line(),
-                                service.get().getPosition().lineRange().endLine().offset()));
+                                service.get().lineRange().endLine().line(),
+                                service.get().lineRange().endLine().offset()));
                     } else if (SERVICE.equalsIgnoreCase(type)) {
                         edits.add(BallerinaTreeModifyUtil.createTextEdit(
                                 oldTextDocument,
                                 config,
                                 "SERVICE_START_MODIFY",
-                                service.get().annAttachments.get(0).getPosition().lineRange().startLine().line(),
-                                service.get().annAttachments.get(0).getPosition().lineRange().startLine().offset(),
-                                service.get().getResources().get(0).getBody().getPosition().lineRange()
+                                service.get().metadata().get().annotations().get(0).lineRange().startLine().line(),
+                                service.get().metadata().get().annotations().get(0).lineRange().startLine().offset(),
+                                resourceFunctions.get(0).functionBody().lineRange()
                                         .startLine().line(),
-                                service.get().getResources().get(0).getBody().getPosition()
+                                resourceFunctions.get(0).functionBody()
                                         .lineRange().startLine().offset() + 1));
                     }
                 } else {

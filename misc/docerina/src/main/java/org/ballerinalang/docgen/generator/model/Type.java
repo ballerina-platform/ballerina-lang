@@ -17,6 +17,7 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SimpleTypeSymbol;
@@ -252,6 +253,10 @@ public class Type {
             if (typeSymbol.typeDescriptor() != null) {
                 type.category = getTypeCategory(typeSymbol.typeDescriptor());
             }
+        } else if (symbol instanceof ConstantSymbol) {
+            ConstantSymbol constantSymbol = (ConstantSymbol) symbol;
+            type.moduleName = constantSymbol.moduleID().moduleName();
+            type.category = "constants";
         } else if (symbol instanceof VariableSymbol) {
             VariableSymbol variableSymbol = (VariableSymbol) symbol;
             if (variableSymbol.typeDescriptor() != null) {

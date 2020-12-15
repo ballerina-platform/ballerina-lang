@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.commons.codeaction.spi;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 
 /**
@@ -30,7 +31,7 @@ public interface PositionDetails {
      *
      * @return {@link NonTerminalNode}
      */
-    NonTerminalNode matchedNode();
+    Node matchedNode();
 
     /**
      * Returns matched scoped symbol for the current position.

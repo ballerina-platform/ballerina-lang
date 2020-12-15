@@ -1,13 +1,12 @@
-import ballerina/io;
-import ballerina/runtime;
+import ballerina/java;
 
 boolean waiting = true;
 
 public function testWaitForAllWorkers() {
     test();
-    io:println("Finishing Default Worker");
+    println("Finishing Default Worker");
     while(waiting) {
-       runtime:sleep(200);
+       sleep(200);
     }
 }
 
@@ -19,8 +18,28 @@ function test() {
 
     @strand{thread:"any"}
     worker w2 {
-        runtime:sleep(2000);
-        io:println("Finishing Worker w2");
+        sleep(2000);
+        println("Finishing Worker w2");
         waiting = false;
     }
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;
+
+function println(string value) {
+    handle strValue = java:fromString(value);
+    handle stdout1 = stdout();
+    printlnInternal(stdout1, strValue);
+}
+public function stdout() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java/lang/System"
+} external;
+
+public function printlnInternal(handle receiver, handle strValue)  = @java:Method {
+    name: "println",
+    'class: "java/io/PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;

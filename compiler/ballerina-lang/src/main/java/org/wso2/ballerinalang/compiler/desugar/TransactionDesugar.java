@@ -77,6 +77,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.END_TRANSACTION;
 import static org.wso2.ballerinalang.compiler.util.Names.GET_AND_CLEAR_FAILURE_TRANSACTION;
 import static org.wso2.ballerinalang.compiler.util.Names.ROLLBACK_TRANSACTION;
 import static org.wso2.ballerinalang.compiler.util.Names.START_TRANSACTION;
+import static org.wso2.ballerinalang.compiler.util.Names.START_TRANSACTION_COORDINATOR;
 import static org.wso2.ballerinalang.compiler.util.Names.TRANSACTION_INFO_RECORD;
 
 /**
@@ -328,6 +329,23 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 createInvocationExprForMethod(pos, beginParticipantInvokableSymbol, args, symResolver);
         startTransactionInvocation.argExprs = args;
         return startTransactionInvocation;
+    }
+
+    public BLangInvocation createStartTransactionCoordinatorInvocation(Location pos) {
+        BInvokableSymbol startTransactionInvokableSymbol =
+                (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(START_TRANSACTION_COORDINATOR);
+
+        // Include transaction-internal module as an import if not included
+        if (!transactionInternalModuleIncluded) {
+            desugar.addTransactionInternalModuleImport();
+            transactionInternalModuleIncluded = true;
+        }
+
+        List<BLangExpression> args = new ArrayList<>();
+        BLangInvocation startTransactionCoordinatorInvocation = ASTBuilderUtil.
+                createInvocationExprForMethod(pos, startTransactionInvokableSymbol, args, symResolver);
+        startTransactionCoordinatorInvocation.argExprs = args;
+        return startTransactionCoordinatorInvocation;
     }
 
     BLangSimpleVariableDef createPrevAttemptInfoVarDef(SymbolEnv env, Location pos) {
