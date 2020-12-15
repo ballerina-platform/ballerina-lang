@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -37,7 +36,6 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Package;
-import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -57,17 +55,11 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
@@ -161,7 +153,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             } else if (symbol.kind() == SymbolKind.VARIABLE) {
                 VariableSymbol varSymbol = (VariableSymbol) symbol;
                 TypeSymbol typeDesc = (varSymbol).typeDescriptor();
-                String typeName = typeDesc.signature();
+                String typeName = typeDesc == null ? "" : typeDesc.signature();
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
@@ -312,78 +304,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return completionItems;
     }
 
-    /**
-     * Get the Resource Snippets.
-     *
-     * @param ctx Language Server Context
-     * @return {@link Optional} Completion List
-     */
-    protected List<LSCompletionItem> getResourceSnippets(CompletionContext ctx) {
-        // TODO: Fix after the service refactor
-        BLangNode symbolEnvNode = null;
-        List<LSCompletionItem> items = new ArrayList<>();
-        if (!(symbolEnvNode instanceof BLangService)) {
-            return items;
-        }
-        BLangService service = (BLangService) symbolEnvNode;
-
-        if (service.listenerType == null) {
-            Optional<Boolean> webSocketClientService = isWebSocketClientService(service);
-            if (webSocketClientService.isPresent()) {
-                if (webSocketClientService.get()) {
-                    // Is a 'ws' client service
-                    addAllWSClientResources(ctx, items, service);
-                } else {
-                    // Is a 'ws' service
-                    addAllWSResources(ctx, items, service);
-                }
-            } else {
-                // Is ambiguous, suggest for all 'ws', 'ws-client' and 'http' services
-                items.add(new SnippetCompletionItem(ctx, Snippet.DEF_RESOURCE_HTTP.get()));
-                items.add(new SnippetCompletionItem(ctx, Snippet.DEF_RESOURCE_COMMON.get()));
-                addAllWSClientResources(ctx, items, service);
-                addAllWSResources(ctx, items, service);
-            }
-            return items;
-        }
-
-        String owner = service.listenerType.tsymbol.owner.name.value;
-        String serviceTypeName = service.listenerType.tsymbol.name.value;
-
-        // Only http, grpc have generic resource templates, others will have generic resource snippet
-        switch (owner) {
-            case "http":
-                if ("Listener".equals(serviceTypeName)) {
-                    Optional<Boolean> webSocketService = isWebSocketService(service);
-                    if (webSocketService.isPresent()) {
-                        if (webSocketService.get()) {
-                            // Is a 'ws' service
-                            addAllWSResources(ctx, items, service);
-                        } else {
-                            // Is a 'http' service
-                            items.add(new SnippetCompletionItem(ctx, Snippet.DEF_RESOURCE_HTTP.get()));
-                        }
-                    } else {
-                        // Is ambiguous, suggest both 'ws' and 'http'
-                        addAllWSResources(ctx, items, service);
-                        items.add(new SnippetCompletionItem(ctx, Snippet.DEF_RESOURCE_HTTP.get()));
-                    }
-                    break;
-                }
-                return items;
-            case "grpc":
-                items.add(new SnippetCompletionItem(ctx, Snippet.DEF_RESOURCE_GRPC.get()));
-                break;
-//            case "websub":
-//                addAllWebsubResources(ctx, items, service);
-//                break;
-            default:
-                items.add(new SnippetCompletionItem(ctx, Snippet.DEF_RESOURCE_COMMON.get()));
-                return items;
-        }
-        return items;
-    }
-
     protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
         if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;
@@ -394,56 +314,25 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return colonPos < cursor;
     }
 
-    private void addAllWSClientResources(CompletionContext ctx, List<LSCompletionItem> items, BLangService service) {
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_TEXT.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_BINARY.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_PING.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_PONG.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_IDLE.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_ERROR.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_CLOSE.get(), service, items, ctx);
-    }
+    protected LSCompletionItem getExplicitNewCompletionItem(ClassSymbol classSymbol, CompletionContext context) {
+        CompletionItem cItem = FunctionCompletionItemBuilder.build(classSymbol,
+                FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
+        MethodSymbol initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
 
-    private void addAllWSResources(CompletionContext ctx, List<LSCompletionItem> items, BLangService service) {
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_BINARY.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_PING.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_PONG.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_IDLE.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_ERROR.get(), service, items, ctx);
-        addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
+        return new SymbolCompletionItem(context, initMethod, cItem);
     }
 
     /**
      * Get the implicit new expression completion item.
      *
-     * @param objectType object type symbol
-     * @param context    Language server operation context
+     * @param classSymbol object type symbol
+     * @param context     Language server operation context
      * @return {@link LSCompletionItem} generated
      */
-    protected LSCompletionItem getImplicitNewCompletionItem(ObjectTypeSymbol objectType, CompletionContext context) {
-        CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
+    protected LSCompletionItem getImplicitNewCompletionItem(ClassSymbol classSymbol, CompletionContext context) {
+        CompletionItem cItem = FunctionCompletionItemBuilder.build(classSymbol,
                 FunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
-
-        MethodSymbol initMethod = null;
-        if (objectType.kind() == SymbolKind.CLASS) {
-            ClassSymbol classSymbol = (ClassSymbol) objectType;
-            initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
-        }
-
-        return new SymbolCompletionItem(context, initMethod, cItem);
-    }
-
-    protected LSCompletionItem getExplicitNewCompletionItem(ObjectTypeSymbol objectType, CompletionContext context) {
-        CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
-                FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
-
-        MethodSymbol initMethod = null;
-        if (objectType.kind() == SymbolKind.CLASS) {
-            ClassSymbol classSymbol = (ClassSymbol) objectType;
-            initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
-        }
+        MethodSymbol initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
 
         return new SymbolCompletionItem(context, initMethod, cItem);
     }
@@ -511,6 +400,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XML.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LET.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
@@ -547,72 +437,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return completionItems;
     }
 
-    /**
-     * Returns a websocket service or not.
-     * <p>
-     * Currently, both 'websocket' and 'http' services are attached into a common http:Listener.
-     * Thus, need to distinguish both.
-     *
-     * @param service service
-     * @return Optional boolean, empty when service has zero resources(ambiguous).
-     */
-    private Optional<Boolean> isWebSocketService(BLangService service) {
-        List<BLangFunction> resources = service.getResources();
-        if (resources.isEmpty()) {
-            return Optional.empty();
-        }
-        BLangFunction resource = resources.get(0);
-        if (!resource.requiredParams.isEmpty()) {
-            BLangType typeNode = resource.requiredParams.get(0).typeNode;
-            if (typeNode instanceof BLangUserDefinedType) {
-                BLangUserDefinedType node = (BLangUserDefinedType) typeNode;
-                if ("WebSocketCaller".equals(node.typeName.value)) {
-                    return Optional.of(true);
-                } else if ("Caller".equals(node.typeName.value)) {
-                    return Optional.of(false);
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
-    private Optional<Boolean> isWebSocketClientService(BLangService service) {
-        List<BLangFunction> resources = service.getResources();
-        if (resources.isEmpty()) {
-            return Optional.empty();
-        }
-        BLangFunction resource = resources.get(0);
-        if (!resource.requiredParams.isEmpty()) {
-            BLangType typeNode = resource.requiredParams.get(0).typeNode;
-            if (typeNode instanceof BLangUserDefinedType) {
-                BLangUserDefinedType node = (BLangUserDefinedType) typeNode;
-                if ("WebSocketClient".equals(node.typeName.value)) {
-                    return Optional.of(true);
-                } else if ("WebSocketCaller".equals(node.typeName.value)) {
-                    return Optional.of(false);
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
     private boolean appendSingleQuoteForPackageInsertText(CompletionContext context) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         return !(nodeAtCursor != null && nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                 ((SimpleNameReferenceNode) nodeAtCursor).name().text().startsWith("'"));
-    }
-
-    private void addIfNotExists(SnippetBlock snippet, BLangService service, List<LSCompletionItem> items,
-                                CompletionContext ctx) {
-        boolean found = false;
-        for (BLangFunction resource : service.getResources()) {
-            if (snippet.getLabel().endsWith(resource.name.value + " " + ItemResolverConstants.RESOURCE)) {
-                found = true;
-            }
-        }
-        if (!found) {
-            items.add(new SnippetCompletionItem(ctx, snippet));
-        }
     }
 
     private LSCompletionItem getLangLibCompletionItem(ModuleID moduleID, CompletionContext context) {

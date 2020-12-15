@@ -24,7 +24,9 @@ package org.ballerinalang.debugadapter.evaluation;
 public enum EvaluationExceptionKind {
 
     FUNCTION_NOT_FOUND("Undefined function '%s'"),
-    OBJECT_METHOD_NOT_FOUND("Undefined object method '%s'"),
+    OBJECT_METHOD_NOT_FOUND("Undefined method '%s' in object `%s`"),
+    LANG_LIB_METHOD_NOT_FOUND("Undefined function '%s' in type '%s'"),
+    LANG_LIB_NOT_FOUND("Failed to load lang library: '%s'"),
     FIELD_NOT_FOUND("Undefined field '%s' in `%s`"),
     VARIABLE_NOT_FOUND("Undefined variable '%s'"),
     FUNCTION_EXECUTION_ERROR("Error occurred when executing method: '%s'"),

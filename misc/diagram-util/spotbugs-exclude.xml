@@ -1,0 +1,7 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="org.ballerinalang.diagramutil.DiagramUtil" />
+        <Class name="org.ballerinalang.diagramutil.SyntaxTreeMapGenerator" />
+        <Class name="org.ballerinalang.diagramutil.JSONGenerationException" />
+    </Match>
+</FindBugsFilter>

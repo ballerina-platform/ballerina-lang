@@ -20,8 +20,6 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 /**
@@ -31,13 +29,6 @@ public class AddTagToSpan {
     private static final OpenTracerBallerinaWrapper otWrapperInstance = OpenTracerBallerinaWrapper.getInstance();
 
     public static Object addTagToSpan(Environment env, BString tagKey, BString tagValue, long spanId) {
-        boolean tagAdded = otWrapperInstance.addTag(env, tagKey.getValue(), tagValue.getValue(), spanId);
-
-        if (tagAdded) {
-            return null;
-        }
-
-        return ErrorCreator.createError(
-                StringUtils.fromString(("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}")));
+        return otWrapperInstance.addTag(env, tagKey.getValue(), tagValue.getValue(), spanId);
     }
 }

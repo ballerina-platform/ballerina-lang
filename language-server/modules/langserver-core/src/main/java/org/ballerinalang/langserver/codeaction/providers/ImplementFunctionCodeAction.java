@@ -21,12 +21,14 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -68,9 +70,8 @@ public class ImplementFunctionCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        NonTerminalNode matchedNode = context.positionDetails().matchedNode();
+        Node matchedNode = context.positionDetails().matchedNode();
         Symbol matchedSymbol = context.positionDetails().matchedSymbol();
-        List<TextEdit> edits = new ArrayList<>();
         if (!(matchedNode.kind() == SyntaxKind.CLASS_DEFINITION && matchedSymbol.kind() == SymbolKind.CLASS)) {
             return Collections.emptyList();
         }
@@ -100,8 +101,11 @@ public class ImplementFunctionCodeAction extends AbstractCodeActionProvider {
             offsetStr = StringUtils.repeat(' ', classDefNode.location().lineRange().startLine().offset() + 4);
         }
 
-        String editText =
-                offsetStr + unimplMethod.get().signature() + " {" + LINE_SEPARATOR + offsetStr + "}" + LINE_SEPARATOR;
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        String typeName = FunctionGenerator.processModuleIDsInText(importsAcceptor, unimplMethod.get().signature(),
+                                                                   context);
+        List<TextEdit> edits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
+        String editText = offsetStr + typeName + " {" + LINE_SEPARATOR + offsetStr + "}" + LINE_SEPARATOR;
         Position editPos = CommonUtil.toPosition(classDefNode.closeBrace().lineRange().startLine());
         edits.add(new TextEdit(new Range(editPos, editPos), editText));
         String commandTitle = String.format(CommandConstants.IMPLEMENT_FUNCS_TITLE, unimplMethod.get().name());

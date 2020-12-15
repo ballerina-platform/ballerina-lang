@@ -19,18 +19,21 @@
 package org.ballerinalang.debugger.test.adapter.evaluation;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
+import org.ballerinalang.debugger.test.BaseTestCase;
 import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
-
-import java.nio.file.Paths;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 
 /**
  * Base implementation for debug expression evaluation scenarios.
  */
-public abstract class ExpressionEvaluationBaseTest extends DebugAdapterBaseTestCase {
+public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
 
     protected StoppedEventArguments context;
 
@@ -81,16 +84,45 @@ public abstract class ExpressionEvaluationBaseTest extends DebugAdapterBaseTestC
     protected static final String GLOBAL_VAR_10 = "jsonVar";
     protected static final String GLOBAL_VAR_11 = "'\\ \\/\\:\\@\\[\\`\\{\\~\\u{2324}_IL";
 
-    protected void prepareForEvaluation() throws BallerinaTestException {
-        testProjectName = "variable-tests";
-        testModuleFileName = "main.bal";
-        testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
-        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
+    protected DebugTestRunner debugTestRunner;
 
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 182));
-        initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
+    protected void prepareForEvaluation() throws BallerinaTestException {
+        String testProjectName = "variable-tests";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
+
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 182));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         this.context = debugHitInfo.getRight();
+
+        // Enable to see all the assertion failures at once.
+        // debugTestRunner.setAssertionMode(DebugTestRunner.AssertionMode.SOFT_ASSERT);
+    }
+
+    @BeforeClass(alwaysRun = true)
+    protected void setup() throws BallerinaTestException {
+        prepareForEvaluation();
+    }
+
+    @BeforeMethod(alwaysRun = true)
+    protected void beginSoftAssertions() {
+        if (debugTestRunner.isSoftAssertionsEnabled()) {
+            debugTestRunner.beginSoftAssertions();
+        }
+    }
+
+    @AfterMethod(alwaysRun = true)
+    protected void endSoftAssertions() {
+        if (debugTestRunner.isSoftAssertionsEnabled()) {
+            debugTestRunner.endSoftAssertions();
+        }
+    }
+
+    @AfterClass(alwaysRun = true)
+    protected void cleanup() {
+        debugTestRunner.terminateDebugSession();
+        this.context = null;
     }
 
     // 1. literal expressions
