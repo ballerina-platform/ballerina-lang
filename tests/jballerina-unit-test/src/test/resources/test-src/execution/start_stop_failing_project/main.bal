@@ -14,11 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/lang.'object;
+import ballerina/java;
 
 function init() {
-	io:println("Initializing module 'basic'");
+	println("Initializing module 'basic'");
 }
 
 public function main() {
@@ -33,18 +32,18 @@ public class TestListener {
     }
 
     public function 'start() returns error? {
-        io:println("basic:TestListener listener __start called, service name - " + self.name);
+        println("basic:TestListener listener __start called, service name - " + self.name);
         if (self.name == "dependent") {
-            io:println("listener __start panicked for service name - " + self.name);
+            println("listener __start panicked for service name - " + self.name);
             error sampleErr = error("panicked while starting module 'dependent'");
             panic sampleErr;
         }
     }
 
     public function gracefulStop() returns error? {
-        io:println("basic:TestListener listener __gracefulStop called, service name - " + self.name);
+        println("basic:TestListener listener __gracefulStop called, service name - " + self.name);
         if (self.name == "dependent") {
-            io:println("listener __gracefulStop panicked, service name - " + self.name);
+            println("listener __gracefulStop panicked, service name - " + self.name);
             error sampleErr = error("panicked while stopping module 'dependent'");
             panic sampleErr;
         }
@@ -52,17 +51,34 @@ public class TestListener {
     }
 
     public function immediateStop() returns error? {
-        io:println("basic:TestListener listener __immediateStop called, service name - " + self.name);
+        println("basic:TestListener listener __immediateStop called, service name - " + self.name);
         return ();
     }
 
-    public function attach(service object {} s, string[]|string? name = ()) returns error? {
-        io:println("basic:TestListener listener __attach called, service name - " + self.name);
+    public function attach(service object {} s, string[]? name) returns error? {
+        println("basic:TestListener listener __attach called, service name - " + self.name);
     }
 
     public function detach(service object {} s) returns error? {
-        io:println("basic:TestListener listener __detach called, service name - " + self.name);
+        println("basic:TestListener listener __detach called, service name - " + self.name);
     }
 }
 
-listener TestListener ep = new TestListener("basic");
+listener TestListener testListnr = new TestListener("basic");
+
+public function println(string value) {
+    handle strValue = java:fromString(value);
+    handle stdout1 = stdout();
+    printlnInternal(stdout1, strValue);
+}
+
+function stdout() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java/lang/System"
+} external;
+
+function printlnInternal(handle receiver, handle strValue)  = @java:Method {
+    name: "println",
+    'class: "java/io/PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;

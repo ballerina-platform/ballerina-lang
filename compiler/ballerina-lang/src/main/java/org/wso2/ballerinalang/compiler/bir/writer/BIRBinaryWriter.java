@@ -22,6 +22,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.AttachPoint;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -68,7 +69,7 @@ public class BIRBinaryWriter {
 
 
         // Write the package details in the form of constant pool entry
-        birbuf.writeInt(BIRWriterUtils.addPkgCPEntry(this.birPackage, this.cp));
+        birbuf.writeInt(BIRWriterUtils.addPkgCPEntry(birPackage.packageID, this.cp));
 
         //Write import module declarations
         writeImportModuleDecls(birbuf, birPackage.importModules);
@@ -101,9 +102,10 @@ public class BIRBinaryWriter {
     private void writeImportModuleDecls(ByteBuf buf, List<BIRNode.BIRImportModule> birImpModList) {
         buf.writeInt(birImpModList.size());
         birImpModList.forEach(impMod -> {
-            buf.writeInt(addStringCPEntry(impMod.org.value));
-            buf.writeInt(addStringCPEntry(impMod.name.value));
-            buf.writeInt(addStringCPEntry(impMod.version.value));
+            PackageID packageID =  impMod.packageID;
+            buf.writeInt(addStringCPEntry(packageID.orgName.getValue()));
+            buf.writeInt(addStringCPEntry(packageID.name.getValue()));
+            buf.writeInt(addStringCPEntry(packageID.version.getValue()));
         });
     }
 

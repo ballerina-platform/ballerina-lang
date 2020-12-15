@@ -24,7 +24,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface ClassSymbol extends ObjectTypeSymbol, Qualifiable, Deprecatable {
+public interface ClassSymbol extends ObjectTypeSymbol, Qualifiable, Deprecatable, Annotatable {
 
     /**
      * Get the init method.
