@@ -66,10 +66,6 @@ public class MethodGenUtils {
         return func.name.value.equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
     }
 
-    static PackageID packageToModuleId(BIRNode.BIRPackage mod) {
-        return new PackageID(mod.org, mod.name, mod.version);
-    }
-
     static void submitToScheduler(MethodVisitor mv, String moduleClassName,
                                    String workerName, AsyncDataCollector asyncDataCollector) {
         String metaDataVarName = JvmCodeGenUtil.getStrandMetadataVarName("main");
