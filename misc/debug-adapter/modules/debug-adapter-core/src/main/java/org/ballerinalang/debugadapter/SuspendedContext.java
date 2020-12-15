@@ -27,6 +27,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
@@ -42,6 +43,7 @@ import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_ORG;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
 /**
@@ -61,6 +63,7 @@ public class SuspendedContext {
     private int lineNumber;
     private Document document;
     private ClassLoaderReference classLoader;
+    private DebugExpressionCompiler debugCompiler;
     private final Map<String, String> loadedLangLibVersions;
 
     SuspendedContext(Project project, String projectRoot, VirtualMachineProxyImpl vm,
@@ -144,6 +147,13 @@ public class SuspendedContext {
         }
     }
 
+    public DebugExpressionCompiler getDebugCompiler() {
+        if (debugCompiler == null) {
+            debugCompiler = new DebugExpressionCompiler(this);
+        }
+        return debugCompiler;
+    }
+
     public Optional<String> getFileName() {
         if (fileName == null) {
             Optional<Path> breakPointPath = getBreakPointSourcePath();
@@ -153,6 +163,10 @@ public class SuspendedContext {
             fileName = getFileNameFrom(breakPointPath.get());
         }
         return Optional.ofNullable(fileName);
+    }
+
+    public Optional<String> getFileNameWithExt() {
+        return getFileName().isEmpty() ? getFileName() : Optional.of(getFileName().get() + BAL_FILE_EXT);
     }
 
     public int getLineNumber() {

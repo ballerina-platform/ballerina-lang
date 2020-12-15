@@ -33,7 +33,6 @@ import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.validateAndProcessArguments;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.loadLangLibMethod;
 
 /**
@@ -67,7 +66,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             if (resultVar.getBType() == BVariableType.OBJECT) {
                 try {
                     GeneratedInstanceMethod objectMethod = getObjectMethodByName(resultVar, methodName);
-                    objectMethod.setNamedArgValues(validateAndProcessArguments(context, methodName, argEvaluators));
+//                    objectMethod.setNamedArgValues(generateNamedArgs(context, methodName, argEvaluators));
                     invocationResult = objectMethod.invoke();
                 } catch (EvaluationException ignored) {
                 }
