@@ -93,11 +93,6 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     }
 
     @Override
-    public List<TypeQualifier> typeQualifiers() {
-        return this.typeDescriptor.typeQualifiers();
-    }
-
-    @Override
     public TypeDescKind typeKind() {
         return TypeDescKind.OBJECT;
     }
