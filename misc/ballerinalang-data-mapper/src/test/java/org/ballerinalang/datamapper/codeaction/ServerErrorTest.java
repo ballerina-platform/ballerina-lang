@@ -55,7 +55,8 @@ public class ServerErrorTest {
     @BeforeClass
     private void init() throws Exception {
         serviceEndpoint = TestUtil.initializeLanguageSever();
-        String startConfigPath = "codeaction" + File.separator + "config" + File.separator + "startConfig.json";
+        String startConfigPath = "codeaction" + File.separator + "config" + File.separator +
+                "serverErrorTestConfig.json";
         JsonObject configs = FileUtils.fileContentAsObject(startConfigPath);
         TestUtil.setWorkspaceConfig(serviceEndpoint, configs);
 
@@ -75,7 +76,7 @@ public class ServerErrorTest {
             }
         }
 
-        server = new Server(8080);
+        server = new Server(8090);
         Connector connector = new ServerConnector(server);
         server.addConnector(connector);
 

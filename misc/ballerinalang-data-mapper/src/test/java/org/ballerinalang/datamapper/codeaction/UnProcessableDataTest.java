@@ -54,7 +54,8 @@ public class UnProcessableDataTest {
     @BeforeClass
     private void init() throws Exception {
         serviceEndpoint = TestUtil.initializeLanguageSever();
-        String startConfigPath = "codeaction" + File.separator + "config" + File.separator + "startConfig.json";
+        String startConfigPath = "codeaction" + File.separator + "config" + File.separator +
+                "unProcDataConfig.json";
         JsonObject configs = FileUtils.fileContentAsObject(startConfigPath);
         TestUtil.setWorkspaceConfig(serviceEndpoint, configs);
 
@@ -74,7 +75,7 @@ public class UnProcessableDataTest {
             }
         }
 
-        server = new Server(8080);
+        server = new Server(9010);
         Connector connector = new ServerConnector(server);
         server.addConnector(connector);
 
