@@ -54,11 +54,11 @@ public abstract class RangeFormatterTest {
     private static final Gson gson = new Gson();
 
     @Test(dataProvider = "test-file-provider")
-    public void test(String source, JsonArray positions)
+    public void test(String sourcePath, String source, JsonArray positions)
             throws IOException, FormatterException {
-        Path assertFilePath = Paths.get(resourceDirectory.toString(), this.getTestResourceDir(), ASSERT_DIR, source);
-        Path sourceFilePath = Paths.get(resourceDirectory.toString(), this.getTestResourceDir(), SOURCE_DIR, source);
-        String content = getSourceText(sourceFilePath);
+        Path assertFilePath = Paths.get(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
+        Path sourceFilePath = Paths.get(resourceDirectory.toString(), sourcePath, SOURCE_DIR, source);
+        String content = getFileContent(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument, sourceFilePath.toString());
         for (JsonElement position : positions) {
@@ -69,7 +69,7 @@ public abstract class RangeFormatterTest {
             LineRange lineRange = LineRange.from(sourceFilePath.toString(), startPos, endPos);
             syntaxTree = Formatter.format(syntaxTree, lineRange);
         }
-        Assert.assertEquals(syntaxTree.toSourceCode(), getSourceText(assertFilePath));
+        Assert.assertEquals(syntaxTree.toSourceCode(), getFileContent(assertFilePath));
     }
 
     /**
@@ -122,7 +122,8 @@ public abstract class RangeFormatterTest {
             for (int i = 0; i < fileNameCount; i++) {
                 String fileName = fileNames[i];
                 if (!skippedTests.contains(fileName)) {
-                    objects[i] = new Object[] {fileName, jsonObject.getAsJsonArray(fileName)};
+                    objects[i] = new Object[] {this.getTestResourceDir(), fileName,
+                            jsonObject.getAsJsonArray(fileName)};
                 }
             }
             return objects;
@@ -131,7 +132,7 @@ public abstract class RangeFormatterTest {
         }
     }
 
-    private String getSourceText(Path sourceFilePath) throws IOException {
+    private String getFileContent(Path sourceFilePath) throws IOException {
         return Files.readString(resourceDirectory.resolve(sourceFilePath));
     }
 }

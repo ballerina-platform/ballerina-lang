@@ -36,8 +36,8 @@ public class RangesTest extends RangeFormatterTest {
 
     @Test(dataProvider = "test-file-provider")
     @Override
-    public void test(String source, JsonArray positions) throws IOException, FormatterException {
-        super.test(source, positions);
+    public void test(String sourcePath, String source, JsonArray positions) throws IOException, FormatterException {
+        super.test(sourcePath, source, positions);
     }
 
     /**
