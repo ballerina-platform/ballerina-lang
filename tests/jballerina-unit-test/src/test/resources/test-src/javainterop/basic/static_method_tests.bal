@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
 import ballerina/java;
 import ballerina/lang.'value;
 import ballerina/test;
@@ -75,12 +74,12 @@ function testFuncWithAsyncDefaultParamExpression() returns int {
 }
 
 function asyncRet() returns int {
-    runtime:sleep(50);
+    sleep(50);
     return 10;
 }
 
 function asyncRetWithVal(int a = 30) returns int {
-    runtime:sleep(50);
+    sleep(50);
     return a + 20;
 }
 
@@ -286,3 +285,9 @@ function hashCode(int receiver) returns int = @java:Method {
 function getValue() returns MyType = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
+
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;
+

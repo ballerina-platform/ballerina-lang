@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
-import ballerina/io;
 
 public type Person record {
     string name = "";
@@ -47,6 +45,6 @@ public function getEmployee() returns Employee {
 public function main1() {
     var e = getEmployee();
     var e2 = getEmployee2();
-    log:printInfo("end");
-    io:println("end");
 }
+
+int dep1 = dep2;

@@ -1,0 +1,4 @@
+[package]
+org = "test_fwd_reference"
+name = "multiFileReferenceProject"
+version = "1.0.0"

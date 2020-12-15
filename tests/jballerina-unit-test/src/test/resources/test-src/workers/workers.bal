@@ -1,5 +1,4 @@
-import ballerina/io;
-import ballerina/runtime;
+import ballerina/java;
 
 function workerReturnTest() returns int{
     @strand{thread:"any"}
@@ -19,7 +18,7 @@ function waitOnSameFutureByMultiple() returns int {
     }
 
     waitOnSameFutureWorkers(w1);
-    runtime:sleep(1000);
+    sleep(1000);
     return updateMultiple;
 
 }
@@ -55,7 +54,6 @@ public function workerSendToWorker() returns int {
       int j = 25;
       j = <- w1;
 
-    io:println(j);
       return j;
     }
     int ret = wait w2;
@@ -136,7 +134,6 @@ public function receiveWithCheck() returns error|int {
            return err;
       }
       i -> w2;
-      io:println("w1");
       return false;
     }
 
@@ -398,7 +395,7 @@ public function sameStrandMultipleInvocation() {
         rs = rs + 1;
         test(rs + 10);
     }
-    runtime:sleep(60);
+    sleep(60);
     return;
 }
 
@@ -406,23 +403,17 @@ function test(int c) {
     @strand{thread:"any"}
     worker w1 {
         int a = c;
-        io:println("w1 begin ", c);
         if (c == 11) {
-            io:println("w1 sleep ", c);
-            runtime:sleep(20);
+            sleep(20);
         }
-        io:println("w1 send data ", c);
         a -> w2;
     }
     @strand{thread:"any"}
     worker w2 {
-        io:println("w2 begin ", c);
         if (c == 12) {
-            io:println("w2 sleep ", c);
-            runtime:sleep(20);
+            sleep(20);
         }
         int b = <- w1;
-        io:println("w2 end ", c, " - ", b);
     }
 }
 
@@ -484,7 +475,7 @@ public function workerWithFutureTest1() returns int {
     @strand{thread:"any"}
     worker w2 returns int {
       // Delay the execution of worker w2
-      runtime:sleep(1000);
+      sleep(1000);
       int i = wait f1;
       return i;
     }
@@ -499,7 +490,7 @@ public function workerWithFutureTest2() returns int {
     worker w1 {
       int i = 40;
       // Delay the execution of worker w1
-      runtime:sleep(1000);
+      sleep(1000);
       f1.cancel();
     }
 
@@ -523,7 +514,7 @@ public function workerWithFutureTest3() returns int {
     @strand{thread:"any"}
     worker w2 returns int {
       // Delay the execution of worker w1
-      runtime:sleep(1000);
+      sleep(1000);
       int i = wait f1;
       return i;
     }
@@ -543,7 +534,7 @@ function waitFor() {
 }
 
 function add2(int i, int j) returns int {
-   runtime:sleep(1000);
+   sleep(1000);
    int l = 0;
    while (l < 99999) {
      l = singleAdd(l);
@@ -647,3 +638,7 @@ function testPanicStartInsideLockWithDepth1() {
 function testStartFunction() {
     int i = 4;
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;
