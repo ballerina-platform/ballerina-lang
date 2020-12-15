@@ -18,6 +18,18 @@
 
 package io.ballerina.cli.launcher;
 
+import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.cmd.AddCommand;
+import io.ballerina.cli.cmd.BuildCommand;
+import io.ballerina.cli.cmd.CleanCommand;
+import io.ballerina.cli.cmd.DocCommand;
+import io.ballerina.cli.cmd.InitCommand;
+import io.ballerina.cli.cmd.NewCommand;
+import io.ballerina.cli.cmd.PullCommand;
+import io.ballerina.cli.cmd.PushCommand;
+import io.ballerina.cli.cmd.RunCommand;
+import io.ballerina.cli.cmd.SearchCommand;
+import io.ballerina.cli.cmd.TestCommand;
 import io.ballerina.cli.launcher.util.BCompileUtil;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
@@ -87,10 +99,6 @@ public class Main {
             // for the run command
             cmdParser.setStopAtPositional(true);
 
-            HelpCmd helpCmd = new HelpCmd();
-            cmdParser.addSubcommand(BallerinaCliCommands.HELP, helpCmd);
-            helpCmd.setParentCmdParser(cmdParser);
-
             // loading additional commands via SPI
             ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
             for (BLauncherCmd bCmd : bCmds) {
@@ -98,13 +106,63 @@ public class Main {
                 bCmd.setParentCmdParser(cmdParser);
             }
 
+            HelpCmd helpCmd = new HelpCmd();
+            cmdParser.addSubcommand(BallerinaCliCommands.HELP, helpCmd);
+            helpCmd.setParentCmdParser(cmdParser);
+
+            AddCommand addCommand = new AddCommand();
+            cmdParser.addSubcommand("add", addCommand);
+            addCommand.setParentCmdParser(cmdParser);
+
+            BuildCommand buildCommand = new BuildCommand();
+            cmdParser.addSubcommand("build", buildCommand);
+            buildCommand.setParentCmdParser(cmdParser);
+
+            CleanCommand cleanCommand = new CleanCommand();
+            cmdParser.addSubcommand("clean", cleanCommand);
+            cleanCommand.setParentCmdParser(cmdParser);
+
+            DocCommand docCommand = new DocCommand();
+            cmdParser.addSubcommand("doc", docCommand);
+            docCommand.setParentCmdParser(cmdParser);
+
+            InitCommand initCommand = new InitCommand();
+            cmdParser.addSubcommand("init", initCommand);
+            initCommand.setParentCmdParser(cmdParser);
+
+            NewCommand newCommand = new NewCommand();
+            cmdParser.addSubcommand("new", newCommand);
+            newCommand.setParentCmdParser(cmdParser);
+
+            PullCommand pullCommand = new PullCommand();
+            cmdParser.addSubcommand("pull", pullCommand);
+            pullCommand.setParentCmdParser(cmdParser);
+
+
+            PushCommand pushCommand = new PushCommand();
+            cmdParser.addSubcommand("push", pushCommand);
+            pushCommand.setParentCmdParser(cmdParser);
+
+            RunCommand runCommand = new RunCommand();
+            cmdParser.addSubcommand("run", runCommand);
+            runCommand.setParentCmdParser(cmdParser);
+
+
+            SearchCommand searchCommand = new SearchCommand();
+            cmdParser.addSubcommand("search", searchCommand);
+            searchCommand.setParentCmdParser(cmdParser);
+
+            TestCommand testCommand = new TestCommand();
+            cmdParser.addSubcommand("test", testCommand);
+            testCommand.setParentCmdParser(cmdParser);
+
             // set stop at positional to run command
-            cmdParser.getSubcommands().get("run").setStopAtPositional(true)
-                    .setUnmatchedOptionsArePositionalParams(true);
-            cmdParser.getSubcommands().get("build").setStopAtPositional(true)
-                    .setUnmatchedOptionsArePositionalParams(true);
-            cmdParser.getSubcommands().get("test").setStopAtPositional(true)
-                    .setUnmatchedOptionsArePositionalParams(true);
+//            cmdParser.getSubcommands().get("run").setStopAtPositional(true)
+//                    .setUnmatchedOptionsArePositionalParams(true);
+//            cmdParser.getSubcommands().get("build").setStopAtPositional(true)
+//                    .setUnmatchedOptionsArePositionalParams(true);
+//            cmdParser.getSubcommands().get("test").setStopAtPositional(true)
+//                    .setUnmatchedOptionsArePositionalParams(true);
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();

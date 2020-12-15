@@ -17,7 +17,7 @@
  */
 package io.ballerina.cli.cmd;
 
-import io.ballerina.cli.launcher.BLauncherCmd;
+import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.util.RepoUtils;

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.bindgen.command;
 
-import io.ballerina.cli.launcher.BLauncherCmd;
+import io.ballerina.cli.BLauncherCmd;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.utils.BindgenUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;

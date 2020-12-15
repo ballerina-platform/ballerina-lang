@@ -18,7 +18,7 @@
 
 package io.ballerina.cli.cmd;
 
-import io.ballerina.cli.launcher.BLauncherCmd;
+import io.ballerina.cli.BLauncherCmd;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.PackageSearchResult;

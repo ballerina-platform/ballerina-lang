@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.cli.launcher;
+package io.ballerina.cli;
 
+import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.cli.launcher.util.BCompileUtil;
 import picocli.CommandLine;
 

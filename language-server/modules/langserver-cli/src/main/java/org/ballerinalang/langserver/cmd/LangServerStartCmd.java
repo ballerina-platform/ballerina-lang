@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.cmd;
 
-import io.ballerina.cli.launcher.BLauncherCmd;
+import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.LauncherUtils;
 import picocli.CommandLine;
 

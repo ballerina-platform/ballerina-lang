@@ -18,8 +18,8 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
-import io.ballerina.cli.launcher.BLauncherCmd;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
