@@ -43,14 +43,8 @@ public abstract class JvmMethod {
     JvmMethod(SuspendedContext context, Method methodRef) {
         this.context = context;
         this.methodRef = methodRef;
-    }
-
-    JvmMethod(SuspendedContext context, Method methodRef, List<Map.Entry<String, Evaluator>> argEvaluators,
-              List<Value> argsList) {
-        this.context = context;
-        this.methodRef = methodRef;
-        this.argEvaluators = argEvaluators;
-        this.argValues = argsList;
+        this.argEvaluators = null;
+        this.argValues = null;
     }
 
     /**

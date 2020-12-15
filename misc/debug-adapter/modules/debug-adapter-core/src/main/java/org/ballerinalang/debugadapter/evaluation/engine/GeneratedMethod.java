@@ -75,7 +75,7 @@ public abstract class GeneratedMethod extends JvmMethod {
             }
 
             List<Value> argValueList = new ArrayList<>();
-            if (argValues != null && !argValues.isEmpty()) {
+            if (argValues != null) {
                 argValues.forEach(value -> {
                     argValueList.add(value);
                     // Assuming all the arguments are positional args.
@@ -87,7 +87,7 @@ public abstract class GeneratedMethod extends JvmMethod {
                 return argValueList;
             }
 
-            if (namedArgValues != null && !namedArgValues.isEmpty()) {
+            if (namedArgValues != null) {
                 // Here we use the existing strand instance to execute the function invocation expression.
                 Value strand = getCurrentStrand();
                 namedArgValues.put(STRAND_VAR_NAME, strand);

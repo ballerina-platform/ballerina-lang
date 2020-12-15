@@ -20,7 +20,13 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -32,7 +38,10 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.loadLangLibMethod;
 
 /**
@@ -65,8 +74,23 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             // If the expression result is an object, search for object methods.
             if (resultVar.getBType() == BVariableType.OBJECT) {
                 try {
+                    String className = resultVar.getDapVariable().getValue();
+                    Optional<ClassSymbol> classDef = findClassDefWithinModule(className);
+                    if (classDef.isEmpty()) {
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
+                                className));
+                    }
+
+                    Optional<MethodSymbol> objectMethodDef = findObjectMethodInClass(classDef.get(), methodName);
+                    if (objectMethodDef.isEmpty()) {
+                        throw new EvaluationException(
+                                String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
+                                        syntaxNode.methodName().toString().trim(), className));
+                    }
+
                     GeneratedInstanceMethod objectMethod = getObjectMethodByName(resultVar, methodName);
-//                    objectMethod.setNamedArgValues(generateNamedArgs(context, methodName, argEvaluators));
+                    objectMethod.setNamedArgValues(generateNamedArgs(context, methodName, objectMethodDef.get().
+                            typeDescriptor(), argEvaluators));
                     invocationResult = objectMethod.invoke();
                 } catch (EvaluationException ignored) {
                 }
@@ -88,6 +112,27 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
                     syntaxNode.toSourceCode().trim()));
         }
+    }
+
+    private Optional<ClassSymbol> findClassDefWithinModule(String className) {
+        SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
+        LinePosition position = LinePosition.from(context.getLineNumber(), 0);
+        List<Symbol> classMatches = semanticContext.visibleSymbols(context.getFileNameWithExt().get(), position)
+                .stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.CLASS && symbol.name().equals(className))
+                .collect(Collectors.toList());
+        if (classMatches.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable((ClassSymbol) classMatches.get(0));
+    }
+
+    private Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef, String methodName) {
+        return classDef.methods()
+                .stream()
+                .filter(methodSymbol -> methodSymbol.name().equals(methodName))
+                .findFirst();
     }
 
     private GeneratedInstanceMethod getObjectMethodByName(BVariable objectVar, String methodName)
