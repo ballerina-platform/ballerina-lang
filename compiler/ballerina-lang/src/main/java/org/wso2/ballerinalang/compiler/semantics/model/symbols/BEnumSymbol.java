@@ -50,9 +50,10 @@ public class BEnumSymbol extends BTypeSymbol implements Annotatable {
 
     @Override
     public void addAnnotation(AnnotationSymbol symbol) {
-        if (symbol != null) {
-            this.annots.add((BAnnotationSymbol) symbol);
+        if (symbol == null) {
+            return;
         }
+        this.annots.add((BAnnotationSymbol) symbol);
     }
 
     public void addAnnotations(List<BAnnotationSymbol> annotSymbols) {

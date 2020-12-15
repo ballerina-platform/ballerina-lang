@@ -55,9 +55,10 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
 
     @Override
     public void addAnnotation(AnnotationSymbol symbol) {
-        if (symbol != null) {
-            this.annots.add((BAnnotationSymbol) symbol);
+        if (symbol == null) {
+            return;
         }
+        this.annots.add((BAnnotationSymbol) symbol);
     }
 
     @Override

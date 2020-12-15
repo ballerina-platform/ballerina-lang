@@ -55,9 +55,10 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
 
     @Override
     public void addAnnotation(AnnotationSymbol symbol) {
-        if (symbol != null) {
-            this.annots.add((BAnnotationSymbol) symbol);
+        if (symbol == null) {
+            return;
         }
+        this.annots.add((BAnnotationSymbol) symbol);
     }
 
     @Override

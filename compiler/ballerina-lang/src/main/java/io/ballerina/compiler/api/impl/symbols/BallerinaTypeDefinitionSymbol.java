@@ -82,7 +82,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
 
     @Override
     public List<AnnotationSymbol> annotations() {
-        return Collections.unmodifiableList(new ArrayList<>());
+        return Collections.emptyList();
     }
 
     /**
