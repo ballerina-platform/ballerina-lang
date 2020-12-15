@@ -5782,13 +5782,13 @@ public class Desugar extends BLangNodeVisitor {
         Name objectClassName = names.fromString(
                 anonModelHelper.getNextRawTemplateTypeKey(env.enclPkg.packageID, tSymbol.name));
 
-        BObjectTypeSymbol classTSymbol = Symbols.createObjectSymbol(tSymbol.flags, objectClassName,
-                                                                    env.enclPkg.packageID, null, env.enclPkg.symbol,
-                                                                    pos, VIRTUAL);
+        BObjectTypeSymbol classTSymbol = Symbols.createClassSymbol(tSymbol.flags, objectClassName,
+                                                                   env.enclPkg.packageID, null, env.enclPkg.symbol,
+                                                                   pos, VIRTUAL, false);
         classTSymbol.flags |= Flags.CLASS;
 
         // Create a new concrete, class type for the provided abstract object type
-        BObjectType objectClassType = new BObjectType(classTSymbol, tSymbol.flags);
+        BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
 
