@@ -14,41 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
-import ballerina/io;
-
-public type Person record {
-    string name = "";
-    int age = 0;
+Person person = {
+    name: employee.name,
+    age: 30
 };
 
-public type Employee record {
-    string name = "";
-    int age = 0;
-    int empNo = 0;
-};
+[Employee, Person] pp2 = [employee, person];
 
-public function getEmployee2() returns Employee {
-    return employee;
-}
-
-Employee employee = {
-    name: person.name,
-    age: person.age,
-    empNo: 100
-};
-
-[Employee, Person] pp = [employee, person];
-
-public function getEmployee() returns Employee {
-    return employee;
-}
-
-public function main1() {
-    var e = getEmployee();
-    var e2 = getEmployee2();
-    log:printInfo("end");
-    io:println("end");
-}
-
-int dep1 = dep2;
+int dep2 = dep1;

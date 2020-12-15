@@ -1,4 +1,4 @@
-import ballerina/runtime;
+import ballerina/java;
 
 function forkWithTimeoutTest1() returns map<anydata> {
     map<any> m = {};
@@ -16,7 +16,7 @@ function forkWithTimeoutTest1() returns map<anydata> {
             int b = 15;
             a = <- w1;
             b -> w1;
-            runtime:sleep(5000);
+            sleep(5000);
         }
     }
     @strand{thread:"any"}
@@ -49,7 +49,7 @@ function forkWithTimeoutTest2() returns map<anydata> {
     map<any> results = wait {w1, w2};
     @strand{thread:"any"}
     worker w3 returns map<any> {
-        runtime:sleep(1000);
+        sleep(1000);
         m["x"] = 25;
         return m;
     }
@@ -62,7 +62,7 @@ function forkWithTimeoutTest2() returns map<anydata> {
 
 // Function used to provide timeout functionality
 function timeoutFunction1(int milliSeconds, map<any> m) returns map<any> {
-    runtime:sleep(milliSeconds);
+    sleep(milliSeconds);
     m["x"] = 15;
     return m;
 }
@@ -138,14 +138,14 @@ function forkWithWaitOnSomeSelectedWorkers1() returns int|error {
         worker w2 {
             int a = 5;
             int b = 15;
-            runtime:sleep(2000);
+            sleep(2000);
             m["x"] = a;
         }
         @strand{thread:"any"}
         worker w3 {
             int a = 0;
             int b = 15;
-            runtime:sleep(1000);
+            sleep(1000);
             m["x"] = b;
         }
     }
@@ -209,7 +209,7 @@ function forkWithWaitOnSomeSelectedWorkers3() returns map<any> {
             a = <- w1;
             m["x"] = a;
             (a * 2) -> w3;
-            runtime:sleep(1000);
+            sleep(1000);
         }
         @strand{thread:"any"}
         worker w3 {
@@ -243,7 +243,7 @@ function forkWithWaitOnAllSelectedWorkers1() returns map<any> {
             a = <- w1;
             m["x"] = a;
             (a * 2) -> w3;
-            runtime:sleep(1000);
+            sleep(1000);
             m["x"] = 33;
         }
         @strand{thread:"any"}
@@ -277,7 +277,7 @@ function forkWithWaitOnAllSelectedWorkers2() returns int {
             a = <- w1;
             result = a;
             (a * 2) -> w3;
-            runtime:sleep(2000);
+            sleep(2000);
             result = 33;
         }
         @strand{thread:"any"}
@@ -300,7 +300,7 @@ function forkWithWaitOnAllSelectedWorkers2() returns int {
 
 // Function used to provide timeout functionality
 function timeoutFunction2(int milliSeconds) returns int {
-    runtime:sleep(milliSeconds);
+    sleep(milliSeconds);
     return 777;
 }
 
@@ -517,3 +517,7 @@ function forkWithSameWorkerContent() returns string|error {
 
     return result;
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;
