@@ -85,6 +85,9 @@ test {
 processResources {
     include '**/tool.properties'
     include 'cli-help/*'
+    include 'create_cmd_templates/**'
+    include 'new_cmd_defaults/**'
+    include 'package_md_defaults/**'
     filter { String line -> line.replace('${project.version}', "${project.version}" )}
 }
 
