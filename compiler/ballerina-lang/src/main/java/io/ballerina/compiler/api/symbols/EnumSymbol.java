@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface EnumSymbol extends TypeDefinitionSymbol, Qualifiable, Deprecatable {
+public interface EnumSymbol extends TypeDefinitionSymbol, Qualifiable, Deprecatable, Annotatable {
 
     /**
      * Retrieves a list of the members of this enum.

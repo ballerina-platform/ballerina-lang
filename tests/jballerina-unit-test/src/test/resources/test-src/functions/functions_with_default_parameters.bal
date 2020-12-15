@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/runtime;
+import ballerina/java;
 
 int GLB = 0;
 
@@ -196,12 +196,12 @@ function funcWithAsyncDefaultParamExpression(string a1 = asyncRet(), string a2 =
 }
 
 function asyncRet() returns string {
-    runtime:sleep(50);
+    sleep(50);
     return "hello";
 }
 
 function asyncRetWithVal(string a = "sample") returns string {
-    runtime:sleep(50);
+    sleep(50);
     return a + "async";
 }
 
@@ -234,3 +234,6 @@ function testUsingParamValuesInAttachedFunc() returns string {
     return p.usingParamValues() + p.usingParamValues("world") + p.usingParamValues("sample", "value");
 }
 
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

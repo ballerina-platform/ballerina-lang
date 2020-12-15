@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,13 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
+import ballerina/test;
 
-Person person = {
-    name: employee.name,
-    age: 30
-};
+@test:Config {}
+function testConstUse() {
+    test:assertEquals(PI, 3.14);
+}
 
-[Employee, Person] pp2 = [employee, person];
-
-int dep2 = dep1;
+@test:Config {}
+function testAdd() {
+    int sum = add(10, 20);
+    test:assertEquals(sum, 30);
+}

@@ -1,4 +1,4 @@
-import ballerina/runtime;
+import ballerina/java;
 
 public type ClientEndpointConfiguration record {
 
@@ -72,7 +72,7 @@ string testStr = "";
 public function testDefaultError () returns string{
     var a = test1(5);
     test2();
-    runtime:sleep(200);
+    sleep(200);
     return testStr;
 }
 
@@ -95,3 +95,7 @@ function test1(int c) returns error|() {
 }
 
 function test2() {}
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

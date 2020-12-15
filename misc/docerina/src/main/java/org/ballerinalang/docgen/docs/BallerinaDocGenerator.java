@@ -286,47 +286,49 @@ public class BallerinaDocGenerator {
 
         for (Module module: project.modules) {
             if (module.summary != null) {
-                searchModules.add(new ModuleSearchJson(module.id, getFirstLine(module.summary)));
+                searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version,
+                        getFirstLine(module.summary)));
             }
             module.functions.forEach((function) ->
-                    searchFunctions.add(new ConstructSearchJson(function.name, module.id,
-                            getFirstLine(function.description))));
+                    searchFunctions.add(new ConstructSearchJson(function.name, module.id, module.orgName,
+                            module.version, getFirstLine(function.description))));
 
             module.classes.forEach((bClass) ->
-                    searchClasses.add(new ConstructSearchJson(bClass.name, module.id, getFirstLine(bClass
+                    searchClasses.add(new ConstructSearchJson(bClass.name, module.id, module.orgName, module.version,
+                            getFirstLine(bClass
                             .description))));
 
             module.abstractObjects.forEach((absObj) ->
-                    searchAbstractObjects.add(new ConstructSearchJson(absObj.name, module.id,
-                            getFirstLine(absObj.description))));
+                    searchAbstractObjects.add(new ConstructSearchJson(absObj.name, module.id, module.orgName,
+                            module.version, getFirstLine(absObj.description))));
 
             module.clients.forEach((client) ->
-                    searchClients.add(new ConstructSearchJson(client.name, module.id, getFirstLine(client
-                            .description))));
+                    searchClients.add(new ConstructSearchJson(client.name, module.id, module.orgName, module.version,
+                            getFirstLine(client.description))));
 
             module.listeners.forEach((listener) ->
-                    searchListeners.add(new ConstructSearchJson(listener.name, module.id,
-                            getFirstLine(listener.description))));
+                    searchListeners.add(new ConstructSearchJson(listener.name, module.id, module.orgName,
+                            module.version, getFirstLine(listener.description))));
 
             module.records.forEach((record) ->
-                    searchRecords.add(new ConstructSearchJson(record.name, module.id, getFirstLine(record.
-                            description))));
+                    searchRecords.add(new ConstructSearchJson(record.name, module.id, module.orgName, module.version,
+                            getFirstLine(record.description))));
 
             module.constants.forEach((constant) ->
-                    searchConstants.add(new ConstructSearchJson(constant.name, module.id,
-                            getFirstLine(constant.description))));
+                    searchConstants.add(new ConstructSearchJson(constant.name, module.id, module.orgName,
+                            module.version, getFirstLine(constant.description))));
 
             module.errors.forEach((error) ->
-                    searchErrors.add(new ConstructSearchJson(error.name, module.id, getFirstLine(error
-                            .description))));
+                    searchErrors.add(new ConstructSearchJson(error.name, module.id, module.orgName, module.version,
+                            getFirstLine(error.description))));
 
             module.types.forEach((unionType) ->
-                    searchTypes.add(new ConstructSearchJson(unionType.name, module.id,
+                    searchTypes.add(new ConstructSearchJson(unionType.name, module.id, module.orgName, module.version,
                             getFirstLine(unionType.description))));
 
             module.annotations.forEach((annotation) ->
-                    searchAnnotations.add(new ConstructSearchJson(annotation.name, module.id,
-                            getFirstLine(annotation.description))));
+                    searchAnnotations.add(new ConstructSearchJson(annotation.name, module.id, module.orgName,
+                            module.version, getFirstLine(annotation.description))));
         }
 
         SearchJson searchJson = new SearchJson(searchModules, searchClasses, searchFunctions, searchRecords,
