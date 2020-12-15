@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -77,6 +78,11 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
     @Override
     public boolean readonly() {
         return this.readonly;
+    }
+
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return Collections.emptyList();
     }
 
     /**
