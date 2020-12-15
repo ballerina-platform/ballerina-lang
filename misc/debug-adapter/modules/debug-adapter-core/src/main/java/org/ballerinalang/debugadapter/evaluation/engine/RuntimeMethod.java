@@ -16,45 +16,46 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
-import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Method;
-import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Ballerina JVM runtime instance method representation.
+ * Ballerina JVM runtime method representation.
  *
  * @since 2.0.0
  */
-public class RuntimeInstanceMethod extends RuntimeMethod {
+public abstract class RuntimeMethod extends JvmMethod {
 
-    private final Value objectValueRef;
-
-    public RuntimeInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef) {
+    RuntimeMethod(SuspendedContext context, Method methodRef) {
         super(context, methodRef);
-        this.objectValueRef = objectRef;
     }
 
     @Override
-    public Value invoke() throws EvaluationException {
+    protected List<Value> getMethodArgs(JvmMethod method) throws EvaluationException {
         try {
-            if (!(objectValueRef instanceof ObjectReference)) {
+            if (argValues == null && argEvaluators == null) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR
                         .getString(), methodRef.name()));
             }
-            List<Value> argValueList = getMethodArgs(this);
-            return ((ObjectReference) objectValueRef).invokeMethod(context.getOwningThread().getThreadReference(),
-                    methodRef, argValueList, ObjectReference.INVOKE_SINGLE_THREADED);
-        } catch (ClassNotLoadedException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
-                    methodRef.name()));
-        } catch (EvaluationException e) {
-            throw e;
+            if (argValues != null) {
+                return argValues;
+            }
+            List<Value> argValueList = new ArrayList<>();
+            // Evaluates all function argument expressions at first.
+            for (Map.Entry<String, Evaluator> argEvaluator : argEvaluators) {
+                argValueList.add(argEvaluator.getValue().evaluate().getJdiValue());
+                // Assuming all the arguments are positional args.
+                argValueList.add(VMUtils.make(context, true).getJdiValue());
+            }
+            return argValueList;
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
                     methodRef.name()));

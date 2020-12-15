@@ -20,11 +20,10 @@ import com.sun.jdi.Value;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
-import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +38,8 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * @since 2.0.0
  */
 public class InvocationArgProcessor {
+
+    public static final String DEFAULTABLE_PARAM_SUFFIX = "[Defaultable]";
 
     static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName, FunctionTypeSymbol
             definition, List<Map.Entry<String, Evaluator>> argEvaluators) throws EvaluationException {
@@ -123,10 +124,7 @@ public class InvocationArgProcessor {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                         "missing required parameter '" + paramName + "'."));
             } else if (parameterType == ParameterKind.DEFAULTABLE) {
-                Value defaultValue = new ExpressionEvaluator(context)
-                        .evaluate(((DefaultableParameterNode) entry.getValue()).expression()
-                                .toSourceCode());
-                argValues.put(paramName, defaultValue);
+                argValues.put(paramName + DEFAULTABLE_PARAM_SUFFIX, VMUtils.make(context, 0).getJdiValue());
             }
         }
 
