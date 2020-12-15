@@ -1,28 +1,28 @@
 {
-  "line": 57,
-  "character": 30,
+  "line": 40,
+  "character": 26,
   "expected": {
     "title": "Generate mapping function",
     "edits": [
       {"range":{
         "start":{
-          "line":57,
-          "character":30
+          "line":40,
+          "character":26
         },
         "end":{
-          "line":57,
-          "character":36
+          "line":40,
+          "character":31
         }
       },
-        "newText": "mapApplicantToAddress(appl_1)"
+        "newText":"mapStudentToGrades(Kamal)"
       },
       {"range":{
         "start":{
-          "line":62,
+          "line":44,
           "character":0
         },
         "end":{
-          "line":62,
+          "line":44,
           "character":1
         }
       },
@@ -31,5 +31,3 @@
     ]
   }
 }
-
-
