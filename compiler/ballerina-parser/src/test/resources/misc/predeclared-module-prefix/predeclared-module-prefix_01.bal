@@ -26,7 +26,7 @@ public function foo() returns int:c {
     // Predeclared prefix int error constructor expression
     error e = error transaction:transactionError(msg);
     // Predeclared prefix in error type reference in error match pattern
-    match(a) {
+    match (a) {
         error object:customObjectError() => {
             io:println("custom object error");
         }

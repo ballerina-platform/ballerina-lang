@@ -25,7 +25,7 @@ public function foo() returns map: {
     // Predeclared prefix in object constructor expression
     object {int a;} myObj = object object: {int a = 5;};
     // Predeclared prefix in error type reference in error match pattern
-    match(a) {
+    match (a) {
         error object: => {
             io:println("custom object error");
         }
