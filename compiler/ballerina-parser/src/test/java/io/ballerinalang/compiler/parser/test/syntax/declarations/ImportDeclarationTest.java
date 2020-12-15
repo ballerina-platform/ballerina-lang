@@ -48,11 +48,6 @@ public class ImportDeclarationTest extends AbstractDeclarationTest {
         test("import-decl/import_decl_source_07.bal", "import-decl/import_decl_assert_07.json");
     }
 
-    @Test
-    public void testImportWithPredefinedPrefix() {
-        testFile("import-decl/import_decl_source_24.bal", "import-decl/import_decl_assert_24.json");
-    }
-
     // Recovery tests
 
     @Test
@@ -148,10 +143,5 @@ public class ImportDeclarationTest extends AbstractDeclarationTest {
     @Test
     public void testImportWithVersionAndPrefixNegative() {
         test("import-decl/import_decl_source_08.bal", "import-decl/import_decl_assert_08.json");
-    }
-
-    @Test
-    public void testImportWithPredefinedPrefixNegetive() {
-        testFile("import-decl/import_decl_source_25.bal", "import-decl/import_decl_assert_25.json");
     }
 }
