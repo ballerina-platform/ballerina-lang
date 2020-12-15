@@ -82,7 +82,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
 
     private final PackageResolution pkgResolution;
-    private final JdkVersion jdkVersion;
+    private final JvmTarget jdkVersion;
     private final PackageContext packageContext;
     private final PackageCache packageCache;
     private final CompilerContext compilerContext;
@@ -92,12 +92,12 @@ public class JBallerinaBackend extends CompilerBackend {
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
 
-    public static JBallerinaBackend from(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
+    public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return packageCompilation.getCompilerBackend(jdkVersion,
                 (targetPlatform -> new JBallerinaBackend(packageCompilation, jdkVersion)));
     }
 
-    private JBallerinaBackend(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
+    private JBallerinaBackend(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         this.jdkVersion = jdkVersion;
         this.packageContext = packageCompilation.packageContext();
         this.pkgResolution = packageContext.getResolution();
@@ -562,7 +562,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
 
-    JdkVersion jdkVersion() {
+    JvmTarget jdkVersion() {
         return jdkVersion;
     }
 }

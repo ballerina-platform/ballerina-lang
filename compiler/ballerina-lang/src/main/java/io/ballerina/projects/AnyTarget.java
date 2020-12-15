@@ -18,18 +18,18 @@
 package io.ballerina.projects;
 
 /**
- * Represents any version that supported by the jBallerina backend.
+ * Represents default version that supported by the jBallerina backend.
  *
  * @since 2.0.0
  */
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
-public enum AnyVersion implements CompilerBackend.TargetPlatform {
+public enum AnyTarget implements CompilerBackend.TargetPlatform {
     ANY("any"),
     ;
 
     private final String code;
 
-    AnyVersion(String code) {
+    AnyTarget(String code) {
         this.code = code;
     }
 

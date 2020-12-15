@@ -20,7 +20,7 @@ package io.ballerina.cli.task;
 
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
@@ -64,7 +64,7 @@ public class CreateBaloTask implements Task {
 
         try {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-            jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+            jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
             emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
         } catch (ProjectException e) {
             throw createLauncherException("BALO creation failed:" + e.getMessage());

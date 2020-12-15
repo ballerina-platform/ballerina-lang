@@ -36,7 +36,7 @@ import java.util.zip.ZipOutputStream;
  */
 public class JBallerinaBaloWriter extends BaloWriter {
 
-    JBallerinaBackend backend;
+    private JBallerinaBackend backend;
 
     public JBallerinaBaloWriter(JBallerinaBackend backend) {
         this.backend = backend;
@@ -91,13 +91,16 @@ public class JBallerinaBaloWriter extends BaloWriter {
     }
 
     private CompilerBackend.TargetPlatform getTargetPlatform(PackageResolution pkgResolution) {
-        Collection<ResolvedPackageDependency> resolvedPkgDependencies = pkgResolution.allDependencies();
-        for (ResolvedPackageDependency dependency : resolvedPkgDependencies) {
+        ResolvedPackageDependency resolvedPackageDependency = new ResolvedPackageDependency(
+                this.packageContext.project().currentPackage(), PackageDependencyScope.DEFAULT);
+        Collection<ResolvedPackageDependency> resolvedPackageDependencies = pkgResolution.dependencyGraph()
+                .getDirectDependencies(resolvedPackageDependency);
+        for (ResolvedPackageDependency dependency : resolvedPackageDependencies) {
             if (dependency.packageInstance().packageOrg().value().equals("ballerina")
                     && dependency.packageInstance().packageName().value().equals("java")) {
-                return JdkVersion.JAVA_11;
+                return this.backend.targetPlatform();
             }
         }
-        return AnyVersion.ANY;
+        return AnyTarget.ANY;
     }
 }
