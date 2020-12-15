@@ -1,5 +1,5 @@
 import ballerina/lang.'int as ints;
-import ballerina/runtime;
+import ballerina/java;
 
 int lockWithinLockInt1 = 0;
 
@@ -27,7 +27,7 @@ function lockWithinLock() returns [int, string] {
 
 function makeAsync() returns (int) {
     worker w1 {
-        runtime:sleep(100);
+        sleep(100);
     }
 
     return 6;
@@ -42,14 +42,14 @@ function lockWithinLockInWorkers() returns [int, string] {
             lock {
                 lockWithinLockInt1 = 66;
             }
-            runtime:sleep(100);
+            sleep(100);
             lockWithinLockInt1 = 45;
         }
     }
 
     @strand{thread:"any"}
     worker w2 {
-        runtime:sleep(20);
+        sleep(20);
         lock {
             lockWithinLockString1 = "hello";
             lock {
@@ -59,14 +59,14 @@ function lockWithinLockInWorkers() returns [int, string] {
         }
     }
 
-    runtime:sleep(30);
+    sleep(30);
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
 function lockInsideWhileLoop() returns (int) {
     @strand{thread:"any"}
     worker w2 {
-        runtime:sleep(10);
+        sleep(10);
         lock {
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
         }
@@ -78,14 +78,14 @@ function lockInsideWhileLoop() returns (int) {
             lockWithinLockInt1 = lockWithinLockInt1 + 1;
         }
         i = i +1;
-        runtime:sleep(10);
+        sleep(10);
     }
     return lockWithinLockInt1;
 }
 
 function convertStringToInt() {
     lock {
-        runtime:sleep(50);
+        sleep(50);
         lockWithinLockInt1 = lockWithinLockInt1 +1;
         lockWithinLockString1 = "hello";
         int ddd;
@@ -106,7 +106,7 @@ function throwErrorInsideLock() returns [int, string] {
         }
     }
 
-    runtime:sleep(10);
+    sleep(10);
     lock {
         lockWithinLockString1 = "second worker string";
         lockWithinLockInt1 = lockWithinLockInt1 + 50;
@@ -124,7 +124,7 @@ function errorPanicInsideLock() {
 function throwErrorInsideLockInsideTryFinally() returns [int, string] {
     @strand{thread:"any"}
     worker w2 {
-        runtime:sleep(10);
+        sleep(10);
         lock {
             lockWithinLockString1 = "worker 2 sets the string value after try catch finally";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
@@ -133,7 +133,7 @@ function throwErrorInsideLockInsideTryFinally() returns [int, string] {
 
     var err = trap errorPanicInsideLock();
     if (err is error) {
-        runtime:sleep(10);
+        sleep(10);
         lock {
             lockWithinLockInt1 = lockWithinLockInt1 + 1;
         }
@@ -147,7 +147,7 @@ function throwErrorInsideLockInsideTryFinally() returns [int, string] {
 function throwErrorInsideTryCatchFinallyInsideLock() returns [int, string] {
     @strand{thread:"any"}
     worker w2 {
-        runtime:sleep(10);
+        sleep(10);
         lock {
             lockWithinLockString1 = "worker 2 sets the string after try catch finally inside lock";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
@@ -157,7 +157,7 @@ function throwErrorInsideTryCatchFinallyInsideLock() returns [int, string] {
     lock {
         var err = trap convertStringToInt();
         if (err is error) {
-            runtime:sleep(10);
+            sleep(10);
             lock {
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
             }
@@ -166,7 +166,7 @@ function throwErrorInsideTryCatchFinallyInsideLock() returns [int, string] {
             lockWithinLockInt1 = lockWithinLockInt1 + 1;
         }
     }
-    runtime:sleep(10);
+    sleep(10);
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
@@ -174,7 +174,7 @@ function throwErrorInsideTryFinallyInsideLock() returns [int, string] {
     @strand{thread:"any"}
     worker w1 {
         lock {
-            runtime:sleep(50);
+            sleep(50);
             lockWithinLockInt1 = lockWithinLockInt1 + 1;
             lockWithinLockString1 = "hello";
             int ddd;
@@ -191,7 +191,7 @@ function throwErrorInsideTryFinallyInsideLock() returns [int, string] {
         }
     }
 
-    runtime:sleep(10);
+    sleep(10);
     lock {
         lockWithinLockString1 = "worker 2 sets the string after try finally";
         lockWithinLockInt1 = lockWithinLockInt1 + 50;
@@ -202,7 +202,7 @@ function throwErrorInsideTryFinallyInsideLock() returns [int, string] {
 function throwErrorInsideLockInsideTryCatch() returns [int, string] {
     @strand{thread:"any"}
     worker w2 {
-        runtime:sleep(10);
+        sleep(10);
         lock {
             lockWithinLockString1 = "worker 2 sets the string value after try catch";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
@@ -211,7 +211,7 @@ function throwErrorInsideLockInsideTryCatch() returns [int, string] {
 
     var err = trap errorPanicInsideLock();
     if (err is error) {
-        runtime:sleep(10);
+        sleep(10);
         lock {
             lockWithinLockInt1 = lockWithinLockInt1 + 1;
         }
@@ -222,7 +222,7 @@ function throwErrorInsideLockInsideTryCatch() returns [int, string] {
 function throwErrorInsideTryCatchInsideLock() returns [int, string] {
     @strand{thread:"any"}
     worker w2 {
-        runtime:sleep(10);
+        sleep(10);
         lock {
             lockWithinLockString1 = "worker 2 sets the string after try catch inside lock";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
@@ -232,13 +232,13 @@ function throwErrorInsideTryCatchInsideLock() returns [int, string] {
     lock {
         var err = trap convertStringToInt();
         if (err is error) {
-            runtime:sleep(10);
+            sleep(10);
             lock {
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
             }
         }
     }
-    runtime:sleep(10);
+    sleep(10);
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
@@ -253,13 +253,13 @@ function lockWithinLockInWorkersForBlobAndBoolean() returns [boolean, byte[]] {
             lock {
                 boolValue = true;
             }
-            runtime:sleep(100);
+            sleep(100);
         }
     }
 
     @strand{thread:"any"}
     worker w2 {
-        runtime:sleep(20);
+        sleep(20);
         lock {
             boolValue = false;
             lock {
@@ -270,7 +270,7 @@ function lockWithinLockInWorkersForBlobAndBoolean() returns [boolean, byte[]] {
         }
     }
 
-    runtime:sleep(30);
+    sleep(30);
     return [boolValue, blobValue];
 }
 
@@ -280,7 +280,7 @@ function returnInsideLock() returns [int, string] {
         string value = returnInsideLockPart();
     }
 
-    runtime:sleep(10);
+    sleep(10);
     lock {
         if (lockWithinLockInt1 == 44) {
             lockWithinLockString1 = "changed value11";
@@ -316,7 +316,7 @@ function breakInsideLock() returns [int, string] {
             i = i + 1;
         }
     }
-    runtime:sleep(20);
+    sleep(20);
     lock {
         if (lockWithinLockInt1 == 40) {
             lockWithinLockInt1 = 657;
@@ -345,7 +345,7 @@ function nextInsideLock() returns [int, string] {
         }
     }
 
-    runtime:sleep(20);
+    sleep(20);
     lock {
         if (lockWithinLockInt1 == 40) {
             lockWithinLockInt1 = 657;
@@ -358,3 +358,6 @@ function nextInsideLock() returns [int, string] {
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

@@ -60,8 +60,7 @@ public class BCompileUtil {
         Project project = loadProject(sourceFilePath);
 
         Package currentPackage = project.currentPackage();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
         if (jBallerinaBackend.diagnosticResult().hasErrors()) {
             return new CompileResult(currentPackage, jBallerinaBackend);
         }
@@ -69,6 +68,18 @@ public class BCompileUtil {
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
+    }
+
+    public static CompileResult compileWithoutInitInvocation(String sourceFilePath) {
+        Project project = loadProject(sourceFilePath);
+
+        Package currentPackage = project.currentPackage();
+        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            return new CompileResult(currentPackage, jBallerinaBackend);
+        }
+
+        return new CompileResult(currentPackage, jBallerinaBackend);
     }
 
     public static CompileResult compileAndCacheBalo(String sourceFilePath) {
@@ -84,8 +95,7 @@ public class BCompileUtil {
         }
 
         Package currentPackage = project.currentPackage();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
         if (jBallerinaBackend.diagnosticResult().hasErrors()) {
             return new CompileResult(currentPackage, jBallerinaBackend);
         }
@@ -97,6 +107,11 @@ public class BCompileUtil {
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
+    }
+
+    private static JBallerinaBackend jBallerinaBackend(Package currentPackage) {
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        return JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
     }
 
     /**

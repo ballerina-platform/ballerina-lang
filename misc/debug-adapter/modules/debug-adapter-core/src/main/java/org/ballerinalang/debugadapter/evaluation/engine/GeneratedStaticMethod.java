@@ -28,14 +28,14 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.STRAND_VAR_NAME;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 
 /**
  * JVM generated static method representation of a ballerina function.
@@ -91,7 +91,7 @@ public class GeneratedStaticMethod extends JvmMethod {
                 argValues.forEach(value -> {
                     argValueList.add(value);
                     // Assuming all the arguments are positional args.
-                    argValueList.add(EvaluationUtils.make(context, true).getJdiValue());
+                    argValueList.add(VMUtils.make(context, true).getJdiValue());
                 });
                 // Here we use the existing strand instance to execute the function invocation expression.
                 Value strand = getCurrentStrand();
@@ -108,7 +108,7 @@ public class GeneratedStaticMethod extends JvmMethod {
                 argNames.forEach(argName -> {
                     argValueList.add(namedArgValues.get(argName));
                     if (!argName.equals(STRAND_VAR_NAME)) {
-                        argValueList.add(EvaluationUtils.make(context, true).getJdiValue());
+                        argValueList.add(VMUtils.make(context, true).getJdiValue());
                     }
                 });
                 return argValueList;
@@ -118,7 +118,7 @@ public class GeneratedStaticMethod extends JvmMethod {
             for (Map.Entry<String, Evaluator> argEvaluator : argEvaluators) {
                 argValueList.add(argEvaluator.getValue().evaluate().getJdiValue());
                 // Assuming all the arguments are positional args.
-                argValueList.add(EvaluationUtils.make(context, true).getJdiValue());
+                argValueList.add(VMUtils.make(context, true).getJdiValue());
             }
             List<Type> types = method.methodRef.argumentTypes();
             // Removes injected arguments added during the jvm method gen phase.

@@ -71,6 +71,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     private static final PrintStream out = System.out;
 
     private boolean isObservabilityIncluded = false;
+    private final PackageHolder packageHolder = new PackageHolder();
 
     @Override
     public void process(Project project) {
@@ -79,7 +80,6 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             return;
         }
         Package currentPackage = project.currentPackage();
-        PackageHolder packageHolder = PackageHolder.getInstance();
         packageHolder.setOrg(currentPackage.packageOrg().toString());
         packageHolder.setName(currentPackage.packageName().toString());
         packageHolder.setVersion(currentPackage.packageVersion().toString());
@@ -103,7 +103,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             Files.createDirectories(syntaxTreeDirPath);
 
             // Writing Syntax Tree Json
-            String syntaxTreeDataString = generateCanonicalJsonString(PackageHolder.getInstance());
+            String syntaxTreeDataString = generateCanonicalJsonString(packageHolder);
             Files.write(syntaxTreeDirPath.resolve(SYNTAX_TREE_FILE_NAME),
                     syntaxTreeDataString.getBytes(StandardCharsets.UTF_8));
 
