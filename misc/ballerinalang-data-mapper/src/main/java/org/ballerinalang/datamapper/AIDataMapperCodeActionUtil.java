@@ -200,6 +200,12 @@ class AIDataMapperCodeActionUtil {
         }
     }
 
+    /**
+     * Convert record type symbols to json objects.
+     *
+     * @param schemaFields {@link List<FieldSymbol>}
+     * @return Field symbol properties
+     */
     private static JsonElement recordToJSON(List<FieldSymbol> schemaFields) {
         JsonObject properties = new JsonObject();
         for (FieldSymbol attribute : schemaFields) {
@@ -218,6 +224,13 @@ class AIDataMapperCodeActionUtil {
         return properties;
     }
 
+    /**
+     * Get the mapping from the Data Mapper service.
+     *
+     * @param dataToSend - payload to the service
+     * @return - response data from the Data Mapper service
+     * @throws IOException If an error occurs in the Data Mapper service
+     */
     private static String getMappingFromServer(JsonArray dataToSend) throws IOException {
         try {
             Map<String, String> headers = new HashMap<>();

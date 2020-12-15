@@ -17,13 +17,10 @@ package org.ballerinalang.datamapper.codeaction;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.ballerinalang.datamapper.util.FileUtils;
 import org.ballerinalang.datamapper.util.TestUtil;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -40,7 +37,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 
 import static org.ballerinalang.datamapper.util.DataMapperTestUtils.getCodeActionResponse;
 
@@ -53,16 +49,7 @@ import static org.ballerinalang.datamapper.util.DataMapperTestUtils.getCodeActio
 public class ServerErrorTest {
 
     private static Endpoint serviceEndpoint;
-
-    private JsonParser parser = new JsonParser();
-
-    private Path sourcesPath = new File(ServerErrorTest.class.getClassLoader().getResource("codeaction")
-            .getFile()).toPath();
-
-    private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
-
     private static final Logger log = LoggerFactory.getLogger(CodeActionTest.class);
-
     private static Server server;
 
     @BeforeClass
@@ -73,7 +60,6 @@ public class ServerErrorTest {
         TestUtil.setWorkspaceConfig(serviceEndpoint, configs);
 
         class HelloWorldHandler extends AbstractHandler {
-            //Mocking server response
             String responseData = "";
             int responseCode = 500;
 
@@ -137,9 +123,7 @@ public class ServerErrorTest {
 
     @AfterClass
     private void cleanupLanguageServer() {
-
         TestUtil.shutdownLanguageServer(serviceEndpoint);
-
         try {
             server.stop();
             server.destroy();

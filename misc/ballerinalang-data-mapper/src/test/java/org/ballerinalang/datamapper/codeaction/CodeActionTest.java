@@ -51,9 +51,7 @@ import static org.ballerinalang.datamapper.util.DataMapperTestUtils.getCodeActio
 public class CodeActionTest {
 
     private static Endpoint serviceEndpoint;
-
     private static final Logger log = LoggerFactory.getLogger(CodeActionTest.class);
-
     private static Server server;
 
     @BeforeClass
@@ -63,20 +61,22 @@ public class CodeActionTest {
         JsonObject configs = FileUtils.fileContentAsObject(startConfigPath);
         TestUtil.setWorkspaceConfig(serviceEndpoint, configs);
 
-        //Mocking server response
-        String responseData = "{\"answer\":\"\\nfunction mapStudentToGrades (Student student) " +
-                "returns Grades {\\n// Some record fields might be missing in the AI based mapping.\\n\\t" +
-                "Grades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, " +
-                "physics: student.grades.physics};\\n\\treturn grades;\\n}\"}";
-
         class HelloWorldHandler extends AbstractHandler {
+
+            String responseData = "{\"answer\":\"\\nfunction mapStudentToGrades (Student student) " +
+                    "returns Grades {\\n// Some record fields might be missing in the AI based mapping.\\n\\t" +
+                    "Grades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, " +
+                    "physics: student.grades.physics};\\n\\treturn grades;\\n}\"}";
+
+            int responseCode = 200;
+
             @Override
             public void handle(String target, Request jettyRequest, HttpServletRequest request,
                                HttpServletResponse response) throws IOException {
                 // Mark the request as handled by this Handler.
                 jettyRequest.setHandled(true);
 
-                response.setStatus(200);
+                response.setStatus(responseCode);
                 response.setContentType("text/html; charset=UTF-8");
                 response.getWriter().print(responseData);
             }
@@ -178,9 +178,7 @@ public class CodeActionTest {
 
     @AfterClass
     private void cleanupLanguageServer() {
-
         TestUtil.shutdownLanguageServer(serviceEndpoint);
-
         try {
             server.stop();
             server.destroy();
@@ -188,33 +186,4 @@ public class CodeActionTest {
             log.error(e.getMessage());
         }
     }
-
-//    private JsonObject getResponseJson(String response) {
-//        JsonObject responseJson = parser.parse(response).getAsJsonObject();
-//        responseJson.remove("id");
-//        return responseJson;
-//    }
-//
-//    private JsonObject getCodeActionResponse(String source, JsonObject configJsonObject) throws IOException {
-//
-//        // Read expected results
-//        Path sourcePath = sourcesPath.resolve("source").resolve(source);
-//        TestUtil.openDocument(serviceEndpoint, sourcePath);
-//
-//        // Filter diagnostics for the cursor position
-//        List<Diagnostic> diags = new ArrayList<>(
-//                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager)));
-//        Position pos = new Position(configJsonObject.get("line").getAsInt(),
-//                configJsonObject.get("character").getAsInt());
-//        diags = diags.stream().
-//                filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
-//                .collect(Collectors.toList());
-//        CodeActionContext codeActionContext = new CodeActionContext(diags);
-//        Range range = new Range(pos, pos);
-//        String response = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range,
-//                codeActionContext);
-//        TestUtil.closeDocument(serviceEndpoint, sourcePath);
-//
-//        return this.getResponseJson(response);
-//    }
 }

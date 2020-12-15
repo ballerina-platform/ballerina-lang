@@ -17,13 +17,10 @@ package org.ballerinalang.datamapper.codeaction;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.ballerinalang.datamapper.util.FileUtils;
 import org.ballerinalang.datamapper.util.TestUtil;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -40,10 +37,8 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 
 import static org.ballerinalang.datamapper.util.DataMapperTestUtils.getCodeActionResponse;
-
 
 /**
  * Test Cases for CodeActions.
@@ -53,16 +48,7 @@ import static org.ballerinalang.datamapper.util.DataMapperTestUtils.getCodeActio
 public class UnProcessableDataTest {
 
     private static Endpoint serviceEndpoint;
-
-    private JsonParser parser = new JsonParser();
-
-    private Path sourcesPath = new File(UnProcessableDataTest.class.getClassLoader().getResource("codeaction")
-            .getFile()).toPath();
-
-    private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
-
     private static final Logger log = LoggerFactory.getLogger(CodeActionTest.class);
-
     private static Server server;
 
     @BeforeClass
@@ -73,7 +59,6 @@ public class UnProcessableDataTest {
         TestUtil.setWorkspaceConfig(serviceEndpoint, configs);
 
         class HelloWorldHandler extends AbstractHandler {
-            //Mocking server response
             String responseData = "";
             int statusCode = 422;
 
@@ -134,9 +119,7 @@ public class UnProcessableDataTest {
 
     @AfterClass
     private void cleanupLanguageServer() {
-
         TestUtil.shutdownLanguageServer(serviceEndpoint);
-
         try {
             server.stop();
             server.destroy();
@@ -144,34 +127,5 @@ public class UnProcessableDataTest {
             log.error(e.getMessage());
         }
     }
-
-//    private JsonObject getResponseJson(String response) {
-//        JsonObject responseJson = parser.parse(response).getAsJsonObject();
-//        responseJson.remove("id");
-//        return responseJson;
-//    }
-//
-//    private JsonObject getCodeActionResponse(String source, JsonObject configJsonObject) throws IOException {
-//
-//        // Read expected results
-//        Path sourcePath = sourcesPath.resolve("source").resolve(source);
-//        TestUtil.openDocument(serviceEndpoint, sourcePath);
-//
-//        // Filter diagnostics for the cursor position
-//        List<Diagnostic> diags = new ArrayList<>(
-//                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager)));
-//        Position pos = new Position(configJsonObject.get("line").getAsInt(),
-//                configJsonObject.get("character").getAsInt());
-//        diags = diags.stream().
-//                filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
-//                .collect(Collectors.toList());
-//        CodeActionContext codeActionContext = new CodeActionContext(diags);
-//        Range range = new Range(pos, pos);
-//        String response = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range,
-//                codeActionContext);
-//        TestUtil.closeDocument(serviceEndpoint, sourcePath);
-//
-//        return this.getResponseJson(response);
-//    }
 }
 

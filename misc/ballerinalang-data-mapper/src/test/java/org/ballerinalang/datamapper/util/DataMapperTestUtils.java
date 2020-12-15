@@ -25,18 +25,32 @@ import java.util.stream.Collectors;
 public class DataMapperTestUtils {
 
     private static JsonParser parser = new JsonParser();
-
     private static Path sourcesPath = new File(DataMapperTestUtils.class.getClassLoader().getResource("codeaction")
             .getFile()).toPath();
-
     private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
 
+
+    /**
+     * Convert Data-mapper response to Jason Object.
+     *
+     * @param response       Code action response
+     * @return {@link JsonObject}   Response as Jason Object
+     */
     private static JsonObject getResponseJson(String response) {
         JsonObject responseJson = parser.parse(response).getAsJsonObject();
         responseJson.remove("id");
         return responseJson;
     }
 
+
+    /**
+     * Get code action response.
+     *
+     * @param source       Ballerina source file
+     * @param configJsonObject      Test config
+     * @param serviceEndpoint       Language server service Endpoint
+     * @return {@link JsonObject}   Code action response
+     */
     public static JsonObject getCodeActionResponse(String source, JsonObject configJsonObject, Endpoint serviceEndpoint)
             throws IOException {
 
