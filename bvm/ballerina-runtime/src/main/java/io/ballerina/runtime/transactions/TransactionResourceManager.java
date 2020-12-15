@@ -147,10 +147,10 @@ public class TransactionResourceManager {
      */
     private boolean getTransactionManagerEnabled() {
         String transactionManagerEnabled = CONFIG_REGISTRY.getAsString("b7a.transaction.manager.enabled");
-        if (transactionManagerEnabled != null && transactionManagerEnabled.equals("false")) {
-                return false;
+        if (transactionManagerEnabled != null && transactionManagerEnabled.equals("true")) {
+                return true;
         }
-        return true;
+        return false;
     }
 
     /**
