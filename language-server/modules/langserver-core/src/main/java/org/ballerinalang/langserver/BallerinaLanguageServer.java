@@ -105,7 +105,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager);
         this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(this, workspaceManager);
         this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(workspaceManager, lsGlobalContext);
-        this.ballerinaProjectService = new BallerinaProjectServiceImpl(lsGlobalContext);
+        this.ballerinaProjectService = new BallerinaProjectServiceImpl();
         this.ballerinaExampleService = new BallerinaExampleServiceImpl();
         this.ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
