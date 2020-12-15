@@ -656,7 +656,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public RequiredExpressionNode transform(RequiredExpressionNode requiredExpressionNode) {
-        Token questionMarkToken = formatToken(requiredExpressionNode.questionMarkToken(), 0, 0);
+        Token questionMarkToken = formatToken(requiredExpressionNode.questionMarkToken(), env.trailingWS,
+                env.trailingNL);
         return requiredExpressionNode.modify()
                 .withQuestionMarkToken(questionMarkToken)
                 .apply();
