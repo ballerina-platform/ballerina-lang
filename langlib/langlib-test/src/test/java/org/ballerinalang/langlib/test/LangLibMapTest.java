@@ -101,11 +101,6 @@ public class LangLibMapTest {
         assertEquals(map.get("us").stringValue(), "USA");
     }
 
-    @Test
-    public void testRemoveIfHasKey() {
-        BRunUtil.invoke(compileResult, "testRemoveIfHasKey");
-    }
-
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
                   ".*error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key 'NonExistent'\"\\}.*")
@@ -180,36 +175,6 @@ public class LangLibMapTest {
     }
 
     @Test
-    public void testBasicToArray() {
-        BRunUtil.invoke(compileResult, "testBasicToArray");
-    }
-
-    @Test
-    public void testLargeMapToArray() {
-        BRunUtil.invoke(compileResult, "testLargeMapToArray");
-    }
-
-    @Test
-    public void testRecordToArray() {
-        BRunUtil.invoke(compileResult, "testRecordToArray");
-    }
-
-    @Test
-    public void testOpenRecordToArray() {
-        BRunUtil.invoke(compileResult, "testOpenRecordToArray");
-    }
-
-    @Test
-    public void testMapOfUnionToArray() {
-        BRunUtil.invoke(compileResult, "testMapOfUnionToArray");
-    }
-
-    @Test
-    public void testRecordWithSameTypeFieldsToArray() {
-        BRunUtil.invoke(compileResult, "testRecordWithSameTypeFieldsToArray");
-    }
-
-    @Test
     public void testAsyncFpArgsWithMaps() {
         BValue[] results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithMaps");
         assertTrue(results[0] instanceof BInteger);
@@ -224,6 +189,25 @@ public class LangLibMapTest {
         return new Object[][]{
                 {new BString("lk"), true},
                 {new BString("invalid"), false}
+        };
+    }
+
+    @Test(dataProvider = "FunctionList")
+    public void testMapFunctions(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
+    }
+
+    @DataProvider(name = "FunctionList")
+    public Object[] testFunctions() {
+        return new Object[]{
+                "testRemoveIfHasKey",
+                "testBasicToArray",
+                "testLargeMapToArray",
+                "testRecordToArray",
+                "testOpenRecordToArray",
+                "testMapOfUnionToArray",
+                "testRecordWithSameTypeFieldsToArray",
+                "testReadOnlyMapFilter"
         };
     }
 }

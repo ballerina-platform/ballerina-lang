@@ -21,7 +21,7 @@ public type TestMap2 map<string>;
 
 public type TestMap3 map<int>;
 
-public class TestObject1 {
+public class TestClass1 {
 	public int field1;
 	int field2;
 	public function init(int field1, int field2) {
@@ -29,3 +29,7 @@ public class TestObject1 {
 	    self.field2 = field2;
     }
 }
+
+public type TestObject1 object {
+    
+};

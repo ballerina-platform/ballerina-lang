@@ -19,6 +19,9 @@ package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Service Declaration Context tests.
  *
@@ -29,6 +32,11 @@ public class ServiceDeclarationTest extends CompletionTestNew {
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
+    }
+
+    @Override
+    public List<String> skipList() {
+        return Collections.singletonList("config13.json");
     }
 
     @Override

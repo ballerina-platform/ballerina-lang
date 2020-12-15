@@ -1,10 +1,8 @@
-import ballerina/io;
-import ballerina/runtime;
 import ballerina/java;
 
 function workerDeclTest() {
-     int a = 20;
-     fork {
+    int a = 20;
+    fork {
        @strand{thread:"any"}
 	   worker w1 {
 	     int x = 0;
@@ -16,8 +14,7 @@ function workerDeclTest() {
 	   }
 	}
     map<any> results = wait {w1, w2};
-    io:println(results);
-   worker wy { }
+    worker wy { }
 }
 
 function forkWithMessageParsingTest() returns int {
@@ -39,7 +36,6 @@ function forkWithMessageParsingTest() returns int {
 	   }
 	}
     map<any> results = wait {w1, w2};
-    io:println(results);
 	return x;
 }
 
@@ -82,12 +78,12 @@ function forkWithWaitForAny() returns int | error {
 	     int a = 5;
 	     int b = 0;
 	     m["x"] = a;
-         runtime:sleep(1000);
+         sleep(1000);
 	   }
 	   worker w2 {
 	     int a = 5;
 	     int b = 15;
-         runtime:sleep(1000);
+         sleep(1000);
 	     m["x"] = a;
 	   }
 	   worker w3 {
@@ -98,7 +94,6 @@ function forkWithWaitForAny() returns int | error {
 	}
 
     () results = wait w1 | w2 | w3;
-    io:println(results);
     return <int>m["x"];
 }
 
@@ -136,4 +131,8 @@ function currentThread() returns handle = @java:Method {
 
 function getName(handle thread) returns handle = @java:Method {
     'class: "java.lang.Thread"
+} external;
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
 } external;

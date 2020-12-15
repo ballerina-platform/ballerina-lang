@@ -16,33 +16,33 @@
 
 import ballerina/testobserve;
 
-service "testServiceTwo" on new testobserve:Listener(9093) {
+service /testServiceThree on new testobserve:Listener(9093) {
     # Resource function for testing remote call which calls another remote call
-    resource function get resourceOne(testobserve:Caller caller) {
+    resource function post resourceOne(testobserve:Caller caller) {
         testClient->callAnotherRemoteFunction();
         checkpanic caller->respond("Invocation Successful");
     }
 
     # Resource function for testing check on error return
-    resource function get resourceTwo(testobserve:Caller caller) returns error? {
+    resource function post resourceTwo(testobserve:Caller caller) returns error? {
         check testClient->callWithErrorReturn();
         checkpanic caller->respond("Invocation Successful");
     }
 
     # Resource function for testing checkpanic on error return
-    resource function get resourceThree(testobserve:Caller caller) returns error? {
+    resource function post resourceThree(testobserve:Caller caller) returns error? {
         checkpanic testClient->callWithErrorReturn();
         checkpanic caller->respond("Invocation Successful");
     }
 
     # Resource function for testing ignored error return
-    resource function resourceFour(testobserve:Caller caller) returns error? {
+    resource function post resourceFour(testobserve:Caller caller) returns error? {
         var ret = testClient->callWithErrorReturn();
         checkpanic caller->respond("Invocation Successful");
     }
 
     # Resource function for testing whether trapping a panic from a function is handled properly.
-    resource function get resourceFive(testobserve:Caller caller) returns error? {
+    resource function post resourceFive(testobserve:Caller caller) returns error? {
         var sum = trap testClient->callWithPanic();
         if (sum is error) {
             checkpanic caller->respond("Successfully trapped panic: " + sum.message());

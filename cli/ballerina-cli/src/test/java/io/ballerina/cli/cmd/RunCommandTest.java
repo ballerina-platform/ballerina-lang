@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+
 /**
  * Run command tests.
  *
@@ -51,10 +53,7 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
 
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
-                "\tfile_create.bal\n" +
-                "\n" +
-                "Running executable\n\n");
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("run-bal.txt"));
 
         Assert.assertTrue(tempFile.toFile().exists());
 

@@ -263,7 +263,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private int loopCount;
     private int transactionCount;
-    private int retryCount;
     private boolean statementReturns;
     private boolean failureHandled;
     private boolean matchClauseReturns;
@@ -282,24 +281,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<Boolean> doneWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
     private Stack<Boolean> returnWithinLambdaWrappingCheckStack = new Stack<>();
-    private BLangTransaction innerTransactionBlock = null;
-    private BLangRetry innerRetryBlock = null;
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
     private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
-    private final Stack<BType> onFailErrorType = new Stack<>();
     private boolean isJSONContext;
     private boolean enableExperimentalFeatures;
     private int commitCount;
     private int rollbackCount;
     private boolean withinTransactionScope;
-    private boolean withinTransactionBlock;
+    private boolean commitRollbackAllowed;
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
     private boolean queryToTableWithKey;
-    private List<BType> matchExprTypes;
     private BType matchExprType;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
@@ -337,10 +332,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void resetErrorThrown() {
         this.errorThrown = false;
-    }
-
-    private void resetWithinTrxScopeToTrue() {
-        this.withinTransactionScope = true;
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -581,26 +572,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean failureHandled = this.failureHandled;
 
         boolean previousWithinTxScope = this.withinTransactionScope;
-        boolean previousWithinTrxBlock = this.withinTransactionBlock;
         int previousCommitCount = this.commitCount;
         int previousRollbackCount = this.rollbackCount;
+        boolean prevCommitRollbackAllowed = this.commitRollbackAllowed;
+        this.commitRollbackAllowed = true;
         this.commitCount = 0;
         this.rollbackCount = 0;
 
-        if (this.withinTransactionBlock) {
-            this.innerTransactionBlock = transactionNode;
-        }
-
         this.withinTransactionScope = true;
-
-        if (!this.withinTransactionBlock) {
-            this.withinTransactionBlock = true;
-        }
 
         this.loopWithinTransactionCheckStack.push(false);
         this.returnWithinTransactionCheckStack.push(false);
         this.doneWithinTransactionCheckStack.push(false);
-        this.returnWithinLambdaWrappingCheckStack.push(false);
         this.transactionCount++;
         if (!this.failureHandled) {
             this.failureHandled = transactionNode.onFailClause != null;
@@ -611,20 +594,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(transactionNode.pos, DiagnosticErrorCode.INVALID_COMMIT_COUNT);
         }
 
-        transactionNode.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
-        this.returnWithinLambdaWrappingCheckStack.pop();
         this.transactionCount--;
         this.withinTransactionScope = previousWithinTxScope;
-        this.withinTransactionBlock = previousWithinTrxBlock;
         this.commitCount = previousCommitCount;
         this.rollbackCount = previousRollbackCount;
-        if (this.innerTransactionBlock != null) {
-            transactionNode.statementBlockReturns = this.innerTransactionBlock.statementBlockReturns;
-        }
-
-        if (!this.withinTransactionBlock) {
-            this.innerTransactionBlock = null;
-        }
+        this.commitRollbackAllowed = prevCommitRollbackAllowed;
         this.returnWithinTransactionCheckStack.pop();
         this.loopWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
@@ -650,6 +624,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCommitExpr commitExpr) {
         this.commitCount++;
+        this.commitCountWithinBlock++;
         if (this.transactionCount == 0) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
@@ -658,7 +633,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!withinTransactionScope) {
+        if (!withinTransactionScope || !commitRollbackAllowed ||
+                (!this.loopWithinTransactionCheckStack.empty() && this.loopWithinTransactionCheckStack.peek())) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_NOT_ALLOWED);
             return;
         }
@@ -668,6 +644,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRollback rollbackNode) {
         rollbackCount++;
+        this.rollbackCountWithinBlock++;
         if (this.transactionCount == 0 && !withinTransactionScope) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
@@ -676,7 +653,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!withinTransactionScope) {
+        if (!withinTransactionScope || !commitRollbackAllowed ||
+                (!this.loopWithinTransactionCheckStack.empty() && this.loopWithinTransactionCheckStack.peek())) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_NOT_ALLOWED);
             return;
         }
@@ -686,42 +664,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        this.returnWithinLambdaWrappingCheckStack.push(false);
         this.errorTypes.push(new LinkedHashSet<>());
         boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(retryNode);
-        this.retryCount++;
         if (!this.failureHandled) {
             this.failureHandled = retryNode.onFailClause != null;
-        }
-        if (retryCount > 1) {
-            this.innerRetryBlock = retryNode;
         }
         retryNode.retrySpec.accept(this);
         retryNode.retryBody.accept(this);
         this.failureHandled = failureHandled;
-        if (!this.returnWithinLambdaWrappingCheckStack.peek() && this.innerRetryBlock != null) {
-            retryNode.retryBodyReturns = this.innerRetryBlock.retryBodyReturns;
-        } else {
-            retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
-        }
-        this.returnWithinLambdaWrappingCheckStack.pop();
         this.resetLastStatement();
         this.resetErrorThrown();
         retryNode.retryBody.isBreakable = retryNode.onFailClause != null;
         analyzeOnFailClause(retryNode.onFailClause);
         this.errorTypes.pop();
-        this.retryCount--;
-        if (this.retryCount == 0) {
-            this.innerRetryBlock = null;
-        }
     }
 
     @Override
     public void visit(BLangRetrySpec retrySpec) {
         if (retrySpec.retryManagerType != null) {
-            BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langTransactionModuleSymbol
-                    .scope.lookup(names.fromString("RetryManager")).symbol;
+            BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langObjectModuleSymbol.scope
+                    .lookup(names.fromString("RetryManager")).symbol;
             BType abstractRetryManagerType = retryManagerTypeSymbol.type;
             if (!types.isAssignable(retrySpec.retryManagerType.type, abstractRetryManagerType)) {
                 dlog.error(retrySpec.pos, DiagnosticErrorCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT,
@@ -796,8 +759,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIf ifStmt) {
-        boolean prevTxMode = this.withinTransactionScope;
+        boolean independentBlocks = false;
+        int prevCommitCount = commitCount;
+        int prevRollbackCount = rollbackCount;
         this.checkStatementExecutionValidity(ifStmt);
+        if (withinTransactionScope && ifStmt.elseStmt != null && ifStmt.elseStmt.getKind() != NodeKind.IF) {
+                independentBlocks = true;
+                commitRollbackAllowed = true;
+        }
+        boolean prevTxMode = this.withinTransactionScope;
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = true;
         }
@@ -807,18 +777,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         boolean ifStmtReturns = this.statementReturns;
         boolean currentErrorThrown = this.errorThrown;
-        boolean ifWithinTrxMode = this.withinTransactionScope;
         this.resetStatementReturns();
         this.resetErrorThrown();
-        if (prevTxMode) {
-            this.resetWithinTrxScopeToTrue();
-        }
         if (ifStmt.elseStmt != null) {
+            if (independentBlocks) {
+                commitRollbackAllowed = true;
+                withinTransactionScope = true;
+            }
             analyzeNode(ifStmt.elseStmt, env);
-            boolean elseWithinTrxMode = this.withinTransactionScope;
+            if ((prevCommitCount != commitCount) || prevRollbackCount != rollbackCount) {
+                commitRollbackAllowed = false;
+            }
             this.statementReturns = ifStmtReturns && this.statementReturns;
             this.errorThrown = currentErrorThrown && this.errorThrown;
-            this.withinTransactionScope = (!prevTxMode || ifWithinTrxMode || elseWithinTrxMode) && prevTxMode;
         }
         analyzeExpr(ifStmt.expr);
     }
@@ -2718,6 +2689,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         validateActionInvocation(actionInvocation.pos, actionInvocation);
+
+        if (!actionInvocation.async && this.withinTransactionScope) {
+            actionInvocation.invokedInsideTransaction = true;
+        }
     }
 
     private void validateActionInvocation(Location pos, BLangInvocation iExpr) {

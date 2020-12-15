@@ -224,8 +224,8 @@ public class CloneWithType {
 
                 Type restFieldType = recordType.getRestFieldType();
                 Map<String, Type> targetTypeField = new HashMap<>();
-                for (Field field : recordType.getFields().values()) {
-                    targetTypeField.put(field.getFieldName(), field.getFieldType());
+                for (Map.Entry<String, Field> field : recordType.getFields().entrySet()) {
+                    targetTypeField.put(field.getKey(), field.getValue().getFieldType());
                 }
 
                 for (Map.Entry entry : map.entrySet()) {
