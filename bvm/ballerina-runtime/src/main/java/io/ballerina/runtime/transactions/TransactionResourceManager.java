@@ -146,11 +146,8 @@ public class TransactionResourceManager {
      * @return boolean whether the atomikos transaction manager should be enabled or not
      */
     private boolean getTransactionManagerEnabled() {
-        String transactionManagerEnabled = CONFIG_REGISTRY.getAsString("b7a.transaction.manager.enabled");
-        if (transactionManagerEnabled != null && transactionManagerEnabled.equals("true")) {
-                return true;
-        }
-        return false;
+        boolean transactionManagerEnabled = CONFIG_REGISTRY.getAsBoolean("b7a.transaction.manager.enabled");
+        return transactionManagerEnabled;
     }
 
     /**
