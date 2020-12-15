@@ -28,6 +28,7 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.test.util.BFileUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -88,7 +89,7 @@ public class BCompileUtil {
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        Project project = ProjectLoader.loadProject(projectPath, getTestProjectEnvironmentBuilder());
+        Project project = ProjectLoader.loadProject(projectPath, testProjectEnvironmentBuilder());
 
         if (isSingleFileProject(project)) {
             throw new RuntimeException("single file project is given for compilation at " + project.sourceRoot());
@@ -131,7 +132,7 @@ public class BCompileUtil {
         Files.copy(srcPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    public static ProjectEnvironmentBuilder getTestProjectEnvironmentBuilder() {
+    public static ProjectEnvironmentBuilder testProjectEnvironmentBuilder() {
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(
                 EnvironmentBuilder.buildDefault());
         return environmentBuilder.addCompilationCacheFactory(TestCompilationCache::from);
@@ -183,6 +184,13 @@ public class BCompileUtil {
         private static TestCompilationCache from(Project project) {
             Path testCompilationCachePath = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
             return new TestCompilationCache(project, testCompilationCachePath);
+        }
+    }
+
+    public static void cleanBaloCache() {
+        Path testCompilationCachePath = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
+        if (testCompilationCachePath.toFile().exists()) {
+            BFileUtil.delete(testCompilationCachePath);
         }
     }
 }

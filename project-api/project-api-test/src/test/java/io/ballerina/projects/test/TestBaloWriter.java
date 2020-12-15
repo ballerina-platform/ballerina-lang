@@ -33,6 +33,7 @@ import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -365,5 +366,10 @@ public class TestBaloWriter {
     @AfterMethod
     public void cleanUp() {
         TestUtils.deleteDirectory(new File(String.valueOf(BALO_PATH)));
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BCompileUtil.cleanBaloCache();
     }
 }

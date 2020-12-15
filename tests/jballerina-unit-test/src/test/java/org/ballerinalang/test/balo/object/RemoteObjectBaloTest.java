@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -50,5 +51,10 @@ public class RemoteObjectBaloTest {
         result = BRunUtil.invoke(compileResult, "testNewEP", new BValue[]{new BString("done")});
         Assert.assertEquals(result.length, 1);
         Assert.assertEquals(result[0].stringValue(), "donedone");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BCompileUtil.cleanBaloCache();
     }
 }

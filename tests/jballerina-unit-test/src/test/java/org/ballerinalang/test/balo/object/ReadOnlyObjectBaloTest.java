@@ -21,6 +21,7 @@ package org.ballerinalang.test.balo.object;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -55,5 +56,10 @@ public class ReadOnlyObjectBaloTest {
         validateError(result, index++, "invalid intersection type: cannot have a 'readonly' intersection with a " +
                 "'readonly object'", 20, 5);
         assertEquals(result.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BCompileUtil.cleanBaloCache();
     }
 }

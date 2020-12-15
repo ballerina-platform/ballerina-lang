@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -109,5 +110,10 @@ public class DocumentationTest {
 
         Assert.assertNotNull(annotationSymbol.markdownDocumentation);
         Assert.assertEquals(markdownDocumentation.description, "Documentation for Test annotation");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BCompileUtil.cleanBaloCache();
     }
 }

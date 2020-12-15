@@ -171,6 +171,6 @@ public class ClosedRecordTypeReferenceTest {
 
     @AfterClass
     public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
+        BCompileUtil.cleanBaloCache();
     }
 }

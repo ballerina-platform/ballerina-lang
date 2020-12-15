@@ -34,6 +34,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -181,7 +182,7 @@ public class PackageResolutionTests {
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath);
 
         // Load the balr file now.
-        BaloProject baloProject = BaloProject.loadProject(BCompileUtil.getTestProjectEnvironmentBuilder(), balrPath);
+        BaloProject baloProject = BaloProject.loadProject(BCompileUtil.testProjectEnvironmentBuilder(), balrPath);
         PackageResolution resolution = baloProject.currentPackage().getResolution();
 
         // Dependency graph should contain only one entry
@@ -266,5 +267,10 @@ public class PackageResolutionTests {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_m_with_unstable_dep");
         BuildProject buildProject = BuildProject.load(projectDirPath);
         buildProject.currentPackage().getResolution();
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BCompileUtil.cleanBaloCache();
     }
 }

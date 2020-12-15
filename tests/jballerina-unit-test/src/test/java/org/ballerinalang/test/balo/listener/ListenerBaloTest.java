@@ -50,6 +50,6 @@ public class ListenerBaloTest {
 
     @AfterClass(enabled = false)
     public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_listener", "listenerProject", "bee");
+        BCompileUtil.cleanBaloCache();
     }
 }
