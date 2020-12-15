@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.ResourceFunctionType;
 import io.ballerina.runtime.api.types.Type;
 
@@ -72,5 +73,10 @@ public class BResourceFunctionType extends BMemberFunctionType implements Resour
     @Override
     public String[] getResourcePath() {
         return resourcePath;
+    }
+
+    @Override
+    public <T extends MemberFunctionType> MemberFunctionType duplicate() {
+        return new BResourceFunctionType(funcName, parentObjectType, type, flags, accessor, resourcePath, paramNames);
     }
 }

@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.RemoteFunctionType;
 import io.ballerina.runtime.api.types.Type;
 
@@ -40,5 +41,10 @@ public class BRemoteFunctionType extends BMemberFunctionType implements RemoteFu
             sj.add(type.getName());
         }
         return sj.toString();
+    }
+
+    @Override
+    public <T extends MemberFunctionType> MemberFunctionType duplicate() {
+        return new BRemoteFunctionType(funcName, parentObjectType, type, flags);
     }
 }

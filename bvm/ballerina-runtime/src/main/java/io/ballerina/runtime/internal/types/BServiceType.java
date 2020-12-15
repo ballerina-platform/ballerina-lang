@@ -90,10 +90,10 @@ public class BServiceType extends BObjectType implements ServiceType {
     BObjectType cloneThis() {
         BServiceType type = new BServiceType(this.typeName, this.pkg, this.flags);
         type.setFields(fields);
-        type.setMemberFunctionTypes(getMemberFunctionTypes());
+        type.setMemberFunctionTypes(duplicateArray(getMemberFunctionTypes()));
         type.immutableType = this.immutableType;
         type.typeIdSet = this.typeIdSet;
-        type.setResourceFunctions(resourceFunctions);
+        type.setResourceFunctions(duplicateArray(resourceFunctions));
         return type;
     }
 }

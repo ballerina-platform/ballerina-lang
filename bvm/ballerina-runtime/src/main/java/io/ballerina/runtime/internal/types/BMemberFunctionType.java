@@ -74,4 +74,9 @@ public class BMemberFunctionType extends BFunctionType implements MemberFunction
     public FunctionType getType() {
         return type;
     }
+
+    public <T extends MemberFunctionType> MemberFunctionType duplicate() {
+        MemberFunctionType t = new BMemberFunctionType(funcName, parentObjectType, type, flags);
+        return t;
+    }
 }

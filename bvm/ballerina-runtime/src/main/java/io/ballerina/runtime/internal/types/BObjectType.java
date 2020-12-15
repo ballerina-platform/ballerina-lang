@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.AnnotationUtils;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.MapValue;
 
+import java.lang.reflect.Array;
 import java.util.Map.Entry;
 import java.util.StringJoiner;
 
@@ -145,10 +146,21 @@ public class BObjectType extends BStructureType implements ObjectType {
     BObjectType cloneThis() {
         BObjectType type = new BObjectType(this.typeName, this.pkg, this.flags);
         type.setFields(fields);
-        type.setMemberFunctionTypes(memberFunctionTypes);
+        type.setMemberFunctionTypes(duplicateArray(memberFunctionTypes));
         type.immutableType = this.immutableType;
         type.typeIdSet = this.typeIdSet;
         return type;
+    }
+
+    protected  <T extends MemberFunctionType> T[] duplicateArray(T[] memberFunctionTypes) {
+        Class<?> elemType = memberFunctionTypes.getClass().getComponentType();
+        T[] array = (T[]) Array.newInstance(elemType, memberFunctionTypes.length);
+        for(int i = 0; i < memberFunctionTypes.length; i++) {
+            BMemberFunctionType functionType = (BMemberFunctionType) memberFunctionTypes[i];
+            array[i] = (T) functionType.duplicate();
+        }
+
+        return array;
     }
 
     public boolean hasAnnotations() {
