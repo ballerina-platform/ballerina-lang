@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.datamapper;
+package org.ballerinalang.datamapper.codeaction;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -96,6 +96,7 @@ class AIDataMapperCodeActionUtil {
         boolean foundRight = fileContentSymbols.stream().anyMatch(p -> p.name().contains(foundTypeRight));
 
         if(!(foundRight && foundLeft)){
+//            String assignType = assignTypeDecriptor(diagnostic, fileContentSymbols);
             return fEdits;
         }
 
@@ -120,8 +121,8 @@ class AIDataMapperCodeActionUtil {
         if (!found) {
             TextDocument fileContentTextDocument = context.workspace().syntaxTree(context.filePath()).get().textDocument();
             int numberOfLinesInFile = fileContentTextDocument.toString().split("\n").length;
-            Position startPosOfLastLine = new Position(numberOfLinesInFile + 5, 0);
-            Position endPosOfLastLine = new Position(numberOfLinesInFile + 5, 1);
+            Position startPosOfLastLine = new Position(numberOfLinesInFile + 2, 0);
+            Position endPosOfLastLine = new Position(numberOfLinesInFile + 2, 1);
             Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
             String generatedRecordMappingFunction =
                     getGeneratedRecordMappingFunction(context.positionDetails(), context, foundTypeLeft,
@@ -219,7 +220,10 @@ class AIDataMapperCodeActionUtil {
             headers.put("Accept", "application/json");
             String url = LSClientConfigHolder.getInstance().getConfigAs(LSClientExtendedConfig.class).getDataMapper()
                     .getUrl() + "/map/1.0.0";
+            System.out.println("check");
             HttpResponse response = HttpClientRequest.doPost(url, dataToSend.toString(), headers);
+            System.out.println("Response code = " + response.getResponseCode());
+            System.out.println("Response data = " + response.getData());
             int responseCode = response.getResponseCode();
             if (responseCode != HTTP_200_OK) {
                 if (responseCode == HTTP_422_UN_PROCESSABLE_ENTITY) {
@@ -229,8 +233,10 @@ class AIDataMapperCodeActionUtil {
                 }
             }
             JsonParser parser = new JsonParser();
+            System.out.println(parser.parse(response.getData()).getAsJsonObject().get("answer").getAsString());
             return parser.parse(response.getData()).getAsJsonObject().get("answer").getAsString();
         } catch (IOException e) {
+            System.out.println("got exception");
             throw new IOException("Error connecting the AI service" + e.getMessage(), e);
         }
     }
