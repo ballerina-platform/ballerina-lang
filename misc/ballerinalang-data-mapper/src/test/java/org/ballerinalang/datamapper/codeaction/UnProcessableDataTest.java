@@ -15,13 +15,15 @@
  */
 package org.ballerinalang.datamapper.codeaction;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.ballerinalang.datamapper.util.FileUtils;
 import org.ballerinalang.datamapper.util.TestUtil;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -36,9 +38,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static org.ballerinalang.datamapper.util.DataMapperTestUtils.getCodeActionResponse;
 
@@ -48,9 +50,16 @@ import static org.ballerinalang.datamapper.util.DataMapperTestUtils.getCodeActio
  *
  * @since 2.0.0
  */
-public class CodeActionTest {
+public class UnProcessableDataTest {
 
     private static Endpoint serviceEndpoint;
+
+    private JsonParser parser = new JsonParser();
+
+    private Path sourcesPath = new File(UnProcessableDataTest.class.getClassLoader().getResource("codeaction")
+            .getFile()).toPath();
+
+    private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
 
     private static final Logger log = LoggerFactory.getLogger(CodeActionTest.class);
 
@@ -63,20 +72,18 @@ public class CodeActionTest {
         JsonObject configs = FileUtils.fileContentAsObject(startConfigPath);
         TestUtil.setWorkspaceConfig(serviceEndpoint, configs);
 
-        //Mocking server response
-        String responseData = "{\"answer\":\"\\nfunction mapStudentToGrades (Student student) " +
-                "returns Grades {\\n// Some record fields might be missing in the AI based mapping.\\n\\t" +
-                "Grades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, " +
-                "physics: student.grades.physics};\\n\\treturn grades;\\n}\"}";
-
         class HelloWorldHandler extends AbstractHandler {
+            //Mocking server response
+            String responseData = "";
+            int statusCode = 422;
+
             @Override
             public void handle(String target, Request jettyRequest, HttpServletRequest request,
                                HttpServletResponse response) throws IOException {
                 // Mark the request as handled by this Handler.
                 jettyRequest.setHandled(true);
 
-                response.setStatus(200);
+                response.setStatus(statusCode);
                 response.setContentType("text/html; charset=UTF-8");
                 response.getWriter().print(responseData);
             }
@@ -91,54 +98,17 @@ public class CodeActionTest {
         server.start();
     }
 
-    @Test(dataProvider = "codeAction-data-mapper-data-provider")
-    public void testDataMapperCodeAction(String config, String source) throws Exception {
+    @Test(dataProvider = "codeAction-data-mapper-data-provider-un-processable-data")
+    public void testDataMapperCodeActionWithUnProcessableData(String config, String source) throws Exception {
 
         // Read expected results
         String configJsonPath = "codeaction" + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-
-        // Get code action from language server
-        JsonObject responseJson = getCodeActionResponse(source, configJsonObject, serviceEndpoint);
-
         JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
         String title = expectedResponse.get("title").getAsString();
 
-        int numberOfDataMappingCodeAction = 0;
-        boolean codeActionFound = false;
-        boolean codeActionFoundOnlyOnce = false;
-        for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
-            JsonElement right = jsonElement.getAsJsonObject().get("right");
-            JsonElement editText = right.getAsJsonObject().get("edit");
-            if (editText == null) {
-                continue;
-            }
-            JsonArray edit = editText.getAsJsonObject().get("documentChanges")
-                    .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
-            boolean editsMatched = expectedResponse.get("edits").getAsJsonArray().equals(edit);
-            if (right.getAsJsonObject().get("title").getAsString().equals(title) && editsMatched) {
-                codeActionFound = true;
-                numberOfDataMappingCodeAction = numberOfDataMappingCodeAction + 1;
-            }
-        }
-        if (codeActionFound && numberOfDataMappingCodeAction == 1) {
-            codeActionFoundOnlyOnce = true;
-        }
-        Assert.assertTrue(
-                codeActionFoundOnlyOnce, "Cannot find expected Code Action for: " + title);
-    }
-
-    @Test(dataProvider = "restricted-codeAction-data-mapper-data-provider")
-    public void testRestrictedDataMapperCodeAction(String config, String source) throws Exception {
-        // Read expected results
-        String configJsonPath = "codeaction" + File.separator + config;
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-
         // Get code action from language server
         JsonObject responseJson = getCodeActionResponse(source, configJsonObject, serviceEndpoint);
-
-        JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
-        String title = expectedResponse.get("title").getAsString();
 
         boolean codeActionFound = false;
         for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
@@ -151,28 +121,14 @@ public class CodeActionTest {
                 codeActionFound = true;
             }
         }
-        Assert.assertFalse(
-                codeActionFound, "Cannot find expected Code Action for: " + title);
+        Assert.assertFalse(codeActionFound, "Returned an invalid code action");
     }
 
-
-    @DataProvider(name = "codeAction-data-mapper-data-provider")
-    public Object[][] codeActionDataMapperDataProvider() {
+    @DataProvider(name = "codeAction-data-mapper-data-provider-un-processable-data")
+    public Object[][] codeActionDataMapperDataProviderUnProcessableData() {
         log.info("Test textDocument/codeAction QuickFixes");
         return new Object[][]{
-                {"dataMapper1.json", "dataMapper1.bal"},
-                {"dataMapper2.json", "dataMapper2.bal"},
                 {"dataMapper3.json", "dataMapper3.bal"},
-                {"dataMapper4.json", "dataMapper4.bal"},
-                {"dataMapper5.json", "dataMapper5.bal"},
-        };
-    }
-
-    @DataProvider(name = "restricted-codeAction-data-mapper-data-provider")
-    public Object[][] restrictedCodeActionDataMapperDataProvider() {
-        log.info("Test textDocument/codeAction QuickFixes");
-        return new Object[][]{
-                {"dataMapper6.json", "dataMapper6.bal"},
         };
     }
 
@@ -218,3 +174,4 @@ public class CodeActionTest {
 //        return this.getResponseJson(response);
 //    }
 }
+

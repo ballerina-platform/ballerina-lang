@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.datamapper.codeaction;
+package org.ballerinalang.datamapper;
 
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -41,13 +40,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static org.ballerinalang.datamapper.codeaction.AIDataMapperCodeActionUtil.getAIDataMapperCodeActionEdits;
+import static org.ballerinalang.datamapper.AIDataMapperCodeActionUtil.getAIDataMapperCodeActionEdits;
 
 /**
  * Code Action provider for automatic data mapping.
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AIDataMapperCodeAction extends AbstractCodeActionProvider implements LSCodeActionProvider {
+public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     /**
      * {@inheritDoc}
      */
