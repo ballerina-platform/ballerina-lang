@@ -315,7 +315,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         visit((BLangFunction) funcNode);
         for (BLangSimpleVariable pathParam : funcNode.pathParams) {
             pathParam.accept(this);
-            if (!types.isAssignable(pathParam.type, symTable.intStringFloatOrBoolean)) {
+            if (!types.isAssignable(pathParam.type, symTable.pathParamAllowedType)) {
                 dlog.error(pathParam.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE, pathParam.type);
             }
         }
@@ -324,7 +324,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             funcNode.restPathParam.accept(this);
             BArrayType arrayType = (BArrayType) funcNode.restPathParam.type;
             BType elemType = arrayType.getElementType();
-            if (!types.isAssignable(elemType, symTable.intStringFloatOrBoolean)) {
+            if (!types.isAssignable(elemType, symTable.pathParamAllowedType)) {
                 dlog.error(funcNode.restPathParam.getPosition(),
                         DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE, elemType);
             }
