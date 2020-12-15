@@ -112,6 +112,7 @@ public class BFileUtil {
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                     if (Files.exists(dir)) {
                         Files.list(dir).forEach(BFileUtil::delete);
+                        Files.delete(dir);
                     }
                     return FileVisitResult.CONTINUE;
                 }
@@ -120,6 +121,50 @@ public class BFileUtil {
             throw new BLangRuntimeException("error occurred while deleting '" + path + "'", e);
         }
     }
+
+    /**
+     * Delete the distribution package cache directory and files from give location.
+     *
+     * @param path Path to the package cache
+     */
+    public static void deletePackageCache(Path path) {
+        final String patternToExclude = ".*repo/balo/ballerina.*|.*repo/cache/ballerina.*|.*repo|.*cache|.*balo";
+        try {
+            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    if (Files.exists(file)) {
+                        if (file.toString().matches(patternToExclude)) {
+                            return FileVisitResult.CONTINUE;
+                        }
+                        Files.delete(file);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    if (Files.exists(dir)) {
+                        if (dir.toString().matches(patternToExclude)) {
+                            return FileVisitResult.CONTINUE;
+                        }
+                        Files.list(dir).forEach(BFileUtil::delete);
+                        Files.delete(dir);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            throw new BLangRuntimeException("error occurred while deleting '" + path + "'", e);
+        }
+    }
+
 
     /**
      * Provides Qualified Class Name.

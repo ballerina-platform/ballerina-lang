@@ -190,7 +190,7 @@ public class BCompileUtil {
     public static void cleanBaloCache() {
         Path testCompilationCachePath = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
         if (testCompilationCachePath.toFile().exists()) {
-            BFileUtil.delete(testCompilationCachePath);
+            BFileUtil.deletePackageCache(testCompilationCachePath);
         }
     }
 }
