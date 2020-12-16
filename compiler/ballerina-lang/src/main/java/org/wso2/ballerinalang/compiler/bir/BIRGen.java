@@ -1538,9 +1538,7 @@ public class BIRGen extends BLangNodeVisitor {
                 } else {
                     this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB);
                 }
-
             }
-
         } else {
             branchIns.falseBB = nextBB;
         }

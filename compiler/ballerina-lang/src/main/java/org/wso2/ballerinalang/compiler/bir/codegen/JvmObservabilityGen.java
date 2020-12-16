@@ -109,6 +109,9 @@ class JvmObservabilityGen {
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
     private static final Location COMPILE_TIME_CONST_POS =
             new BLangDiagnosticLocation(null, -1, -1, -1, -1);
+    private static final String INIT_FUNC = ".<init>";
+    private static final String START_FUNC = ".<start>";
+    private static final String STOP_FUNC = ".<stop>";
 
     private final PackageCache packageCache;
     private final SymbolTable symbolTable;
@@ -139,13 +142,11 @@ class JvmObservabilityGen {
 
             // If there is an entry point in the package, then we instrument with control flow checkpoints
             if (entryPointExists) {
-                if (!(func.name.value.equalsIgnoreCase(".<init>") ||
-                        func.name.value.equalsIgnoreCase(".<start>") ||
-                        func.name.value.equalsIgnoreCase(".<stop>"))) {
-
+                if (!(func.name.value.equalsIgnoreCase(INIT_FUNC) ||
+                        func.name.value.equalsIgnoreCase(START_FUNC) ||
+                        func.name.value.equalsIgnoreCase(STOP_FUNC))) {
                     rewriteControlFlowInvocation(func, pkg);
                 }
-
             }
             rewriteAsyncInvocations(func, null, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
@@ -167,10 +168,9 @@ class JvmObservabilityGen {
 
                 // Instrumenting the control flow of attached functions
                 if (entryPointExists) {
-                    if (!(func.name.value.equalsIgnoreCase(".<init>") ||
-                            func.name.value.equalsIgnoreCase(".<start>") ||
-                            func.name.value.equalsIgnoreCase(".<stop>"))) {
-
+                    if (!(func.name.value.equalsIgnoreCase(INIT_FUNC) ||
+                            func.name.value.equalsIgnoreCase(START_FUNC) ||
+                            func.name.value.equalsIgnoreCase(STOP_FUNC))) {
                         rewriteControlFlowInvocation(func, pkg);
                     }
                 }
@@ -206,35 +206,24 @@ class JvmObservabilityGen {
     private void rewriteControlFlowInvocation(BIRFunction func, BIRPackage pkg) {
         int i = 0;
         while (i < func.basicBlocks.size()) {
-
+            // Basic blocks with JI method calls are added for all kinda of Terminators
             BIRBasicBlock startBB = func.basicBlocks.get(i);
-
-            // Creating a generic JI calls for all kinds of terminators
             Location desugaredPos;
-            // First we give the priority to instructions,
-            // if no instructions are found then we get the terminator position
+            // First we give the priority to Instructions,
+            // If no instructions are found, then we get the Terminator position
             if (startBB.instructions.size() != 0) {
                 desugaredPos = startBB.instructions.get(0).pos;
-                if (desugaredPos != null) {
-                    BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
-                    swapBasicBlockContent(startBB, newBB);
-                    injectCheckpointCall(startBB, pkg, desugaredPos);
-                    startBB.terminator.thenBB = newBB;
-                    //Fix error entries in the error entry table
-                    fixErrorTable(func, startBB, newBB);
-                    i += 1; // Number of inserted BBs
-                }
-
             } else {
                 desugaredPos = startBB.terminator.pos;
-                if (desugaredPos != null) {
-                    BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
-                    swapBasicBlockContent(startBB, newBB);
-                    injectCheckpointCall(startBB, pkg, desugaredPos);
-                    startBB.terminator.thenBB = newBB;
-                    fixErrorTable(func, startBB, newBB);
-                    i += 1;
-                }
+            }
+            if (desugaredPos != null) {
+                BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
+                swapBasicBlockContent(startBB, newBB);
+                injectCheckpointCall(startBB, pkg, desugaredPos);
+                startBB.terminator.thenBB = newBB;
+                //Fix error entries in the error entry table
+                fixErrorTable(func, startBB, newBB);
+                i += 1; // Number of inserted BBs
             }
             i += 1;
         }
@@ -248,7 +237,6 @@ class JvmObservabilityGen {
      */
     private void injectCheckpointCall(BIRBasicBlock startBB, BIRPackage pkg, Location desugaredInsPosition) {
         String pkgId = generatePackageId(pkg);
-
         String position = generatePositionId(desugaredInsPosition);
 
         BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);

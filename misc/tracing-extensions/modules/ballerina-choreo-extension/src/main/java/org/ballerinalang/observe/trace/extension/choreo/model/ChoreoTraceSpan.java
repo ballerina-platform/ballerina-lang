@@ -16,7 +16,6 @@
 
 package org.ballerinalang.observe.trace.extension.choreo.model;
 
-
 import java.util.List;
 import java.util.Map;
 
@@ -129,12 +128,10 @@ public class ChoreoTraceSpan {
         private String moduleID;
         private String positionID;
 
-
         public SpanEvent(long time, String moduleID, String positionID) {
             this.time = time;
             this.moduleID = moduleID;
             this.positionID = positionID;
-
         }
 
         public long getTime() {
@@ -148,8 +145,5 @@ public class ChoreoTraceSpan {
         public String getPositionID() {
             return positionID;
         }
-
     }
-
-
 }

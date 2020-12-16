@@ -42,6 +42,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_INVOCATION_POSITION;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_MODULE;
 
@@ -124,25 +125,22 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                 );
                 references.add(reference);
             }
-
             List<ChoreoTraceSpan.SpanEvent> events;
             if (jaegerSpan.getLogs() != null) {
                 events = new ArrayList<>(jaegerSpan.getLogs().size());
-
                 for (LogData eventLog : jaegerSpan.getLogs()) {
                     ChoreoTraceSpan.SpanEvent event = new ChoreoTraceSpan.SpanEvent(
                             eventLog.getTime(),
-                            (((Map) eventLog.getFields().get("CHECKPOINT")).
+                            (((Map) eventLog.getFields().get(CHECKPOINT)).
                                     get(TAG_KEY_MODULE)).toString(),
-                            (((Map) eventLog.getFields().get("CHECKPOINT")).
-                                    get(TAG_KEY_INVOCATION_POSITION)).toString());
-
+                            (((Map) eventLog.getFields().get(CHECKPOINT)).
+                                    get(TAG_KEY_INVOCATION_POSITION)).toString()
+                    );
                     events.add(event);
                 }
             } else {
                 events = null;
             }
-
 
             JaegerSpanContext spanContext = jaegerSpan.context();
             long timestamp = jaegerSpan.getStart() / 1000;  // Jaeger stores timestamp in microseconds by default

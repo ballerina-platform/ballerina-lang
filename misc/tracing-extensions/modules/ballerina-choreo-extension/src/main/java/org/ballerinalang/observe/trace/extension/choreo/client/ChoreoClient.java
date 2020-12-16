@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-
 /**
  * Manages the communication with Choreo cloud.
  *
@@ -181,10 +180,8 @@ public class ChoreoClient implements AutoCloseable {
             TelemetryOuterClass.TracesPublishRequest.Builder requestBuilder =
                     TelemetryOuterClass.TracesPublishRequest.newBuilder();
             int messageSize = 0;
-
             while (i < traceSpans.size() && messageSize < SERVER_MAX_FRAME_SIZE_BYTES) {
                 ChoreoTraceSpan traceSpan = traceSpans.get(i);
-
                 TelemetryOuterClass.TraceSpan.Builder traceSpanBuilder
                         = TelemetryOuterClass.TraceSpan.newBuilder()
                                                        .setTraceId(traceSpan.getTraceId())
@@ -203,7 +200,6 @@ public class ChoreoClient implements AutoCloseable {
                                     : TelemetryOuterClass.TraceReferenceType.FOLLOWS_FROM));
                 }
 
-
                 if (traceSpan.getEvents() != null) {
                     for (ChoreoTraceSpan.SpanEvent spanEvent: traceSpan.getEvents()) {
                         traceSpanBuilder.addCheckpoints(TelemetryOuterClass.Checkpoint.newBuilder()
@@ -212,7 +208,6 @@ public class ChoreoClient implements AutoCloseable {
                                 .setPositionID(spanEvent.getPositionID()));
                     }
                 }
-
 
                 TelemetryOuterClass.TraceSpan traceSpanMessage = traceSpanBuilder.build();
                 int currentMessageSize = traceSpanMessage.getSerializedSize();

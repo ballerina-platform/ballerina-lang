@@ -143,7 +143,6 @@ public class ObserveUtils {
         eventAttributes.put(TAG_KEY_INVOCATION_POSITION, position.getValue());
 
         addEventToActiveSpan(eventAttributes, env);
-
     }
 
     /**
