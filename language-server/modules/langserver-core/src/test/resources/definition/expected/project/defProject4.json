@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "projectls/modules/lsmod1/lsmod1.bal"
+  },
+  "position": {
+    "line": 4,
+    "character": 14
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 1,
+          "character": 9
+        },
+        "end": {
+          "line": 1,
+          "character": 26
+        }
+      },
+      "uri": "projectls/modules/lsmod1/source1.bal"
+    }
+  ]
+}
