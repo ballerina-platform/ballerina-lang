@@ -457,8 +457,11 @@ public class BallerinaDocGenerator {
             boolean hasPublicConstructs = false;
             // Loop through bal files
             for (Map.Entry<String, SyntaxTree> syntaxTreeMapEntry : moduleDoc.getValue().syntaxTreeMap.entrySet()) {
-                hasPublicConstructs = Generator.setModuleFromSyntaxTree(module, syntaxTreeMapEntry.getValue(), model,
-                        syntaxTreeMapEntry.getKey());
+                boolean hasPublicConstructsTemp = Generator.setModuleFromSyntaxTree(module,
+                        syntaxTreeMapEntry.getValue(), model, syntaxTreeMapEntry.getKey());
+                if (hasPublicConstructsTemp) {
+                    hasPublicConstructs = true;
+                }
             }
             if (hasPublicConstructs) {
                 moduleDocs.add(module);
