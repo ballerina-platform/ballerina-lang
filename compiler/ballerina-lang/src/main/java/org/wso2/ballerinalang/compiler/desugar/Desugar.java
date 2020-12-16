@@ -849,6 +849,7 @@ public class Desugar extends BLangNodeVisitor {
         List<BLangVariable> desugaredGlobalVarList = new ArrayList<>();
 
         globalVars.forEach(globalVar -> {
+            this.env.enclPkg.topLevelNodes.remove(globalVar);
             // This will convert complex variables to simple variables.
             switch (globalVar.getKind()) {
                 case TUPLE_VARIABLE:
@@ -885,7 +886,7 @@ public class Desugar extends BLangNodeVisitor {
                     break;
             }
         });
-
+        this.env.enclPkg.topLevelNodes.addAll(desugaredGlobalVarList);
         return desugaredGlobalVarList;
     }
 
