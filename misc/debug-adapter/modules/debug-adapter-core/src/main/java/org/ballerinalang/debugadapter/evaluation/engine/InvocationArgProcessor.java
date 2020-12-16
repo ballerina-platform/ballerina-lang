@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.REST_ARG_IDENTIFIER;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
 
 /**
  * Validates and processes invocation arguments of ballerina functions and object methods.

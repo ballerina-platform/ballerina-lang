@@ -719,7 +719,7 @@ public class BIRPackageSymbolEnter {
             Map<Name, BVarSymbol> paramsMap = new HashMap<>();
             for (BVarSymbol param : invokableSymbol.params) {
                 if (paramsMap.put(param.getName(), param) != null) {
-                    throw new IllegalStateException("Duplicate key: " + param.getName());
+                    throw new IllegalStateException("duplicate key: " + param.getName());
                 }
             }
             populateParameterizedType(invokableSymbol.retType, paramsMap, invokableSymbol);
@@ -1423,7 +1423,7 @@ public class BIRPackageSymbolEnter {
         byte[] docBytes = new byte[docLength];
         int noOfBytesRead = inputStream.read(docBytes);
         if (docLength != noOfBytesRead) {
-            throw new RuntimeException("Failed to read Markdown Documenation");
+            throw new RuntimeException("failed to read Markdown Documentation");
         }
         return docBytes;
     }

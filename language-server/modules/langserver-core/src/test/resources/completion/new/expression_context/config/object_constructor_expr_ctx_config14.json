@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 6,
-    "character": 58
+    "character": 51
   },
   "source": "expression_context/source/object_constructor_expr_ctx_source14.bal",
   "items": [
@@ -61,6 +61,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Client",
       "kind": "Interface",
       "detail": "Object",
@@ -81,17 +88,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "TestClass1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Listener",
       "kind": "Interface",
       "detail": "Object",
       "insertText": "Listener",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -26,11 +26,11 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import java.util.Collections;
 import java.util.List;
 
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_TYPE_CHECKER_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.GET_TYPEDESC_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.JAVA_OBJECT_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getRuntimeMethod;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getValueAsObject;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_TYPEDESC_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
  * `typeof` expression evaluator implementation.

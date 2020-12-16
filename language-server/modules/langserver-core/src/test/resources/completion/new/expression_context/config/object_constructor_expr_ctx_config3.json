@@ -6,6 +6,27 @@
   "source": "expression_context/source/object_constructor_expr_ctx_source3.bal",
   "items": [
     {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "TestClass1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Client",
       "kind": "Interface",
       "detail": "Object",
@@ -26,17 +47,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Listener",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "Listener",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "TestObject1",
+      "label": "listener1",
+      "kind": "Variable",
+      "detail": "ballerina/module1:0.1.0:Listener",
+      "insertText": "listener1",
       "insertTextFormat": "Snippet"
     }
   ]

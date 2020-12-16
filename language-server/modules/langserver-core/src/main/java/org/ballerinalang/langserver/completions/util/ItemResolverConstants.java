@@ -32,6 +32,7 @@ public class ItemResolverConstants {
     public static final String FORK = "fork";
     public static final String WORKER = "worker";
     public static final String TRANSACTION = "transaction";
+    public static final String TRANSACTIONAL = "transactional";
     public static final String RETRY_TRANSACTION = "retry transaction";
     public static final String TRAP = "trap";
     public static final String WHILE = "while";
@@ -77,6 +78,7 @@ public class ItemResolverConstants {
     public static final String DISTINCT = "distinct";
     public static final String HTTP_RESOURCE = "http resource";
     public static final String RESOURCE = "resource";
+    public static final String RESOURCE_FUNC_DEF = "function name . () {}";
     
     public static final String FROM_CLAUSE = "from clause";
     public static final String LET_CLAUSE = "let clause";

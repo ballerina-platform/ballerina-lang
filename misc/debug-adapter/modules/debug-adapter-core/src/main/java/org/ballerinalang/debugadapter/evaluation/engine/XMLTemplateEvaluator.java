@@ -23,14 +23,14 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 import java.util.Collections;
 
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_STRING_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.FROM_STRING_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.XML_FROM_STRING_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_STRING_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.FROM_STRING_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.XML_FROM_STRING_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 
 /**
  * XML template expression evaluator implementation.
@@ -53,7 +53,7 @@ public class XMLTemplateEvaluator extends Evaluator {
             for (Node memberNode : syntaxNode.content()) {
                 xmlStrBuilder.append(memberNode.toSourceCode());
             }
-            Value xmlStrValue = EvaluationUtils.make(context, xmlStrBuilder.toString()).getJdiValue();
+            Value xmlStrValue = VMUtils.make(context, xmlStrBuilder.toString()).getJdiValue();
 
             RuntimeStaticMethod fromStringMethod = getRuntimeMethod(context, FROM_STRING_CLASS, XML_FROM_STRING_METHOD,
                     Collections.singletonList(B_STRING_CLASS));

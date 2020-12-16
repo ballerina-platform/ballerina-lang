@@ -78,10 +78,9 @@ public class ConfigMethodGen {
 
     public void generateConfigInit(List<PackageID> imprtMods, BIRNode.BIRPackage pkg, String moduleInitClass,
                                    Map<String, byte[]> jarEntries) {
-        String innerClassName = JvmCodeGenUtil
-                .getModuleLevelClassName(pkg.org.value, pkg.name.value, pkg.version.value, CONFIGURATION_CLASS_NAME);
+        String innerClassName = JvmCodeGenUtil.getModuleLevelClassName(pkg.packageID, CONFIGURATION_CLASS_NAME);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8,  ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);
+        cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);
 
         MethodVisitor mv = cw.visitMethod(ACC_PRIVATE, JVM_INIT_METHOD, "()V", null, null);
         mv.visitCode();
@@ -103,7 +102,7 @@ public class ConfigMethodGen {
             generateInvokeConfiguration(mv, id);
         }
 
-        generateInvokeConfiguration(mv, MethodGenUtils.packageToModuleId(pkg));
+        generateInvokeConfiguration(mv, pkg.packageID);
         initializeConfigVariables(mv);
 
         mv.visitInsn(RETURN);
@@ -118,10 +117,8 @@ public class ConfigMethodGen {
 
 
     private void generateInvokeConfiguration(MethodVisitor mv, PackageID id) {
-        String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(id.orgName.value, id.name.value, id.version.value,
-                CONFIGURATION_CLASS_NAME);
-        String initClass = JvmCodeGenUtil.getModuleLevelClassName(id.orgName.value, id.name.value, id.version.value,
-                MODULE_INIT_CLASS_NAME);
+        String moduleClass = JvmCodeGenUtil.getModuleLevelClassName(id, CONFIGURATION_CLASS_NAME);
+        String initClass = JvmCodeGenUtil.getModuleLevelClassName(id, MODULE_INIT_CLASS_NAME);
 
         mv.visitMethodInsn(INVOKESTATIC, moduleClass, POPULATE_CONFIG_DATA_METHOD,
                 String.format("()[L%s;", VARIABLE_KEY), false);

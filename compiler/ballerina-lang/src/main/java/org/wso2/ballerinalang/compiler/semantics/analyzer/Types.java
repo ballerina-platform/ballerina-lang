@@ -3795,9 +3795,17 @@ public class Types {
             }
 
             BType secondParamType = func.type.paramTypes.get(1);
-            boolean sameType = types.isSameType(this.serviceNameType, secondParamType);
+            boolean sameType = types.isAssignable(secondParamType, this.serviceNameType);
             return attachFound = sameType;
 
+        }
+
+        private boolean isServiceObject(BType type) {
+            if (type.tag != TypeTags.OBJECT) {
+                return false;
+            }
+
+            return Symbols.isService(type.tsymbol);
         }
     }
 }

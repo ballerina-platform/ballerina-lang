@@ -29,7 +29,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import static io.ballerina.runtime.internal.IdentifierUtils.encodeNonFunctionIdentifier;
+import static io.ballerina.runtime.api.utils.IdentifierUtils.encodeNonFunctionIdentifier;
 
 /**
  * Utility methods for doing file operations.
