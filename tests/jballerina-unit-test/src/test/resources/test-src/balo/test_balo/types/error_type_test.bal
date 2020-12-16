@@ -81,8 +81,6 @@ function assertEquality(any|error expected, any|error actual) {
 
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic AssertionError("Assertion Error",
+    panic error("Assertion Error",
             message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
-
-type AssertionError error;

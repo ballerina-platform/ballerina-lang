@@ -1030,7 +1030,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        // TODO : Implement this
+
     }
 
     @Override

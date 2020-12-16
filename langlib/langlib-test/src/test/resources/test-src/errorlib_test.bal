@@ -40,7 +40,7 @@ function testTypeTestingErrorUnion() returns [string, map<anydata|readonly>]? {
 }
 
 function getError() returns Error? {
-    GenericError err = GenericError(GENERIC_ERROR, message = "Test union of errors with type test");
+    GenericError err = error GenericError(GENERIC_ERROR, message = "Test union of errors with type test");
     return err;
 }
 

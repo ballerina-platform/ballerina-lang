@@ -138,7 +138,7 @@ type ErrorDetails record {
 type Err error<ErrorDetails>;
 
 function getError2(int errId) returns string|Err {
-    Err e = Err("Failed to create object", id = errId);
+    Err e = error Err("Failed to create object", id = errId);
     return e;
 }
 
@@ -176,10 +176,10 @@ type BarErr error<BarErrData>;
 
 function getMultipleErrors(boolean isFoo) returns string|FooErr|BarErr {
     if (isFoo) {
-        FooErr e = FooErr("Foo Error", f = "foo");
+        FooErr e = error FooErr("Foo Error", f = "foo");
         return e;
     } else {
-        BarErr e = BarErr("Bar Error", b = "bar");
+        BarErr e = error BarErr("Bar Error", b = "bar");
         return e;
     }
 }

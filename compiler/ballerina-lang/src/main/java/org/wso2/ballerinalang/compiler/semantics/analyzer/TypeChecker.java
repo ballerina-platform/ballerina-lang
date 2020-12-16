@@ -2710,7 +2710,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (detailType.tag == TypeTags.MAP) {
             BType errorDetailTypeConstraint = ((BMapType) detailType).constraint;
             for (BLangNamedArgsExpression namedArgExpr: getProvidedErrorDetails(errorConstructorExpr)) {
-                // TODO ; check the assignability of the type of named-arg to value:Clonable
+                // TODO : check the assignability of the type of named-arg to value:Clonable
                 checkExpr(namedArgExpr, env);
                 if (!types.isAssignable(namedArgExpr.expr.type, errorDetailTypeConstraint)) {
                     dlog.error(namedArgExpr.pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_ARG_TYPE, namedArgExpr.name,
@@ -4950,13 +4950,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-//        if ((funcSymbol.tag & SymTag.ERROR) == SymTag.ERROR
-//            || ((funcSymbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR && funcSymbol.type.tag == TypeTags.ERROR)) {
-//            iExpr.symbol = funcSymbol;
-//            iExpr.type = funcSymbol.type;
-//            checkErrorConstructorInvocation(iExpr);
-//            return;
-//        } else
         if (funcSymbol == symTable.notFoundSymbol || isNotFunction(funcSymbol)) {
             if (!missingNodesHelper.isMissingNode(funcName)) {
                 dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_FUNCTION, funcName);

@@ -1199,10 +1199,6 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-//        if (invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
-//            createErrorConstructorInvocation(invocationExpr);
-//            return;
-//        }
         createCall(invocationExpr, false);
     }
 
@@ -1342,31 +1338,6 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.enclBasicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
-    }
-
-    private void createErrorConstructorInvocation(BLangInvocation invocationExpr) {
-        // Create a temporary variable to store the error.
-        BIRVariableDcl tempVarError = new BIRVariableDcl(invocationExpr.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-
-        this.env.enclFunc.localVars.add(tempVarError);
-        BIROperand lhsOp = new BIROperand(tempVarError);
-
-        // visit message, cause and detail expressions
-        this.env.targetOperand = lhsOp;
-        invocationExpr.requiredArgs.get(0).accept(this);
-        BIROperand messageOp = this.env.targetOperand;
-
-        invocationExpr.requiredArgs.get(1).accept(this);
-        BIROperand causeOp = this.env.targetOperand;
-
-        invocationExpr.requiredArgs.get(2).accept(this);
-        BIROperand detailsOp = this.env.targetOperand;
-
-        BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(invocationExpr.pos, invocationExpr.type,
-                lhsOp, messageOp, causeOp, detailsOp);
-        setScopeAndEmit(newError);
-        this.env.targetOperand = lhsOp;
     }
 
     @Override

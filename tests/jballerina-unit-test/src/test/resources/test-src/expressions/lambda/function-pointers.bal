@@ -291,8 +291,6 @@ public function testMemberTakenAsAFieldWithRestArgs() {
     assertEquality(112, g());
 }
 
-type AssertionError distinct error;
-
 function assertEquality(any|error expected, any|error  actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
@@ -304,6 +302,6 @@ function assertEquality(any|error expected, any|error  actual) {
 
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic AssertionError("AssertionError",
+    panic error("AssertionError",
                                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
