@@ -73,6 +73,11 @@ function reset() = @java:Method {
     name: "reset"
 } external;
 
+public function callMethod(service object {} s, string name) returns future<any|error>  = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name:"callMethod"
+} external;
+
 listener Listener lsn = new Listener();
 
 type S service object {
@@ -88,6 +93,14 @@ service S / on lsn {
     function createError() returns @tainted error? {
         return ();
     }
+
+    resource function get foo() returns service object {} {
+        return service object {
+            resource function get foo() returns string {
+                return "foo/foo";
+            }
+        };
+    }
 }
 
 type MagicField object { public string magic; };
@@ -99,6 +112,10 @@ function testServiceDecl() {
 
     MagicField o = <MagicField> getService(); // get service attached to the listener
     assertEquality("The Somebody Else's Problem field", o.magic);
+
+    service object {} inner = <service object {}> (wait callMethod(<service object {}> getService(), "$get$foo"));
+    string str = <string> (wait callMethod(inner, "$get$foo"));
+    assertEquality("foo/foo", str);
     reset();
 }
 
