@@ -1109,9 +1109,7 @@ public class Types {
             return false;
         }
 
-        if (!forceCheck &&
-                (Symbols.isFlagOn(type.flags, Flags.READONLY) ||
-                         ((SelectivelyImmutableReferenceType) type).getImmutableType() != null)) {
+        if (!forceCheck && ((SelectivelyImmutableReferenceType) type).getImmutableType() != null) {
             return true;
         }
 

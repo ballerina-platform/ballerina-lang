@@ -82,7 +82,7 @@ function testInvalidAssignmentToWideReadOnlyIntersection() {
 
     any & readonly y = start testInvalidReaoOnlyRecordInit();
 
-    (Obj|int[]) & readonly z = arr;
+    (Obj|int[]|future<int>) & readonly z = arr;
 }
 
 type Employee record {|
@@ -147,7 +147,7 @@ function testInvalidReaoOnlyRecordFieldUpdates() {
 }
 
 class Foo {
-
+    stream<int> ft = (<int[]> [1, 2, 3]).toStream();
 }
 
 type Bar record {|
