@@ -31,11 +31,8 @@ import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
-import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
-import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
+import io.ballerina.toml.semantic.ast.TomlBasicValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
-import io.ballerina.toml.semantic.ast.TomlLongValueNode;
-import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
@@ -60,11 +57,11 @@ import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.S
  *
  * @since 2.0.0
  */
-public class TomlParser {
+public class ConfigTomlParser {
 
     static final Path CONFIG_FILE_PATH = Paths.get(RuntimeUtils.USER_DIR).resolve(CONFIG_FILE_NAME);
 
-    private TomlParser() {
+    private ConfigTomlParser() {
     }
 
     private static TomlTableNode getConfigurationData() throws TomlException {
@@ -107,40 +104,16 @@ public class TomlParser {
         Type type = key.type;
         Object value;
         try {
-            switch (type.getTag()) {
-                case TypeTags.INT_TAG:
-                    checkTypeAndthrowError(TomlType.INTEGER,  tomlValue.kind(), variableName, type);
-                    value = ((TomlLongValueNode) tomlValue).getValue();
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    checkTypeAndthrowError(TomlType.BOOLEAN,  tomlValue.kind(), variableName, type);
-                    value = ((TomlBooleanValueNode) tomlValue).getValue();
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    checkTypeAndthrowError(TomlType.DOUBLE,  tomlValue.kind(), variableName, type);
-                    value = ((TomlDoubleValueNodeNode) tomlValue).getValue();
-                    break;
-                case TypeTags.STRING_TAG:
-                    checkTypeAndthrowError(TomlType.STRING,  tomlValue.kind(), variableName, type);
-                    value = StringUtils.fromString(((TomlStringValueNode) tomlValue).getValue());
-                    break;
-                case TypeTags.DECIMAL_TAG:
-                    checkTypeAndthrowError(TomlType.DOUBLE,  tomlValue.kind(), variableName, type);
-                    value =
-                            ValueCreator.createDecimalValue(
-                                    BigDecimal.valueOf(((TomlDoubleValueNodeNode) tomlValue).getValue()));
-                    break;
-                case TypeTags.INTERSECTION_TAG:
-                    Type effectiveType = ((BIntersectionType) type).getEffectiveType();
-                    if (effectiveType.getTag() != TypeTags.ARRAY_TAG) {
-                        throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, effectiveType.toString()));
-                    }
-                    checkTypeAndthrowError(TomlType.ARRAY,  tomlValue.kind(), variableName, effectiveType);
-                    value = retrieveArrayValues((TomlArrayValueNode) tomlValue, variableName,
-                            (ArrayType) effectiveType);
-                    break;
-                default:
-                    throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, type.toString()));
+            if (type.getTag() == TypeTags.INTERSECTION_TAG) {
+                Type effectiveType = ((BIntersectionType) type).getEffectiveType();
+                if (effectiveType.getTag() != TypeTags.ARRAY_TAG) {
+                    throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, effectiveType.toString()));
+                }
+                checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
+                value = retrieveArrayValues((TomlArrayValueNode) tomlValue, variableName, (ArrayType) effectiveType);
+            } else {
+                checkTypeAndThrowError(tomlValue.kind(), variableName, type);
+                value = getBalValue(type.getTag(), ((TomlBasicValueNode<?>) tomlValue).getValue());
             }
         } catch (ClassCastException e) {
             throw new TomlException(INVALID_TOML_FILE, e);
@@ -152,64 +125,58 @@ public class TomlParser {
                                               ArrayType effectiveType) {
         Type elementType = effectiveType.getElementType();
         List<TomlValueNode> arrayList = arrayNode.elements();
+        checkTypeAndThrowError(arrayList.get(0).kind(), variableName, elementType);
+        return new ArrayValueImpl(effectiveType, arrayList.size(), createArray(arrayList, elementType.getTag()));
+    }
+
+    private static ListInitialValueEntry.ExpressionEntry[] createArray(List<TomlValueNode> arrayList, int typeTag) {
         int arraySize = arrayList.size();
         ListInitialValueEntry.ExpressionEntry[] arrayEntries =
                 new ListInitialValueEntry.ExpressionEntry[arraySize];
-        TomlType retrievedType = arrayList.get(0).kind();
-        try {
-            switch (elementType.getTag()) {
-                case TypeTags.INT_TAG:
-                    checkTypeAndthrowError(TomlType.INTEGER, retrievedType, variableName, elementType);
-                    for (int i = 0; i < arraySize; i++) {
-                        arrayEntries[i] = new ListInitialValueEntry.ExpressionEntry(
-                                ((TomlLongValueNode) arrayList.get(i)).getValue());
-                    }
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    checkTypeAndthrowError(TomlType.BOOLEAN, retrievedType, variableName, elementType);
-                    for (int i = 0; i < arraySize; i++) {
-                        arrayEntries[i] = new ListInitialValueEntry.ExpressionEntry(
-                                ((TomlBooleanValueNode) arrayList.get(i)).getValue());
-                    }
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    checkTypeAndthrowError(TomlType.DOUBLE, retrievedType, variableName, elementType);
-                    for (int i = 0; i < arraySize; i++) {
-                        arrayEntries[i] = new ListInitialValueEntry.ExpressionEntry(
-                                ((TomlDoubleValueNodeNode) arrayList.get(i)).getValue());
-                    }
-                    break;
-                case TypeTags.STRING_TAG:
-                    checkTypeAndthrowError(TomlType.STRING, retrievedType, variableName, elementType);
-                    for (int i = 0; i < arraySize; i++) {
-                        arrayEntries[i] = new ListInitialValueEntry.ExpressionEntry(StringUtils.fromString(
-                                ((TomlStringValueNode) arrayList.get(i)).getValue()));
-                    }
-                    break;
-                case TypeTags.DECIMAL_TAG:
-                    checkTypeAndthrowError(TomlType.DOUBLE, retrievedType, variableName, elementType);
-                    for (int i = 0; i < arraySize; i++) {
-                        arrayEntries[i] = new ListInitialValueEntry.ExpressionEntry(ValueCreator.createDecimalValue(
-                                BigDecimal.valueOf(((TomlDoubleValueNodeNode) arrayList.get(i)).getValue())));
-                    }
-                    break;
-                default:
-                    throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, effectiveType.toString()));
-            }
-            return new ArrayValueImpl(effectiveType, arraySize, arrayEntries);
-
-        } catch (ClassCastException e) {
-            throw new TomlException(INVALID_TOML_FILE, e);
+        for (int i = 0; i < arraySize; i++) {
+            Object value = ((TomlBasicValueNode<?>) arrayList.get(i)).getValue();
+            arrayEntries[i] = new ListInitialValueEntry.ExpressionEntry(getBalValue(typeTag, value));
         }
+        return arrayEntries;
     }
 
-    private static void checkTypeAndthrowError(TomlType tomlType, TomlType actualType, String variableName,
-                                               Type expected) {
+    private static Object getBalValue(int typeTag, Object tomlValue) {
+        if (typeTag == TypeTags.DECIMAL_TAG) {
+            return ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) tomlValue));
+        }
+        if (typeTag == TypeTags.STRING_TAG) {
+            return  StringUtils.fromString((String) tomlValue);
+        }
+        return tomlValue;
+    }
+
+    private static void checkTypeAndThrowError(TomlType actualType, String variableName, Type expectedType) {
+        TomlType tomlType;
+        switch (expectedType.getTag()) {
+            case TypeTags.INT_TAG:
+                tomlType = TomlType.INTEGER;
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                tomlType = TomlType.BOOLEAN;
+                break;
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
+                tomlType = TomlType.DOUBLE;
+                break;
+            case TypeTags.STRING_TAG:
+                tomlType = TomlType.STRING;
+                break;
+            case TypeTags.ARRAY_TAG:
+                tomlType = TomlType.ARRAY;
+                break;
+            default:
+                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, expectedType.toString()));
+        }
         if (actualType == tomlType) {
             return;
         }
         throw new TomlException(INVALID_TOML_FILE + String.format(INVALID_VARIABLE_TYPE, variableName,
-                expected.toString(), actualType.name()));
+                expectedType.toString(), actualType.name()));
     }
 
     private static TomlTableNode extractModuleNode(TomlTableNode orgNode, String moduleName) {
