@@ -88,6 +88,11 @@ function getAnnotationsAtServiceAttach() returns map<any> = @java:Method {
     name: "getAnnotationsAtServiceAttach"
 } external;
 
+function getResourceAnnot(service object {} obj, string resourceName, string annotName) returns any = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "getAnnotMap"
+} external;
+
 
 listener Listener lsn = new Listener();
 
@@ -122,6 +127,16 @@ service S / on lsn {
     }
 }
 
+int i = 0;
+function returnServiceObj() returns service object {} {
+    i = i + 1;
+    return service object {
+        @RAnnot { val: "anot-val: " + i.toString() }  resource function get processRequest() returns json {
+                return { output: "Hello" };
+        }
+    };
+}
+
 type MagicField object { public string magic; };
 
 function testServiceDecl() {
@@ -132,19 +147,33 @@ function testServiceDecl() {
     MagicField o = <MagicField> getService(); // get service attached to the listener
     assertEquality("The Somebody Else's Problem field", o.magic);
 
-    // validate resource function annotation
+    // Validate resource function annotation
     any val = getResourceAnnotation("$get$processRequest", "RAnnot");
     map<any> m = <map<any>> val;
     string s = <string> m["val"];
     assertEquality(s, "anot-val");
 
+    // Test annotation on service decl
     map<any> annots = getAnnotationsAtServiceAttach();
     assertEquality(annots["ServiceAnnot"], true);
 
+    // Create multiple services using same service constructor expression and verify that each annotations
+    // is set correctly to each service object.
+    service object {} s0 = returnServiceObj();
+    service object {} s1 = returnServiceObj();
+    service object {} s2 = returnServiceObj();
+    map<any> rAnnot0  = <map<any>> getResourceAnnot(s0, "$get$processRequest", "RAnnot");
+    assertEquality(rAnnot0["val"], "anot-val: 1");
+    map<any> rAnnot1  = <map<any>> getResourceAnnot(s1, "$get$processRequest", "RAnnot");
+    assertEquality(rAnnot1["val"], "anot-val: 2");
+    map<any> rAnnot2  = <map<any>> getResourceAnnot(s2, "$get$processRequest", "RAnnot");
+    assertEquality(rAnnot2["val"], "anot-val: 3");
 
+    // Test service within a service
     service object {} inner = <service object {}> (wait callMethod(<service object {}> getService(), "$get$foo"));
     string str = <string> (wait callMethod(inner, "$get$foo"));
-    assertEquality("foo/foo", str);
+    assertEquality(str, "foo/foo");
+
     reset();
 }
 

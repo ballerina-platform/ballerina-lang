@@ -165,4 +165,13 @@ public class ServiceValue {
     public static BMap getAnnotationsAtServiceAttach() {
         return ServiceValue.annotationMap;
     }
+
+    public static BValue getAnnotMap(BObject service, BString resourceName, BString annotName) {
+        for (var r : ((ServiceType) service.getType()).getResourceFunctions()) {
+            if (r.getName().equals(resourceName.getValue())) {
+                return (BValue) r.getAnnotation(annotName);
+            }
+        }
+        return null;
+    }
 }
