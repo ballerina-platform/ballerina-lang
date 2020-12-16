@@ -25,7 +25,6 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
-import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -89,8 +88,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
 
     private Optional<FunctionSymbol> findFunctionWithinModule() {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
-        LinePosition position = LinePosition.from(context.getLineNumber(), 0);
-        List<Symbol> functionMatches = semanticContext.visibleSymbols(context.getFileNameWithExt().get(), position)
+        List<Symbol> functionMatches = semanticContext.moduleLevelSymbols()
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
                         && modifyName(symbol.name()).equals(functionName))

@@ -28,7 +28,6 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -190,9 +189,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
     private Optional<ClassSymbol> findClassDefWithinModule(String className) {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
-        LinePosition position = LinePosition.from(context.getLineNumber(), 0);
-
-        return semanticContext.visibleSymbols(context.getFileNameWithExt().get(), position)
+        return semanticContext.moduleLevelSymbols()
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.CLASS && modifyName(symbol.name()).equals(className))
                 .findFirst()
