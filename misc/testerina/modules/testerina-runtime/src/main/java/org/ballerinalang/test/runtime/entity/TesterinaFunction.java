@@ -104,11 +104,7 @@ public class TesterinaFunction {
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
                 try {
-                    Object invoke = method.invoke(null, objects);
-                    if (!scheduler.isListenerDeclarationFound()) {
-                        scheduler.setImmortal(false);
-                    }
-                    return invoke;
+                    return method.invoke(null, objects);
                 } catch (InvocationTargetException e) {
                     return e.getTargetException();
                 } catch (IllegalAccessException e) {
