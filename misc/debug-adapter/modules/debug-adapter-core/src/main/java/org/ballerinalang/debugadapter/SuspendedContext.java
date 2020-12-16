@@ -37,10 +37,6 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
-import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
-import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
-import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_ORG;
-import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
 /**
