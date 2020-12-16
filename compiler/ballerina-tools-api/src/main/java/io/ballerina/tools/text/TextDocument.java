@@ -50,10 +50,6 @@ public abstract class TextDocument {
         return lines().textPositionFrom(linePosition);
     }
 
-    public LineMap getLines() {
-        return this.lines();
-    }
-
     protected LineMap lines() {
         if (lineMap != null) {
             return lineMap;
