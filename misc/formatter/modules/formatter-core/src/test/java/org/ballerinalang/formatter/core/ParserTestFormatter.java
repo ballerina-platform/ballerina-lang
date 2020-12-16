@@ -88,6 +88,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "typed_binding_patterns_source_16.bal", // parser issue for binding patterns #26421
                 "error_binding_pattern_source_02.bal", // issue #26376
 
+                "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
+
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
                 "ambiguity_source_23.bal", "ambiguity_source_09.bal", "ambiguity_source_18.bal",

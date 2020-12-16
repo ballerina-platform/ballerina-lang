@@ -22,7 +22,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
@@ -86,7 +86,7 @@ public class IndexedExpressionEvaluator extends Evaluator {
                                 "String index out of range: index=" + index + ", size=" + strLength));
                     }
                     String substring = containerVar.getDapVariable().getValue().substring(index, index + 1);
-                    return EvaluationUtils.make(context, substring);
+                    return VMUtils.make(context, substring);
                 }
                 // Index access of lists
                 // If it is list, and index is < 0 or ≥ the length of the list, then the evaluation completes abruptly

@@ -220,7 +220,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.getServiceClass().symbol.scope,
                     this.symbolEnv);
             this.scope = serviceEnv;
-            serviceNode.getResources().forEach(function -> this.acceptNode(function, serviceEnv));
+            serviceNode.getServiceClass().getFunctions().forEach(function -> this.acceptNode(function, serviceEnv));
             return;
         }
         serviceNode.annAttachments.forEach(annotation -> this.acceptNode(annotation, this.symbolEnv));

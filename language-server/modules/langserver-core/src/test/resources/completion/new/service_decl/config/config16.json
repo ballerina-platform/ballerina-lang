@@ -644,6 +644,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "self",
+      "kind": "Variable",
+      "detail": "object {resource function $name$.() returns () ;}",
+      "insertText": "self",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "worker",
       "kind": "Snippet",
       "detail": "Snippet",

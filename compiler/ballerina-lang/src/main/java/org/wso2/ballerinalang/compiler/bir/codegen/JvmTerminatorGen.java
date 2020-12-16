@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
@@ -152,20 +152,20 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 public class JvmTerminatorGen {
 
-    private MethodVisitor mv;
-    private BIRVarToJVMIndexMap indexMap;
-    private LabelGenerator labelGen;
-    private JvmErrorGen errorGen;
-    private String currentPackageName;
-    private String moduleInitClass;
-    private JvmPackageGen jvmPackageGen;
-    private JvmInstructionGen jvmInstructionGen;
-    private PackageCache packageCache;
-    private SymbolTable symbolTable;
-    private ResolvedTypeBuilder typeBuilder;
+    private final MethodVisitor mv;
+    private final BIRVarToJVMIndexMap indexMap;
+    private final LabelGenerator labelGen;
+    private final JvmErrorGen errorGen;
+    private final String currentPackageName;
+    private final String moduleInitClass;
+    private final JvmPackageGen jvmPackageGen;
+    private final JvmInstructionGen jvmInstructionGen;
+    private final PackageCache packageCache;
+    private final SymbolTable symbolTable;
+    private final ResolvedTypeBuilder typeBuilder;
 
     public JvmTerminatorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen,
-                            JvmErrorGen errorGen, BIRNode.BIRPackage module, JvmInstructionGen jvmInstructionGen,
+                            JvmErrorGen errorGen, PackageID packageID, JvmInstructionGen jvmInstructionGen,
                             JvmPackageGen jvmPackageGen) {
 
         this.mv = mv;
@@ -176,9 +176,8 @@ public class JvmTerminatorGen {
         this.packageCache = jvmPackageGen.packageCache;
         this.jvmInstructionGen = jvmInstructionGen;
         this.symbolTable = jvmPackageGen.symbolTable;
-        this.currentPackageName = JvmCodeGenUtil.getPackageName(module);
-        this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.org.value, module.name.value,
-                                                                      module.version.value, MODULE_INIT_CLASS_NAME);
+        this.currentPackageName = JvmCodeGenUtil.getPackageName(packageID);
+        this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
         this.typeBuilder = new ResolvedTypeBuilder();
     }
 
@@ -424,15 +423,8 @@ public class JvmTerminatorGen {
     }
 
     private void genCallTerm(BIRTerminator.Call callIns, int localVarOffset) {
-
-        PackageID calleePkgId = callIns.calleePkg;
-
-        String orgName = calleePkgId.orgName.value;
-        String moduleName = calleePkgId.name.value;
-        String version = calleePkgId.version.value;
-
         // invoke the function
-        this.genCall(callIns, orgName, moduleName, version, localVarOffset);
+        this.genCall(callIns, callIns.calleePkg, localVarOffset);
 
         // store return
         this.storeReturnFromCallIns(callIns.lhsOp != null ? callIns.lhsOp.variableDcl : null);
@@ -670,53 +662,52 @@ public class JvmTerminatorGen {
     }
 
 
-    private void genCall(BIRTerminator.Call callIns, String orgName, String moduleName,
-                             String version, int localVarOffset) {
+    private void genCall(BIRTerminator.Call callIns, PackageID packageID, int localVarOffset) {
 
         if (!callIns.isVirtual) {
-            this.genFuncCall(callIns, orgName, moduleName, version, localVarOffset);
+            this.genFuncCall(callIns, packageID, localVarOffset);
             return;
         }
 
         BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
         if (selfArg.type.tag == TypeTags.OBJECT) {
-            this.genVirtualCall(callIns, orgName, moduleName, localVarOffset);
+            this.genVirtualCall(callIns, JvmCodeGenUtil.isBallerinaBuiltinModule(
+                    packageID.orgName.getValue(), packageID.name.getValue()), localVarOffset);
         } else {
             // then this is a function attached to a built-in type
-            this.genBuiltinTypeAttachedFuncCall(callIns, orgName, moduleName, version, localVarOffset);
+            this.genBuiltinTypeAttachedFuncCall(callIns, packageID, localVarOffset);
         }
     }
 
-    private void genFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName, String version,
-                             int localVarOffset) {
+    private void genFuncCall(BIRTerminator.Call callIns, PackageID packageID, int localVarOffset) {
         String methodName = callIns.name.value;
-        this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodName);
+        this.genStaticCall(callIns, packageID, localVarOffset, methodName, methodName);
     }
 
-    private void genBuiltinTypeAttachedFuncCall(BIRTerminator.Call callIns, String orgName,
-                                                String moduleName,  String version, int localVarOffset) {
+    private void genBuiltinTypeAttachedFuncCall(BIRTerminator.Call callIns, PackageID packageID, int localVarOffset) {
 
         String methodLookupName = callIns.name.value;
         int optionalIndex = methodLookupName.indexOf(".");
         int index = optionalIndex != -1 ? optionalIndex + 1 : 0;
         String methodName = methodLookupName.substring(index);
-        this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodLookupName);
+        this.genStaticCall(callIns, packageID, localVarOffset, methodName, methodLookupName);
     }
 
-    private void genStaticCall(BIRTerminator.Call callIns, String orgName, String moduleName,
-                               String version, int localVarOffset,
+    private void genStaticCall(BIRTerminator.Call callIns, PackageID packageID, int localVarOffset,
                                String methodName, String methodLookupName) {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         String encodedMethodName = IdentifierUtils.encodeFunctionIdentifier(methodLookupName);
-        String lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + encodedMethodName;
+        String lookupKey = JvmCodeGenUtil.getPackageName(packageID) + encodedMethodName;
 
         int argsCount = callIns.args.size();
         int i = 0;
         while (i < argsCount) {
             BIROperand arg = callIns.args.get(i);
             boolean userProvidedArg = this.visitArg(arg);
-            this.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);
+            this.loadBooleanArgToIndicateUserProvidedArg(
+                    JvmCodeGenUtil.isBallerinaBuiltinModule(packageID.orgName.getValue(), packageID.name.getValue()),
+                    userProvidedArg);
             i += 1;
         }
         BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
@@ -726,7 +717,8 @@ public class JvmTerminatorGen {
             jvmClass = functionWrapper.fullQualifiedClassName;
             methodDesc = functionWrapper.jvmMethodDescription;
         } else {
-            BPackageSymbol symbol = packageCache.getSymbol(orgName + "/" + moduleName);
+            BPackageSymbol symbol = packageCache.getSymbol(
+                    packageID.orgName.getValue() + "/" + packageID.name.getValue());
             Name decodedMethodName = new Name(IdentifierUtils.decodeIdentifier(methodName));
             BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(decodedMethodName).symbol;
             BInvokableType type = (BInvokableType) funcSymbol.type;
@@ -744,7 +736,7 @@ public class JvmTerminatorGen {
                 balFileName = MODULE_INIT_CLASS_NAME;
             }
 
-            jvmClass = JvmCodeGenUtil.getModuleLevelClassName(orgName, moduleName, version,
+            jvmClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
                                                               JvmCodeGenUtil.cleanupPathSeparators(balFileName));
             //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
             BType retType = typeBuilder.build(type.retType);
@@ -753,7 +745,7 @@ public class JvmTerminatorGen {
         this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, encodedMethodName, methodDesc, false);
     }
 
-    private void genVirtualCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset) {
+    private void genVirtualCall(BIRTerminator.Call callIns, boolean isBuiltInModule, int localVarOffset) {
         // load self
         BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
         this.loadVar(selfArg);
@@ -792,7 +784,7 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(L2I);
             j += 1;
 
-            this.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);
+            this.loadBooleanArgToIndicateUserProvidedArg(isBuiltInModule, userProvidedArg);
             JvmCastGen.addBoxInsn(this.mv, symbolTable.booleanType);
             this.mv.visitInsn(AASTORE);
 
@@ -807,9 +799,8 @@ public class JvmTerminatorGen {
         JvmCastGen.addUnboxInsn(this.mv, returnType);
     }
 
-    private void loadBooleanArgToIndicateUserProvidedArg(String orgName, String moduleName, boolean userProvided) {
-
-        if (JvmCodeGenUtil.isBallerinaBuiltinModule(orgName, moduleName)) {
+    private void loadBooleanArgToIndicateUserProvidedArg(boolean isBuiltInModule, boolean userProvided) {
+        if (isBuiltInModule) {
             return;
         }
         // Extra boolean is not gen for extern functions for now until the wrapper function is implemented.
@@ -876,7 +867,8 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn((long) paramIndex);
             this.mv.visitInsn(L2I);
 
-            this.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);
+            this.loadBooleanArgToIndicateUserProvidedArg(JvmCodeGenUtil.isBallerinaBuiltinModule(orgName, moduleName),
+                                                         userProvidedArg);
             JvmCastGen.addBoxInsn(this.mv, symbolTable.booleanType);
             this.mv.visitInsn(AASTORE);
             paramIndex += 1;

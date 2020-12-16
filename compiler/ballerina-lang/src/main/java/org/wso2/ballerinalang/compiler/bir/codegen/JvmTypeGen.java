@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
@@ -27,7 +28,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -61,7 +61,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -70,7 +69,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -198,8 +197,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
  * @since 1.2.0
  */
 public class JvmTypeGen {
-
-    private static ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
 
     /**
      * Create static fields to hold the user defined types.
@@ -449,7 +446,7 @@ public class JvmTypeGen {
     // -------------------------------------------------------
 
     static void generateValueCreatorMethods(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
-                                            BIRNode.BIRPackage moduleId, String typeOwnerClass,
+                                            PackageID moduleId, String typeOwnerClass,
                                             SymbolTable symbolTable, AsyncDataCollector asyncDataCollector) {
 
         List<BIRTypeDefinition> recordTypeDefs = new ArrayList<>();
@@ -480,7 +477,7 @@ public class JvmTypeGen {
     }
 
     private static void generateRecordValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefs,
-                                                        BIRNode.BIRPackage moduleId, String typeOwnerClass,
+                                                        PackageID moduleId, String typeOwnerClass,
                                                         AsyncDataCollector asyncDataCollector) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_RECORD_VALUE,
                 String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
@@ -539,7 +536,7 @@ public class JvmTypeGen {
     }
 
     private static void generateObjectValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> objectTypeDefs,
-                                                        BIRNode.BIRPackage moduleId, String typeOwnerClass,
+                                                        PackageID moduleId, String typeOwnerClass,
                                                         SymbolTable symbolTable,
                                                         AsyncDataCollector asyncDataCollector) {
 
@@ -1118,7 +1115,7 @@ public class JvmTypeGen {
      * @param bType type to load
      */
     public static void loadType(MethodVisitor mv, BType bType) {
-        String typeFieldName = "";
+        String typeFieldName;
         if (bType == null || bType.tag == TypeTags.NIL) {
             typeFieldName = "TYPE_NULL";
         } else {
@@ -1433,7 +1430,7 @@ public class JvmTypeGen {
                 mv.visitInsn(DUP);
                 mv.visitLdcInsn((long) i);
                 mv.visitInsn(L2I);
-                mv.visitLdcInsn(fieldName);
+                mv.visitLdcInsn(StringEscapeUtils.unescapeJava(fieldName));
                 mv.visitInsn(AASTORE);
                 i += 1;
             }

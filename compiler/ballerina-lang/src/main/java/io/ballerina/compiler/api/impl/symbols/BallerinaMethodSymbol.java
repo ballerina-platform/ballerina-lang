@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -82,6 +83,11 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     @Override
     public boolean deprecated() {
         return this.functionSymbol.deprecated();
+    }
+
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return this.functionSymbol.annotations();
     }
 
     @Override
