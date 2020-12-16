@@ -1,5 +1,4 @@
-import ballerina/runtime;
-
+import ballerina/java;
 
 string append = "";
 function simpleSyncSend() returns string {
@@ -22,7 +21,7 @@ function process() returns string {
     @strand{thread:"any"}
     worker w2 {
         int b = 15;
-        runtime:sleep(10);
+        sleep(10);
         foreach var i in 1 ... 5 {
             append = append + "w2";
         }
@@ -32,7 +31,6 @@ function process() returns string {
     }
 
     wait w1;
-    //runtime:sleep(50);
     return "done";
 }
 
@@ -54,7 +52,7 @@ function multipleSyncSend() returns string {
     @strand{thread:"any"}
     worker w2 returns error? {
         int b = 15;
-        runtime:sleep(10);
+        sleep(10);
         foreach var i in 1 ... 5 {
             append2 = append2 + "w2";
         }
@@ -96,7 +94,7 @@ function returnNil() returns any|error {
             return err;
         }
         int b = 15;
-        runtime:sleep(10);
+        sleep(10);
         foreach var i in 1 ... 5 {
             append = append + "w2";
         }
@@ -138,7 +136,7 @@ function multiWorkerSend() returns string {
             return err;
         }
         int b = 15;
-        runtime:sleep(10);
+        sleep(10);
         foreach var i in 1 ... 5 {
             append3 = append3 + "w2";
         }
@@ -199,7 +197,7 @@ function errorResult() returns error? {
             return err;
         }
         int b = 15;
-        runtime:sleep(10);
+        sleep(10);
         foreach var i in 1 ... 5 {
             append4 = append4 + "w2";
         }
@@ -266,7 +264,7 @@ function panicTest() returns error? {
     @strand{thread:"any"}
     worker w2 {
         int b = 15;
-        runtime:sleep(10);
+        sleep(10);
 
         b -> w3;
         b = <- w1;
@@ -414,7 +412,7 @@ function panicWithMultipleSendStmtsTest() returns error? {
         b1 -> w3;
         int b2 = <- w1;
         () result = b2 ->> w3;
-        runtime:sleep(1000);
+        sleep(1000);
     }
 
     @strand{thread:"any"}
@@ -621,3 +619,7 @@ function getFalse() returns boolean {
 function getTrue() returns boolean {
     return true;
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

@@ -33,5 +33,8 @@ public interface CompilationUnitNode extends Node {
     void setName(String name);
     
     String getName();
-    
+
+    void setSourceKind(SourceKind kind);
+
+    SourceKind getSourceKind();
 }

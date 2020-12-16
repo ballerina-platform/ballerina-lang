@@ -26,6 +26,7 @@ dependencies {
 
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    distributionBalo project(path: ':testerina:testerina-core', configuration: 'distributionBalo')
 }
 
 description = 'Ballerina - Compiler API'
