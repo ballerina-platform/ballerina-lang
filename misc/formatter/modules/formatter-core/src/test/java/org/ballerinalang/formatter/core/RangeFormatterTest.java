@@ -54,19 +54,12 @@ public abstract class RangeFormatterTest {
     private static final Gson gson = new Gson();
 
     @Test(dataProvider = "test-file-provider")
-    public void test(String sourcePath, String source, JsonArray positions)
+    public void test(Path sourceFilePath, Path assertFilePath, ArrayList<LineRange> lineRanges)
             throws IOException, FormatterException {
-        Path assertFilePath = Paths.get(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
-        Path sourceFilePath = Paths.get(resourceDirectory.toString(), sourcePath, SOURCE_DIR, source);
         String content = getFileContent(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument, sourceFilePath.toString());
-        for (JsonElement position : positions) {
-            JsonObject start = position.getAsJsonObject().get("startPos").getAsJsonObject();
-            LinePosition startPos = LinePosition.from(start.get("lineNo").getAsInt(), start.get("colNo").getAsInt());
-            JsonObject end = position.getAsJsonObject().get("endPos").getAsJsonObject();
-            LinePosition endPos = LinePosition.from(end.get("lineNo").getAsInt(), end.get("colNo").getAsInt());
-            LineRange lineRange = LineRange.from(sourceFilePath.toString(), startPos, endPos);
+        for (LineRange lineRange : lineRanges) {
             syntaxTree = Formatter.format(syntaxTree, lineRange);
         }
         Assert.assertEquals(syntaxTree.toSourceCode(), getFileContent(assertFilePath));
@@ -113,18 +106,32 @@ public abstract class RangeFormatterTest {
         }
         List<String> skippedTests = this.skipList();
         try {
-            File jsonConfigFile = Paths.get(resourceDirectory.toString(), this.getTestResourceDir(),
-                    this.getConfigJsonFileName()).toFile();
-            JsonObject jsonObject = gson.fromJson(new FileReader(jsonConfigFile), JsonObject.class);
-            String[] fileNames = jsonObject.keySet().toArray(new String[0]);
-            int fileNameCount = fileNames.length;
-            Object[][] objects = new Object[fileNameCount][];
-            for (int i = 0; i < fileNameCount; i++) {
-                String fileName = fileNames[i];
-                if (!skippedTests.contains(fileName)) {
-                    objects[i] = new Object[] {this.getTestResourceDir(), fileName,
-                            jsonObject.getAsJsonArray(fileName)};
+            String testResourceDir = getTestResourceDir();
+            File jsonConfigFile = Paths.get(resourceDirectory.toString(), getTestResourceDir(),
+                    getConfigJsonFileName()).toFile();
+            JsonArray jsonArray = gson.fromJson(new FileReader(jsonConfigFile), JsonArray.class);
+            int jsonArraySize = jsonArray.size();
+            Object[][] objects = new Object[jsonArraySize][];
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+                String fileName = jsonObject.get("filename").getAsString();
+                if (skippedTests.contains(fileName)) {
+                    continue;
                 }
+                Path assertFilePath = Paths.get(resourceDirectory.toString(), testResourceDir, ASSERT_DIR, fileName);
+                Path sourceFilePath = Paths.get(resourceDirectory.toString(), testResourceDir, SOURCE_DIR, fileName);
+                ArrayList<LineRange> lineRanges = new ArrayList<>();
+                for (JsonElement positionElement : jsonObject.getAsJsonArray("positions")) {
+                    JsonObject position = positionElement.getAsJsonObject();
+                    JsonObject start = position.getAsJsonObject().get("startPos").getAsJsonObject();
+                    LinePosition startPos = LinePosition.from(start.get("lineNo").getAsInt(),
+                            start.get("colNo").getAsInt());
+                    JsonObject end = position.getAsJsonObject().get("endPos").getAsJsonObject();
+                    LinePosition endPos = LinePosition.from(end.get("lineNo").getAsInt(), end.get("colNo").getAsInt());
+                    LineRange lineRange = LineRange.from(sourceFilePath.toString(), startPos, endPos);
+                    lineRanges.add(lineRange);
+                }
+                objects[i] = new Object[] {sourceFilePath, assertFilePath, lineRanges};
             }
             return objects;
         } catch (FileNotFoundException e) {

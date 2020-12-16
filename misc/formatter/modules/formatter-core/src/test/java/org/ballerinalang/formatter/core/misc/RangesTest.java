@@ -18,14 +18,16 @@
 
 package org.ballerinalang.formatter.core.misc;
 
-import com.google.gson.JsonArray;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.RangeFormatterTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 /**
  * Test range formatting functionality with manually added fixed ranges.
@@ -36,8 +38,9 @@ public class RangesTest extends RangeFormatterTest {
 
     @Test(dataProvider = "test-file-provider")
     @Override
-    public void test(String sourcePath, String source, JsonArray positions) throws IOException, FormatterException {
-        super.test(sourcePath, source, positions);
+    public void test(Path sourceFilePath, Path assertFilePath, ArrayList<LineRange> lineRanges) throws IOException,
+            FormatterException {
+        super.test(sourceFilePath, assertFilePath, lineRanges);
     }
 
     /**
