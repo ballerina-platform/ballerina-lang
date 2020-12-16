@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -807,6 +808,15 @@ public class ClosureDesugar extends BLangNodeVisitor {
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
         result = iExpr;
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        errorConstructorExpr.positionalArgs = rewriteExprs(errorConstructorExpr.positionalArgs);
+        for (BLangNamedArgsExpression namedArgExpr : errorConstructorExpr.namedArgs) {
+            namedArgExpr.expr = rewriteExpr(namedArgExpr.expr);
+        }
+        result = errorConstructorExpr;
     }
 
     @Override

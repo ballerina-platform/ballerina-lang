@@ -95,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -1198,10 +1199,10 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
-            createErrorConstructorInvocation(invocationExpr);
-            return;
-        }
+//        if (invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+//            createErrorConstructorInvocation(invocationExpr);
+//            return;
+//        }
         createCall(invocationExpr, false);
     }
 
@@ -1364,6 +1365,30 @@ public class BIRGen extends BLangNodeVisitor {
 
         BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(invocationExpr.pos, invocationExpr.type,
                 lhsOp, messageOp, causeOp, detailsOp);
+        setScopeAndEmit(newError);
+        this.env.targetOperand = lhsOp;
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        BIRVariableDcl tempVarError = new BIRVariableDcl(errorConstructorExpr.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+
+        this.env.enclFunc.localVars.add(tempVarError);
+        BIROperand lhsOp = new BIROperand(tempVarError);
+
+        this.env.targetOperand = lhsOp;
+        errorConstructorExpr.positionalArgs.get(0).accept(this);
+        BIROperand messageOp = this.env.targetOperand;
+
+        errorConstructorExpr.positionalArgs.get(1).accept(this);
+        BIROperand causeOp = this.env.targetOperand;
+
+        errorConstructorExpr.errorDetail.accept(this);
+        BIROperand detailsOp = this.env.targetOperand;
+
+        BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(errorConstructorExpr.pos,
+                errorConstructorExpr.type, lhsOp, messageOp, causeOp, detailsOp);
         setScopeAndEmit(newError);
         this.env.targetOperand = lhsOp;
     }

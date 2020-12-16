@@ -528,6 +528,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ERROR_DETAIL_ARG_TYPE("BCE3708", "invalid.error.detail.arg.type"),
     UNKNOWN_DETAIL_ARG_TO_SEALED_ERROR_DETAIL_REC("BCE3709", "unknown.error.detail.arg.to.sealed.detail"),
     INVALID_ERROR_DETAIL_REST_ARG_TYPE("BCE3710", "invalid.error.detail.rest.arg"),
+    UNDEFINED_ERROR_TYPE_DESCRIPTOR("BCE3711", "undefined.error.type.descriptor"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("BCE3800", "incompatible.stamp.type"),

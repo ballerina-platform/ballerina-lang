@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -1066,6 +1067,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
+            analyzeNode(positionalArg, env);
+        }
+        for (BLangNamedArgsExpression namedArgsExpression : errorConstructorExpr.namedArgs) {
+            analyzeNode(namedArgsExpression, env);
+        }
+    }
+
+    @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
         if (!actionInvocationExpr.async) {
             analyzeInvocation(actionInvocationExpr);
@@ -1607,10 +1618,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         BInvokableSymbol symbol = (BInvokableSymbol) invocationExpr.symbol;
-        if (symbol == null || symbol.getKind() == SymbolKind.ERROR_CONSTRUCTOR) {
-            analyzeArgs(requiredArgs, restArgs);
-            return;
-        }
 
         boolean inIsolatedFunction = isInIsolatedFunction(env.enclInvokable);
         boolean recordFieldDefaultValue = isRecordFieldDefaultValue(env.enclType);

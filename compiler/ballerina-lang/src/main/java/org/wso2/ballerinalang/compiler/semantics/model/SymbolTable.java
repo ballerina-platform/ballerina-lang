@@ -147,7 +147,6 @@ public class SymbolTable {
     public BType tableType = new BTableType(TypeTags.TABLE, anydataType, null);
     public BMapType detailType = new BMapType(TypeTags.MAP, anydataOrReadonly, null);
     public BErrorType errorType = new BErrorType(null, detailType);
-    public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;
     public BUnionType pureType;
     public BUnionType errorOrNilType;

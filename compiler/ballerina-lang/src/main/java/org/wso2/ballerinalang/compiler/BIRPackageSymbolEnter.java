@@ -459,9 +459,6 @@ public class BIRPackageSymbolEnter {
         }
 
         this.env.pkgSymbol.scope.define(symbol.name, symbol);
-        if (type.tag == TypeTags.ERROR) {
-            defineErrorConstructor(this.env.pkgSymbol.scope, symbol);
-        }
     }
 
     private void skipPosition(DataInputStream dataInStream) throws IOException {
@@ -514,17 +511,6 @@ public class BIRPackageSymbolEnter {
             markdownDocAttachment.parameters.add(parameter);
         }
         symbol.markdownDocumentation = markdownDocAttachment;
-    }
-
-    private void defineErrorConstructor(Scope scope, BTypeSymbol typeDefSymbol) {
-        BConstructorSymbol symbol = new BConstructorSymbol(typeDefSymbol.flags, typeDefSymbol.name,
-                typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, symTable.builtinPos, COMPILED_SOURCE);
-        symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
-        symbol.scope = new Scope(symbol);
-        symbol.retType = typeDefSymbol.type;
-        scope.define(symbol.name, symbol);
-
-        ((BErrorTypeSymbol) typeDefSymbol).ctorSymbol = symbol;
     }
 
     private BType readBType(DataInputStream dataInStream) throws IOException {

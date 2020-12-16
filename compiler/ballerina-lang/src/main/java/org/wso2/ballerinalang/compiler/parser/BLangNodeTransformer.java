@@ -296,6 +296,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -1994,8 +1995,26 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ErrorConstructorExpressionNode errorConstructorExprNode) {
-        return createBLangInvocation(errorConstructorExprNode.errorKeyword(), errorConstructorExprNode.arguments(),
-                getPosition(errorConstructorExprNode), false);
+        BLangErrorConstructorExpr errorConstructorExpr =
+                (BLangErrorConstructorExpr) TreeBuilder.createErrorConstructorExpressionNode();
+        errorConstructorExpr.pos = getPosition(errorConstructorExprNode);
+        if (errorConstructorExprNode.typeReference().isPresent()) {
+            errorConstructorExpr.errorTypeRef =
+                    (BLangUserDefinedType) createTypeNode(errorConstructorExprNode.typeReference().get());
+        }
+
+        List<BLangExpression> positionalArgs = new ArrayList<>();
+        List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
+        for(Node argNode : errorConstructorExprNode.arguments()) {
+            if (argNode.kind() == SyntaxKind.POSITIONAL_ARG) {
+                positionalArgs.add((BLangExpression) transform((PositionalArgumentNode) argNode));
+            } else if (argNode.kind() == SyntaxKind.NAMED_ARG) {
+                namedArgs.add((BLangNamedArgsExpression) transform((NamedArgumentNode) argNode));
+            }
+        }
+        errorConstructorExpr.positionalArgs = positionalArgs;
+        errorConstructorExpr.namedArgs = namedArgs;
+        return errorConstructorExpr;
     }
 
     public BLangNode transform(MethodCallExpressionNode methodCallExprNode) {
