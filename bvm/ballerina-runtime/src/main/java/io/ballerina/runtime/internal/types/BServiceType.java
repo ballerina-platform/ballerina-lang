@@ -87,7 +87,7 @@ public class BServiceType extends BObjectType implements ServiceType {
     }
 
     @Override
-    BObjectType cloneThis() {
+    BObjectType duplicate() {
         BServiceType type = new BServiceType(this.typeName, this.pkg, this.flags);
         type.setFields(fields);
         type.setMemberFunctionTypes(duplicateArray(getMemberFunctionTypes()));

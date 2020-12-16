@@ -137,13 +137,13 @@ public class BObjectType extends BStructureType implements ObjectType {
         this.typeIdSet = typeIdSet;
     }
 
-    public BObjectType duplicateTypeAndprocessObjectCtorAnnots(MapValue globalAnnotationMap, Strand strand) {
-        BObjectType clone = cloneThis();
+    public BObjectType duplicateTypeAndprocessAnnots(MapValue globalAnnotationMap, Strand strand) {
+        BObjectType clone = duplicate();
         AnnotationUtils.processObjectCtorAnnotations(globalAnnotationMap, clone, strand);
         return clone;
     }
 
-    BObjectType cloneThis() {
+    BObjectType duplicate() {
         BObjectType type = new BObjectType(this.typeName, this.pkg, this.flags);
         type.setFields(fields);
         type.setMemberFunctionTypes(duplicateArray(memberFunctionTypes));

@@ -1636,7 +1636,7 @@ public class JvmInstructionGen {
 
             this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
             mv.visitVarInsn(ALOAD, strandIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "duplicateTypeAndprocessObjectCtorAnnots",
+            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "duplicateTypeAndprocessAnnots",
                     String.format("(L%s;L%s;)L%s;", MAP_VALUE, STRAND_CLASS, OBJECT_TYPE_IMPL), false);
         }
     }
