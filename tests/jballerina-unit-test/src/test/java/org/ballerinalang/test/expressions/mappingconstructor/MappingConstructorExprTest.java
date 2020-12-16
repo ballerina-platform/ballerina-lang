@@ -131,8 +131,7 @@ public class MappingConstructorExprTest {
                 { "testVarNameAsMapField" },
                 { "testVarNameAsJsonField" },
                 { "testLikeModuleQualifiedVarNameAsJsonField" },
-                // Disabled on https://github.com/ballerina-platform/ballerina-lang/issues/26885
-                //{ "testVarNameFieldInAnnotation" } // final test using `s` since `s` is updated
+                { "testVarNameFieldInAnnotation" } // final test using `s` since `s` is updated
         };
     }
 

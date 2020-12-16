@@ -53,7 +53,7 @@ public class DeprecatedAnnotationTest {
     public void setup() throws IOException {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "deprecated_annotation_project";
-        io.ballerina.projects.Project project = BCompileUtil.getProject(sourceRoot);
+        io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
         Project docerinaProject = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
                         .packageOrg().toString(), project.currentPackage().packageVersion().toString());

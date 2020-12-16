@@ -16,8 +16,16 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
@@ -29,9 +37,11 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
 
@@ -79,10 +89,34 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             }
         }
 
-        if (line == -1 || column == -1 || uri == null) {
+        Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
+        if (line == -1 || column == -1 || filePath.isEmpty()) {
             throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
+        SyntaxTree syntaxTree = context.workspace().syntaxTree(filePath.get()).orElseThrow();
+        Position position = new Position(line, column);
+        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(position, position), syntaxTree);
+        Node identifier = null;
+        while (matchedNode != null) {
+            if (matchedNode.kind() == SyntaxKind.FUNCTION_CALL) {
+                FunctionCallExpressionNode callExprNode = (FunctionCallExpressionNode) matchedNode;
+                identifier = callExprNode.functionName();
+                break;
+            }
+            matchedNode = matchedNode.parent();
+        }
+
+        if (matchedNode == null) {
+            return new LSCommandExecutorException("Couldn't find a matching node");
+        }
+        SemanticModel semanticModel = context.workspace().semanticModel(filePath.get()).orElseThrow();
+        String relPath = filePath.get().toFile().getName();
+        TypeSymbol matchedTypeSymbol = semanticModel.type(relPath, identifier.lineRange()).orElse(null);
+        if (matchedTypeSymbol == null) {
+            return Collections.emptyList();
+        }
+        //TODO: Need to get return type of the function invocation blocked due to #27211
 //        Path path = CommonUtil.getPathFromURI(uri).get();
 //        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
 //        SyntaxTree syntaxTree;

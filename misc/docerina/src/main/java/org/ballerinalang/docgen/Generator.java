@@ -512,7 +512,8 @@ public class Generator {
         if (docLines != null) {
             for (Node docLine : docLines.documentationLines()) {
                 if (docLine instanceof MarkdownDocumentationLineNode) {
-                    doc += getDocString(((MarkdownDocumentationLineNode) docLine).documentElements());
+                    doc += !((MarkdownDocumentationLineNode) docLine).documentElements().isEmpty() ?
+                            getDocString(((MarkdownDocumentationLineNode) docLine).documentElements()) : "\n";
                 } else {
                     break;
                 }

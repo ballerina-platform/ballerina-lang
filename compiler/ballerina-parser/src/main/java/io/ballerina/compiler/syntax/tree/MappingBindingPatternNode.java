@@ -20,7 +20,6 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -37,16 +36,12 @@ public class MappingBindingPatternNode extends BindingPatternNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatterns() {
+    public SeparatedNodeList<BindingPatternNode> fieldBindingPatterns() {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
-    public Optional<RestBindingPatternNode> restBindingPattern() {
-        return optionalChildInBucket(2);
-    }
-
     public Token closeBrace() {
-        return childInBucket(3);
+        return childInBucket(2);
     }
 
     @Override
@@ -64,19 +59,16 @@ public class MappingBindingPatternNode extends BindingPatternNode {
         return new String[]{
                 "openBrace",
                 "fieldBindingPatterns",
-                "restBindingPattern",
                 "closeBrace"};
     }
 
     public MappingBindingPatternNode modify(
             Token openBrace,
-            SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatterns,
-            RestBindingPatternNode restBindingPattern,
+            SeparatedNodeList<BindingPatternNode> fieldBindingPatterns,
             Token closeBrace) {
         if (checkForReferenceEquality(
                 openBrace,
                 fieldBindingPatterns.underlyingListNode(),
-                restBindingPattern,
                 closeBrace)) {
             return this;
         }
@@ -84,7 +76,6 @@ public class MappingBindingPatternNode extends BindingPatternNode {
         return NodeFactory.createMappingBindingPatternNode(
                 openBrace,
                 fieldBindingPatterns,
-                restBindingPattern,
                 closeBrace);
     }
 
@@ -100,15 +91,13 @@ public class MappingBindingPatternNode extends BindingPatternNode {
     public static class MappingBindingPatternNodeModifier {
         private final MappingBindingPatternNode oldNode;
         private Token openBrace;
-        private SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatterns;
-        private RestBindingPatternNode restBindingPattern;
+        private SeparatedNodeList<BindingPatternNode> fieldBindingPatterns;
         private Token closeBrace;
 
         public MappingBindingPatternNodeModifier(MappingBindingPatternNode oldNode) {
             this.oldNode = oldNode;
             this.openBrace = oldNode.openBrace();
             this.fieldBindingPatterns = oldNode.fieldBindingPatterns();
-            this.restBindingPattern = oldNode.restBindingPattern().orElse(null);
             this.closeBrace = oldNode.closeBrace();
         }
 
@@ -120,15 +109,9 @@ public class MappingBindingPatternNode extends BindingPatternNode {
         }
 
         public MappingBindingPatternNodeModifier withFieldBindingPatterns(
-                SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatterns) {
+                SeparatedNodeList<BindingPatternNode> fieldBindingPatterns) {
             Objects.requireNonNull(fieldBindingPatterns, "fieldBindingPatterns must not be null");
             this.fieldBindingPatterns = fieldBindingPatterns;
-            return this;
-        }
-
-        public MappingBindingPatternNodeModifier withRestBindingPattern(
-                RestBindingPatternNode restBindingPattern) {
-            this.restBindingPattern = restBindingPattern;
             return this;
         }
 
@@ -143,7 +126,6 @@ public class MappingBindingPatternNode extends BindingPatternNode {
             return oldNode.modify(
                     openBrace,
                     fieldBindingPatterns,
-                    restBindingPattern,
                     closeBrace);
         }
     }

@@ -554,18 +554,18 @@ public class BTestRunner {
         // properly.
         init.setName("$moduleInit");
         Object response = init.invoke();
-        if (response instanceof Exception) {
+        if (response instanceof Throwable) {
             throw new BallerinaTestException("Dependant module initialization for test suite failed due to " +
-                    ((Exception) response).getCause());
+                    response.toString(), (Throwable) response);
         }
         // Now we initialize the init of testable module.
         if (hasTestablePackage) {
             TesterinaFunction testInit =
                     new TesterinaFunction(testInitClazz, suite.getTestInitFunctionName(), initScheduler);
             response = testInit.invoke();
-            if (response instanceof Exception) {
+            if (response instanceof Throwable) {
                 throw new BallerinaTestException("Test module initialization for test suite failed due to " +
-                        ((Exception) response).getCause());
+                        response.toString(), (Throwable) response);
             }
         }
         // As the start function we need to use $moduleStart to start all the dependent modules

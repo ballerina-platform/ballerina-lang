@@ -1,17 +1,17 @@
-import ballerina/runtime;
+import ballerina/java;
 
 int i = 0;
 
 function testVoidFunction() returns int {
     testVoid();
-    runtime:sleep(1500);
+    sleep(1500);
     return i;
 }
 
 function testVoid() {
     @strand{thread:"any"}
     worker w1 {
-        runtime:sleep(3000);
+        sleep(3000);
         testNew();
     }
     @strand{thread:"any"}
@@ -24,7 +24,7 @@ function testVoid() {
 function testNew(){
     @strand{thread:"any"}
     worker w1 {
-        runtime:sleep(2000);
+        sleep(2000);
     }
     @strand{thread:"any"}
     worker w2 {
@@ -32,3 +32,6 @@ function testNew(){
     }
 }
 
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

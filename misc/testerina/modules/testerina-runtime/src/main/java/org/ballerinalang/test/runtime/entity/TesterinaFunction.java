@@ -18,9 +18,9 @@
 package org.ballerinalang.test.runtime.entity;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
-import io.ballerina.runtime.internal.IdentifierUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
@@ -104,7 +104,11 @@ public class TesterinaFunction {
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
                 try {
-                    return method.invoke(null, objects);
+                    Object invoke = method.invoke(null, objects);
+                    if (!scheduler.isListenerDeclarationFound()) {
+                        scheduler.setImmortal(false);
+                    }
+                    return invoke;
                 } catch (InvocationTargetException e) {
                     return e.getTargetException();
                 } catch (IllegalAccessException e) {

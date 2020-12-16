@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -98,7 +99,24 @@ public class LangLibrary {
      */
     public List<FunctionSymbol> getMethods(TypeDescKind typeDescKind) {
         String langLibName = getAssociatedLangLibName(typeDescKind);
+        return getMethods(langLibName);
+    }
 
+    /**
+     * Given an internal type kind, return the list of lang library functions that can be called using a method call
+     * expr, on an expression of that type.
+     *
+     * @param typeKind A type kind
+     * @return The associated list of lang library functions
+     */
+    public List<FunctionSymbol> getMethods(TypeKind typeKind) {
+        String langLibName = getAssociatedLangLibName(typeKind);
+        return getMethods(langLibName);
+    }
+
+    // Private Methods
+
+    private List<FunctionSymbol> getMethods(String langLibName) {
         if (wrappedLangLibMethods.containsKey(langLibName)) {
             return wrappedLangLibMethods.get(langLibName);
         }
@@ -116,8 +134,6 @@ public class LangLibrary {
 
         return wrappedMethods;
     }
-
-    // Private Methods
 
     private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib) {
         for (Map.Entry<String, BInvokableSymbol> entry : langLib.entrySet()) {
@@ -149,6 +165,34 @@ public class LangLibrary {
             case XML:
             case TABLE:
                 return typeDescKind.getName();
+            default:
+                return LANG_VALUE;
+        }
+    }
+
+    private String getAssociatedLangLibName(TypeKind typeKind) {
+        switch (typeKind) {
+            case INT:
+            case BYTE:
+                return TypeKind.INT.typeName();
+            case ARRAY:
+            case TUPLE:
+                return TypeKind.ARRAY.typeName();
+            case RECORD:
+            case MAP:
+                return TypeKind.MAP.typeName();
+            case FLOAT:
+            case DECIMAL:
+            case STRING:
+            case BOOLEAN:
+            case STREAM:
+            case OBJECT:
+            case ERROR:
+            case FUTURE:
+            case TYPEDESC:
+            case XML:
+            case TABLE:
+                return typeKind.typeName();
             default:
                 return LANG_VALUE;
         }

@@ -24,7 +24,7 @@ import io.ballerina.compiler.internal.parser.tree.STNode;
  *
  * @since 2.0.0
  */
-public abstract class FieldBindingPatternNode extends NonTerminalNode {
+public abstract class FieldBindingPatternNode extends BindingPatternNode {
 
     public FieldBindingPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

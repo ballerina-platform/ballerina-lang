@@ -66,7 +66,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.REST_ARG_IDENTIFIER;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
 
 /**
  * A {@code NodeVisitor} based implementation used to traverse and capture evaluatable segments of a parsed ballerina
@@ -138,7 +138,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     public Evaluator build(ExpressionNode parsedExpr) throws EvaluationException {
         clearState();
         // Uses `ExpressionIdentifierModifier` to modify and encode all the identifiers within the expression.
-        parsedExpr = (ExpressionNode) parsedExpr.apply(new ExpressionIdentifierModifier());
+        parsedExpr = (ExpressionNode) parsedExpr.apply(new IdentifierModifier());
         parsedExpr.accept(this);
         if (unsupportedSyntaxDetected()) {
             final StringJoiner errors = new StringJoiner(System.lineSeparator());

@@ -16,7 +16,9 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -64,8 +66,11 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
                 (2) xml<mod:x*cursor*>
                  */
                 Predicate<Symbol> predicate = (symbol -> {
-                    Optional<TypeDescKind> typeDescKind = SymbolUtil.getTypeKind(symbol);
-                    return typeDescKind.isPresent() && typeDescKind.get() == TypeDescKind.XML;
+                    if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
+                        return false;
+                    }
+                    Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+                    return typeDescriptor.isPresent() && typeDescriptor.get().typeKind() == TypeDescKind.XML;
                 });
                 moduleContent = QNameReferenceUtil.getModuleContent(context, refNode, predicate);
             } else {
@@ -91,8 +96,11 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
             // modules and the xml sub types are suggested
             List<Symbol> xmlSubTypes = visibleSymbols.stream()
                     .filter(symbol -> {
-                        Optional<TypeDescKind> typeDescKind = SymbolUtil.getTypeKind(symbol);
-                        return typeDescKind.isPresent() && typeDescKind.get() == TypeDescKind.XML;
+                        if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
+                            return false;
+                        }
+                        Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+                        return typeDescriptor.isPresent() && typeDescriptor.get().typeKind() == TypeDescKind.XML;
                     })
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(xmlSubTypes, context));

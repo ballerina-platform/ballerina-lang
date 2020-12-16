@@ -1,48 +1,45 @@
-import testOrg/functions;
-import testOrg/services;
-import testOrg/types;
-import ballerina/lang.'object;
+import test/proj;
 
-@functions:Config {
+@proj:FConfig {
     value: "routerFunc"
 }
 public function routerFunc() {
 }
 
-@services:Config {
+@proj:SConfig {
     value: "routerService"
 }
-service routerService on ep {
+service /routerService on ep {
 
-    @services:Config  {
+    @proj:SConfig  {
         value: "route"
     }
-    @functions:Config {
+    @proj:FConfig {
         value: "route"
     }
-    resource function route() {
+    resource function get route() {
     }
 
-    resource function routeRes() {
+    resource function get routeRes() {
     }
 }
 
-service routerService2 on ep {
+service /routerService2 on ep {
 
-    @functions:Config {
+    @proj:FConfig {
         value: "route"
     }
-    resource function route2() {
+    resource function get route2() {
 
     }
 }
 
-@types:Config {
+@proj:TConfig {
     value: "routeCon"
 }
 public client class routeCon {
 
-    @functions:Config {
+    @proj:FConfig {
         value: "route"
     }
     remote function getRoutes() {
@@ -50,14 +47,14 @@ public client class routeCon {
     }
 }
 
-@types:Config {
+@proj:TConfig {
     value: "RouteConfig"
 }
 type RouteConfig record {
 
 };
 
-@types:Config {
+@proj:TConfig {
     value: "Employee"
 }
 type Employee record {
@@ -90,10 +87,10 @@ public class ABC {
     public function immediateStop() returns error? {
     }
 
-    public function attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string|string[]? name = ()) returns error? {
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 }
 

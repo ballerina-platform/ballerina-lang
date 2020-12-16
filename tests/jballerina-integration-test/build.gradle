@@ -51,7 +51,7 @@ dependencies {
     implementation project(':ballerina-tool')
 //    implementation project(':ballerina-http')
 //    implementation project(':ballerina-transactions')
-    implementation project(':ballerina-packerina')
+    implementation project(':ballerina-cli')
 //    implementation project(':ballerina-transactions')
     implementation project(':ballerina-observability')
     implementation project(':ballerina-lang:java')

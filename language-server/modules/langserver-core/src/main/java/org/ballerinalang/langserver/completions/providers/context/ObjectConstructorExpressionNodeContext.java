@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.context.util.ObjectConstructorBodyContextUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -85,16 +86,9 @@ public class ObjectConstructorExpressionNodeContext
 
     private List<LSCompletionItem> getConstructorBodyCompletions(CompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
+        completionItems.addAll(ObjectConstructorBodyContextUtil.getBodyContextSnippets(context));
 
         return completionItems;
     }
