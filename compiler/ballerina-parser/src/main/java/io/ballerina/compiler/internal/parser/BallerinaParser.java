@@ -238,7 +238,7 @@ public class BallerinaParser extends AbstractParser {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
                     // at the correct place, but some token after that is not. There only one such
                     // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
-                    metadata = STNodeFactory.createEmptyNodeList();
+                    metadata = STNodeFactory.createEmptyNode();
                     break;
                 }
 
@@ -7547,7 +7547,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse annotations.
      * <p>
-     * <i>Note: In the ballerina spec ({@link https://ballerina.io/spec/lang/2020R1/#annots})
+     * <i>Note: In the <a href="https://ballerina.io/spec/lang/2020R1/#annots">ballerina spec</a>
      * annotations-list is specified as one-or-more annotations. And the usage is marked as
      * optional annotations-list. However, for the consistency of the tree, here we make the
      * annotation-list as zero-or-more annotations, and the usage is not-optional.</i>

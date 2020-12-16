@@ -15,8 +15,7 @@
 // under the License.
 
 import ballerina/lang.test;
-import ballerina/io;
-import ballerina/cache;
+import ballerina/java;
 
 public function simpleAddition() {
     int a = 3;
@@ -30,14 +29,13 @@ public function complexAddition() {
     int b = 1;
     if(c>3) {
         int d = b + c + 1;
-        if(d>4) {
-            io:println(d);
+        if (d > 4) {
+            //do nothing
         }
     }
     if(a>1) {
         a-=1;
     }
-    io:println(a);
 }
 
 int globalA = 5;
@@ -80,22 +78,3 @@ function mapInits() returns [string?, int?] {
     return [emp["jack"]["name"], emp["jack"]["age"]];
 }
 
-public function cacheInserts() {
-    cache:CacheConfig config = {
-        capacity: 10,
-        evictionFactor: 0.2
-    };
-    cache:Cache cache = new(config);
-    checkpanic cache.put("A", "1");
-    checkpanic cache.put("B", "2");
-    checkpanic cache.put("C", "3");
-    checkpanic cache.put("D", "4");
-    checkpanic cache.put("E", "5");
-    checkpanic cache.put("F", "6");
-    checkpanic cache.put("G", "7");
-    checkpanic cache.put("H", "8");
-    checkpanic cache.put("I", "9");
-    checkpanic cache.put("J", "10");
-    checkpanic cache.put("K", "11");
-    var res = [cache.keys(), cache.size()];
-}

@@ -43,6 +43,7 @@ under the License.
             <!--<class name="org.ballerinalang.testerina.test.RerunFailedTest"/>-->
             <!--<class name="org.ballerinalang.testerina.test.FunctionNameValidationTest" />-->
             <!--<class name="org.ballerinalang.testerina.test.ImportTest" />-->
+            <!--<class name="org.ballerinalang.testerina.test.ModuleExecutionTest" />-->
         </classes>
     </test>
 </suite>

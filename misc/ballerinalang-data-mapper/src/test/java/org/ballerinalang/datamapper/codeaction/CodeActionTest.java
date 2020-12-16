@@ -18,17 +18,15 @@ package org.ballerinalang.datamapper.codeaction;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.ballerinalang.datamapper.util.FileUtils;
 import org.ballerinalang.datamapper.util.TestUtil;
-import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
-import org.eclipse.lsp4j.CodeActionContext;
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,12 +36,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+
+import static org.ballerinalang.datamapper.util.DataMapperTestUtils.getCodeActionResponse;
+
 
 /**
  * Test Cases for CodeActions.
@@ -52,32 +50,57 @@ import java.util.stream.Collectors;
  */
 public class CodeActionTest {
 
-    private Endpoint serviceEndpoint;
-
-    private JsonParser parser = new JsonParser();
-
-    private Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
-
-    private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
-
+    private static Endpoint serviceEndpoint;
     private static final Logger log = LoggerFactory.getLogger(CodeActionTest.class);
+    private static Server server;
 
     @BeforeClass
     private void init() throws Exception {
-        this.serviceEndpoint = TestUtil.initializeLanguageSever();
-        String startConfigPath = "codeaction" + File.separator + "config" + File.separator + "startConfig.json";
+        serviceEndpoint = TestUtil.initializeLanguageSever();
+        String startConfigPath = "codeaction" + File.separator + "config" + File.separator +
+                "startConfig.json";
         JsonObject configs = FileUtils.fileContentAsObject(startConfigPath);
         TestUtil.setWorkspaceConfig(serviceEndpoint, configs);
+
+        class HelloWorldHandler extends AbstractHandler {
+
+            String responseData = "{\"answer\":\"\\nfunction mapStudentToGrades (Student student) " +
+                    "returns Grades {\\n// Some record fields might be missing in the AI based mapping.\\n\\t" +
+                    "Grades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, " +
+                    "physics: student.grades.physics};\\n\\treturn grades;\\n}\"}";
+
+            int responseCode = 200;
+
+            @Override
+            public void handle(String target, Request jettyRequest, HttpServletRequest request,
+                               HttpServletResponse response) throws IOException {
+                // Mark the request as handled by this Handler.
+                jettyRequest.setHandled(true);
+
+                response.setStatus(responseCode);
+                response.setContentType("text/html; charset=UTF-8");
+                response.getWriter().print(responseData);
+            }
+        }
+
+        server = new Server(8080);
+        Connector connector = new ServerConnector(server);
+        server.addConnector(connector);
+
+        // Set the Hello World Handler.
+        server.setHandler(new HelloWorldHandler());
+        server.start();
     }
 
-    @Test(dataProvider = "codeAction-data-mapper-data-provider", enabled = false)
+    @Test(dataProvider = "codeAction-data-mapper-data-provider")
     public void testDataMapperCodeAction(String config, String source) throws Exception {
+
         // Read expected results
         String configJsonPath = "codeaction" + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
         // Get code action from language server
-        JsonObject responseJson = getCodeActionResponse(source, configJsonObject);
+        JsonObject responseJson = getCodeActionResponse(source, configJsonObject, serviceEndpoint);
 
         JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
         String title = expectedResponse.get("title").getAsString();
@@ -93,7 +116,6 @@ public class CodeActionTest {
             }
             JsonArray edit = editText.getAsJsonObject().get("documentChanges")
                     .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
-
             boolean editsMatched = expectedResponse.get("edits").getAsJsonArray().equals(edit);
             if (right.getAsJsonObject().get("title").getAsString().equals(title) && editsMatched) {
                 codeActionFound = true;
@@ -103,9 +125,37 @@ public class CodeActionTest {
         if (codeActionFound && numberOfDataMappingCodeAction == 1) {
             codeActionFoundOnlyOnce = true;
         }
-        Assert.assertTrue(codeActionFoundOnlyOnce,
-                "Cannot find expected Code Action for: " + title);
+        Assert.assertTrue(
+                codeActionFoundOnlyOnce, "Cannot find expected Code Action for: " + title);
     }
+
+    @Test(dataProvider = "restricted-codeAction-data-mapper-data-provider")
+    public void testRestrictedDataMapperCodeAction(String config, String source) throws Exception {
+        // Read expected results
+        String configJsonPath = "codeaction" + File.separator + config;
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+
+        // Get code action from language server
+        JsonObject responseJson = getCodeActionResponse(source, configJsonObject, serviceEndpoint);
+
+        JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
+        String title = expectedResponse.get("title").getAsString();
+
+        boolean codeActionFound = false;
+        for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
+            JsonElement right = jsonElement.getAsJsonObject().get("right");
+            JsonElement editText = right.getAsJsonObject().get("edit");
+            if (editText == null) {
+                continue;
+            }
+            if (right.getAsJsonObject().get("title").getAsString().equals(title)) {
+                codeActionFound = true;
+            }
+        }
+        Assert.assertFalse(
+                codeActionFound, "Cannot find expected Code Action for: " + title);
+    }
+
 
     @DataProvider(name = "codeAction-data-mapper-data-provider")
     public Object[][] codeActionDataMapperDataProvider() {
@@ -119,37 +169,22 @@ public class CodeActionTest {
         };
     }
 
+    @DataProvider(name = "restricted-codeAction-data-mapper-data-provider")
+    public Object[][] restrictedCodeActionDataMapperDataProvider() {
+        log.info("Test textDocument/codeAction QuickFixes");
+        return new Object[][]{
+                {"dataMapper6.json", "dataMapper6.bal"},
+        };
+    }
+
     @AfterClass
     private void cleanupLanguageServer() {
-        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
-    }
-
-    private JsonObject getResponseJson(String response) {
-        JsonObject responseJson = parser.parse(response).getAsJsonObject();
-        responseJson.remove("id");
-        return responseJson;
-    }
-
-    private JsonObject getCodeActionResponse(String source, JsonObject configJsonObject) throws IOException {
-
-        // Read expected results
-        Path sourcePath = sourcesPath.resolve("source").resolve(source);
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-
-        // Filter diagnostics for the cursor position
-        List<Diagnostic> diags = new ArrayList<>(
-                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager)));
-        Position pos = new Position(configJsonObject.get("line").getAsInt(),
-                configJsonObject.get("character").getAsInt());
-        diags = diags.stream().
-                filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
-                .collect(Collectors.toList());
-        CodeActionContext codeActionContext = new CodeActionContext(diags);
-        Range range = new Range(pos, pos);
-        String response = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range,
-                codeActionContext);
-        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
-
-        return this.getResponseJson(response);
+        TestUtil.shutdownLanguageServer(serviceEndpoint);
+        try {
+            server.stop();
+            server.destroy();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 }

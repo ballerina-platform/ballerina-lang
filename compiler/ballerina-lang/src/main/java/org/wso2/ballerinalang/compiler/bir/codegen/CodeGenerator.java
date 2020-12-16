@@ -17,6 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.projects.CompilerBackend;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PlatformLibrary;
+import io.ballerina.projects.PlatformLibraryScope;
+import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -33,6 +39,17 @@ import java.io.IOException;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.encodeModuleIdentifiers;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 /**
  * JVM byte code generator from BIR model.
  *
@@ -86,7 +103,7 @@ public class CodeGenerator {
         populateExternalMap(jvmPackageGen);
 
         //Rewrite identifier names with encoding special characters
-        encodeModuleIdentifiers(packageSymbol.bir, Names.getInstance(this.compilerContext));
+        JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir, Names.getInstance(this.compilerContext));
 
         // TODO Get-rid of the following assignment
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);

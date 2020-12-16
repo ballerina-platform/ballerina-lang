@@ -514,8 +514,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     int addPkgCPEntry(PackageID packageID) {
-        return BIRWriterUtils
-                .addPkgCPEntry(packageID.orgName.value, packageID.name.value, packageID.version.value, this.cp);
+        return BIRWriterUtils.addPkgCPEntry(packageID, this.cp);
     }
 
     // private methods

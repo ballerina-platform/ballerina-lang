@@ -143,7 +143,8 @@ public class InteropValidator {
                 dlog.error(func.pos, e.getCode(), e.getMessage());
             }
         }
-        module.functions = jBirFunctions;
+        module.functions.clear();
+        module.functions.addAll(jBirFunctions);
     }
 
     private void validateTypeAttachedFunctions(BIRNode.BIRPackage module, ClassLoader classLoader) {

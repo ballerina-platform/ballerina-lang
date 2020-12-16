@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/java;
-import ballerina/io;
-import ballerina/runtime;
 
 int totalNoOfStrandsForTest = 14;
 int errorCount = 0;
@@ -80,11 +78,11 @@ function testStrandMetadataAsyncCalls() {
 
     // Wait until all the async calls are done
     while (successCount < (totalNoOfStrandsForTest*2) && errorCount == 0) {
-        runtime:sleep(1);
+        sleep(1);
     }
     if (errorCount > 0) {
         errorMessages.forEach(function(string message) {
-            io:println(message);
+            //io:println(message);
         });
         panic error(ASSERTION_ERROR_REASON, message = "Test failed due to errors.");
     }
@@ -188,3 +186,7 @@ public function assertEquality(any|error expected, any|error actual) {
     errorMessages[errorCount] = "expected '" + expected.toString() + "', found '" + actual.toString() + "'";
     errorCount = errorCount + 1;
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

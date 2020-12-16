@@ -95,11 +95,11 @@ public class BIREmitter {
         modStr += emitLBreaks(1);
         modStr += "module";
         modStr += emitSpaces(1);
-        modStr += emitName(mod.org) + "/" + emitName(mod.name);
+        modStr += emitName(mod.packageID.orgName) + "/" + emitName(mod.packageID.name);
         modStr += emitSpaces(1);
         modStr += "v";
         modStr += emitSpaces(1);
-        modStr += emitName(mod.version) + ";";
+        modStr += emitName(mod.packageID.version) + ";";
         modStr += emitLBreaks(2);
         modStr += emitImports(mod.importModules);
         modStr += emitLBreaks(2);
@@ -127,13 +127,13 @@ public class BIREmitter {
     private String emitImport(BIRNode.BIRImportModule impMod) {
 
         String impStr = "import ";
-        impStr += emitName(impMod.org) + "/";
-        impStr += emitName(impMod.name);
-        if (!isEmpty(impMod.version)) {
+        impStr += emitName(impMod.packageID.orgName) + "/";
+        impStr += emitName(impMod.packageID.name);
+        if (!isEmpty(impMod.packageID.version)) {
             impStr += emitSpaces(1);
             impStr += "v";
             impStr += emitSpaces(1);
-            impStr += emitName(impMod.version);
+            impStr += emitName(impMod.packageID.version);
         }
         impStr += ";";
         return impStr;

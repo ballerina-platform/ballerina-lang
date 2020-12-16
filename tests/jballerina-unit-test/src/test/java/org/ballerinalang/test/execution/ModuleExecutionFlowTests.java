@@ -33,7 +33,7 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleInitReturningError() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj2");
+        CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj2");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module a\n" +
@@ -45,7 +45,7 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleStartReturningError() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj3");
+        CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj3");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module a\n" +
@@ -64,20 +64,20 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleInitPanic() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj4");
+        CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj4");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module a\n" +
                 "Initializing module b";
         String expectedErrorString = "error: panicked while initializing module B\n" +
-                "\tat unit-tests.b.0_1_0:init(main.bal:6)";
+                "\tat unit_tests.proj4.b.0_1_0:init(main.bal:6)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
     @Test
     public void testModuleStartPanic() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj5");
+        CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj5");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module a\n" +
@@ -90,14 +90,14 @@ public class ModuleExecutionFlowTests {
                 "a:ABC listener __gracefulStop called, service name - ModA";
 
         String expectedErrorString = "error: panicked while starting module B\n" +
-                "\tat unit-tests.a.0_1_0.ABC:__start(main.bal:23)";
+                "\tat unit_tests.proj5.a.0_1_0.ABC:start(main.bal:21)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
     @Test
     public void testModuleMainReturnError() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj7");
+        CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj7");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedString = "Initializing module a\n" +
@@ -111,7 +111,7 @@ public class ModuleExecutionFlowTests {
 
     @Test
     public void testModuleMainPanicError() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj8");
+        CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj8");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedString = "Initializing module a\n" +
@@ -127,7 +127,7 @@ public class ModuleExecutionFlowTests {
     @Test
     public void testModuleStartAndStopPanic() {
         CompileResult compileResult =
-                BCompileUtil.compile("test-src/execution/start_stop_failing_project");
+                BCompileUtil.compileWithoutInitInvocation("test-src/execution/start_stop_failing_project");
         ExitDetails output = run(compileResult, new String[]{});
 
         String expectedConsoleString = "Initializing module 'basic'\n" +
