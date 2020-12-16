@@ -397,8 +397,9 @@ public class BallerinaDocGenerator {
                 moduleName = module.moduleName().packageName().toString();
                 modulePath = project.sourceRoot();
             } else {
-                moduleName = module.moduleName().moduleNamePart();
-                modulePath = project.sourceRoot().resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
+                moduleName = module.moduleName().packageName() + "." + module.moduleName().moduleNamePart();
+                modulePath = project.sourceRoot().resolve(ProjectConstants.MODULES_ROOT).resolve(module.moduleName()
+                        .moduleNamePart());
             }
             // find the Module.md file
             Path moduleMd = getModuleDocPath(modulePath, ProjectConstants.MODULE_MD_FILE_NAME);
@@ -456,8 +457,11 @@ public class BallerinaDocGenerator {
             boolean hasPublicConstructs = false;
             // Loop through bal files
             for (Map.Entry<String, SyntaxTree> syntaxTreeMapEntry : moduleDoc.getValue().syntaxTreeMap.entrySet()) {
-                hasPublicConstructs = Generator.setModuleFromSyntaxTree(module, syntaxTreeMapEntry.getValue(), model,
-                        syntaxTreeMapEntry.getKey());
+                boolean hasPublicConstructsTemp = Generator.setModuleFromSyntaxTree(module,
+                        syntaxTreeMapEntry.getValue(), model, syntaxTreeMapEntry.getKey());
+                if (hasPublicConstructsTemp) {
+                    hasPublicConstructs = true;
+                }
             }
             if (hasPublicConstructs) {
                 moduleDocs.add(module);
