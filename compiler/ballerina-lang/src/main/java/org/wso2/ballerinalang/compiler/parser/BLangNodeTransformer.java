@@ -1286,7 +1286,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             simpleVar.flagSet.add(Flag.REQUIRED);
         }
 
-        addRedonlyQualifier(recordFieldNode.readonlyKeyword(), recordFieldNode.typeName(), simpleVar);
+        addReadOnlyQualifier(recordFieldNode.readonlyKeyword(), simpleVar);
 
         simpleVar.pos = getPositionWithoutMetadata(recordFieldNode);
         return simpleVar;
@@ -1301,28 +1301,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             simpleVar.setInitialExpression(createExpression(recordFieldNode.expression()));
         }
 
-        addRedonlyQualifier(recordFieldNode.readonlyKeyword(), recordFieldNode.typeName(), simpleVar);
+        addReadOnlyQualifier(recordFieldNode.readonlyKeyword(), simpleVar);
 
         simpleVar.pos = getPositionWithoutMetadata(recordFieldNode);
         return simpleVar;
     }
 
-    private void addRedonlyQualifier(Optional<Token> readonlyKeyword, Node typeDesc, BLangSimpleVariable simpleVar) {
+    private void addReadOnlyQualifier(Optional<Token> readonlyKeyword, BLangSimpleVariable simpleVar) {
         if (readonlyKeyword.isPresent()) {
-            BLangValueType readOnlyTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-            readOnlyTypeNode.pos = getPosition(readonlyKeyword.get());
-            readOnlyTypeNode.typeKind = TypeKind.READONLY;
-            if (simpleVar.typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
-                ((BLangIntersectionTypeNode) simpleVar.typeNode).constituentTypeNodes.add(readOnlyTypeNode);
-            } else {
-                BLangIntersectionTypeNode intersectionTypeNode =
-                        (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
-                intersectionTypeNode.constituentTypeNodes.add(simpleVar.typeNode);
-                intersectionTypeNode.constituentTypeNodes.add(readOnlyTypeNode);
-                intersectionTypeNode.pos = getPosition(typeDesc);
-                simpleVar.typeNode = intersectionTypeNode;
-            }
-
             simpleVar.flagSet.add(Flag.READONLY);
         }
     }

@@ -659,6 +659,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER("BCE3972", "service.absolute.path.is.not.supported.by.listener"),
     SERVICE_LITERAL_REQUIRED_BY_LISTENER("BCE3973", "service.path.literal.required.by.listener"),
     SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER("BCE3974", "service.absolute.path.required.by.listener"),
+
+    INVALID_READONLY_FIELD_TYPE("BCE3975", "invalid.readonly.field.type")
     ;
 
     private String diagnosticId;

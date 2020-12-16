@@ -2169,7 +2169,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         continue;
                     }
 
-                    if (!types.isSelectivelyImmutableType(constituentType, true, true)) {
+                    if (!types.isSelectivelyImmutableType(constituentType, true)) {
                         hasNonReadOnlyElement = true;
                         break;
                     }
@@ -2208,7 +2208,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (!types.isSelectivelyImmutableType(mutableType, false, true)) {
+            if (!types.isSelectivelyImmutableType(mutableType, true)) {
                 dlog.error(typeDefNode.typeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, immutableType);
                 typeNode.type = symTable.semanticError;
             }
