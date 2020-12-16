@@ -109,6 +109,7 @@
             <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
             <package name="org.ballerinalang.test.expressions.checkedexpr.*"/>
             <package name="org.ballerinalang.test.expressions.elvis.*"/>
+            <package name="org.ballerinalang.test.expressions.errorconstructorexpr.*"/>
             <package name="org.ballerinalang.test.expressions.ternary.*"/>
             <package name="org.ballerinalang.test.expressions.typeof.*"/>
             <package name="org.ballerinalang.test.expressions.stamp.*"/>
