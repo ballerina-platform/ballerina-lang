@@ -158,8 +158,8 @@ public class LimitClauseTest {
         negativeResult = BCompileUtil.compile("test-src/query/limit-clause-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int i = 0;
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 22, 19);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 62, 19);
-        validateError(negativeResult, i, "more clauses after select clause", 107, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 38, 19);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 78, 19);
+        validateError(negativeResult, i, "more clauses after select clause", 123, 13);
     }
 }
