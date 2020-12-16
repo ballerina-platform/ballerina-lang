@@ -33,23 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.*;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -298,6 +282,29 @@ public class TypeParamAnalyzer {
         }
         // Bound type is a structure. Visit recursively to find bound type.
         switch (expType.tag) {
+            case TypeTags.XML:
+                if (TypeTags.isXMLTypeTag(actualType.tag)) {
+                    switch (actualType.tag) {
+                        case TypeTags.XML:
+                            BType constraint = ((BXMLType) actualType).constraint;
+                            while (constraint.tag == TypeTags.XML) {
+                                actualType = constraint;
+                                constraint = ((BXMLType)actualType).constraint;
+                            }
+                            findTypeParam(loc, ((BXMLType) expType).constraint, constraint, env,
+                                    resolvedTypes, result);
+                            break;
+                        case TypeTags.XML_TEXT:
+                            findTypeParam(loc, ((BXMLType) expType).constraint, actualType, env,
+                                    resolvedTypes, result);
+                            break;
+                        case TypeTags.UNION:
+                            findTypeParamInUnion(loc, ((BXMLType) expType).constraint, (BUnionType) actualType, env,
+                                    resolvedTypes, result);
+                            break;
+                    }
+                }
+                return;
             case TypeTags.ARRAY:
                 if (actualType.tag == TypeTags.ARRAY) {
                     findTypeParam(loc, ((BArrayType) expType).eType, ((BArrayType) actualType).eType, env,
@@ -469,6 +476,12 @@ public class TypeParamAnalyzer {
             }
             if (type.tag == TypeTags.MAP) {
                 members.add(((BMapType) type).constraint);
+            }
+            if (TypeTags.isXMLTypeTag(type.tag)) {
+                if (type.tag == TypeTags.XML) {
+                    members.add(((BXMLType) type).constraint);
+                }
+                members.add(type);
             }
             if (type.tag == TypeTags.RECORD) {
                 for (BField field : ((BRecordType) type).fields.values()) {

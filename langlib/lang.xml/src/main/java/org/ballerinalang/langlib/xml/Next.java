@@ -19,9 +19,11 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BXml;
 
@@ -41,18 +43,24 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(BObject m) {
         BIterator xmlIterator = (BIterator) m.getNativeData("&iterator&");
+        BXml bXML = (BXml) m.get(StringUtils.fromString("m"));
 
         if (xmlIterator == null) {
-            xmlIterator = ((BXml) m.get(StringUtils.fromString("m"))).getIterator();
+            xmlIterator = bXML.getIterator();
             m.addNativeData("&iterator&", xmlIterator);
         }
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            return ValueCreator.createRecordValue(ValueCreator.createMapValue(PredefinedTypes.XML_ITR_NEXT_RETURN_TYPE),
-                                                  xmlValue);
+            switch (bXML.getType().getTag()){
+                case TypeTags.XML_ELEMENT_TAG:
+                    return ValueCreator.createRecordValue(ValueCreator.createMapValue
+                                    (PredefinedTypes.XML_ITR_NEXT_RETURN_ELEMENT_TYPE),xmlValue);
+                case TypeTags.XML_TEXT_TAG:
+                    return ValueCreator.createRecordValue(ValueCreator.createMapValue
+                            (PredefinedTypes.XML_ITR_NEXT_RETURN_TEXT_TYPE),xmlValue);
+            }
         }
-
         return null;
     }
 }

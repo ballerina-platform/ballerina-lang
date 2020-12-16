@@ -54,7 +54,7 @@ public class XMLIterationTest {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 2);
+        Assert.assertEquals(negative.getErrorCount(), 17);
         int index = 0;
         BAssertUtil.validateError(negative, index++,
                                   "invalid tuple binding pattern: attempted to infer a tuple type, but found 'xml'",
@@ -62,6 +62,58 @@ public class XMLIterationTest {
         BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
                 "'function ((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)) returns ()'," +
                 " found 'function ([int,xml,string]) returns ()'", 16, 19);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'other', found 'xml:Element'",
+                23, 13);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml:Element' is not an iterable collection",
+                23, 34);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'record {| xml:Element value; |}?', found 'record " +
+                        "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
+                28, 54);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'other', found 'xml:Comment'",
+                35, 13);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml:Comment' is not an iterable collection",
+                35, 34);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'record {| xml:Comment value; |}?', found 'record " +
+                        "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
+                40, 54);
+
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'other', found 'xml:ProcessingInstruction'",
+                47, 13);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml:ProcessingInstruction' is not an iterable collection",
+                47, 34);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'record {| xml:ProcessingInstruction value; |}?', " +
+                        "found 'record {| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
+                52, 54);
+
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
+                60, 13);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: '(xml:Element|xml:Text)' is not an iterable collection",
+                60, 34);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'other', found '(xml:Element|xml:Text)",
+                66, 13);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: '(xml<xml:Element>|xml<xml:Text>)' is not an iterable collection",
+                66, 34);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
+                        "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
+                71, 54);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
+                        "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
+                72, 54);
     }
 
     @Test
@@ -89,6 +141,15 @@ public class XMLIterationTest {
             Assert.assertEquals(((BInteger) tuple.getRefValue(0)).intValue(), i);
             Assert.assertEquals(tuple.getRefValue(1).stringValue(), titles[i]);
         }
+    }
+
+    @Test
+    public void testXMLTypesForeachOp() {
+        BRunUtil.invoke(result, "xmlTypeParamElementIter");
+        BRunUtil.invoke(result, "xmlTypeParamTextIter");
+        BRunUtil.invoke(result, "xmlTypeParamCommentIter");
+        BRunUtil.invoke(result, "xmlTypeParamPIIter");
+        BRunUtil.invoke(result, "xmlTypeParamUnionIter");
     }
 
     @Test

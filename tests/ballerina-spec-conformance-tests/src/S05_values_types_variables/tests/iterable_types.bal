@@ -110,7 +110,7 @@ function testIterableTypeXML() {
                         </bookstore>`;
     string result = "";
     foreach var x in bookstore["book"] {
-            result += x["title"].getTextValue();
+        result += x["title"].getTextValue();
     }
     test:assertEquals(result, "Title1Title2Title3", msg = "expected xml to iterate over its elements");
 }

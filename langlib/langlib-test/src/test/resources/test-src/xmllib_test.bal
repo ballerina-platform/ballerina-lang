@@ -65,9 +65,11 @@ function testConcat() returns xml {
 function testConcatWithXMLSequence() {
     string a = "string one";
     string b = "string two";
+    'xml:Element catalogClone = catalog.clone();
 
     xml c = 'xml:concat(catalog, a, b);
     assert(c.length(), 2);
+    assert(catalog, catalogClone);
 
     xml d = 'xml:concat();
     foreach var x in catalog/<CD> {

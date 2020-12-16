@@ -1480,6 +1480,9 @@ public class Types {
                         }
                 }
                 break;
+            case TypeTags.XML_TEXT:
+                varType = symTable.xmlTextType;
+                break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
                 varType = tableType.constraint;

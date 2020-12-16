@@ -148,3 +148,97 @@ function xmlCharItemIter() returns string {
     }
     return result;
 }
+
+function xmlTypeParamElementIter() {
+    xml<'xml:Element> el1 = xml `<foo>foo</foo><bar/>`;
+
+    string result = "";
+    foreach 'xml:Element elem in el1 {
+        string str = io:sprintf("%s\n", elem);
+        result += str;
+    }
+    assert(result, "<foo>foo</foo>");
+
+    record {| 'xml:Element value; |}? nextElement1 = el1.iterator().next();
+    assert(result, "{\"value\":`<foo>foo</foo>`}");
+}
+
+function xmlTypeParamTextIter() {
+    xml<'xml:Text> txt1 = xml `bit of text\u2702\u2705`;
+    'xml:Text txt2 = xml `bit of text\u2702\u2705`;
+
+    string result = "";
+    foreach 'xml:Text elem in txt1 {
+        string str = io:sprintf("%s\n", elem);
+        result += str;
+    }
+    assert(result,"bit of text\\u2702\\u2705\n");
+
+    string result = "";
+    foreach 'xml:Text elem in txt2 {
+        string str = io:sprintf("%s\n", elem);
+        result += str;
+    }
+    assert(result,"bit of text\\u2702\\u2705\n");
+
+    record {| 'xml:Text value; |}? nextText1 = txt1.iterator().next();
+    assert(result, "{\"value\":`bit of text\\u2702\\u2705`}");
+
+    record {| 'xml:Text value; |}? nextText2 = txt2.iterator().next();
+    assert(result, "{\"value\":`bit of text\\u2702\\u2705`}");
+}
+
+function xmlTypeParamCommentIter() {
+     xml<'xml:Comment> comment1 = xml `<!--I am a comment-->`;
+
+     string result = "";
+     foreach 'xml:Comment elem in comment1 {
+         string str = io:sprintf("%s\n", elem);
+         result += str;
+     }
+     assert(result, "");
+
+     record {| 'xml:Comment value; |}? nextComment1 = comment1.iterator().next();
+     assert(result, "");
+}
+
+function xmlTypeParamPIIter() {
+     xml<'xml:ProcessingInstruction> pi1 = xml `<?target data?>`;
+
+     string result = "";
+     foreach 'xml:ProcessingInstruction elem in pi1 {
+         string str = io:sprintf("%s\n", elem);
+         result += str;
+     }
+     assert(result, "");
+
+     record {| 'xml:ProcessingInstruction value; |}? nextPI1 = pi1.iterator().next();
+     assert(result, "");
+}
+
+function xmlTypeParamUnionIter() {
+    xml<'xml:Element|'xml:Text> el1 = xml `<foo>foo</foo><bar/>`;
+
+    string result = "";
+    foreach 'xml:Element|'xml:Text elem in el1 {
+        string str = io:sprintf("%s\n", elem);
+        result += str;
+    }
+    assert(result, "<foo>foo</foo>");
+
+    record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal1 = el1.iterator().next();
+    assert(result, "{\"value\":`<foo>foo</foo>`}");
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
+}
+
+
