@@ -70,14 +70,13 @@ public class LangLibUtils {
         return generatedMethod;
     }
 
-    public static String getQualifiedLangLibClassName(SuspendedContext context, String langLibName)
+    public static String getQualifiedLangLibClassName(ModuleSymbol moduleSymbol, String langLibName)
             throws EvaluationException {
-
         try {
             return new StringJoiner(".")
                     .add(LANG_LIB_ORG)
                     .add(encodeModuleName(LANG_LIB_PACKAGE_PREFIX + langLibName))
-                    .add(context.getLoadedLangLibVersions().get(langLibName))
+                    .add(moduleSymbol.moduleID().version().replaceAll("\\.", "_"))
                     .add(langLibName)
                     .toString();
         } catch (Exception ignored) {

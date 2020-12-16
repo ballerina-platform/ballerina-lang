@@ -156,7 +156,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         if (langLibDef.isPresent()) {
             Optional<FunctionSymbol> functionDef = getLangLibFunctionDefinition(context, langLibDef.get(), methodName);
             if (functionDef.isPresent()) {
-                String langLibCls = getQualifiedLangLibClassName(context, langLibName);
+                String langLibCls = getQualifiedLangLibClassName(langLibDef.get(), langLibName);
                 langLibFunctionDef = functionDef.get();
                 langLibMethod = loadLangLibMethod(context, resultVar, langLibCls, methodName);
             }
@@ -176,7 +176,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                         getString(), methodName, langLibName));
             }
 
-            String langLibCls = getQualifiedLangLibClassName(context, LANG_LIB_VALUE);
+            String langLibCls = getQualifiedLangLibClassName(valueLibDef.get(), LANG_LIB_VALUE);
             langLibFunctionDef = functionDef.get();
             langLibMethod = loadLangLibMethod(context, resultVar, langLibCls, methodName);
         }
