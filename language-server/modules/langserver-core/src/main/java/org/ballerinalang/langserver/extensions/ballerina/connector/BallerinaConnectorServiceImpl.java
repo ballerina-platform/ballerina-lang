@@ -43,7 +43,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.exception.LSConnectorException;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.Type;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
@@ -63,8 +62,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
@@ -177,7 +174,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     JsonElement jsonST = DiagramUtil.getClassDefinitionSyntaxJson(connector, semanticModel);
                     if (jsonST instanceof JsonObject) {
                         JsonElement recordsJson = gson.toJsonTree(connectorRecords);
-                        ((JsonObject)((JsonObject) jsonST).get("typeData")).add("records", recordsJson);
+                        ((JsonObject) ((JsonObject) jsonST).get("typeData")).add("records", recordsJson);
                     }
                     connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
                             request.getVersion(), connector.className().text(), jsonST);
@@ -221,7 +218,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             } else if (paramType.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
                 TypeDefinitionNode record = jsonRecords.get(paramType.get().signature());
                 if (record != null) {
-                    connectorRecords.put(paramType.get().signature(), DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
+                    connectorRecords.put(paramType.get().signature(),
+                            DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
                     populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
                 }
             }
@@ -232,7 +230,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                                           Map<String, TypeDefinitionNode> jsonRecords,
                                           Map<String, JsonElement> connectorRecords) {
         RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) recordTypeDefinition
-                                                                                            .typeDescriptor();
+                .typeDescriptor();
 
         recordTypeDescriptorNode.fields().forEach(field -> {
             Optional<TypeSymbol> fieldType = semanticModel.type(field.syntaxTree().filePath(), field.lineRange());
