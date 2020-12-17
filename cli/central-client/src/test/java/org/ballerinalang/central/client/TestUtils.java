@@ -126,7 +126,7 @@ public class TestUtils {
                 Utils.validatePackageVersion(version, new LogFormatter());
             } catch (CentralClientException e) {
                 exceptionThrown = true;
-                Assert.assertTrue(e.getMessage().contains("package version could not be detected"));
+                Assert.assertTrue(e.getMessage().contains("Invalid version:"));
             }
 
             if (!exceptionThrown) {
