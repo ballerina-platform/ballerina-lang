@@ -135,7 +135,7 @@ public class NativeConversionWithStampTypesTest {
     }
 
     @Test
-    void testConvertUnion() {
-        BRunUtil.invoke(compileResult, "testConvertUnion");
+    void testConvertToUnionWithActualType() {
+        BRunUtil.invoke(compileResult, "testConvertToUnionWithActualType");
     }
 }

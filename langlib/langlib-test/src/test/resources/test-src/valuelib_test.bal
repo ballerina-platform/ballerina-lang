@@ -1281,8 +1281,8 @@ type OpenRecordWithUnionTarget record {|
 
 function tesFromJsonWithTypeMapWithDecimal() {
     map<json> mp = {
-            name: "foo",
-            factor: 1.23d
+        name: "foo",
+        factor: 1.23d
     };
     var or = mp.fromJsonWithType(OpenRecordWithUnionTarget);
 
@@ -1293,4 +1293,22 @@ function tesFromJsonWithTypeMapWithDecimal() {
     OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget>or;
     assertEquality(castedValue["factor"], mp["factor"]);
     assertEquality(castedValue["name"], mp["name"]);
+}
+
+public type Maps record {|int i; int...;|}|record {|int i?;|};
+
+public type Value record {|
+    Maps value;
+|};
+
+public function testConvertJsonToAmbiguousType() {
+    json j = {"value": <map<int>> {i: 1}};
+    Value|error res = j.cloneWithType(Value);
+
+    if res is error {
+        assertEquality("'map<json>' value cannot be converted to 'Value'", res.detail()["message"]);
+        return;
+    }
+
+    panic error("Invalid respone.", message = "Expected error");
 }

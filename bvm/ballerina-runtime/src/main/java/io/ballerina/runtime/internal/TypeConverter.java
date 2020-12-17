@@ -245,6 +245,9 @@ public class TypeConverter {
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
+                    if (checkIsType(inputValue, memType)) {
+                        return List.of(memType);
+                    }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, unresolvedValues));
                 }
                 break;
@@ -265,6 +268,15 @@ public class TypeConverter {
                 }
         }
         return convertibleTypes;
+    }
+
+    private static boolean checkIsType(Object value, Type targetType) {
+        Type valueType = TypeChecker.getType(value);
+        if (valueType.equals(targetType)) {
+            return true;
+        }
+
+        return false;
     }
 
     public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType,
@@ -355,7 +367,7 @@ public class TypeConverter {
             } else {
                 if (targetFieldTypes.containsKey(fieldName)) {
                     if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName),
-                            unresolvedValues).size() == 0) {
+                            unresolvedValues).size() != 1) {
                         return false;
                     }
                 } else if (!targetType.sealed) {
