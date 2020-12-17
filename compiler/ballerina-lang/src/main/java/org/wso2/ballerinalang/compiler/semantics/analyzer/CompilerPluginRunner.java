@@ -225,6 +225,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
+        // Skip service classes generated for service-decl as they are processed via service annot.
+        if (classDefinition.isServiceDecl) {
+            return;
+        }
         List<BLangAnnotationAttachment> attachmentList = classDefinition.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(classDefinition, list));
     }

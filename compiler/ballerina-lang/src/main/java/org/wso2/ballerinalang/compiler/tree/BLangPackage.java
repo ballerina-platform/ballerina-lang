@@ -233,7 +233,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
      * @return testable package
      */
     public BLangTestablePackage getTestablePkg() {
-        return testablePkgs.stream().findAny().get();
+        return testablePkgs.stream().findAny().orElse(null);
     }
 
     /**

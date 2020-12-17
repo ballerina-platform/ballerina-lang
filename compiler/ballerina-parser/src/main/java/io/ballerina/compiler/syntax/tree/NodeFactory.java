@@ -708,14 +708,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static RequiredParameterNode createRequiredParameterNode(
+            SyntaxKind kind,
             NodeList<AnnotationNode> annotations,
+            Token asteriskToken,
             Node typeName,
             Token paramName) {
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(typeName, "typeName must not be null");
 
         STNode stRequiredParameterNode = STNodeFactory.createRequiredParameterNode(
+                kind,
                 annotations.underlyingListNode().internalNode(),
+                getOptionalSTNode(asteriskToken),
                 typeName.internalNode(),
                 getOptionalSTNode(paramName));
         return stRequiredParameterNode.createUnlinkedFacade();

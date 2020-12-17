@@ -4,7 +4,7 @@ name = "io"
 version = "0.5.0"
 
 [[platform.java11.dependency]]
-path = "../libs/ballerina-io-2.0.0-Preview7.jar"
+path = "../libs/ballerina-io-2.0.0-Preview8-SNAPSHOT.jar"
 groupId = "ballerina"
 artifactId = "io"
 version = "0.5.0"

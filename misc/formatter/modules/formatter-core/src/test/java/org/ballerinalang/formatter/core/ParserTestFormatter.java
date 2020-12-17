@@ -173,7 +173,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "annot_decl_source_02.bal", "class_def_source_11.bal", "object_type_def_source_26.bal",
                 "ambiguity_source_32.bal", "service_object_constructor_source_01.bal",
                 "service_object_constructor_source_02.bal", "object_constructor_source_08.bal",
-                "annotations_source_01.bal", "do_stmt_source_08.bal");
+                "annotations_source_01.bal", "do_stmt_source_08.bal", "func_params_source_10.bal",
+                "func_params_source_11.bal", "func_params_source_13.bal");
     }
 
     @DataProvider(name = "test-file-provider")

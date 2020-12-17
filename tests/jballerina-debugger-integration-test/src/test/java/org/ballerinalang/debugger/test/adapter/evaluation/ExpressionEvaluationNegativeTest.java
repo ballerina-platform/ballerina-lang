@@ -19,19 +19,12 @@
 package org.ballerinalang.debugger.test.adapter.evaluation;
 
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Test implementation for debug expression evaluation negative scenarios.
  */
 public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTest {
-
-    @BeforeClass
-    public void setup() throws BallerinaTestException {
-        prepareForEvaluation();
-    }
 
     @Override
     @Test
@@ -131,7 +124,13 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void methodCallEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // undefined object methods.
+        debugTestRunner.assertEvaluationError(context, OBJECT_VAR + ".calculate()",
+                EvaluationExceptionKind.PREFIX + "Undefined function 'calculate' in type 'object'");
+
+        // undefined lang library methods.
+        debugTestRunner.assertEvaluationError(context, INT_VAR + ".foo()",
+                EvaluationExceptionKind.PREFIX + "Undefined function 'foo' in type 'int'");
     }
 
     @Override
@@ -301,17 +300,8 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // syntactically incorrect expressions (additional semi-colon)
         debugTestRunner.assertEvaluationError(context, "x + 5;;",
             String.format(EvaluationExceptionKind.SYNTAX_ERROR.getString(), "invalid token ';'"));
-        // undefined object methods
-        debugTestRunner.assertEvaluationError(context, OBJECT_VAR + ".undefined()",
-                String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(), "undefined"));
         // Todo - Enable
         // assignment statements
         // debugTestRunner.assertEvaluationError(context, "int x = 5;", "");
-    }
-
-    @AfterClass(alwaysRun = true)
-    private void cleanup() {
-        debugTestRunner.terminateDebugSession();
-        this.context = null;
     }
 }
