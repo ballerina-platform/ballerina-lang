@@ -311,7 +311,7 @@ public class CodeActionUtil {
                                                          CodeActionContext context) {
         // Find Cursor node
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
-        String relPath = context.filePath().getFileName().toString();
+        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
 
         Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode, range,
@@ -398,7 +398,8 @@ public class CodeActionUtil {
 
         List<TextEdit> edits = new ArrayList<>();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Optional<Symbol> optEnclosedFuncSymbol = semanticModel.symbol(context.filePath().getFileName().toString(),
+        String relativePath = context.workspace().relativePath(context.filePath()).orElseThrow();
+        Optional<Symbol> optEnclosedFuncSymbol = semanticModel.symbol(relativePath,
                                                                       enclosedFunc.get().functionName().lineRange()
                                                                               .startLine());
         String returnText = "";
