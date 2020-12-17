@@ -148,13 +148,24 @@ public class ServiceValue {
         return ServiceValue.service;
     }
 
-    public static BValue getResourceAnnotation(BString resourceName, BString annotName) {
+    public static BValue getResourceAnnotation(BString methodName, ArrayValue path, BString annotName) {
+        String funcName = generateMethodName(methodName, path);
+
         for (var r : ((ServiceType) ServiceValue.service.getType()).getResourceFunctions()) {
-            if (r.getName().equals(resourceName.getValue())) {
+            if (r.getName().equals(funcName)) {
                 return (BValue) r.getAnnotation(annotName);
             }
         }
         return null;
+    }
+
+    private static String generateMethodName(BString methodName, ArrayValue path) {
+        StringBuilder funcName = new StringBuilder();
+        funcName.append("$").append(methodName.getValue());
+        for (int i = 0; i < path.size(); i++) {
+            funcName.append("$").append(path.getBString(i).getValue());
+        }
+        return funcName.toString();
     }
 
     public static BArray getServicePath() {
@@ -166,9 +177,11 @@ public class ServiceValue {
         return ServiceValue.annotationMap;
     }
 
-    public static BValue getAnnotMap(BObject service, BString resourceName, BString annotName) {
+    public static BValue getAnnotMap(BObject service, BString method, ArrayValue path, BString annotName) {
+        String methodName = generateMethodName(method, path);
+
         for (var r : ((ServiceType) service.getType()).getResourceFunctions()) {
-            if (r.getName().equals(resourceName.getValue())) {
+            if (r.getName().equals(methodName)) {
                 return (BValue) r.getAnnotation(annotName);
             }
         }
