@@ -17,12 +17,25 @@
  */
 package org.ballerinalang.testerina.core;
 
-import io.ballerina.compiler.syntax.tree.*;
+import com.google.gson.Gson;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingFieldNode;
+import io.ballerina.compiler.syntax.tree.MetadataNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.testsuite.Test;
@@ -33,8 +46,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 
-import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -44,14 +56,19 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,9 +77,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Responsible of processing testerina annotations.
- * Lifetime of an instance of this class will end upon the
- * completion of processing a ballerina package.
+ * Responsible of processing Testerina annotations.
+ * Lifetime of an instance of this class will end upon the completion of processing a ballerina package.
  */
 public class TestAnnotationProcessor {
     private static final String TEST_ANNOTATION_NAME = "@test:Config";
@@ -146,9 +162,6 @@ public class TestAnnotationProcessor {
         testSuite.setInitFunctionName(".<init>");
         testSuite.setStartFunctionName(".<start>");
         testSuite.setStopFunctionName(".<stop>");
-//        testSuite.setInitFunctionName(module.moduleContext().bLangPackage().initFunction.name.value);
-//        testSuite.setStartFunctionName(module.moduleContext().bLangPackage().startFunction.name.value);
-//        testSuite.setStopFunctionName(module.moduleContext().bLangPackage().stopFunction.name.value);
         testSuite.setPackageName(module.descriptor().packageName().toString());
         testSuite.setSourceRootPath(project.sourceRoot().toString());
         //Get syntax tree for source files in the module
@@ -498,7 +511,8 @@ public class TestAnnotationProcessor {
                                 test.setAfterTestFunction(getStringValue(valueExpr));
                             }
                             if (DEPENDS_ON_FUNCTIONS.equals(fieldName)) {
-                                if (SyntaxKind.LIST_CONSTRUCTOR == valueExpr.kind() && valueExpr instanceof ListConstructorExpressionNode) {
+                                if (SyntaxKind.LIST_CONSTRUCTOR == valueExpr.kind() &&
+                                        valueExpr instanceof ListConstructorExpressionNode) {
                                     List<String> dependsOnFunctions = new ArrayList<>();
                                     ((ListConstructorExpressionNode) valueExpr).expressions().forEach(
                                             expression-> dependsOnFunctions.add(getStringValue(expression)));
@@ -520,5 +534,22 @@ public class TestAnnotationProcessor {
         if (!shouldSkip.get()) {
             suite.addTests(test);
         }
+    }
+
+    /**
+     * Write the content into a json.
+     *
+     * @param testSuite Data that are parsed to the json
+     */
+    private static void writeToJson(TestSuite testSuite, Path moduleTestsCachePath) throws IOException {
+        if (!Files.exists(moduleTestsCachePath)) {
+            Files.createDirectories(moduleTestsCachePath);
+        }
+        Path tmpJsonPath = Paths.get(moduleTestsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+        File jsonFile = new File(tmpJsonPath.toString());
+        Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8);
+        Gson gson = new Gson();
+        String json = gson.toJson(testSuite);
+        writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
     }
 }
