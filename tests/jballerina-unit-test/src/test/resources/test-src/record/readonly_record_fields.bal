@@ -679,14 +679,21 @@ readonly class AnotherReadOnlyClass {
     }
 }
 
+class ImplicitlyReadOnlyClass {
+    final int i;
+
+    isolated function init() {
+        self.i = 212;
+    }
+}
+
 type RecordWithReadOnlyFields record {|
     readonly NonReadOnlyClass a;
     readonly ReadOnlyClass & readonly b = new ReadOnlyClass();
-    readonly boolean c;
+    readonly ImplicitlyReadOnlyClass c;
 |};
 
 type ONE 1;
-type TRUE true;
 
 function testReadOnlyFieldsOfClassTypes() {
     int[] arr = [];
@@ -710,15 +717,15 @@ function testReadOnlyFieldsOfClassTypes() {
     assertEquality(2345, rec1.b.i);
     assertEquality(1, rec1.c);
 
-    RecordWithReadOnlyFields rec2 = {a: new AnotherReadOnlyClass(4567), c: true};
+    RecordWithReadOnlyFields rec2 = {a: new AnotherReadOnlyClass(4567), c: new};
     assertTrue(<any> rec2 is record {
         AnotherReadOnlyClass a;
         ReadOnlyClass b;
-        TRUE c;
+        ImplicitlyReadOnlyClass c;
     });
     assertEquality(4567, rec2.a.i);
     assertEquality(2, rec2.b.i);
-    assertEquality(true, rec2.c);
+    assertEquality(212, rec2.c.i);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
