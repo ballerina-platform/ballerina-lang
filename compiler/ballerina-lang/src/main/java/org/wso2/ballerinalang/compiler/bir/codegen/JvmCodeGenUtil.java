@@ -45,15 +45,19 @@ import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
@@ -64,6 +68,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
@@ -79,6 +84,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NON_BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
@@ -241,13 +247,13 @@ public class JvmCodeGenUtil {
         mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleClass, varName, String.format("L%s;", STRAND_METADATA));
     }
 
-    static void visitStrandMetadataField(ClassWriter cw, AsyncDataCollector asyncDataCollector) {
-        asyncDataCollector.getStrandMetadata().keySet().forEach(varName -> visitStrandMetadataField(cw, varName));
+    static void visitStrandMetadataFields(ClassWriter cw, Map<String, ScheduleFunctionInfo> strandMetaDataMap) {
+        strandMetaDataMap.keySet().forEach(varName -> visitStrandMetadataField(cw, varName));
     }
 
     private static void visitStrandMetadataField(ClassWriter cw, String varName) {
-        FieldVisitor fv = cw.visitField(Opcodes.ACC_STATIC, varName, String.format("L%s;", STRAND_METADATA), null,
-                                        null);
+        FieldVisitor fv = cw.visitField(Opcodes.ACC_STATIC, varName,
+                                        String.format("L%s;", STRAND_METADATA), null, null);
         fv.visitEnd();
     }
 
@@ -499,9 +505,8 @@ public class JvmCodeGenUtil {
 
     public static BirScope getLastScopeFromBBInsGen(MethodVisitor mv, LabelGenerator labelGen,
                                                     JvmInstructionGen instGen, int localVarOffset,
-                                                    AsyncDataCollector asyncDataCollector, String funcName,
-                                                    BIRNode.BIRBasicBlock bb, Set<BirScope> visitedScopesSet,
-                                                    BirScope lastScope) {
+                                                    String funcName, BIRNode.BIRBasicBlock bb,
+                                                    Set<BirScope> visitedScopesSet, BirScope lastScope) {
 
         int insCount = bb.instructions.size();
         for (int i = 0; i < insCount; i++) {
@@ -511,7 +516,7 @@ public class JvmCodeGenUtil {
             if (inst != null) {
                 lastScope = getLastScopeFromDiagnosticGen(inst, funcName, mv, labelGen,
                                                           visitedScopesSet, lastScope);
-                instGen.generateInstructions(localVarOffset, asyncDataCollector, inst);
+                instGen.generateInstructions(localVarOffset, inst);
             }
         }
 
@@ -588,6 +593,76 @@ public class JvmCodeGenUtil {
     public static String cleanupFunctionName(String functionName) {
         return StringUtils.containsAny(functionName, "\\.:/<>") ?
                 "$" + JVM_RESERVED_CHAR_SET.matcher(functionName).replaceAll("_") : functionName;
+    }
+
+    public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
+                                         JvmBStringConstantsGen stringConstantsGen) {
+
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
+            long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
+            mv.visitLdcInsn(intValue);
+            return;
+        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+            String val = String.valueOf(constVal);
+            int[] highSurrogates = listHighSurrogates(val);
+            String varName = stringConstantsGen.addBString(val, highSurrogates);
+            String stringConstantsClass = stringConstantsGen.getStringConstantsClass();
+            if (highSurrogates.length > 0) {
+                mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName,
+                                  String.format("L%s;", NON_BMP_STRING_VALUE));
+            } else {
+                mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, String.format("L%s;", BMP_STRING_VALUE));
+            }
+            return;
+        }
+
+        switch (bType.tag) {
+            case TypeTags.BYTE:
+                int byteValue = ((Number) constVal).intValue();
+                mv.visitLdcInsn(byteValue);
+                break;
+            case TypeTags.FLOAT:
+                double doubleValue = constVal instanceof Double ? (double) constVal :
+                        Double.parseDouble(String.valueOf(constVal));
+                mv.visitLdcInsn(doubleValue);
+                break;
+            case TypeTags.BOOLEAN:
+                boolean booleanVal = constVal instanceof Boolean ? (boolean) constVal :
+                        Boolean.parseBoolean(String.valueOf(constVal));
+                mv.visitLdcInsn(booleanVal);
+                break;
+            case TypeTags.DECIMAL:
+                mv.visitTypeInsn(NEW, DECIMAL_VALUE);
+                mv.visitInsn(DUP);
+                mv.visitLdcInsn(String.valueOf(constVal));
+                mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, String.format("(L%s;)V",
+                                                                                                STRING_VALUE), false);
+                break;
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+                mv.visitInsn(ACONST_NULL);
+                break;
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type : " +
+                                                         String.format("%s", bType));
+        }
+    }
+
+    private static int[] listHighSurrogates(String str) {
+
+        List<Integer> highSurrogates = new ArrayList<>();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (Character.isHighSurrogate(c)) {
+                highSurrogates.add(i - highSurrogates.size());
+            }
+        }
+        int[] highSurrogatesArr = new int[highSurrogates.size()];
+        for (int i = 0; i < highSurrogates.size(); i++) {
+            Integer highSurrogate = highSurrogates.get(i);
+            highSurrogatesArr[i] = highSurrogate;
+        }
+        return highSurrogatesArr;
     }
 
     private JvmCodeGenUtil() {

@@ -144,6 +144,7 @@ public class JvmConstants {
     public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFutureType";
     public static final String MODULE = "io/ballerina/runtime/api/Module";
     public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
+    public static final String B_STRING_VAR_PREFIX = "$bString";
     public static final String CONFIG_VARIABLE = "io/ballerina/runtime/api/internal/configurable/ConfigurableVariable";
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
@@ -236,6 +237,7 @@ public class JvmConstants {
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
+    public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "$_string_constants";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
     public static final String MODULE_START = "$moduleStart";

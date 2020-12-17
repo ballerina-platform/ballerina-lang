@@ -20,8 +20,11 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmBStringConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
@@ -67,6 +70,9 @@ public class ExternalMethodGen {
                                                   BType attachedType,
                                                   MethodGen methodGen,
                                                   JvmPackageGen jvmPackageGen,
+                                                  JvmTypeGen jvmTypeGen,
+                                                  JvmCastGen jvmCastGen,
+                                                  JvmBStringConstantsGen stringConstantsGen,
                                                   String moduleClassName,
                                                   AsyncDataCollector lambdaGenMetadata) {
 
@@ -75,10 +81,10 @@ public class ExternalMethodGen {
 
         if (extFuncWrapper instanceof JFieldFunctionWrapper) {
             genJFieldForInteropField((JFieldFunctionWrapper) extFuncWrapper, cw, birModule, jvmPackageGen,
-                                     moduleClassName, lambdaGenMetadata);
+                                     jvmTypeGen, jvmCastGen, stringConstantsGen, moduleClassName, lambdaGenMetadata);
         } else {
-            methodGen.genJMethodForBFunc(birFunc, cw, birModule, moduleClassName,
-                                         attachedType, lambdaGenMetadata);
+            methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, stringConstantsGen,
+                                         moduleClassName, attachedType, lambdaGenMetadata);
         }
     }
 
