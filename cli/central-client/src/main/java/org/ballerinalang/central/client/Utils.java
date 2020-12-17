@@ -19,6 +19,7 @@
 package org.ballerinalang.central.client;
 
 import com.github.zafarkhaja.semver.ParseException;
+import com.github.zafarkhaja.semver.UnexpectedCharacterException;
 import com.github.zafarkhaja.semver.Version;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -135,8 +136,14 @@ public class Utils {
         try {
             Version version = Version.valueOf(pkgVersion);
             return version.toString();
-        } catch (IllegalArgumentException | ParseException e) {
-            throw new CentralClientException(logFormatter.formatLog("package version could not be detected"));
+        } catch (IllegalArgumentException e) {
+            throw new CentralClientException(logFormatter.formatLog("Version cannot be empty"));
+        } catch (UnexpectedCharacterException e) {
+            throw new CentralClientException(
+                    logFormatter.formatLog("Invalid version: '" + pkgVersion + "'. " + e.toString()));
+        } catch (ParseException e) {
+            throw new CentralClientException(
+                    logFormatter.formatLog("Invalid version: '" + pkgVersion + "'. " + e.toString()));
         }
     }
 
