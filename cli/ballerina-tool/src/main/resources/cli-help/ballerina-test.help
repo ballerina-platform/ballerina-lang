@@ -53,6 +53,14 @@ OPTIONS
             Specifies the test functions to be executed. A specific set of
             test functions can be executed using this command.
 
+       --tests <PackageName>:<test_function_name, ...>
+            Specifies the test functions to be executed from the default
+            module only. Wildcards can be used to specify the set of functions to be executed.
+
+       --tests <PackageName>.<ModuleName>:<test_function_name, ...>
+            Specifies the test functions to be executed from the given
+            module only. Wildcards can be used to specify the set of functions to be executed.
+
        --rerun-failed
             Executes only the previously-failed test cases in the package.
 
@@ -96,6 +104,12 @@ EXAMPLES
 
         Run only the given set of functions in the current package.
             $ ballerina test --tests testFunction
+
+        Run the given set of functions in the default module only
+            $ ballerina test --tests PackageName:testA1,testB*
+
+        Run the all functions in the given module
+            $ ballerina test --tests PackageName.ModuleName:*
 
         Run only the previously-failed test cases in the current package.
             $ ballerina test --rerun-failed
