@@ -50,7 +50,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrich
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.cleanupPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.getInteropAnnotValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.genJFieldForInteropField;
 
@@ -70,8 +69,8 @@ public class ExternalMethodGen {
                                                   String moduleClassName,
                                                   AsyncDataCollector lambdaGenMetadata) {
         if (birFunc instanceof JFieldBIRFunction) {
-            genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID, jvmPackageGen, moduleClassName,
-                                     lambdaGenMetadata);
+            genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID, jvmPackageGen,
+                                     moduleClassName, lambdaGenMetadata);
         } else {
             methodGen.genJMethodForBFunc(birFunc, cw, birModule, moduleClassName, attachedType, lambdaGenMetadata);
         }
@@ -228,7 +227,6 @@ public class ExternalMethodGen {
         BIRFunctionWrapper birFuncWrapper;
         String pkgName = JvmCodeGenUtil.getPackageName(packageID);
         String jClassName = jvmPackageGen.lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
-        InteropValidationRequest jInteropValidationReq = getInteropAnnotValue(birFunc);
         if (birFunc instanceof JBIRFunction) {
             if (isEntry) {
                 addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
