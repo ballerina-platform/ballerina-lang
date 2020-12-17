@@ -45,8 +45,8 @@ public class ListenerDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(2);
     }
 
-    public Node typeDescriptor() {
-        return childInBucket(3);
+    public Optional<TypeDescriptorNode> typeDescriptor() {
+        return optionalChildInBucket(3);
     }
 
     public Token variableName() {
@@ -92,7 +92,7 @@ public class ListenerDeclarationNode extends ModuleMemberDeclarationNode {
             MetadataNode metadata,
             Token visibilityQualifier,
             Token listenerKeyword,
-            Node typeDescriptor,
+            TypeDescriptorNode typeDescriptor,
             Token variableName,
             Token equalsToken,
             Node initializer,
@@ -134,7 +134,7 @@ public class ListenerDeclarationNode extends ModuleMemberDeclarationNode {
         private MetadataNode metadata;
         private Token visibilityQualifier;
         private Token listenerKeyword;
-        private Node typeDescriptor;
+        private TypeDescriptorNode typeDescriptor;
         private Token variableName;
         private Token equalsToken;
         private Node initializer;
@@ -145,7 +145,7 @@ public class ListenerDeclarationNode extends ModuleMemberDeclarationNode {
             this.metadata = oldNode.metadata().orElse(null);
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.listenerKeyword = oldNode.listenerKeyword();
-            this.typeDescriptor = oldNode.typeDescriptor();
+            this.typeDescriptor = oldNode.typeDescriptor().orElse(null);
             this.variableName = oldNode.variableName();
             this.equalsToken = oldNode.equalsToken();
             this.initializer = oldNode.initializer();
@@ -172,8 +172,7 @@ public class ListenerDeclarationNode extends ModuleMemberDeclarationNode {
         }
 
         public ListenerDeclarationNodeModifier withTypeDescriptor(
-                Node typeDescriptor) {
-            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+                TypeDescriptorNode typeDescriptor) {
             this.typeDescriptor = typeDescriptor;
             return this;
         }

@@ -241,7 +241,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     }
 
     private Optional<ClassSymbol> getListenerTypeDesc(CompletionContext context, ListenerDeclarationNode node) {
-        Node typeDescriptor = node.typeDescriptor();
+        Node typeDescriptor = node.typeDescriptor().orElse(null);
         Optional<ClassSymbol> typeSymbol = Optional.empty();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         if (typeDescriptor == null) {
