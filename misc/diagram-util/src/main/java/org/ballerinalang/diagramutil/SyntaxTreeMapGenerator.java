@@ -202,10 +202,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (symbol == null) {
             return JsonNull.INSTANCE;
         }
-        if (symbol.moduleID() != null && "ballerina".equals(symbol.moduleID().orgName())
-                && "graphql".equals(symbol.moduleID().moduleName()) && "Listener".equals(symbol.name())) {
-            return JsonNull.INSTANCE;
-        }
 
         Set<Method> methods = ClassUtils.getAllInterfaces(symbol.getClass()).stream()
                 .flatMap(aClass -> Arrays.stream(aClass.getMethods()))
@@ -236,19 +232,22 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             }
 
             if (prop instanceof Symbol) {
-                nodeJson.add(jsonName, generateTypeJson((Symbol) prop));
-            } else if (prop instanceof List) {
-                List listProp = (List) prop;
-                JsonArray listPropJson = new JsonArray();
-                for (Object listPropItem : listProp) {
-                    if (listPropItem instanceof Symbol) {
-                        listPropJson.add(generateTypeJson((Symbol) listPropItem));
-                    } else if (listPropItem instanceof String) {
-                        listPropJson.add((String) listPropItem);
-                    } else if (listPropItem instanceof Boolean) {
-                        listPropJson.add((Boolean) listPropItem);
-                    }
+                if (!jsonName.equals("typeDescriptor")) {
+                    nodeJson.add(jsonName, generateTypeJson((Symbol) prop));
                 }
+            // TODO: verify if this is needed and enable (need to add to the nodeJson as well)
+//            } else if (prop instanceof List) {
+//                List listProp = (List) prop;
+//                JsonArray listPropJson = new JsonArray();
+//                for (Object listPropItem : listProp) {
+//                    if (listPropItem instanceof Symbol) {
+//                        listPropJson.add(generateTypeJson((Symbol) listPropItem));
+//                    } else if (listPropItem instanceof String) {
+//                        listPropJson.add((String) listPropItem);
+//                    } else if (listPropItem instanceof Boolean) {
+//                        listPropJson.add((Boolean) listPropItem);
+//                    }
+//                }
             } else if (prop instanceof BallerinaModuleID) {
                 BallerinaModuleID ballerinaModuleID = (BallerinaModuleID) prop;
                 JsonObject moduleIdJson = new JsonObject();
