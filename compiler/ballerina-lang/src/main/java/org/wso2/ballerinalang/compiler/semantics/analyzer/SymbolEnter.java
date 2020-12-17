@@ -49,7 +49,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BComplexVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
@@ -1640,13 +1639,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, SymbolEnv env) {
-
         Name varName = names.fromString(anonymousModelHelper.getNextTupleVarKey(env.enclPkg.packageID));
-
-        BComplexVarSymbol varSymbol = createComplexVarSymbol(varNode.flagSet, varNode.type, varName, env, varNode.pos,
-                varNode.internal);
-        varNode.symbol = varSymbol;
-
+        varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env, varNode.internal);
+        
         return checkTypeAndVarCountConsistency(varNode, null, env);
     }
 
@@ -2714,13 +2709,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         return varSymbol;
-    }
-
-    public BComplexVarSymbol createComplexVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env,
-                                      Location pos, boolean isInternal) {
-        long flags = Flags.asMask(flagSet);
-        return new BComplexVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, pos,
-                isInternal ? VIRTUAL : getOrigin(varName));
     }
 
     private void defineObjectInitFunction(BLangObjectTypeNode object, SymbolEnv conEnv) {
