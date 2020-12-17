@@ -3529,7 +3529,7 @@ public class Desugar extends BLangNodeVisitor {
             Location restPatternPos = restMatchPattern.pos;
             List<String> keysToRemove = getKeysToRemove(mappingMatchPattern);
             BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(symTable.stringType,
-                    ((BRecordType) matchPatternType).restFieldType)), null);
+                    ((BMapType) mappingMatchPattern.restMatchPattern.type).constraint)), null);
             BLangInvocation entriesInvocation = generateMapEntriesInvocation(tempCastVarRef, entriesType);
             BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation,
                     restPatternPos);
@@ -3542,11 +3542,8 @@ public class Desugar extends BLangNodeVisitor {
             BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
             BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                     backToMapLambda);
-            BLangSimpleVariable restVar =
-                    ASTBuilderUtil.createVariable(restPatternPos, restMatchPattern.getIdentifier().getValue(),
-                            restMatchPattern.symbol.type, mapInvocation, restMatchPattern.symbol);
-            BLangSimpleVariableDef restVarDef = ASTBuilderUtil.createVariableDef(restPatternPos, restVar);
-            tempBlockStmt.addStatement(restVarDef);
+            BLangSimpleVarRef restMatchPatternVarRef = declaredVarDef.get(restMatchPattern.getIdentifier().getValue());
+            tempBlockStmt.addStatement(ASTBuilderUtil.createAssignmentStmt(pos, restMatchPatternVarRef, mapInvocation));
         }
         BLangIf ifStmtForMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBlockStmt, null);
         ifBlock.addStatement(ifStmtForMatchPatterns);
@@ -3560,10 +3557,9 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private List<String> getKeysToRemove(BLangMappingMatchPattern mappingMatchPattern) {
-        List<String> allKeys = new ArrayList<>(((BRecordType) mappingMatchPattern.type).fields.keySet());
         List<String> keysToRemove = new ArrayList<>();
-        for (int i = 0; i < mappingMatchPattern.fieldMatchPatterns.size(); i++) {
-            keysToRemove.add(allKeys.get(i));
+        for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
+            keysToRemove.add(fieldMatchPattern.fieldName.value);
         }
         return keysToRemove;
     }

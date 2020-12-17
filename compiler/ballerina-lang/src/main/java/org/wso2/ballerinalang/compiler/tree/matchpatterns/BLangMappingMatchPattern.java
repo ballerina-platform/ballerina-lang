@@ -52,6 +52,11 @@ public class BLangMappingMatchPattern extends BLangMatchPattern implements Mappi
     }
 
     @Override
+    public void addFieldMatchPattern(FieldMatchPatternNode fieldMatchPatternNode) {
+        fieldMatchPatterns.add((BLangFieldMatchPattern) fieldMatchPatternNode);
+    }
+
+    @Override
     public RestMatchPatternNode getRestMatchPattern() {
         return restMatchPattern;
     }

@@ -179,19 +179,34 @@ public class MatchStmtMappingMatchPatternTest {
     }
 
     @Test
+    public void testMappingMatchPatternWithRestPattern5() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPattern5");
+    }
+
+    @Test
+    public void testMappingMatchPatternWithRestPattern6() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPattern6");
+    }
+
+    @Test
+    public void testMappingMatchPatternWithRestPattern7() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPattern7");
+    }
+
+    @Test
     public void testMappingMatchPatternNegative() {
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 23, 9);
         BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 30, 9);
         BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 33, 9);
-        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 33, 30);
+        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 33, 26);
         BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 36, 9);
         BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 43, 9);
         BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 46, 9);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 60, 32);
+        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 60, 28);
         BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 64, 9);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 66, 30);
-        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 68, 28);
+        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 66, 26);
+        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 68, 24);
         BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 72, 9);
         BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 76, 9);
         BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 84, 9);

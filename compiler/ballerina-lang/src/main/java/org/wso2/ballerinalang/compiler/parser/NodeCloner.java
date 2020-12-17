@@ -24,7 +24,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -751,7 +750,6 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangCaptureBindingPattern clone = new BLangCaptureBindingPattern();
         source.cloneRef = clone;
         clone.setIdentifier(source.getIdentifier());
-        clone.symbol = (BVarSymbol) source.getSymbol();
     }
 
     @Override

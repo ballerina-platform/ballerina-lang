@@ -2516,8 +2516,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             for (String patternVariableName : patternVariables.keySet()) {
                 BVarSymbol patternVariableSymbol = patternVariables.get(patternVariableName);
                 if (!clauseVariables.containsKey(patternVariableName)) {
-                    symbolEnter.defineSymbol(patternVariableSymbol.pos, patternVariableSymbol, blockEnv);
-                    clauseVariables.put(patternVariableName, patternVariableSymbol);
+                    BVarSymbol clauseVarSymbol = symbolEnter.defineVarSymbol(patternVariableSymbol.pos,
+                            patternVariableSymbol.getFlags(), patternVariableSymbol.type, patternVariableSymbol.name,
+                            blockEnv, false);
+                    clauseVariables.put(patternVariableName, clauseVarSymbol);
                     continue;
                 }
                 BVarSymbol clauseVariableSymbol = clauseVariables.get(patternVariableName);
@@ -2716,6 +2718,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BMapType restPatternMapType = (BMapType) restMatchPattern.type;
                 BVarSymbol restVarSymbol =
                         restMatchPattern.declaredVars.get(restMatchPattern.getIdentifier().getValue());
+                if (restVarSymbol.type.tag != TypeTags.MAP) {
+                    return;
+                }
                 BMapType restVarSymbolMapType = (BMapType) restVarSymbol.type;
                 restPatternMapType.constraint = restVarSymbolMapType.constraint =
                         this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
@@ -2777,13 +2782,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Name name = new Name(captureBindingPattern.getIdentifier().getValue());
         captureBindingPattern.type = captureBindingPattern.type == null ? symTable.anyOrErrorType :
                 captureBindingPattern.type;
-        BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, name);
-        if (symbol == symTable.notFoundSymbol) {
-            symbol = new BVarSymbol(0, name, env.enclPkg.packageID, captureBindingPattern.type, env.scope.owner,
-                    captureBindingPattern.pos, SOURCE);
-            symbolEnter.defineSymbol(captureBindingPattern.pos, symbol, env);
-        }
-        captureBindingPattern.symbol = (BVarSymbol) symbol;
+        captureBindingPattern.symbol = symbolEnter.defineVarSymbol(captureBindingPattern.pos, Flags.unMask(0),
+                captureBindingPattern.type, name, env, false);
         captureBindingPattern.declaredVars.put(name.value, captureBindingPattern.symbol);
     }
 
@@ -2805,13 +2805,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRestMatchPattern restMatchPattern) {
         Name name = new Name(restMatchPattern.variableName.value);
-        BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, name);
-        if (symbol == symTable.notFoundSymbol) {
-            symbol = new BVarSymbol(0, name, env.enclPkg.packageID, restMatchPattern.type, env.scope.owner,
-                    restMatchPattern.pos, SOURCE);
-            symbolEnter.defineSymbol(restMatchPattern.pos, symbol, env);
-        }
-        restMatchPattern.symbol = (BVarSymbol) symbol;
+        restMatchPattern.symbol = symbolEnter.defineVarSymbol(restMatchPattern.pos, Flags.unMask(0),
+                restMatchPattern.type, name, env, false);
         restMatchPattern.declaredVars.put(name.value, restMatchPattern.symbol);
     }
 

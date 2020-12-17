@@ -29,6 +29,8 @@ import java.util.List;
 public interface MappingMatchPatternNode extends Node {
     List<? extends FieldMatchPatternNode> getFieldMatchPatterns();
 
+    void addFieldMatchPattern(FieldMatchPatternNode fieldMatchPatternNode);
+
     RestMatchPatternNode getRestMatchPattern();
 
     void setRestMatchPattern(RestMatchPatternNode restMatchPattern);
