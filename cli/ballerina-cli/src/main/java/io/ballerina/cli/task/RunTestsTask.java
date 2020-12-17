@@ -193,9 +193,8 @@ public class RunTestsTask implements Task {
             if (isRerunTestExecution) {
                 singleExecTests = readFailedTestsFromFile(target.path());
             }
-
             if (isSingleTestExecution || isRerunTestExecution) {
-                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
+                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
             }
             suite.setReportRequired(report || coverage);
             Collection<Path> dependencies = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
