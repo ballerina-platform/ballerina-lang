@@ -18,6 +18,8 @@
 
 package org.ballerinalang.central.client;
 
+import com.github.zafarkhaja.semver.ParseException;
+import com.github.zafarkhaja.semver.Version;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import me.tongfei.progressbar.ProgressBar;
@@ -48,7 +50,6 @@ import javax.net.ssl.X509TrustManager;
 
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.central.client.CentralClientConstants.SSL;
-import static org.ballerinalang.central.client.CentralClientConstants.VERSION_REGEX;
 
 /**
  * Utils class for this package.
@@ -106,9 +107,9 @@ public class Utils {
         String[] uriParts = resolvedURI.split("/");
         String pkgVersion = uriParts[uriParts.length - 2];
 
-        validatePackageVersion(pkgVersion, logFormatter);
+        String validPkgVersion = validatePackageVersion(pkgVersion, logFormatter);
         String baloFile = getBaloFileName(contentDisposition, uriParts[uriParts.length - 1]);
-        Path baloCacheWithPkgPath = pkgPathInBaloCache.resolve(pkgVersion);
+        Path baloCacheWithPkgPath = pkgPathInBaloCache.resolve(validPkgVersion);
         //<user.home>.ballerina/balo_cache/<org-name>/<pkg-name>/<pkg-version>
 
         Path baloPath = Paths.get(baloCacheWithPkgPath.toString(), baloFile);
@@ -118,7 +119,7 @@ public class Utils {
         }
 
         createBaloFileDirectory(baloCacheWithPkgPath, logFormatter);
-        writeBaloFile(conn, baloPath, pkgNameWithOrg + ":" + pkgVersion, responseContentLength, outStream,
+        writeBaloFile(conn, baloPath, pkgNameWithOrg + ":" + validPkgVersion, responseContentLength, outStream,
                       logFormatter);
         handleNightlyBuild(isNightlyBuild, baloCacheWithPkgPath, logFormatter);
     }
@@ -128,9 +129,13 @@ public class Utils {
      *
      * @param pkgVersion   package version
      * @param logFormatter log formatter
+     * @return valid package version
      */
-    static void validatePackageVersion(String pkgVersion, LogFormatter logFormatter) throws CentralClientException {
-        if (!pkgVersion.matches(VERSION_REGEX)) {
+    static String validatePackageVersion(String pkgVersion, LogFormatter logFormatter) throws CentralClientException {
+        try {
+            Version version = Version.valueOf(pkgVersion);
+            return version.toString();
+        } catch (IllegalArgumentException | ParseException e) {
             throw new CentralClientException(logFormatter.formatLog("package version could not be detected"));
         }
     }
