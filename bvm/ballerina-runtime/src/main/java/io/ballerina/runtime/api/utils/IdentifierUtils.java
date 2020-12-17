@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal;
+package io.ballerina.runtime.api.utils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  */
 public class IdentifierUtils {
 
-    public static final String UNICODE_REGEX = "\\\\u\\{([a-fA-F0-9]+)\\}";
+    private static final String UNICODE_REGEX = "\\\\u\\{([a-fA-F0-9]+)\\}";
     public static final Pattern UNICODE_PATTERN = Pattern.compile(UNICODE_REGEX);
 
     private static final String CHAR_PREFIX = "$";
@@ -39,7 +39,7 @@ public class IdentifierUtils {
     private static final String ENCODABLE_CHAR_SET = JVM_RESERVED_CHAR_SET + CHAR_PREFIX;
     private static final Pattern UNESCAPED_SPECIAL_CHAR_SET =
             Pattern.compile("(?<!\\\\)(?:\\\\\\\\)*([$&+,:;=\\?@#|/' \\[\\}\\]<\\>.\"^*{}~`()%!-])");
-    public static final String GENERATED_METHOD_PREFIX = "$gen$";
+    private static final String GENERATED_METHOD_PREFIX = "$gen$";
 
     private IdentifierUtils() {
     }
@@ -69,17 +69,17 @@ public class IdentifierUtils {
                 ENCODABLE_CHAR_SET.contains(Character.toString(identifier.charAt(index + 1)));
     }
 
+    /**
+     * Escape the special characters in an identifier with a preceding `\`.
+     *
+     * @param identifier encoded identifier string
+     * @return decoded identifier
+     */
     public static String escapeSpecialCharacters(String identifier) {
         return UNESCAPED_SPECIAL_CHAR_SET.matcher(identifier).replaceAll("\\\\$1");
     }
 
-    /**
-     * Encode the identifiers to avoid using jvm reserved characters.
-     *
-     * @param identifier identifier string
-     * @return encoded identifier
-     */
-    public static String encodeIdentifier(String identifier) {
+    private static String encodeIdentifier(String identifier) {
         if (identifier.contains(ESCAPE_PREFIX)) {
             identifier = encodeSpecialCharacters(identifier);
         }
@@ -137,6 +137,12 @@ public class IdentifierUtils {
                 decodedName.substring(GENERATED_METHOD_PREFIX.length()) : decodedName;
     }
 
+    /**
+     * Replace the unicode patterns in identifiers into respective unicode characters.
+     *
+     * @param identifier  identifier string
+     * @return modified identifier with unicode character
+     */
     public static String unescapeUnicodeCodepoints(String identifier) {
         Matcher matcher = UNICODE_PATTERN.matcher(identifier);
         StringBuffer buffer = new StringBuffer(identifier.length());
@@ -161,12 +167,24 @@ public class IdentifierUtils {
         return true;
     }
 
+    /**
+     * Encode the function identifiers to avoid using jvm reserved characters.
+     *
+     * @param functionName  function identifier string
+     * @return encoded identifier
+     */
     public static String encodeFunctionIdentifier(String functionName) {
         functionName = encodeIdentifier(functionName);
         Identifier encodedName = encodeGeneratedName(functionName);
         return encodedName.isEncoded ? GENERATED_METHOD_PREFIX + encodedName.name : functionName;
     }
 
+    /**
+     * Encode the non-function identifiers to avoid using jvm reserved characters.
+     *
+     * @param pkgName  non-function identifier string
+     * @return encoded identifier
+     */
     public static String encodeNonFunctionIdentifier(String pkgName) {
         pkgName = encodeIdentifier(pkgName);
         Identifier encodedName = encodeGeneratedName(pkgName);

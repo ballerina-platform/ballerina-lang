@@ -45,6 +45,7 @@ import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.util.TokensUtil;
+import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -156,7 +157,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 logError(msg, e, position.getTextDocument(), position.getPosition());
                 hover = HoverUtil.getDefaultHoverObject();
             }
-            
+
             return hover;
         });
     }
@@ -238,14 +239,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
             (TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return Either.forLeft(new ArrayList<>());
+                DocumentServiceContext defContext = ContextBuilder.buildBaseContext(position.getTextDocument().getUri(),
+                        this.workspaceManager,
+                        LSContextOperation.TXT_DEFINITION);
+                return Either.forLeft(DefinitionUtil.getDefinition(defContext, position.getPosition()));
             } catch (UserErrorException e) {
                 notifyUser("Goto Definition", e);
-                return Either.forLeft(new ArrayList<>());
+                return Either.forLeft(Collections.emptyList());
             } catch (Throwable e) {
                 String msg = "Operation 'text/definition' failed!";
                 logError(msg, e, position.getTextDocument(), position.getPosition());
-                return Either.forLeft(new ArrayList<>());
+                return Either.forLeft(Collections.emptyList());
             }
         });
     }

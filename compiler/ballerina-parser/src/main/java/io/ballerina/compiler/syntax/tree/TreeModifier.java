@@ -104,8 +104,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(listenerDeclarationNode.visibilityQualifier().orElse(null));
         Token listenerKeyword =
                 modifyToken(listenerDeclarationNode.listenerKeyword());
-        Node typeDescriptor =
-                modifyNode(listenerDeclarationNode.typeDescriptor());
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(listenerDeclarationNode.typeDescriptor().orElse(null));
         Token variableName =
                 modifyToken(listenerDeclarationNode.variableName());
         Token equalsToken =
