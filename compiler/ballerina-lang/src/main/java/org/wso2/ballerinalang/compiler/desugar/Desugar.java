@@ -33,7 +33,6 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
-import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -377,8 +376,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangMatchTypedBindingPatternClause successPattern;
     private BLangAssignment safeNavigationAssignment;
     static boolean isJvmTarget = false;
-
-    private boolean serviceStarted = false;
 
     private Map<BSymbol, Set<BVarSymbol>> globalVariablesDependsOn;
     private List<BLangStatement> matchStmtsForPattern = new ArrayList<>();
@@ -1179,12 +1176,6 @@ public class Desugar extends BLangNodeVisitor {
         BType currentReturnType = this.forceCastReturnType;
         this.forceCastReturnType = null;
         funcNode.body = rewrite(funcNode.body, funcEnv);
-        if (serviceStarted) {
-            BLangExpressionStmt trxCoordnStmt = new BLangExpressionStmt(transactionDesugar.
-                    createStartTransactionCoordinatorInvocation(funcNode.pos));
-            ((BLangBlockFunctionBody) funcNode.body).stmts.add(0, trxCoordnStmt);
-            serviceStarted = false;
-        }
         this.forceCastReturnType = currentReturnType;
         funcNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
         if (funcNode.returnTypeNode != null) {
@@ -4945,23 +4936,10 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
-        if (!actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
-            startTransactionalServices(actionInvocation);
+        if (!actionInvocation.async && actionInvocation.invokedInsideTransaction) {
+            transactionDesugar.startTransactionCoordinatorOnce(env, actionInvocation.pos);
         }
         rewriteInvocation(actionInvocation, actionInvocation.async);
-    }
-
-    private void startTransactionalServices(BLangNode node) {
-        BLangNode parent = node.parent;
-        while (parent != null) {
-            if (parent instanceof TransactionNode && !serviceDesugar.getTransactionCoordinatorStarted()) {
-                serviceStarted = true;
-                serviceDesugar.setTransactionCoordinatorStarted(true);
-                break;
-            } else {
-                parent = parent.parent;
-            }
-        }
     }
 
     private void rewriteInvocation(BLangInvocation invocation, boolean async) {
@@ -5815,13 +5793,13 @@ public class Desugar extends BLangNodeVisitor {
         Name objectClassName = names.fromString(
                 anonModelHelper.getNextRawTemplateTypeKey(env.enclPkg.packageID, tSymbol.name));
 
-        BObjectTypeSymbol classTSymbol = Symbols.createObjectSymbol(tSymbol.flags, objectClassName,
-                                                                    env.enclPkg.packageID, null, env.enclPkg.symbol,
-                                                                    pos, VIRTUAL);
+        BObjectTypeSymbol classTSymbol = Symbols.createClassSymbol(tSymbol.flags, objectClassName,
+                                                                   env.enclPkg.packageID, null, env.enclPkg.symbol,
+                                                                   pos, VIRTUAL, false);
         classTSymbol.flags |= Flags.CLASS;
 
         // Create a new concrete, class type for the provided abstract object type
-        BObjectType objectClassType = new BObjectType(classTSymbol, tSymbol.flags);
+        BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
 

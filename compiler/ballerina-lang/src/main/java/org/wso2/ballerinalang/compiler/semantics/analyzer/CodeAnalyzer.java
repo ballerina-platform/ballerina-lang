@@ -2689,6 +2689,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         validateActionInvocation(actionInvocation.pos, actionInvocation);
+
+        if (!actionInvocation.async && this.withinTransactionScope) {
+            actionInvocation.invokedInsideTransaction = true;
+        }
     }
 
     private void validateActionInvocation(Location pos, BLangInvocation iExpr) {

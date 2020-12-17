@@ -18,9 +18,10 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -247,15 +248,15 @@ public class JvmDesugarPhase {
     }
 
     static void encodeModuleIdentifiers(BIRNode.BIRPackage module, Names names) {
-        encodePackageIdentifiers(module, names);
+        encodePackageIdentifiers(module.packageID, names);
         encodeGlobalVariableIdentifiers(module.globalVars, names);
         encodeFunctionIdentifiers(module.functions, names);
         encodeTypeDefIdentifiers(module.typeDefs, names);
     }
 
-    private static void encodePackageIdentifiers(BIRNode.BIRPackage module, Names names) {
-        module.org = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(module.org.value));
-        module.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(module.name.value));
+    private static void encodePackageIdentifiers(PackageID packageID, Names names) {
+        packageID.orgName = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(packageID.orgName.value));
+        packageID.name = names.fromString(IdentifierUtils.encodeNonFunctionIdentifier(packageID.name.value));
     }
 
     private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs, Names names) {

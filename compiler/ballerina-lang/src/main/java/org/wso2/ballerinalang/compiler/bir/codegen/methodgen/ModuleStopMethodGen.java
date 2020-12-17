@@ -105,9 +105,8 @@ public class ModuleStopMethodGen {
         mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, "(IZ)V", false);
         mv.visitVarInsn(ASTORE, schedulerIndex);
 
-        PackageID currentModId = MethodGenUtils.packageToModuleId(module);
-        String moduleInitClass = getModuleInitClassName(currentModId);
-        String fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(currentModId);
+        String moduleInitClass = getModuleInitClassName(module.packageID);
+        String fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(module.packageID);
         String lambdaName = generateStopDynamicListenerLambdaBody(cw);
         generateCallStopDynamicListenersLambda(mv, lambdaName, moduleInitClass, asyncDataCollector);
         scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
@@ -242,8 +241,7 @@ public class ModuleStopMethodGen {
     }
 
     private String getModuleInitClassName(PackageID id) {
-        return JvmCodeGenUtil.getModuleLevelClassName(id.orgName.value, id.name.value, id.version.value,
-                                                      MODULE_INIT_CLASS_NAME);
+        return JvmCodeGenUtil.getModuleLevelClassName(id, MODULE_INIT_CLASS_NAME);
     }
 
 }

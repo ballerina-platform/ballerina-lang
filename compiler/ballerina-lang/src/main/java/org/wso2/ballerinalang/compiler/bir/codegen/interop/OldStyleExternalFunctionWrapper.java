@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
@@ -33,11 +34,11 @@ public class OldStyleExternalFunctionWrapper extends BIRFunctionWrapper implemen
     List<BType> jMethodPramTypes;
     String jMethodVMSig;
 
-    public OldStyleExternalFunctionWrapper(String orgName, String moduleName, String version, BIRNode.BIRFunction func,
+    public OldStyleExternalFunctionWrapper(PackageID packageID, BIRNode.BIRFunction func,
                                            String fullQualifiedClassName, String jvmMethodDescription,
                                            String jClassName, List<BType> jMethodPramTypes, String jMethodVMSig) {
 
-        super(orgName, moduleName, version, func, fullQualifiedClassName, jvmMethodDescription);
+        super(packageID, func, fullQualifiedClassName, jvmMethodDescription);
 
         this.jClassName = jClassName;
         this.jMethodPramTypes = jMethodPramTypes;

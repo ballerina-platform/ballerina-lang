@@ -20,6 +20,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.directory.ProjectLoader;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -46,7 +48,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
-import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getProjectDir;
 
 /**
  * Implementation of Ballerina Document extension for Language Server.
@@ -247,10 +248,12 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             BallerinaProject project = new BallerinaProject();
             try {
                 Optional<Path> filePath = CommonUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
-                if (!filePath.isPresent()) {
+                if (filePath.isEmpty()) {
                     return project;
                 }
-                project.setPath(getProjectDir(filePath.get()));
+                Package currentPackage = ProjectLoader.loadProject(filePath.get()).currentPackage();
+                project.setPackageName(currentPackage.packageName().value());
+                project.setPath(currentPackage.project().sourceRoot().toAbsolutePath().toString());
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/project' failed!";
                 logError(msg, e, params.getDocumentIdentifier(), (Position) null);

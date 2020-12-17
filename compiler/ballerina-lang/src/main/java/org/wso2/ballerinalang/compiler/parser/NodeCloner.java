@@ -391,6 +391,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.name = source.name;
         clone.setPackageID(source.getPackageID());
+        clone.setSourceKind(source.getSourceKind());
         for (TopLevelNode node : source.topLevelNodes) {
             clone.topLevelNodes.add(clone(node));
         }
