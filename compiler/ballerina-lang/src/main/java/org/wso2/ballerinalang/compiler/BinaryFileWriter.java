@@ -222,7 +222,7 @@ public class BinaryFileWriter {
         try {
             Files.createDirectories(tempDir);
         } catch (IOException e) {
-            throw new BLangCompilerException("failed create directory '" + tempDir.toString() + "'", e);
+            throw new BLangCompilerException("failed to create directory '" + tempDir.toString() + "'", e);
         }
     }
 

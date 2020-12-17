@@ -28,6 +28,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageResolver;
@@ -276,20 +277,18 @@ public class PackageDependencyGraphBuilder {
         PackageVersion existingVersion = existingPkgDesc.version();
         PackageVersion newVersion = newPkgDesc.version();
         VersionCompatibilityResult versionCompatibilityResult = existingVersion.compareTo(newVersion);
-        switch (versionCompatibilityResult) {
-            case GREATER_THAN:
-            case EQUAL:
-                // Do thing
-                return;
-            case INCOMPATIBLE:
-                // Incompatible versions exist in the graph.
-                throw new ProjectException("Two incompatible versions exist in the dependency graph: " +
-                        newPkgDesc.org() + "/" + newPkgDesc.name() + " versions: " +
-                        existingVersion + ", " + newVersion);
-            case LESS_THAN:
-                // The new version is higher than the existing version
-                // TODO Do we need to record this decision at least with a debug log
-                graphNodes.put(graphNode, newPkgDesc);
+        if (versionCompatibilityResult == VersionCompatibilityResult.INCOMPATIBLE) {
+            // Incompatible versions exist in the graph.
+            throw new ProjectException("Two incompatible versions exist in the dependency graph: " +
+                    newPkgDesc.org() + "/" + newPkgDesc.name() + " versions: " +
+                    existingVersion + ", " + newVersion);
+        }
+
+        SemanticVersion semVerOld = existingVersion.value();
+        SemanticVersion semVerNew = newVersion.value();
+        if (semVerNew.greaterThan(semVerOld)) {
+            // The new version is higher than the existing version
+            graphNodes.put(graphNode, newPkgDesc);
         }
     }
 

@@ -8,7 +8,7 @@
     {
       "label": "MAX_VALUE",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "9223372036854775807",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -34,7 +34,7 @@
     {
       "label": "SIGNED32_MAX_VALUE",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "2147483647",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -47,7 +47,7 @@
     {
       "label": "SIGNED32_MIN_VALUE",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "-2147483648",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -60,7 +60,7 @@
     {
       "label": "SIGNED16_MAX_VALUE",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "32767",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -73,7 +73,7 @@
     {
       "label": "SIGNED16_MIN_VALUE",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "-32768",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -86,7 +86,7 @@
     {
       "label": "SIGNED8_MAX_VALUE",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "127",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -99,7 +99,7 @@
     {
       "label": "SIGNED8_MIN_VALUE",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "-128",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -112,7 +112,7 @@
     {
       "label": "UNSIGNED32_MAX_VALUE",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "4294967295",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -125,7 +125,7 @@
     {
       "label": "UNSIGNED16_MAX_VALUE",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "65535",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -138,7 +138,7 @@
     {
       "label": "UNSIGNED8_MAX_VALUE",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "255",
       "documentation": {
         "right": {
           "kind": "markdown",

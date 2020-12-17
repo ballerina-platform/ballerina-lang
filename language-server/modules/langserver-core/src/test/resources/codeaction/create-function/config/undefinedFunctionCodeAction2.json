@@ -3,7 +3,7 @@
   "character": 11,
   "expected": [
     {
-      "title": "Create Function addTwoIntegers2(...)",
+      "title": "Create function 'addTwoIntegers2(...)'",
       "command": "CREATE_FUNC",
       "arguments": [
         {

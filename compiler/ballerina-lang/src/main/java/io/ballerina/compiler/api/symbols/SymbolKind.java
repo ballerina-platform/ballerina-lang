@@ -35,5 +35,6 @@ public enum SymbolKind {
     CLASS,
     WORKER,
     ANNOTATION,
-    FIELD
+    FIELD,
+    ENUM
 }

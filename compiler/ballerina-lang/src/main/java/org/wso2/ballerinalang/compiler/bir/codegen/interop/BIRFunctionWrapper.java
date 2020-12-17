@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
 /**
@@ -26,19 +27,14 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
  */
 public class BIRFunctionWrapper {
 
-    public String orgName;
-    public String moduleName;
-    public String version;
-    public BIRNode.BIRFunction func;
-    public String fullQualifiedClassName;
-    public String jvmMethodDescription;
+    public final PackageID packageID;
+    public final BIRNode.BIRFunction func;
+    public final String fullQualifiedClassName;
+    public final String jvmMethodDescription;
 
-    public BIRFunctionWrapper(String orgName, String moduleName, String version, BIRNode.BIRFunction func,
+    public BIRFunctionWrapper(PackageID packageID, BIRNode.BIRFunction func,
                               String fullQualifiedClassName, String jvmMethodDescription) {
-
-        this.orgName = orgName;
-        this.moduleName = moduleName;
-        this.version = version;
+        this.packageID = packageID;
         this.func = func;
         this.fullQualifiedClassName = fullQualifiedClassName;
         this.jvmMethodDescription = jvmMethodDescription;

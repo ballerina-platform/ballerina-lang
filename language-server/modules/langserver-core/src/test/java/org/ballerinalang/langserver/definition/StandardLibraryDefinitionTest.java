@@ -52,7 +52,7 @@ public class StandardLibraryDefinitionTest extends DefinitionTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(description = "Test goto definitions", dataProvider = "testStandardLibDataProvider")
+    @Test(description = "Test goto definitions", dataProvider = "testStandardLibDataProvider", enabled = false)
     public void test(String configPath, String configDir) throws IOException, LSStdlibCacheException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());

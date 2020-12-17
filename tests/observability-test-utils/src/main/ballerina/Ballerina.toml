@@ -4,7 +4,7 @@ name = "testobserve"
 version = "0.0.0"
 
 [[platform.java11.dependency]]
-path = "../libs/observability-test-utils-2.0.0-Preview7.jar"
+path = "../libs/observability-test-utils-2.0.0-Preview8-SNAPSHOT.jar"
 groupId = "ballerina"
 artifactId = "observability"
 version = "0.8.0"

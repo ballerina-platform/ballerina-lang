@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
@@ -185,7 +184,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
  *
  * @since 2.0.0
  */
-class SymbolFinder extends BLangNodeVisitor {
+class SymbolFinder extends BaseVisitor {
 
     private LinePosition cursorPos;
     private BSymbol symbolAtCursor;
@@ -255,6 +254,7 @@ class SymbolFinder extends BLangNodeVisitor {
             return;
         }
 
+        lookupNodes(funcNode.annAttachments);
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
         lookupNode(funcNode.returnTypeNode);
@@ -666,7 +666,7 @@ class SymbolFinder extends BLangNodeVisitor {
             return;
         }
 
-        lookupNodes(invocationExpr.requiredArgs);
+        lookupNodes(invocationExpr.argExprs);
         lookupNodes(invocationExpr.restArgs);
         lookupNode(invocationExpr.expr);
     }
@@ -968,16 +968,16 @@ class SymbolFinder extends BLangNodeVisitor {
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
         // Becomes null for undefined types
-        if (userDefinedType.type.tsymbol == null) {
+        if (userDefinedType.symbol == null) {
             return;
         }
 
-        if (userDefinedType.type.tsymbol.origin == VIRTUAL
-                || setEnclosingNode(userDefinedType.type.tsymbol, userDefinedType.typeName.pos)) {
+        if (userDefinedType.symbol.origin == VIRTUAL
+                || setEnclosingNode(userDefinedType.symbol, userDefinedType.typeName.pos)) {
             return;
         }
 
-        setEnclosingNode(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
+        setEnclosingNode(userDefinedType.symbol.owner, userDefinedType.pkgAlias.pos);
     }
 
     @Override

@@ -18,39 +18,33 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocumentChange;
-import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
-import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.diagramutil.DiagramUtil;
+import org.ballerinalang.diagramutil.JSONGenerationException;
+import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
-import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
-import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
-import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
-import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedSymbolsVisitor;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -90,8 +84,10 @@ public class BallerinaTreeModifyUtil {
                         "}\n");
         put("IF_STATEMENT", "if ($CONDITION) {\n" +
                 "\n} else {\n\n}\n");
+        put("IF_STATEMENT_CONDITION", "($CONDITION)");
         put("FOREACH_STATEMENT", "foreach $TYPE $VARIABLE in $COLLECTION {\n" +
                 "\n}\n");
+        put("FOREACH_STATEMENT_CONDITION", "$VARIABLE in $COLLECTION");
         put("LOG_STATEMENT", "log:print$TYPE($LOG_EXPR);\n");
         put("PROPERTY_STATEMENT", "$PROPERTY\n");
         put("RESPOND", "$TYPE $VARIABLE = $CALLER->respond($EXPRESSION);\n");
@@ -137,22 +133,29 @@ public class BallerinaTreeModifyUtil {
         return mapping;
     }
 
+    public static String getImport(JsonObject config) {
+        JsonElement value = config.get("TYPE");
+        if (value != null) {
+            return value.getAsString();
+        }
+        return null;
+    }
+
     public static List<TextEdit> getUnusedImportRanges(
-            Collection<BLangImportPackage> unusedImports, TextDocument textDocument) {
+            Map<String, ImportDeclarationNode> unusedImports, TextDocument textDocument) {
         List<TextEdit> edits = new ArrayList<>();
-        for (BLangImportPackage importPackage : unusedImports) {
-            LinePosition startLinePos = LinePosition.from(importPackage.getPosition()
-                            .lineRange().startLine().line() - 1,
-                    importPackage.getPosition().lineRange().startLine().offset() - 1);
-            LinePosition endLinePos = LinePosition.from(importPackage.getPosition()
-                            .lineRange().endLine().line() - 1,
-                    importPackage.getPosition().lineRange().endLine().offset() - 1);
+        unusedImports.forEach((key, value) -> {
+            LinePosition startLinePos = LinePosition.from(value.lineRange()
+                            .startLine().line(),
+                    value.lineRange().startLine().offset());
+            LinePosition endLinePos = LinePosition.from(value.lineRange().endLine().line(),
+                    value.lineRange().endLine().offset());
             int startOffset = textDocument.textPositionFrom(startLinePos);
-            int endOffset = textDocument.textPositionFrom(endLinePos) + 1;
+            int endOffset = textDocument.textPositionFrom(endLinePos);
             edits.add(TextEdit.from(
                     TextRange.from(startOffset,
                             endOffset - startOffset), ""));
-        }
+        });
         return edits;
     }
 
@@ -174,60 +177,57 @@ public class BallerinaTreeModifyUtil {
                         theEndOffset - theStartOffset), mainStartMapping);
     }
 
-    public static String getImport(JsonObject config) {
-        JsonElement value = config.get("TYPE");
-        if (value != null) {
-            return value.getAsString();
-        }
-        return null;
-    }
 
-    public static LSContext modifyTree(ASTModification[] astModifications, String fileUri, Path compilationPath,
-                                       WorkspaceDocumentManager documentManager)
-            throws CompilationFailedException, WorkspaceDocumentException, IOException, JSONGenerationException {
-        LSContext astContext = new DocumentOperationContext
-                .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
-                .withCommonParams(null, fileUri, documentManager)
-                .build();
-        LSModuleCompiler.getBLangPackage(astContext, documentManager, false, false);
-        BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        String fileName = compilationPath.toFile().getName();
+    public static JsonElement modifyTree(ASTModification[] astModifications, Path compilationPath,
+                                         WorkspaceManager workspaceManager)
+            throws Exception {
+        Optional<SyntaxTree> oldSyntaxTree = workspaceManager.syntaxTree(compilationPath);
+        if (oldSyntaxTree.isEmpty()) {
+            throw new JSONGenerationException("Modification error");
+        }
 
         Map<LineRange, ASTModification> deleteRange = new HashMap<>();
         for (ASTModification astModification : astModifications) {
             if (DELETE.equalsIgnoreCase(astModification.getType())) {
-                LinePosition startLine =  LinePosition.from(astModification.getStartLine(),
-                                                            astModification.getStartColumn());
-                LinePosition endLine =  LinePosition.from(astModification.getEndLine(),
-                                                            astModification.getEndColumn());
+                LinePosition startLine = LinePosition.from(astModification.getStartLine(),
+                        astModification.getStartColumn());
+                LinePosition endLine = LinePosition.from(astModification.getEndLine(),
+                        astModification.getEndColumn());
                 LineRange lineRange = LineRange.from(null, startLine, endLine);
                 deleteRange.put(lineRange, astModification);
             }
         }
-        UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor(fileName, deleteRange);
-        oldTree.accept(unusedNodeVisitor);
 
-        String fileContent = documentManager.getFileContent(compilationPath);
-        TextDocument oldTextDocument = TextDocuments.from(fileContent);
+        Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(compilationPath);
+        if (semanticModel.isEmpty()) {
+            throw new JSONGenerationException("Modification error");
+        }
+        UnusedSymbolsVisitor unusedSymbolsVisitor = new UnusedSymbolsVisitor(oldSyntaxTree.get().filePath(),
+                semanticModel.get(), deleteRange);
+        unusedSymbolsVisitor.visit((ModulePartNode) oldSyntaxTree.get().rootNode());
+
+        TextDocument oldTextDocument = oldSyntaxTree.get().textDocument();
 
         List<TextEdit> edits = new ArrayList<>();
         List<ASTModification> importModifications = Arrays.stream(astModifications)
                 .filter(astModification -> IMPORT.equalsIgnoreCase(astModification.getType()))
                 .collect(Collectors.toList());
         for (ASTModification importModification : importModifications) {
-            if (importExist(unusedNodeVisitor, importModification)) {
+            if (importExist(unusedSymbolsVisitor, importModification)) {
                 continue;
             }
-            TextEdit edit = constructEdit(unusedNodeVisitor, oldTextDocument, importModification);
+            TextEdit edit = constructEdit(unusedSymbolsVisitor, oldTextDocument, importModification);
             if (edit != null) {
                 edits.add(edit);
             }
         }
-        edits.addAll(BallerinaTreeModifyUtil.getUnusedImportRanges(unusedNodeVisitor.unusedImports(),
+
+        edits.addAll(BallerinaTreeModifyUtil.getUnusedImportRanges(unusedSymbolsVisitor.getUnusedImports(),
                 oldTextDocument));
+
         for (ASTModification astModification : astModifications) {
             if (!IMPORT.equalsIgnoreCase(astModification.getType())) {
-                TextEdit edit = constructEdit(unusedNodeVisitor, oldTextDocument, astModification);
+                TextEdit edit = constructEdit(unusedSymbolsVisitor, oldTextDocument, astModification);
                 if (edit != null) {
                     edits.add(edit);
                 }
@@ -237,48 +237,71 @@ public class BallerinaTreeModifyUtil {
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new TextEdit[0]));
         TextDocument newTextDocument = oldTextDocument.apply(textDocumentChange);
-        documentManager.updateFile(compilationPath, Collections
-                .singletonList(new TextDocumentContentChangeEvent(newTextDocument.toString())));
 
-        //Format bal file code
-        JsonObject jsonAST = TextDocumentFormatUtil.getAST(compilationPath, documentManager, astContext);
-        JsonObject model = jsonAST.getAsJsonObject("model");
-        FormattingSourceGen.build(model, "CompilationUnit");
-        FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
-        formattingUtil.accept(model);
+        // Use formatter to format the source document.
+        SyntaxTree newSyntaxTree = SyntaxTree.from(newTextDocument);
+        newSyntaxTree = Formatter.format(newSyntaxTree);
 
-        String formattedSource = FormattingSourceGen.getSourceOf(model);
-        TextDocumentContentChangeEvent changeEvent = new TextDocumentContentChangeEvent(formattedSource);
-        documentManager.updateFile(compilationPath, Collections.singletonList(changeEvent));
-//        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, formattedSource);
-        return astContext;
+        SemanticModel newSemanticModel = updateWorkspaceDocument(compilationPath, newSyntaxTree.toSourceCode(),
+                workspaceManager);
+
+        Optional<SyntaxTree> formattedSyntaxTree = workspaceManager.syntaxTree(compilationPath);
+        if (formattedSyntaxTree.isEmpty()) {
+            throw new JSONGenerationException("Modification error");
+        }
+
+        JsonElement syntaxTreeJson = DiagramUtil.getSyntaxTreeJSON(formattedSyntaxTree.get(), newSemanticModel);
+        JsonObject jsonTreeWithSource = new JsonObject();
+        jsonTreeWithSource.add("tree", syntaxTreeJson);
+        jsonTreeWithSource.addProperty("source", formattedSyntaxTree.get().toSourceCode());
+
+        return jsonTreeWithSource;
     }
 
+    private static SemanticModel updateWorkspaceDocument(Path compilationPath, String content,
+                                                         WorkspaceManager workspaceManager)
+            throws WorkspaceDocumentException {
+        // TODO: Find a better way to get the semantic model for new TextDocument.
+        Optional<Document> document = workspaceManager.document(compilationPath);
+        if (document.isEmpty()) {
+            throw new WorkspaceDocumentException("Document does not exist in path: " + compilationPath.toString());
+        }
+        // Update file
+        Document updatedDoc = document.get().modify().withContent(content).apply();
+        // Update project instance
+        return updatedDoc.module().getCompilation().getSemanticModel();
+    }
 
     private static boolean importExist(UnusedNodeVisitor unusedNodeVisitor, ASTModification astModification) {
         String importValue = BallerinaTreeModifyUtil.getImport(astModification.getConfig());
         return importValue != null && unusedNodeVisitor.usedImports().contains(importValue);
     }
 
+    private static boolean importExist(UnusedSymbolsVisitor unusedSymbolsVisitor, ASTModification astModification) {
+        String importValue = BallerinaTreeModifyUtil.getImport(astModification.getConfig());
+        return importValue != null && (unusedSymbolsVisitor.getUsedImports().containsKey(importValue)
+                || unusedSymbolsVisitor.getUnusedImports().containsKey(importValue));
+    }
+
     private static TextEdit constructEdit(
-            UnusedNodeVisitor unusedNodeVisitor, TextDocument oldTextDocument,
+            UnusedSymbolsVisitor unusedSymbolsVisitor, TextDocument oldTextDocument,
             ASTModification astModification) {
         String mapping = BallerinaTreeModifyUtil.resolveMapping(astModification.getType(),
                 astModification.getConfig() == null ? new JsonObject() : astModification.getConfig());
         if (mapping != null) {
             boolean doEdit = false;
             if (DELETE.equals(astModification.getType())) {
-                if (unusedNodeVisitor.toBeDeletedRanges().contains(astModification)) {
+                if (unusedSymbolsVisitor.toBeDeletedRanges().contains(astModification)) {
                     doEdit = true;
                 }
             } else {
                 doEdit = true;
             }
             if (doEdit) {
-                LinePosition startLinePos = LinePosition.from(astModification.getStartLine() - 1,
-                        astModification.getStartColumn() - 1);
-                LinePosition endLinePos = LinePosition.from(astModification.getEndLine() - 1,
-                        astModification.getEndColumn() - 1);
+                LinePosition startLinePos = LinePosition.from(astModification.getStartLine(),
+                        astModification.getStartColumn());
+                LinePosition endLinePos = LinePosition.from(astModification.getEndLine(),
+                        astModification.getEndColumn());
                 int startOffset = oldTextDocument.textPositionFrom(startLinePos);
                 int endOffset = oldTextDocument.textPositionFrom(endLinePos);
                 return TextEdit.from(

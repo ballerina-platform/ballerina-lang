@@ -278,8 +278,9 @@ public class LocksInMainTest {
 
     @Test(description = "Test for parallel run when invocations are imported and contains global var dependencies")
     public void testParallelRunWithImportInvocationDependencies() {
-        CompileResult importInvocationDependencies = BCompileUtil.compile("test-src/lock/locks-in-imports-test");
-        BRunUtil.invoke(importInvocationDependencies, "testLockWIthInvokableChainsAccessingGlobal");
+        CompileResult importInvocationDependencies = BCompileUtil.
+                compile("test-src/lock/locks_in_imports_test_project");
+        BRunUtil.invoke(importInvocationDependencies, "testLockWithInvokableChainsAccessingGlobal");
     }
 
     @Test(description = "Test for locks on global references")
