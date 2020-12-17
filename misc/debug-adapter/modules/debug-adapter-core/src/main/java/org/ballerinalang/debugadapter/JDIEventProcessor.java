@@ -172,12 +172,15 @@ public class JDIEventProcessor {
         context.getClient().continued(continuedEventArguments);
     }
 
-    void restoreBreakpoints() {
+    void restoreBreakpoints(boolean isContinue) {
         if (context.getDebuggee() == null) {
             return;
         }
         context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
-        context.getDebuggee().allClasses().forEach(this::configureUserBreakPoints);
+
+        if (isContinue) {
+            context.getDebuggee().allClasses().forEach(this::configureUserBreakPoints);
+        }
     }
 
     private void populateMaps() {
