@@ -123,10 +123,10 @@ public function testConvertToUnionWithActualType() {
     assert(actual, expected);
 }
 
-function assert(anydata actual, anydata expected) {
+function assert(anydata|error actual, anydata|error expected) {
     if (expected != actual) {
-        typedesc<anydata> expT = typeof expected;
-        typedesc<anydata> actT = typeof actual;
+        typedesc<anydata|error> expT = typeof expected;
+        typedesc<anydata|error> actT = typeof actual;
         string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
                             + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
 
