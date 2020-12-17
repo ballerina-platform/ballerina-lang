@@ -21,6 +21,7 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
@@ -120,5 +121,14 @@ public class ClassSymbolTest {
                 {42, 13, "Person2"},
                 {42, 21, "Person2"},
         };
+    }
+
+    @Test
+    public void testDistinctClasses() {
+        Symbol symbol = model.symbol(fileName, LinePosition.from(45, 15)).get();
+        ClassSymbol clazz = (ClassSymbol) symbol;
+        assertEquals(clazz.typeKind(), OBJECT);
+        assertEquals(clazz.kind(), CLASS);
+        assertTrue(clazz.qualifiers().contains(Qualifier.DISTINCT));
     }
 }
