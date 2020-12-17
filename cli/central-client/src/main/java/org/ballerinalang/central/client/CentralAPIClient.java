@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.central.client.model.Error;
 import org.ballerinalang.central.client.model.Package;
@@ -89,7 +90,8 @@ public class CentralAPIClient {
      * @param version         The version or version range of the module. (required)
      * @return PackageJsonSchema
      */
-    public Package getPackage(String orgNamePath, String packageNamePath, String version, String supportedPlatform) {
+    public Package getPackage(String orgNamePath, String packageNamePath, String version, String supportedPlatform)
+            throws CentralClientException {
         initializeSsl();
         String url = PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
         // append version to url if available
@@ -162,13 +164,17 @@ public class CentralAPIClient {
      * @param packageNamePath The name of the package. (required)
      * @return PackageJsonSchema
      */
-    public List<String> getPackageVersions(String orgNamePath, String packageNamePath) {
+    public List<String> getPackageVersions(String orgNamePath, String packageNamePath, String supportedPlatform)
+            throws CentralClientException {
         initializeSsl();
         String url = PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
 
         HttpURLConnection conn = createHttpUrlConnection(url);
         conn.setInstanceFollowRedirects(false);
         setRequestMethod(conn, Utils.RequestMethod.GET);
+
+        // Set headers
+        conn.setRequestProperty(BALLERINA_PLATFORM, supportedPlatform);
 
         // status code and meaning
         //// 200 - list of versions
@@ -213,7 +219,8 @@ public class CentralAPIClient {
     /**
      * Pushing a package to registry.
      */
-    public void pushPackage(Path baloPath, String org, String name, String version, String accessToken) {
+    public void pushPackage(Path baloPath, String org, String name, String version, String accessToken)
+            throws CentralClientException {
         final int noOfBytes = 64;
         final int bufferSize = 1024 * noOfBytes;
 
@@ -250,6 +257,7 @@ public class CentralAPIClient {
         try {
             int statusCode = getStatusCode(conn);
             // 200 - Module pushed successfully
+            // 401 - Unauthorized access token for org
             // Other - Error occurred, json returned with the error message
             if (statusCode == HttpURLConnection.HTTP_NO_CONTENT) {
                 outStream.println(org + "/" + name + ":" + version + " pushed to central successfully");
@@ -270,6 +278,8 @@ public class CentralAPIClient {
                             ERR_CANNOT_PUSH + "'" + org + "/" + name + ":" + version + "' to the remote repository '"
                                     + conn.getURL() + "'");
                 }
+            } else if (statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                throw new CentralClientException("unauthorized access token for organization: " + org);
             } else {
                 throw new CentralClientException(
                         ERR_CANNOT_PUSH + "'" + org + "/" + name + ":" + version + "' to the remote repository '" + conn
@@ -282,7 +292,7 @@ public class CentralAPIClient {
     }
 
     public void pullPackage(String org, String name, String version, Path packagePathInBaloCache,
-            String supportedPlatform, String ballerinaVersion, boolean isBuild) {
+            String supportedPlatform, String ballerinaVersion, boolean isBuild) throws CentralClientException {
         LogFormatter logFormatter = new LogFormatter();
         if (isBuild) {
             logFormatter = new BuildLogFormatter();
@@ -349,7 +359,7 @@ public class CentralAPIClient {
     /**
      * Search packages in registry.
      */
-    public PackageSearchResult searchPackage(String query) {
+    public PackageSearchResult searchPackage(String query) throws CentralClientException {
         initializeSsl();
         HttpURLConnection conn = createHttpUrlConnection(PACKAGES + "/?q=" + query);
         conn.setInstanceFollowRedirects(false);
@@ -394,7 +404,7 @@ public class CentralAPIClient {
      * @param paths resource paths
      * @return http URL connection
      */
-    protected HttpURLConnection createHttpUrlConnection(String paths) {
+    protected HttpURLConnection createHttpUrlConnection(String paths) throws ConnectionErrorException {
         URL url = convertToUrl(this.baseUrl + "/" + paths);
         try {
             // set proxy if exists.
@@ -404,7 +414,7 @@ public class CentralAPIClient {
                 return (HttpURLConnection) url.openConnection(this.proxy);
             }
         } catch (IOException e) {
-            throw new CentralClientException("Creating connection to '" + url + "' failed:" + e.getMessage());
+            throw new ConnectionErrorException("Creating connection to '" + url + "' failed:" + e.getMessage());
         }
     }
 }

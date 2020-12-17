@@ -138,8 +138,7 @@ public class SearchCommand implements BLauncherCmd {
                 if (errorMessage.contains("\n\tat")) {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                 }
-
-                outStream.println(errorMessage);
+                CommandUtil.printError(this.errStream, errorMessage, null, false);
             }
         }
     }

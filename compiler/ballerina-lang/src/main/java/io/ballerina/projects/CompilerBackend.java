@@ -28,7 +28,7 @@ import java.util.Collection;
 public abstract class CompilerBackend {
 
     /**
-     * Returns a collection of platform-specific library dependencies of a given Package.
+     * Returns all the platform-specific library dependencies of a given Package.
      * <p>
      * Typically these library dependencies are specified in Ballerina.toml file.
      *
@@ -36,6 +36,19 @@ public abstract class CompilerBackend {
      * @return a collection of required platform-specific library dependencies of a given Package
      */
     public abstract Collection<PlatformLibrary> platformLibraryDependencies(PackageId packageId);
+
+    /**
+     * Returns a collection of platform-specific library dependencies of a given Package
+     * specified with the given {@code PlatformLibraryScope}.
+     * <p>
+     * Typically these library dependencies are specified in Ballerina.toml file.
+     *
+     * @param packageId the {@code PackageId} of the package.
+     * @param scope     the scope of the dependency
+     * @return a collection of required platform-specific library dependencies of a given Package
+     */
+    public abstract Collection<PlatformLibrary> platformLibraryDependencies(PackageId packageId,
+                                                                            PlatformLibraryScope scope);
 
     /**
      * Returns the generated platform library of the specified module.

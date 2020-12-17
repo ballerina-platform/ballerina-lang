@@ -28,11 +28,13 @@ public enum SymbolKind {
     FUNCTION,
     METHOD,
     CONSTANT,
+    TYPE_DEFINITION,
     TYPE,
     VARIABLE,
     SERVICE,
     CLASS,
     WORKER,
     ANNOTATION,
-    FIELD
+    FIELD,
+    ENUM
 }

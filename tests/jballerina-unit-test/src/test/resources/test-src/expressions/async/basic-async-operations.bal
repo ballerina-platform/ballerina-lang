@@ -1,5 +1,4 @@
-import ballerina/runtime;
-import ballerina/io;
+import ballerina/java;
 
 int globalResult = 0;
 
@@ -13,7 +12,7 @@ function testAsyncNonNativeBasic2() returns int {
     future<int> f1 = start add(5, 2);
     int result1 = wait f1;
     future<int> f2 = start add(10, 2);
-    runtime:sleep(100);
+    sleep(100);
     int result2 = wait f2;
     result1 = result1 + result2;
     return result1;
@@ -46,11 +45,15 @@ function testAsyncNonNativeBasic6() returns boolean {
     float v1 = wait f1;
     future<any> f2 = start infiniteFunc();
     f2.cancel();
-    future<any> f3 = start io:println("NATIVE ASYNC BLOCKING");
+    future<any> f3 = start testNativeAsynchBlocking();
     f3.cancel();
-    future<any> f4 = start runtime:sleep(100);
+    future<any> f4 = start sleep(100);
     f4.cancel();
     return v1 == 10.0;
+}
+
+function testNativeAsynchBlocking() {
+
 }
 
 function testAsyncNonNativeBasic7() returns int {
@@ -116,12 +119,12 @@ function addGlobal(int a, int b) {
 }
 
 function addSlow(float a, float b) returns float {
-    runtime:sleep(200);
+    sleep(200);
     return a + b;
 }
 
 function addSlower(float a, float b) returns float {
-    runtime:sleep(1200);
+    sleep(1200);
     return a + b;
 }
 
@@ -200,3 +203,7 @@ public class Emp {
         self.val = val;
     }
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

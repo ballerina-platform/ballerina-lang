@@ -23,7 +23,7 @@ package org.ballerinalang.central.client.exceptions;
  *
  * @since 2.0.0
  */
-public class NoPackageException extends RuntimeException {
+public class NoPackageException extends CentralClientException {
 
     public NoPackageException(String message) {
         super(message);

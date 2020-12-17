@@ -23,9 +23,11 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -35,7 +37,6 @@ import java.util.Set;
 /**
  * @since 0.94
  *
- *  TODO : Fix me.
  */
 public class BLangService extends BLangNode implements ServiceNode {
 
@@ -55,6 +56,11 @@ public class BLangService extends BLangNode implements ServiceNode {
     // Cached values.
     public BType listenerType;
     public List<BLangFunction> resourceFunctions;
+
+
+    public BLangSimpleVariable serviceVariable;
+    public List<IdentifierNode> absoluteResourcePath;
+    public BLangLiteral serviceNameLiteral;
 
     public BLangService() {
         this.flagSet = EnumSet.noneOf(Flag.class);
@@ -89,6 +95,16 @@ public class BLangService extends BLangNode implements ServiceNode {
     @Override
     public BLangClassDefinition getServiceClass() {
         return this.serviceClass;
+    }
+
+    @Override
+    public List<IdentifierNode> getAbsolutePath() {
+        return this.absoluteResourcePath;
+    }
+
+    @Override
+    public LiteralNode getServiceNameLiteral() {
+        return serviceNameLiteral;
     }
 
     @Override

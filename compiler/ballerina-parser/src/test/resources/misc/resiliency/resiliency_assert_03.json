@@ -76,10 +76,6 @@
               "children": []
             },
             {
-              "kind": "LIST",
-              "children": []
-            },
-            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -152,6 +148,10 @@
               "value": "foo"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "children": [
                 {
@@ -205,10 +205,6 @@
           "kind": "MODULE_VAR_DECL",
           "hasDiagnostics": true,
           "children": [
-            {
-              "kind": "LIST",
-              "children": []
-            },
             {
               "kind": "LIST",
               "children": []

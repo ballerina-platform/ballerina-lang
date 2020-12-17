@@ -15,7 +15,7 @@
           "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nApplies a function to each item in an xml sequence.\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a function to apply to each item in `x`  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "forEach(${1});",
+      "insertText": "forEach(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

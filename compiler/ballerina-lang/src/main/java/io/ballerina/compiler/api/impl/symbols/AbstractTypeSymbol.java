@@ -41,11 +41,11 @@ import java.util.Optional;
 public abstract class AbstractTypeSymbol implements TypeSymbol {
 
     protected final CompilerContext context;
+    protected List<FunctionSymbol> langLibFunctions;
 
     private final TypeDescKind typeDescKind;
     private final ModuleID moduleID;
     private final BType bType;
-    private List<FunctionSymbol> langLibFunctions;
     private final Documentation docAttachment;
 
     public AbstractTypeSymbol(CompilerContext context, TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
@@ -115,8 +115,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         return bType;
     }
 
-    // Private util methods
-    private List<FunctionSymbol> filterLangLibMethods(List<FunctionSymbol> functions, BType internalType) {
+    protected List<FunctionSymbol> filterLangLibMethods(List<FunctionSymbol> functions, BType internalType) {
         Types types = Types.getInstance(this.context);
         List<FunctionSymbol> filteredFunctions = new ArrayList<>();
 
@@ -131,6 +130,8 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
 
         return filteredFunctions;
     }
+
+    // Private util methods
 
     private BType getTargetBType(TypeSymbol typeSymbol) {
         if (typeSymbol.kind() == SymbolKind.TYPE) {

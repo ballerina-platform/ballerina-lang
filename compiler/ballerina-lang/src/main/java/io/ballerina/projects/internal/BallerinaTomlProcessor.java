@@ -30,6 +30,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.internal.model.BallerinaToml;
 import io.ballerina.projects.internal.model.Package;
 import io.ballerina.projects.util.ProjectUtils;
@@ -47,8 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -90,6 +89,13 @@ public class BallerinaTomlProcessor {
 
         Map<String, Object> otherEntries = toml.toMap();
         Map<String, Object> packageEntry = (Map<String, Object>) otherEntries.remove("package");
+
+        // TODO add package properties which is not available in the `PackageDescriptor` to `otherEntries`
+        // TODO we need to fix this properly later
+        otherEntries.put("license", packageEntry.get("license"));
+        otherEntries.put("authors", packageEntry.get("authors"));
+        otherEntries.put("repository", packageEntry.get("repository"));
+        otherEntries.put("keywords", packageEntry.get("keywords"));
 
         PackageOrg packageOrg = PackageOrg.from((String) packageEntry.get("org"));
         PackageName packageName = PackageName.from((String) packageEntry.get("name"));
@@ -273,10 +279,10 @@ public class BallerinaTomlProcessor {
         }
 
         // check version is compatible with semver
-        final Pattern semVerPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
-        Matcher semverMatcher = semVerPattern.matcher(ballerinaToml.getPackage().getVersion());
-        if (!semverMatcher.matches()) {
-            throw new TomlException("invalid Ballerina.toml file: 'version' under [package] is not semver");
+        try {
+            SemanticVersion.from(ballerinaToml.getPackage().getVersion());
+        } catch (ProjectException e) {
+            throw new ProjectException("invalid package version in Ballerina.toml. " + e.getMessage());
         }
     }
 

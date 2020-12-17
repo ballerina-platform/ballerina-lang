@@ -17,9 +17,19 @@
 // NOTE: Make sure to add the function name to benchmarkFunctions.txt as well.
 
 public function registerSingleExecFunctions() {
+    addSingleExecFunction("benchmarkEmptyWhile", benchmarkEmptyWhile);
+    addSingleExecFunction("benchmarkWhileWithEntries", benchmarkWhileWithEntries);
+    addSingleExecFunction("benchmarkWhileWithMapAssignment", benchmarkWhileWithMapAssignment);
     addSingleExecFunction("benchmarkLoopWithQuery", benchmarkLoopWithQuery);
     addSingleExecFunction("benchmarkLoopWithForeach", benchmarkLoopWithForeach);
+    addSingleExecFunction("benchmarkLoopWithFramesForeach", benchmarkLoopWithFramesForeach);
+    addSingleExecFunction("benchmarkLoopWithFramesWOEntries", benchmarkLoopWithFramesWOEntries);
     addSingleExecFunction("benchmarkLoopWithWhile", benchmarkLoopWithWhile);
+    addSingleExecFunction("benchmarkLoopWithStreamNextAndTypeGuard", benchmarkLoopWithStreamNextAndTypeGuard);
+    addSingleExecFunction("benchmarkLoopWithStreamNextAndInvertedTypeGuard", benchmarkLoopWithStreamNextAndInvertedTypeGuard);
+    addSingleExecFunction("benchmarkWithoutCasting", benchmarkWithoutCasting);
+    addSingleExecFunction("benchmarkWithCastingFromNilable", benchmarkWithCastingFromNilable);
+    addSingleExecFunction("benchmarkWithCastingFromAny", benchmarkWithCastingFromAny);
     addSingleExecFunction("benchmarkNestedLoopWithQuery", benchmarkNestedLoopWithQuery);
     addSingleExecFunction("benchmarkNestedLoopWithForeach", benchmarkNestedLoopWithForeach);
     addSingleExecFunction("benchmarkNestedLoopWithWhile", benchmarkNestedLoopWithWhile);

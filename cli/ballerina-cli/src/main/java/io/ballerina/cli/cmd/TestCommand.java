@@ -20,7 +20,6 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
-import io.ballerina.cli.task.CreateBaloTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.ListTestGroupsTask;
 import io.ballerina.cli.task.RunTestsTask;
@@ -84,9 +83,6 @@ public class TestCommand implements BLauncherCmd {
             "dependencies.")
     private Boolean offline;
 
-//    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
-//    private boolean skipLock;
-
     @CommandLine.Parameters
     private List<String> argList;
 
@@ -124,7 +120,7 @@ public class TestCommand implements BLauncherCmd {
     private boolean rerunTests;
 
     private static final String testCmd = "ballerina test [--offline] [--skip-tests]\n" +
-            "                    [<ballerina-file> | <ballerina-project>] [(--key=value)...]";
+            "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
     public void execute() {
         if (this.helpFlag) {
@@ -170,7 +166,7 @@ public class TestCommand implements BLauncherCmd {
             try {
                 project = SingleFileProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), testCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -179,7 +175,7 @@ public class TestCommand implements BLauncherCmd {
             try {
                 project = BuildProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), testCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -195,7 +191,6 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory
 //                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
-                .addTask(new CreateBaloTask(outStream), isSingleFile || listGroups) // create the BALO (projects only)
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream), !listGroups) // list the available test groups
                 .addTask(new RunTestsTask(outStream, errStream, args, rerunTests, groupList, disableGroupList,

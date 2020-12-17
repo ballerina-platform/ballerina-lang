@@ -73,10 +73,10 @@ public class SymbolPositionTest {
                 {27, 5, 27, 11, "Person"},
                 {31, 5, 31, 14, "PersonObj"},
                 {32, 11, 32, 15, "name"},
-                {34, 13, 34, 20, "PersonObj.getName"},
+                {34, 13, 34, 20, "getName"},
                 {37, 6, 37, 17, "PersonClass"},
-                {40, 13, 40, 17, "PersonClass.init"},
-                {44, 13, 44, 20, "PersonClass.getName"},
+                {40, 13, 40, 17, "init"},
+                {44, 13, 44, 20, "getName"},
                 {51, 5, 51, 11, "Colour"},
                 {54, 11, 54, 13, "w1"},
         };

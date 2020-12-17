@@ -30,7 +30,7 @@ function func3() {
 }
 
 public client class Student {
-    public remote function getName() returns string {
+    remote function getName() returns string {
         string name = "Praveen";
         return name;
     }
