@@ -68,8 +68,7 @@ public class AnnotationUtils {
         }
     }
 
-    public static void processObjectCtorAnnotations(MapValue globalAnnotMap, BObjectType bType,
-                                                    Strand strand) {
+    public static void processObjectCtorAnnotations(BObjectType bType, MapValue globalAnnotMap, Strand strand) {
         BString annotationKey = StringUtils.fromString(bType.getAnnotationKey());
 
         if (globalAnnotMap.containsKey(annotationKey)) {

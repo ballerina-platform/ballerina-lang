@@ -26,9 +26,6 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.AnnotationUtils;
-import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.values.MapValue;
 
 import java.lang.reflect.Array;
 import java.util.Map.Entry;
@@ -137,13 +134,7 @@ public class BObjectType extends BStructureType implements ObjectType {
         this.typeIdSet = typeIdSet;
     }
 
-    public BObjectType duplicateTypeAndprocessAnnots(MapValue globalAnnotationMap, Strand strand) {
-        BObjectType clone = duplicate();
-        AnnotationUtils.processObjectCtorAnnotations(globalAnnotationMap, clone, strand);
-        return clone;
-    }
-
-    BObjectType duplicate() {
+    public BObjectType duplicate() {
         BObjectType type = new BObjectType(this.typeName, this.pkg, this.flags);
         type.setFields(fields);
         type.setMemberFunctionTypes(duplicateArray(memberFunctionTypes));
