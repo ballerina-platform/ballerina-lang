@@ -558,11 +558,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ModuleVariableDeclarationNode modVarDeclrNode) {
-
         TypedBindingPatternNode typedBindingPattern = modVarDeclrNode.typedBindingPattern();
-
         BindingPatternNode bindingPatternNode = typedBindingPattern.bindingPattern();
-
         BLangVariable variable = getBLangVariableNode(bindingPatternNode);
 
         Token variableName;

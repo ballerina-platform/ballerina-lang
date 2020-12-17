@@ -1244,8 +1244,8 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable varNode) {
         if (((varNode.symbol.owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE)
-                && (varNode.symbol.owner.tag & SymTag.LET) != SymTag.LET &&
-                (varNode.symbol.owner.tag & SymTag.PACKAGE) != SymTag.PACKAGE) {
+                && (varNode.symbol.owner.tag & SymTag.LET) != SymTag.LET
+                && (varNode.symbol.owner.tag & SymTag.PACKAGE) != SymTag.PACKAGE) {
             varNode.expr = null;
             result = varNode;
             return;
@@ -1328,17 +1328,19 @@ public class Desugar extends BLangNodeVisitor {
         // Create the variable definition statements using the root block stmt created
         createVarDefStmts(varNode, blockStmt, tuple.symbol, null);
 
-        if (((this.env.scope.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE)) {
-            // Rest field def stmt virtual variables will be added to init function body, hence change the env
-            SymbolEnv previousEnv = this.env;
-            this.env = this.initFunctionEnv;
+        if (varNode.restVariable != null) {
+            if (((this.env.scope.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE)) {
+                // Rest field def stmt virtual variables will be added to init function body, hence change the env
+                SymbolEnv previousEnv = this.env;
+                this.env = this.initFunctionEnv;
+                createRestFieldVarDefStmts(varNode, blockStmt, tuple.symbol);
+                this.env = previousEnv;
+                // If it is a global variable don't rewrite now, will be rewritten later
+                result = blockStmt;
+                return;
+            }
             createRestFieldVarDefStmts(varNode, blockStmt, tuple.symbol);
-            this.env = previousEnv;
-            // If it is a global variable don't rewrite now, will be rewritten later
-            result = blockStmt;
-            return;
         }
-        createRestFieldVarDefStmts(varNode, blockStmt, tuple.symbol);
         result = rewrite(blockStmt, env);
     }
 
@@ -1405,51 +1407,49 @@ public class Desugar extends BLangNodeVisitor {
         final BLangSimpleVariable arrayVar = (BLangSimpleVariable) parentTupleVariable.restVariable;
         boolean isTupleType = parentTupleVariable.type.tag == TypeTags.TUPLE;
         Location pos = blockStmt.pos;
-        if (arrayVar != null) {
-            // T[] t = [];
-            BLangArrayLiteral arrayExpr = createArrayLiteralExprNode();
-            arrayExpr.type = arrayVar.type;
-            arrayVar.expr = arrayExpr;
-            BLangSimpleVariableDef arrayVarDef = ASTBuilderUtil.createVariableDefStmt(arrayVar.pos, blockStmt);
-            arrayVarDef.var = arrayVar;
+        // T[] t = [];
+        BLangArrayLiteral arrayExpr = createArrayLiteralExprNode();
+        arrayExpr.type = arrayVar.type;
+        arrayVar.expr = arrayExpr;
+        BLangSimpleVariableDef arrayVarDef = ASTBuilderUtil.createVariableDefStmt(arrayVar.pos, blockStmt);
+        arrayVarDef.var = arrayVar;
 
-            // foreach var $foreach$i in tupleTypes.length()...tupleLiteral.length() {
-            //     t[t.length()] = <T> tupleLiteral[$foreach$i];
-            // }
-            BLangExpression tupleExpr = parentTupleVariable.expr;
-            BLangSimpleVarRef arrayVarRef = ASTBuilderUtil.createVariableRef(pos, arrayVar.symbol);
+        // foreach var $foreach$i in tupleTypes.length()...tupleLiteral.length() {
+        //     t[t.length()] = <T> tupleLiteral[$foreach$i];
+        // }
+        BLangExpression tupleExpr = parentTupleVariable.expr;
+        BLangSimpleVarRef arrayVarRef = ASTBuilderUtil.createVariableRef(pos, arrayVar.symbol);
 
-            BLangLiteral startIndexLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-            startIndexLiteral.value = (long) (isTupleType ? ((BTupleType) parentTupleVariable.type).tupleTypes.size()
-                    : parentTupleVariable.memberVariables.size());
-            startIndexLiteral.type = symTable.intType;
-            BLangInvocation lengthInvocation = createLengthInvocation(pos, tupleExpr);
-            BLangInvocation intRangeInvocation = replaceWithIntRange(pos, startIndexLiteral,
-                    getModifiedIntRangeEndExpr(lengthInvocation));
+        BLangLiteral startIndexLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        startIndexLiteral.value = (long) (isTupleType ? ((BTupleType) parentTupleVariable.type).tupleTypes.size()
+                : parentTupleVariable.memberVariables.size());
+        startIndexLiteral.type = symTable.intType;
+        BLangInvocation lengthInvocation = createLengthInvocation(pos, tupleExpr);
+        BLangInvocation intRangeInvocation = replaceWithIntRange(pos, startIndexLiteral,
+                getModifiedIntRangeEndExpr(lengthInvocation));
 
-            BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
-            foreach.pos = pos;
-            foreach.collection = intRangeInvocation;
-            types.setForeachTypedBindingPatternType(foreach);
+        BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
+        foreach.pos = pos;
+        foreach.collection = intRangeInvocation;
+        types.setForeachTypedBindingPatternType(foreach);
 
-            final BLangSimpleVariable foreachVariable = ASTBuilderUtil.createVariable(pos,
-                    "$foreach$i", foreach.varType);
-            foreachVariable.symbol = new BVarSymbol(0, names.fromIdNode(foreachVariable.name),
-                                                    this.env.scope.owner.pkgID, foreachVariable.type,
-                                                    this.env.scope.owner, pos, VIRTUAL);
-            BLangSimpleVarRef foreachVarRef = ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol);
-            foreach.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos, foreachVariable);
-            foreach.isDeclaredWithVar = true;
-            BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
+        final BLangSimpleVariable foreachVariable = ASTBuilderUtil.createVariable(pos,
+                "$foreach$i", foreach.varType);
+        foreachVariable.symbol = new BVarSymbol(0, names.fromIdNode(foreachVariable.name),
+                this.env.scope.owner.pkgID, foreachVariable.type,
+                this.env.scope.owner, pos, VIRTUAL);
+        BLangSimpleVarRef foreachVarRef = ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol);
+        foreach.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos, foreachVariable);
+        foreach.isDeclaredWithVar = true;
+        BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
 
-            // t[t.length()] = <T> tupleLiteral[$foreach$i];
-            BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(arrayVarRef,
-                    createLengthInvocation(pos, arrayVarRef));
-            indexAccessExpr.type = (isTupleType ? ((BTupleType) parentTupleVariable.type).restType : symTable.anyType);
-            createSimpleVarRefAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
-            foreach.body = foreachBody;
-            blockStmt.addStatement(foreach);
-        }
+        // t[t.length()] = <T> tupleLiteral[$foreach$i];
+        BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(arrayVarRef,
+                createLengthInvocation(pos, arrayVarRef));
+        indexAccessExpr.type = (isTupleType ? ((BTupleType) parentTupleVariable.type).restType : symTable.anyType);
+        createSimpleVarRefAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
+        foreach.body = foreachBody;
+        blockStmt.addStatement(foreach);
     }
 
     @Override

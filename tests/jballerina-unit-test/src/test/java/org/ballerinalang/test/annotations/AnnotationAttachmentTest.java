@@ -68,7 +68,7 @@ public class AnnotationAttachmentTest {
     @Test
     public void testAnnotOnObjectType() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
-                ((BLangClassDefinition) ((BLangPackage) compileResult.getAST()).topLevelNodes.get(17))
+                ((BLangClassDefinition) ((BLangPackage) compileResult.getAST()).topLevelNodes.get(16))
                         .getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 2);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v1", "val", "v1 value object");
