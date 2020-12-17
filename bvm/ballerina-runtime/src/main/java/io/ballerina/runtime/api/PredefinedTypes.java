@@ -175,10 +175,6 @@ public class PredefinedTypes {
             IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_ELEMENT);
     public static final RecordType XML_ITR_NEXT_RETURN_TEXT_TYPE =
             IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_TEXT);
-    public static final RecordType XML_ITR_NEXT_RETURN_COMMENT_TYPE =
-            IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_COMMENT);
-    public static final RecordType XML_ITR_NEXT_RETURN_PI_TYPE =
-            IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_PROCESSING_INSTRUCTION);
 
     private PredefinedTypes() {
     }

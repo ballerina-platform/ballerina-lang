@@ -82,7 +82,6 @@ public class XMLIterationTest {
                 "incompatible types: expected 'record {| xml:Comment value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
                 40, 54);
-
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:ProcessingInstruction'",
                 47, 13);
@@ -93,7 +92,6 @@ public class XMLIterationTest {
                 "incompatible types: expected 'record {| xml:ProcessingInstruction value; |}?', " +
                         "found 'record {| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
                 52, 54);
-
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
                 60, 13);

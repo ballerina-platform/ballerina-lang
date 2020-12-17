@@ -240,5 +240,3 @@ function assert(anydata actual, anydata expected) {
         panic e;
     }
 }
-
-
