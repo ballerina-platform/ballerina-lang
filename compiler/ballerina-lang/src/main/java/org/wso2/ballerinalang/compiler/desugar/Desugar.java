@@ -377,8 +377,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangAssignment safeNavigationAssignment;
     static boolean isJvmTarget = false;
 
-    private int serviceStartedCount = 0;
-
     private Map<BSymbol, Set<BVarSymbol>> globalVariablesDependsOn;
     private List<BLangStatement> matchStmtsForPattern = new ArrayList<>();
     private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
@@ -1178,12 +1176,6 @@ public class Desugar extends BLangNodeVisitor {
         BType currentReturnType = this.forceCastReturnType;
         this.forceCastReturnType = null;
         funcNode.body = rewrite(funcNode.body, funcEnv);
-        if (serviceStartedCount == 1) {
-            BLangExpressionStmt trxCoordnStmt = new BLangExpressionStmt(transactionDesugar.
-                    createStartTransactionCoordinatorInvocation(funcNode.pos));
-            ((BLangBlockFunctionBody) funcNode.body).stmts.add(0, trxCoordnStmt);
-            serviceStartedCount++;
-        }
         this.forceCastReturnType = currentReturnType;
         funcNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
         if (funcNode.returnTypeNode != null) {
@@ -4944,8 +4936,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
-        if (!actionInvocation.async && actionInvocation.invokedInsideTransaction && serviceStartedCount == 0) {
-            serviceStartedCount++;
+        if (!actionInvocation.async && actionInvocation.invokedInsideTransaction) {
+            transactionDesugar.startTransactionCoordinatorOnce(env, actionInvocation.pos);
         }
         rewriteInvocation(actionInvocation, actionInvocation.async);
     }
@@ -5790,13 +5782,13 @@ public class Desugar extends BLangNodeVisitor {
         Name objectClassName = names.fromString(
                 anonModelHelper.getNextRawTemplateTypeKey(env.enclPkg.packageID, tSymbol.name));
 
-        BObjectTypeSymbol classTSymbol = Symbols.createObjectSymbol(tSymbol.flags, objectClassName,
-                                                                    env.enclPkg.packageID, null, env.enclPkg.symbol,
-                                                                    pos, VIRTUAL);
+        BObjectTypeSymbol classTSymbol = Symbols.createClassSymbol(tSymbol.flags, objectClassName,
+                                                                   env.enclPkg.packageID, null, env.enclPkg.symbol,
+                                                                   pos, VIRTUAL, false);
         classTSymbol.flags |= Flags.CLASS;
 
         // Create a new concrete, class type for the provided abstract object type
-        BObjectType objectClassType = new BObjectType(classTSymbol, tSymbol.flags);
+        BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
 

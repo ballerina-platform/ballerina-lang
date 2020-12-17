@@ -71,6 +71,8 @@ public class Type {
     @Expose
     public String moduleName;
     @Expose
+    public String version;
+    @Expose
     public String name;
     @Expose
     public String description;
@@ -249,12 +251,16 @@ public class Type {
         if (symbol instanceof TypeReferenceTypeSymbol) {
             TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) symbol;
             type.moduleName = typeSymbol.moduleID().moduleName();
+            type.orgName = typeSymbol.moduleID().orgName();
+            type.version = typeSymbol.moduleID().version();
             if (typeSymbol.typeDescriptor() != null) {
                 type.category = getTypeCategory(typeSymbol.typeDescriptor());
             }
         } else if (symbol instanceof ConstantSymbol) {
             ConstantSymbol constantSymbol = (ConstantSymbol) symbol;
             type.moduleName = constantSymbol.moduleID().moduleName();
+            type.orgName = constantSymbol.moduleID().orgName();
+            type.version = constantSymbol.moduleID().version();
             type.category = "constants";
         } else if (symbol instanceof VariableSymbol) {
             VariableSymbol variableSymbol = (VariableSymbol) symbol;

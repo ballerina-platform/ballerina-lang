@@ -112,6 +112,13 @@ public class JBallerinaBackend extends CompilerBackend {
         // TODO The following line is a temporary solution to cleanup the TesterinaRegistry
         TesterinaRegistry.reset();
 
+        // TODO: Move to a compiler extension once Compiler revamp is complete
+        if (packageContext.compilationOptions().observabilityIncluded()) {
+            ObservabilitySymbolCollector observabilitySymbolCollector
+                    = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
+            observabilitySymbolCollector.process(packageContext.project());
+        }
+
         // Trigger code generation
         performCodeGen();
     }
@@ -517,7 +524,6 @@ public class JBallerinaBackend extends CompilerBackend {
             if (packageContext.compilationOptions().observabilityIncluded()) {
                 ObservabilitySymbolCollector observabilitySymbolCollector
                         = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
-                observabilitySymbolCollector.process(packageContext.project());
                 observabilitySymbolCollector.writeToExecutable(executableFilePath);
             }
         } catch (IOException e) {
