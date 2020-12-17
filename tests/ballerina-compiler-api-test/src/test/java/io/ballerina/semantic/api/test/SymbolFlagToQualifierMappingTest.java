@@ -28,11 +28,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.CLIENT;
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
@@ -41,6 +39,7 @@ import static io.ballerina.compiler.api.symbols.Qualifier.LISTENER;
 import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.READONLY;
 import static io.ballerina.compiler.api.symbols.Qualifier.REMOTE;
+import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -71,16 +70,16 @@ public class SymbolFlagToQualifierMappingTest {
     @DataProvider(name = "QualifierProvider")
     public Object[][] getPositionsAndQualifiers() {
         return new Object[][]{
-                {17, 27, getQualifiers(LISTENER, FINAL)},
-                {19, 13, Collections.EMPTY_SET},
-                {20, 25, getQualifiers(PUBLIC)},
-                {36, 19, getQualifiers(READONLY)},
-                {50, 20, getQualifiers(ISOLATED)},
-                {53, 22, getQualifiers(READONLY)},
-                {57, 16, getQualifiers(CLIENT)},
-                {58, 22, getQualifiers(REMOTE, PUBLIC)},
-//                {70, 24, getQualifiers(RESOURCE)}, // TODO: enable after fixing #26890
-//                {75, 13, getQualifiers(DISTINCT)}, // TODO: enable once issue #26212 is fixed
+                {16, 27, Set.of(LISTENER, FINAL)},
+                {18, 13, new HashSet<Qualifier>()},
+                {19, 20, Set.of(PUBLIC)},
+                {35, 19, Set.of(READONLY)},
+                {49, 20, Set.of(ISOLATED)},
+                {52, 22, Set.of(READONLY, PUBLIC)},
+                {56, 16, Set.of(CLIENT)},
+                {57, 22, Set.of(REMOTE)},
+                {65, 17, Set.of(LISTENER, FINAL)},
+                {66, 24, Set.of(RESOURCE)}
         };
     }
 
@@ -95,13 +94,8 @@ public class SymbolFlagToQualifierMappingTest {
     @DataProvider(name = "SymbolKindProvider")
     public Object[][] getSymbolKinds() {
         return new Object[][]{
-                {20, 25, SymbolKind.METHOD},
-                // {69, 10, SymbolKind.SERVICE}, // TODO: enable after fixing #26890
-                {82, 7, SymbolKind.CONSTANT},
+                {19, 20, SymbolKind.METHOD},
+                {75, 7, SymbolKind.CONSTANT},
         };
-    }
-
-    private Set<Qualifier> getQualifiers(Qualifier... quals) {
-        return Stream.of(quals).collect(Collectors.toSet());
     }
 }

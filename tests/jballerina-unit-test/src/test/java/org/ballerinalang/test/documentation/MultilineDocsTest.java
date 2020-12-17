@@ -39,12 +39,9 @@ public class MultilineDocsTest {
     private Function multilineDocsFunction;
     private Function multilineDocsDeprecatedFunction;
 
-    private final String firstLine = "<p>Returns a formatted string using the specified format string and arguments. "
-            + "Following format specifiers are allowed.</p>\n";
-    private final String deprecatedFirstLine = "Returns a formatted string using the specified format string and "
-            + "arguments. Following format specifiers are allowed.\n";
-
-    private final String otherLines = "<p>b - boolean</p>\n"
+    private final String lines = "<p>Returns a formatted string using the specified format string and arguments. "
+            + "Following format specifiers are allowed.</p>\n"
+            + "<p>b - boolean</p>\n"
             + "<p>B - boolean (ALL_CAPS)</p>\n"
             + "<p>d - int</p>\n"
             + "<p>f - float</p>\n"
@@ -52,7 +49,7 @@ public class MultilineDocsTest {
             + "<p>X - HEX (ALL_CAPS)</p>\n"
             + "<p>s - string (This specifier is applicable for any of the supported types in Ballerina.\n"
             + "These values will be converted to their string representation.)</p>\n"
-            + "<pre><code class=\"language-ballerina\"> "
+            + "<pre><code class=\"language-ballerina\">"
             + "string s8 = io:sprintf(&quot;%s scored %d for %s and has an average of %.2f.&quot;, name, marks, "
             + "subjects[0], average);\n"
             + "</code></pre>\n";
@@ -61,7 +58,7 @@ public class MultilineDocsTest {
     public void setup() throws IOException {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "multi_line_docs_project";
-        io.ballerina.projects.Project project = BCompileUtil.getProject(sourceRoot);
+        io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
         Project docerinaProject = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
                 .packageOrg().toString(), project.currentPackage().packageVersion().toString());
@@ -77,14 +74,10 @@ public class MultilineDocsTest {
         }
     }
 
-    @Test(enabled = false, description = "Test multiline documentation")
+    @Test(description = "Test multiline documentation")
     public void testMultilineDocs() {
         Assert.assertNotNull(multilineDocsFunction);
-        Assert.assertEquals(multilineDocsFunction.description, firstLine + otherLines);
+        Assert.assertEquals(multilineDocsFunction.description, lines);
     }
 
-    @Test(enabled = false, description = "Test multiline documentation with @deprecated annotation")
-    public void testMultilineDocsWithDeprecation() {
-        Assert.assertEquals(multilineDocsDeprecatedFunction.description, deprecatedFirstLine + otherLines);
-    }
 }

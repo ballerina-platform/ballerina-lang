@@ -357,6 +357,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "transactional",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -436,7 +443,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "testNewFunction();",
+      "insertText": "testNewFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -449,7 +456,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "new(${1});",
+      "insertText": "new(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

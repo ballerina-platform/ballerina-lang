@@ -509,7 +509,7 @@ public class Scheduler {
 
         public synchronized void stopListeners(Strand strand) {
             for (BObject listener : listenerSet) {
-                listener.call(strand, "__gracefulStop");
+                listener.call(strand, "gracefulStop");
             }
         }
     }

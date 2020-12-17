@@ -125,6 +125,12 @@
         </OR>
     </Match>
     <Match>
+        <Class name="org.ballerinalang.langserver.codeaction.CodeActionUtil" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
+    <Match>
         <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeModifyRequest"/>
     </Match>
     <Match>
@@ -141,5 +147,8 @@
     </Match>
     <Match>
         <Package name="org.ballerinalang.langserver"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager"/>
     </Match>
 </FindBugsFilter>

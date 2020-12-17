@@ -45,6 +45,8 @@ import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
+import org.eclipse.lsp4j.FoldingRangeCapabilities;
+import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -102,6 +104,8 @@ public class TestUtil {
     private static final String IMPLEMENTATION = "textDocument/implementation";
 
     private static final String DOCUMENT_SYMBOL = "textDocument/documentSymbol";
+
+    private static final String FOLDING_RANGE = "textDocument/foldingRange";
 
     private static final String WORKSPACE_SYMBOL_COMMAND = "workspace/symbol";
 
@@ -291,6 +295,19 @@ public class TestUtil {
     }
 
     /**
+     * Get folding range response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param filePath        File path to evaluate
+     * @return {@link String} Folding range response
+     */
+    public static String getFoldingRangeResponse(Endpoint serviceEndpoint, String filePath) {
+        FoldingRangeRequestParams foldingRangeParams = new
+                FoldingRangeRequestParams(getTextDocumentIdentifier(filePath));
+        return getResponseString(serviceEndpoint.request(FOLDING_RANGE, foldingRangeParams));
+    }
+
+    /**
      * Open a document.
      *
      * @param serviceEndpoint Language Server Service Endpoint
@@ -342,24 +359,22 @@ public class TestUtil {
         LSPackageLoader.clearHomeRepoPackages();
         BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
         Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
-        InitializeParams params = new InitializeParams();
-        ClientCapabilities capabilities = new ClientCapabilities();
-        TextDocumentClientCapabilities textDocumentClientCapabilities = new TextDocumentClientCapabilities();
-        CompletionCapabilities completionCapabilities = new CompletionCapabilities();
-        SignatureHelpCapabilities signatureHelpCapabilities = new SignatureHelpCapabilities();
-        SignatureInformationCapabilities sigInfoCapabilities =
-                new SignatureInformationCapabilities(Arrays.asList("markdown", "plaintext"));
+        endpoint.request("initialize", getInitializeParams(null));
+        return new ImmutablePair<>(endpoint, languageServer.getDocumentManager());
+    }
 
-        signatureHelpCapabilities.setSignatureInformation(sigInfoCapabilities);
-        completionCapabilities.setCompletionItem(new CompletionItemCapabilities(true));
-
-        textDocumentClientCapabilities.setCompletion(completionCapabilities);
-        textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
-
-        capabilities.setTextDocument(textDocumentClientCapabilities);
-        params.setCapabilities(capabilities);
-        endpoint.request("initialize", params);
-
+    /**
+     * Initialize the language server instance with given FoldingRangeCapabilities.
+     *
+     * @param foldingRangeCapabilities {@link FoldingRangeCapabilities} Folding range client capabilities
+     * @return {@link Endpoint}     Service Endpoint
+     */
+    public static Pair<Endpoint, WorkspaceDocumentManager> initializeLanguageSeverAndGetDocManager(
+            FoldingRangeCapabilities foldingRangeCapabilities) {
+        LSPackageLoader.clearHomeRepoPackages();
+        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+        Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
+        endpoint.request("initialize", getInitializeParams(foldingRangeCapabilities));
         return new ImmutablePair<>(endpoint, languageServer.getDocumentManager());
     }
 
@@ -422,6 +437,34 @@ public class TestUtil {
         completionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
 
         return completionParams;
+    }
+
+    /**
+     * Creates an InitializeParams instance.
+     *
+     * @param foldingRangeCapabilities {@link FoldingRangeCapabilities} Folding range client capabilities
+     * @return {@link InitializeParams} Params for Language Server initialization
+     */
+    private static InitializeParams getInitializeParams(FoldingRangeCapabilities foldingRangeCapabilities) {
+        InitializeParams params = new InitializeParams();
+        ClientCapabilities capabilities = new ClientCapabilities();
+        TextDocumentClientCapabilities textDocumentClientCapabilities = new TextDocumentClientCapabilities();
+        CompletionCapabilities completionCapabilities = new CompletionCapabilities();
+        SignatureHelpCapabilities signatureHelpCapabilities = new SignatureHelpCapabilities();
+        SignatureInformationCapabilities sigInfoCapabilities =
+                new SignatureInformationCapabilities(Arrays.asList("markdown", "plaintext"));
+        signatureHelpCapabilities.setSignatureInformation(sigInfoCapabilities);
+        completionCapabilities.setCompletionItem(new CompletionItemCapabilities(true));
+
+        textDocumentClientCapabilities.setCompletion(completionCapabilities);
+        textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
+        if (foldingRangeCapabilities != null) {
+            textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
+        }
+
+        capabilities.setTextDocument(textDocumentClientCapabilities);
+        params.setCapabilities(capabilities);
+        return params;
     }
 
     public static String getResponseString(CompletableFuture completableFuture) {
