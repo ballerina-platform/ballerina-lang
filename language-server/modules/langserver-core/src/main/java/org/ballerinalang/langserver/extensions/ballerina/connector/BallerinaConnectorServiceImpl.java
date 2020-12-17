@@ -205,13 +205,6 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         if (paramType.isPresent()) {
             if (paramType.get().typeKind() == TypeDescKind.UNION) {
                 Arrays.stream(paramType.get().signature().split("\\|")).forEach(type -> {
-                    /* todo : need a better way to get types other than string splitting and checking regex */
-//                    String typeName = type;
-//                    Pattern typeRefPattern = Pattern.compile("\\w+/\\w+:[\\d.]+:(\\w+)");
-//                    Matcher typeRefPatternMatcher = typeRefPattern.matcher(type);
-//                    if (typeRefPatternMatcher.find()) {
-//                        typeName = typeRefPatternMatcher.group(1);
-//                    }
                     TypeDefinitionNode record = jsonRecords.get(type);
                     if (record != null) {
                         connectorRecords.put(type, DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
@@ -225,18 +218,6 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                             DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
                     populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
                 }
-//                Pattern arraySignaturePattern = Pattern.compile("(\\w+)\\[\\]$");
-//                Matcher signatureMatcher = arraySignaturePattern.matcher(paramType.get().signature());
-//
-//                if (signatureMatcher.find()) {
-//                    // there is only one group in the regex and array signature always matches
-//                    TypeDefinitionNode record = jsonRecords.get(signatureMatcher.group(1));
-//                    if (record != null) {
-//                        connectorRecords.put(signatureMatcher.group(1),
-//                                DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
-//                        populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
-//                    }
-//                }
             } else if (paramType.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
                 TypeDefinitionNode record = jsonRecords.get(paramType.get().signature());
                 if (record != null) {
@@ -258,13 +239,6 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
             if (fieldType.isPresent() && fieldType.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
                 String typeName = fieldType.get().signature();
-//                Pattern typeRefPattern = Pattern.compile("\\w+/\\w+:[\\d.]+:(\\w+)");
-//                Matcher typeRefPatternMatcher = typeRefPattern.matcher(typeName);
-//
-//                if (typeRefPatternMatcher.find()) {
-//                    typeName = typeRefPatternMatcher.group(1);
-//                }
-
                 TypeDefinitionNode record = jsonRecords.get(typeName);
                 if (record != null && !recordTypeDefinition.typeName().text().equals(typeName)) {
                     connectorRecords.put(typeName, DiagramUtil.getSyntaxTreeJSON(record.syntaxTree(), semanticModel));
