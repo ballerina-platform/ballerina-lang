@@ -114,7 +114,8 @@ public class JDIEventProcessor {
                 context.getClient().stopped(stoppedEventArguments);
             } else {
                 long threadId = ((StepEvent) event).thread().uniqueID();
-                sendStepRequest(threadId, StepRequest.STEP_OVER);
+                int stepType = ((StepRequest) event.request()).depth();
+                sendStepRequest(threadId, stepType);
             }
         } else if (event instanceof VMDisconnectEvent
                 || event instanceof VMDeathEvent
@@ -241,7 +242,8 @@ public class JDIEventProcessor {
             } while (nextStepPoint <= lastLocation.get().lineNumber());
         } catch (IncompatibleThreadStateException | AbsentInformationException e) {
             LOGGER.error(e.getMessage());
-            sendStepRequest(threadId, StepRequest.STEP_OVER);
+            int stepType = ((StepRequest) this.stepEventRequests.get(0)).depth();
+            sendStepRequest(threadId, stepType);
         }
     }
 
