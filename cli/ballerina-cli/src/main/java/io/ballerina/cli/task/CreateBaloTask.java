@@ -71,10 +71,10 @@ public class CreateBaloTask implements Task {
         }
 
         // Print the path of the BALO file
-        Path relativePathToExecutable = project.sourceRoot().relativize(emitResult.generatedArtifact());
+        Path relativePathToExecutable = project.sourceRoot().relativize(emitResult.generatedArtifactPath());
         if (relativePathToExecutable.toString().contains("..") ||
                 relativePathToExecutable.toString().contains("." + File.separator)) {
-            this.out.println("\t" + emitResult.generatedArtifact().toString());
+            this.out.println("\t" + emitResult.generatedArtifactPath().toString());
         } else {
             this.out.println("\t" + relativePathToExecutable.toString());
         }

@@ -44,7 +44,7 @@ public class EmitResult {
         return diagnostics;
     }
 
-    public Path generatedArtifact() {
+    public Path generatedArtifactPath() {
         return generatedArtifact;
     }
 }
