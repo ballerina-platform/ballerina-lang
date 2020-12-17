@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.ballerina.compiler.api.symbols;
 
 /**
- * Represents the built-in simple type descriptor.
+ * Represents the int:Unsigned16 type descriptor.
  *
  * @since 2.0.0
  */
-public interface SimpleTypeSymbol extends TypeSymbol {
+public interface IntUnsigned16TypeSymbol extends IntTypeSymbol {
 }

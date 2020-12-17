@@ -19,7 +19,7 @@ package org.ballerinalang.test.runtime.entity;
 
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
@@ -88,7 +88,7 @@ public class CoverageReport {
 
         Path moduleJarPath = target.cachesPath().resolve(orgName)
                 .resolve(packageName)
-                .resolve(version).resolve(JdkVersion.JAVA_11.code());
+                .resolve(version).resolve(JvmTarget.JAVA_11.code());
         // Obtain a path list of all the .jar files generated
         List<Path> pathList;
         try (Stream<Path> walk = Files.walk(moduleJarPath, 1)) {
