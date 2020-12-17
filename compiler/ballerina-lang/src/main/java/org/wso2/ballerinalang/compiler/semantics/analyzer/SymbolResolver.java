@@ -1829,13 +1829,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                                  SymbolEnv pkgEnv, Location pos) {
 
         BTypeSymbol errorTSymbol = errorType.tsymbol;
-//        errorTSymbol.scope = new Scope(errorTSymbol);
-//        pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
-
-//        SymbolEnv prevEnv = this.env;
-//        this.env = pkgEnv;
-//        defineErrorConstructorSymbol(pos, errorTSymbol);
-//        this.env = prevEnv;
 
         // Create error type definition
         BLangErrorType bLangErrorType = TypeDefBuilderHelper.createBLangErrorType(pos, detailType, detailTypeName);
@@ -1857,7 +1850,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentBTypes,
                                                                    effectiveType);
-//        pkgEnv.scope.define(intersectionTypeSymbol.name, intersectionTypeSymbol);
         intersectionTypeSymbol.type = intersectionType;
 
         return intersectionType;

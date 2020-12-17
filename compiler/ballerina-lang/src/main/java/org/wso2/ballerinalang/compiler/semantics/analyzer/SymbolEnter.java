@@ -381,10 +381,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type def fields (if any)
         defineFields(typeAndClassDefs, pkgEnv);
 
-        // Calculate error intersections types
+        // Calculate error intersections types.
         defineIntersectionTypes(pkgEnv);
 
-        // Define error details
+        // Define error details.
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def members (if any)
