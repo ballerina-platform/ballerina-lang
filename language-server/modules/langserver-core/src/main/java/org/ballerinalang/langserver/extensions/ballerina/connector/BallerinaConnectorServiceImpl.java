@@ -177,7 +177,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     JsonElement jsonST = DiagramUtil.getClassDefinitionSyntaxJson(connector, semanticModel);
                     if (jsonST instanceof JsonObject) {
                         JsonElement recordsJson = gson.toJsonTree(connectorRecords);
-                        ((JsonObject) jsonST).add("typeData.records", recordsJson);
+                        ((JsonObject)((JsonObject) jsonST).get("typeData")).add("records", recordsJson);
                     }
                     connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
                             request.getVersion(), connector.className().text(), jsonST);
