@@ -58,7 +58,7 @@ public class CodeActionRouter {
         Optional<Node> matchedNode = CodeActionUtil.getTopLevelNode(ctx.cursorPosition(), syntaxTree);
         CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(matchedNode.orElse(null));
         SemanticModel semanticModel = ctx.workspace().semanticModel(ctx.filePath()).orElseThrow();
-        String relPath = ctx.filePath().toFile().getName();
+        String relPath = ctx.workspace().relativePath(ctx.filePath()).orElseThrow();
         if (matchedNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
             Range range = CommonUtil.toRange(matchedNode.get().lineRange());
             Node expressionNode = CodeActionUtil.largestExpressionNode(matchedNode.get(), range);

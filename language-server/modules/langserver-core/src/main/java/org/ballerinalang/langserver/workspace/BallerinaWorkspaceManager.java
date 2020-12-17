@@ -77,6 +77,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         pathToSourceRootCache = cache.asMap();
     }
 
+    @Override
+    public Optional<String> relativePath(Path path) {
+        Optional<Document> document = this.document(path);
+        return document.map(Document::name);
+    }
+
     /**
      * Returns a project root from the path provided.
      *
