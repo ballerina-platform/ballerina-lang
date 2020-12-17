@@ -16,22 +16,6 @@
 
 const INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.map}InherentTypeViolation";
 
-function testReadonlyRecordFields() {
-    testRecordWithSimpleReadonlyFields();
-    testInvalidRecordSimpleReadonlyFieldUpdate();
-    testValidUpdateOfPossiblyReadonlyFieldInUnion();
-    testInvalidUpdateOfPossiblyReadonlyFieldInUnion();
-    testRecordWithStructuredReadonlyFields();
-    testReadOnlyFieldWithDefaultValue();
-    testTypeReadOnlyFlagForAllReadOnlyFields();
-    testSubTypingWithReadOnlyFields();
-    testSubTypingWithReadOnlyFieldsViaReadOnlyType();
-    testSubTypingWithReadOnlyFieldsNegative();
-    testSubTypingWithReadOnlyFieldsPositiveComposite();
-    testSubTypingWithReadOnlyFieldsNegativeComposite();
-    testSubTypingMapAsRecordWithReadOnlyFields();
-}
-
 type Student record {
     readonly string name;
     readonly int id?;
@@ -673,6 +657,68 @@ function testSubTypingMapAsRecordWithReadOnlyFields() {
 
     assertFalse(<any> immutableMapWithMarks is StudentParticulars);
     assertTrue(<any> immutableMapWithMarks is StudentParticularsWithMarks);
+}
+
+class NonReadOnlyClass {
+    int i = 1;
+}
+
+readonly class ReadOnlyClass {
+    int i;
+
+    isolated function init() {
+        self.i = 2;
+    }
+}
+
+readonly class AnotherReadOnlyClass {
+    int i;
+
+    function init(int i) {
+        self.i = i;
+    }
+}
+
+type RecordWithReadOnlyFields record {|
+    readonly NonReadOnlyClass a;
+    readonly ReadOnlyClass & readonly b = new ReadOnlyClass();
+    readonly boolean c;
+|};
+
+type ONE 1;
+type TRUE true;
+
+function testReadOnlyFieldsOfClassTypes() {
+    int[] arr = [];
+
+    record {
+        readonly NonReadOnlyClass a;
+        readonly ReadOnlyClass b;
+        readonly int c = 1;
+    } rec1 = {
+        a: object {
+            final int i = 1234;
+        },
+        b: new AnotherReadOnlyClass(2345)
+    };
+    assertTrue(<any> rec1 is record {
+        object { int i; } a;
+        AnotherReadOnlyClass b;
+        ONE c;
+    });
+    assertEquality(1234, rec1.a.i);
+    assertEquality(2345, rec1.b.i);
+    assertEquality(1, rec1.c);
+
+    RecordWithReadOnlyFields rec2 = {a: new AnotherReadOnlyClass(4567), c: true};
+    assertTrue(<any> rec2 is record {
+        AnotherReadOnlyClass a;
+        ReadOnlyClass b;
+        TRUE c;
+    });
+    assertEquality(4567, rec2.a.i);
+    assertEquality(2, rec2.b.i);
+    assertEquality(true, rec2.c);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

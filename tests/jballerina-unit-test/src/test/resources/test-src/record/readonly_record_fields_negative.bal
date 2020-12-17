@@ -182,3 +182,28 @@ function testReadOnlyModifierInStringRepresentation() {
         readonly boolean b;
     |} x = a;
 }
+
+function testReadOnlyFieldOfNeverReadOnlyType() {
+    int[] arr = [];
+
+    record {
+        readonly NonReadOnlyClass a;
+        readonly stream<int> b;
+    } rec = {a: new, b: arr.toStream()};
+}
+
+class NonReadOnlyClass {
+    int i = 1;
+}
+
+readonly class ReadOnlyClass {
+    int i = 1;
+}
+
+type RecordWithReadOnlyFieldsWithInvalidInitialization record {|
+    readonly NonReadOnlyClass a;
+    readonly ReadOnlyClass & readonly b = new;
+    readonly stream<int> c;
+|};
+
+RecordWithReadOnlyFieldsWithInvalidInitialization invalidInit = {a: new, b: new, c: (<int[]> [1, 2]).toStream()};
