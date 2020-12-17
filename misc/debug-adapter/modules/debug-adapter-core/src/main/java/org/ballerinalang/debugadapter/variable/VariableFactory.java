@@ -48,7 +48,7 @@ import org.ballerinalang.debugadapter.variable.types.BXmlPi;
 import org.ballerinalang.debugadapter.variable.types.BXmlSequence;
 import org.ballerinalang.debugadapter.variable.types.BXmlText;
 
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.STRAND_VAR_NAME;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isJson;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isObject;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;

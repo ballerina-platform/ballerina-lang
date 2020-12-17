@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+
 /**
  * Language server context implementation.
  *
@@ -82,6 +84,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
      *
      * @return {@link Path} file path
      */
+    @Nonnull
     public Path filePath() {
         return this.filePath;
     }

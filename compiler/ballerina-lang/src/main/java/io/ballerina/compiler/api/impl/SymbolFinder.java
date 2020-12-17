@@ -254,6 +254,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(funcNode.annAttachments);
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
         lookupNode(funcNode.returnTypeNode);
@@ -665,7 +666,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
-        lookupNodes(invocationExpr.requiredArgs);
+        lookupNodes(invocationExpr.argExprs);
         lookupNodes(invocationExpr.restArgs);
         lookupNode(invocationExpr.expr);
     }

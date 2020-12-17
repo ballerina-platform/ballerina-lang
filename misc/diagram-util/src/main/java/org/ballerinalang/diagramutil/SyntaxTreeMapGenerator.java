@@ -202,6 +202,10 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (symbol == null) {
             return JsonNull.INSTANCE;
         }
+        if (symbol.moduleID() != null && "ballerina".equals(symbol.moduleID().orgName())
+                && "graphql".equals(symbol.moduleID().moduleName()) && "Listener".equals(symbol.name())) {
+            return JsonNull.INSTANCE;
+        }
 
         Set<Method> methods = ClassUtils.getAllInterfaces(symbol.getClass()).stream()
                 .flatMap(aClass -> Arrays.stream(aClass.getMethods()))

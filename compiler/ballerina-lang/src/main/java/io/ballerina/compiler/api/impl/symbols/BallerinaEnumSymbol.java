@@ -18,6 +18,7 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -38,16 +39,24 @@ import java.util.List;
 public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implements EnumSymbol {
 
     private List<ConstantSymbol> members;
+    private List<AnnotationSymbol> annots;
 
     protected BallerinaEnumSymbol(String name, PackageID moduleID, List<ConstantSymbol> members,
-                                  List<Qualifier> qualifiers, TypeSymbol typeDescriptor, BSymbol bSymbol) {
+                                  List<Qualifier> qualifiers, List<AnnotationSymbol> annots, TypeSymbol typeDescriptor,
+                                  BSymbol bSymbol) {
         super(name, moduleID, qualifiers, typeDescriptor, bSymbol);
         this.members = Collections.unmodifiableList(members);
+        this.annots = annots;
     }
 
     @Override
     public List<ConstantSymbol> members() {
         return this.members;
+    }
+
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return this.annots;
     }
 
     @Override
@@ -64,6 +73,7 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
 
         protected List<ConstantSymbol> members;
         protected List<Qualifier> qualifiers = new ArrayList<>();
+        protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
         public EnumSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
@@ -85,9 +95,14 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
             return this;
         }
 
+        public EnumSymbolBuilder withAnnotation(AnnotationSymbol annot) {
+            this.annots.add(annot);
+            return this;
+        }
+
         @Override
         public BallerinaEnumSymbol build() {
-            return new BallerinaEnumSymbol(this.name, this.moduleID, this.members, this.qualifiers,
+            return new BallerinaEnumSymbol(this.name, this.moduleID, this.members, this.qualifiers, this.annots,
                                            this.typeDescriptor, this.bSymbol);
         }
     }
