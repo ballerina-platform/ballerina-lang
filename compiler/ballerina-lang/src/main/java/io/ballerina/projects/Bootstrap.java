@@ -82,9 +82,9 @@ public class Bootstrap {
         // load annotation
         symbolTable.langAnnotationModuleSymbol = loadLangLibFromBalr(ANNOTATIONS, compilerContext);
 
-        symResolver.boostrapErrorType();
-        symResolver.bootstrapAnydataType();
         symResolver.bootstrapJsonType();
+        symResolver.bootstrapAnydataType();
+        symResolver.boostrapErrorType();
         symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
 
@@ -130,8 +130,8 @@ public class Bootstrap {
         }
 
         symResolver.bootstrapCloneableType();
-        symResolver.defineOperators();
         symResolver.bootstrapIntRangeType();
+        symResolver.defineOperators();
     }
 
     public void loadLangLibSymbols(CompilerContext compilerContext) {
@@ -140,14 +140,13 @@ public class Bootstrap {
 
         // we will load any lang.lib found in cache directory
         symbolTable.langAnnotationModuleSymbol = loadLangLibFromBalr(ANNOTATIONS, compilerContext);
-        symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
         symbolTable.langJavaModuleSymbol = loadLangLibFromBalr(JAVA, compilerContext);
         symbolTable.langInternalModuleSymbol = loadLangLibFromBalr(INTERNAL, compilerContext);
+        symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
         symResolver.bootstrapJsonType();
         symResolver.bootstrapAnydataType();
         symResolver.boostrapErrorType();
         symResolver.bootstrapCloneableType();
-        symResolver.defineOperators();
         symResolver.bootstrapIntRangeType();
         symbolTable.langArrayModuleSymbol = loadLangLibFromBalr(ARRAY, compilerContext);
         symbolTable.langDecimalModuleSymbol = loadLangLibFromBalr(DECIMAL, compilerContext);
@@ -167,6 +166,7 @@ public class Bootstrap {
         symbolTable.langQueryModuleSymbol = loadLangLibFromBalr(QUERY, compilerContext);
         symbolTable.langTransactionModuleSymbol = loadLangLibFromBalr(TRANSACTION, compilerContext);
         symbolTable.loadPredeclaredModules();
+        symResolver.defineOperators();
     }
 
     private BPackageSymbol loadLangLibFromBalr(PackageID langLib, CompilerContext compilerContext) {
