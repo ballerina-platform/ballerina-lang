@@ -68,8 +68,7 @@ public class JvmBStringConstantsGen {
 
     public JvmBStringConstantsGen(BIRNode.BIRPackage module) {
         this.bStringInfoMap = new ConcurrentHashMap<>();
-        this.stringConstantsClass = getModuleLevelClassName(module.org.value, module.name.value,
-                                                            module.version.value, MODULE_STRING_CONSTANT_CLASS_NAME);
+        this.stringConstantsClass = getModuleLevelClassName(module.packageID, MODULE_STRING_CONSTANT_CLASS_NAME);
     }
 
     public String addBString(String val, int[] highSurrogates) {

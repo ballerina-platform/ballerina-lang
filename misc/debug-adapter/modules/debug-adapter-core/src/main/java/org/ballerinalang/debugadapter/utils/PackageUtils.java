@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 
 /**

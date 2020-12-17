@@ -37,6 +37,9 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.1.2'
 
     testCompile 'org.testng:testng'
+
+    compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '11.0.0'
+    compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '11.0.0'
 }
 
 test {

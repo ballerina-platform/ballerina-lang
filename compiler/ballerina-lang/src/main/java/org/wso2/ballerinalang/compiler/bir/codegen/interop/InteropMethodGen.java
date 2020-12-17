@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -38,7 +39,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -127,7 +127,7 @@ public class InteropMethodGen {
 
     static void genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
                                          ClassWriter classWriter,
-                                         BIRPackage birModule,
+                                         PackageID birModule,
                                          JvmPackageGen jvmPackageGen,
                                          JvmTypeGen jvmTypeGen,
                                          JvmCastGen jvmCastGen,
@@ -542,7 +542,6 @@ public class InteropMethodGen {
     }
 
     public static String getSignatureForJType(JType jType) {
-
         if (jType.jTag == JTypeTags.JREF) {
             return ((JType.JRefType) jType).typeValue;
         } else if (jType.jTag == JTypeTags.JARRAY) { //must be JArrayType
@@ -739,18 +738,14 @@ public class InteropMethodGen {
     static BIRFunctionWrapper createJInteropFunctionWrapper(InteropValidator interopValidator,
                                                             InteropValidationRequest jInteropValidationReq,
                                                             BIRFunction birFunc,
-                                                            String orgName,
-                                                            String moduleName,
-                                                            String version,
+                                                            PackageID packageID,
                                                             String birModuleClassName,
                                                             SymbolTable symbolTable) {
-
         if (interopValidator.isEntryModuleValidation()) {
             addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
         }
         // Update the function wrapper only for Java interop functions
-        BIRFunctionWrapper birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName,
-                version, birModuleClassName);
+        BIRFunctionWrapper birFuncWrapper = getFunctionWrapper(birFunc, packageID, birModuleClassName);
         if (jInteropValidationReq instanceof InteropValidationRequest.MethodValidationRequest) {
             InteropValidationRequest.MethodValidationRequest methodValidationRequest =
                     ((InteropValidationRequest.MethodValidationRequest) jInteropValidationReq);

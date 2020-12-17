@@ -17,9 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
-import io.ballerina.runtime.internal.IdentifierUtils;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
-
 /**
  * A data holder to keep the metadata of @{@link io.ballerina.runtime.api.values.BString}.
  *

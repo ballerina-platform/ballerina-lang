@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
@@ -27,7 +28,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -69,7 +69,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -451,8 +451,8 @@ public class JvmTypeGen {
     // -------------------------------------------------------
 
     void generateValueCreatorMethods(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
-                                     BIRNode.BIRPackage moduleId, String typeOwnerClass,
-                                     SymbolTable symbolTable, AsyncDataCollector asyncDataCollector) {
+                                     PackageID moduleId, String typeOwnerClass, SymbolTable symbolTable,
+                                     AsyncDataCollector asyncDataCollector) {
 
         List<BIRTypeDefinition> recordTypeDefs = new ArrayList<>();
         List<BIRTypeDefinition> objectTypeDefs = new ArrayList<>();
@@ -481,7 +481,7 @@ public class JvmTypeGen {
     }
 
     private void generateRecordValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefs,
-                                                 BIRNode.BIRPackage moduleId, String typeOwnerClass,
+                                                 PackageID moduleId, String typeOwnerClass,
                                                  AsyncDataCollector asyncDataCollector) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_RECORD_VALUE,
                 String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
@@ -540,7 +540,7 @@ public class JvmTypeGen {
     }
 
     private void generateObjectValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> objectTypeDefs,
-                                                 BIRNode.BIRPackage moduleId, String typeOwnerClass,
+                                                 PackageID moduleId, String typeOwnerClass,
                                                  SymbolTable symbolTable, AsyncDataCollector asyncDataCollector) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_OBJECT_VALUE,
@@ -1118,7 +1118,7 @@ public class JvmTypeGen {
      * @param bType type to load
      */
     public void loadType(MethodVisitor mv, BType bType) {
-        String typeFieldName = "";
+        String typeFieldName;
         if (bType == null || bType.tag == TypeTags.NIL) {
             typeFieldName = "TYPE_NULL";
         } else {
@@ -1433,7 +1433,7 @@ public class JvmTypeGen {
                 mv.visitInsn(DUP);
                 mv.visitLdcInsn((long) i);
                 mv.visitInsn(L2I);
-                mv.visitLdcInsn(fieldName);
+                mv.visitLdcInsn(StringEscapeUtils.unescapeJava(fieldName));
                 mv.visitInsn(AASTORE);
                 i += 1;
             }

@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -181,7 +182,7 @@ public class MethodGen {
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
         mv.visitCode();
 
-        visitModuleStartFunction(module, funcName, mv);
+        visitModuleStartFunction(module.packageID, funcName, mv);
 
         Label methodStartLabel = new Label();
         mv.visitLabel(methodStartLabel);
@@ -213,10 +214,10 @@ public class MethodGen {
 
         addCasesForBasicBlocks(func, funcName, labelGen, labels, states);
 
-        JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module, jvmPackageGen, jvmTypeGen, jvmCastGen
-                , stringConstantsGen, asyncDataCollector);
+        JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
+                                                          jvmCastGen, stringConstantsGen, asyncDataCollector);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
-        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module, instGen,
+        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
                                                         jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
 
         mv.visitVarInsn(ILOAD, stateVarIndex);
@@ -226,7 +227,7 @@ public class MethodGen {
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, jvmTypeGen, func, returnVarRefIndex,
                             stateVarIndex, localVarOffset, module, attachedType, moduleClassName);
         mv.visitLabel(resumeLabel);
-        String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module), funcName,
+        String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module.packageID), funcName,
                                                             attachedType);
         genGetFrameOnResumeIndex(localVarOffset, mv, frameName);
 
@@ -267,12 +268,12 @@ public class MethodGen {
         return retType;
     }
 
-    private void visitModuleStartFunction(BIRPackage module, String funcName, MethodVisitor mv) {
+    private void visitModuleStartFunction(PackageID packageID, String funcName, MethodVisitor mv) {
         if (!isModuleStartFunction(funcName)) {
             return;
         }
         mv.visitInsn(ICONST_1);
-        mv.visitFieldInsn(PUTSTATIC, JvmCodeGenUtil.getModuleLevelClassName(module, MODULE_INIT_CLASS_NAME),
+        mv.visitFieldInsn(PUTSTATIC, JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME),
                           MODULE_START_ATTEMPTED, "Z");
     }
 
@@ -471,7 +472,7 @@ public class MethodGen {
             pushShort(mv, stateVarIndex, caseIndex);
             caseIndex += 1;
 
-            processTerminator(mv, func, module, funcName, terminator,jvmTypeGen, localVarOffset);
+            processTerminator(mv, func, module, funcName, terminator, jvmTypeGen, localVarOffset);
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset,
                                   returnVarRefIndex, attachedType);
 
@@ -491,17 +492,18 @@ public class MethodGen {
     }
 
     private void processTerminator(MethodVisitor mv, BIRFunction func, BIRPackage module, String funcName,
-                                   BIRTerminator terminator,  JvmTypeGen jvmTypeGen, int localVarOffset) {
+                                   BIRTerminator terminator, JvmTypeGen jvmTypeGen, int localVarOffset) {
         JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
         if ((MethodGenUtils.isModuleInitFunction(func) || isModuleTestInitFunction(func)) &&
                 terminator instanceof Return) {
-            generateAnnotLoad(mv, module.typeDefs, JvmCodeGenUtil.getPackageName(module), jvmTypeGen, localVarOffset);
+            generateAnnotLoad(mv, module.typeDefs, JvmCodeGenUtil.getPackageName(module.packageID),
+                              jvmTypeGen, localVarOffset);
         }
         //set module start success to true for $_init class
         if (isModuleStartFunction(funcName) && terminator.kind == InstructionKind.RETURN) {
             mv.visitInsn(ICONST_1);
-            mv.visitFieldInsn(PUTSTATIC,
-                              JvmCodeGenUtil.getModuleLevelClassName(module, MODULE_INIT_CLASS_NAME),
+            mv.visitFieldInsn(PUTSTATIC, JvmCodeGenUtil.getModuleLevelClassName(module.packageID,
+                                                                                MODULE_INIT_CLASS_NAME),
                               MODULE_STARTED, "Z");
         }
     }

@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -106,7 +107,7 @@ public class MainMethodGen {
 
         // set system properties
         initConfigurations(mv);
-        invokeConfigInit(mv, pkg);
+        invokeConfigInit(mv, pkg.packageID);
         // start all listeners
         startListeners(mv, serviceEPAvailable);
 
@@ -114,7 +115,9 @@ public class MainMethodGen {
         // register a shutdown hook to call package stop() method.
         genShutdownHook(mv, initClass);
 
-        if (MethodGenUtils.hasInitFunction(pkg)) {
+
+        boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
+        if (hasInitFunction) {
             generateMethodCall(initClass, mv, JvmConstants.MODULE_INIT,
                                MethodGenUtils.INIT_FUNCTION_SUFFIX, INIT_FUTURE_VAR);
         }
@@ -123,7 +126,8 @@ public class MainMethodGen {
             generateUserMainFunctionCall(userMainFunc, initClass, asyncDataCollector, mv);
         }
 
-        if (MethodGenUtils.hasInitFunction(pkg)) {
+
+        if (hasInitFunction) {
             generateMethodCall(initClass, mv, JvmConstants.MODULE_START, "start", START_FUTURE_VAR);
             setListenerFound(mv, serviceEPAvailable);
         }
@@ -157,8 +161,8 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKEVIRTUAL, JvmConstants.SCHEDULER, JvmConstants.SCHEDULER_START_METHOD, "()V", false);
     }
 
-    private void invokeConfigInit(MethodVisitor mv, BIRNode.BIRPackage module) {
-        String configClass = JvmCodeGenUtil.getModuleLevelClassName(module, CONFIGURATION_CLASS_NAME);
+    private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
+        String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, "()V", false);
     }
