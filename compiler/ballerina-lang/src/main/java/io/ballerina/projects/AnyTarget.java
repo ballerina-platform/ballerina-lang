@@ -17,34 +17,23 @@
  */
 package io.ballerina.projects;
 
-import java.nio.file.Path;
-
 /**
- * This class represent the results of the emit operation.
+ * Represents default version that supported by the jBallerina backend.
  *
  * @since 2.0.0
  */
-public class EmitResult {
+// TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
+public enum AnyTarget implements CompilerBackend.TargetPlatform {
+    ANY("any"),
+    ;
 
-    private final boolean success;
-    private final DiagnosticResult diagnostics;
-    private final Path generatedArtifact;
+    private final String code;
 
-    EmitResult(boolean success, DiagnosticResult diagnostics, Path generatedArtifact) {
-        this.success = success;
-        this.diagnostics = diagnostics;
-        this.generatedArtifact = generatedArtifact;
+    AnyTarget(String code) {
+        this.code = code;
     }
 
-    public boolean successful() {
-        return success;
-    }
-
-    public DiagnosticResult diagnostics() {
-        return diagnostics;
-    }
-
-    public Path generatedArtifactPath() {
-        return generatedArtifact;
+    public String code() {
+        return code;
     }
 }

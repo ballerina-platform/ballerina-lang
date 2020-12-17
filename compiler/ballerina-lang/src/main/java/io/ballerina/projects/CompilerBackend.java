@@ -90,7 +90,7 @@ public abstract class CompilerBackend {
     /**
      * Represent the unique name of a supported compiler backed target.
      *
-     * @see JdkVersion
+     * @see JvmTarget
      * @since 2.0.0
      */
     public interface TargetPlatform {

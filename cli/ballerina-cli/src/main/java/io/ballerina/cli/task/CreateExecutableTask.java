@@ -21,7 +21,7 @@ package io.ballerina.cli.task;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
@@ -105,7 +105,7 @@ public class CreateExecutableTask implements Task {
 
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JdkVersion.JAVA_11);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());

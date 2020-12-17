@@ -19,7 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
@@ -51,7 +51,7 @@ public class ListTestGroupsTask implements Task {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
             Optional<TestSuite> suite = jBallerinaBackend.testSuite(module);
             if (!project.currentPackage().packageOrg().anonymous()) {
                 out.println();
