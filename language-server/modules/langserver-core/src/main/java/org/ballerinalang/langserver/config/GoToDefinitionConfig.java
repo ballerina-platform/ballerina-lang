@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.commons.capability;
+package org.ballerinalang.langserver.config;
 
 /**
- * Represents Extended LSP capabilities.
+ * Ballerina Goto Definition Configuration.
  *
  * @since 1.2.0
  */
-public interface ExperimentalClientCapabilities {
+public class GoToDefinitionConfig {
+    private final boolean enableStandardLibraries;
+
+    GoToDefinitionConfig(boolean enableStandardLibraries) {
+        this.enableStandardLibraries = enableStandardLibraries;
+    }
 
     /**
-     * Returns whether the introspection enabled or not.
+     * Returns true if `all` is Enabled, False otherwise.
      *
-     * @return True when enabled, False otherwise
+     * @return True or False
      */
-    boolean isIntrospectionEnabled();
-
-    /**
-     * Returns whether the show text document enabled or not.
-     *
-     * @return True when enabled, False otherwise
-     */
-    boolean isShowTextDocumentEnabled();
+    public boolean isEnableStdlib() {
+        return enableStandardLibraries;
+    }
 }

@@ -38,9 +38,7 @@ import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.diagramutil.DiagramUtil;
-import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.exception.LSConnectorException;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
@@ -66,7 +64,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
+import static org.ballerinalang.langserver.LSClientLogger.logError;
 
 /**
  * Implementation of the BallerinaConnectorService.
@@ -80,12 +78,10 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             .resolve("repo")
             .resolve("balo");
     private String connectorConfig;
-    private LSGlobalContext lsContext;
-    private WorkspaceManager workspaceManager;
+    private final ConnectorExtContext connectorExtContext;
 
-    public BallerinaConnectorServiceImpl(WorkspaceManager workspaceManager, LSGlobalContext lsContext) {
-        this.workspaceManager = workspaceManager;
-        this.lsContext = lsContext;
+    public BallerinaConnectorServiceImpl() {
+        this.connectorExtContext = new ConnectorExtContext();
         connectorConfig = System.getenv(DEFAULT_CONNECTOR_FILE_KEY);
         if (connectorConfig == null) {
             connectorConfig = System.getProperty(DEFAULT_CONNECTOR_FILE_KEY);
@@ -132,7 +128,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     public CompletableFuture<BallerinaConnectorResponse> connector(BallerinaConnectorRequest request) {
 
         String cacheableKey = getCacheableKey(request.getOrg(), request.getModule(), request.getVersion());
-        LSConnectorCache connectorCache = LSConnectorCache.getInstance(lsContext);
+        LSConnectorCache connectorCache = LSConnectorCache.getInstance(connectorExtContext);
         JsonElement st = connectorCache
                 .getConnectorConfig(request.getOrg(), request.getModule(), request.getVersion(), request.getName());
         String error = "";
@@ -239,7 +235,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                                           Map<String, TypeDefinitionNode> jsonRecords,
                                           Map<String, JsonElement> connectorRecords) {
         RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) recordTypeDefinition
-                                                                                            .typeDescriptor();
+                .typeDescriptor();
 
         recordTypeDescriptorNode.fields().forEach(field -> {
             Optional<TypeSymbol> fieldType = semanticModel.type(field.syntaxTree().filePath(), field.lineRange());
@@ -266,7 +262,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     @Override
     public CompletableFuture<BallerinaRecordResponse> record(BallerinaRecordRequest request) {
         String cacheableKey = getCacheableKey(request.getOrg(), request.getModule(), request.getVersion());
-        LSRecordCache recordCache = LSRecordCache.getInstance(lsContext);
+        LSRecordCache recordCache = LSRecordCache.getInstance(connectorExtContext);
 
         JsonElement ast = recordCache.getRecordAST(request.getOrg(), request.getModule(),
                 request.getVersion(), request.getName());

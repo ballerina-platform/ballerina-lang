@@ -13,26 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.commons.capability;
+package org.ballerinalang.datamapper.config;
+
+import org.ballerinalang.langserver.config.LSClientConfig;
 
 /**
- * Represents Extended LSP capabilities.
+ * Extended Ballerina Client Configuration.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
-public interface ExperimentalClientCapabilities {
+public class ClientExtendedConfigImpl extends LSClientConfig {
+    private final DataMapperConfig dataMapper;
+
+    protected ClientExtendedConfigImpl() {
+        super();
+        this.dataMapper = new DataMapperConfig();
+    }
 
     /**
-     * Returns whether the introspection enabled or not.
+     * Returns Returns Data Mapper Code Action Configs.
      *
-     * @return True when enabled, False otherwise
+     * @return {@link DataMapperConfig}
      */
-    boolean isIntrospectionEnabled();
-
-    /**
-     * Returns whether the show text document enabled or not.
-     *
-     * @return True when enabled, False otherwise
-     */
-    boolean isShowTextDocumentEnabled();
+    public DataMapperConfig getDataMapper() {
+        return dataMapper;
+    }
 }
