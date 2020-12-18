@@ -1624,13 +1624,16 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable varNode) {
         if (varNode.isDeclaredWithVar) {
-            // Will be handled in semantic analyzer.
+            // Symbol enter with type other
+            varNode.memberVariables.forEach(member -> {
+                member.isDeclaredWithVar = true;
+                defineNode(member,env);
+            });
             return;
         }
         if (varNode.type == null) {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
-
         // To support variable forward referencing we need to symbol enter each tuple member with type at SymbolEnter.
         if (!(checkTypeAndVarCountConsistency(varNode, env))) {
             varNode.type = symTable.semanticError;
@@ -1757,6 +1760,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
             var.type = type;
+            int ownerSymTag = env.scope.owner.tag;
+            if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE && varNode.isDeclaredWithVar) {
+                var.symbol.type = type;
+                continue;
+            }
             defineNode(var, env);
         }
 

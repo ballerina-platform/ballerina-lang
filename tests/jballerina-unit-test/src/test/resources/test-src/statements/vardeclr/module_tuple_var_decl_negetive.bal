@@ -34,3 +34,11 @@ const annotation annot on source function;
 
 @annot
 [int, int] [j, k] = [1, 2];
+
+[int, int] [l, m] = [4, o];
+var [n, o] = getVarValues();
+boolean n = false;
+
+function getVarValues() returns [boolean, int] {
+    return [true, 43];
+}
