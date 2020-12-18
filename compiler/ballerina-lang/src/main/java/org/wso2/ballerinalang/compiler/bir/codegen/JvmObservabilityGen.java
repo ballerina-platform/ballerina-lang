@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.Flag;
@@ -183,9 +183,10 @@ class JvmObservabilityGen {
      * @param pkg The package containing the function
      */
     private void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
-        Name org = new Name(IdentifierUtils.decodeIdentifier(pkg.org.value));
-        Name module = new Name(IdentifierUtils.decodeIdentifier(pkg.name.value));
-        PackageID currentPkgId = new PackageID(org, module, pkg.version);
+        PackageID packageID = pkg.packageID;
+        Name org = new Name(IdentifierUtils.decodeIdentifier(packageID.orgName.getValue()));
+        Name module = new Name(IdentifierUtils.decodeIdentifier(packageID.name.getValue()));
+        PackageID currentPkgId = new PackageID(org, module, packageID.version);
         BSymbol functionOwner;
         List<BIRFunction> scopeFunctionsList;
         if (attachedTypeDef == null) {
@@ -598,7 +599,7 @@ class JvmObservabilityGen {
                                                     String resourcePathOrFunction, String resourceAccessor,
                                                     boolean isResource, boolean isRemote, BIRPackage pkg,
                                                     Location originalInsPosition) {
-        String pkgId = generatePackageId(pkg);
+        String pkgId = generatePackageId(pkg.packageID);
         String position = generatePositionId(originalInsPosition);
 
         BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
@@ -639,7 +640,7 @@ class JvmObservabilityGen {
                                                     boolean isRemote, boolean isMainEntryPoint, boolean isWorker,
                                                     BIROperand objectOperand, String action, BIRPackage pkg,
                                                     Location originalInsPosition) {
-        String pkgId = generatePackageId(pkg);
+        String pkgId = generatePackageId(pkg.packageID);
         String position = generatePositionId(originalInsPosition);
 
         BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
@@ -740,7 +741,7 @@ class JvmObservabilityGen {
      */
     private BIROperand generateGlobalConstantOperand(BIRPackage pkg, BType constantType, Object constantValue) {
         return compileTimeConstants.computeIfAbsent(constantValue, k -> {
-            PackageID pkgId = new PackageID(pkg.org, pkg.name, pkg.version);
+            PackageID pkgId = pkg.packageID;
             BIRGlobalVariableDcl constLoadVariableDcl =
                     new BIRGlobalVariableDcl(COMPILE_TIME_CONST_POS, 0,
                             constantType, pkgId, new Name("$observabilityConst" + constantIndex++),
@@ -818,7 +819,8 @@ class JvmObservabilityGen {
         boolean isObservableAnnotationPresent = false;
         for (BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
             if (OBSERVABLE_ANNOTATION.equals(
-                    JvmCodeGenUtil.getPackageName(annot.packageID.orgName, annot.packageID.name, Names.EMPTY) +
+                    JvmCodeGenUtil.getPackageName(
+                            new PackageID(annot.packageID.orgName, annot.packageID.name, Names.EMPTY)) +
                             annot.annotTagRef.value)) {
                 isObservableAnnotationPresent = true;
                 break;
@@ -914,7 +916,7 @@ class JvmObservabilityGen {
      * @param pkg The module for which the ID should be generated
      * @return The generated ID
      */
-    private String generatePackageId(BIRPackage pkg) {
-        return String.format("%s/%s:%s", pkg.org.value, pkg.name.value, pkg.version.value);
+    private String generatePackageId(PackageID pkg) {
+        return String.format("%s/%s:%s", pkg.orgName.value, pkg.name.value, pkg.version.value);
     }
 }

@@ -36,6 +36,7 @@ public class TesterinaConstants {
 
     public static final String DOT = ".";
     public static final String ANON_ORG = "$anon";
+    public static final String WILDCARD = "*";
 
     //Coverage constants
     public static final String BIN_DIR = "bin";

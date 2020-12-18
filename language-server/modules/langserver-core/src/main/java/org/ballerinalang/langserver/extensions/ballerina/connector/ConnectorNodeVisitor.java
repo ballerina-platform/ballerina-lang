@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.extensions.ballerina.connector;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -79,7 +80,7 @@ public class ConnectorNodeVisitor extends NodeVisitor {
             if (rawType.typeKind() == TypeDescKind.OBJECT) {
                 ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
 
-                boolean isClient = objectTypeSymbol.typeQualifiers().contains(ObjectTypeSymbol.TypeQualifier.CLIENT);
+                boolean isClient = objectTypeSymbol.qualifiers().contains(Qualifier.CLIENT);
                 if (isClient) {
                     this.connectors.add(classDefinitionNode);
                 }
@@ -95,7 +96,7 @@ public class ConnectorNodeVisitor extends NodeVisitor {
 
         if (typeSymbol.isPresent()) {
             TypeSymbol rawType = getRawType(typeSymbol.get());
-            String typeName = typeSymbol.get().name();
+            String typeName = typeSymbol.get().signature(); // .name();
             if (rawType.typeKind() == TypeDescKind.RECORD || rawType.typeKind() == TypeDescKind.UNION) {
                 this.records.put(typeName, typeDefinitionNode);
             }
