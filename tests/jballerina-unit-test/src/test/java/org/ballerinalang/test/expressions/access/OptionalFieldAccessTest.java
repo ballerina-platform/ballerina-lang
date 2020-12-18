@@ -47,7 +47,7 @@ public class OptionalFieldAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 11);
+        Assert.assertEquals(negativeResult.getErrorCount(), 12);
         int i = 0;
         validateError(negativeResult, i++, "invalid operation: type 'Foo' does not support optional field access",
                       23, 19);
@@ -65,8 +65,10 @@ public class OptionalFieldAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 71, 15);
         validateError(negativeResult, i++, "invalid operation: type 'Qux' does not support optional field access", 87
                 , 9);
-        validateError(negativeResult, i, "invalid operation: type 'string[]' does not support optional field access",
+        validateError(negativeResult, i++, "invalid operation: type 'string[]' does not support optional field access",
                       91, 9);
+        validateError(negativeResult, i, "invalid operation: type 'Address?' does not support optional field access " +
+                        "for field 'road'", 120, 18);
     }
 
     @Test(dataProvider = "recordOptionalFieldAccessFunctions")
