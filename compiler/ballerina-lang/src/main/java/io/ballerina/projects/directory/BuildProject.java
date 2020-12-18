@@ -118,35 +118,46 @@ public class BuildProject extends Project {
 
     @Override
     public DocumentId documentId(Path file) {
-        ProjectPaths.findPackageRoot(file);
-        Path parent = Optional.of(file.toAbsolutePath().getParent()).get();
-        for (ModuleId moduleId : this.currentPackage().moduleIds()) {
-            String moduleDirName;
-            if (moduleId.moduleName().contains(DOT)) {
-                moduleDirName = moduleId.moduleName()
-                        .split(this.currentPackage().packageName().toString() + DOT)[1];
-            } else {
-                moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
-            }
-
-            if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName)
-                    || Optional.of(
-                            Optional.of(
-                                    parent.getParent()).get().getFileName()).get().toString().equals(moduleDirName)) {
-                Module module = this.currentPackage().module(moduleId);
-                for (DocumentId documentId : module.documentIds()) {
-                    if (module.document(documentId).name().equals(Optional.of(file.getFileName()).get().toString())) {
-                        return documentId;
-                    }
+        if (isFilePathInProject(file)) {
+            Path parent = Optional.of(file.toAbsolutePath().getParent()).get();
+            for (ModuleId moduleId : this.currentPackage().moduleIds()) {
+                String moduleDirName;
+                if (moduleId.moduleName().contains(DOT)) {
+                    moduleDirName = moduleId.moduleName()
+                            .split(this.currentPackage().packageName().toString() + DOT)[1];
+                } else {
+                    moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
                 }
-                for (DocumentId documentId : module.testDocumentIds()) {
-                    if (module.document(documentId).name().split(ProjectConstants.TEST_DIR_NAME + "/")[1]
-                            .equals(Optional.of(file.getFileName()).get().toString())) {
-                        return documentId;
+
+                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName)
+                        || Optional.of(
+                        Optional.of(
+                                parent.getParent()).get().getFileName()).get().toString().equals(moduleDirName)) {
+                    Module module = this.currentPackage().module(moduleId);
+                    for (DocumentId documentId : module.documentIds()) {
+                        if (module.document(documentId).name().equals(
+                                Optional.of(file.getFileName()).get().toString())) {
+                            return documentId;
+                        }
+                    }
+                    for (DocumentId documentId : module.testDocumentIds()) {
+                        if (module.document(documentId).name().split(ProjectConstants.TEST_DIR_NAME + "/")[1]
+                                .equals(Optional.of(file.getFileName()).get().toString())) {
+                            return documentId;
+                        }
                     }
                 }
             }
         }
         throw new ProjectException("provided path does not belong to the project");
+    }
+
+    private boolean isFilePathInProject(Path filepath) {
+        try {
+            ProjectPaths.packageRoot(filepath);
+        } catch (ProjectException e) {
+            return false;
+        }
+        return true;
     }
 }

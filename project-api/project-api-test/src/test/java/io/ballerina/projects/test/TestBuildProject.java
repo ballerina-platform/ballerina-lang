@@ -688,7 +688,7 @@ public class TestBuildProject {
             DocumentId oldDocumentId = buildProject.documentId(filePath); // get the document ID
             Assert.fail();
         } catch (ProjectException e) {
-            Assert.assertTrue(e.getMessage().contains("provided path does not exist"));
+            Assert.assertTrue(e.getMessage().contains("provided path does not belong to the project"));
         }
     }
 

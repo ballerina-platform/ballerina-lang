@@ -25,6 +25,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
+
 /**
  * Consists of static methods that may be used to obtain {@link Project}
  * information using file paths.
@@ -40,12 +42,24 @@ public class ProjectPaths {
      * @return path to the package root directory
      * @throws ProjectException if the provided path is invalid or if it is a standalone ballerina file
      */
-    public static Path findPackageRoot(Path filepath) throws ProjectException {
+    public static Path packageRoot(Path filepath) throws ProjectException {
+        // check if the file exists
         if (!Files.exists(filepath)) {
             throw new ProjectException("provided path does not exist");
         }
-        if (!Files.isRegularFile(filepath) || !filepath.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
-            throw new ProjectException("provided path is not a valid Ballerina file");
+
+        // check if the file is a regular file
+        if (!Files.isRegularFile(filepath)) {
+            throw new ProjectException("provided path is not a regular file");
+        }
+
+        // check if the file is the Ballerina.toml file
+        if (Optional.of(filepath.getFileName()).get().toString().equals(ProjectConstants.BALLERINA_TOML)) {
+            return filepath.getParent();
+        }
+
+        if (!isBallerinaSourceFile(filepath)) {
+            throw new ProjectException("provided path is not a valid Ballerina source file");
         }
         Path absFilePath = filepath.toAbsolutePath().normalize();
 
@@ -73,40 +87,24 @@ public class ProjectPaths {
         throw new ProjectException("provided file path does not belong to a Ballerina package");
     }
 
+    /**
+     * Returns whether the provided path is a valid Ballerina source file.
+     *
+     * @param filepath Ballerina file path
+     * @return true if the path is a Ballerina source file
+     */
+    public static boolean isBallerinaSourceFile(Path filepath) {
+        return Files.isRegularFile(filepath) && filepath.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT);
+    }
 
     /**
-     * Checks if the path is a standalone file.
+     * Checks if the file is in a Ballerina package directory.
      *
-     * @param file path to bal file
-     * @return true if the file is a standalone bal file
+     * @param filepath path to bal file
+     * @return true if the file is a Ballerina package
      */
-    public static boolean isBallerinaStandaloneFile(Path file) {
-        // Check if the file is a regular file
-        if (!Files.isRegularFile(file)) {
-            return false;
-        }
-        // Check if it is a file with bal extention.
-        if (!file.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
-            return false;
-        }
-        // check if the file is a source file in the default module
-        if (isDefaultModuleSrcFile(file)) {
-            return false;
-        }
-        // check if the file is a test file in the default module
-        if (isDefaultModuleTestFile(file)) {
-            return false;
-        }
-        // check if the file is a source file in a non-default module
-        if (isNonDefaultModuleSrcFile(file)) {
-            return false;
-        }
-        // check if the file is a test file in a non-default module
-        if (isNonDefaultModuleTestFile(file)) {
-            return false;
-        }
-
-        return true;
+    public static boolean isInAnyPackageDirectory(Path filepath) {
+        return findProjectRoot(filepath) != null;
     }
 
     static boolean isDefaultModuleSrcFile(Path filePath) {
@@ -141,6 +139,19 @@ public class ProjectPaths {
 
     private static boolean hasBallerinaToml(Path filePath) {
         Path absFilePath = filePath.toAbsolutePath().normalize();
-        return absFilePath.resolve(ProjectConstants.BALLERINA_TOML).toFile().exists();
+        return absFilePath.resolve(BALLERINA_TOML).toFile().exists();
+    }
+
+    private static Path findProjectRoot(Path filePath) {
+        if (filePath != null) {
+            filePath = filePath.toAbsolutePath().normalize();
+            if (filePath.toFile().isDirectory()) {
+                if (hasBallerinaToml(filePath)) {
+                    return filePath;
+                }
+            }
+            return findProjectRoot(filePath.getParent());
+        }
+        return null;
     }
 }

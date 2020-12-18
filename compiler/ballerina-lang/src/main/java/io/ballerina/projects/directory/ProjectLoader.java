@@ -60,12 +60,12 @@ public class ProjectLoader {
             return BuildProject.load(projectEnvironmentBuilder, projectRoot);
         }
 
-        if (ProjectPaths.isBallerinaStandaloneFile(absFilePath)) {
-            return SingleFileProject.load(projectEnvironmentBuilder, absFilePath);
+        if (!ProjectPaths.isBallerinaSourceFile(absFilePath)) {
+            throw new ProjectException("provided path is not a valid Ballerina source file");
         }
 
         try {
-            projectRoot = ProjectPaths.findPackageRoot(absFilePath);
+            projectRoot = ProjectPaths.packageRoot(absFilePath);
             return BuildProject.load(projectEnvironmentBuilder, projectRoot);
         } catch (ProjectException e) {
             return SingleFileProject.load(projectEnvironmentBuilder, path);
