@@ -2913,7 +2913,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     protected BLangSimpleVariableDef createRetryManagerDef(BLangRetrySpec retrySpec, Location pos) {
-        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langObjectModuleSymbol.scope
+        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langErrorModuleSymbol.scope
                 .lookup(names.fromString("DefaultRetryManager")).symbol;
         BType retryManagerType = retryManagerTypeSymbol.type;
         if (retrySpec.retryManagerType != null) {
