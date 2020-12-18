@@ -28,17 +28,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
-import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeTransformer;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.*;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.text.LinePosition;
@@ -269,9 +259,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private JsonElement apply(Node node) {
         JsonObject nodeInfo = new JsonObject();
         nodeInfo.addProperty("kind", prettifyKind(node.kind().toString()));
+
         if (node instanceof Token) {
             nodeInfo.addProperty("isToken", true);
             nodeInfo.addProperty("value", ((Token) node).text());
+            nodeInfo.addProperty("isMissing", node.isMissing());
+            nodeInfo.add("invalidNodes", detectInvalidNodes(node.leadingMinutiae()));
+            nodeInfo.add("leadingMinutiae", detectMinutiae(node.leadingMinutiae()));
+            nodeInfo.add("trailingMinutiae", detectMinutiae(node.trailingMinutiae()));
         } else {
             JsonElement memberValues = node.apply(this);
             memberValues.getAsJsonObject().entrySet().forEach(memberEntry -> {
@@ -286,5 +281,35 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 .map(String::toLowerCase)
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining());
+    }
+
+    private JsonArray detectInvalidNodes(MinutiaeList minutiae){
+        JsonArray invalidNodes = new JsonArray();
+
+        for (Minutiae m : minutiae){
+            if(m.isInvalidNodeMinutiae()) {
+                JsonObject nodeJson = new JsonObject();
+                nodeJson.addProperty("kind", m.kind().toString());
+                nodeJson.addProperty("value", m.text());
+                invalidNodes.add(nodeJson);
+            }
+        }
+
+        return invalidNodes;
+    }
+
+    private JsonArray detectMinutiae(MinutiaeList minutiae){
+        JsonArray minutiaeList = new JsonArray();
+
+        for (Minutiae m : minutiae) {
+            if(!m.isInvalidNodeMinutiae()){
+                JsonObject nodeJson = new JsonObject();
+                nodeJson.addProperty("kind", m.kind().toString());
+                nodeJson.addProperty("minutiae", m.text());
+                minutiaeList.add(nodeJson);
+            }
+        }
+
+        return minutiaeList;
     }
 }
