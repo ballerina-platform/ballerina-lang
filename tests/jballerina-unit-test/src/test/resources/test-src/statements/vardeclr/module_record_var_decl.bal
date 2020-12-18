@@ -63,27 +63,27 @@ public function testRecordVarWithAnnotations() {
 
 
 // Test record variable reordering/forward referencing
-//Person {name:name3, married:married3} = {name:name4, married:married4};
-//// Test record variable declared with var
-//var {name:name4, married:married4} = {name:"Nicolette", married:false};
-//public function testVariableForwardReferencingAndDeclaredWithVar() {
-//    assertEquality("Nicolette", name3);
-//    assertFalse(married3);
-//}
+Person {name:name3, married:married3} = {name:name4, married:married4};
+// Test record variable declared with var
+var {name:name4, married:married4} = {name:"Nicolette", married:false};
+public function testVariableForwardReferencingAndDeclaredWithVar() {
+    assertEquality("Nicolette", name3);
+    assertFalse(married3);
+}
 
-//// Test record variable with rest binding pattern
-//Student {name:studentName, age:studentAge, grade:studentGrade, ...marks} = getStudentDetail();
-//function getStudentDetail() returns Student {
-//    return {name:"Flash", age:15, grade:10, mark1:50, mark2:85, mark3:90};
-//}
-//public function testRecordVariableWithRestBP() {
-//    assertEquality("Flash", studentName);
-//    assertEquality(15, studentAge);
-//    assertEquality(10, studentGrade);
-//    assertEquality(50, marks[0]);
-//    assertEquality(85", marks[1]);
-//    assertEquality(90, marks[2]);
-//}
+// Test record variable with rest binding pattern
+Student {name:studentName, age:studentAge, grade:studentGrade, ...marks} = getStudentDetail();
+function getStudentDetail() returns Student {
+    return {name:"Flash", age:15, grade:10, mark1:50, mark2:85, mark3:90};
+}
+public function testRecordVariableWithRestBP() {
+    assertEquality("Flash", studentName);
+    assertEquality(15, studentAge);
+    assertEquality(10, studentGrade);
+    assertEquality(50, marks[0]);
+    assertEquality(85", marks[1]);
+    assertEquality(90, marks[2]);
+}
 
 // Support codes
 type Age record {

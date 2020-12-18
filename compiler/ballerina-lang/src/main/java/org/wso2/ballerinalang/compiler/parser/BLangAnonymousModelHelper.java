@@ -70,6 +70,8 @@ public class BLangAnonymousModelHelper {
         errorTypeIdCount = new HashMap<>();
         rawTemplateTypeCount = new HashMap<>();
         tupleVarCount = new HashMap<>();
+        recordVarCount = new HashMap<>();
+        errorVarCount = new HashMap<>();
     }
 
     public static BLangAnonymousModelHelper getInstance(CompilerContext context) {

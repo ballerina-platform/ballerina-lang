@@ -217,6 +217,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final boolean projectAPIInitiatedCompilation;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
+    private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
 
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
@@ -2055,13 +2056,342 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariable varNode) {
-        // If this is module level record variable define each member inside here since they are global variables
-        int ownerSymTag = env.scope.owner.tag;
-        if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE) {
-            varNode.variableList.forEach(keyValue -> {
-                defineNode(keyValue.valueBindingPattern, env);
-            });
+        if (varNode.isDeclaredWithVar) {
+            // Will be handled in semantic analyzer.
+            return;
         }
+        if (varNode.type == null) {
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        }
+
+        if (!(validateRecordVariable(varNode))) {
+            varNode.type = symTable.semanticError;
+            return;
+        }
+    }
+
+    private boolean validateRecordVariable(BLangRecordVariable recordVar) {
+        Name varName = names.fromString(anonymousModelHelper.getNextRecordVarKey(env.enclPkg.packageID));
+        recordVar.symbol =
+                defineVarSymbol(recordVar.pos, recordVar.flagSet, recordVar.type, varName, env, recordVar.internal);
+
+        return validateRecordVariable(recordVar, env);
+    }
+
+    boolean validateRecordVariable(BLangRecordVariable recordVar, SymbolEnv env) {
+        BRecordType recordVarType;
+        /*
+          This switch block will resolve the record type of the record variable.
+          For example consider the following -
+          type Foo record {int a, boolean b};
+          type Bar record {string a, float b};
+          Foo|Bar {a, b} = foo();
+          Since the varNode type is a union, the types of 'a' and 'b' will be resolved as follows:
+          Type of 'a' will be a union of the types of field 'a' in both Foo and Bar.
+          i.e. type of 'a' is (int | string) and type of 'b' is (boolean | float).
+          Consider anydata {a, b} = foo();
+          Here, the type of 'a'and type of 'b' will be both anydata.
+         */
+        switch (recordVar.type.tag) {
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) recordVar.type;
+                Set<BType> bTypes = types.expandAndGetMemberTypesRecursive(unionType);
+                List<BType> possibleTypes = bTypes.stream()
+                        .filter(rec -> doesRecordContainKeys(rec, recordVar.variableList, recordVar.restParam != null))
+                        .collect(Collectors.toList());
+
+                if (possibleTypes.isEmpty()) {
+                    dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);
+                    return false;
+                }
+
+                if (possibleTypes.size() > 1) {
+                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS,
+                            names.fromString(ANONYMOUS_RECORD_NAME),
+                            env.enclPkg.symbol.pkgID, null,
+                            env.scope.owner, recordVar.pos, SOURCE);
+                    recordVarType = (BRecordType) symTable.recordType;
+
+                    LinkedHashMap<String, BField> fields =
+                            populateAndGetPossibleFieldsForRecVar(recordVar, possibleTypes, recordSymbol);
+
+                    if (recordVar.restParam != null) {
+                        LinkedHashSet<BType> memberTypes = possibleTypes.stream()
+                                .map(possibleType -> {
+                                    if (possibleType.tag == TypeTags.RECORD) {
+                                        return ((BRecordType) possibleType).restFieldType;
+                                    } else if (possibleType.tag == TypeTags.MAP) {
+                                        return ((BMapType) possibleType).constraint;
+                                    } else {
+                                        return possibleType;
+                                    }
+                                })
+                                .collect(Collectors.toCollection(LinkedHashSet::new));
+                        recordVarType.restFieldType = memberTypes.size() > 1 ?
+                                BUnionType.create(null, memberTypes) :
+                                memberTypes.iterator().next();
+                    }
+                    recordVarType.tsymbol = recordSymbol;
+                    recordVarType.fields = fields;
+                    recordSymbol.type = recordVarType;
+                    break;
+                }
+
+                if (possibleTypes.get(0).tag == TypeTags.RECORD) {
+                    recordVarType = (BRecordType) possibleTypes.get(0);
+                    break;
+                }
+
+                if (possibleTypes.get(0).tag == TypeTags.MAP) {
+                    recordVarType = createSameTypedFieldsRecordType(recordVar,
+                            ((BMapType) possibleTypes.get(0)).constraint);
+                    break;
+                }
+
+                recordVarType = createSameTypedFieldsRecordType(recordVar, possibleTypes.get(0));
+                break;
+            case TypeTags.RECORD:
+                recordVarType = (BRecordType) recordVar.type;
+                break;
+            case TypeTags.MAP:
+                recordVarType = createSameTypedFieldsRecordType(recordVar, ((BMapType) recordVar.type).constraint);
+                break;
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+                recordVarType = createSameTypedFieldsRecordType(recordVar, recordVar.type);
+                break;
+            default:
+                dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);
+                return false;
+        }
+
+        LinkedHashMap<String, BField> recordVarTypeFields = recordVarType.fields;
+
+        boolean validRecord = true;
+        int ignoredCount = 0;
+        for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
+            // Infer the type of each variable in recordVariable from the given record type
+            // so that symbol enter is done recursively
+            if (names.fromIdNode(variable.getKey()) == Names.IGNORE) {
+                dlog.error(recordVar.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
+                continue;
+            }
+
+            BLangVariable value = variable.getValue();
+            if (value.getKind() == NodeKind.VARIABLE) {
+                // '_' is allowed in record variables. Not allowed if all variables are named as '_'
+                BLangSimpleVariable simpleVar = (BLangSimpleVariable) value;
+                Name varName = names.fromIdNode(simpleVar.name);
+                if (varName == Names.IGNORE) {
+                    ignoredCount++;
+                    simpleVar.type = symTable.anyType;
+                    if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
+                        continue;
+                    }
+                    types.checkType(variable.valueBindingPattern.pos,
+                            recordVarTypeFields.get((variable.getKey().getValue())).type, simpleVar.type,
+                            DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                    continue;
+                }
+            }
+            if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
+                if (recordVarType.sealed) {
+                    validRecord = false;
+                    dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
+                            variable.getKey().getValue(), recordVar.type);
+                } else {
+                    BType restType;
+                    if (recordVarType.restFieldType.tag == TypeTags.ANYDATA ||
+                            recordVarType.restFieldType.tag == TypeTags.ANY) {
+                        restType = recordVarType.restFieldType;
+                    } else {
+                        restType = BUnionType.create(null, recordVarType.restFieldType, symTable.nilType);
+                    }
+                    value.type = restType;
+                    defineNode(value, env);
+                }
+                continue;
+            }
+
+            value.type = recordVarTypeFields.get((variable.getKey().getValue())).type;
+            defineNode(value, env);
+        }
+
+        if (!recordVar.variableList.isEmpty() && ignoredCount == recordVar.variableList.size()
+                && recordVar.restParam == null) {
+            dlog.error(recordVar.pos, DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+            return false;
+        }
+
+        if (recordVar.restParam != null) {
+            ((BLangVariable) recordVar.restParam).type = getRestParamType(recordVarType);
+            defineNode((BLangNode) recordVar.restParam, env);
+        }
+
+        return validRecord;
+    }
+
+
+    /**
+     * This method will resolve field types based on a list of possible types.
+     * When a record variable has multiple possible assignable types, each field will be a union of the relevant
+     * possible types field type.
+     *
+     * @param recordVar record variable whose fields types are to be resolved
+     * @param possibleTypes list of possible types
+     * @param recordSymbol symbol of the record type to be used in creating fields
+     * @return the list of fields
+     */
+    private LinkedHashMap<String, BField> populateAndGetPossibleFieldsForRecVar(BLangRecordVariable recordVar,
+                                                                                List<BType> possibleTypes,
+                                                                                BRecordTypeSymbol recordSymbol) {
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+        for (BLangRecordVariable.BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
+            String fieldName = bLangRecordVariableKeyValue.key.value;
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+            for (BType possibleType : possibleTypes) {
+                if (possibleType.tag == TypeTags.RECORD) {
+                    BRecordType possibleRecordType = (BRecordType) possibleType;
+
+                    if (possibleRecordType.fields.containsKey(fieldName)) {
+                        BField field = possibleRecordType.fields.get(fieldName);
+                        if (Symbols.isOptional(field.symbol)) {
+                            memberTypes.add(symTable.nilType);
+                        }
+                        memberTypes.add(field.type);
+                    } else {
+                        memberTypes.add(possibleRecordType.restFieldType);
+                        memberTypes.add(symTable.nilType);
+                    }
+
+                    continue;
+                }
+                if (possibleType.tag == TypeTags.MAP) {
+                    BMapType possibleMapType = (BMapType) possibleType;
+                    memberTypes.add(possibleMapType.constraint);
+                    continue;
+                }
+                memberTypes.add(possibleType); // possible type is any or anydata}
+            }
+
+            BType fieldType = memberTypes.size() > 1 ?
+                    BUnionType.create(null, memberTypes) : memberTypes.iterator().next();
+            BField field = new BField(names.fromString(fieldName), recordVar.pos,
+                    new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                            fieldType, recordSymbol, recordVar.pos, SOURCE));
+            fields.put(field.name.value, field);
+        }
+        return fields;
+    }
+
+    private BRecordType createSameTypedFieldsRecordType(BLangRecordVariable recordVar, BType fieldTypes) {
+        BType fieldType;
+        if (fieldTypes.isNullable()) {
+            fieldType = fieldTypes;
+        } else {
+            fieldType = BUnionType.create(null, fieldTypes, symTable.nilType);
+        }
+
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS,
+                names.fromString(ANONYMOUS_RECORD_NAME),
+                env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                recordVar.pos, SOURCE);
+        //TODO check below field position
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+        for (BLangRecordVariable.BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
+            String fieldName = bLangRecordVariableKeyValue.key.value;
+            BField bField = new BField(names.fromString(fieldName), recordVar.pos,
+                    new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                            fieldType, recordSymbol, recordVar.pos, SOURCE));
+            fields.put(fieldName, bField);
+        }
+
+        BRecordType recordVarType = (BRecordType) symTable.recordType;
+        recordVarType.fields = fields;
+        recordSymbol.type = recordVarType;
+        recordVarType.tsymbol = recordSymbol;
+
+        // Since this is for record variables, we consider its record type as an open record type.
+        recordVarType.sealed = false;
+        recordVarType.restFieldType = fieldTypes; // TODO: 7/26/19 Check if this should be `fieldType`
+
+        return recordVarType;
+    }
+
+    private boolean doesRecordContainKeys(BType varType, List<BLangRecordVariable.BLangRecordVariableKeyValue> variableList,
+                                          boolean hasRestParam) {
+        if (varType.tag == TypeTags.MAP || varType.tag == TypeTags.ANY || varType.tag == TypeTags.ANYDATA) {
+            return true;
+        }
+        if (varType.tag != TypeTags.RECORD) {
+            return false;
+        }
+        BRecordType recordVarType = (BRecordType) varType;
+        Map<String, BField> recordVarTypeFields = recordVarType.fields;
+
+        for (BLangRecordVariable.BLangRecordVariableKeyValue var : variableList) {
+            if (!recordVarTypeFields.containsKey(var.key.value) && recordVarType.sealed) {
+                return false;
+            }
+        }
+
+        if (!hasRestParam) {
+            return true;
+        }
+
+        return !recordVarType.sealed;
+    }
+
+    BMapType getRestParamType(BRecordType recordType)  {
+        BType memberType;
+
+        if (hasErrorTypedField(recordType)) {
+            memberType = hasOnlyPureTypedFields(recordType) ? symTable.pureType :
+                    BUnionType.create(null, symTable.anyType, symTable.errorType);
+        } else {
+            memberType = hasOnlyAnydataTypedFields(recordType) ? symTable.anydataType : symTable.anyType;
+        }
+
+        return new BMapType(TypeTags.MAP, memberType, null);
+    }
+
+
+    private boolean hasOnlyAnydataTypedFields(BRecordType recordType) {
+        for (BField field : recordType.fields.values()) {
+            BType fieldType = field.type;
+            if (!fieldType.isAnydata()) {
+                return false;
+            }
+        }
+        return recordType.sealed || recordType.restFieldType.isAnydata();
+    }
+
+    private boolean hasOnlyPureTypedFields(BRecordType recordType) {
+        for (BField field : recordType.fields.values()) {
+            BType fieldType = field.type;
+            if (!fieldType.isPureType()) {
+                return false;
+            }
+        }
+        return recordType.sealed || recordType.restFieldType.isPureType();
+    }
+
+    private boolean hasErrorTypedField(BRecordType recordType) {
+        for (BField field : recordType.fields.values()) {
+            BType type = field.type;
+            if (hasErrorType(type)) {
+                return true;
+            }
+        }
+        return hasErrorType(recordType.restFieldType);
+    }
+
+    private boolean hasErrorType(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return type.tag == TypeTags.ERROR;
+        }
+
+        return ((BUnionType) type).getMemberTypes().stream().anyMatch(this::hasErrorType);
     }
 
     @Override

@@ -1707,7 +1707,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordVariable bLangRecordVariable) {
         analyzeNode(bLangRecordVariable.typeNode, env);
         if (bLangRecordVariable.expr != null) {
+            this.currDependentSymbol.push(bLangRecordVariable.symbol);
             analyzeNode(bLangRecordVariable.expr, env);
+            this.currDependentSymbol.pop();
+            return;
         } else {
             bLangRecordVariable.variableList.forEach(memberKeyValue -> {
                 analyzeNode(memberKeyValue.valueBindingPattern, env);
