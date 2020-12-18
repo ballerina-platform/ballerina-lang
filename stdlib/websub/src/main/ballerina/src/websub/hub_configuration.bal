@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/log;
 
 
 const string DEFAULT_HOST = "0.0.0.0";
@@ -36,9 +37,11 @@ RemotePublishConfig remotePublishConfig = {};
 boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
 http:ClientConfiguration? hubClientConfig = ();
-function (WebSubContent content)? onMessageFunction = ();
-function (string callback, string topic, WebSubContent content)? onDeliveryFunction = ();
-function (string callback, string topic, WebSubContent content, http:Response|error response)? onDeliveryFailureFunction = ();
+
+function (WebSubContent content) onMessageFunction = defaultOnMessageFunction;
+function (string callback, string topic, WebSubContent content) onDeliveryFunction = defaultOnDeliveryFunction;
+function (string callback, string topic, WebSubContent content, http:Response|error response, FailureReason reason)
+                  onDeliveryFailureFunction = defaultOnDeliveryFailureFunction;
 
 HubPersistenceStore? hubPersistenceStoreImpl = ();
 boolean hubPersistenceEnabled = false;
@@ -80,4 +83,28 @@ function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
 
 function getRemotePublishConfig(RemotePublishConfig? remotePublish) returns RemotePublishConfig {
     return remotePublish is RemotePublishConfig ? remotePublish : {};
+}
+
+function defaultOnMessageFunction(WebSubContent content) {
+    log:printDebug("Message received at the hub");
+}
+
+function defaultOnDeliveryFunction(string callback, string topic, WebSubContent content) {
+    log:printDebug("Content delivery to callback[" + callback + "] successful for topic[" + topic + "]");
+}
+
+function defaultOnDeliveryFailureFunction(string callback, string topic, WebSubContent content,
+                           http:Response|error response, FailureReason reason) {
+    if (reason is FAILURE_REASON_SUBSCRIPTION_GONE) {
+       log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
+                     + "], topic[" + topic + "]");
+    } else if (reason is FAILURE_REASON_FAILURE_STATUS_CODE) {
+       http:Response resp = <http:Response> response;
+       log:printError("Error delivering content to callback[" + callback + "] for topic["
+                                + topic + "]: received response code " + resp.statusCode.toString());
+    } else {
+       error err = <error> response;
+       log:printError("Error delivering content to callback[" + callback + "] for topic["
+                                   + topic + "]: " + <string> err.detail()?.message);
+    }
 }

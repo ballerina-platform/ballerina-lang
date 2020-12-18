@@ -157,13 +157,9 @@ function getHubService() returns service {
                         }
 
                         error? publishStatus = ();
-                        WebSubContent notification;
                         if (binaryPayload is byte[]) {
-                            notification = {payload: binaryPayload, contentType: contentType};
-                            function (WebSubContent content)? onMessageFunc = onMessageFunction;
-                            if (onMessageFunc is function (WebSubContent)) {
-                                onMessageFunc(notification);
-                            }
+                            WebSubContent notification = {payload: binaryPayload, contentType: contentType};
+                            onMessageFunction(notification);
                             publishStatus = publishToInternalHub(topic, notification);
                         } else {
                             string errorCause = <string>binaryPayload.detail()?.message;
@@ -529,9 +525,7 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
         if (contentDistributionResponse is http:Response) {
             int respStatusCode = contentDistributionResponse.statusCode;
             if (isSuccessStatusCode(respStatusCode)) {
-                callOnDelivery(callback, subscriptionDetails.topic, webSubContent);
-                log:printDebug("Content delivery to callback[" + callback + "] successful for topic["
-                                    + subscriptionDetails.topic + "]");
+                onDeliveryFunction(callback, subscriptionDetails.topic, webSubContent);
             } else if (respStatusCode == http:STATUS_GONE) {
                 removeNativeSubscription(subscriptionDetails.topic, callback);
                 if (hubPersistenceEnabled) {
@@ -540,38 +534,18 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
                         log:printError("Error removing gone subscription", remResult);
                     }
                 }
-                callOnDeliveryFailure(callback, subscriptionDetails.topic, webSubContent, contentDistributionResponse);
-                log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
-                                + "], topic[" + subscriptionDetails.topic + "]");
+                onDeliveryFailureFunction(callback, subscriptionDetails.topic, webSubContent, contentDistributionResponse,
+                              FAILURE_REASON_SUBSCRIPTION_GONE);
             } else {
-                callOnDeliveryFailure(callback, subscriptionDetails.topic, webSubContent, contentDistributionResponse);
-                log:printError("Error delivering content to callback[" + callback + "] for topic["
-                            + subscriptionDetails.topic + "]: received response code " + respStatusCode.toString());
+                onDeliveryFailureFunction(callback, subscriptionDetails.topic, webSubContent, contentDistributionResponse,
+                              FAILURE_REASON_FAILURE_STATUS_CODE);
             }
         } else {
-            callOnDeliveryFailure(callback, subscriptionDetails.topic, webSubContent, contentDistributionResponse);
-            error err = contentDistributionResponse;
-            string errCause = <string> err.detail()?.message;
-            log:printError("Error delivering content to callback[" + callback + "] for topic["
-                            + subscriptionDetails.topic + "]: " + errCause);
+            onDeliveryFailureFunction(callback, subscriptionDetails.topic, webSubContent, contentDistributionResponse,
+                              FAILURE_REASON_DELIVERY_FAILURE);
         }
     }
     return;
-}
-
-function callOnDeliveryFailure(string callback, string topic, WebSubContent notification, http:Response|error response) {
-    function (string callback, string topic, WebSubContent content, http:Response|error response)?
-                               onDeliveryFailureFunc = onDeliveryFailureFunction;
-    if (onDeliveryFailureFunc is function (string callback, string topic, WebSubContent content, http:Response|error response)) {
-        onDeliveryFailureFunc(callback, topic, notification, response);
-    }
-}
-
-function callOnDelivery(string callback, string topic, WebSubContent notification) {
-    function (string callback, string topic, WebSubContent content)? onDeliveryFunc = onDeliveryFunction;
-    if (onDeliveryFunc is function (string callback, string topic, WebSubContent content)) {
-        onDeliveryFunc(callback, topic, notification);
-    }
 }
 
 # Retrieves the cached `subscriberCallbackClient` for a given callback.

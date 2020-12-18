@@ -160,14 +160,14 @@ public class Executor {
     /**
      * This method will invoke Ballerina function in a non-blocking manner.
      *
-     * @param scheduler   current scheduler
-     * @param classLoader normal classLoader
-     * @param orgName     org which the package belongs to
-     * @param packageName package which the class belongs to
-     * @param className   which the function resides/ or file name
-     * @param methodName  to be invokable unit
-     * @param callback    to be executed when execution completes.
-     * @param paramValues to be passed to invokable unit
+     * @param scheduler   The Current scheduler
+     * @param classLoader The classLoader
+     * @param orgName     The org which the package belongs to
+     * @param packageName The package which the class belongs to
+     * @param className   The class name or the file name in which the function resides
+     * @param methodName  The method name which is to be the invokable unit
+     * @param callback    The callback to be executed when the execution completes.
+     * @param paramValues The Parameters to be passed to the invokable unit
      */
     public static void executeFunctionAsync(Scheduler scheduler, ClassLoader classLoader, final String orgName,
             String packageName, String className, String methodName, CallableUnitCallback callback,

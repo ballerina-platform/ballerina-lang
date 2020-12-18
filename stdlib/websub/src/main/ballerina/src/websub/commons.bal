@@ -480,6 +480,18 @@ public type SubscriptionChangeResponse record {|
 /////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Commons /////////////////////
 /////////////////////////////////////////////////////////////
+# Represents subscription delivery failures related to the HTTP 410 Gone status code.
+public const FAILURE_REASON_SUBSCRIPTION_GONE = "SUBSCRIPTION_GONE";
+
+# Represents subscription delivery failures related to HTTP failure status codes except 410 Gone.
+public const FAILURE_REASON_FAILURE_STATUS_CODE = "FAILURE_STATUS_CODE";
+
+# Represents subscription delivery failures related to network issues.
+public const FAILURE_REASON_DELIVERY_FAILURE = "DELIVERY_FAILURE";
+
+# Represents subscription delivery failure reasons.
+public type FailureReason FAILURE_REASON_SUBSCRIPTION_GONE|FAILURE_REASON_FAILURE_STATUS_CODE|FAILURE_REASON_DELIVERY_FAILURE;
+
 # Record representing hub specific configurations.
 #
 # + leaseSeconds - The default lease seconds value to honour if not specified in subscription requests
@@ -489,9 +501,9 @@ public type SubscriptionChangeResponse record {|
 #                               to the topic
 # + clientConfig - The configuration for the hub to communicate with remote HTTP endpoints
 # + hubPersistenceStore - The `HubPersistenceStore` to use to persist hub data
-# + onMessage - Gets invoked when a update is received at the hub
-# + onDelivery - Gets invoked when a update is successfully sent to the subscribers
-# + onDeliveryFailure - Gets invoked when a update is failed sent to the subscribers
+# + onMessage - The configuration for passing a function to be invoked when an update is received at the hub
+# + onDelivery - The configuration for passing a function to be invoked when an update is successfully delivered to the subscribers
+# + onDeliveryFailure - The configuration for passing a function to be invoked when an update is failed to be delivered to the subscribers
 public type HubConfiguration record {|
     int leaseSeconds = 86400;
     SignatureMethod signatureMethod = SHA256;
@@ -501,7 +513,8 @@ public type HubConfiguration record {|
     HubPersistenceStore hubPersistenceStore?;
     function (WebSubContent content) onMessage?;
     function (string callback, string topic, WebSubContent content) onDelivery?;
-    function (string callback, string topic, WebSubContent content, http:Response|error response) onDeliveryFailure?;
+    function (string callback, string topic, WebSubContent content, http:Response|error response, FailureReason reason)
+                            onDeliveryFailure?;
 |};
 
 # Record representing remote publishing allowance.
@@ -563,9 +576,18 @@ public function startHub(http:Listener hubServiceListener,
     hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
     remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
     hubTopicRegistrationRequired = hubConfiguration.topicRegistrationRequired;
-    onMessageFunction = hubConfiguration["onMessage"];
-    onDeliveryFunction = hubConfiguration["onDelivery"];
-    onDeliveryFailureFunction = hubConfiguration["onDeliveryFailure"];
+    var onMessageFunc = hubConfiguration["onMessage"];
+    if (!(onMessageFunc is ())) {
+       onMessageFunction = onMessageFunc;
+    }
+    var onDeliveryFunc = hubConfiguration["onDelivery"];
+    if (!(onDeliveryFunc is ())) {
+       onDeliveryFunction = onDeliveryFunc;
+    }
+    var onDeliveryFailureFunc = hubConfiguration["onDeliveryFailure"];
+    if (!(onDeliveryFailureFunc is ())) {
+       onDeliveryFailureFunction = onDeliveryFailureFunc;
+    }
 
     // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
