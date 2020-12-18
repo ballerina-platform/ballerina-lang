@@ -42,3 +42,13 @@ function test() {
     Person2 p2 = new;
     p2 = new Person2();
 }
+
+distinct class DistinctPerson {
+    string name;
+
+    function init(string name) {
+        self.name = name;
+    }
+
+    function getName() returns string => self.name;
+}

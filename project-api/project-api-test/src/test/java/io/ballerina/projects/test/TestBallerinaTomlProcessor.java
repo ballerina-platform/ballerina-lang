@@ -18,7 +18,7 @@
 
 package io.ballerina.projects.test;
 
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.BallerinaTomlProcessor;
@@ -69,7 +69,7 @@ public class TestBallerinaTomlProcessor {
         Assert.assertEquals(dependencyList.get(1).name().value(), "github");
         Assert.assertEquals(dependencyList.get(1).version().toString(), "1.2.3");
 
-        PackageManifest.Platform jvmPlatform = packageManifest.platform(JdkVersion.JAVA_11.code());
+        PackageManifest.Platform jvmPlatform = packageManifest.platform(JvmTarget.JAVA_11.code());
         List<Map<String, Object>> platformDependencies = jvmPlatform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
 
