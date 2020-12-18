@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 3,
-    "character": 54
+    "character": 47
   },
   "source": "class_def/source/source11.bal",
   "items": [
@@ -61,6 +61,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Client",
       "kind": "Interface",
       "detail": "Object",
@@ -81,17 +88,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "TestClass1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Listener",
       "kind": "Interface",
       "detail": "Object",
       "insertText": "Listener",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     }
   ]

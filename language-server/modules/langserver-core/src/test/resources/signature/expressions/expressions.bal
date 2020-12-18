@@ -207,7 +207,7 @@ public function expressions() returns error? {
 }
 
 // -- service-constructor-expr
-service negativeTemplateURI on ep {
+service / on ep {
     resource function newResource() {
         fooV(1, false);
     }

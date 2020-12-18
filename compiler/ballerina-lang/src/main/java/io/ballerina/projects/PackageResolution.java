@@ -192,13 +192,40 @@ public class PackageResolution {
     private DependencyGraph<ResolvedPackageDependency> getDependencyGraphWithPackageDescriptors() {
         PackageDependencyGraphBuilder depGraphBuilder = PackageDependencyGraphBuilder.getInstance();
         if (rootPackageContext.project().kind() == ProjectKind.BALR_PROJECT) {
-            depGraphBuilder.mergeGraph(rootPackageContext.dependencyGraph());
+            createDependencyGraphFromBALR(depGraphBuilder);
         } else {
             createDependencyGraphFromSources(depGraphBuilder);
         }
 
         return depGraphBuilder.buildPackageDependencyGraph(rootPackageContext.descriptor(), packageResolver,
                 packageCache, rootPackageContext.project());
+    }
+
+    private void createDependencyGraphFromBALR(PackageDependencyGraphBuilder depGraphBuilder) {
+        DependencyGraph<PackageDescriptor> dependencyGraphStoredInBALR = rootPackageContext.dependencyGraph();
+        Collection<PackageDescriptor> directDependenciesOfBALR =
+                dependencyGraphStoredInBALR.getDirectDependencies(rootPackageContext.descriptor());
+
+        // 1) Create ResolutionRequest instances for each direct dependency of the balr
+        LinkedHashSet<ResolutionRequest> resolutionRequests = new LinkedHashSet<>();
+        for (PackageDescriptor packageDescriptor : directDependenciesOfBALR) {
+            resolutionRequests.add(ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT));
+        }
+
+        // 2) Resolve direct dependencies. My assumption is that, all these dependencies comes from BALRs
+        List<ResolutionResponse> resolutionResponses =
+                packageResolver.resolvePackages(new ArrayList<>(resolutionRequests), rootPackageContext.project());
+        for (ResolutionResponse resolutionResponse : resolutionResponses) {
+            if (resolutionResponse.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
+                PackageDescriptor dependencyPkgDesc = resolutionResponse.packageLoadRequest().packageDescriptor();
+                throw new ProjectException("Dependency cannot be found:" +
+                        " org=" + dependencyPkgDesc.org() +
+                        ", package=" + dependencyPkgDesc.name() +
+                        ", version=" + dependencyPkgDesc.version());
+            }
+        }
+
+        depGraphBuilder.mergeGraph(rootPackageContext.dependencyGraph());
     }
 
     private void createDependencyGraphFromSources(PackageDependencyGraphBuilder depGraphBuilder) {
