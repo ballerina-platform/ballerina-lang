@@ -211,10 +211,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getBacktickToken();
                 break;
             case LexerTerminals.SINGLE_QUOTE:
-                token = processQuotedIdentifier(false);
-                break;
-            case LexerTerminals.BACKSLASH:
-                token = processQuotedIdentifier(true);
+                token = processQuotedIdentifier();
                 break;
 
             // Numbers
@@ -284,7 +281,8 @@ public class BallerinaLexer extends AbstractLexer {
             case 'y':
             case 'z':
             case '_':
-                token = processIdentifierOrKeyword();
+            case '\\':
+                token = processIdentifierOrKeyword(c);
                 break;
 
             // Other
@@ -779,17 +777,11 @@ public class BallerinaLexer extends AbstractLexer {
     /**
      * Process and returns an identifier or a keyword.
      *
+     * @param startChar Initial char of the identifier
      * @return An identifier or a keyword.
      */
-    private STToken processIdentifierOrKeyword() {
-        while (isIdentifierFollowingChar(peek())) {
-            reader.advance();
-        }
-
-        if (peek() == '\\') {
-            return processQuotedIdentifier(false);
-        }
-
+    private STToken processIdentifierOrKeyword(int startChar) {
+        processUnquotedIdentifier(startChar);
         String tokenText = getLexeme();
         switch (tokenText) {
             // built-in named-types
@@ -1125,7 +1117,7 @@ public class BallerinaLexer extends AbstractLexer {
                             continue;
                         case 'u':
                             if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
-                                processStringNumericEscape();
+                                processNumericEscape();
                             } else {
                                 reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
                                 this.reader.advance(2);
@@ -1148,11 +1140,11 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     /**
-     * Process string numeric escape.
+     * Process numeric escape.
      * <p>
-     * <code>StringNumericEscape := \ u { CodePoint }</code>
+     * <code>NumericEscape := \ u { CodePoint }</code>
      */
-    private void processStringNumericEscape() {
+    private void processNumericEscape() {
         // Process '\ u {'
         this.reader.advance(3);
 
@@ -1358,15 +1350,49 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     /**
-     * Process quoted Identifier token.
-     * 
+     * Process quoted identifier.
+     * <p>
      * <code>
-     * QuotedIdentifierChar := IdentifierFollowingChar | QuotedIdentifierEscape | StringNumericEscape
+     * QuotedIdentifier := ' (IdentifierFollowingChar | IdentifierEscape) IdentifierEnd
      * </code>
-     * @param initialEscape Denotes whether <code>\</code> is at the beginning of the identifier
-     * @return Quoted identifier token
+     *
+     * @return An identifier token.
      */
-    private STToken processQuotedIdentifier(boolean initialEscape) {
+    private STToken processQuotedIdentifier() {
+        processIdentifierEnd(false);
+        if (String.valueOf(LexerTerminals.SINGLE_QUOTE).equals(getLexeme())) {
+            reportLexerError(DiagnosticErrorCode.ERROR_INCOMPLETE_QUOTED_IDENTIFIER);
+        }
+        return getIdentifierToken();
+    }
+
+    /**
+     * Process unquoted identifier.
+     * <p>
+     * <code>
+     * UnquotedIdentifier := (IdentifierInitialChar | IdentifierEscape) IdentifierEnd
+     * </code>
+     */
+    private void processUnquotedIdentifier(int startChar) {
+        processIdentifierEnd(startChar == LexerTerminals.BACKSLASH);
+    }
+
+    /**
+     * Process identifier end.
+     * <p>
+     * <i>Note: Need to update the {@link DocumentationLexer} whenever changing the identifier processing.</i>
+     * <p>
+     * <code>
+     * IdentifierEnd := IdentifierChar*
+     * <br/>
+     * IdentifierChar := IdentifierFollowingChar | IdentifierEscape
+     * <br/>
+     * IdentifierEscape := IdentifierSingleEscape | NumericEscape
+     * </code>
+     *
+     * @param initialEscape Denotes whether <code>\</code> is at the beginning of the identifier
+     */
+    private void processIdentifierEnd(boolean initialEscape) {
         while (!reader.isEOF()) {
             int k = 1;
             int nextChar = reader.peek();
@@ -1375,7 +1401,7 @@ public class BallerinaLexer extends AbstractLexer {
                 continue;
             }
 
-            if (nextChar != '\\' && !initialEscape) {
+            if (nextChar != LexerTerminals.BACKSLASH && !initialEscape) {
                 break;
             }
             if (initialEscape) {
@@ -1383,7 +1409,7 @@ public class BallerinaLexer extends AbstractLexer {
                 initialEscape = false;
             }
 
-            // QuotedIdentifierEscape | StringNumericEscape
+            // IdentifierSingleEscape | NumericEscape
 
             nextChar = reader.peek(k);
             switch (nextChar) {
@@ -1392,9 +1418,9 @@ public class BallerinaLexer extends AbstractLexer {
                 case LexerTerminals.TAB:
                     break;
                 case 'u':
-                    // StringNumericEscape
-                    if (reader.peek(k + 1) == '{') {
-                        processStringNumericEscape();
+                    // NumericEscape
+                    if (reader.peek(k + 1) == LexerTerminals.OPEN_BRACE) {
+                        processNumericEscape();
                     } else {
                         reader.advance(k + 1);
                     }
@@ -1410,8 +1436,6 @@ public class BallerinaLexer extends AbstractLexer {
             }
             break;
         }
-
-        return getIdentifierToken();
     }
 
     private boolean isValidQuotedIdentifierEscapeChar(int nextChar) {
