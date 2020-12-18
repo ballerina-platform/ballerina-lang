@@ -19,12 +19,16 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ErrorConstructorExpressionNode;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.List;
 
+/**
+ * Implementation of error-constructor-expr.
+ *
+ * @since 2.0.0
+ */
 public class BLangErrorConstructorExpr extends BLangExpression implements ErrorConstructorExpressionNode {
     public BLangUserDefinedType errorTypeRef;
     public List<BLangExpression> positionalArgs;

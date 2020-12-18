@@ -2005,7 +2005,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         List<BLangExpression> positionalArgs = new ArrayList<>();
         List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
-        for(Node argNode : errorConstructorExprNode.arguments()) {
+        for (Node argNode : errorConstructorExprNode.arguments()) {
             if (argNode.kind() == SyntaxKind.POSITIONAL_ARG) {
                 positionalArgs.add((BLangExpression) transform((PositionalArgumentNode) argNode));
             } else if (argNode.kind() == SyntaxKind.NAMED_ARG) {

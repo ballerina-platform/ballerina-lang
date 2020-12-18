@@ -1199,7 +1199,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         TaintedStatus isTainted = TaintedStatus.UNTAINTED;
-        for(BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
+        for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
             positionalArg.accept(this);
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
                 isTainted = TaintedStatus.TAINTED;
