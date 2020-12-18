@@ -4244,12 +4244,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLangListBindingPattern.pos = pos;
 
                 for (Node listMemberBindingPattern : listBindingPatternNode.bindingPatterns()) {
-                    bLangListBindingPattern.addBindingPattern(transformBindingPattern(listMemberBindingPattern));
-                }
-                if (listBindingPatternNode.restBindingPattern().isPresent()) {
+                    if (listMemberBindingPattern.kind() != SyntaxKind.REST_BINDING_PATTERN) {
+                        bLangListBindingPattern.addBindingPattern(transformBindingPattern(listMemberBindingPattern));
+                        continue;
+                    }
                     bLangListBindingPattern.restBindingPattern =
-                            (BLangRestBindingPattern) transformBindingPattern(
-                                    listBindingPatternNode.restBindingPattern().get());
+                            (BLangRestBindingPattern) transformBindingPattern(listMemberBindingPattern);
                 }
                 return bLangListBindingPattern;
             case REST_BINDING_PATTERN:
