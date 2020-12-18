@@ -157,6 +157,49 @@ public class Executor {
         }
     }
 
+    /**
+     * This method will invoke Ballerina function in a non-blocking manner.
+     *
+     * @param scheduler   current scheduler
+     * @param classLoader normal classLoader
+     * @param orgName     org which the package belongs to
+     * @param packageName package which the class belongs to
+     * @param className   which the function resides/ or file name
+     * @param methodName  to be invokable unit
+     * @param callback    to be executed when execution completes.
+     * @param paramValues to be passed to invokable unit
+     */
+    public static void executeFunctionAsync(Scheduler scheduler, ClassLoader classLoader, final String orgName,
+            String packageName, String className, String methodName, CallableUnitCallback callback,
+            Object... paramValues) {
+        try {
+            Class<?> clazz = classLoader.loadClass(orgName + "." + packageName + "." + className);
+            int paramCount = paramValues.length * 2 + 1;
+            Class<?>[] jvmParamTypes = new Class[paramCount];
+            Object[] jvmArgs = new Object[paramCount];
+            jvmParamTypes[0] = Strand.class;
+            jvmArgs[0] = scheduler;
+            for (int i = 0, j = 1; i < paramValues.length; i++) {
+                jvmArgs[j] = paramValues[i];
+                jvmParamTypes[j++] = getJvmType(paramValues[i]);
+                jvmArgs[j] = true;
+                jvmParamTypes[j++] = boolean.class;
+            }
+            Method method = clazz.getDeclaredMethod(methodName, jvmParamTypes);
+            Function<Object[], Object> func = args -> {
+                try {
+                    return method.invoke(null, args);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new BallerinaException(methodName + " function invocation failed: " + e.getMessage());
+                }
+            };
+            FutureValue futureValue = scheduler
+                    .schedule(jvmArgs, func, null, callback, new HashMap<>(), BTypes.typeNull);
+        } catch (NoSuchMethodException | ClassNotFoundException e) {
+            throw new BallerinaException("invocation failed: " + e.getMessage());
+        }
+    }
+
     private static Class<?> getJvmType(Object paramValue) {
         if (paramValue instanceof MapValue) {
             return MapValue.class;

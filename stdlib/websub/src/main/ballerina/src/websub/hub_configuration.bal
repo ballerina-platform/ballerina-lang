@@ -36,6 +36,9 @@ RemotePublishConfig remotePublishConfig = {};
 boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
 http:ClientConfiguration? hubClientConfig = ();
+function (WebSubContent content)? onMessageFunction = ();
+function (string callback, string topic, WebSubContent content)? onDeliveryFunction = ();
+function (string callback, string topic, WebSubContent content, http:Response|error response)? onDeliveryFailureFunction = ();
 
 HubPersistenceStore? hubPersistenceStoreImpl = ();
 boolean hubPersistenceEnabled = false;

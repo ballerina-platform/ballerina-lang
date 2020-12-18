@@ -489,6 +489,9 @@ public type SubscriptionChangeResponse record {|
 #                               to the topic
 # + clientConfig - The configuration for the hub to communicate with remote HTTP endpoints
 # + hubPersistenceStore - The `HubPersistenceStore` to use to persist hub data
+# + onMessage - Gets invoked when a update is received at the hub
+# + onDelivery - Gets invoked when a update is successfully sent to the subscribers
+# + onDeliveryFailure - Gets invoked when a update is failed sent to the subscribers
 public type HubConfiguration record {|
     int leaseSeconds = 86400;
     SignatureMethod signatureMethod = SHA256;
@@ -496,6 +499,9 @@ public type HubConfiguration record {|
     boolean topicRegistrationRequired = true;
     http:ClientConfiguration clientConfig?;
     HubPersistenceStore hubPersistenceStore?;
+    function (WebSubContent content) onMessage?;
+    function (string callback, string topic, WebSubContent content) onDelivery?;
+    function (string callback, string topic, WebSubContent content, http:Response|error response) onDeliveryFailure?;
 |};
 
 # Record representing remote publishing allowance.
@@ -557,6 +563,9 @@ public function startHub(http:Listener hubServiceListener,
     hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
     remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
     hubTopicRegistrationRequired = hubConfiguration.topicRegistrationRequired;
+    onMessageFunction = hubConfiguration["onMessage"];
+    onDeliveryFunction = hubConfiguration["onDelivery"];
+    onDeliveryFailureFunction = hubConfiguration["onDeliveryFailure"];
 
     // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
@@ -793,7 +802,7 @@ function unregisterTopic(string topic) returns error? {
 #
 # + payload - The payload to be sent
 # + contentType - The content-type of the payload
-type WebSubContent record {|
+public type WebSubContent record {|
     string|xml|json|byte[]|io:ReadableByteChannel payload = "";
     string contentType = "";
 |};
