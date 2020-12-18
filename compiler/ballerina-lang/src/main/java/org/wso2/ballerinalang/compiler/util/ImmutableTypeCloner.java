@@ -113,6 +113,12 @@ public class ImmutableTypeCloner {
                                             symTable, anonymousModelHelper, names, origObjFlagSet, new HashSet<>());
     }
 
+    public static BIntersectionType getImmutableIntersectionType(SelectivelyImmutableReferenceType type,
+                                                                 SymbolTable symbolTable, Names names) {
+        return getImmutableIntersectionType(null, null, type, null, null, null, symbolTable, null, names, null,
+                new HashSet<>());
+    }
+
     public static void markFieldsAsImmutable(BLangClassDefinition classDef, SymbolEnv pkgEnv, BObjectType objectType,
                                              Types types, BLangAnonymousModelHelper anonymousModelHelper,
                                              SymbolTable symbolTable, Names names, Location pos) {

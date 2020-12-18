@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
@@ -60,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -134,8 +136,7 @@ public class SymbolTable {
     public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
     public final BType anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
     public final BType intStringFloatOrBoolean = BUnionType.create(null, intType, stringType, floatType, booleanType);
-    public final BType anyAndReadonly = new BAnyType(TypeTags.ANY, null, new Name("anyAndReadonly"),
-            Flags.READONLY);
+    public final BType anyAndReadonly;
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
@@ -195,6 +196,7 @@ public class SymbolTable {
     public BPackageSymbol internalTransactionModuleSymbol;
 
     private Names names;
+    private SymbolTable symbolTable;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
 
@@ -211,6 +213,7 @@ public class SymbolTable {
         context.put(SYM_TABLE_KEY, this);
 
         this.names = Names.getInstance(context);
+        this.symbolTable = SymbolTable.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null, null, BUILTIN);
@@ -271,6 +274,10 @@ public class SymbolTable {
         this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<>() {{
             add(trueLiteral);
         }});
+        this.anyAndReadonly =
+                ImmutableTypeCloner.getImmutableIntersectionType((SelectivelyImmutableReferenceType) this.anyType,
+                        this.symbolTable, names);
+        initializeType(this.anyAndReadonly, TypeKind.ANYANDREADONLY.typeName(), BUILTIN);
     }
 
     public BType getTypeFromTag(int tag) {

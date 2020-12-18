@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.test.statements.foreach;
 
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
