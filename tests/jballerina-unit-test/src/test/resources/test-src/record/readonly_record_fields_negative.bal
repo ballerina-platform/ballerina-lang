@@ -207,3 +207,44 @@ type RecordWithReadOnlyFieldsWithInvalidInitialization record {|
 |};
 
 RecordWithReadOnlyFieldsWithInvalidInitialization invalidInit = {a: new, b: new, c: (<int[]> [1, 2]).toStream()};
+
+type OpenRecordWithNoFieldDescriptors record {
+
+};
+
+type OpenIntRecordWithNoFieldDescriptors record {|
+    int...;
+|};
+
+type OpenRecordWithFieldDescriptors record {
+    readonly int x = 100;
+};
+
+record {
+    readonly int x;
+} modLevelRecord = {x: 100};
+
+readonly rd = modLevelRecord;
+
+function testNonReadOnlynessOfOpenRecordWithAllReadOnlyFields() {
+    OpenRecordWithNoFieldDescriptors r1 = {};
+    OpenRecordWithNoFieldDescriptors r2 = {x: 1};
+    OpenIntRecordWithNoFieldDescriptors r3 = {};
+    OpenIntRecordWithNoFieldDescriptors r4 = {x: 1};
+    OpenRecordWithFieldDescriptors r5 = {};
+    OpenRecordWithFieldDescriptors r6 = {"a": 200};
+
+    record {|
+        readonly int x = 1;
+        int...;
+    |} localRecord = {"a": 2, "b": 3};
+
+    readonly rd = modLevelRecord;
+    readonly rd1 = r1;
+    readonly rd2 = r2;
+    readonly rd3 = r3;
+    readonly rd4 = r4;
+    readonly rd5 = r5;
+    readonly rd6 = r6;
+    readonly rd7 = localRecord;
+}
