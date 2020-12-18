@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
+import ballerina/java;
 
 function waitTest1() returns int {
     future<int> f1 = @strand{thread:"any"} start add(5, 2);
@@ -74,7 +74,7 @@ function waitTest8() returns int {
 }
 
 function waitTest9() returns () {
-    future<()> f1 = start runtime:sleep(2000);
+    future<()> f1 = start sleep(2000);
     () result = wait f1;
     return result;
 }
@@ -139,3 +139,7 @@ function asyncObjectCreationTest() {
     arr[0] = s;
     arr[2] = s;
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

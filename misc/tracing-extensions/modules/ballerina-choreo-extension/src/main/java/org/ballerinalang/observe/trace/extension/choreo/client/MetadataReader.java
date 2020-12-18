@@ -37,8 +37,8 @@ import java.util.Properties;
 public class MetadataReader {
     private static final Logger LOGGER = LogFactory.getLogger();
 
-    private static final String AST_DATA_FILE_PATH = "ast/ast.json";
-    private static final String AST_META_FILE_PATH = "ast/meta.properties";
+    private static final String AST_DATA_FILE_PATH = "syntax-tree/syntax-tree.json";
+    private static final String AST_META_FILE_PATH = "syntax-tree/meta.properties";
     public static final String PROGRAM_HASH_KEY = "PROGRAM_HASH";
 
     private String astData = null;

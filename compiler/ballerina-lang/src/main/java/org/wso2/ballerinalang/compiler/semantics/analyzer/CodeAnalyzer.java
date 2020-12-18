@@ -683,7 +683,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetrySpec retrySpec) {
         if (retrySpec.retryManagerType != null) {
-            BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langObjectModuleSymbol.scope
+            BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langErrorModuleSymbol.scope
                     .lookup(names.fromString("RetryManager")).symbol;
             BType abstractRetryManagerType = retryManagerTypeSymbol.type;
             if (!types.isAssignable(retrySpec.retryManagerType.type, abstractRetryManagerType)) {
@@ -2689,6 +2689,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         validateActionInvocation(actionInvocation.pos, actionInvocation);
+
+        if (!actionInvocation.async && this.withinTransactionScope) {
+            actionInvocation.invokedInsideTransaction = true;
+        }
     }
 
     private void validateActionInvocation(Location pos, BLangInvocation iExpr) {

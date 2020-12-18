@@ -160,3 +160,35 @@ function testEnumAsAType() {
     Colour c = "RED";
     string s = "Selected colour: " + c;
 }
+
+function neverReturns() returns never {
+    // do something
+}
+
+type ReadonlyFoo Foo & readonly;
+
+function testIntersectionType() {
+    map<json> & readonly m = {};
+    ReadonlyFoo rf = {a: 100};
+}
+
+public type DistinctPerson distinct object {
+    string name;
+
+    function getName() returns string;
+};
+
+function testCompileError() {
+    int x = "foo";
+    UndefinedType y;
+}
+
+function testBasicTypes() {
+    int x = 10;
+    float f = 12.3;
+    decimal d = 23.4;
+    boolean b = true;
+    () nil = ();
+    string s = "foo";
+    byte byt = 100;
+}

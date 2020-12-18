@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.SourceKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class BLangCompilationUnit extends BLangNode implements CompilationUnitNo
 
     public List<TopLevelNode> topLevelNodes;
     private PackageID packageID;
+    private SourceKind sourceKind;
 
     public BLangCompilationUnit() {
         this.topLevelNodes = new ArrayList<>();
@@ -75,7 +77,17 @@ public class BLangCompilationUnit extends BLangNode implements CompilationUnitNo
     public NodeKind getKind() {
         return NodeKind.COMPILATION_UNIT;
     }
-    
+
+    @Override
+    public void setSourceKind(SourceKind kind) {
+        this.sourceKind = kind;
+    }
+
+    @Override
+    public SourceKind getSourceKind() {
+        return this.sourceKind;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

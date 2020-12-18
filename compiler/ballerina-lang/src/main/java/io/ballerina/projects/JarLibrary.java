@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Represents the Jar library in JBallerinaBackend implementation.
@@ -27,15 +28,45 @@ import java.nio.file.Path;
 public class JarLibrary extends PlatformLibrary {
     static final String KEY_PATH = "path";
     static final String KEY_SCOPE = "scope";
+    static final String KEY_ARTIFACT_ID = "artifactId";
+    static final String KEY_GROUP_ID = "groupId";
+    static final String KEY_VERSION = "version";
+
+    private final String artifactId;
+    private final String version;
+    private final String groupId;
     private final Path path;
 
     public JarLibrary(Path path, PlatformLibraryScope scope) {
         super(scope);
         this.path = path;
+        artifactId = null;
+        groupId = null;
+        version = null;
+    }
+
+    public JarLibrary(Path path, PlatformLibraryScope scope, String artifactId, String groupId, String version) {
+        super(scope);
+        this.path = path;
+        this.artifactId = (artifactId == null || artifactId.isEmpty()) ? null : artifactId;
+        this.groupId = (groupId == null || groupId.isEmpty()) ? null : groupId;
+        this.version = (version == null || version.isEmpty()) ? null : version;
     }
 
     @Override
     public Path path() {
         return path;
+    }
+
+    public Optional<String> artifactId() {
+        return Optional.ofNullable(artifactId);
+    }
+
+    public Optional<String> version() {
+        return Optional.ofNullable(version);
+    }
+
+    public Optional<String> groupId() {
+        return Optional.ofNullable(groupId);
     }
 }

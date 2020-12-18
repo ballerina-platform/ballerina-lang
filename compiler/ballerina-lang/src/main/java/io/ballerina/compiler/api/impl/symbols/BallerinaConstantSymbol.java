@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -41,11 +42,12 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
     private BallerinaConstantSymbol(String name,
                                     PackageID moduleID,
                                     List<Qualifier> qualifiers,
+                                    List<AnnotationSymbol> annots,
                                     TypeSymbol typeDescriptor,
                                     TypeSymbol broaderType,
                                     Object constValue,
                                     BSymbol bSymbol) {
-        super(name, moduleID, SymbolKind.CONSTANT, qualifiers, typeDescriptor, bSymbol);
+        super(name, moduleID, SymbolKind.CONSTANT, qualifiers, annots, typeDescriptor, bSymbol);
         this.constValue = constValue;
         this.broaderType = broaderType;
     }
@@ -98,13 +100,8 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
         }
 
         public BallerinaConstantSymbol build() {
-            return new BallerinaConstantSymbol(this.name,
-                    this.moduleID,
-                    this.qualifiers,
-                    this.typeDescriptor,
-                    this.broaderType,
-                    this.constantValue,
-                    this.bSymbol);
+            return new BallerinaConstantSymbol(this.name, this.moduleID, this.qualifiers, this.annots,
+                                               this.typeDescriptor, this.broaderType, this.constantValue, this.bSymbol);
         }
 
         public ConstantSymbolBuilder withConstValue(Object constValue) {

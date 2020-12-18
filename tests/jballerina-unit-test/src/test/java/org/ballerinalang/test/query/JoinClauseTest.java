@@ -42,19 +42,19 @@ public class JoinClauseTest {
         negativeResult = BCompileUtil.compile("test-src/query/join-clause-negative.bal");
     }
 
-    @Test(description = "Test join clause with record variable definition type 1")
+    @Test(description = "Test join clause with record variable definition")
     public void testSimpleJoinClauseWithRecordVariable() {
         BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable");
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test join clause with record variable definition type 2")
+    @Test(description = "Test join clause having mapping binding with field name : variable name")
     public void testSimpleJoinClauseWithRecordVariable2() {
         BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable2");
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test join clause with record variable definition type 3")
+    @Test(description = "Test join clause having mapping binding with variable name")
     public void testSimpleJoinClauseWithRecordVariable3() {
         BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable3");
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
@@ -72,19 +72,19 @@ public class JoinClauseTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test outer join clause with record variable definition type 1")
+    @Test(description = "Test outer join clause with record variable definition")
     public void testOuterJoinClauseWithRecordVariable() {
         BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable");
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test join clause with record variable definition type 2")
+    @Test(description = "Test join clause having mapping binding with field name : variable name")
     public void testOuterJoinClauseWithRecordVariable2() {
         BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable2");
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test join clause with record variable definition type 3")
+    @Test(description = "Test join clause having mapping binding with variable name")
     public void testOuterJoinClauseWithRecordVariable3() {
         BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable3");
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
@@ -118,38 +118,38 @@ public class JoinClauseTest {
     public void testNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 32);
         int i = 0;
-        validateError(negativeResult, i++, "incompatible types: expected 'Department', found 'Person'", 30, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'Department', found 'Person'", 46, 13);
         validateError(negativeResult, i++, "invalid operation: type 'Person' does not support field access for " +
-                "non-required field 'name'", 35, 19);
-        validateError(negativeResult, i++, "unknown type 'XYZ'", 53, 13);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 54, 28);
-        validateError(negativeResult, i++, "undefined symbol 'deptId'", 77, 11);
-        validateError(negativeResult, i++, "undefined symbol 'person'", 77, 25);
-        validateError(negativeResult, i++, "undefined symbol 'id'", 100, 11);
-        validateError(negativeResult, i++, "undefined symbol 'person'", 100, 21);
-        validateError(negativeResult, i++, "undefined symbol 'name'", 124, 11);
-        validateError(negativeResult, i++, "undefined symbol 'deptName'", 124, 23);
-        validateError(negativeResult, i++, "undefined symbol 'deptId'", 147, 11);
-        validateError(negativeResult, i++, "undefined symbol 'person'", 147, 25);
-        validateError(negativeResult, i++, "undefined symbol 'id'", 170, 11);
-        validateError(negativeResult, i++, "undefined symbol 'person'", 170, 21);
-        validateError(negativeResult, i++, "undefined symbol 'name'", 194, 11);
-        validateError(negativeResult, i++, "undefined symbol 'deptName'", 194, 23);
-        validateError(negativeResult, i++, "undefined symbol 'id'", 218, 23);
-        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'other'", 218, 34);
-        validateError(negativeResult, i++, "undefined symbol 'deptName'", 218, 34);
-        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'other'", 250, 1);
-        validateError(negativeResult, i++, "missing equals keyword", 250, 1);
-        validateError(negativeResult, i++, "missing identifier", 250, 1);
-        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'other'", 273, 1);
-        validateError(negativeResult, i++, "missing equals keyword", 273, 1);
-        validateError(negativeResult, i++, "missing identifier", 273, 1);
-        validateError(negativeResult, i++, "missing equals keyword", 293, 1);
-        validateError(negativeResult, i++, "missing identifier", 293, 1);
-        validateError(negativeResult, i++, "missing identifier", 293, 1);
-        validateError(negativeResult, i++, "missing on keyword", 293, 1);
-        validateError(negativeResult, i++, "undefined symbol 'dept'", 313, 24);
-        validateError(negativeResult, i++, "missing equals keyword", 314, 1);
-        validateError(negativeResult, i, "missing identifier", 314, 1);
+                "non-required field 'name'", 51, 19);
+        validateError(negativeResult, i++, "unknown type 'XYZ'", 69, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 70, 28);
+        validateError(negativeResult, i++, "undefined symbol 'deptId'", 93, 11);
+        validateError(negativeResult, i++, "undefined symbol 'person'", 93, 25);
+        validateError(negativeResult, i++, "undefined symbol 'id'", 116, 11);
+        validateError(negativeResult, i++, "undefined symbol 'person'", 116, 21);
+        validateError(negativeResult, i++, "undefined symbol 'name'", 140, 11);
+        validateError(negativeResult, i++, "undefined symbol 'deptName'", 140, 23);
+        validateError(negativeResult, i++, "undefined symbol 'deptId'", 163, 11);
+        validateError(negativeResult, i++, "undefined symbol 'person'", 163, 25);
+        validateError(negativeResult, i++, "undefined symbol 'id'", 186, 11);
+        validateError(negativeResult, i++, "undefined symbol 'person'", 186, 21);
+        validateError(negativeResult, i++, "undefined symbol 'name'", 210, 11);
+        validateError(negativeResult, i++, "undefined symbol 'deptName'", 210, 23);
+        validateError(negativeResult, i++, "undefined symbol 'id'", 234, 23);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'other'", 234, 34);
+        validateError(negativeResult, i++, "undefined symbol 'deptName'", 234, 34);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'other'", 266, 1);
+        validateError(negativeResult, i++, "missing equals keyword", 266, 1);
+        validateError(negativeResult, i++, "missing identifier", 266, 1);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'other'", 289, 1);
+        validateError(negativeResult, i++, "missing equals keyword", 289, 1);
+        validateError(negativeResult, i++, "missing identifier", 289, 1);
+        validateError(negativeResult, i++, "missing equals keyword", 309, 1);
+        validateError(negativeResult, i++, "missing identifier", 309, 1);
+        validateError(negativeResult, i++, "missing identifier", 309, 1);
+        validateError(negativeResult, i++, "missing on keyword", 309, 1);
+        validateError(negativeResult, i++, "undefined symbol 'dept'", 329, 24);
+        validateError(negativeResult, i++, "missing equals keyword", 330, 1);
+        validateError(negativeResult, i, "missing identifier", 330, 1);
     }
 }
