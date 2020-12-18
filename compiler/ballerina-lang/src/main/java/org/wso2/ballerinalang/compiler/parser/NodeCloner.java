@@ -1455,7 +1455,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJoinClause source) {
-
         BLangJoinClause clone = new BLangJoinClause();
         source.cloneRef = clone;
         clone.variableDefinitionNode = (VariableDefinitionNode) clone((BLangNode) source.variableDefinitionNode);
@@ -1488,7 +1487,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnClause source) {
-
         BLangOnClause clone = new BLangOnClause();
         source.cloneRef = clone;
         clone.lhsExpr = clone(source.lhsExpr);
@@ -1497,7 +1495,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOrderKey source) {
-
         BLangOrderKey clone = new BLangOrderKey();
         source.cloneRef = clone;
         clone.expression = clone(source.expression);
@@ -1506,7 +1503,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOrderByClause source) {
-
         BLangOrderByClause clone = new BLangOrderByClause();
         source.cloneRef = clone;
         clone.orderByKeyList = cloneList(source.orderByKeyList);
@@ -1522,7 +1518,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnConflictClause source) {
-
         BLangOnConflictClause clone = new BLangOnConflictClause();
         source.cloneRef = clone;
         clone.expression = clone(source.expression);
@@ -1530,7 +1525,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLimitClause source) {
-
         BLangLimitClause clone = new BLangLimitClause();
         source.cloneRef = clone;
         clone.expression = clone(source.expression);

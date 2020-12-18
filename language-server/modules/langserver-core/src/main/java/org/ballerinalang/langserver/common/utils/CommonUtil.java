@@ -224,15 +224,11 @@ public class CommonUtil {
         if (bType == null) {
             return "()";
         }
-        switch (getRawType(bType).typeKind()) {
-            case INT:
-                typeString = Integer.toString(0);
-                break;
+
+        TypeDescKind typeKind = getRawType(bType).typeKind();
+        switch (typeKind) {
             case FLOAT:
                 typeString = Float.toString(0);
-                break;
-            case STRING:
-                typeString = "\"\"";
                 break;
             case BOOLEAN:
                 typeString = Boolean.toString(false);
@@ -263,6 +259,16 @@ public class CommonUtil {
             case STREAM:
 //            case TABLE:
             default:
+                if (typeKind.isIntegerType()) {
+                    typeString = Integer.toString(0);
+                    break;
+                }
+
+                if (typeKind.isStringType()) {
+                    typeString = "\"\"";
+                    break;
+                }
+
                 typeString = "()";
                 break;
         }
@@ -527,7 +533,7 @@ public class CommonUtil {
                     .append("}");
         } else if (fieldType.typeKind() == TypeDescKind.ARRAY) {
             insertText.append("[").append("${1}").append("]");
-        } else if (fieldType.typeKind() == TypeDescKind.STRING) {
+        } else if (fieldType.typeKind().isStringType()) {
             insertText.append("\"").append("${1}").append("\"");
         } else {
             insertText.append("${1:").append(getDefaultValueForType(bField.typeDescriptor())).append("}");

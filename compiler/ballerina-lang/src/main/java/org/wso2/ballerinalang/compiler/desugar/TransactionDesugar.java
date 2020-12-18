@@ -411,7 +411,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         onFailBodyBlock.stmts.add(stmtIndex, rollbackCheck);
 
         BConstructorSymbol transactionErrorSymbol = (BConstructorSymbol) symTable.langTransactionModuleSymbol
-                .scope.lookup(names.fromString("TransactionError")).symbol;
+                .scope.lookup(names.fromString("Error")).symbol;
         BType errorType = transactionErrorSymbol.type;
 
         BLangErrorType trxErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();

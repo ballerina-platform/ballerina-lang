@@ -126,7 +126,8 @@
                 },
                 {
                     "name": "typeDescriptor",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
                 },
                 {
                     "name": "variableName",
