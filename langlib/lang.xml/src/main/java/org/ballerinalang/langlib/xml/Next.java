@@ -51,16 +51,16 @@ public class Next {
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            switch (bXML.getType().getTag()){
+            switch (bXML.getType().getTag()) {
                 case TypeTags.XML_ELEMENT_TAG:
                     return ValueCreator.createRecordValue(ValueCreator.createMapValue
-                                    (PredefinedTypes.XML_ITR_NEXT_RETURN_ELEMENT_TYPE),xmlValue);
+                                    (PredefinedTypes.XML_ITR_NEXT_RETURN_ELEMENT_TYPE), xmlValue);
                 case TypeTags.XML_TEXT_TAG:
                     return ValueCreator.createRecordValue(ValueCreator.createMapValue
-                            (PredefinedTypes.XML_ITR_NEXT_RETURN_TEXT_TYPE),xmlValue);
+                            (PredefinedTypes.XML_ITR_NEXT_RETURN_TEXT_TYPE), xmlValue);
                 case TypeTags.XML_TAG:
                     return ValueCreator.createRecordValue(ValueCreator.createMapValue
-                            (PredefinedTypes.XML_ITR_NEXT_RETURN_XML_TYPE),xmlValue);
+                            (PredefinedTypes.XML_ITR_NEXT_RETURN_XML_TYPE), xmlValue);
             }
         }
         return null;
