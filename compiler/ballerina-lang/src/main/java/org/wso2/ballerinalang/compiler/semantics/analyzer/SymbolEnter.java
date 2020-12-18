@@ -2334,10 +2334,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             Collection<BField> fields = structureType.fields.values();
 
-            if (fields.isEmpty()) {
-                continue;
-            }
-
             for (BField field : fields) {
                 if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
                     allImmutableFields = false;

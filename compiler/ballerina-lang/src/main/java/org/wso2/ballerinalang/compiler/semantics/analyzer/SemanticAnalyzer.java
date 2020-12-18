@@ -610,12 +610,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BType type = recordTypeNode.type;
 
-        boolean recordType = false;
+        boolean isRecordType = false;
         LinkedHashMap<String, BField> fields = null;
 
+        boolean allReadOnlyFields = false;
+
         if (type.tag == TypeTags.RECORD) {
-            recordType = true;
-            fields = ((BRecordType) type).fields;
+            isRecordType = true;
+
+            BRecordType recordType = (BRecordType) type;
+            fields = recordType.fields;
+            allReadOnlyFields = recordType.sealed;
         }
 
         for (BLangSimpleVariable field : recordTypeNode.fields) {
@@ -631,15 +636,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (readOnlyFieldType == symTable.semanticError) {
                     dlog.error(field.pos, DiagnosticErrorCode.INVALID_READONLY_FIELD_TYPE, fieldType);
                 } else {
-                    if (recordType) {
+                    if (isRecordType) {
                         fields.get(field.name.value).type = readOnlyFieldType;
                     }
 
                     field.type = field.symbol.type = readOnlyFieldType;
                 }
+            } else {
+                allReadOnlyFields = false;
             }
 
             analyzeDef(field, recordEnv);
+        }
+
+        if (isRecordType && allReadOnlyFields) {
+            type.tsymbol.flags |= Flags.READONLY;
+            type.flags |= Flags.READONLY;
         }
 
         validateOptionalNeverTypedField(recordTypeNode);
