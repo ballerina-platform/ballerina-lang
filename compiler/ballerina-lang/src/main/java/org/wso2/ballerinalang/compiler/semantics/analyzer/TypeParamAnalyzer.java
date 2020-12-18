@@ -302,7 +302,7 @@ public class TypeParamAnalyzer {
                             BType constraint = ((BXMLType) actualType).constraint;
                             while (constraint.tag == TypeTags.XML) {
                                 actualType = constraint;
-                                constraint = ((BXMLType)actualType).constraint;
+                                constraint = ((BXMLType) actualType).constraint;
                             }
                             findTypeParam(loc, ((BXMLType) expType).constraint, constraint, env,
                                     resolvedTypes, result);

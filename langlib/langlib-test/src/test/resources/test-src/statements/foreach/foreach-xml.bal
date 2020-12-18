@@ -44,15 +44,3 @@ function testXMLWithArityChildren () returns (string) {
     }
     return output;
 }
-
-public function testXMLSubType() {
-    output = "";
-    int i = 0;
-    xml<'xml:Element> el = (xdata/*).elements();
-
-    foreach 'xml:Element item in el {
-        concatIntString(i, item.toString());
-        i += 1;
-    }
-    return output;
-}

@@ -1,3 +1,5 @@
+import ballerina/io;
+
 xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
                     <p:name>bob</p:name>
                     <p:address>
@@ -62,7 +64,7 @@ function xmlTypeParamUnionIter() {
         result += str;
     }
 
-    string result = "";
+    result = "";
     foreach 'xml:Element|'xml:Text elem in el3 {
         string str = io:sprintf("%s\n", elem);
         result += str;

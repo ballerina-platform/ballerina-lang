@@ -157,10 +157,10 @@ function xmlTypeParamElementIter() {
         string str = io:sprintf("%s\n", elem);
         result += str;
     }
-    assert(result, "<foo>foo</foo>");
+    assert(result, "<foo>foo</foo>\n");
 
     record {| 'xml:Element value; |}? nextElement1 = el1.iterator().next();
-    assert(result, "{\"value\":`<foo>foo</foo>`}");
+    assert(result, "<foo>foo</foo>\n");
 }
 
 function xmlTypeParamTextIter() {
@@ -172,20 +172,20 @@ function xmlTypeParamTextIter() {
         string str = io:sprintf("%s\n", elem);
         result += str;
     }
-    assert(result,"bit of text\\u2702\\u2705\n");
+    assert(result, "bit of text\\u2702\\u2705\n");
 
-    string result = "";
+    result = "";
     foreach 'xml:Text elem in txt2 {
         string str = io:sprintf("%s\n", elem);
         result += str;
     }
-    assert(result,"bit of text\\u2702\\u2705\n");
+    assert(result, "bit of text\\u2702\\u2705\n");
 
     record {| 'xml:Text value; |}? nextText1 = txt1.iterator().next();
-    assert(result, "{\"value\":`bit of text\\u2702\\u2705`}");
+    assert(result, "bit of text\\u2702\\u2705\n");
 
     record {| 'xml:Text value; |}? nextText2 = txt2.iterator().next();
-    assert(result, "{\"value\":`bit of text\\u2702\\u2705`}");
+    assert(result, "bit of text\\u2702\\u2705\n");
 }
 
 function xmlTypeParamCommentIter() {
@@ -224,10 +224,10 @@ function xmlTypeParamUnionIter() {
         string str = io:sprintf("%s\n", elem);
         result += str;
     }
-    assert(result, "<foo>foo</foo>");
+    assert(result, "<foo>foo</foo>\n");
 
     record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal1 = el1.iterator().next();
-    assert(result, "{\"value\":`<foo>foo</foo>`}");
+    assert(result, "<foo>foo</foo>\n");
 }
 
 function assert(anydata actual, anydata expected) {

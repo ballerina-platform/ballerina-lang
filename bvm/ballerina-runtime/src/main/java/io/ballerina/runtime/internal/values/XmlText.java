@@ -102,6 +102,7 @@ public class XmlText extends XmlNonElementItem {
 
     @Override
     public IteratorValue getIterator() {
+        XmlText that = this;
         return new IteratorValue() {
             boolean read = false;
             @Override
@@ -113,7 +114,7 @@ public class XmlText extends XmlNonElementItem {
             public Object next() {
                 if (!read) {
                     this.read = true;
-                    return this;
+                    return that;
                 } else {
                     throw new NoSuchElementException();
                 }

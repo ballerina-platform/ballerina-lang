@@ -58,60 +58,60 @@ public class XMLIterationTest {
         int index = 0;
         BAssertUtil.validateError(negative, index++,
                                   "invalid tuple binding pattern: attempted to infer a tuple type, but found 'xml'",
-                                  11, 17);
+                                  13, 17);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
                 "'function ((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)) returns ()'," +
-                " found 'function ([int,xml,string]) returns ()'", 16, 19);
+                " found 'function ([int,xml,string]) returns ()'", 18, 19);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:Element'",
-                23, 13);
+                25, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml:Element' is not an iterable collection",
-                23, 34);
+                25, 34);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| xml:Element value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
-                28, 54);
+                30, 54);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:Comment'",
-                35, 13);
+                37, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml:Comment' is not an iterable collection",
-                35, 34);
+                37, 34);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| xml:Comment value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
-                40, 54);
+                42, 54);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:ProcessingInstruction'",
-                47, 13);
+                49, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml:ProcessingInstruction' is not an iterable collection",
-                47, 34);
+                49, 48);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| xml:ProcessingInstruction value; |}?', " +
                         "found 'record {| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
-                52, 54);
+                54, 63);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
-                60, 13);
+                62, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: '(xml:Element|xml:Text)' is not an iterable collection",
-                60, 34);
+                62, 44);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'other', found '(xml:Element|xml:Text)",
-                66, 13);
+                "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
+                68, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: '(xml<xml:Element>|xml<xml:Text>)' is not an iterable collection",
-                66, 34);
+                68, 44);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
-                71, 54);
+                73, 68);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
-                72, 54);
+                74, 68);
     }
 
     @Test

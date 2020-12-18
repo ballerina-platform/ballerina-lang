@@ -73,9 +73,7 @@ function testConcatWithXMLSequence() {
 
     xml d = 'xml:concat();
     foreach var x in catalog/<CD> {
-        if (x is 'xml:Element) {
-            d = 'xml:concat(d, x);
-        }
+        d = 'xml:concat(d, x);
     }
     assert(d.length(), 3);
 
@@ -192,11 +190,9 @@ function testCreateText() {
 function testForEach() {
     xml r = 'xml:concat();
     foreach var x in catalog/* {
-        if (x is 'xml:Element) {
-            r = 'xml:concat(r, x);
-        }
+        r = 'xml:concat(r, x);
     }
-    assert(r.length(), 3);
+    assert(r.length(), 7);
 }
 
 function testSlice() returns [xml, xml, xml] {

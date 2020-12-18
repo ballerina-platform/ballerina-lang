@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BIterator;
-import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BXml;
 
@@ -59,6 +58,9 @@ public class Next {
                 case TypeTags.XML_TEXT_TAG:
                     return ValueCreator.createRecordValue(ValueCreator.createMapValue
                             (PredefinedTypes.XML_ITR_NEXT_RETURN_TEXT_TYPE),xmlValue);
+                case TypeTags.XML_TAG:
+                    return ValueCreator.createRecordValue(ValueCreator.createMapValue
+                            (PredefinedTypes.XML_ITR_NEXT_RETURN_XML_TYPE),xmlValue);
             }
         }
         return null;
