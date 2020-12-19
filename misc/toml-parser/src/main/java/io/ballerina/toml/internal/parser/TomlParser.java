@@ -612,7 +612,8 @@ public class TomlParser extends AbstractParser {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN || nextToken.kind == SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN) {
             return parseStringValue();
-        } else if (nextToken.kind == SyntaxKind.SINGLE_QUOTE_TOKEN || nextToken.kind == SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN) {
+        } else if (nextToken.kind == SyntaxKind.SINGLE_QUOTE_TOKEN ||
+                nextToken.kind == SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN) {
             return parseLiteralStringValue();
         } else if (isBasicValue(nextToken)) {
             return parseValue();

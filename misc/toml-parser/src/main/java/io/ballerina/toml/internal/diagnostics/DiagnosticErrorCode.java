@@ -17,6 +17,7 @@
  */
 package io.ballerina.toml.internal.diagnostics;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 /**

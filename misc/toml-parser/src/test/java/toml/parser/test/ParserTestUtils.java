@@ -441,6 +441,8 @@ public class ParserTestUtils {
                 return SyntaxKind.INVALID_NODE_MINUTIAE;
             case "INVALID_TOKEN":
                 return SyntaxKind.INVALID_TOKEN;
+            case "INVALID_TOKEN_MINUTIAE_NODE":
+                return SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE;
             case "MARKDOWN_DOCUMENTATION_LINE":
                 return SyntaxKind.MARKDOWN_DOCUMENTATION_LINE;
             case "TABLE":

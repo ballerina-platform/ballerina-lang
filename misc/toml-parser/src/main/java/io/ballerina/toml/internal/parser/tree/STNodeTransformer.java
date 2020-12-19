@@ -83,10 +83,6 @@ public abstract class STNodeTransformer<T> {
         return transform((STToken) literalValueToken);
     }
 
-    public T transform(STDocumentationLineToken documentationLineToken) {
-        return transform((STToken) documentationLineToken);
-    }
-
     public T transform(STMissingToken missingToken) {
         return transform((STToken) missingToken);
     }

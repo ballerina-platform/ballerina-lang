@@ -158,10 +158,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return literalValueToken;
     }
 
-    public STDocumentationLineToken transform(STDocumentationLineToken documentationLineToken) {
-        return documentationLineToken;
-    }
-
     public STMissingToken transform(STMissingToken missingToken) {
         return missingToken;
     }

@@ -125,7 +125,6 @@ public class KeyValueTest {
         Double flt3 = ((TomlDoubleValueNodeNode) read.get("flt3")).getValue();
         Assert.assertEquals(flt3, -0.01);
 
-
         Double flt4 = ((TomlDoubleValueNodeNode) read.get("flt4")).getValue();
         Assert.assertEquals(flt4, 5e+22);
         Double flt5 = ((TomlDoubleValueNodeNode) read.get("flt5")).getValue();
@@ -175,7 +174,8 @@ public class KeyValueTest {
                 "The first newline is%strimmed in raw strings.%s   All other whitespace%s   is preserved.%s",
                 System.lineSeparator(), System.lineSeparator(), System.lineSeparator(), System.lineSeparator()));
         String fifteenQuotesWithLiteral = ((TomlStringValueNode) read.get("lit7")).getValue();
-        Assert.assertEquals(fifteenQuotesWithLiteral, "Here are fifteen quotation marks: \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"");
+        Assert.assertEquals(fifteenQuotesWithLiteral,
+                "Here are fifteen quotation marks: \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"");
         String fifteenSingleQuotes = ((TomlStringValueNode) read.get("lit8")).getValue();
         Assert.assertEquals(fifteenSingleQuotes, "Here are fifteen apostrophes: '''''''''''''''");
     }

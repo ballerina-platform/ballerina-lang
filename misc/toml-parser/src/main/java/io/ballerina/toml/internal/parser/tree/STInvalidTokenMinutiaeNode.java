@@ -24,24 +24,17 @@ import io.ballerina.toml.syntax.tree.SyntaxKind;
 import java.util.Collection;
 
 /**
- * Represents whitespaces, comments, newline characters attached to a {@code STToken}.
+ * Represents the parent node of an {@code STToken} attached to an {@code STInvalidNodeMinutiae} node.
  *
  * @since 2.0.0
  */
-public class STMinutiae extends STNode {
-    private final String text;
+public class STInvalidTokenMinutiaeNode extends STNode {
+    public final STToken token;
 
-    STMinutiae(SyntaxKind kind, String text) {
-        this(kind, text, text.length());
-    }
-
-    STMinutiae(SyntaxKind kind, String text, int width) {
-        super(kind);
-        this.text = text;
-        this.width = width;
-        this.widthWithLeadingMinutiae = width;
-        this.widthWithTrailingMinutiae = width;
-        this.widthWithMinutiae = width;
+    STInvalidTokenMinutiaeNode(STToken token) {
+        super(SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE);
+        this.token = token;
+        addChildren(token);
     }
 
     @Override
@@ -56,27 +49,11 @@ public class STMinutiae extends STNode {
 
     @Override
     public void accept(STNodeVisitor visitor) {
-        // TODO visiting minutiae is not yet supported
-        throw new IllegalStateException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public <T> T apply(STNodeTransformer<T> transformer) {
-        // TODO transforming minutiae is not yet supported
-        throw new IllegalStateException();
-    }
-
-    public String text() {
-        return text;
-    }
-
-    @Override
-    public String toString() {
-        return text;
-    }
-
-    @Override
-    public void writeTo(StringBuilder builder) {
-        builder.append(text);
+        throw new UnsupportedOperationException();
     }
 }

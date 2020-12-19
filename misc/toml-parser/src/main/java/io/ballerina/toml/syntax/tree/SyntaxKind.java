@@ -62,6 +62,7 @@ public enum SyntaxKind {
     // Invalid nodes
     INVALID_TOKEN(1600),
     MISSING_VALUE(1601),
+    INVALID_TOKEN_MINUTIAE_NODE(1603),
 
     // Documentation
     MARKDOWN_DOCUMENTATION_LINE(1504),

@@ -764,15 +764,16 @@ public class TomlLexer extends AbstractLexer {
      * Process and returns an invalid token. Consumes the input until {@link #isEndOfInvalidToken()}
      * is reached.
      */
-    private void processInvalidToken() {
+    private STToken processInvalidToken() {
         while (!isEndOfInvalidToken()) {
             reader.advance();
         }
 
         String tokenText = getLexeme();
-        STNode invalidToken = STNodeFactory.createInvalidToken(tokenText);
+        STToken invalidToken = STNodeFactory.createInvalidToken(tokenText);
         STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidToken);
         this.leadingTriviaList.add(invalidNodeMinutiae);
+        return invalidToken;
     }
 
     /**
