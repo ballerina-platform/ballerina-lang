@@ -1627,7 +1627,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Symbol enter with type other
             varNode.memberVariables.forEach(member -> {
                 member.isDeclaredWithVar = true;
-                defineNode(member,env);
+                defineNode(member, env);
             });
             return;
         }
