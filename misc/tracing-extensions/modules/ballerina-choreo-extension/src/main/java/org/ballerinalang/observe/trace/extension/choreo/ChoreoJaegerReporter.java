@@ -42,7 +42,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_INVOCATION_POSITION;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_MODULE;
 
@@ -131,9 +131,9 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                 for (LogData eventLog : jaegerSpan.getLogs()) {
                     ChoreoTraceSpan.SpanEvent event = new ChoreoTraceSpan.SpanEvent(
                             eventLog.getTime(),
-                            (((Map) eventLog.getFields().get(CHECKPOINT)).
+                            (((Map) eventLog.getFields().get(CHECKPOINT_EVENT_NAME)).
                                     get(TAG_KEY_MODULE)).toString(),
-                            (((Map) eventLog.getFields().get(CHECKPOINT)).
+                            (((Map) eventLog.getFields().get(CHECKPOINT_EVENT_NAME)).
                                     get(TAG_KEY_INVOCATION_POSITION)).toString()
                     );
                     events.add(event);

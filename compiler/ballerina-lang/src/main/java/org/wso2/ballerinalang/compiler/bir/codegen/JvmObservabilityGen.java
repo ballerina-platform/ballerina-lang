@@ -109,9 +109,9 @@ class JvmObservabilityGen {
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
     private static final Location COMPILE_TIME_CONST_POS =
             new BLangDiagnosticLocation(null, -1, -1, -1, -1);
-    private static final String INIT_FUNC = ".<init>";
-    private static final String START_FUNC = ".<start>";
-    private static final String STOP_FUNC = ".<stop>";
+    private static final String INIT_FUNCTION_SUFFIX = ".<init>";
+    private static final String START_FUNCTION_SUFFIX = ".<start>";
+    private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
     private final PackageCache packageCache;
     private final SymbolTable symbolTable;
@@ -142,9 +142,9 @@ class JvmObservabilityGen {
 
             // If there is an entry point in the package, then we instrument with control flow checkpoints
             if (entryPointExists) {
-                if (!(func.name.value.equalsIgnoreCase(INIT_FUNC) ||
-                        func.name.value.equalsIgnoreCase(START_FUNC) ||
-                        func.name.value.equalsIgnoreCase(STOP_FUNC))) {
+                if (!(func.name.value.equalsIgnoreCase(INIT_FUNCTION_SUFFIX) ||
+                        func.name.value.equalsIgnoreCase(START_FUNCTION_SUFFIX) ||
+                        func.name.value.equalsIgnoreCase(STOP_FUNCTION_SUFFIX))) {
                     rewriteControlFlowInvocation(func, pkg);
                 }
             }
@@ -168,9 +168,9 @@ class JvmObservabilityGen {
 
                 // Instrumenting the control flow of attached functions
                 if (entryPointExists) {
-                    if (!(func.name.value.equalsIgnoreCase(INIT_FUNC) ||
-                            func.name.value.equalsIgnoreCase(START_FUNC) ||
-                            func.name.value.equalsIgnoreCase(STOP_FUNC))) {
+                    if (!(func.name.value.equalsIgnoreCase(INIT_FUNCTION_SUFFIX) ||
+                            func.name.value.equalsIgnoreCase(START_FUNCTION_SUFFIX) ||
+                            func.name.value.equalsIgnoreCase(STOP_FUNCTION_SUFFIX))) {
                         rewriteControlFlowInvocation(func, pkg);
                     }
                 }
@@ -207,22 +207,22 @@ class JvmObservabilityGen {
         int i = 0;
         while (i < func.basicBlocks.size()) {
             // Basic blocks with JI method calls are added for all kinda of Terminators
-            BIRBasicBlock startBB = func.basicBlocks.get(i);
+            BIRBasicBlock currentBB = func.basicBlocks.get(i);
             Location desugaredPos;
             // First we give the priority to Instructions,
             // If no instructions are found, then we get the Terminator position
-            if (startBB.instructions.size() != 0) {
-                desugaredPos = startBB.instructions.get(0).pos;
+            if (currentBB.instructions.size() != 0) {
+                desugaredPos = currentBB.instructions.get(0).pos;
             } else {
-                desugaredPos = startBB.terminator.pos;
+                desugaredPos = currentBB.terminator.pos;
             }
             if (desugaredPos != null) {
                 BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
-                swapBasicBlockContent(startBB, newBB);
-                injectCheckpointCall(startBB, pkg, desugaredPos);
-                startBB.terminator.thenBB = newBB;
-                //Fix error entries in the error entry table
-                fixErrorTable(func, startBB, newBB);
+                swapBasicBlockContent(currentBB, newBB);
+                injectCheckpointCall(currentBB, pkg, desugaredPos);
+                currentBB.terminator.thenBB = newBB;
+                // Fix error entries in the error entry table
+                fixErrorTable(func, currentBB, newBB);
                 i += 1; // Number of inserted BBs
             }
             i += 1;
@@ -231,25 +231,26 @@ class JvmObservabilityGen {
 
     /**
      * Inject checkpoint JI method call to a basic block.
-     * @param startBB The basic block to which the checkpoint call should be injected
+     *
+     * @param currentBB The basic block to which the checkpoint call should be injected
      * @param pkg The package the invocation belongs to
-     * @param desugaredInsPosition The source code position of the invocation
+     * @param originalInsPosition The source code position of the invocation
      */
-    private void injectCheckpointCall(BIRBasicBlock startBB, BIRPackage pkg, Location desugaredInsPosition) {
+    private void injectCheckpointCall(BIRBasicBlock currentBB, BIRPackage pkg, Location originalInsPosition) {
         String pkgId = generatePackageId(pkg);
-        String position = generatePositionId(desugaredInsPosition);
+        String position = generatePositionId(originalInsPosition);
 
         BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
         BIROperand originalInsPosOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, position);
 
-        JIMethodCall observeStartCallTerminator = new JIMethodCall(null);
-        observeStartCallTerminator.invocationType = INVOKESTATIC;
-        observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V",
+        JIMethodCall recordCheckPointCallTerminator = new JIMethodCall(null);
+        recordCheckPointCallTerminator.invocationType = INVOKESTATIC;
+        recordCheckPointCallTerminator.jClassName = OBSERVE_UTILS;
+        recordCheckPointCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V",
                 BAL_ENV, B_STRING_VALUE, B_STRING_VALUE);
-        observeStartCallTerminator.name = RECORD_CHECKPOINT_METHOD;
-        observeStartCallTerminator.args = Arrays.asList(pkgOperand, originalInsPosOperand);
-        startBB.terminator = observeStartCallTerminator;
+        recordCheckPointCallTerminator.name = RECORD_CHECKPOINT_METHOD;
+        recordCheckPointCallTerminator.args = Arrays.asList(pkgOperand, originalInsPosOperand);
+        currentBB.terminator = recordCheckPointCallTerminator;
     }
 
     /**
