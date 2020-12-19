@@ -199,8 +199,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         TypeSymbol rawType = getRawType(variableSymbol.typeDescriptor());
         if (rawType.typeKind() == TypeDescKind.OBJECT) {
             ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
-            boolean isEndpoint = objectTypeSymbol.typeQualifiers()
-                    .contains(ObjectTypeSymbol.TypeQualifier.CLIENT);
+            boolean isEndpoint = objectTypeSymbol.qualifiers()
+                    .contains(Qualifier.CLIENT);
             if (isEndpoint) {
                 symbolJson.addProperty("isEndpoint", true);
                 JsonObject ep = visibleEP(node, rawType);
