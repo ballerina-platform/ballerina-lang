@@ -300,20 +300,9 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                         populateConnectorTypeDef((RecordTypeDescriptorNode) record.typeDescriptor(),
                                 semanticModel, jsonRecords, connectorRecords, typeName);
                     }
-
-                    if (record.typeDescriptor() instanceof UnionTypeDescriptorNode) {
-                        populateConnectorTypeDef((UnionTypeDescriptorNode) record.typeDescriptor(), semanticModel,
-                                jsonRecords, connectorRecords, typeName);
-                    }
                 }
             }
         });
-    }
-
-    private void populateConnectorTypeDef(UnionTypeDescriptorNode unionTypeDescriptorNode, SemanticModel semanticModel,
-                                          Map<String, TypeDefinitionNode> jsonRecords,
-                                          Map<String, JsonElement> connectorRecords, String fieldTypeName) {
-
     }
 
     @Override
