@@ -22,7 +22,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "testFunction();",
+      "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -31,6 +31,28 @@
       "detail": "Module",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'test;\n"
+        }
+      ]
     },
     {
       "label": "ballerina/lang.array",
@@ -139,6 +161,28 @@
             }
           },
           "newText": "import ballerina/lang.'query;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'runtime;\n"
         }
       ]
     },

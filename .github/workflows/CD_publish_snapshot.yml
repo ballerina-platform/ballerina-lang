@@ -20,11 +20,6 @@ jobs:
                 with:
                     java-version: 11
 
-            -   name: Setup Node.js
-                uses: actions/setup-node@v1
-                with:
-                    node-version: '8.x'
-
             -   name: Initialize Sub Modules
                 run: git submodule update --init
 
@@ -33,8 +28,7 @@ jobs:
                     NEXUS_USERNAME: ${{ secrets.BALLERINA_BOT_USERNAME }}
                     NEXUS_PASSWORD: ${{ secrets.BALLERINA_BOT_TOKEN }}
                 run: |
-                    ./gradlew build -x createJavadoc -x test -x check --max-workers=2 --no-daemon
-                    ./gradlew publish -PpublishToGithub
+                    ./gradlew publish -x test -x check -PpublishToGithub
 
             -   name: Trigger Standard Library Module Builds
                 run: |

@@ -86,6 +86,10 @@ public class BInvokableType extends BType implements InvokableType {
         }
         BInvokableType that = (BInvokableType) o;
 
+        if (this.flags != that.flags) {
+            return false;
+        }
+
         if (paramTypes != null ? !paramTypes.equals(that.paramTypes) : that.paramTypes != null) {
             return false;
         }

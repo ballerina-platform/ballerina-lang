@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.model;
 
 import io.ballerina.tools.diagnostics.Location;
@@ -40,9 +41,9 @@ import java.util.TreeSet;
  * @since 0.980.0
  */
 public abstract class BIRNode {
-    public Location pos;
+    public final Location pos;
 
-    public BIRNode(Location pos) {
+    protected BIRNode(Location pos) {
         this.pos = pos;
     }
 
@@ -54,24 +55,18 @@ public abstract class BIRNode {
      * @since 0.980.0
      */
     public static class BIRPackage extends BIRNode {
-        public Name org;
-        public Name name;
-        public Name version;
-        public Name sourceFileName;
-        public List<BIRImportModule> importModules;
-        public List<BIRTypeDefinition> typeDefs;
-        public List<BIRGlobalVariableDcl> globalVars;
-        public List<BIRFunction> functions;
-        public List<BIRAnnotation> annotations;
-        public List<BIRConstant> constants;
+        public final PackageID packageID;
+        public final List<BIRImportModule> importModules;
+        public final List<BIRTypeDefinition> typeDefs;
+        public final List<BIRGlobalVariableDcl> globalVars;
+        public final List<BIRFunction> functions;
+        public final List<BIRAnnotation> annotations;
+        public final List<BIRConstant> constants;
 
         public BIRPackage(Location pos, Name org, Name name, Name version,
                           Name sourceFileName) {
             super(pos);
-            this.org = org;
-            this.name = name;
-            this.version = version;
-            this.sourceFileName = sourceFileName;
+            packageID = new PackageID(org, name, version, sourceFileName);
             this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();
@@ -84,10 +79,6 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
-
-        public Name getSourceFileName() {
-            return sourceFileName;
-        }
     }
 
     /**
@@ -96,15 +87,11 @@ public abstract class BIRNode {
      * @since 0.990.0
      */
     public static class BIRImportModule extends BIRNode {
-        public Name org;
-        public Name name;
-        public Name version;
+        public final PackageID packageID;
 
         public BIRImportModule(Location pos, Name org, Name name, Name version) {
             super(pos);
-            this.org = org;
-            this.name = name;
-            this.version = version;
+            packageID = new PackageID(org, name, version);
         }
 
         @Override
@@ -185,9 +172,9 @@ public abstract class BIRNode {
      */
     public static class BIRParameter extends BIRNode {
         public Name name;
-        public int flags;
+        public long flags;
 
-        public BIRParameter(Location pos, Name name, int flags) {
+        public BIRParameter(Location pos, Name name, long flags) {
             super(pos);
             this.name = name;
             this.flags = flags;
@@ -208,11 +195,11 @@ public abstract class BIRNode {
         /**
          * Value represents Flags.
          */
-        public int flags;
+        public long flags;
         public PackageID pkgId;
         public SymbolOrigin origin;
 
-        public BIRGlobalVariableDcl(Location pos, int flags, BType type, PackageID pkgId, Name name,
+        public BIRGlobalVariableDcl(Location pos, long flags, BType type, PackageID pkgId, Name name,
                                     VarScope scope, VarKind kind, String metaVarName, SymbolOrigin origin) {
             super(pos, type, name, scope, kind, metaVarName);
             this.flags = flags;
@@ -261,7 +248,7 @@ public abstract class BIRNode {
         /**
          * Value represents flags.
          */
-        public int flags;
+        public long flags;
 
         /**
          * The origin of the function.
@@ -338,7 +325,7 @@ public abstract class BIRNode {
 
         public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
 
-        public BIRFunction(Location pos, Name name, int flags, BInvokableType type, Name workerName,
+        public BIRFunction(Location pos, Name name, long flags, BInvokableType type, Name workerName,
                            int sendInsCount, TaintTable taintTable, SymbolOrigin origin) {
             super(pos);
             this.name = name;
@@ -422,7 +409,7 @@ public abstract class BIRNode {
 
         public List<BIRFunction> attachedFuncs;
 
-        public int flags;
+        public long flags;
 
         public BType type;
 
@@ -440,7 +427,7 @@ public abstract class BIRNode {
          */
         public int index;
 
-        public BIRTypeDefinition(Location pos, Name name, int flags, boolean isLabel, boolean isBuiltin,
+        public BIRTypeDefinition(Location pos, Name name, long flags, boolean isLabel, boolean isBuiltin,
                                  BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
 
             super(pos);
@@ -461,7 +448,7 @@ public abstract class BIRNode {
 
         @Override
         public String toString() {
-            return String.valueOf(type) + " " + String.valueOf(name);
+            return type + " " + name;
         }
 
         @Override
@@ -536,7 +523,7 @@ public abstract class BIRNode {
         /**
          * Value represents flags.
          */
-        public int flags;
+        public long flags;
 
         /**
          * The origin of the annotation.
@@ -553,7 +540,7 @@ public abstract class BIRNode {
          */
         public BType annotationType;
 
-        public BIRAnnotation(Location pos, Name name, int flags,
+        public BIRAnnotation(Location pos, Name name, long flags,
                              Set<AttachPoint> points, BType annotationType, SymbolOrigin origin) {
             super(pos);
             this.name = name;
@@ -584,7 +571,7 @@ public abstract class BIRNode {
         /**
          * Value for the Flags.
          */
-        public int flags;
+        public long flags;
 
         /**
          * Type of the constant symbol.
@@ -601,7 +588,7 @@ public abstract class BIRNode {
          */
         public SymbolOrigin origin;
 
-        public BIRConstant(Location pos, Name name, int flags,
+        public BIRConstant(Location pos, Name name, long flags,
                            BType type, ConstValue constValue, SymbolOrigin origin) {
             super(pos);
             this.name = name;
@@ -652,7 +639,7 @@ public abstract class BIRNode {
     public abstract static class BIRAnnotationValue {
         public BType type;
 
-        public BIRAnnotationValue(BType type) {
+        protected BIRAnnotationValue(BType type) {
             this.type = type;
         }
     }
@@ -737,7 +724,7 @@ public abstract class BIRNode {
     public abstract static class BIRDocumentableNode extends BIRNode {
         public MarkdownDocAttachment markdownDocAttachment;
 
-        public BIRDocumentableNode(Location pos) {
+        protected BIRDocumentableNode(Location pos) {
             super(pos);
         }
 

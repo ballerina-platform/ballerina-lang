@@ -38,7 +38,7 @@ public class BAnydataType extends BBuiltInRefType implements SelectivelyImmutabl
         super(tag, tsymbol);
     }
 
-    public BAnydataType(int tag, BTypeSymbol tsymbol, Name name, int flag) {
+    public BAnydataType(int tag, BTypeSymbol tsymbol, Name name, long flag) {
 
         super(tag, tsymbol);
         this.name = name;
@@ -50,7 +50,7 @@ public class BAnydataType extends BBuiltInRefType implements SelectivelyImmutabl
         this.nullable = nullable;
     }
 
-    public BAnydataType(int tag, BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
+    public BAnydataType(int tag, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
 
         super(tag, tsymbol);
         this.name = name;

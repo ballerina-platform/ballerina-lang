@@ -24,24 +24,25 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.bir.model.VarKind;
-import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.List;
 
+import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
@@ -77,74 +78,131 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE
  * @since 2.0.0
  */
 public class ModuleStopMethodGen {
+    public static final String SCHEDULER_VAR = "schedulerVar";
+    public static final String FUTURE_VAR = "futureVar";
+    public static final String ARR_VAR = "arrVar";
     private final SymbolTable symbolTable;
+    private final BIRVarToJVMIndexMap indexMap;
 
     public ModuleStopMethodGen(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
+        indexMap = new BIRVarToJVMIndexMap(1);
     }
 
     public void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRNode.BIRPackage module,
-                                     List<PackageID> imprtMods, AsyncDataCollector asyncDataCollector) {
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MODULE_STOP, "()V", null, null);
+                                            List<PackageID> imprtMods, AsyncDataCollector asyncDataCollector) {
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MODULE_STOP,
+                                          String.format("(L%s;)V", JvmConstants.LISTENER_REGISTRY_CLASS), null, null);
         mv.visitCode();
 
-        BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-
-        BIRNode.BIRVariableDcl argsVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("schedulerVar"),
-                                                                    VarScope.FUNCTION, VarKind.ARG);
-        int schedulerIndex = indexMap.addToMapIfNotFoundAndGetIndex(argsVar);
-        BIRNode.BIRVariableDcl futureVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("futureVar"),
-                                                                      VarScope.FUNCTION, VarKind.ARG);
-        int futureIndex = indexMap.addToMapIfNotFoundAndGetIndex(futureVar);
-
+        int schedulerIndex = indexMap.addIfNotExists(SCHEDULER_VAR, symbolTable.anyType);
+        // Create a scheduler. A new scheduler is used here, to make the stop function to not to
+        // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
         mv.visitTypeInsn(NEW, SCHEDULER);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_1);
         mv.visitInsn(ICONST_0);
         mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, "(IZ)V", false);
-
         mv.visitVarInsn(ASTORE, schedulerIndex);
 
-
-        PackageID currentModId = MethodGenUtils.packageToModuleId(module);
-        String moduleInitClass = getModuleInitClassName(currentModId);
-        String fullFuncName = MethodGenUtils.calculateModuleSpecialFuncName(currentModId,
-                                                                            MethodGenUtils.STOP_FUNCTION_SUFFIX);
-
-        scheduleStopMethod(mv, initClass, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), schedulerIndex,
-                           futureIndex, moduleInitClass, asyncDataCollector);
+        String moduleInitClass = getModuleInitClassName(module.packageID);
+        String fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(module.packageID);
+        String lambdaName = generateStopDynamicListenerLambdaBody(cw);
+        generateCallStopDynamicListenersLambda(mv, lambdaName, moduleInitClass, asyncDataCollector);
+        scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
         int i = imprtMods.size() - 1;
         while (i >= 0) {
             PackageID id = imprtMods.get(i);
             i -= 1;
-            fullFuncName = MethodGenUtils.calculateModuleSpecialFuncName(id, MethodGenUtils.STOP_FUNCTION_SUFFIX);
+            fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(id);
             moduleInitClass = getModuleInitClassName(id);
-            scheduleStopMethod(mv, initClass, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), schedulerIndex,
-                               futureIndex, moduleInitClass, asyncDataCollector);
+            scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
         }
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
-    private void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
-                                    int schedulerIndex, int futureIndex, String moduleClass,
-                                    AsyncDataCollector asyncDataCollector) {
-        // Create a scheduler. A new scheduler is used here, to make the stop function to not to
-        // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
-        mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_START_ATTEMPTED, "Z");
+    private String generateStopDynamicListenerLambdaBody(ClassWriter cw) {
+        String lambdaName = "$lambda$stopdynamic";
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName, String.format(
+                "([L%s;)L%s;", OBJECT, OBJECT), null, null);
+        mv.visitCode();
+        generateCallSchedulerStopDynamicListeners(mv);
+        return lambdaName;
+    }
+
+    private void generateCallStopDynamicListenersLambda(MethodVisitor mv, String lambdaName, String moduleInitClass,
+                                                        AsyncDataCollector asyncDataCollector) {
+        addListenerRegistryAsParameter(mv);
+        int futureIndex = indexMap.addIfNotExists(FUTURE_VAR, symbolTable.anyType);
+        generateMethodBody(mv, moduleInitClass, lambdaName, asyncDataCollector);
+
+        // handle any runtime errors
         Label labelIf = new Label();
-        mv.visitJumpInsn(IFEQ, labelIf);
-        MethodGenUtils.genArgs(mv, schedulerIndex);
+        mv.visitVarInsn(ALOAD, futureIndex);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
+        mv.visitJumpInsn(IFNULL, labelIf);
+
+        mv.visitVarInsn(ALOAD, futureIndex);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, String.format("(L%s;)V", THROWABLE),
+                           false);
+        mv.visitLabel(labelIf);
+    }
+
+    private void generateCallSchedulerStopDynamicListeners(MethodVisitor mv) {
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ICONST_1);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, JvmConstants.LISTENER_REGISTRY_CLASS);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
+        mv.visitMethodInsn(INVOKEVIRTUAL, JvmConstants.LISTENER_REGISTRY_CLASS, "stopListeners",
+                           String.format("(L%s;)V", STRAND_CLASS), false);
+        mv.visitInsn(ACONST_NULL);
+        MethodGenUtils.visitReturn(mv);
+    }
+
+    private void addListenerRegistryAsParameter(MethodVisitor mv) {
+        int arrIndex = indexMap.addIfNotExists(ARR_VAR, symbolTable.anyType);
+        mv.visitIntInsn(BIPUSH, 2);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitVarInsn(ASTORE, arrIndex);
+        mv.visitVarInsn(ALOAD, arrIndex);
+        mv.visitInsn(ICONST_1);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(AASTORE);
+        mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
+        mv.visitVarInsn(ALOAD, arrIndex);
+    }
+
+    private void scheduleStopLambda(MethodVisitor mv, String initClass, String stopFuncName, String moduleClass,
+                                    AsyncDataCollector asyncDataCollector) {
+        Label labelIf = createIfLabel(mv, moduleClass);
+        mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
+        mv.visitIntInsn(BIPUSH, 1);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
         // create FP value
-        String lambdaFuncName = "$lambda$" + stopFuncName;
-        JvmCodeGenUtil.createFunctionPointer(mv, initClass, lambdaFuncName);
+        generateMethodBody(mv, initClass, stopFuncName, asyncDataCollector);
+
+        // handle any runtime errors
+        genHandleRuntimeErrors(mv, moduleClass, labelIf);
+    }
+
+    private void generateMethodBody(MethodVisitor mv, String initClass, String stopFuncName,
+                                    AsyncDataCollector asyncDataCollector) {
+        // create FP value
+        JvmCodeGenUtil.createFunctionPointer(mv, initClass, stopFuncName);
 
         // no parent strand
         mv.visitInsn(ACONST_NULL);
         JvmTypeGen.loadType(mv, new BNilType());
         MethodGenUtils.submitToScheduler(mv, initClass, "stop", asyncDataCollector);
+        int futureIndex = indexMap.get(FUTURE_VAR);
         mv.visitVarInsn(ASTORE, futureIndex);
 
         mv.visitVarInsn(ALOAD, futureIndex);
@@ -153,16 +211,17 @@ public class ModuleStopMethodGen {
         mv.visitIntInsn(BIPUSH, 100);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, String.format("[L%s;", OBJECT));
-
-        mv.visitVarInsn(ALOAD, futureIndex);
-        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, String.format("L%s;", STRAND_CLASS));
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "scheduler", String.format("L%s;", SCHEDULER));
+        int schedulerIndex = indexMap.get(SCHEDULER_VAR);
+        mv.visitVarInsn(ALOAD, schedulerIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
 
+    }
+
+
+    private void genHandleRuntimeErrors(MethodVisitor mv, String moduleClass, Label labelIf) {
+        int futureIndex = indexMap.get(FUTURE_VAR);
         mv.visitVarInsn(ALOAD, futureIndex);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
-
-        // handle any runtime errors
         mv.visitJumpInsn(IFNULL, labelIf);
         mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_STARTED, "Z");
         mv.visitJumpInsn(IFEQ, labelIf);
@@ -174,9 +233,15 @@ public class ModuleStopMethodGen {
         mv.visitLabel(labelIf);
     }
 
+    private Label createIfLabel(MethodVisitor mv, String moduleClass) {
+        mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_START_ATTEMPTED, "Z");
+        Label labelIf = new Label();
+        mv.visitJumpInsn(IFEQ, labelIf);
+        return labelIf;
+    }
+
     private String getModuleInitClassName(PackageID id) {
-        return JvmCodeGenUtil.getModuleLevelClassName(id.orgName.value, id.name.value, id.version.value,
-                                                      MODULE_INIT_CLASS_NAME);
+        return JvmCodeGenUtil.getModuleLevelClassName(id, MODULE_INIT_CLASS_NAME);
     }
 
 }

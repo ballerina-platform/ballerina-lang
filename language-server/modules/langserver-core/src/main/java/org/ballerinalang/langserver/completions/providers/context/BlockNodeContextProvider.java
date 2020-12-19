@@ -31,11 +31,9 @@ import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.SnippetBlock;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -62,8 +60,8 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, T node) throws LSCompletionException {
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+    public List<LSCompletionItem> getCompletions(CompletionContext context, T node) throws LSCompletionException {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Covers the following
@@ -74,7 +72,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             Predicate<Symbol> filter = symbol ->
-                    symbol.kind() == SymbolKind.TYPE
+                    symbol.kind() == SymbolKind.TYPE_DEFINITION
                             || symbol.kind() == SymbolKind.VARIABLE
                             || symbol.kind() == SymbolKind.CONSTANT
                             || symbol.kind() == SymbolKind.FUNCTION
@@ -101,7 +99,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return completionItems;
     }
 
-    protected List<LSCompletionItem> getStaticCompletionItems(LSContext context) {
+    protected List<LSCompletionItem> getStaticCompletionItems(CompletionContext context) {
 
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -113,6 +111,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
@@ -121,7 +120,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return completionItems;
     }
 
-    protected List<LSCompletionItem> getStatementCompletionItems(LSContext context, T node) {
+    protected List<LSCompletionItem> getStatementCompletionItems(CompletionContext context, T node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         boolean withinLoop = this.withinLoopConstructs(node);
@@ -168,8 +167,8 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return completionItems;
     }
 
-    protected List<LSCompletionItem> getSymbolCompletions(LSContext context) {
-        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+    protected List<LSCompletionItem> getSymbolCompletions(CompletionContext context) {
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         // TODO: Can we get this filter to a common place
         List<Symbol> filteredList = visibleSymbols.stream()
@@ -193,7 +192,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return withinLoops;
     }
 
-    private Optional<Node> nodeBeforeCursor(LSContext context, Node node) {
+    private Optional<Node> nodeBeforeCursor(CompletionContext context, Node node) {
         NodeList<StatementNode> statements;
         if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
             statements = ((FunctionBodyBlockNode) node).statements();
@@ -202,7 +201,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         } else {
             return Optional.empty();
         }
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        int cursor = context.getCursorPositionInTree();
 
         for (int i = statements.size() - 1; i >= 0; i--) {
             StatementNode statementNode = statements.get(i);
@@ -226,7 +225,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return Optional.empty();
     }
 
-    private List<LSCompletionItem> getTypeguardDestructedItems(List<Symbol> scopeEntries, LSContext ctx) {
+    private List<LSCompletionItem> getTypeguardDestructedItems(List<Symbol> scopeEntries, CompletionContext ctx) {
         List<String> capturedSymbols = new ArrayList<>();
         // In the case of type guarded variables multiple symbols with the same symbol name and we ignore those
         return scopeEntries.stream()

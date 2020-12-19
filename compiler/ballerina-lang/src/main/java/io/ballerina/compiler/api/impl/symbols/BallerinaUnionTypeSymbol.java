@@ -74,8 +74,14 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
 
     @Override
     public String signature() {
-        StringJoiner joiner = new StringJoiner("|");
-        this.memberTypeDescriptors().forEach(typeDescriptor -> joiner.add(typeDescriptor.signature()));
-        return joiner.toString();
+        List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
+        if (memberTypes.size() == 2 &&
+                memberTypes.get(1).typeKind() == TypeDescKind.NIL) {
+            return memberTypes.get(0).signature() + "?";
+        } else {
+            StringJoiner joiner = new StringJoiner("|");
+            memberTypes.forEach(typeDescriptor -> joiner.add(typeDescriptor.signature()));
+            return joiner.toString();
+        }
     }
 }

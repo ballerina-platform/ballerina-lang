@@ -17,9 +17,9 @@
 */
 package io.ballerina.runtime.transactions;
 
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -141,9 +141,9 @@ public class TransactionLocalContext {
     }
 
 
-    public void rollbackTransaction(Strand strand, String transactionBlockId, Object error) {
+    public void rollbackTransaction(String transactionBlockId, Object error) {
         transactionContextStore.clear();
-        transactionResourceManager.rollbackTransaction(strand, globalTransactionId, transactionBlockId, error);
+        transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId, error);
     }
 
     public void setRollbackOnlyError(Object error) {

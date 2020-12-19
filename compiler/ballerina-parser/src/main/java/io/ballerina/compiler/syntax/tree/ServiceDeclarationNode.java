@@ -37,24 +37,40 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(0);
     }
 
-    public Token serviceKeyword() {
-        return childInBucket(1);
+    public NodeList<Token> qualifiers() {
+        return new NodeList<>(childInBucket(1));
     }
 
-    public Optional<IdentifierToken> serviceName() {
-        return optionalChildInBucket(2);
+    public Token serviceKeyword() {
+        return childInBucket(2);
+    }
+
+    public Optional<TypeDescriptorNode> typeDescriptor() {
+        return optionalChildInBucket(3);
+    }
+
+    public NodeList<Node> absoluteResourcePath() {
+        return new NodeList<>(childInBucket(4));
     }
 
     public Token onKeyword() {
-        return childInBucket(3);
+        return childInBucket(5);
     }
 
     public SeparatedNodeList<ExpressionNode> expressions() {
-        return new SeparatedNodeList<>(childInBucket(4));
+        return new SeparatedNodeList<>(childInBucket(6));
     }
 
-    public Node serviceBody() {
-        return childInBucket(5);
+    public Token openBraceToken() {
+        return childInBucket(7);
+    }
+
+    public NodeList<Node> members() {
+        return new NodeList<>(childInBucket(8));
+    }
+
+    public Token closeBraceToken() {
+        return childInBucket(9);
     }
 
     @Override
@@ -71,37 +87,53 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
+                "qualifiers",
                 "serviceKeyword",
-                "serviceName",
+                "typeDescriptor",
+                "absoluteResourcePath",
                 "onKeyword",
                 "expressions",
-                "serviceBody"};
+                "openBraceToken",
+                "members",
+                "closeBraceToken"};
     }
 
     public ServiceDeclarationNode modify(
             MetadataNode metadata,
+            NodeList<Token> qualifiers,
             Token serviceKeyword,
-            IdentifierToken serviceName,
+            TypeDescriptorNode typeDescriptor,
+            NodeList<Node> absoluteResourcePath,
             Token onKeyword,
             SeparatedNodeList<ExpressionNode> expressions,
-            Node serviceBody) {
+            Token openBraceToken,
+            NodeList<Node> members,
+            Token closeBraceToken) {
         if (checkForReferenceEquality(
                 metadata,
+                qualifiers.underlyingListNode(),
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath.underlyingListNode(),
                 onKeyword,
                 expressions.underlyingListNode(),
-                serviceBody)) {
+                openBraceToken,
+                members.underlyingListNode(),
+                closeBraceToken)) {
             return this;
         }
 
         return NodeFactory.createServiceDeclarationNode(
                 metadata,
+                qualifiers,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody);
+                openBraceToken,
+                members,
+                closeBraceToken);
     }
 
     public ServiceDeclarationNodeModifier modify() {
@@ -116,25 +148,40 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
     public static class ServiceDeclarationNodeModifier {
         private final ServiceDeclarationNode oldNode;
         private MetadataNode metadata;
+        private NodeList<Token> qualifiers;
         private Token serviceKeyword;
-        private IdentifierToken serviceName;
+        private TypeDescriptorNode typeDescriptor;
+        private NodeList<Node> absoluteResourcePath;
         private Token onKeyword;
         private SeparatedNodeList<ExpressionNode> expressions;
-        private Node serviceBody;
+        private Token openBraceToken;
+        private NodeList<Node> members;
+        private Token closeBraceToken;
 
         public ServiceDeclarationNodeModifier(ServiceDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
+            this.qualifiers = oldNode.qualifiers();
             this.serviceKeyword = oldNode.serviceKeyword();
-            this.serviceName = oldNode.serviceName().orElse(null);
+            this.typeDescriptor = oldNode.typeDescriptor().orElse(null);
+            this.absoluteResourcePath = oldNode.absoluteResourcePath();
             this.onKeyword = oldNode.onKeyword();
             this.expressions = oldNode.expressions();
-            this.serviceBody = oldNode.serviceBody();
+            this.openBraceToken = oldNode.openBraceToken();
+            this.members = oldNode.members();
+            this.closeBraceToken = oldNode.closeBraceToken();
         }
 
         public ServiceDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
             this.metadata = metadata;
+            return this;
+        }
+
+        public ServiceDeclarationNodeModifier withQualifiers(
+                NodeList<Token> qualifiers) {
+            Objects.requireNonNull(qualifiers, "qualifiers must not be null");
+            this.qualifiers = qualifiers;
             return this;
         }
 
@@ -145,9 +192,16 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
-        public ServiceDeclarationNodeModifier withServiceName(
-                IdentifierToken serviceName) {
-            this.serviceName = serviceName;
+        public ServiceDeclarationNodeModifier withTypeDescriptor(
+                TypeDescriptorNode typeDescriptor) {
+            this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
+        public ServiceDeclarationNodeModifier withAbsoluteResourcePath(
+                NodeList<Node> absoluteResourcePath) {
+            Objects.requireNonNull(absoluteResourcePath, "absoluteResourcePath must not be null");
+            this.absoluteResourcePath = absoluteResourcePath;
             return this;
         }
 
@@ -165,21 +219,39 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
-        public ServiceDeclarationNodeModifier withServiceBody(
-                Node serviceBody) {
-            Objects.requireNonNull(serviceBody, "serviceBody must not be null");
-            this.serviceBody = serviceBody;
+        public ServiceDeclarationNodeModifier withOpenBraceToken(
+                Token openBraceToken) {
+            Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+            this.openBraceToken = openBraceToken;
+            return this;
+        }
+
+        public ServiceDeclarationNodeModifier withMembers(
+                NodeList<Node> members) {
+            Objects.requireNonNull(members, "members must not be null");
+            this.members = members;
+            return this;
+        }
+
+        public ServiceDeclarationNodeModifier withCloseBraceToken(
+                Token closeBraceToken) {
+            Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+            this.closeBraceToken = closeBraceToken;
             return this;
         }
 
         public ServiceDeclarationNode apply() {
             return oldNode.modify(
                     metadata,
+                    qualifiers,
                     serviceKeyword,
-                    serviceName,
+                    typeDescriptor,
+                    absoluteResourcePath,
                     onKeyword,
                     expressions,
-                    serviceBody);
+                    openBraceToken,
+                    members,
+                    closeBraceToken);
         }
     }
 }

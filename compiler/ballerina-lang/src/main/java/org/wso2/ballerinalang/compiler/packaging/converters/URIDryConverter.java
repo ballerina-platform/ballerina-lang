@@ -18,9 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
-import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.JsonParser;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.toml.model.Manifest;
@@ -127,7 +127,7 @@ public class URIDryConverter extends URIConverter {
                         while ((line = reader.readLine()) != null) {
                             result.append(line);
                         }
-                        Object payload = JSONParser.parse(result.toString());
+                        Object payload = JsonParser.parse(result.toString());
                         if (payload instanceof BMap) {
                             BMap moduleInfo = ((BMap) payload).getMapValue(StringUtils.fromString("module"));
                             String version = moduleInfo.getStringValue(StringUtils.fromString("version")).getValue();
@@ -188,7 +188,7 @@ public class URIDryConverter extends URIConverter {
     /**
      * Authenticator for the proxy server if provided.
      */
-    static class RemoteAuthenticator extends Authenticator {
+    public static class RemoteAuthenticator extends Authenticator {
         org.ballerinalang.toml.model.Proxy proxy;
         public RemoteAuthenticator() {
             proxy = TomlParserUtils.readSettings().getProxy();

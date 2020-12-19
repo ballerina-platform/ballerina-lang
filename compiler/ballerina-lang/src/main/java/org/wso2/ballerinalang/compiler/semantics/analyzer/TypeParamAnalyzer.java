@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -43,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -145,7 +145,7 @@ public class TypeParamAnalyzer {
         return getMatchingBoundType(expType, env);
     }
 
-    public BType getNominalType(BType type, Name name, int flag) {
+    public BType getNominalType(BType type, Name name, long flag) {
         // Only type params has nominal behaviour for now.
         if (name == Names.EMPTY) {
             return type;
@@ -155,7 +155,7 @@ public class TypeParamAnalyzer {
 
     BType createTypeParam(BType type, Name name) {
 
-        int flag = type.flags | Flags.TYPE_PARAM;
+        var flag = type.flags | Flags.TYPE_PARAM;
         return createBuiltInType(type, name, flag);
     }
 
@@ -189,7 +189,7 @@ public class TypeParamAnalyzer {
             case TypeTags.MAP:
                 return containsTypeParam(((BMapType) type).constraint, resolvedTypes);
             case TypeTags.STREAM:
-                return containsTypeParam(((BStreamType) type).constraint, resolvedTypes);
+                 return containsTypeParam(((BStreamType) type).constraint, resolvedTypes);
             case TypeTags.TABLE:
                 return (containsTypeParam(((BTableType) type).constraint, resolvedTypes) ||
                         ((BTableType) type).keyTypeConstraint != null
@@ -212,10 +212,6 @@ public class TypeParamAnalyzer {
                 }
                 return containsTypeParam(invokableType.retType, resolvedTypes);
             case TypeTags.OBJECT:
-                if (type instanceof BServiceType) {
-                    return false;
-                }
-
                 BObjectType objectType = (BObjectType) type;
                 for (BField field : objectType.fields.values()) {
                     BType bFieldType = field.getType();
@@ -248,7 +244,7 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private BType createBuiltInType(BType type, Name name, int flag) {
+    private BType createBuiltInType(BType type, Name name, long flag) {
         // Handle built-in types.
         switch (type.tag) {
             case TypeTags.INT:
@@ -289,10 +285,10 @@ public class TypeParamAnalyzer {
 
             if (checkContravariance) {
                 types.checkType(loc, getMatchingBoundType(expType, env, new HashSet<>()), actualType,
-                                DiagnosticCode.INCOMPATIBLE_TYPES);
+                                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             } else {
                 types.checkType(loc, actualType, getMatchingBoundType(expType, env, new HashSet<>()),
-                                DiagnosticCode.INCOMPATIBLE_TYPES);
+                                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             }
             return;
         }
@@ -331,7 +327,10 @@ public class TypeParamAnalyzer {
                     findTypeParamInStream(loc, ((BStreamType) expType), ((BStreamType) actualType), env, resolvedTypes,
                                           result);
                 }
-                // TODO : Handle unions after - github.com/ballerina-platform/ballerina-lang/issues/22570
+                if (actualType.tag == TypeTags.UNION) {
+                    findTypeParamInStreamForUnion(loc, ((BStreamType) expType), ((BUnionType) actualType), env,
+                            resolvedTypes, result);
+                }
                 return;
             case TypeTags.TABLE:
                 if (actualType.tag == TypeTags.TABLE) {
@@ -364,7 +363,7 @@ public class TypeParamAnalyzer {
                 }
                 return;
             case TypeTags.OBJECT:
-                if (actualType.tag == TypeTags.OBJECT && !(actualType instanceof BServiceType)) {
+                if (actualType.tag == TypeTags.OBJECT) {
                     findTypeParamInObject(loc, (BObjectType) expType, (BObjectType) actualType, env, resolvedTypes,
                                           result);
                 }
@@ -401,7 +400,7 @@ public class TypeParamAnalyzer {
             }
         }
         if (boundType == symTable.noType) {
-            dlog.error(location, DiagnosticCode.CANNOT_INFER_TYPE);
+            dlog.error(location, DiagnosticErrorCode.CANNOT_INFER_TYPE);
             return;
         }
         env.typeParamsEntries.add(new SymbolEnv.TypeParamEntry(typeParamType, boundType));
@@ -428,6 +427,29 @@ public class TypeParamAnalyzer {
         findTypeParam(loc, expType.constraint, actualType.constraint, env, resolvedTypes, result);
         findTypeParam(loc, expType.error, (actualType.error != null) ? actualType.error : symTable.nilType, env,
                       resolvedTypes, result);
+    }
+
+    private void findTypeParamInStreamForUnion(Location loc, BStreamType expType, BUnionType actualType,
+                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
+        LinkedHashSet<BType> constraints = new LinkedHashSet<>();
+        LinkedHashSet<BType> errors = new LinkedHashSet<>();
+        for (BType type : actualType.getMemberTypes()) {
+            if (type.tag == TypeTags.STREAM) {
+                constraints.add(((BStreamType) type).constraint);
+                if (((BStreamType) type).error != null) {
+                    errors.add(((BStreamType) type).error);
+                }
+            }
+        }
+
+        BUnionType cUnionType = BUnionType.create(null, constraints);
+        findTypeParam(loc, expType.constraint, cUnionType, env, resolvedTypes, result);
+        if (!errors.isEmpty()) {
+            BUnionType eUnionType = BUnionType.create(null, errors);
+            findTypeParam(loc, expType.error, eUnionType, env, resolvedTypes, result);
+        } else {
+            findTypeParam(loc, expType.error, symTable.nilType, env, resolvedTypes, result);
+        }
     }
 
     private void findTypeParamInTable(Location loc, BTableType expType, BTableType actualType,
@@ -627,9 +649,6 @@ public class TypeParamAnalyzer {
             case TypeTags.INVOKABLE:
                 return getMatchingFunctionBoundType((BInvokableType) expType, env, resolvedTypes);
             case TypeTags.OBJECT:
-                if (expType instanceof BServiceType) {
-                    return expType;
-                }
                 return getMatchingObjectBoundType((BObjectType) expType, env, resolvedTypes);
             case TypeTags.UNION:
                 return getMatchingOptionalBoundType((BUnionType) expType, env, resolvedTypes);
@@ -690,7 +709,7 @@ public class TypeParamAnalyzer {
                 .map(type -> getMatchingBoundType(type, env, resolvedTypes))
                 .collect(Collectors.toList());
         BType restType = expType.restType;
-        int flags = expType.flags;
+        var flags = expType.flags;
         BInvokableType invokableType = new BInvokableType(paramTypes, restType,
                                                           getMatchingBoundType(expType.retType, env, resolvedTypes),
                                                           Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
@@ -735,14 +754,24 @@ public class TypeParamAnalyzer {
             matchType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, invokableSymbol.flags, Names.EMPTY,
                                                          env.enclPkg.symbol.pkgID, invokableSymbol.type,
                                                          env.scope.owner, invokableSymbol.pos, VIRTUAL);
-            actObjectSymbol.attachedFuncs.add(
-                    new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos));
+            actObjectSymbol.attachedFuncs.add(duplicateAttachFunc(expFunc, matchType, invokableSymbol));
             String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,
                     expFunc.funcName.value);
             actObjectSymbol.scope.define(names.fromString(funcName), invokableSymbol);
         }
 
         return objectType;
+    }
+
+    private BAttachedFunction duplicateAttachFunc(BAttachedFunction expFunc, BInvokableType matchType,
+                                                  BInvokableSymbol invokableSymbol) {
+        if (expFunc instanceof BResourceFunction) {
+            BResourceFunction resourceFunction = (BResourceFunction) expFunc;
+            return new BResourceFunction(resourceFunction.funcName, invokableSymbol, matchType,
+                    resourceFunction.resourcePath, resourceFunction.accessor, resourceFunction.pathParams,
+                    resourceFunction.restPathParam, expFunc.pos);
+        }
+        return new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos);
     }
 
     private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {

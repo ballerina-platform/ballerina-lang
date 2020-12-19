@@ -22,6 +22,8 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotatableNode;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -40,8 +42,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -182,7 +184,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
  *
  * @since 2.0.0
  */
-class SymbolFinder extends BLangNodeVisitor {
+class SymbolFinder extends BaseVisitor {
 
     private LinePosition cursorPos;
     private BSymbol symbolAtCursor;
@@ -192,7 +194,8 @@ class SymbolFinder extends BLangNodeVisitor {
         this.symbolAtCursor = null;
 
         for (TopLevelNode node : unit.topLevelNodes) {
-            if (!PositionUtil.withinBlock(this.cursorPos, node.getPosition()) || isLambdaFunction(node)) {
+            if ((!PositionUtil.withinBlock(this.cursorPos, node.getPosition()) && !isWithinNodeMetaData(node))
+                    || isLambdaFunction(node)) {
                 continue;
             }
 
@@ -251,10 +254,16 @@ class SymbolFinder extends BLangNodeVisitor {
             return;
         }
 
+        lookupNodes(funcNode.annAttachments);
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
         lookupNode(funcNode.returnTypeNode);
         lookupNode(funcNode.body);
+    }
+
+    @Override
+    public void visit(BLangResourceFunction resourceFunction) {
+        visit((BLangFunction) resourceFunction);
     }
 
     @Override
@@ -274,12 +283,8 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        if (setEnclosingNode(serviceNode.symbol, serviceNode.name.pos)) {
-            return;
-        }
-
-        lookupNodes(serviceNode.resourceFunctions);
         lookupNodes(serviceNode.annAttachments);
+        lookupNode(serviceNode.serviceClass);
         lookupNodes(serviceNode.attachedExprs);
     }
 
@@ -643,19 +648,25 @@ class SymbolFinder extends BLangNodeVisitor {
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         lookupNode(indexAccessExpr.expr);
-        lookupNode(indexAccessExpr.indexExpr);
+
+        if (indexAccessExpr.indexExpr instanceof BLangLiteral) {
+            setEnclosingNode(indexAccessExpr.symbol, indexAccessExpr.indexExpr.pos);
+        } else {
+            lookupNode(indexAccessExpr.indexExpr);
+        }
     }
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
         // The assumption for the first condition is that if it's moduled-qualified, it must be a public symbol.
         // Hence owner would be a package symbol.
-        if (setEnclosingNode(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos)
+        if ((invocationExpr.symbol != null && setEnclosingNode(invocationExpr.symbol.owner,
+                                                               invocationExpr.pkgAlias.pos))
                 || setEnclosingNode(invocationExpr.symbol, invocationExpr.name.pos)) {
             return;
         }
 
-        lookupNodes(invocationExpr.requiredArgs);
+        lookupNodes(invocationExpr.argExprs);
         lookupNodes(invocationExpr.restArgs);
         lookupNode(invocationExpr.expr);
     }
@@ -670,7 +681,8 @@ class SymbolFinder extends BLangNodeVisitor {
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
         // The assumption for the first condition is that if it's moduled-qualified, it must be a public symbol.
         // Hence owner would be a package symbol.
-        if (setEnclosingNode(actionInvocationExpr.symbol.owner, actionInvocationExpr.pkgAlias.pos)
+        if ((actionInvocationExpr.symbol != null && setEnclosingNode(actionInvocationExpr.symbol.owner,
+                                                                     actionInvocationExpr.pkgAlias.pos))
                 || setEnclosingNode(actionInvocationExpr.symbol, actionInvocationExpr.name.pos)) {
             return;
         }
@@ -772,7 +784,8 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-
+        lookupNode(xmlAttribute.name);
+        lookupNode(xmlAttribute.value);
     }
 
     @Override
@@ -954,12 +967,17 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        if (userDefinedType.type.tsymbol.origin == VIRTUAL
-                || setEnclosingNode(userDefinedType.type.tsymbol, userDefinedType.typeName.pos)) {
+        // Becomes null for undefined types
+        if (userDefinedType.symbol == null) {
             return;
         }
 
-        setEnclosingNode(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
+        if (userDefinedType.symbol.origin == VIRTUAL
+                || setEnclosingNode(userDefinedType.symbol, userDefinedType.typeName.pos)) {
+            return;
+        }
+
+        setEnclosingNode(userDefinedType.symbol.owner, userDefinedType.pkgAlias.pos);
     }
 
     @Override
@@ -981,12 +999,8 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-        // skip the generated class def for services
-        if (classDefinition.flagSet.contains(Flag.SERVICE)) {
-            return;
-        }
-
-        if (setEnclosingNode(classDefinition.symbol, classDefinition.name.pos)) {
+        if (!isClassDefForServiceDecl(classDefinition) &&
+                setEnclosingNode(classDefinition.symbol, classDefinition.name.pos)) {
             return;
         }
 
@@ -1331,6 +1345,10 @@ class SymbolFinder extends BLangNodeVisitor {
         return false;
     }
 
+    private boolean isClassDefForServiceDecl(BLangClassDefinition clazz) {
+        return clazz.flagSet.contains(Flag.SERVICE) && clazz.flagSet.contains(Flag.ANONYMOUS);
+    }
+
     private boolean isLambdaFunction(TopLevelNode node) {
         if (node.getKind() != NodeKind.FUNCTION) {
             return false;
@@ -1338,5 +1356,22 @@ class SymbolFinder extends BLangNodeVisitor {
 
         BLangFunction func = (BLangFunction) node;
         return func.flagSet.contains(Flag.LAMBDA);
+    }
+
+    private boolean isWithinNodeMetaData(TopLevelNode node) {
+        if (!(node instanceof AnnotatableNode)) {
+            return false;
+        }
+
+        List<AnnotationAttachmentNode> nodes =
+                (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
+
+        for (AnnotationAttachmentNode annotAttachment : nodes) {
+            if (PositionUtil.withinBlock(this.cursorPos, annotAttachment.getPosition())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -15,15 +15,26 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static org.ballerinalang.langserver.codeaction.CodeActionUtil.computePositionDetails;
 
 /**
  * Represents the Code Action router.
@@ -35,24 +46,31 @@ public class CodeActionRouter {
     /**
      * Returns a list of supported code actions.
      *
-     * @param nodeType           code action node type
-     * @param context            ls context
-     * @param diagnosticsOfRange list of diagnostics of the cursor range
-     * @param allDiagnostics     list of all diagnostics
+     * @param ctx {@link LSContext}
      * @return list of code actions
      */
-    public static List<CodeAction> getBallerinaCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                                           List<Diagnostic> diagnosticsOfRange,
-                                                           List<Diagnostic> allDiagnostics) {
+    public static List<CodeAction> getAvailableCodeActions(CodeActionContext ctx) {
         List<CodeAction> codeActions = new ArrayList<>();
         CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder.getInstance();
-        if (nodeType != null) {
-            codeActionProvidersHolder.getActiveNodeBasedProviders(nodeType).forEach(provider -> {
+
+        // Get available node-type based code-actions
+        SyntaxTree syntaxTree = ctx.workspace().syntaxTree(ctx.filePath()).orElseThrow();
+        Optional<Node> matchedNode = CodeActionUtil.getTopLevelNode(ctx.cursorPosition(), syntaxTree);
+        CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(matchedNode.orElse(null));
+        SemanticModel semanticModel = ctx.workspace().semanticModel(ctx.filePath()).orElseThrow();
+        String relPath = ctx.filePath().toFile().getName();
+        if (matchedNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
+            Range range = CommonUtil.toRange(matchedNode.get().lineRange());
+            Node expressionNode = CodeActionUtil.largestExpressionNode(matchedNode.get(), range);
+            TypeSymbol matchedTypeSymbol = semanticModel.type(relPath, expressionNode.lineRange()).orElse(null);
+
+            PositionDetails posDetails = CodeActionPositionDetails.from(matchedNode.get(), null, matchedTypeSymbol);
+            ctx.setPositionDetails(posDetails);
+            codeActionProvidersHolder.getActiveNodeBasedProviders(matchedNodeType).forEach(provider -> {
                 try {
-                    List<CodeAction> codeActionList = provider.getNodeBasedCodeActions(nodeType, context,
-                                                                                       allDiagnostics);
-                    if (codeActionList != null) {
-                        codeActions.addAll(codeActionList);
+                    List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(ctx);
+                    if (codeActionsOut != null) {
+                        codeActions.addAll(codeActionsOut);
                     }
                 } catch (Exception e) {
                     String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
@@ -60,20 +78,25 @@ public class CodeActionRouter {
                 }
             });
         }
-        if (diagnosticsOfRange != null && diagnosticsOfRange.size() > 0) {
-            codeActionProvidersHolder.getActiveDiagnosticsBasedProviders().forEach(provider -> {
-                try {
-                    List<CodeAction> codeActionList = provider.getDiagBasedCodeActions(nodeType, context,
-                                                                                       diagnosticsOfRange,
-                                                                                       allDiagnostics);
-                    if (codeActionList != null) {
-                        codeActions.addAll(codeActionList);
+
+        // Get available diagnostics based code-actions
+        List<Diagnostic> cursorDiagnostics = ctx.cursorDiagnostics();
+        if (cursorDiagnostics != null && !cursorDiagnostics.isEmpty()) {
+            for (Diagnostic diagnostic : cursorDiagnostics) {
+                PositionDetails positionDetails = computePositionDetails(diagnostic.getRange(), syntaxTree, ctx);
+                ctx.setPositionDetails(positionDetails);
+                codeActionProvidersHolder.getActiveDiagnosticsBasedProviders().forEach(provider -> {
+                    try {
+                        List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic, ctx);
+                        if (codeActionsOut != null) {
+                            codeActions.addAll(codeActionsOut);
+                        }
+                    } catch (Exception e) {
+                        String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
+                        LSClientLogger.logError(msg, e, null, (Position) null);
                     }
-                } catch (Exception e) {
-                    String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
-                    LSClientLogger.logError(msg, e, null, (Position) null);
-                }
-            });
+                });
+            }
         }
         return codeActions;
     }

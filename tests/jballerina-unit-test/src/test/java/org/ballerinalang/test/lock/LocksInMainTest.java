@@ -23,10 +23,10 @@ import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -278,10 +278,9 @@ public class LocksInMainTest {
 
     @Test(description = "Test for parallel run when invocations are imported and contains global var dependencies")
     public void testParallelRunWithImportInvocationDependencies() {
-        CompileResult importInvocationDependencies = BCompileUtil.compile("test-src/lock/locks-in-imports-test",
-                                                                          "mod1", true);
-
-        BRunUtil.invoke(importInvocationDependencies, "testLockWIthInvokableChainsAccessingGlobal");
+        CompileResult importInvocationDependencies = BCompileUtil.
+                compile("test-src/lock/locks_in_imports_test_project");
+        BRunUtil.invoke(importInvocationDependencies, "testLockWithInvokableChainsAccessingGlobal");
     }
 
     @Test(description = "Test for locks on global references")

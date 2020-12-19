@@ -36,19 +36,11 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     public BLangExpression expr;
     public BLangIdentifier workerIdentifier;
     public SymbolEnv env;
-    public BLangExpression keyExpr;
-    public boolean isChannel = false;
-    public BLangIdentifier currentWorker;
     public BSymbol workerSymbol;
 
     @Override
     public BLangExpression getExpression() {
         return expr;
-    }
-
-    @Override
-    public BLangExpression getKeyExpression() {
-        return keyExpr;
     }
 
     @Override
@@ -72,9 +64,6 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     }
 
     public String toActionString() {
-        if (keyExpr != null) {
-            return this.expr + " -> " + this.workerIdentifier + "," + this.keyExpr;
-        }
         return this.expr + " -> " + this.workerIdentifier;
     }
 

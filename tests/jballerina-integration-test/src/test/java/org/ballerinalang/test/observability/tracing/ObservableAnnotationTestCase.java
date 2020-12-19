@@ -39,15 +39,15 @@ import java.util.stream.Collectors;
 @Test(groups = "tracing-test")
 public class ObservableAnnotationTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "04_observability_annotation.bal";
-    private static final String SERVICE_NAME = "testServiceThree";
-    private static final String BASE_URL = "http://localhost:9093";
+    private static final String SERVICE_NAME = "testServiceFour";
+    private static final String BASE_URL = "http://localhost:9094";
 
     @Test
     public void testObservableFunction() throws Exception {
         final String resourceName = "resourceOne";
-        final String span1Position = FILE_NAME + ":21:5";
-        final String span2Position = FILE_NAME + ":22:19";
-        final String span3Position = FILE_NAME + ":27:20";
+        final String span1Position = FILE_NAME + ":22:5";
+        final String span2Position = FILE_NAME + ":23:19";
+        final String span3Position = FILE_NAME + ":28:20";
 
         HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName,
                 "", Collections.emptyMap());
@@ -73,15 +73,15 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
-                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", SERVER_CONNECTOR_NAME)
+                    new AbstractMap.SimpleEntry<>("src.object.name", SERVER_CONNECTOR_NAME)
             ));
         });
 
@@ -95,11 +95,11 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), "calculateSumWithObservability");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("function", "calculateSumWithObservability")
+                    new AbstractMap.SimpleEntry<>("src.function.name", "calculateSumWithObservability")
             ));
         });
 
@@ -113,13 +113,13 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), "ballerina/testobserve/Caller:respond");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/testobserve/Caller"),
-                    new AbstractMap.SimpleEntry<>("action", "respond")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
         });
     }
@@ -127,9 +127,9 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
     @Test
     public void testObservableAttachedFunction() throws Exception {
         final String resourceName = "resourceTwo";
-        final String span1Position = FILE_NAME + ":31:5";
-        final String span2Position = FILE_NAME + ":33:19";
-        final String span3Position = FILE_NAME + ":38:20";
+        final String span1Position = FILE_NAME + ":32:5";
+        final String span2Position = FILE_NAME + ":34:19";
+        final String span3Position = FILE_NAME + ":39:20";
 
         HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName,
                 "", Collections.emptyMap());
@@ -155,15 +155,15 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
-                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", SERVER_CONNECTOR_NAME)
+                    new AbstractMap.SimpleEntry<>("src.object.name", SERVER_CONNECTOR_NAME)
             ));
         });
 
@@ -174,15 +174,15 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
         span2.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/ObservableAdder:getSum");
+            Assert.assertEquals(span.getOperationName(), OBSERVABLE_ADDER_OBJECT_NAME + ":getSum");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("object_name", "ballerina-test/testservices/ObservableAdder"),
-                    new AbstractMap.SimpleEntry<>("function", "getSum")
+                    new AbstractMap.SimpleEntry<>("src.object.name", OBSERVABLE_ADDER_OBJECT_NAME),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "getSum")
             ));
         });
 
@@ -196,13 +196,13 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), "ballerina/testobserve/Caller:respond");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/testobserve/Caller"),
-                    new AbstractMap.SimpleEntry<>("action", "respond")
+                    new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
+                    new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
         });
     }

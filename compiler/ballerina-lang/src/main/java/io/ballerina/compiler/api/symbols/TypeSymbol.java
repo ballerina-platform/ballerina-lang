@@ -49,9 +49,17 @@ public interface TypeSymbol extends Symbol {
     String signature();
 
     /**
-     * List of members that are visible to a value of this type.
-     * 
-     * @return {@link List} of visible member symbols
+     * List of lang library functions that can be called using a method call expression.
+     *
+     * @return {@link List} of lang library functions of the type
      */
-    List<MethodSymbol> builtinMethods();
+    List<FunctionSymbol> langLibMethods();
+
+    /**
+     * Checks whether a value of this type can be assigned to a variable of the specified type.
+     *
+     * @param targetType The type with which compatibility is checked
+     * @return Returns true if this type is assignable to the specified type
+     */
+    boolean assignableTo(TypeSymbol targetType);
 }

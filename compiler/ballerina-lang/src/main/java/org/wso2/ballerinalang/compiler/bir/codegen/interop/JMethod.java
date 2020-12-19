@@ -19,8 +19,8 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
@@ -31,7 +31,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.CLASS_NOT_FOUND;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.CLASS_NOT_FOUND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 
 /**

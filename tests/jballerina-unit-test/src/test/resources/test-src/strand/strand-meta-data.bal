@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/java;
-import ballerina/io;
-import ballerina/runtime;
 
 int totalNoOfStrandsForTest = 14;
 int errorCount = 0;
@@ -80,11 +78,11 @@ function testStrandMetadataAsyncCalls() {
 
     // Wait until all the async calls are done
     while (successCount < (totalNoOfStrandsForTest*2) && errorCount == 0) {
-        runtime:sleep(1);
+        sleep(1);
     }
     if (errorCount > 0) {
         errorMessages.forEach(function(string message) {
-            io:println(message);
+            //io:println(message);
         });
         panic error(ASSERTION_ERROR_REASON, message = "Test failed due to errors.");
     }
@@ -118,7 +116,7 @@ function assertStrandMetadataResult(string assertString) {
         if (typeNameVal is string) {
             typeName = "." + typeNameVal;
         }
-        assertEquality(org +"/" + modName + ":" + modVersion + typeName + "." + parentFunc + name, assertString);
+        assertEquality(assertString, org +"/" + modName + ":" + modVersion + typeName + "." + parentFunc + name);
         assertTrue(id > 0);
     } else {
         errorMessages[errorCount] = "meta data cannot be found for evaluate assert string '" + assertString + "'";
@@ -127,7 +125,7 @@ function assertStrandMetadataResult(string assertString) {
 }
 
 function getName(handle strand) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.scheduling.Strand"
+    'class: "io.ballerina.runtime.internal.scheduling.Strand"
 } external;
 
 function get(handle optional) returns handle = @java:Method {
@@ -143,15 +141,15 @@ function isPresent(handle optional) returns boolean = @java:Method {
 } external;
 
 function getId(handle strand) returns int = @java:Method {
-    'class: "io.ballerina.runtime.scheduling.Strand"
+    'class: "io.ballerina.runtime.internal.scheduling.Strand"
 } external;
 
 function getStrand() returns handle = @java:Method {
-    'class: "io.ballerina.runtime.scheduling.Scheduler"
+    'class: "io.ballerina.runtime.internal.scheduling.Scheduler"
 } external;
 
 function getMetadata(handle strand) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.scheduling.Strand"
+    'class: "io.ballerina.runtime.internal.scheduling.Strand"
 } external;
 
 function getModuleOrg(handle strandMetadata) returns handle = @java:Method {
@@ -188,3 +186,7 @@ public function assertEquality(any|error expected, any|error actual) {
     errorMessages[errorCount] = "expected '" + expected.toString() + "', found '" + actual.toString() + "'";
     errorCount = errorCount + 1;
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

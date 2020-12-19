@@ -207,7 +207,7 @@ public function expressions() returns error? {
 }
 
 // -- service-constructor-expr
-service negativeTemplateURI on ep {
+service / on ep {
     resource function newResource() {
         fooV(1, false);
     }
@@ -368,7 +368,7 @@ public class MockListener {
 
     *lang:Listener;
 
-    public function __attach(service s, string? name) returns error? {
+    public function attach(service s, string? name) returns error? {
         return error("");
     }
 
@@ -376,15 +376,15 @@ public class MockListener {
         return error("");
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
         return error("");
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         return error("");
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         return error("");
     }
 }

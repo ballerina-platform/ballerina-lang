@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
@@ -157,7 +158,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
-import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
@@ -231,6 +232,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 .forEach(this::updateRecordInitFunction);
 
         result = pkgNode;
+    }
+
+    @Override
+    public void visit(BLangResourceFunction resourceFunction) {
+        visit((BLangFunction) resourceFunction);
     }
 
     @Override
@@ -979,9 +985,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         workerSendNode.expr = rewriteExpr(workerSendNode.expr);
-        if (workerSendNode.keyExpr != null) {
-            workerSendNode.keyExpr = rewriteExpr(workerSendNode.keyExpr);
-        }
         result = workerSendNode;
     }
 
@@ -993,9 +996,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        if (workerReceiveNode.keyExpr != null) {
-            workerReceiveNode.keyExpr = rewriteExpr(workerReceiveNode.keyExpr);
-        }
         result = workerReceiveNode;
     }
 

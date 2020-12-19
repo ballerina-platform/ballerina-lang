@@ -23,14 +23,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface ObjectTypeSymbol extends TypeSymbol {
-    
-    /**
-     * Get the object type qualifiers.
-     *
-     * @return {@link List} of object type qualifiers
-     */
-    List<TypeQualifier> typeQualifiers();
+public interface ObjectTypeSymbol extends TypeSymbol, Qualifiable {
 
     /**
      * Get the object fields.
@@ -47,23 +40,9 @@ public interface ObjectTypeSymbol extends TypeSymbol {
     List<MethodSymbol> methods();
 
     /**
-     * Represents the object type qualifier.
+     * Gets a list of included types. An included type is always a subtype of object.
      *
-     * @since 2.0.0
+     * @return The list of included object types
      */
-    enum TypeQualifier {
-        ABSTRACT("abstract"),
-        LISTENER("listener"),
-        CLIENT("client");
-
-        private String value;
-
-        TypeQualifier(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
+    List<TypeSymbol> typeInclusions();
 }

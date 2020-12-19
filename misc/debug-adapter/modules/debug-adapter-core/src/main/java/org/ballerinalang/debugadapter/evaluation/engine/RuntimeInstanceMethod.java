@@ -23,10 +23,11 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Ballerina JVM runtime instance method representation.
@@ -43,7 +44,7 @@ public class RuntimeInstanceMethod extends JvmMethod {
     }
 
     public RuntimeInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef,
-                                 List<Evaluator> argEvaluators, List<Value> argsList) {
+                                 List<Map.Entry<String, Evaluator>> argEvaluators, List<Value> argsList) {
         super(context, methodRef, argEvaluators, argsList);
         this.objectValueRef = objectRef;
     }
@@ -81,10 +82,10 @@ public class RuntimeInstanceMethod extends JvmMethod {
             }
             List<Value> argValueList = new ArrayList<>();
             // Evaluates all function argument expressions at first.
-            for (Evaluator argEvaluator : argEvaluators) {
-                argValueList.add(argEvaluator.evaluate().getJdiValue());
+            for (Map.Entry<String, Evaluator> argEvaluator : argEvaluators) {
+                argValueList.add(argEvaluator.getValue().evaluate().getJdiValue());
                 // Assuming all the arguments are positional args.
-                argValueList.add(EvaluationUtils.make(context, true).getJdiValue());
+                argValueList.add(VMUtils.make(context, true).getJdiValue());
             }
             return argValueList;
         } catch (Exception e) {

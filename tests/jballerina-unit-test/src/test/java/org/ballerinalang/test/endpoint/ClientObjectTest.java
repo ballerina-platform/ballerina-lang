@@ -20,10 +20,10 @@ package org.ballerinalang.test.endpoint;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -80,7 +80,7 @@ public class ClientObjectTest {
 
     @Test
     public void testReferringEndpointInDifferentPkg() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/endpoint/pkg", "pkg.bc");
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/TestEndpointProject");
 
         BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
         Assert.assertEquals(result.length, 1);

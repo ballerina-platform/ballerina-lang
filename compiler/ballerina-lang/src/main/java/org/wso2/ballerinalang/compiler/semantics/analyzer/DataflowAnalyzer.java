@@ -24,7 +24,7 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
@@ -346,9 +347,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void checkForUninitializedGlobalVars(List<BLangSimpleVariable> globalVars) {
         for (BLangSimpleVariable globalVar : globalVars) {
             if (this.uninitializedVars.containsKey(globalVar.symbol)) {
-                this.dlog.error(globalVar.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, globalVar.name);
+                this.dlog.error(globalVar.pos, DiagnosticErrorCode.UNINITIALIZED_VARIABLE, globalVar.name);
             }
         }
+    }
+
+    @Override
+    public void visit(BLangResourceFunction funcNode) {
+        visit((BLangFunction) funcNode);
     }
 
     @Override
@@ -460,7 +466,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 .filter(field -> !Symbols.isPrivate(field.symbol))
                 .forEach(field -> {
                     if (this.uninitializedVars.containsKey(field.symbol)) {
-                        this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
+                        this.dlog.error(field.pos, DiagnosticErrorCode.OBJECT_UNINITIALIZED_FIELD, field.name);
                     }
                 });
 
@@ -502,7 +508,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 this.uninitializedVars.remove(variable.symbol);
                 return;
             }
-
+            // Required configurations will be initialized at the run time
+            long varFlags = variable.symbol.flags;
+            if (Symbols.isFlagOn(varFlags, Flags.CONFIGURABLE) && Symbols.isFlagOn(varFlags, Flags.REQUIRED)) {
+                return;
+            }
             // Handle package/object level variables
             BSymbol owner = variable.symbol.owner;
             if (owner.tag != SymTag.PACKAGE && owner.tag != SymTag.OBJECT) {
@@ -802,7 +812,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 if (!keyHashSet.add(hashInt)) {
                     String fields = String.join(", ", fieldNames);
                     String values = keyArray.stream().map(Object::toString).collect(Collectors.joining(", "));
-                    dlog.error(literal.pos, DiagnosticCode.DUPLICATE_KEY_IN_TABLE_LITERAL, fields, values);
+                    dlog.error(literal.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_TABLE_LITERAL, fields, values);
                 }
             }
         }
@@ -889,7 +899,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) node;
             result = simpleVarRef.variableName.hashCode();
         } else {
-            dlog.error(((BLangExpression) node).pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+            dlog.error(((BLangExpression) node).pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
         return result;
     }
@@ -1104,7 +1114,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef)
                         invocationExpr.expr).symbol.type);
         if (uninitializedFields.length() != 0) {
-            this.dlog.error(invocationExpr.pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+            this.dlog.error(invocationExpr.pos, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_FIELDS,
                     uninitializedFields.toString());
             return false;
         }
@@ -1119,7 +1129,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 StringBuilder uninitializedFields =
                         getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef) expr).symbol.type);
                 if (uninitializedFields.length() != 0) {
-                    this.dlog.error(location, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+                    this.dlog.error(location, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_FIELDS,
                             uninitializedFields.toString());
                     return false;
                 }
@@ -1141,7 +1151,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 }
             }
             if (uninitializedFields.length() != 0) {
-                this.dlog.error(pos, DiagnosticCode.CONTAINS_UNINITIALIZED_VARIABLES,
+                this.dlog.error(pos, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_VARIABLES,
                         uninitializedFields.toString());
                 return false;
             }
@@ -1447,8 +1457,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.closureVarSymbols.forEach(closureVarSymbol -> {
             if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
-                this.dlog.error(closureVarSymbol.diagnosticLocation, DiagnosticCode.USAGE_OF_UNINITIALIZED_VARIABLE,
-                        closureVarSymbol.bSymbol);
+                this.dlog.error(closureVarSymbol.diagnosticLocation,
+                                DiagnosticErrorCode.USAGE_OF_UNINITIALIZED_VARIABLE,
+                                closureVarSymbol.bSymbol);
             }
         });
     }
@@ -1768,11 +1779,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         if (initStatus == InitStatus.UN_INIT) {
-            this.dlog.error(pos, DiagnosticCode.USAGE_OF_UNINITIALIZED_VARIABLE, symbol.name);
+            this.dlog.error(pos, DiagnosticErrorCode.USAGE_OF_UNINITIALIZED_VARIABLE, symbol.name);
             return;
         }
 
-        this.dlog.error(pos, DiagnosticCode.PARTIALLY_INITIALIZED_VARIABLE, symbol.name);
+        this.dlog.error(pos, DiagnosticErrorCode.PARTIALLY_INITIALIZED_VARIABLE, symbol.name);
     }
 
     private void recordGlobalVariableReferenceRelationship(BSymbol symbol) {
@@ -1886,7 +1897,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
                 isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
-            dlog.error(fieldAccess.pos, DiagnosticCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD, fieldAccess.field.value);
+            dlog.error(fieldAccess.pos, DiagnosticErrorCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD, fieldAccess.field.value);
         }
     }
 
@@ -1920,13 +1931,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         if (!this.uninitializedVars.containsKey(symbol)) {
-            dlog.error(pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, field);
+            dlog.error(pos, DiagnosticErrorCode.CANNOT_ASSIGN_VALUE_FINAL, field);
             return;
         }
 
         InitStatus initStatus = this.uninitializedVars.get(symbol);
         if (initStatus == InitStatus.PARTIAL_INIT) {
-            dlog.error(pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_POTENTIALLY_INITIALIZED_FINAL, field);
+            dlog.error(pos, DiagnosticErrorCode.CANNOT_ASSIGN_VALUE_TO_POTENTIALLY_INITIALIZED_FINAL, field);
         }
     }
 
@@ -1940,7 +1951,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     Names.IGNORE.value.equals(importStmt.alias.value)) {
                 continue;
             }
-            dlog.error(importStmt.pos, DiagnosticCode.UNUSED_IMPORT_MODULE, importStmt.getQualifiedPackageName());
+            dlog.error(importStmt.pos, DiagnosticErrorCode.UNUSED_IMPORT_MODULE, importStmt.getQualifiedPackageName());
         }
     }
 

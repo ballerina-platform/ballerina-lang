@@ -46,4 +46,11 @@ public interface RecordTypeSymbol extends TypeSymbol {
      * @return {@link Optional} rest type descriptor
      */
     Optional<TypeSymbol> restTypeDescriptor();
+
+    /**
+     * Gets a list of included types. An included type is always a named record type.
+     *
+     * @return The list of included record types
+     */
+    List<TypeSymbol> typeInclusions();
 }

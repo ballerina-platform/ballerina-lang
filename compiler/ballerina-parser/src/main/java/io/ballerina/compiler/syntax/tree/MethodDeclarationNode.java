@@ -49,12 +49,16 @@ public class MethodDeclarationNode extends NonTerminalNode {
         return childInBucket(3);
     }
 
+    public NodeList<Node> relativeResourcePath() {
+        return new NodeList<>(childInBucket(4));
+    }
+
     public FunctionSignatureNode methodSignature() {
-        return childInBucket(4);
+        return childInBucket(5);
     }
 
     public Token semicolon() {
-        return childInBucket(5);
+        return childInBucket(6);
     }
 
     @Override
@@ -74,15 +78,18 @@ public class MethodDeclarationNode extends NonTerminalNode {
                 "qualifierList",
                 "functionKeyword",
                 "methodName",
+                "relativeResourcePath",
                 "methodSignature",
                 "semicolon"};
     }
 
     public MethodDeclarationNode modify(
+            SyntaxKind kind,
             MetadataNode metadata,
             NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken methodName,
+            NodeList<Node> relativeResourcePath,
             FunctionSignatureNode methodSignature,
             Token semicolon) {
         if (checkForReferenceEquality(
@@ -90,16 +97,19 @@ public class MethodDeclarationNode extends NonTerminalNode {
                 qualifierList.underlyingListNode(),
                 functionKeyword,
                 methodName,
+                relativeResourcePath.underlyingListNode(),
                 methodSignature,
                 semicolon)) {
             return this;
         }
 
         return NodeFactory.createMethodDeclarationNode(
+                kind,
                 metadata,
                 qualifierList,
                 functionKeyword,
                 methodName,
+                relativeResourcePath,
                 methodSignature,
                 semicolon);
     }
@@ -119,6 +129,7 @@ public class MethodDeclarationNode extends NonTerminalNode {
         private NodeList<Token> qualifierList;
         private Token functionKeyword;
         private IdentifierToken methodName;
+        private NodeList<Node> relativeResourcePath;
         private FunctionSignatureNode methodSignature;
         private Token semicolon;
 
@@ -128,6 +139,7 @@ public class MethodDeclarationNode extends NonTerminalNode {
             this.qualifierList = oldNode.qualifierList();
             this.functionKeyword = oldNode.functionKeyword();
             this.methodName = oldNode.methodName();
+            this.relativeResourcePath = oldNode.relativeResourcePath();
             this.methodSignature = oldNode.methodSignature();
             this.semicolon = oldNode.semicolon();
         }
@@ -159,6 +171,13 @@ public class MethodDeclarationNode extends NonTerminalNode {
             return this;
         }
 
+        public MethodDeclarationNodeModifier withRelativeResourcePath(
+                NodeList<Node> relativeResourcePath) {
+            Objects.requireNonNull(relativeResourcePath, "relativeResourcePath must not be null");
+            this.relativeResourcePath = relativeResourcePath;
+            return this;
+        }
+
         public MethodDeclarationNodeModifier withMethodSignature(
                 FunctionSignatureNode methodSignature) {
             Objects.requireNonNull(methodSignature, "methodSignature must not be null");
@@ -175,10 +194,12 @@ public class MethodDeclarationNode extends NonTerminalNode {
 
         public MethodDeclarationNode apply() {
             return oldNode.modify(
+                    oldNode.kind(),
                     metadata,
                     qualifierList,
                     functionKeyword,
                     methodName,
+                    relativeResourcePath,
                     methodSignature,
                     semicolon);
         }

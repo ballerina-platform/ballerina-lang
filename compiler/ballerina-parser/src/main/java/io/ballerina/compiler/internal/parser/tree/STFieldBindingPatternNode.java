@@ -26,7 +26,7 @@ import java.util.Collection;
  *
  * @since 2.0.0
  */
-public abstract class STFieldBindingPatternNode extends STNode {
+public abstract class STFieldBindingPatternNode extends STBindingPatternNode {
 
     STFieldBindingPatternNode(SyntaxKind kind) {
         super(kind);

@@ -19,6 +19,8 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -40,17 +42,24 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
+import static org.ballerinalang.model.tree.SourceKind.REGULAR_SOURCE;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
+import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
 /**
  * Semantic model representation of a given syntax tree.
@@ -61,17 +70,12 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private final BLangPackage bLangPackage;
     private final CompilerContext compilerContext;
-    private final EnvironmentResolver envResolver;
     private final SymbolFactory symbolFactory;
     private final TypesFactory typesFactory;
 
     public BallerinaSemanticModel(BLangPackage bLangPackage, CompilerContext context) {
         this.compilerContext = context;
         this.bLangPackage = bLangPackage;
-
-        SymbolTable symbolTable = SymbolTable.getInstance(context);
-        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
-        this.envResolver = new EnvironmentResolver(pkgEnv);
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.typesFactory = TypesFactory.getInstance(context);
     }
@@ -81,16 +85,21 @@ public class BallerinaSemanticModel implements SemanticModel {
      */
     @Override
     public List<Symbol> visibleSymbols(String fileName, LinePosition linePosition) {
-        List<Symbol> compiledSymbols = new ArrayList<>();
-        SymbolResolver symbolResolver = SymbolResolver.getInstance(this.compilerContext);
         BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+        BPackageSymbol moduleSymbol = getModuleSymbol(compilationUnit);
+        SymbolTable symbolTable = SymbolTable.getInstance(this.compilerContext);
+        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(moduleSymbol);
+        EnvironmentResolver envResolver = new EnvironmentResolver(pkgEnv);
+
+        SymbolResolver symbolResolver = SymbolResolver.getInstance(this.compilerContext);
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
-                symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(compilationUnit, linePosition));
+                symbolResolver.getAllVisibleInScopeSymbols(envResolver.lookUp(compilationUnit, linePosition));
 
         Location cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
-                                                    linePosition.line(), linePosition.line(),
-                                                    linePosition.offset(), linePosition.offset());
+                                                         linePosition.line(), linePosition.line(),
+                                                         linePosition.offset(), linePosition.offset());
 
+        List<Symbol> compiledSymbols = new ArrayList<>();
         for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : scopeSymbols.entrySet()) {
             Name name = entry.getKey();
             List<Scope.ScopeEntry> scopeEntries = entry.getValue();
@@ -153,7 +162,44 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public Optional<TypeSymbol> getType(String fileName, LineRange range) {
+    public List<Location> references(Symbol symbol) {
+        Location symbolLocation = symbol.location();
+
+        // Assumption is that the location will be null for regular type symbols
+        if (symbolLocation == null) {
+            return Collections.unmodifiableList(new ArrayList<>());
+        }
+
+        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolLocation.lineRange());
+
+        ReferenceFinder refFinder = new ReferenceFinder();
+        return refFinder.findReferences(node, getInternalSymbol(symbol));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Location> references(String fileName, LinePosition position) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+        SymbolFinder symbolFinder = new SymbolFinder();
+        BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
+
+        if (symbolAtCursor == null) {
+            return Collections.unmodifiableList(new ArrayList<>());
+        }
+
+        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolAtCursor.pos.lineRange());
+
+        ReferenceFinder refFinder = new ReferenceFinder();
+        return refFinder.findReferences(node, symbolAtCursor);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<TypeSymbol> type(String fileName, LineRange range) {
         BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
         NodeFinder nodeFinder = new NodeFinder();
         BLangNode node = nodeFinder.lookup(compilationUnit, range);
@@ -228,14 +274,34 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private BLangCompilationUnit getCompilationUnit(String srcFile) {
-        return bLangPackage.compUnits.stream()
+        List<BLangCompilationUnit> testSrcs = new ArrayList<>();
+        for (BLangTestablePackage pkg : bLangPackage.testablePkgs) {
+            testSrcs.addAll(pkg.compUnits);
+        }
+
+        Stream<BLangCompilationUnit> units = Stream.concat(bLangPackage.compUnits.stream(), testSrcs.stream());
+        return units
                 .filter(unit -> unit.name.equals(srcFile))
                 .findFirst()
                 .get();
     }
 
     private boolean isTypeSymbol(BSymbol symbol) {
-        return symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol);
+        return symbol instanceof BTypeSymbol && !Symbols.isTagOn(symbol, PACKAGE)
+                && !Symbols.isTagOn(symbol, ANNOTATION);
+    }
+
+    private BSymbol getInternalSymbol(Symbol symbol) {
+        if (symbol.kind() == TYPE) {
+            return ((AbstractTypeSymbol) symbol).getBType().tsymbol;
+        }
+
+        return ((BallerinaSymbol) symbol).getInternalSymbol();
+    }
+
+    private BPackageSymbol getModuleSymbol(BLangCompilationUnit compilationUnit) {
+        return compilationUnit.getSourceKind() == REGULAR_SOURCE ? bLangPackage.symbol :
+                bLangPackage.getTestablePkg().symbol;
     }
 
     private boolean withinRange(LineRange range, LineRange specifiedRange) {

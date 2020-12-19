@@ -1,12 +1,12 @@
 NAME
-       ballerina-search - Search Ballerina Central for modules
+       ballerina-search - Search Ballerina Central for packages
 
 SYNOPSIS
        ballerina search <keyword>
 
 
 DESCRIPTION
-       Search command searches Ballerina Central for the given keyword appearing in
-       organization name, module name, or module descriptions.
+       The search command searches Ballerina Central for the given keyword appearing
+       in the organization name, package name, or package descriptions.
 
        The keyword is treated as case-insensitive when search is executed.

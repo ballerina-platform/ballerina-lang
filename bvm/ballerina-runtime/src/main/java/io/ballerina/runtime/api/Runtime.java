@@ -18,12 +18,12 @@ package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.observability.ObservabilityConstants;
-import io.ballerina.runtime.observability.ObserveUtils;
-import io.ballerina.runtime.observability.ObserverContext;
-import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -82,20 +82,26 @@ public class Runtime {
      * @param metadata   Meta data of new strand.
      * @param callback   Callback which will get notify once method execution done.
      * @param properties Set of properties for strand
+     * @param returnType Expected return type of this method
      * @param args       Ballerina function arguments.
+     * @return           {@link FutureValue} containing return value of executing this method.
      */
-    public void invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
-                                  Callback callback, Map<String, Object> properties, Object... args) {
-        Function<Object[], Object> func = objects -> {
-            Strand strand = (Strand) objects[0];
-            if (ObserveUtils.isObservabilityEnabled() && properties != null &&
-                    properties.containsKey(ObservabilityConstants.KEY_OBSERVER_CONTEXT)) {
-                strand.observerContext =
-                        (ObserverContext) properties.remove(ObservabilityConstants.KEY_OBSERVER_CONTEXT);
-            }
-            return object.call(strand, methodName, args);
-        };
-        scheduler.schedule(new Object[1], func, null, callback, properties, PredefinedTypes.TYPE_NULL, strandName,
-                           metadata);
+    public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
+                                     Callback callback, Map<String, Object> properties,
+                                     Type returnType, Object... args) {
+        if (object == null) {
+            throw new NullPointerException();
+        }
+        Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+        return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
+                metadata);
+    }
+
+    public void registerListener(BObject listener) {
+        scheduler.getListenerRegistry().registerListener(listener);
+    }
+
+    public void deregisterListener(BObject listener) {
+        scheduler.getListenerRegistry().deregisterListener(listener);
     }
 }

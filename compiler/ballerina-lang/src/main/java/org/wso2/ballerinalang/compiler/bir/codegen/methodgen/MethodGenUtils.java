@@ -18,23 +18,21 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
@@ -51,35 +49,21 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
  */
 public class MethodGenUtils {
     static final String FRAMES = "frames";
-    static final String INIT_FUNCTION_SUFFIX = "<init>";
-    static final String STOP_FUNCTION_SUFFIX = "<stop>";
-    static final String START_FUNCTION_SUFFIX = "<start>";
+    static final String INIT_FUNCTION_SUFFIX = ".<init>";
+    static final String STOP_FUNCTION_SUFFIX = ".<stop>";
+    static final String START_FUNCTION_SUFFIX = ".<start>";
 
     static boolean hasInitFunction(BIRNode.BIRPackage pkg) {
         for (BIRNode.BIRFunction func : pkg.functions) {
-            if (func != null && isModuleInitFunction(pkg, func)) {
+            if (func != null && isModuleInitFunction(func)) {
                 return true;
             }
         }
         return false;
     }
 
-    static boolean isModuleInitFunction(BIRNode.BIRPackage module, BIRNode.BIRFunction func) {
-        return func.name.value.equals(calculateModuleInitFuncName(packageToModuleId(module)));
-    }
-
-    private static String calculateModuleInitFuncName(PackageID id) {
-        return calculateModuleSpecialFuncName(id, INIT_FUNCTION_SUFFIX);
-    }
-
-    static PackageID packageToModuleId(BIRNode.BIRPackage mod) {
-        return new PackageID(mod.org, mod.name, mod.version);
-    }
-
-    static void genArgs(MethodVisitor mv, int schedulerVarIndex) {
-        mv.visitVarInsn(ALOAD, schedulerVarIndex);
-        mv.visitIntInsn(BIPUSH, 1);
-        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+    static boolean isModuleInitFunction(BIRNode.BIRFunction func) {
+        return func.name.value.equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
     }
 
     static void submitToScheduler(MethodVisitor mv, String moduleClassName,
@@ -99,13 +83,18 @@ public class MethodGenUtils {
         mv.visitEnd();
     }
 
-    static String calculateModuleSpecialFuncName(PackageID id, String funcSuffix) {
+    static String encodeModuleSpecialFuncName(String funcSuffix) {
+        return IdentifierUtils.encodeFunctionIdentifier(funcSuffix);
+    }
+
+    static String calculateLambdaStopFuncName(PackageID id) {
         String orgName = id.orgName.value;
         String moduleName = id.name.value;
         String version = id.version.value;
+        String funcSuffix = MethodGenUtils.STOP_FUNCTION_SUFFIX;
 
         String funcName;
-        if (moduleName.equals(".")) {
+        if (moduleName.equals(ENCODED_DOT_CHARACTER)) {
             funcName = ".." + funcSuffix;
         } else if (version.equals("")) {
             funcName = moduleName + "." + funcSuffix;
@@ -117,7 +106,7 @@ public class MethodGenUtils {
             funcName = orgName + "/" + funcName;
         }
 
-        return funcName;
+        return "$lambda$" + IdentifierUtils.encodeFunctionIdentifier(funcName);
     }
 
     private MethodGenUtils() {
@@ -126,14 +115,13 @@ public class MethodGenUtils {
     static String getFrameClassName(String pkgName, String funcName, BType attachedType) {
         String frameClassName = pkgName;
         if (isValidType(attachedType)) {
-            frameClassName += JvmCodeGenUtil.cleanupReadOnlyTypeName(JvmCodeGenUtil.toNameString(attachedType)) + "_";
+            frameClassName += JvmCodeGenUtil.toNameString(attachedType) + "_";
         }
 
-        return frameClassName + JvmCodeGenUtil.cleanupFunctionName(funcName) + "Frame";
+        return frameClassName + funcName + "Frame";
     }
 
     private static boolean isValidType(BType attachedType) {
-        return attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType instanceof BServiceType ||
-                attachedType.tag == TypeTags.RECORD);
+        return attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD);
     }
 }

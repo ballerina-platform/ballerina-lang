@@ -20,6 +20,7 @@ import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +33,8 @@ import java.util.stream.Collectors;
  * @since 1.1.1
  */
 public class CodeActionProvidersHolder {
-    private static Map<CodeActionNodeType, List<LSCodeActionProvider>> nodeBasedProviders = new HashMap<>();
-    private static List<LSCodeActionProvider> diagnosticsBasedProviders = new ArrayList<>();
+    private static final Map<CodeActionNodeType, List<LSCodeActionProvider>> nodeBasedProviders = new HashMap<>();
+    private static final List<LSCodeActionProvider> diagnosticsBasedProviders = new ArrayList<>();
     private static final CodeActionProvidersHolder INSTANCE = new CodeActionProvidersHolder();
 
     /**
@@ -53,37 +54,7 @@ public class CodeActionProvidersHolder {
         for (LSCodeActionProvider provider : serviceLoader) {
             if (provider.isNodeBasedSupported()) {
                 for (CodeActionNodeType nodeType : provider.getCodeActionNodeTypes()) {
-                    switch (nodeType) {
-                        case IMPORTS:
-                            nodeBasedProviders.get(CodeActionNodeType.IMPORTS).add(provider);
-                            break;
-                        case FUNCTION:
-                            nodeBasedProviders.get(CodeActionNodeType.FUNCTION).add(provider);
-                            break;
-                        case OBJECT:
-                            nodeBasedProviders.get(CodeActionNodeType.OBJECT).add(provider);
-                            break;
-                        case CLASS:
-                            nodeBasedProviders.get(CodeActionNodeType.CLASS).add(provider);
-                            break;
-                        case SERVICE:
-                            nodeBasedProviders.get(CodeActionNodeType.SERVICE).add(provider);
-                            break;
-                        case RECORD:
-                            nodeBasedProviders.get(CodeActionNodeType.RECORD).add(provider);
-                            break;
-                        case RESOURCE:
-                            nodeBasedProviders.get(CodeActionNodeType.RESOURCE).add(provider);
-                            break;
-                        case OBJECT_FUNCTION:
-                            nodeBasedProviders.get(CodeActionNodeType.OBJECT_FUNCTION).add(provider);
-                            break;
-                        case CLASS_FUNCTION:
-                            nodeBasedProviders.get(CodeActionNodeType.CLASS_FUNCTION).add(provider);
-                            break;
-                        default:
-                            break;
-                    }
+                    nodeBasedProviders.get(nodeType).add(provider);
                 }
             }
             if (provider.isDiagBasedSupported()) {
@@ -102,6 +73,7 @@ public class CodeActionProvidersHolder {
         if (nodeBasedProviders.containsKey(nodeType)) {
             return nodeBasedProviders.get(nodeType).stream()
                     .filter(LSCodeActionProvider::isEnabled)
+                    .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();
@@ -115,6 +87,7 @@ public class CodeActionProvidersHolder {
     List<LSCodeActionProvider> getActiveDiagnosticsBasedProviders() {
         return diagnosticsBasedProviders.stream()
                 .filter(LSCodeActionProvider::isEnabled)
+                .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
                 .collect(Collectors.toList());
     }
 }

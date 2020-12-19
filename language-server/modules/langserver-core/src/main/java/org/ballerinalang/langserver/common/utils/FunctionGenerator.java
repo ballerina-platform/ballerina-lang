@@ -16,14 +16,13 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
-import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.projects.Module;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
+import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -48,10 +47,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,9 +58,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.createModuleID;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getModulePrefix;
 
 /**
@@ -134,20 +131,31 @@ public class FunctionGenerator {
      *
      * @param importsAcceptor imports acceptor
      * @param typeDescriptor  {@link BLangNode}
+     * @param context         {@link DocumentServiceContext}
      * @return return type signature
      */
     public static String generateTypeDefinition(ImportsAcceptor importsAcceptor,
-                                                TypeSymbol typeDescriptor, LSContext context) {
-        PackageID packageID = context.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
-        String signature = typeDescriptor.signature();
-        return (packageID != null) ? processModuleIDsInText(importsAcceptor, context, packageID, signature) : signature;
+                                                TypeSymbol typeDescriptor, DocumentServiceContext context) {
+        return processModuleIDsInText(importsAcceptor, typeDescriptor.signature(), context);
     }
 
-    private static String processModuleIDsInText(ImportsAcceptor importsAcceptor, LSContext context,
-                                                 PackageID currentPkgID, String text) {
+    /**
+     * Returns imports processed of the type text.
+     *
+     * @param importsAcceptor imports acceptor
+     * @param text            generated type text
+     * @param context         {@link DocumentServiceContext}
+     * @return return type signature
+     */
+    public static String processModuleIDsInText(ImportsAcceptor importsAcceptor, String text,
+                                                DocumentServiceContext context) {
+        Module module = context.workspace().module(context.filePath()).orElseThrow();
+        String currentOrg = module.packageInstance().descriptor().org().value();
+        String currentModule = module.descriptor().name().packageName().value();
+        String currentVersion = module.packageInstance().descriptor().version().value().toString();
+
         StringBuilder newText = new StringBuilder();
-        String moduleName = currentPkgID.nameComps.stream().map(n -> n.value).collect(Collectors.joining("."));
-        ModuleID currentModuleID = createModuleID(currentPkgID.orgName.value, moduleName, currentPkgID.version.value);
+        ModuleID currentModuleID = CodeActionModuleId.from(currentOrg, currentModule, currentVersion);
         Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(text);
         int nextStart = 0;
         // Matching Fully-Qualified-Module-IDs (eg.`abc/mod1:1.0.0`)
@@ -157,7 +165,7 @@ public class FunctionGenerator {
             // Append up-to start of the match
             newText.append(text, nextStart, matcher.start(1));
             // Append module prefix(empty when in same module) and identify imports
-            ModuleID moduleID = createModuleID(matcher.group(1), matcher.group(2), matcher.group(3));
+            ModuleID moduleID = CodeActionModuleId.from(matcher.group(1), matcher.group(2), matcher.group(3));
             newText.append(getModulePrefix(importsAcceptor, currentModuleID, moduleID, context));
             // Update next-start position
             nextStart = matcher.end(3) + 1;
@@ -170,33 +178,6 @@ public class FunctionGenerator {
     }
 
     /**
-     * Get the list of function arguments from the invokable symbol.
-     *
-     * @param symbol Invokable symbol to extract the arguments
-     * @param ctx    Lang Server Operation context
-     * @return {@link List} List of arguments
-     */
-    public static List<String> getFuncArguments(FunctionSymbol symbol, LSContext ctx) {
-        List<String> args = new ArrayList<>();
-        boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, symbol);
-        FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
-        Optional<ParameterSymbol> restParam = functionTypeDesc.restParam();
-        List<ParameterSymbol> parameterDefs = new ArrayList<>(functionTypeDesc.parameters());
-        for (int i = 0; i < parameterDefs.size(); i++) {
-            if (i == 0 && skipFirstParam) {
-                continue;
-            }
-            ParameterSymbol param = parameterDefs.get(i);
-            args.add(param.typeDescriptor().signature() + (param.name().isEmpty() ? "" : " " + param.name().get()));
-        }
-        restParam.ifPresent(param ->
-                args.add(param.typeDescriptor().signature()
-                        + (param.name().isEmpty() ? "" : "... "
-                        + param.name().get())));
-        return (!args.isEmpty()) ? args : new ArrayList<>();
-    }
-
-    /**
      * Get the function arguments from the function.
      *
      * @param importsAcceptor imports accepter
@@ -204,9 +185,9 @@ public class FunctionGenerator {
      * @param context         {@link LSContext}
      * @return {@link List} List of arguments
      */
-    public static List<String> getFuncArguments(ImportsAcceptor importsAcceptor,
-                                                BLangNode parent,
-                                                LSContext context) {
+    @Deprecated
+    public static List<String> getFuncArguments(ImportsAcceptor importsAcceptor, BLangNode parent,
+                                                CompletionContext context) {
         List<String> list = new ArrayList<>();
         if (parent instanceof BLangInvocation) {
             BLangInvocation bLangInvocation = (BLangInvocation) parent;
@@ -214,9 +195,10 @@ public class FunctionGenerator {
                 return null;
             }
             int argCounter = 1;
-            CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             for (BLangExpression bLangExpression : bLangInvocation.argExprs) {
-                Set<String> argNames = CommonUtil.getAllNameEntries(compilerContext);
+                // TODO: Fix
+//                Set<String> argNames = CommonUtil.getAllNameEntries(compilerContext);
+                Set<String> argNames = new HashSet<>();
                 if (bLangExpression instanceof BLangSimpleVarRef) {
                     BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangExpression;
                     String varName = simpleVarRef.variableName.value;
@@ -240,9 +222,8 @@ public class FunctionGenerator {
     }
 
     private static String lookupVariableReturnType(ImportsAcceptor importsAcceptor,
-
                                                    String variableName, BLangNode parent,
-                                                   LSContext context) {
+                                                   DocumentServiceContext context) {
         // Recursively find BLangBlockStmt to get scope-entries
         if (parent instanceof BLangBlockStmt || parent instanceof BLangFunctionBody) {
             Scope scope = parent instanceof BLangBlockStmt ? ((BLangBlockStmt) parent).scope
@@ -259,6 +240,7 @@ public class FunctionGenerator {
                 }
             }
         }
+
         return (parent != null && parent.parent != null)
                 ? lookupVariableReturnType(importsAcceptor, variableName, parent.parent, context)
                 : "any";
@@ -269,7 +251,7 @@ public class FunctionGenerator {
                                              String template, LSContext context) {
         if (bType instanceof BArrayType) {
             String arrDef = "[" + generateReturnValue(importsAcceptor, ((BArrayType) bType).eType,
-                                                      "{%1}", context) + "]";
+                    "{%1}", context) + "]";
             return template.replace("{%1}", arrDef);
         } else if (bType instanceof BFiniteType) {
             // Check for finite set assignment
@@ -277,13 +259,13 @@ public class FunctionGenerator {
             Set<BLangExpression> valueSpace = bFiniteType.getValueSpace();
             if (!valueSpace.isEmpty()) {
                 return generateReturnValue(importsAcceptor, valueSpace.stream().findFirst().get(),
-                                           template, context);
+                        template, context);
             }
         } else if (bType instanceof BMapType && ((BMapType) bType).constraint != null) {
             // Check for constrained map assignment eg. map<Student>
             BType constraintType = ((BMapType) bType).constraint;
             String mapDef = "{key: " + generateReturnValue(importsAcceptor, constraintType, "{%1}",
-                                                           context) +
+                    context) +
                     "}";
             return template.replace("{%1}", mapDef);
         } else if (bType instanceof BUnionType) {

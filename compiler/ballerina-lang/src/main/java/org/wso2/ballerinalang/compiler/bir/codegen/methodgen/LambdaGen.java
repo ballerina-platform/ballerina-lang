@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.runtime.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -71,6 +71,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.INITIAL_METHOD_DESC;
 
 /**
  * Generates Jvm byte code for the lambda method.
@@ -111,9 +112,8 @@ public class LambdaGen {
             if (balFileName == null || !balFileName.endsWith(JvmConstants.BAL_EXTENSION)) {
                 balFileName = JvmConstants.MODULE_INIT_CLASS_NAME;
             }
-            jvmClass = JvmCodeGenUtil.getModuleLevelClassName(lambdaDetails.orgName, lambdaDetails.moduleName,
-                                                              lambdaDetails.version, JvmCodeGenUtil
-                                                                      .cleanupPathSeparators(balFileName));
+            jvmClass = JvmCodeGenUtil.getModuleLevelClassName(lambdaDetails.packageID, JvmCodeGenUtil
+                    .cleanupPathSeparators(balFileName));
         }
         mv.visitMethodInsn(INVOKESTATIC, jvmClass, lambdaDetails.encodedFuncName, methodDesc, false);
         JvmCastGen.addBoxInsn(mv, lambdaDetails.returnType);
@@ -129,8 +129,8 @@ public class LambdaGen {
     }
 
     private void handleLambdaVirtual(BIRTerminator.AsyncCall ins, LambdaDetails lambdaDetails, MethodVisitor mv) {
-        boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(lambdaDetails.orgName,
-                                                                          lambdaDetails.moduleName);
+        boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(lambdaDetails.packageID.orgName.getValue(),
+                                                                          lambdaDetails.packageID.name.getValue());
         List<BIROperand> paramTypes = ins.args;
         genLoadDataForObjectAttachedLambdas(ins, mv, lambdaDetails.closureMapsCount, paramTypes,
                                             isBuiltinModule);
@@ -183,8 +183,8 @@ public class LambdaGen {
     }
 
     private void handleAsyncNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes) {
-        boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(lambdaDetails.orgName,
-                                                                          lambdaDetails.moduleName);
+        boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(lambdaDetails.packageID.orgName.getValue(),
+                                                                          lambdaDetails.packageID.name.getValue());
         List<BType> paramTypes = getFpParamTypes(lambdaDetails);
         // load and cast param values= asyncIns.args;
         int argIndex = 1;
@@ -246,8 +246,9 @@ public class LambdaGen {
             paramIndex += 1;
             argIndex += 1;
 
-            boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(lambdaDetails.orgName,
-                                                                              lambdaDetails.moduleName);
+            boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(
+                    lambdaDetails.packageID.orgName.getValue(),
+                    lambdaDetails.packageID.name.getValue());
             if (!isBuiltinModule) {
                 addBooleanTypeToLambdaParamTypes(mv, lambdaDetails.closureMapsCount, argIndex);
                 paramBTypes.add(paramIndex - 1, symbolTable.booleanType);
@@ -267,8 +268,7 @@ public class LambdaGen {
     private MethodVisitor getMethodVisitorAndLoadFirst(ClassWriter cw, String lambdaName,
                                                        LambdaDetails lambdaDetails, BIRInstruction ins) {
         String closureMapsDesc = getMapValueDesc(lambdaDetails.closureMapsCount);
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC,
-                                          JvmCodeGenUtil.cleanupFunctionName(lambdaName),
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName,
                                           String.format("(%s[L%s;)L%s;", closureMapsDesc, JvmConstants.OBJECT,
                                                         JvmConstants.OBJECT), null, null);
 
@@ -351,9 +351,7 @@ public class LambdaGen {
     private LambdaDetails populateAsyncLambdaDetails(BIRTerminator.AsyncCall asyncIns) {
         LambdaDetails lambdaDetails = new LambdaDetails();
         lambdaDetails.lhsType = asyncIns.lhsOp != null ? asyncIns.lhsOp.variableDcl.type : null;
-        lambdaDetails.orgName = asyncIns.calleePkg.orgName.value;
-        lambdaDetails.moduleName = asyncIns.calleePkg.name.value;
-        lambdaDetails.version = asyncIns.calleePkg.version.value;
+        lambdaDetails.packageID = asyncIns.calleePkg;
         lambdaDetails.funcName = asyncIns.name.getValue();
         if (!asyncIns.isVirtual) {
             populateLambdaFunctionDetails(lambdaDetails);
@@ -364,9 +362,7 @@ public class LambdaGen {
     private LambdaDetails populateFpLambdaDetails(BIRNonTerminator.FPLoad fpIns) {
         LambdaDetails lambdaDetails = new LambdaDetails();
         lambdaDetails.lhsType = fpIns.lhsOp.variableDcl.type;
-        lambdaDetails.orgName = fpIns.pkgId.orgName.value;
-        lambdaDetails.moduleName = fpIns.pkgId.name.value;
-        lambdaDetails.version = fpIns.pkgId.version.value;
+        lambdaDetails.packageID = fpIns.pkgId;
         lambdaDetails.funcName = fpIns.funcName.getValue();
         lambdaDetails.closureMapsCount = fpIns.closureMaps.size();
         populateLambdaFunctionDetails(lambdaDetails);
@@ -374,13 +370,13 @@ public class LambdaGen {
     }
 
     private void populateLambdaFunctionDetails(LambdaDetails lambdaDetails) {
-        lambdaDetails.encodedFuncName = IdentifierUtils.encodeIdentifier(lambdaDetails.funcName);
-        lambdaDetails.lookupKey = JvmCodeGenUtil.getPackageName(
-                lambdaDetails.orgName, lambdaDetails.moduleName, lambdaDetails.version) + lambdaDetails.encodedFuncName;
+        lambdaDetails.encodedFuncName = IdentifierUtils.encodeFunctionIdentifier(lambdaDetails.funcName);
+        lambdaDetails.lookupKey = JvmCodeGenUtil.getPackageName(lambdaDetails.packageID) +
+                lambdaDetails.encodedFuncName;
         lambdaDetails.functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lambdaDetails.lookupKey);
         if (lambdaDetails.functionWrapper == null) {
             BPackageSymbol symbol = jvmPackageGen.packageCache.getSymbol(
-                    lambdaDetails.orgName + "/" + lambdaDetails.moduleName);
+                    lambdaDetails.packageID.orgName + "/" + lambdaDetails.packageID.name);
             lambdaDetails.funcSymbol = (BInvokableSymbol) symbol.scope.lookup(
                     new Name(lambdaDetails.funcName)).symbol;
         }
@@ -438,9 +434,7 @@ public class LambdaGen {
 
     private static class LambdaDetails {
         BType lhsType;
-        String orgName;
-        String moduleName;
-        String version;
+        PackageID packageID;
         String funcName;
         boolean isExternFunction;
         String encodedFuncName = null;
@@ -452,7 +446,7 @@ public class LambdaGen {
     }
 
     private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
-        StringBuilder desc = new StringBuilder("(Lio/ballerina/runtime/scheduling/Strand;");
+        StringBuilder desc = new StringBuilder(INITIAL_METHOD_DESC);
         appendClosureMaps(closureMapsCount, desc);
         appendParamTypes(paramTypes, desc);
         desc.append(JvmCodeGenUtil.generateReturnType(retType));

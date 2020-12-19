@@ -13,10 +13,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.array",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'array",
+      "insertText": "'test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -30,51 +30,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.transaction",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'transaction",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.'transaction;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/java",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/java;\n"
+          "newText": "import ballerina/lang.'test;\n"
         }
       ]
     },
@@ -119,6 +75,94 @@
             }
           },
           "newText": "import ballerina/lang.'query;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'transaction",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'transaction;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
         }
       ]
     },
@@ -211,13 +255,6 @@
       "kind": "Module",
       "detail": "Module",
       "insertText": "'typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "$anonType$_0",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "$anonType$_0",
       "insertTextFormat": "Snippet"
     },
     {

@@ -61,8 +61,6 @@ public interface BTypeVisitor<T, R> {
 
     R visit(BFiniteType t, T s);
 
-    R visit(BServiceType t, T s);
-
     R visit(BTypedescType t, T s);
 
     R visit(BParameterizedType t, T s);

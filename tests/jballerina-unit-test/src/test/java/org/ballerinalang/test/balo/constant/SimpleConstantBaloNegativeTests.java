@@ -17,12 +17,10 @@
  */
 package org.ballerinalang.test.balo.constant;
 
-import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -35,9 +33,7 @@ public class SimpleConstantBaloNegativeTests {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project_negative", "testorg",
-                "simple_literal");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_negative");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/constant-negative.bal");
     }
 
@@ -67,10 +63,5 @@ public class SimpleConstantBaloNegativeTests {
                 " 'string'", offset += 9, 28);
         BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'Ballerina rocks', found " +
                 "'string'", offset += 7, 31);
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project_negative", "testorg", "foo");
     }
 }
