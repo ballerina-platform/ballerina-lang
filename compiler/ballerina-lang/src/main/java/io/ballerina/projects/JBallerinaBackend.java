@@ -82,7 +82,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
 
     private final PackageResolution pkgResolution;
-    private final JdkVersion jdkVersion;
+    private final JvmTarget jdkVersion;
     private final PackageContext packageContext;
     private final PackageCache packageCache;
     private final CompilerContext compilerContext;
@@ -92,12 +92,12 @@ public class JBallerinaBackend extends CompilerBackend {
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
 
-    public static JBallerinaBackend from(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
+    public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return packageCompilation.getCompilerBackend(jdkVersion,
                 (targetPlatform -> new JBallerinaBackend(packageCompilation, jdkVersion)));
     }
 
-    private JBallerinaBackend(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
+    private JBallerinaBackend(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         this.jdkVersion = jdkVersion;
         this.packageContext = packageCompilation.packageContext();
         this.pkgResolution = packageContext.getResolution();
@@ -123,6 +123,10 @@ public class JBallerinaBackend extends CompilerBackend {
         performCodeGen();
     }
 
+    PackageContext packageContext() {
+        return this.packageContext;
+    }
+
     private void performCodeGen() {
         if (codeGenCompleted) {
             return;
@@ -144,28 +148,29 @@ public class JBallerinaBackend extends CompilerBackend {
 
     // TODO EmitResult should not contain compilation diagnostics.
     public EmitResult emit(OutputType outputType, Path filePath) {
+        Path generatedArtifact = null;
+
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, diagnosticResult);
+            return new EmitResult(false, diagnosticResult, generatedArtifact);
         }
 
         switch (outputType) {
             case EXEC:
-                emitExecutable(filePath);
+                generatedArtifact = emitExecutable(filePath);
                 break;
             case BALO:
-                emitBalo(filePath);
+                generatedArtifact = emitBalo(filePath);
                 break;
             default:
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
         // TODO handle the EmitResult properly
-        return new EmitResult(true, diagnosticResult);
+        return new EmitResult(true, diagnosticResult, generatedArtifact);
     }
 
-    private void emitBalo(Path filePath) {
+    private Path emitBalo(Path filePath) {
         JBallerinaBaloWriter writer = new JBallerinaBaloWriter(this);
-        Package pkg = packageCache.getPackageOrThrow(packageContext.packageId());
-        writer.write(pkg, filePath);
+        return writer.write(filePath);
     }
 
     @Override
@@ -513,7 +518,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 scope);
     }
 
-    private void emitExecutable(Path executableFilePath) {
+    private Path emitExecutable(Path executableFilePath) {
         Manifest manifest = createManifest();
         Collection<Path> jarLibraryPaths = jarResolver.getJarFilePathsRequiredForExecution();
 
@@ -530,6 +535,7 @@ public class JBallerinaBackend extends CompilerBackend {
             throw new ProjectException("error while creating the executable jar file for package: " +
                     this.packageContext.packageName(), e);
         }
+        return executableFilePath;
     }
 
     private PlatformLibraryScope getPlatformLibraryScope(Map<String, Object> dependency) {
@@ -562,7 +568,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
 
-    JdkVersion jdkVersion() {
+    JvmTarget jdkVersion() {
         return jdkVersion;
     }
 }

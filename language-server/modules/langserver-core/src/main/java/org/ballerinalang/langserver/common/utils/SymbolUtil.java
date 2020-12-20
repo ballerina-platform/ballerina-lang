@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -217,7 +218,7 @@ public class SymbolUtil {
             return false;
         }
         ObjectTypeSymbol typeDesc = getTypeDescForObjectSymbol(symbol);
-        return typeDesc.typeQualifiers().contains(ObjectTypeSymbol.TypeQualifier.CLIENT);
+        return typeDesc.qualifiers().contains(Qualifier.CLIENT);
     }
 
     /**
