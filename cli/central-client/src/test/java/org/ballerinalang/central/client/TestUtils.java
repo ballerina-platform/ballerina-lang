@@ -33,9 +33,15 @@ import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.ballerinalang.central.client.Utils.createBaloInHomeRepo;
+import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.writeBaloFile;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -63,13 +69,38 @@ public class TestUtils {
         return new Object[][] {
                 { "1.0.0", true },
                 { "1.1.11", true },
+                { "2.2.2-snapshot", true },
+                { "2.2.2-snapshot-1", true },
+                { "2.2.2-alpha", true },
                 { "200", false },
                 { "2.2.2.2", false }
         };
     }
 
+    @DataProvider(name = "versionsLists")
+    public Object[][] provideVersionLists() {
+        return new Object[][] {
+                { "[]", new ArrayList<>(Collections.emptyList()) },
+                { "[\"1.1.11\"]", Collections.singletonList("1.1.11") },
+                { "[\"1.0.0\", \"1.2.0\"]", Arrays.asList("1.0.0", "1.2.0") }
+        };
+    }
+
+    @Test(description = "Test get as list from array given as a string", dataProvider = "versionsLists")
+    public void testGetAsList(String versionList, List<String> expectedArray) {
+        List<String> versions = getAsList(versionList);
+        Assert.assertEquals(versions.size(), expectedArray.size());
+
+        Iterator<String> versionsItr = versions.iterator();
+        Iterator<String> expectedItr = expectedArray.iterator();
+
+        while (versionsItr.hasNext() && expectedItr.hasNext()) {
+            Assert.assertEquals(versionsItr.next(), expectedItr.next());
+        }
+    }
+
     @Test(description = "Test writing balo file from http response")
-    public void testWriteBaloFile() throws IOException {
+    public void testWriteBaloFile() throws IOException, CentralClientException {
         final String baloName = "sf-any.balo";
         Path baloFile = UTILS_TEST_RESOURCES.resolve(baloName);
         File initialFile = new File(String.valueOf(baloFile));
@@ -86,7 +117,7 @@ public class TestUtils {
     }
 
     @Test(description = "Test validate package version", dataProvider = "validatePackageVersion")
-    public void testValidatePackageVersion(String version, boolean isValid) {
+    public void testValidatePackageVersion(String version, boolean isValid) throws CentralClientException {
         if (isValid) {
             Utils.validatePackageVersion(version, new LogFormatter());
         } else {
@@ -95,7 +126,7 @@ public class TestUtils {
                 Utils.validatePackageVersion(version, new LogFormatter());
             } catch (CentralClientException e) {
                 exceptionThrown = true;
-                Assert.assertTrue(e.getMessage().contains("package version could not be detected"));
+                Assert.assertTrue(e.getMessage().contains("Invalid version:"));
             }
 
             if (!exceptionThrown) {
@@ -105,7 +136,7 @@ public class TestUtils {
     }
 
     @Test(description = "Test create balo in given directory")
-    public void testCreateBaloInHomeRepo() throws IOException {
+    public void testCreateBaloInHomeRepo() throws IOException, CentralClientException {
         final String baloName = "sf-any.balo";
         Path baloFile = UTILS_TEST_RESOURCES.resolve(baloName);
         File initialFile = new File(String.valueOf(baloFile));

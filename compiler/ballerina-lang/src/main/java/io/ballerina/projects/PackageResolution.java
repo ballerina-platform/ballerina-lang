@@ -26,10 +26,12 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Resolves dependencies and handles version conflicts in the dependency graph.
@@ -44,6 +46,7 @@ public class PackageResolution {
     private final CompilationOptions compilationOptions;
 
     private List<ModuleContext> topologicallySortedModuleList;
+    private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
 
     private PackageResolution(PackageContext rootPackageContext) {
         this.rootPackageContext = rootPackageContext;
@@ -70,6 +73,24 @@ public class PackageResolution {
      */
     public DependencyGraph<ResolvedPackageDependency> dependencyGraph() {
         return dependencyGraph;
+    }
+
+    /**
+     * Returns all the dependencies of this package including it's transitive dependencies.
+     *
+     * @return all the dependencies of this package including it's transitive dependencies
+     */
+    public Collection<ResolvedPackageDependency> allDependencies() {
+        if (dependenciesWithTransitives != null) {
+            return dependenciesWithTransitives;
+        }
+
+        dependenciesWithTransitives = dependencyGraph.toTopologicallySortedList()
+                .stream()
+                // Remove root package from this list.
+                .filter(resolvedPkg -> resolvedPkg.packageId() != rootPackageContext.packageId())
+                .collect(Collectors.toList());
+        return dependenciesWithTransitives;
     }
 
     /**
@@ -171,13 +192,40 @@ public class PackageResolution {
     private DependencyGraph<ResolvedPackageDependency> getDependencyGraphWithPackageDescriptors() {
         PackageDependencyGraphBuilder depGraphBuilder = PackageDependencyGraphBuilder.getInstance();
         if (rootPackageContext.project().kind() == ProjectKind.BALR_PROJECT) {
-            depGraphBuilder.mergeGraph(rootPackageContext.dependencyGraph());
+            createDependencyGraphFromBALR(depGraphBuilder);
         } else {
             createDependencyGraphFromSources(depGraphBuilder);
         }
 
         return depGraphBuilder.buildPackageDependencyGraph(rootPackageContext.descriptor(), packageResolver,
                 packageCache, rootPackageContext.project());
+    }
+
+    private void createDependencyGraphFromBALR(PackageDependencyGraphBuilder depGraphBuilder) {
+        DependencyGraph<PackageDescriptor> dependencyGraphStoredInBALR = rootPackageContext.dependencyGraph();
+        Collection<PackageDescriptor> directDependenciesOfBALR =
+                dependencyGraphStoredInBALR.getDirectDependencies(rootPackageContext.descriptor());
+
+        // 1) Create ResolutionRequest instances for each direct dependency of the balr
+        LinkedHashSet<ResolutionRequest> resolutionRequests = new LinkedHashSet<>();
+        for (PackageDescriptor packageDescriptor : directDependenciesOfBALR) {
+            resolutionRequests.add(ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT));
+        }
+
+        // 2) Resolve direct dependencies. My assumption is that, all these dependencies comes from BALRs
+        List<ResolutionResponse> resolutionResponses =
+                packageResolver.resolvePackages(new ArrayList<>(resolutionRequests), rootPackageContext.project());
+        for (ResolutionResponse resolutionResponse : resolutionResponses) {
+            if (resolutionResponse.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
+                PackageDescriptor dependencyPkgDesc = resolutionResponse.packageLoadRequest().packageDescriptor();
+                throw new ProjectException("Dependency cannot be found:" +
+                        " org=" + dependencyPkgDesc.org() +
+                        ", package=" + dependencyPkgDesc.name() +
+                        ", version=" + dependencyPkgDesc.version());
+            }
+        }
+
+        depGraphBuilder.mergeGraph(rootPackageContext.dependencyGraph());
     }
 
     private void createDependencyGraphFromSources(PackageDependencyGraphBuilder depGraphBuilder) {

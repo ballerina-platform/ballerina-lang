@@ -3,7 +3,7 @@
   "character": 15,
   "expected": [
     {
-      "title": "Document This",
+      "title": "Document this",
       "command": "ADD_DOC",
       "arguments": [
         {
@@ -13,7 +13,7 @@
       ]
     },
     {
-      "title": "Document All",
+      "title": "Document all",
       "command": "ADD_ALL_DOC"
     }
   ]

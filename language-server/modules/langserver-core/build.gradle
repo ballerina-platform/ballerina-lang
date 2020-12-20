@@ -42,6 +42,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-parser')
     implementation project(':formatter:formatter-core')
+    implementation project(':diagram-util')
     implementation project(':language-server:language-server-commons')
     implementation project(':language-server:language-server-compiler')
 
@@ -135,8 +136,4 @@ task buildAndCopy(type: Copy) {
     into project(':jballerina-tools').projectDir.absolutePath +
             '/build/extracted-distributions/jballerina-tools-' + project.version +
             '/bre/lib';
-}
-
-spotbugsMain {
-    enabled = false
 }

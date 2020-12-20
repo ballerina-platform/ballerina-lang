@@ -77,10 +77,10 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
             "when run is used with a source file or a module.")
-    private boolean observabilityIncluded;
+    private Boolean observabilityIncluded;
 
-    private static final String runCmd = "ballerina run {<ballerina-file | project-name> | <executable-jar>} " +
-            "[--] [(--key=value)...]";
+    private static final String runCmd = "ballerina run [--experimental] [--offline] \n" +
+            "                  <executable-jar | ballerina-file | . | package-path> [program-args] [(--key=value)...]";
 
     public RunCommand() {
         this.outStream = System.err;
@@ -109,7 +109,7 @@ public class RunCommand implements BLauncherCmd {
 
         String[] args;
         if (this.argList == null) {
-            CommandUtil.printError(this.errStream, "no project path provided.", runCmd, false);
+            CommandUtil.printError(this.errStream, "no package path provided.", runCmd, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         } else {
@@ -125,7 +125,7 @@ public class RunCommand implements BLauncherCmd {
             try {
                 project = SingleFileProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -134,7 +134,7 @@ public class RunCommand implements BLauncherCmd {
             try {
                 project = BuildProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -147,7 +147,6 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO (build projects only)
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
-//                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
                 .addTask(new RunExecutableTask(args, outStream, errStream))
                 .build();
 

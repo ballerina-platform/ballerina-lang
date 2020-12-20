@@ -25,6 +25,7 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
+import io.ballerina.projects.util.ProjectConstants;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,6 +55,9 @@ public class SingleFileProject extends Project {
     }
 
     public static SingleFileProject load(Path filePath, BuildOptions buildOptions) {
+        // todo this is an ugly hack to get the offline build working we need to refactor this later
+        System.setProperty(ProjectConstants.BALLERINA_OFFLINE_FLAG, String.valueOf(buildOptions.offlineBuild()));
+
         PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(filePath);
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         SingleFileProject singleFileProject = new SingleFileProject(environmentBuilder, filePath, buildOptions);

@@ -31,10 +31,12 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -58,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
@@ -392,6 +395,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangResourceFunction funcNode) {
+        visit((BLangFunction) funcNode);
+    }
+
+    @Override
     public void visit(BLangFunction funcNode) {
         if (funcNode.flagSet.contains(Flag.LAMBDA)) {
             funcNode.symbol.taintTable = null;
@@ -413,7 +421,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         analysisState.restParam = funcNode.restParam;
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        if (funcNode.flagSet.contains(Flag.RESOURCE) || CompilerUtils.isMainFunction(funcNode)) {
+        boolean isResourceFuncDef = funcNode.flagSet.contains(Flag.RESOURCE) && !funcNode.interfaceFunction;
+
+        boolean isServiceRemote = false;
+        if (funcNode.symbol.receiverSymbol != null) {
+            boolean isRemoteFuncDef = funcNode.flagSet.contains(Flag.REMOTE) && !funcNode.interfaceFunction;
+            isServiceRemote = Symbols.isService(funcNode.symbol.receiverSymbol) && isRemoteFuncDef;
+        }
+
+        if (isResourceFuncDef || isServiceRemote || CompilerUtils.isMainFunction(funcNode)) {
             // This is to analyze the entry-point function and attach taint table to it.
             entryPointPreAnalysis = true;
             boolean isBlocked = visitInvokable(funcNode, funcEnv);
@@ -465,6 +481,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (serviceNode.isAnonymousServiceValue) {
             setTaintedStatus(serviceNode.symbol, TaintedStatus.TAINTED);
             setTaintedStatus(serviceNode.serviceClass.symbol, TaintedStatus.TAINTED);
+        }
+
+        boolean isAllListenersUntaintedRefs = true;
+        for (BLangExpression expr : serviceNode.attachedExprs) {
+            if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && !((BLangSimpleVarRef) expr).symbol.tainted) {
+                continue;
+            }
+            isAllListenersUntaintedRefs = false;
+        }
+
+        if (!isAllListenersUntaintedRefs) {
+            // Service type tainted due to listeners being tainted.
+            setTaintedStatus(serviceNode.serviceClass.type.tsymbol, TaintedStatus.TAINTED);
         }
     }
 
@@ -1884,12 +1913,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
 
         boolean markParamsTainted = true;
-        if (invNode.getKind() == NodeKind.FUNCTION
+        if ((invNode.getKind() == NodeKind.FUNCTION || invNode.getKind() == NodeKind.RESOURCE_FUNC)
                 && ((BLangFunction) invNode).receiver != null) {
-            if (((BLangFunction) invNode).receiver.type.tag == TypeTags.SERVICE) {
+            BTypeSymbol receiverTSymbol = ((BLangFunction) invNode).receiver.type.tsymbol;
+            if (Symbols.isService(receiverTSymbol)) {
                 // When service definition is bound to a untainted listeners, arguments to resource functions
                 // are considered untainted.
-                if (!((BLangFunction) invNode).receiver.type.tsymbol.tainted) {
+                if (receiverTSymbol instanceof BClassSymbol && ((BClassSymbol) receiverTSymbol).isServiceDecl
+                        && !receiverTSymbol.tainted) {
                     markParamsTainted = false;
                 }
             }
@@ -1953,8 +1984,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      */
     private boolean visitInvokable(BLangInvokableNode invNode, SymbolEnv symbolEnv) {
         if (analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS || invNode.symbol.taintTable == null) {
-            if (Symbols.isNative(invNode.symbol)
-                    || (invNode.getKind() == NodeKind.FUNCTION && ((BLangFunction) invNode).interfaceFunction)) {
+            if (Symbols.isNative(invNode.symbol) || isMethodDeclaration(invNode)) {
                 attachNativeFunctionTaintTable(invNode);
                 return false;
             }
@@ -2016,6 +2046,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             restCurrentTaintPropagationSet();
         }
         return false;
+    }
+
+    private boolean isMethodDeclaration(BLangInvokableNode invNode) {
+        return (invNode.getKind() == NodeKind.FUNCTION || invNode.getKind() == NodeKind.RESOURCE_FUNC)
+                && ((BLangFunction) invNode).interfaceFunction;
     }
 
     private void visitAttachedInvokable(BLangFunction invNode) {

@@ -55,10 +55,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.transaction",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'test",
+      "insertText": "'transaction",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -72,7 +72,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'test;\n"
+          "newText": "import ballerina/lang.'transaction;\n"
         }
       ]
     },
@@ -99,10 +99,10 @@
       ]
     },
     {
-      "label": "ballerina/lang.transaction",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'transaction",
+      "insertText": "'test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -116,7 +116,29 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'transaction;\n"
+          "newText": "import ballerina/lang.'test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'runtime;\n"
         }
       ]
     },
@@ -143,28 +165,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "'value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.'value;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.query",
       "kind": "Module",
       "detail": "Module",
@@ -187,10 +187,10 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "'runtime",
+      "insertText": "'value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -204,7 +204,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.'runtime;\n"
+          "newText": "import ballerina/lang.'value;\n"
         }
       ]
     },
@@ -342,6 +342,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "transactional",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -407,7 +414,7 @@
     {
       "label": "STRING_VAL_TWO",
       "kind": "Variable",
-      "detail": "string",
+      "detail": "string value two",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -440,7 +447,7 @@
     {
       "label": "STRING_VAL",
       "kind": "Variable",
-      "detail": "string",
+      "detail": "string value",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -460,7 +467,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `string` url  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "new(${1});",
+      "insertText": "new(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

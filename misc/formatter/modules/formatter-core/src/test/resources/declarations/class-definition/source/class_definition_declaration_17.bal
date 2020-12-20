@@ -10,7 +10,7 @@ class    Foo    {
 
          {
 
-      }   private
+      }
          remote
                   function
                        get()

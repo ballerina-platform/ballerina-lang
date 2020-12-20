@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object;
-
 int startCount = 0;
 int attachCount = 0;
 
@@ -25,19 +23,17 @@ public function getStartAndAttachCount() returns string {
 
 public class ABCD {
 
-    *'object:Listener;
-
-    public function __start() returns error? {
+    public function 'start() returns error? {
         startCount += 1;
     }
 
-    public function __gracefulStop() returns error? {}
+    public function gracefulStop() returns error? {}
 
-    public function __immediateStop() returns error? {}
+    public function immediateStop() returns error? {}
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
         attachCount += 1;
     }
 
-    public function __detach(service s) returns error? {}
+    public function detach(service object {} s) returns error? {}
 }

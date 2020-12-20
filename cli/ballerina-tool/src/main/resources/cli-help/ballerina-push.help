@@ -6,7 +6,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       The push command pushes the current project's package to Ballerina
+       The push command pushes the current package to Ballerina
        Central.
 
        By default, the push command builds the sources before pushing
@@ -18,7 +18,7 @@ DESCRIPTION
        2) Add the access token with the registration you receive  to the
           'Settings.toml' file in the home repository (<USER_HOME>/.ballerina/).
        3) Add the created organization name and version to the
-          'Ballerina.toml' file in the project directory.
+          'Ballerina.toml' file in the package directory.
 
              [package]
              org= "abc"
@@ -27,6 +27,6 @@ DESCRIPTION
 
 
 EXAMPLES
-       Push the package of the current project to Ballerina Central after
+       Push the package of the current package to Ballerina Central after
        building it.
           $ ballerina push

@@ -19,6 +19,8 @@ function testRetryStatement() {
         assertEquality("start -> within retry 1 -> attempt 1:error -> within retry 1 -> attempt 2:error "
         + "-> within retry 1 -> attempt 3:execution completed. -> within retry 2 -> attempt 1:error -> within retry 2 "
         + "-> attempt 2:error -> within retry 2 -> attempt 3:execution completed.", x);
+    } else {
+        panic error("Expected a string, but found an error");
     }
 
     string nestedInnerReturnRes = testNestedInnerReturn();

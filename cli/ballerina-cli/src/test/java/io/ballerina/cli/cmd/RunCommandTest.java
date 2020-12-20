@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+
 /**
  * Run command tests.
  *
@@ -51,10 +53,7 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
 
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
-                "\tfile_create.bal\n" +
-                "\n" +
-                "Running executable\n\n");
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("run-bal.txt"));
 
         Assert.assertTrue(tempFile.toFile().exists());
 
@@ -73,20 +72,6 @@ public class RunCommandTest extends BaseCommandTest {
         Assert.assertTrue(buildLog.replaceAll("\r", "")
                 .contains("The file does not exist: " + validBalFilePath.toString()));
 
-    }
-
-    @Test(description = "Run bal file with no entry")
-    public void testRunBalFileWithNoEntry() {
-        // valid source root path
-        Path projectPath = this.testResources.resolve("valid-bal-file-with-no-entry").resolve("hello_world.bal");
-        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
-        // non existing bal file
-        new CommandLine(runCommand).parse(projectPath.toString());
-        try {
-            runCommand.execute();
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getDetailedMessages().get(0).contains("no entrypoint found in package"));
-        }
     }
 
     @Test(description = "Run bal file containing syntax error")

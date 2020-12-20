@@ -37,17 +37,17 @@ public class Listener extends BClass {
 
     public List<Function> getLCMethods(List<Function> methods) {
         return methods.stream()
-                .filter(function -> function.name.equals("__attach")
-                    || function.name.equals("__start")
-                    || function.name.equals("__stop"))
+                .filter(function -> function.name.equals("attach")
+                    || function.name.equals("start")
+                    || function.name.equals("stop"))
                 .collect(Collectors.toList());
     }
 
     public List<Function> getOtherMethods(List<Function> methods) {
         return super.getOtherMethods(methods).stream()
-                .filter(function -> !(function.name.equals("__attach")
-                        || function.name.equals("__start")
-                        || function.name.equals("__stop")))
+                .filter(function -> !(function.name.equals("attach")
+                        || function.name.equals("start")
+                        || function.name.equals("stop")))
                 .collect(Collectors.toList());
     }
 }

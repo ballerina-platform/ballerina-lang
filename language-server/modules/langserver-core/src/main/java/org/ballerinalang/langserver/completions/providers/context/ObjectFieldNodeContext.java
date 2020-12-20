@@ -16,11 +16,13 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -63,13 +65,28 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
 
     private List<LSCompletionItem> getClassBodyCompletions(CompletionContext context, ObjectFieldNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
+        
+        if (this.onResourceMethodDef(context, node)) {
+            /*
+            Covers the following when the cursor is within a service body
+            (1) ... resource <cursor>
+            (1) ... resource f<cursor>
+             */
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+            
+            return completionItems;
+        }
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
-        if (node.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+        if (node.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
+        } else if (node.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR
                 || node.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
         } else if (node.parent().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
@@ -77,6 +94,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         }
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
 
@@ -108,6 +126,21 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
 
         return equalsToken.isPresent() && equalsToken.get().textRange().endOffset() <= cursor;
     }
+    
+    private boolean onResourceMethodDef(CompletionContext context, ObjectFieldNode node) {
+        int cursor = context.getCursorPositionInTree();
+        for (Minutiae minutiae : node.leadingMinutiae()) {
+            int endOffset = minutiae.textRange().endOffset();
+            if (minutiae.text().equals(SyntaxKind.RESOURCE_KEYWORD.stringValue()) && cursor >= endOffset + 1) {
+                return true;
+            }
+            if (cursor < minutiae.textRange().startOffset()) {
+                return false;
+            }
+        }
+        
+        return false;
+    }
 
     @Override
     public boolean onPreValidation(CompletionContext context, ObjectFieldNode node) {
@@ -122,6 +155,8 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
                 (parent.kind() == SyntaxKind.OBJECT_TYPE_DESC
                         && !((ObjectTypeDescriptorNode) parent).openBrace().isMissing()) ||
                 (parent.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
-                        && !((ObjectConstructorExpressionNode) parent).openBraceToken().isMissing());
+                        && !((ObjectConstructorExpressionNode) parent).openBraceToken().isMissing()) ||
+                (parent.kind() == SyntaxKind.SERVICE_DECLARATION
+                        && !((ServiceDeclarationNode) parent).openBraceToken().isMissing());
     }
 }

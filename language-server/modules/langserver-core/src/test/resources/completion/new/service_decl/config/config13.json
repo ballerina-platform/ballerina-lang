@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 9,
+    "character": 13
+  },
+  "source": "service_decl/source/source13.bal",
+  "items": [
+    {
+      "label": "function name . () {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "function ${1:name} ${2:.} (${3}) {\n\t${4}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
