@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JavaMethodCall;
+import org.wso2.ballerinalang.compiler.bir.model.Argument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -465,7 +466,7 @@ public class JvmTerminatorGen {
         int argsCount = callIns.args.size();
         while (argIndex < argsCount) {
             BIROperand arg = callIns.args.get(argIndex);
-            this.visitArg(arg);
+            this.loadVar(arg.variableDcl);
             argIndex += 1;
         }
 
@@ -546,7 +547,7 @@ public class JvmTerminatorGen {
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
         while (argIndex < argsCount) {
             BIROperand arg = callIns.args.get(argIndex);
-            this.visitArg(arg);
+            this.loadVar(arg.variableDcl);
             argIndex += 1;
         }
         if (callIns.varArgExist) {
@@ -610,7 +611,7 @@ public class JvmTerminatorGen {
         int argsCount = callIns.args.size();
         while (argIndex < argsCount) {
             BIROperand arg = callIns.args.get(argIndex);
-            this.visitArg(arg);
+            this.loadVar(arg.variableDcl);
             argIndex += 1;
         }
 
@@ -703,11 +704,10 @@ public class JvmTerminatorGen {
         int argsCount = callIns.args.size();
         int i = 0;
         while (i < argsCount) {
-            BIROperand arg = callIns.args.get(i);
-            boolean userProvidedArg = this.visitArg(arg);
-            this.loadBooleanArgToIndicateUserProvidedArg(
-                    JvmCodeGenUtil.isBallerinaBuiltinModule(packageID.orgName.getValue(), packageID.name.getValue()),
-                    userProvidedArg);
+            Argument arg = (Argument) callIns.args.get(i);
+            this.loadArgument(arg);
+            this.loadStateOfArgument(arg, JvmCodeGenUtil.isBallerinaBuiltinModule(packageID.orgName.getValue(),
+                                    packageID.name.getValue()));
             i += 1;
         }
         BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
@@ -772,8 +772,8 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(L2I);
             j += 1;
             // i + 1 is used since we skip the first argument (self)
-            BIROperand arg = callIns.args.get(i + 1);
-            boolean userProvidedArg = this.visitArg(arg);
+            Argument arg = (Argument) callIns.args.get(i + 1);
+            this.loadArgument(arg);
 
             // Add the to the rest params array
             JvmCastGen.addBoxInsn(this.mv, arg.variableDcl.type);
@@ -783,8 +783,7 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn((long) j);
             this.mv.visitInsn(L2I);
             j += 1;
-
-            this.loadBooleanArgToIndicateUserProvidedArg(isBuiltInModule, userProvidedArg);
+            this.loadStateOfArgument(arg, isBuiltInModule);
             JvmCastGen.addBoxInsn(this.mv, symbolTable.booleanType);
             this.mv.visitInsn(AASTORE);
 
@@ -799,28 +798,36 @@ public class JvmTerminatorGen {
         JvmCastGen.addUnboxInsn(this.mv, returnType);
     }
 
-    private void loadBooleanArgToIndicateUserProvidedArg(boolean isBuiltInModule, boolean userProvided) {
+    private void loadStateOfArgument(Argument arg, boolean isBuiltInModule) {
         if (isBuiltInModule) {
             return;
         }
         // Extra boolean is not gen for extern functions for now until the wrapper function is implemented.
         // We need to refactor this method. I am not sure whether userProvided flag make sense
-        if (userProvided) {
-            this.mv.visitInsn(ICONST_1);
-        } else {
-            this.mv.visitInsn(ICONST_0);
+        switch (arg.argState) {
+            case PROVIDED:
+                this.mv.visitInsn(ICONST_1);
+                break;
+            case NOT_PROVIDED:
+                this.mv.visitInsn(ICONST_0);
+                break;
+            case CONDITIONALLY_PROVIDED:
+                this.loadVar(arg.userProvidedCondition.variableDcl);
+                break;
         }
     }
 
-    private boolean visitArg(BIROperand arg) {
+    private void loadArgument(Argument arg) {
         BIRNode.BIRVariableDcl varDcl = arg.variableDcl;
-        if (varDcl.name.value.startsWith("_")) {
-            loadDefaultValue(this.mv, varDcl.type);
-            return false;
+        switch (arg.argState) {
+            case PROVIDED:
+            case CONDITIONALLY_PROVIDED:
+                this.loadVar(varDcl);
+                break;
+            case NOT_PROVIDED:
+                loadDefaultValue(this.mv, varDcl.type);
+                break;
         }
-
-        this.loadVar(varDcl);
-        return true;
     }
 
     private void genAsyncCallTerm(BIRTerminator.AsyncCall callIns, int localVarOffset, String moduleClassName,
@@ -857,7 +864,7 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn((long) paramIndex);
             this.mv.visitInsn(L2I);
 
-            boolean userProvidedArg = this.visitArg(arg);
+            this.loadArgument((Argument) arg);
             // Add the to the rest params array
             JvmCastGen.addBoxInsn(this.mv, arg.variableDcl.type);
             this.mv.visitInsn(AASTORE);
@@ -867,8 +874,7 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn((long) paramIndex);
             this.mv.visitInsn(L2I);
 
-            this.loadBooleanArgToIndicateUserProvidedArg(JvmCodeGenUtil.isBallerinaBuiltinModule(orgName, moduleName),
-                                                         userProvidedArg);
+            this.loadStateOfArgument((Argument) arg, JvmCodeGenUtil.isBallerinaBuiltinModule(orgName, moduleName));
             JvmCastGen.addBoxInsn(this.mv, symbolTable.booleanType);
             this.mv.visitInsn(AASTORE);
             paramIndex += 1;
