@@ -101,8 +101,13 @@ public class DocumentationParser extends AbstractParser {
         STNode deprecationLiteral = consume();
 
         List<STNode> docElements = parseDocumentationElements();
-        docElements.add(0, deprecationLiteral);
+        if (!docElements.isEmpty()) {
+            STNode invalidElement = SyntaxErrors.addDiagnostic(docElements.get(0),
+                    DiagnosticWarningCode.WARNING_DETAILS_ON_DEPRECATION_SHOULD_BE_ADDED_WITH_A_NEW_LINE);
+            docElements.set(0, invalidElement);
+        }
 
+        docElements.add(0, deprecationLiteral);
         STNode docElementList = STNodeFactory.createNodeList(docElements);
         return createMarkdownDeprecationDocumentationLineNode(hashToken, docElementList);
     }

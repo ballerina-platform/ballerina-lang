@@ -204,45 +204,6 @@
                               ]
                             }
                           ]
-                        },
-                        {
-                          "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
-                          "children": [
-                            {
-                              "kind": "HASH_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "DEPRECATION_LITERAL",
-                                  "value": "# Deprecated",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "this will also parse as a syntactically valid deprecation documentation line",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
                         }
                       ]
                     }
