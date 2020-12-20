@@ -20,6 +20,7 @@
 package org.ballerina.testobserve.tracing.extension;
 
 import io.opentracing.mock.MockSpan;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

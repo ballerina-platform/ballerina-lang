@@ -96,7 +96,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.entry_point.main", "true"),
                     new AbstractMap.SimpleEntry<>("function", "main")
             ));
-           Assert.assertEquals(span.getCheckpoints(),expectedCheckpoints);
+           Assert.assertEquals(span.getCheckpoints(), expectedCheckpoints);
         });
 
         Optional<BMockSpan> span2 = spans.stream()
