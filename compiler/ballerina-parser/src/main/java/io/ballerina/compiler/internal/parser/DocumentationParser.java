@@ -178,7 +178,7 @@ public class DocumentationParser extends AbstractParser {
      * Genre of the reference that precedes the backtick block.
      */
     private enum ReferenceGenre {
-        NO_KEY, SPECIAL_KEY, FUNCTION_KEY, PARAMETER_KEY
+        NO_KEY, SPECIAL_KEY, FUNCTION_KEY
     }
 
     /**
@@ -193,15 +193,15 @@ public class DocumentationParser extends AbstractParser {
         switch (refGenre) {
             case SPECIAL_KEY:
                 // Look for x, m:x match
-                hasMatch = !processQualifiedIdentifier(lookahead);
+                hasMatch = hasQualifiedIdentifier(lookahead);
                 break;
             case FUNCTION_KEY:
                 // Look for x, m:x, x(), m:x(), T.y(), m:T.y() match
-                hasMatch = !processBacktickExpr(lookahead, false);
+                hasMatch = hasBacktickExpr(lookahead, true);
                 break;
             case NO_KEY:
                 // Look for x(), m:x(), T.y(), m:T.y() match
-                hasMatch = !processBacktickExpr(lookahead, true);
+                hasMatch = hasBacktickExpr(lookahead, false);
                 break;
             default:
                 throw new IllegalStateException("Unsupported backtick reference genre");
@@ -210,73 +210,73 @@ public class DocumentationParser extends AbstractParser {
         return hasMatch && peek(lookahead.offset).kind == SyntaxKind.BACKTICK_TOKEN;
     }
 
-    private boolean processBacktickExpr(Lookahead lookahead, boolean isNotFunctionKeyword) {
-        if (processQualifiedIdentifier(lookahead)) {
-            return true;
+    private boolean hasBacktickExpr(Lookahead lookahead, boolean isFunctionKey) {
+        if (!hasQualifiedIdentifier(lookahead)) {
+            return false;
         }
 
         STToken nextToken = peek(lookahead.offset);
         if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
-            return processFuncSignature(lookahead);
+            return hasFuncSignature(lookahead);
         } else if (nextToken.kind == SyntaxKind.DOT_TOKEN) {
             lookahead.offset++;
-            if (processIdentifier(lookahead)) {
-                return true;
+            if (!hasIdentifier(lookahead)) {
+                return false;
             }
-            return processFuncSignature(lookahead);
+            return hasFuncSignature(lookahead);
         }
 
-        return isNotFunctionKeyword;
+        return isFunctionKey;
     }
 
-    private boolean processFuncSignature(Lookahead lookahead) {
-        if (processOpenParenthesis(lookahead)) {
-            return true;
+    private boolean hasFuncSignature(Lookahead lookahead) {
+        if (!hasOpenParenthesis(lookahead)) {
+            return false;
         }
-        return processCloseParenthesis(lookahead);
+        return hasCloseParenthesis(lookahead);
     }
 
-    private boolean processOpenParenthesis(Lookahead lookahead) {
+    private boolean hasOpenParenthesis(Lookahead lookahead) {
         STToken nextToken = peek(lookahead.offset);
         if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
             lookahead.offset++;
-            return false;
-        } else {
             return true;
+        } else {
+            return false;
         }
     }
 
-    private boolean processCloseParenthesis(Lookahead lookahead) {
+    private boolean hasCloseParenthesis(Lookahead lookahead) {
         STToken nextToken = peek(lookahead.offset);
         if (nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
             lookahead.offset++;
-            return false;
-        } else {
             return true;
+        } else {
+            return false;
         }
     }
 
-    private boolean processQualifiedIdentifier(Lookahead lookahead) {
-        if (processIdentifier(lookahead)) {
-            return true;
+    private boolean hasQualifiedIdentifier(Lookahead lookahead) {
+        if (!hasIdentifier(lookahead)) {
+            return false;
         }
 
         STToken nextToken = peek(lookahead.offset);
         if (nextToken.kind == SyntaxKind.COLON_TOKEN) {
             lookahead.offset++;
-            return processIdentifier(lookahead);
+            return hasIdentifier(lookahead);
         }
 
-        return false;
+        return true;
     }
 
-    private boolean processIdentifier(Lookahead lookahead) {
+    private boolean hasIdentifier(Lookahead lookahead) {
         STToken  nextToken = peek(lookahead.offset);
         if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             lookahead.offset++;
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     private boolean isDocumentReferenceType(SyntaxKind kind) {
@@ -412,15 +412,11 @@ public class DocumentationParser extends AbstractParser {
             return ReferenceGenre.NO_KEY;
         }
 
-        switch (referenceType.kind) {
-            case FUNCTION_DOC_REFERENCE_TOKEN:
-                return ReferenceGenre.FUNCTION_KEY;
-                // TODO: enable
-//            case PARAMETER_DOC_REFERENCE_TOKEN:
-//                return ReferenceGenre.PARAMETER_KEY;
-            default:
-                return ReferenceGenre.SPECIAL_KEY;
+        if (referenceType.kind == SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN) {
+            return ReferenceGenre.FUNCTION_KEY;
         }
+
+        return ReferenceGenre.SPECIAL_KEY;
     }
 
     private STNode combineAndCreateBacktickContentToken() {

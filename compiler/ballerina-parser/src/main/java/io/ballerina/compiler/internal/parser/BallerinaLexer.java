@@ -1083,11 +1083,11 @@ public class BallerinaLexer extends AbstractLexer {
      * <br/>
      * StringChar := ^ ( 0xA | 0xD | \ | " )
      * <br/>
-     * StringEscape := StringSingleEscape | StringNumericEscape
+     * StringEscape := StringSingleEscape | NumericEscape
      * <br/>
      * StringSingleEscape := \t | \n | \r | \\ | \"
      * <br/>
-     * StringNumericEscape := \ u{ CodePoint }
+     * NumericEscape := \ u{ CodePoint }
      * <br/>
      * CodePoint := HexDigit+
      * </code>

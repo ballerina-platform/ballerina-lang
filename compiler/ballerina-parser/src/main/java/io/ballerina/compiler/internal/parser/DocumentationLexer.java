@@ -76,9 +76,6 @@ public class DocumentationLexer extends AbstractLexer {
             case DOCUMENTATION_BACKTICK_CONTENT:
                 token = readDocumentationBacktickContentToken();
                 break;
-            case DOCUMENTATION_BACKTICK_EXPR:
-                token = readDocumentationBacktickExprToken();
-                break;
             default:
                 token = null;
         }
@@ -358,7 +355,7 @@ public class DocumentationLexer extends AbstractLexer {
                 trailingTrivia);
     }
 
-    private STToken getIdentifierToken() {
+    private STToken getDocumentationIdentifierToken() {
         STNode leadingTrivia = getLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
@@ -713,25 +710,6 @@ public class DocumentationLexer extends AbstractLexer {
     private STToken readDocumentationBacktickContentToken() {
         reader.mark();
         int nextChar = peek();
-        if (nextChar == LexerTerminals.BACKTICK) {
-            reader.advance();
-            switchMode(ParserMode.DOCUMENTATION_INTERNAL);
-            return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.BACKTICK_TOKEN);
-        }
-
-        switchMode(ParserMode.DOCUMENTATION_BACKTICK_EXPR);
-        return readDocumentationBacktickExprToken();
-    }
-
-    /*
-     * ------------------------------------------------------------------------------------------------------------
-     * DOCUMENTATION_BACKTICK_EXPR Mode
-     * ------------------------------------------------------------------------------------------------------------
-     */
-
-    private STToken readDocumentationBacktickExprToken() {
-        reader.mark();
-        int nextChar = peek();
         reader.advance();
         switch (nextChar) {
             case LexerTerminals.BACKTICK:
@@ -748,7 +726,7 @@ public class DocumentationLexer extends AbstractLexer {
             default:
                 if (isPossibleIdentifierStart(nextChar)) {
                     processIdentifierEnd(nextChar == LexerTerminals.BACKSLASH);
-                    return getIdentifierToken();
+                    return getDocumentationIdentifierToken();
                 }
 
                 processInvalidChars();
