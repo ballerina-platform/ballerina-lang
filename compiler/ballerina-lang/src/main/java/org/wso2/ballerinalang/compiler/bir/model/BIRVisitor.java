@@ -229,4 +229,8 @@ public abstract class BIRVisitor {
     public void visit(BIROperand birVarRef) {
         throw new AssertionError();
     }
+
+    public void visit(Argument birArgument) {
+        throw new AssertionError();
+    }
 }

@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.model.Argument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -418,6 +419,27 @@ public class BIRInstructionWriter extends BIRVisitor {
             buf.writeInt(pkgIndex);
 
             writeType(birOperand.variableDcl.type);
+        }
+    }
+
+    public void visit(Argument birArgument) {
+        if (birArgument.variableDcl.ignoreVariable) {
+            buf.writeBoolean(true);
+            writeType(birArgument.variableDcl.type);
+            return;
+        }
+
+        buf.writeBoolean(false);
+        buf.writeByte(birArgument.variableDcl.kind.getValue());
+        buf.writeByte(birArgument.variableDcl.scope.getValue());
+
+        addCpAndWriteString(birArgument.variableDcl.name.value);
+
+        if (birArgument.variableDcl.kind == VarKind.GLOBAL || birArgument.variableDcl.kind == VarKind.CONSTANT) {
+            int pkgIndex = addPkgCPEntry(((BIRGlobalVariableDcl) birArgument.variableDcl).pkgId);
+            buf.writeInt(pkgIndex);
+
+            writeType(birArgument.variableDcl.type);
         }
     }
 
