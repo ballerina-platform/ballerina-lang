@@ -28,6 +28,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.bir.model.Argument;
+import org.wso2.ballerinalang.compiler.bir.model.ArgumentState;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -94,9 +96,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicParamExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
@@ -1368,21 +1372,34 @@ public class BIRGen extends BLangNodeVisitor {
         List<BIROperand> args = new ArrayList<>();
 
         for (BLangExpression requiredArg : requiredArgs) {
-            if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
+            if (requiredArg.getKind() == NodeKind.DYNAMIC_PARAM_EXPR) {
+                ((BLangDynamicParamExpr) requiredArg).conditionalArgument.accept(this);
+                BIROperand conditionalArg = this.env.targetOperand;
+                ((BLangDynamicParamExpr) requiredArg).condition.accept(this);
+                BIROperand condition = this.env.targetOperand;
+                args.add(new Argument(ArgumentState.CONDITIONALLY_PROVIDED, conditionalArg, condition));
+            } else if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
                 requiredArg.accept(this);
-                args.add(this.env.targetOperand);
+                args.add(new Argument(ArgumentState.PROVIDED, this.env.targetOperand));
             } else {
                 BIRVariableDcl birVariableDcl =
                         new BIRVariableDcl(requiredArg.type, new Name("_"), VarScope.FUNCTION, VarKind.ARG);
                 birVariableDcl.ignoreVariable = true;
-                args.add(new BIROperand(birVariableDcl));
+                args.add(new Argument(ArgumentState.NOT_PROVIDED, new BIROperand(birVariableDcl)));
             }
         }
 
         // seems like restArgs.size() is always 1 or 0, but lets iterate just in case
         for (BLangExpression arg : restArgs) {
-            arg.accept(this);
-            args.add(this.env.targetOperand);
+            if (arg.getKind() != NodeKind.IGNORE_EXPR) {
+                arg.accept(this);
+                args.add(new Argument(ArgumentState.PROVIDED, this.env.targetOperand));
+            } else {
+                BIRVariableDcl birVariableDcl =
+                        new BIRVariableDcl(arg.type, new Name("_"), VarScope.FUNCTION, VarKind.ARG);
+                birVariableDcl.ignoreVariable = true;
+                args.add(new Argument(ArgumentState.NOT_PROVIDED, new BIROperand(birVariableDcl)));
+            }
         }
 
         BIROperand fp = null;
@@ -1602,6 +1619,12 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = toVarRef;
     }
 
+    public void visit(BLangIgnoreExpr ignoreExpr) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(ignoreExpr.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+    }
+
     @Override
     public void visit(BLangMapLiteral astMapLiteralExpr) {
         visitTypedesc(astMapLiteralExpr.pos, astMapLiteralExpr.type, Collections.emptyList());
@@ -1795,6 +1818,12 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         generateMappingAccess(astJSONFieldAccessExpr, astJSONFieldAccessExpr.optionalFieldAccess);
+    }
+
+    @Override
+    public void visit(BLangDynamicParamExpr dynamicParamExpr) {
+        dynamicParamExpr.condition.accept(this);
+        dynamicParamExpr.conditionalArgument.accept(this);
     }
 
     @Override
