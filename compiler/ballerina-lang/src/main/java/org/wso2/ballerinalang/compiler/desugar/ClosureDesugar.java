@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicParamExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -1065,6 +1066,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangIgnoreExpr ignoreExpr) {
         result = ignoreExpr;
+    }
+
+    @Override
+    public void visit(BLangDynamicParamExpr dynamicParamExpr) {
+        dynamicParamExpr.condition = rewriteExpr(dynamicParamExpr.condition);
+        dynamicParamExpr.conditionalArgument = rewriteExpr(dynamicParamExpr.conditionalArgument);
+        result = dynamicParamExpr;
     }
 
     /**

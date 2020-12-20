@@ -128,6 +128,7 @@ public enum NodeKind {
     TABLE_CONSTRUCTOR_EXPR,
     TRANSACTIONAL_EXPRESSION,
     OBJECT_CTOR_EXPRESSION,
+    DYNAMIC_PARAM_EXPR,
 
     /* Statements */
     ABORT,

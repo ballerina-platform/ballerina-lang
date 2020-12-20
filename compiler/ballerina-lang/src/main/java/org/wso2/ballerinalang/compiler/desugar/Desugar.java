@@ -115,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicParamExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -319,6 +320,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String PUSH_LANGLIB_METHOD = "push";
     private static final String DESUGARED_VARARG_KEY = "$vararg$";
     private static final String GENERATED_ERROR_VAR = "$error$";
+    private static final String HAS_KEY = "hasKey";
 
     public static final String XML_INTERNAL_SELECT_DESCENDANTS = "selectDescendants";
     public static final String XML_INTERNAL_CHILDREN = "children";
@@ -5863,6 +5865,12 @@ public class Desugar extends BLangNodeVisitor {
         result = ignoreExpr;
     }
 
+    public void visit(BLangDynamicParamExpr dynamicParamExpr) {
+        dynamicParamExpr.conditionalArgument = rewriteExpr(dynamicParamExpr.conditionalArgument);
+        dynamicParamExpr.condition = rewriteExpr(dynamicParamExpr.condition);
+        result = dynamicParamExpr;
+    }
+
     @Override
     public void visit(BLangConstRef constantRef) {
         result = ASTBuilderUtil.createLiteral(constantRef.pos, constantRef.type, constantRef.value);
@@ -6340,6 +6348,12 @@ public class Desugar extends BLangNodeVisitor {
             // required/defaultable parameter are added to the new array.
             BLangRestArgsExpression restArgsExpression = (BLangRestArgsExpression) restArgs.remove(0);
             BArrayType restParamType = (BArrayType) invokableSymbol.restParam.type;
+            if (restArgsExpression.type.tag == TypeTags.RECORD) {
+                BLangExpression expr = new BLangIgnoreExpr();
+                expr.type = restParamType;
+                restArgs.add(expr);
+                return;
+            }
             Location pos = restArgsExpression.pos;
 
             BLangArrayLiteral newArrayLiteral = createArrayLiteralExprNode();
@@ -6483,18 +6497,70 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 // If a vararg is provided, no parameter defaults are added and no named args are specified.
                 // Thus, any missing args should come from the vararg.
-                BLangIndexBasedAccess memberAccessExpr =
-                        (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
-                memberAccessExpr.pos = varargRef.pos;
-                memberAccessExpr.expr = varargRef;
-                memberAccessExpr.indexExpr = rewriteExpr(createIntLiteral(varargIndex));
-                memberAccessExpr.type = tupleTypedVararg ? ((BTupleType) varargType).tupleTypes.get(varargIndex) :
-                        ((BArrayType) varargType).eType;
-                varargIndex++;
-                args.add(addConversionExprIfRequired(memberAccessExpr, param.type));
+                BLangExpression indexExpr;
+                if (varargRef.type.tag == TypeTags.RECORD) {
+                    if (param.defaultableParam) {
+                        BLangInvocation hasKeyInvocation = createLangLibInvocationNode(HAS_KEY, varargRef,
+                                List.of(createStringLiteral(param.pos, param.name.value)), null, varargRef.pos);
+                        indexExpr = rewriteExpr(createStringLiteral(param.pos, param.name.value));
+                        BLangIndexBasedAccess memberAccessExpr = createMemberAccessExprNode(param.type,
+                                                                                varargRef, indexExpr, varargRef.pos);
+                        BLangExpression ignoreExpr = createIgnoreExprNode(param.type);
+                        BLangTernaryExpr ternaryExpr = createTernaryExprNode(param.type, hasKeyInvocation,
+                                                                        memberAccessExpr, ignoreExpr, varargRef.pos);
+                        args.add(createDynamicParamExpression(hasKeyInvocation, ternaryExpr));
+                    } else {
+                        BLangFieldBasedAccess fieldBasedAccessExpression = ASTBuilderUtil.createFieldAccessExpr(
+                                            varargRef, ASTBuilderUtil.createIdentifier(param.pos, param.name.value));
+                        fieldBasedAccessExpression.type = param.type;
+                        args.add(fieldBasedAccessExpression);
+                    }
+                } else {
+                    indexExpr = rewriteExpr(createIntLiteral(varargIndex));
+                    BType memberAccessExprType = tupleTypedVararg ?
+                            ((BTupleType) varargType).tupleTypes.get(varargIndex) : ((BArrayType) varargType).eType;
+                    args.add(addConversionExprIfRequired(createMemberAccessExprNode(memberAccessExprType, varargRef,
+                                                        indexExpr, varargRef.pos), param.type));
+                    varargIndex++;
+                }
             }
         }
         iExpr.requiredArgs = args;
+    }
+
+    private BLangDynamicParamExpr createDynamicParamExpression(BLangExpression condition,
+                                                               BLangExpression conditionalArg) {
+        BLangDynamicParamExpr dymaicExpression = new BLangDynamicParamExpr();
+        dymaicExpression.condition = condition;
+        dymaicExpression.conditionalArgument = conditionalArg;
+        return dymaicExpression;
+    }
+
+    private BLangTernaryExpr createTernaryExprNode(BType type, BLangExpression expr, BLangExpression thenExpr,
+                                                   BLangExpression elseExpr, Location pos) {
+        BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) TreeBuilder.createTernaryExpressionNode();
+        ternaryExpr.pos = pos;
+        ternaryExpr.elseExpr = elseExpr;
+        ternaryExpr.thenExpr = thenExpr;
+        ternaryExpr.expr = expr;
+        ternaryExpr.type = type;
+        return ternaryExpr;
+    }
+
+    private BLangIndexBasedAccess createMemberAccessExprNode(BType type, BLangExpression expr,
+                                                             BLangExpression indexExpr, Location pos) {
+        BLangIndexBasedAccess memberAccessExpr = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        memberAccessExpr.pos = pos;
+        memberAccessExpr.expr = expr;
+        memberAccessExpr.indexExpr = indexExpr;
+        memberAccessExpr.type = type;
+        return memberAccessExpr;
+    }
+
+    private BLangExpression createIgnoreExprNode(BType type) {
+        BLangExpression ignoreExpr = new BLangIgnoreExpr();
+        ignoreExpr.type = type;
+        return ignoreExpr;
     }
 
     private BLangMatchTypedBindingPatternClause getSafeAssignErrorPattern(Location location,
