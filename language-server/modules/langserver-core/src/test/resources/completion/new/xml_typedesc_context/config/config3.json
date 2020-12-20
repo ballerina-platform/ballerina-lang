@@ -8,28 +8,28 @@
     {
       "label": "Element",
       "kind": "Unit",
-      "detail": "Xml",
+      "detail": "Element",
       "insertText": "Element",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "ProcessingInstruction",
       "kind": "Unit",
-      "detail": "Xml",
+      "detail": "Processinginstruction",
       "insertText": "ProcessingInstruction",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Comment",
       "kind": "Unit",
-      "detail": "Xml",
+      "detail": "Comment",
       "insertText": "Comment",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Text",
       "kind": "Unit",
-      "detail": "Xml",
+      "detail": "Text",
       "insertText": "Text",
       "insertTextFormat": "Snippet"
     }

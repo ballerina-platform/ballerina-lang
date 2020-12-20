@@ -14,39 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.SimpleTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import io.ballerina.compiler.api.symbols.IntUnsigned8TypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
- * Represents the built-in simple type descriptor.
+ * Represents the int:Unsigned8 type descriptor.
  *
  * @since 2.0.0
  */
-public class BallerinaSimpleTypeSymbol extends AbstractTypeSymbol implements SimpleTypeSymbol {
+public class BallerinaIntUnsigned8TypeSymbol extends AbstractTypeSymbol implements IntUnsigned8TypeSymbol {
 
-    private final String typeName;
-
-    public BallerinaSimpleTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType) {
-        super(context, TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
-        this.typeName = bType.getKind().typeName();
-    }
-
-    public BallerinaSimpleTypeSymbol(CompilerContext context, ModuleID moduleID, String name, BType bType) {
-        super(context, TypesFactory.getTypeDescKind(bType.getKind()), moduleID, bType);
-        this.typeName = name;
+    public BallerinaIntUnsigned8TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType unsigned8Type) {
+        super(context, TypeDescKind.INT_UNSIGNED8, moduleID, unsigned8Type);
     }
 
     @Override
     public String name() {
-        return this.typeName;
+        return Names.STRING_UNSIGNED8;
     }
 
     @Override
     public String signature() {
-        return this.typeName;
+        return "int:" + Names.STRING_UNSIGNED8;
     }
 }

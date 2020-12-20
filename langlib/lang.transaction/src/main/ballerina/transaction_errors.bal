@@ -14,11 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the Transaction error.
-public type TransactionError distinct error;
-
-# Represents the Transaction module related error.
-public type Error TransactionError;
+# Type of error returned by commit action.
+public type Error distinct error;
 
 # Log and prepare `error` as a `Error`.
 #
@@ -28,9 +25,9 @@ public type Error TransactionError;
 public function prepareError(string message, error? err = ()) returns Error {
     Error trxError;
     if (err is error) {
-        trxError = TransactionError(message, err);
+        trxError = Error(message, err);
     } else {
-        trxError = TransactionError(message);
+        trxError = Error(message);
     }
     return trxError;
 }

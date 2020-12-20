@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
@@ -108,8 +109,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     TypeSymbol rawType = getRawType(typeSymbol.get());
                     if (rawType.typeKind() == TypeDescKind.OBJECT) {
                         ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
-                        boolean isEndpoint = objectTypeSymbol.typeQualifiers()
-                                .contains(ObjectTypeSymbol.TypeQualifier.CLIENT);
+                        boolean isEndpoint = objectTypeSymbol.qualifiers()
+                                .contains(Qualifier.CLIENT);
                         if (isEndpoint) {
                             symbolJson.addProperty("isEndpoint", true);
                             JsonObject ep = visibleEP(node, typeSymbol.get());
@@ -206,8 +207,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         TypeSymbol rawType = getRawType(variableSymbol.typeDescriptor());
         if (rawType.typeKind() == TypeDescKind.OBJECT) {
             ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
-            boolean isEndpoint = objectTypeSymbol.typeQualifiers()
-                    .contains(ObjectTypeSymbol.TypeQualifier.CLIENT);
+            boolean isEndpoint = objectTypeSymbol.qualifiers()
+                    .contains(Qualifier.CLIENT);
             if (isEndpoint) {
                 symbolJson.addProperty("isEndpoint", true);
                 JsonObject ep = visibleEP(node, rawType);
