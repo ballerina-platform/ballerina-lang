@@ -102,12 +102,13 @@ public class HubNativeOperationHandler {
      * @param publicUrl                 the URL for the hub to be included in content delivery requests, defaults to
      *                                  `http(s)://localhost:{port}/websub/hub` if unspecified
      * @param hubListener               the `http:Listener` to which the hub service is attached
+     * @para  sameOrderDelivery         deliver updates in the same order they arrived
      * @return `Hub` the WebSub Hub object representing the newly started up hub, or `HubStartedUpError` indicating that
      * the hub is already started, and including the WebSub Hub object representing the already started up hub
      */
     public static Object startUpHubService(String basePath, String subscriptionResourcePath,
                                            String publishResourcePath, boolean topicRegistrationRequired,
-                                           String publicUrl, ObjectValue hubListener) {
+                                           String publicUrl, ObjectValue hubListener, boolean sameOrderDelivery) {
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted()) {
             MapValue<String, Object> hubStartedUpError =
@@ -115,8 +116,9 @@ public class HubNativeOperationHandler {
             return BallerinaValues.createRecord(hubStartedUpError, "Ballerina Hub already started up", null,
                                                 hubInstance.getHubObject());
         }
-        return hubInstance.startUpHubService(Scheduler.getStrand(), basePath, subscriptionResourcePath,
-                                             publishResourcePath, topicRegistrationRequired, publicUrl, hubListener);
+        return hubInstance
+                .startUpHubService(Scheduler.getStrand(), basePath, subscriptionResourcePath, publishResourcePath,
+                        topicRegistrationRequired, publicUrl, hubListener, sameOrderDelivery);
     }
 
     /**

@@ -49,14 +49,16 @@ public class HubSubscriber extends Consumer {
     private final String callback;
     private final MapValue<String, Object> subscriptionDetails;
     private final Scheduler scheduler;
+    private final boolean sameOrderDelivery;
 
     HubSubscriber(Strand strand, String queue, String topic, String callback,
-                  MapValue<String, Object> subscriptionDetails) {
+                  MapValue<String, Object> subscriptionDetails, boolean sameOrderDelivery) {
         this.scheduler = strand.scheduler;
         this.queue = queue;
         this.topic = topic;
         this.callback = callback;
         this.subscriptionDetails = subscriptionDetails;
+        this.sameOrderDelivery = sameOrderDelivery;
     }
 
     @Override
@@ -67,18 +69,23 @@ public class HubSubscriber extends Consumer {
                         .unwrap()).getValue();
         Object[] args = {getCallback(), getSubscriptionDetails(), content};
         try {
-            Executor.executeFunctionAsync(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB, "hub_service",
-                    "distributeContent", new CallableUnitCallback() {
-                        @Override
-                        public void notifySuccess() {
-                            //do nothing
-                        }
+            if (sameOrderDelivery) {
+                Executor.executeFunction(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB, "hub_service",
+                        "distributeContent", args);
+            } else {
+                Executor.executeFunctionAsync(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB,
+                        "hub_service", "distributeContent", new CallableUnitCallback() {
+                            @Override
+                            public void notifySuccess() {
+                                //do nothing
+                            }
 
-                        @Override
-                        public void notifyFailure(ErrorValue error) {
-                            ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
-                        }
-                    }, args);
+                            @Override
+                            public void notifyFailure(ErrorValue error) {
+                                ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
+                            }
+                        }, args);
+            }
         } catch (BallerinaException e) {
             throw new BallerinaException("send failed: " + e.getMessage());
         }

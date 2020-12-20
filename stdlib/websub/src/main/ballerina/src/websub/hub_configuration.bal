@@ -45,6 +45,7 @@ function (string callback, string topic, WebSubContent content, http:Response|er
 
 HubPersistenceStore? hubPersistenceStoreImpl = ();
 boolean hubPersistenceEnabled = false;
+boolean sameOrderDelivery = false;
 
 # Attaches and starts the Ballerina WebSub Hub service.
 #
