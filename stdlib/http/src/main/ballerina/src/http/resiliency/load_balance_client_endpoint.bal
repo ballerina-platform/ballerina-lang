@@ -320,6 +320,7 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 # | circuitBreaker - Copied from CommonClientConfiguration  |
 # | retryConfig - Copied from CommonClientConfiguration     |
 # | cookieConfig - Copied from CommonClientConfiguration    |
+# | responseLimits - Copied from CommonClientConfiguration  |
 #
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
 # + lbRule - LoadBalancing rule
@@ -346,7 +347,9 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientConfigurat
         secureSocket:target.secureSocket,
         cache:lbConfig.cache,
         compression:lbConfig.compression,
-        auth:lbConfig.auth
+        auth:lbConfig.auth,
+        cookieConfig:lbConfig.cookieConfig,
+        responseLimits:lbConfig.responseLimits
     };
     return clientEPConfig;
 }
