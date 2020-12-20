@@ -690,6 +690,7 @@ public type Hub object {
                 content.contentType = mime:APPLICATION_OCTET_STREAM;
             }
         }
+        onMessageFunction(content);
 
         return validateAndPublishToInternalHub(self.publishUrl, topic, content);
     }
