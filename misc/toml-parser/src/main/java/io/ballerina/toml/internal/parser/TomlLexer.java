@@ -99,9 +99,9 @@ public class TomlLexer extends AbstractLexer {
                 if (this.reader.peek() == LexerTerminals.SINGLE_QUOTE &&
                         this.reader.peek(1) == LexerTerminals.SINGLE_QUOTE) {
                     this.reader.advance(2);
-                    token = getDoubleQuoteToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
+                    token = getQuoteToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
                 } else {
-                    token = getDoubleQuoteToken(SyntaxKind.SINGLE_QUOTE_TOKEN);
+                    token = getQuoteToken(SyntaxKind.SINGLE_QUOTE_TOKEN);
                 }
                 startMode(ParserMode.LITERAL_STRING);
                 break;
@@ -125,10 +125,10 @@ public class TomlLexer extends AbstractLexer {
                 if (this.reader.peek() == LexerTerminals.DOUBLE_QUOTE &&
                         this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
                     this.reader.advance(2);
-                    token = getDoubleQuoteToken(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
+                    token = getQuoteToken(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
                     startMode(ParserMode.MULTILINE_STRING);
                 } else {
-                    token = getDoubleQuoteToken(SyntaxKind.DOUBLE_QUOTE_TOKEN);
+                    token = getQuoteToken(SyntaxKind.DOUBLE_QUOTE_TOKEN);
                     startMode(ParserMode.STRING);
                 }
                 break;
@@ -384,11 +384,11 @@ public class TomlLexer extends AbstractLexer {
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getDoubleQuoteToken(SyntaxKind kind) {
+    private STToken getQuoteToken(SyntaxKind kind) {
+        // Trivia after the single or double quote including whitespace belongs to the content inside the quotes.
+        // Therefore do not process trailing trivia for starting quote. We reach here only for
+        // starting single or double quote. Ending quote is processed by the LITERAL_STRING mode.
         STNode leadingTrivia = getLeadingTrivia();
-        // Trivia after the back-tick including whitespace belongs to the content of the back-tick.
-        // Therefore do not process trailing trivia for starting back-tick. We reach here only for
-        // starting back-tick. Ending back-tick is processed by the template mode.
         STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }

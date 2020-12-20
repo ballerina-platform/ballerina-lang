@@ -123,12 +123,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token content,
             Token endDoubleQuote) {
         Objects.requireNonNull(startDoubleQuote, "startDoubleQuote must not be null");
-        Objects.requireNonNull(content, "content must not be null");
         Objects.requireNonNull(endDoubleQuote, "endDoubleQuote must not be null");
 
         STNode stStringLiteralNode = STNodeFactory.createStringLiteralNode(
                 startDoubleQuote.internalNode(),
-                content.internalNode(),
+                getOptionalSTNode(content),
                 endDoubleQuote.internalNode());
         return stStringLiteralNode.createUnlinkedFacade();
     }

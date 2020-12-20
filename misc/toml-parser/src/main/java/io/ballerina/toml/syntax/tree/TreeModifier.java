@@ -121,7 +121,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token startDoubleQuote =
                 modifyToken(stringLiteralNode.startDoubleQuote());
         Token content =
-                modifyToken(stringLiteralNode.content());
+                modifyToken(stringLiteralNode.content().orElse(null));
         Token endDoubleQuote =
                 modifyToken(stringLiteralNode.endDoubleQuote());
         return stringLiteralNode.modify(

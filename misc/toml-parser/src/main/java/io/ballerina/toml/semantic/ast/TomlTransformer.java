@@ -45,6 +45,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Transformer to transform Syntax tree into Abstract Syntax Tree.
@@ -338,9 +339,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
 
     @Override
     public TomlNode transform(StringLiteralNode stringLiteralNode) {
-        String valueString = "";
-        if (stringLiteralNode.content() != null) {
-            valueString = stringLiteralNode.content().text();
+        Optional<Token> content = stringLiteralNode.content();
+        String valueString;
+        if (content.isEmpty()) {
+            valueString = "";
+        } else {
+            valueString = content.get().text();
         }
         String unescapedJava = StringEscapeUtils.unescapeJava(valueString);
         TomlNodeLocation position = getPosition(stringLiteralNode);

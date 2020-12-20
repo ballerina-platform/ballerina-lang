@@ -34,8 +34,7 @@ public enum SyntaxKind {
     HEX_INTEGER_LITERAL_TOKEN(206),
     OCTAL_INTEGER_LITERAL_TOKEN(207),
     BINARY_INTEGER_LITERAL_TOKEN(208),
-
-
+    
     //Separators
     OPEN_BRACKET_TOKEN(500, "["),
     CLOSE_BRACKET_TOKEN(501, "]"),

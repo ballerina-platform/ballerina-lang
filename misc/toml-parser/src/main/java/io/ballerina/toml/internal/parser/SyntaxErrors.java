@@ -131,7 +131,7 @@ public class SyntaxErrors {
 
     private static DiagnosticCode getErrorCode(ParserRuleContext currentCtx) {
         switch (currentCtx) {
-            case STRING_CONTENT:
+            case STRING_BODY:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
             case ASSIGN_OP:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;

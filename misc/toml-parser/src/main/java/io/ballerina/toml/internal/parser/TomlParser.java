@@ -27,16 +27,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.toml.syntax.tree.SyntaxKind.BINARY_INT;
-import static io.ballerina.toml.syntax.tree.SyntaxKind.BINARY_INTEGER_LITERAL_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.CLOSE_BRACKET_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.DEC_INT;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.EOF_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.EQUAL_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.FLOAT;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.HEX_INT;
-import static io.ballerina.toml.syntax.tree.SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.NEWLINE;
-import static io.ballerina.toml.syntax.tree.SyntaxKind.OCTAL_INTEGER_LITERAL_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.OCT_INT;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.OPEN_BRACKET_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.SINGLE_QUOTE_TOKEN;
@@ -399,21 +396,22 @@ public class TomlParser extends AbstractParser {
     private STNode parseNumericalNode() {
         STNode sign = parseSign();
         STNode token = parseNumericalToken();
-        SyntaxKind kind = getNodeKindNumericNode(token.kind);
+        SyntaxKind kind = getNumericLiteralKind(token.kind);
         return STNodeFactory.createNumericLiteralNode(kind, sign, token);
     }
 
-    private SyntaxKind getNodeKindNumericNode(SyntaxKind tokenKind) {
-        if (tokenKind == SyntaxKind.DECIMAL_INT_TOKEN) {
-            return DEC_INT;
-        } else if (tokenKind == HEX_INTEGER_LITERAL_TOKEN) {
-            return HEX_INT;
-        } else if (tokenKind == OCTAL_INTEGER_LITERAL_TOKEN) {
-           return OCT_INT;
-        } else if (tokenKind == BINARY_INTEGER_LITERAL_TOKEN) {
-            return BINARY_INT;
-        } else {
-            return FLOAT;
+    private SyntaxKind getNumericLiteralKind(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case DECIMAL_INT_TOKEN:
+                return DEC_INT;
+            case HEX_INTEGER_LITERAL_TOKEN:
+                return HEX_INT;
+            case OCTAL_INTEGER_LITERAL_TOKEN:
+                return OCT_INT;
+            case BINARY_INTEGER_LITERAL_TOKEN:
+                return BINARY_INT;
+            default:
+                return FLOAT;
         }
     }
 
@@ -428,11 +426,16 @@ public class TomlParser extends AbstractParser {
     }
 
     private boolean isNumerticalLiteral(STToken token) {
-        return token.kind == SyntaxKind.DECIMAL_INT_TOKEN ||
-                token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN ||
-                token.kind == HEX_INTEGER_LITERAL_TOKEN ||
-                token.kind == OCTAL_INTEGER_LITERAL_TOKEN ||
-                token.kind == BINARY_INTEGER_LITERAL_TOKEN;
+        switch (token.kind) {
+            case DECIMAL_INT_TOKEN:
+            case DECIMAL_FLOAT_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case OCTAL_INTEGER_LITERAL_TOKEN:
+            case BINARY_INTEGER_LITERAL_TOKEN:
+                return true;
+            default:
+                return false;
+        }
     }
 
     private STNode parseSign() {
@@ -461,11 +464,6 @@ public class TomlParser extends AbstractParser {
     private STNode parseStringValue() {
         STNode startingDoubleQuote = parseDoubleQuoteToken(ParserRuleContext.STRING_START);
         STNode content = parseStringContent();
-        //Empty String
-        if (content.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN) {
-            return STNodeFactory.createStringLiteralNode(startingDoubleQuote, STNodeFactory.createEmptyNode(), content);
-        }
-
         STNode endingDoubleQuote = parseDoubleQuoteToken(ParserRuleContext.STRING_END);
         return STNodeFactory.createStringLiteralNode(startingDoubleQuote, content, endingDoubleQuote);
     }
@@ -488,12 +486,14 @@ public class TomlParser extends AbstractParser {
 
     private STNode parseStringContent() {
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL || nextToken.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN) {
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL) {
             return consume();
-        } else {
-            recover(nextToken, ParserRuleContext.STRING_CONTENT);
-            return parseStringContent();
         }
+        if (nextToken.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN) {
+            return STNodeFactory.createEmptyNode();
+        }
+        recover(nextToken, ParserRuleContext.STRING_CONTENT);
+        return parseStringContent();
     }
 
     /**
