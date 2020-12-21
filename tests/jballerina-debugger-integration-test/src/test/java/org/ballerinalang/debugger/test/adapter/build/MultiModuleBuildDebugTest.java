@@ -19,8 +19,9 @@
 package org.ballerinalang.debugger.test.adapter.build;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
+import org.ballerinalang.debugger.test.BaseTestCase;
 import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
@@ -30,7 +31,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.nio.file.Paths;
 
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
@@ -38,33 +38,31 @@ import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
  * Test class for multi module related debug scenarios for build command.
  */
 @Test
-public class MultiModuleBuildDebugTest extends DebugAdapterBaseTestCase {
+public class MultiModuleBuildDebugTest extends BaseTestCase {
 
-    private String projectPath;
+    DebugTestRunner debugTestRunner;
 
     @BeforeClass
     public void setup() {
-        testProjectName = "breakpoint-tests";
-        projectPath = testProjectBaseDir + File.separator + testProjectName;
-        testModuleFileName = "tests" + File.separator + "main_test.bal";
-        testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
-        testEntryFilePath = Paths.get(testProjectPath, testModuleFileName).toString();
+        String testProjectName = "breakpoint-tests";
+        String testModuleFileName = "tests" + File.separator + "main_test.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
     @Test
     public void testMultiModuleBuildDebugScenarios() throws BallerinaTestException {
         int port = findFreePort();
-        runDebuggeeProgram(projectPath, port);
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 22));
-        initDebugSession(DebugUtils.DebuggeeExecutionKind.BUILD, port);
+        debugTestRunner.runDebuggeeProgram(debugTestRunner.testProjectPath, port);
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 22));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.BUILD, port);
 
         // Test for debug engage
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(20000);
-        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(20000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
     }
 
     @AfterClass(alwaysRun = true)
     private void cleanup() {
-        terminateDebugSession();
+        debugTestRunner.terminateDebugSession();
     }
 }

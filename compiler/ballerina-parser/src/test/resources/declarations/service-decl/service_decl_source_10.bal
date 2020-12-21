@@ -3,5 +3,3 @@ service echoService on someListner {
     
 
     resource function bar() {
-
-

@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsolationAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObserverbilitySymbolCollectorRunner;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -95,7 +95,7 @@ public class CompilerPhaseRunner {
         this.taintAnalyzer = TaintAnalyzer.getInstance(context);
         this.constantPropagation = ConstantPropagation.getInstance(context);
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
-        this.observabilitySymbolCollector = ObserverbilitySymbolCollectorRunner.getInstance(context);
+        this.observabilitySymbolCollector = ObservabilitySymbolCollectorRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
@@ -149,11 +149,6 @@ public class CompilerPhaseRunner {
     }
 
     public void performBirGenPhases(BLangPackage pkgNode) {
-        if (this.stopCompilation(pkgNode, CompilerPhase.OBSERVABILITY_DATA_GEN)) {
-            return;
-        }
-
-//        generateObservabilityData(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
             return;
         }
@@ -200,10 +195,6 @@ public class CompilerPhaseRunner {
         }
 
         birGen(pkgNode);
-    }
-
-    private void generateObservabilityData(BLangPackage pkgNode) {
-        this.observabilitySymbolCollector.process(pkgNode);
     }
 
     public BLangPackage define(BLangPackage pkgNode) {

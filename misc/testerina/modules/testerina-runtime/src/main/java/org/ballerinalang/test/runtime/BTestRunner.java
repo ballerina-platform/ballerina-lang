@@ -460,8 +460,7 @@ public class BTestRunner {
         }
 
         if (!packageName.equals(TesterinaConstants.DOT)) {
-            Path sourceRootPath = Paths.get(suite.getSourceRootPath()).resolve(TesterinaConstants.TARGET_DIR_NAME)
-                    .resolve(TesterinaConstants.REPORT_DIR_NAME);
+            Path sourceRootPath = Paths.get(suite.getSourceRootPath()).resolve(TesterinaConstants.TARGET_DIR_NAME);
             Path jsonPath = Paths.get(sourceRootPath.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
             File jsonFile = new File(jsonPath.toString());
             writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
@@ -554,12 +553,20 @@ public class BTestRunner {
         // As the init function we need to use $moduleInit to initialize all the dependent modules
         // properly.
         init.setName("$moduleInit");
-        init.invoke();
+        Object response = init.invoke();
+        if (response instanceof Throwable) {
+            throw new BallerinaTestException("Dependant module initialization for test suite failed due to " +
+                    response.toString(), (Throwable) response);
+        }
         // Now we initialize the init of testable module.
         if (hasTestablePackage) {
             TesterinaFunction testInit =
                     new TesterinaFunction(testInitClazz, suite.getTestInitFunctionName(), initScheduler);
-            testInit.invoke();
+            response = testInit.invoke();
+            if (response instanceof Throwable) {
+                throw new BallerinaTestException("Test module initialization for test suite failed due to " +
+                        response.toString(), (Throwable) response);
+            }
         }
         // As the start function we need to use $moduleStart to start all the dependent modules
         // properly.
@@ -572,7 +579,7 @@ public class BTestRunner {
             testStart.invoke();
         }
         // Once the start function finish we will re start the scheduler with immortal true
-        initScheduler.immortal = true;
+        initScheduler.setImmortal(true);
         Thread immortalThread = new Thread(initScheduler::start, "module-start");
         immortalThread.setDaemon(true);
         immortalThread.start();
@@ -589,7 +596,7 @@ public class BTestRunner {
             testStop.invoke();
         }
         stop.setName("$moduleStop");
-        stop.directInvoke(new Class<?>[]{});
+        stop.directInvoke(new Class<?>[]{Scheduler.ListenerRegistry.class});
     }
 
     private Object invokeTestFunction(TestSuite suite, String functionName, ClassLoader classLoader,

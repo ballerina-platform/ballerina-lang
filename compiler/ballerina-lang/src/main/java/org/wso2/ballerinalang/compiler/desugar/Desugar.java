@@ -92,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
@@ -350,9 +351,14 @@ public class Desugar extends BLangNodeVisitor {
     private BLangSimpleVariableDef onFailCallFuncDef;
     private BLangOnFailClause onFailClause;
     private BType forceCastReturnType = null;
-    private boolean skipFailDesugaring = false;
-    private Stack<BLangOnFailClause> enclosingOnFailClause = new Stack<>();
-    private Stack<BLangSimpleVariableDef> enclosingOnFailCallFunc = new Stack<>();
+    private boolean addCheckExpression;
+    private boolean shouldReturnErrors;
+    private int transactionBlockCount;
+    private BLangLiteral trxBlockId;
+    private List<BLangOnFailClause> enclosingOnFailClause = new ArrayList<>();
+    private List<BLangSimpleVariableDef> enclosingOnFailCallFunc = new ArrayList<>();
+    private Map<BLangOnFailClause, BLangSimpleVarRef> enclosingShouldPanic = new HashMap<>();
+    private List<BLangSimpleVarRef> enclosingShouldContinue = new ArrayList<>();
 
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
@@ -726,8 +732,23 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         pkgNode.globalVars.forEach(globalVar -> {
-            BLangAssignment assignment = createAssignmentStmt(globalVar);
-            if (assignment.expr != null) {
+            long globalVarFlags = globalVar.symbol.flags;
+            if (globalVar.expr != null || Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
+
+                if (Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
+                    if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
+                        // If it is required configuration get directly
+                        List<BLangExpression> args = getConfigurableLangLibInvocationParam(globalVar);
+                        BLangInvocation getValueInvocation = createLangLibInvocationNode("getConfigurableValue",
+                                args, symTable.anydataType, globalVar.pos);
+                        globalVar.expr = getValueInvocation;
+                    } else {
+                        // If it is optional configuration create if else
+                        globalVar.expr = createIfElseFromConfigurable(globalVar);
+                    }
+                }
+
+                BLangAssignment assignment = createAssignmentStmt(globalVar);
                 initFnBody.stmts.add(assignment);
             }
         });
@@ -770,6 +791,73 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
+    }
+    
+    private BLangStatementExpression createIfElseFromConfigurable(BLangSimpleVariable configurableVar) {
+
+        /*
+         * If else will be generated as follows:
+         *
+         * if (hasValue(key)) {
+         *    result = getValue(key);
+         * } else {
+         *    result = defaultValue;
+         * }
+         *
+         * key = orgName + "." + moduleName + "." + version + "." + configVarName
+         */
+
+        List<BLangExpression> args = getConfigurableLangLibInvocationParam(configurableVar);
+
+        // Check if value is configured
+        BLangInvocation hasValueInvocation = createLangLibInvocationNode("hasConfigurableValue",
+                args, symTable.booleanType, configurableVar.pos);
+        // Get value if configured else get default value provided
+        BLangInvocation getValueInvocation = createLangLibInvocationNode("getConfigurableValue",
+                args, symTable.anydataType, configurableVar.pos);
+
+        BLangBlockStmt thenBody = ASTBuilderUtil.createBlockStmt(configurableVar.pos);
+        BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(configurableVar.pos);
+
+        // Create then assignment
+        BLangSimpleVarRef thenResultVarRef =
+                ASTBuilderUtil.createVariableRef(configurableVar.pos, configurableVar.symbol);
+        BLangAssignment thenAssignment =
+                ASTBuilderUtil.createAssignmentStmt(configurableVar.pos, thenResultVarRef, getValueInvocation);
+        thenBody.addStatement(thenAssignment);
+
+        // Create else assignment
+        BLangSimpleVarRef elseResultVarRef =
+                ASTBuilderUtil.createVariableRef(configurableVar.pos, configurableVar.symbol);
+        BLangAssignment elseAssignment =
+                ASTBuilderUtil.createAssignmentStmt(configurableVar.pos, elseResultVarRef, configurableVar.expr);
+        elseBody.addStatement(elseAssignment);
+
+        BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(configurableVar.pos, hasValueInvocation, thenBody, elseBody);
+
+        // Then make it an expression-statement, since we need it to be an expression
+        BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(configurableVar.pos, configurableVar.symbol);
+        BLangStatementExpression stmtExpr = createStatementExpression(ifElse, resultVarRef);
+        stmtExpr.type = configurableVar.type;
+
+        return rewriteExpr(stmtExpr);
+    }
+
+    private List<BLangExpression> getConfigurableLangLibInvocationParam(BLangSimpleVariable configurableVar) {
+        // Prepare parameters
+        String orgName = env.enclPkg.packageID.orgName.getValue();
+        BLangLiteral orgLiteral = ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, orgName);
+        String moduleName = env.enclPkg.packageID.name.getValue();
+        BLangLiteral moduleNameLiteral =
+                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, moduleName);
+        String versionNumber = env.enclPkg.packageID.version.getValue();
+        BLangLiteral versionLiteral =
+                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, versionNumber);
+        String configVarName = configurableVar.name.getValue();
+        BLangLiteral configNameLiteral =
+                ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, configVarName);
+
+        return new ArrayList<>(Arrays.asList(orgLiteral, moduleNameLiteral, versionLiteral, configNameLiteral));
     }
 
     private void desugarClassDefinitions(List<TopLevelNode> topLevelNodes) {
@@ -1060,6 +1148,11 @@ public class Desugar extends BLangNodeVisitor {
             rewrite(attachment, env);
         }
         result = body;
+    }
+
+    @Override
+    public void visit(BLangResourceFunction resourceFunction) {
+        visit((BLangFunction) resourceFunction);
     }
 
     @Override
@@ -2546,125 +2639,282 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         if (retryNode.onFailClause != null) {
+            // wrap user defined on fail within a do statement
             BLangOnFailClause onFailClause = retryNode.onFailClause;
             retryNode.onFailClause = null;
+            retryNode.retryBody.isBreakable = false;
             BLangDo doStmt = wrapStatementWithinDo(retryNode.pos, retryNode, onFailClause);
             result = rewrite(doStmt, env);
         } else {
-            boolean currentSkipFailDesugaring = this.skipFailDesugaring;
-            this.skipFailDesugaring = true;
+            boolean currentAddCheckExpr = this.addCheckExpression;
+            this.addCheckExpression = true;
             Location pos = retryNode.retryBody.pos;
             BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
+            retryBlockStmt.parent = env.enclInvokable;
+            retryBlockStmt.scope = new Scope(env.scope.owner);
+
+            if (retryNode.commonStmtForRetries != null) {
+                BLangSimpleVariableDef prevAttemptDef = (BLangSimpleVariableDef) retryNode.commonStmtForRetries;
+                retryBlockStmt.scope.define(prevAttemptDef.var.symbol.name, prevAttemptDef.var.symbol);
+                retryBlockStmt.stmts.add(retryNode.commonStmtForRetries);
+            }
+
+            // <RetryManagerType> $retryManager$ = new();
             BLangSimpleVariableDef retryManagerVarDef = createRetryManagerDef(retryNode.retrySpec, retryNode.pos);
             retryBlockStmt.stmts.add(retryManagerVarDef);
+            BLangSimpleVarRef retryManagerVarRef = ASTBuilderUtil.createVariableRef(pos, retryManagerVarDef.var.symbol);
+            BVarSymbol retryMangerRefVarSymbol = new BVarSymbol(0, names.fromString("$retryManagerRef$"),
+                    env.scope.owner.pkgID, retryManagerVarDef.var.symbol.type, this.env.scope.owner, pos,
+                    VIRTUAL);
+            retryMangerRefVarSymbol.closure = true;
+            BLangSimpleVariable retryMangerRefVar = ASTBuilderUtil.createVariable(pos, "$retryManagerRef$",
+                    retryManagerVarDef.var.symbol.type, retryManagerVarRef, retryMangerRefVarSymbol);
+            retryBlockStmt.scope.define(retryMangerRefVarSymbol.name, retryMangerRefVarSymbol);
+            BLangSimpleVariableDef retryMangerRefDef = ASTBuilderUtil.createVariableDef(pos, retryMangerRefVar);
+            BLangSimpleVarRef retryManagerRef = ASTBuilderUtil.createVariableRef(pos, retryMangerRefVarSymbol);
+            retryBlockStmt.stmts.add(retryMangerRefDef);
 
-            //  var $retryFunc$ = function () returns any|error {
-            //    <"Content in retry block goes here">
-            //  };
-            BLangType retryLambdaReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
-            BLangLambdaFunction retryFunc = createLambdaFunction(pos, "$retryFunc$",
-                    Collections.emptyList(), retryLambdaReturnType,
-                    retryNode.retryBody.stmts, env,
-                    retryNode.retryBody.scope);
-            BVarSymbol retryFuncVarSymbol = new BVarSymbol(0, names.fromString("$retryFunc$"),
-                    env.scope.owner.pkgID, retryFunc.type,
-                    retryFunc.function.symbol, pos, VIRTUAL);
-            BLangSimpleVariable retryLambdaVariable = ASTBuilderUtil.createVariable(pos, "$retryFunc$",
-                    retryFunc.type, retryFunc,
-                    retryFuncVarSymbol);
-            BLangSimpleVariableDef retryLambdaVariableDef = ASTBuilderUtil.createVariableDef(pos,
-                    retryLambdaVariable);
-            BLangSimpleVarRef retryLambdaVarRef = new BLangSimpleVarRef.BLangLocalVarRef(retryLambdaVariable.symbol);
-            retryLambdaVarRef.type = retryFuncVarSymbol.type;
-            retryBlockStmt.stmts.add(retryLambdaVariableDef);
+            // error? $retryResult$ = ();
+            BLangLiteral nillLiteral =  ASTBuilderUtil.createLiteral(pos, symTable.nilType, null);
+            BVarSymbol retryResultVarSymbol = new BVarSymbol(0, names.fromString("$retryResult$"),
+                    env.scope.owner.pkgID, symTable.errorOrNilType, this.env.scope.owner, pos, VIRTUAL);
+            retryResultVarSymbol.closure = true;
+            BLangSimpleVariable retryResultVariable = ASTBuilderUtil.createVariable(pos, "$retryResult$",
+                    symTable.errorOrNilType, nillLiteral, retryResultVarSymbol);
+            retryBlockStmt.scope.define(retryResultVarSymbol.name, retryResultVarSymbol);
+            BLangSimpleVariableDef retryResultDef = ASTBuilderUtil.createVariableDef(pos, retryResultVariable);
+            BLangSimpleVarRef retryResultRef = ASTBuilderUtil.createVariableRef(pos, retryResultVarSymbol);
+            retryBlockStmt.stmts.add(retryResultDef);
 
-            // Add lambda function call
-            //any|error $result$ = $retryFunc$();
-            BLangInvocation retryLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(pos,
-                    retryLambdaVarRef, retryLambdaVariable.symbol, retryLambdaReturnType.type);
-            retryLambdaInvocation.argExprs = new ArrayList<>();
+            // boolean $shouldRetry$ = false;
+            BLangLiteral falseLiteral =  ASTBuilderUtil.createLiteral(pos, symTable.booleanType, false);
+            BVarSymbol shouldRetryVarSymbol = new BVarSymbol(0, names.fromString("$shouldRetry$"),
+                    env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
+            shouldRetryVarSymbol.closure = true;
+            BLangSimpleVariable shouldRetryVariable = ASTBuilderUtil.createVariable(pos, "$shouldRetry$",
+                    symTable.booleanType, falseLiteral, shouldRetryVarSymbol);
+            retryBlockStmt.scope.define(shouldRetryVarSymbol.name, shouldRetryVarSymbol);
+            BLangSimpleVariableDef shouldRetryDef = ASTBuilderUtil.createVariableDef(pos, shouldRetryVariable);
+            BLangSimpleVarRef shouldRetryRef = ASTBuilderUtil.createVariableRef(pos, shouldRetryVarSymbol);
+            retryBlockStmt.stmts.add(shouldRetryDef);
 
-            retryFunc.capturedClosureEnv = env.createClone();
+            //while ((retryRes == ()) || (retryRes is error && shouldRetryRes)) {
+            // }
+            BLangWhile whileLoop = createRetryWhileLoop(pos, retryNode.retryBody, retryManagerRef, retryResultRef,
+                    shouldRetryRef, false);
+            retryBlockStmt.stmts.add(whileLoop);
 
-            BVarSymbol retryFunctionVarSymbol = new BVarSymbol(0, new Name("$result$"),
-                    env.scope.owner.pkgID, retryLambdaReturnType.type,
-                    env.scope.owner, pos, VIRTUAL);
-            BLangSimpleVariable retryFunctionVariable = ASTBuilderUtil.createVariable(pos, "$result$",
-                    retryLambdaReturnType.type,
-                    retryLambdaInvocation,
-                    retryFunctionVarSymbol);
-            BLangSimpleVariableDef retryFunctionVariableDef = ASTBuilderUtil.createVariableDef(pos,
-                    retryFunctionVariable);
-            retryBlockStmt.stmts.add(retryFunctionVariableDef);
+            if (!enclosingShouldContinue.isEmpty() && enclosingShouldContinue.size() > 1) {
+                BLangSimpleVarRef nestedLoopShouldContinue =
+                        enclosingShouldContinue.get(enclosingShouldContinue.size() - 2);
+                BLangBlockStmt shouldContinueBlock = createBlockStmt(pos);
+                BLangContinue loopContinueStmt = (BLangContinue) TreeBuilder.createContinueNode();
+                loopContinueStmt.pos = pos;
+                shouldContinueBlock.stmts.add(loopContinueStmt);
 
-            // create while loop: while ($result$ is error && $retryManager$.shouldRetry($result$))
-            BLangSimpleVarRef retryFunctionVariableRef =
-                    new BLangSimpleVarRef.BLangLocalVarRef(retryFunctionVariable.symbol);
-            retryFunctionVariableRef.type = retryFunctionVariable.symbol.type;
-
-            BLangWhile whileNode = createRetryWhileLoop(pos, retryManagerVarDef, retryLambdaInvocation,
-                    retryFunctionVariableRef);
-            retryBlockStmt.stmts.add(whileNode);
-            createErrorReturn(pos, retryBlockStmt, retryFunctionVariableRef);
-
-            BLangStatementExpression retryTransactionStmtExpr;
-            if (retryNode.retryBodyReturns) {
-                //  returns <TypeCast>$result$;
-                BLangInvokableNode encInvokable = env.enclInvokable;
-                retryTransactionStmtExpr = ASTBuilderUtil.createStatementExpression(retryBlockStmt,
-                        addConversionExprIfRequired(retryFunctionVariableRef, encInvokable.returnTypeNode.type));
-            } else {
-                retryTransactionStmtExpr = ASTBuilderUtil.createStatementExpression(retryBlockStmt,
-                        ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
+                BLangIf shouldContinue = ASTBuilderUtil.createIfElseStmt(pos, nestedLoopShouldContinue,
+                        shouldContinueBlock, null);
+                retryBlockStmt.stmts.add(shouldContinue);
             }
-            this.skipFailDesugaring = currentSkipFailDesugaring;
-            //  at this point;
-            //  RetryManager $retryManager$ = new();
-            //  var $retryFunc$ = function () returns any|error {
-            //    <"Content in retry block goes here">
-            //  };
-            //  any|error $result$ = $retryFunc$();
+
+            //at this point:
+            // RetryManagerType> $retryManager$ = new();
+            // error? $retryResult$ = ();
+            // boolean $shouldRetry$ = false;
+            // while($retryResult$ == () || ($retryResult$ is error && $shouldRetry$)) {
+            //      boolean $returnErrorResult$ = false;
+            //      boolean $continueLoop$ = false;
+            //      $shouldRetry$ = false;
             //
-            //  while ($result$ is error && $retryManager$.shouldRetry($result$)) {
-            //       $result$ = $retryFunc$();
-            //  }
-            //  if($result$ is error) {
-            //      fail $result$;
-            //  }
-            //  returns <TypeCast>$result$;
-            result = createExpressionStatement(pos, retryTransactionStmtExpr, retryNode.retryBodyReturns, env);
+            //      do {
+            //          <"Content in retry block goes here">
+            //      } on fail var $caughtError$ {
+            //           $retryResult$ = $caughtError$;
+            //           $shouldRetry$ = $retryManager$.shouldRetry();
+            //           if (!$shouldRetry$) {
+            //                  fail $retryResult$;
+            //           }
+            //           $continueLoop$ = true;
+            //           continue;
+            //      }
+            //      ### when no enclosing on fail clause to jump to ###
+            //      } on fail var $caughtError$ {
+            //           $retryResult$ = $caughtError$;
+            //           $shouldRetry$ = $retryManager$.shouldRetry();
+            //           if (!$shouldRetry$) {
+            //                 $returnErrorResult$ = true;
+            //           }
+            //           $continueLoop$ = true;
+            //      }
+            //
+            //      if($returnErrorResult$) {
+            //           return $retryResult$;
+            //      }
+            //
+            //      if($continueLoop$) {
+            //          continue;
+            //      } else {
+            //          break;
+            //      }
+            // }
+            result = rewrite(retryBlockStmt, env);
+            enclosingShouldContinue.remove(enclosingShouldContinue.size() - 1);
+            this.addCheckExpression = currentAddCheckExpr;
         }
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
     }
 
-    protected BLangWhile createRetryWhileLoop(Location retryBlockLocation,
-                                              BLangSimpleVariableDef retryManagerVarDef,
-                                              BLangExpression trapExpr,
-                                              BLangSimpleVarRef result) {
+    protected BLangWhile createRetryWhileLoop(Location pos,
+                                              BLangBlockStmt retryBody,
+                                              BLangSimpleVarRef retryManagerRef,
+                                              BLangSimpleVarRef retryResultRef,
+                                              BLangSimpleVarRef shouldRetryRef,
+                                              boolean shouldRollback) {
         BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
-        whileNode.pos = retryBlockLocation;
-        BLangTypeTestExpr isErrorCheck = createTypeCheckExpr(retryBlockLocation, result,
+        whileNode.pos = pos;
+        BLangBlockStmt whileBody = createBlockStmt(pos);
+        whileBody.scope = new Scope(env.scope.owner);
+
+        BLangLiteral falseLiteral =  createLiteral(pos, symTable.booleanType, false);
+
+        // boolean $returnErrorResult$ = false;
+        BVarSymbol returnResultSymbol = new BVarSymbol(0, names.fromString("$returnErrorResult$"),
+                env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
+        returnResultSymbol.closure = true;
+        BLangSimpleVariable returnResultVariable = createVariable(pos, "$returnErrorResult$",
+                symTable.booleanType, falseLiteral, returnResultSymbol);
+        whileBody.scope.define(returnResultSymbol.name, returnResultSymbol);
+        BLangSimpleVariableDef returnResultDef = ASTBuilderUtil.createVariableDef(pos, returnResultVariable);
+        BLangSimpleVarRef returnResultRef = createVariableRef(pos, returnResultSymbol);
+        whileBody.stmts.add(returnResultDef);
+
+        // boolean continueLoop = false;
+        BVarSymbol continueLoopVarSymbol = new BVarSymbol(0, names.fromString("$continueLoop$"),
+                env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, pos, VIRTUAL);
+        continueLoopVarSymbol.closure = true;
+        BLangSimpleVariable continueLoopVariable = createVariable(pos, "$continueLoop$",
+                symTable.booleanType, falseLiteral, continueLoopVarSymbol);
+        whileBody.scope.define(continueLoopVarSymbol.name, continueLoopVarSymbol);
+        BLangSimpleVariableDef continueLoopDef = ASTBuilderUtil.createVariableDef(pos, continueLoopVariable);
+        BLangSimpleVarRef continueLoopRef = createVariableRef(pos, continueLoopVarSymbol);
+        whileBody.stmts.add(continueLoopDef);
+
+        // on fail error $caughtError$ {
+        //    $retryResult$ = $caughtError$;
+        //    $shouldRetry$ = $retryManager$.shouldRetry();
+        //    if (!$shouldRetry$) {
+        //           fail $retryResult$;
+        //    }
+        //    $continueLoop$ = true;
+        //    continue;
+        // }
+        BLangOnFailClause internalOnFail = createRetryInternalOnFail(pos, retryResultRef,
+                retryManagerRef, shouldRetryRef, continueLoopRef, returnResultRef, shouldRollback);
+        enclosingShouldContinue.add(continueLoopRef);
+
+        BLangDo retryDo = wrapStatementWithinDo(pos, retryBody, internalOnFail);
+
+        BLangTypeTestExpr isErrorCheck = createTypeCheckExpr(pos, retryResultRef,
                 getErrorTypeNode());
-        BLangSimpleVarRef retryManagerVarRef = new BLangLocalVarRef(retryManagerVarDef.var.symbol);
-        retryManagerVarRef.type = retryManagerVarDef.var.symbol.type;
-        BLangInvocation shouldRetryInvocation = createRetryManagerShouldRetryInvocation(retryBlockLocation,
-                retryManagerVarRef, result);
-        whileNode.expr = ASTBuilderUtil.createBinaryExpr(retryBlockLocation, isErrorCheck, shouldRetryInvocation,
+        BLangBinaryExpr shouldRetryCheck = ASTBuilderUtil.createBinaryExpr(pos, isErrorCheck, shouldRetryRef,
                 symTable.booleanType, OperatorKind.AND, null);
-        BLangBlockStmt whileBlockStmnt = ASTBuilderUtil.createBlockStmt(retryBlockLocation);
-        BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(retryBlockLocation, result,
-                trapExpr);
-        whileBlockStmnt.stmts.add(assignment);
-        whileNode.body = whileBlockStmnt;
+        BLangGroupExpr rhsCheck =  new BLangGroupExpr();
+        rhsCheck.type = symTable.booleanType;
+        rhsCheck.expression = shouldRetryCheck;
+
+        BLangLiteral nillLiteral = createLiteral(pos, symTable.nilType, null);
+        BLangBinaryExpr equalToNullCheck = ASTBuilderUtil.createBinaryExpr(pos, retryResultRef, nillLiteral,
+                symTable.booleanType, OperatorKind.EQUAL, null);
+        BLangGroupExpr lhsCheck =  new BLangGroupExpr();
+        lhsCheck.type = symTable.booleanType;
+        lhsCheck.expression = equalToNullCheck;
+
+        // while($retryResult$ == () ||($retryResult$ is error && $shouldRetry$))
+        whileNode.expr = ASTBuilderUtil.createBinaryExpr(pos, lhsCheck, rhsCheck,
+                symTable.booleanType, OperatorKind.OR, null);
+
+        //$shouldRetry$ = false;
+        BLangAssignment shouldRetryFalse = ASTBuilderUtil.createAssignmentStmt(pos, shouldRetryRef,
+                createLiteral(pos, symTable.booleanType, false));
+        whileBody.stmts.add(shouldRetryFalse);
+
+        whileBody.stmts.add(retryDo);
+
+        BLangBlockStmt returnBlock = createBlockStmt(pos);
+        BLangReturn errorReturn = ASTBuilderUtil.createReturnStmt(pos, rewrite(retryResultRef, env));
+        errorReturn.desugared = true;
+        returnBlock.stmts.add(errorReturn);
+
+        // if($returnErrorResult$) {
+        //      return $retryResult$;
+        // }
+        BLangIf exitIf = ASTBuilderUtil.createIfElseStmt(pos, returnResultRef, returnBlock, null);
+        whileBody.stmts.add(exitIf);
+
+        //if(shouldContinue) {
+        //     continue;
+        // } else {
+        //     break;
+        // }
+        BLangBlockStmt shouldContinueBlock = createBlockStmt(pos);
+        BLangContinue loopContinueStmt = (BLangContinue) TreeBuilder.createContinueNode();
+        loopContinueStmt.pos = pos;
+        shouldContinueBlock.stmts.add(loopContinueStmt);
+
+        BLangBlockStmt elseBlock = createBlockStmt(pos);
+        BLangBreak breakStmt = (BLangBreak) TreeBuilder.createBreakNode();
+        breakStmt.pos = pos;
+        elseBlock.stmts.add(breakStmt);
+
+        BLangIf shouldContinue = ASTBuilderUtil.createIfElseStmt(pos, continueLoopRef,
+                shouldContinueBlock, elseBlock);
+        whileBody.stmts.add(shouldContinue);
+        whileNode.body = whileBody;
+
+        //at this point:
+        // while($retryResult$ == () || ($retryResult$ is error && $shouldRetry$)) {
+        //      $shouldRetry$ = false;
+        //      $returnErrorResult$ = false;
+        //      $continueLoop$ = false;
+        //
+        //      do {
+        //          <"Content in retry block goes here">
+        //      } on fail var $caughtError$ {
+        //           $retryResult$ = $caughtError$;
+        //           $shouldRetry$ = $retryManager$.shouldRetry();
+        //           if (!$shouldRetry$) {
+        //                  fail $retryResult$;
+        //           }
+        //           $continueLoop$ = true;
+        //           continue;
+        //      }
+        //      ### when no enclosing on fail clause to jump to ###
+        //      } on fail var $caughtError$ {
+        //           $retryResult$ = $caughtError$;
+        //           $shouldRetry$ = $retryManager$.shouldRetry();
+        //           if (!$shouldRetry$) {
+        //                 $returnErrorResult$ = true;
+        //           }
+        //           $continueLoop$ = true;
+        //      }
+        //
+        //
+        //      if($returnErrorResult$) {
+        //           return $retryResult$;
+        //      }
+        //
+        //      if($continueLoop$) {
+        //          continue;
+        //      } else {
+        //          break;
+        //      }
+        // }
         return whileNode;
     }
 
     protected BLangSimpleVariableDef createRetryManagerDef(BLangRetrySpec retrySpec, Location pos) {
-        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) transactionDesugar
-                .getTransactionLibInvokableSymbol(names.fromString("DefaultRetryManager"));
+        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langErrorModuleSymbol.scope
+                .lookup(names.fromString("DefaultRetryManager")).symbol;
         BType retryManagerType = retryManagerTypeSymbol.type;
         if (retrySpec.retryManagerType != null) {
             retryManagerType = retrySpec.retryManagerType.type;
@@ -2714,10 +2964,20 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        BLangStatementExpression retryTransactionStmtExpr = transactionDesugar.rewrite(retryTransaction, env,
-                this.onFailClause != null);
-        result = createExpressionStatement(retryTransaction.pos, retryTransactionStmtExpr,
-                retryTransaction.transaction.statementBlockReturns, env);
+        BLangBlockStmt retryBody = ASTBuilderUtil.createBlockStmt(retryTransaction.pos);
+        retryBody.stmts.add(retryTransaction.transaction);
+
+        //transactions:Info? prevAttempt = ();
+        BLangSimpleVariableDef prevAttemptVarDef = transactionDesugar.createPrevAttemptInfoVarDef(env,
+                retryTransaction.pos);
+        retryTransaction.transaction.prevAttemptInfo = ASTBuilderUtil.createVariableRef(retryTransaction.pos,
+                prevAttemptVarDef.var.symbol);
+
+        BLangRetry retry = (BLangRetry) TreeBuilder.createRetryNode();
+        retry.commonStmtForRetries = prevAttemptVarDef;
+        retry.retryBody = retryBody;
+        retry.retrySpec = retryTransaction.retrySpec;
+        result = rewrite(retry, env);
     }
 
     protected BLangNode createExpressionStatement(Location location,
@@ -2761,8 +3021,35 @@ public class Desugar extends BLangNodeVisitor {
         // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
         // to distinguish between returning nil value specifically and not returning any value.
         if (returnNode.expr != null) {
-            if (forceCastReturnType != null && returnNode.expr.type != null) {
-                returnNode.expr = addConversionExprIfRequired(returnNode.expr, forceCastReturnType);
+            if (returnNode.expr.type != null) {
+                if (addCheckExpression && returnNode.expr.getKind() != NodeKind.CHECK_EXPR &&
+                        returnNode.expr.getKind() != NodeKind.CHECK_PANIC_EXPR &&
+                        types.containsErrorType(returnNode.expr.type)) {
+                    if (types.isSameType(returnNode.expr.type, symTable.errorType)) {
+                        BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
+                        failStmt.pos = returnNode.pos;
+                        failStmt.expr = returnNode.expr;
+                        if (this.shouldReturnErrors) {
+                            BLangReturn returnStmt =
+                                    ASTBuilderUtil.createReturnStmt(returnNode.pos, rewrite(returnNode.expr, env));
+                            returnStmt.desugared = true;
+                            failStmt.exprStmt = returnStmt;
+                        }
+                        result = rewrite(failStmt, env);
+                        return;
+                    } else {
+                        BType checkType = returnNode.expr.type.tag == symTable.errorType.tag ? symTable.nilType :
+                                types.getSafeType(returnNode.expr.type, true, true);
+                        BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(returnNode.pos, returnNode.expr,
+                                checkType);
+                        checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+                        types.setImplicitCastExpr(checkedExpr, checkType, env.enclInvokable.returnTypeNode.type);
+                        returnNode.expr = checkedExpr;
+                    }
+
+                } else if (forceCastReturnType != null) {
+                    returnNode.expr = addConversionExprIfRequired(returnNode.expr, forceCastReturnType);
+                }
             }
             returnNode.expr = rewriteExpr(returnNode.expr);
         }
@@ -2974,7 +3261,8 @@ public class Desugar extends BLangNodeVisitor {
 
         rewrite(matchBlockStmt, this.env);
         result = matchBlockStmt;
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
+        this.onFailClause = currentOnFailClause;
+        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     @Override
@@ -3002,7 +3290,8 @@ public class Desugar extends BLangNodeVisitor {
         rewrite(matchBlockStmt, this.env);
 
         result = matchBlockStmt;
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
+        this.onFailClause = currentOnFailClause;
+        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     private BLangStatement convertMatchClausesToIfElseStmt(List<BLangMatchClause> matchClauses,
@@ -3290,9 +3579,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangForeach foreach) {
         BLangOnFailClause currentOnFailClause = this.onFailClause;
         BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
-        if (foreach.onFailClause != null) {
-            rewrite(foreach.onFailClause, env);
-        }
+        analyzeOnFailClause(foreach.onFailClause, foreach.body);
         BLangBlockStmt blockNode;
         // We need to create a new variable for the expression as well. This is needed because integer ranges can be
         // added as the expression so we cannot get the symbol in such cases.
@@ -3352,8 +3639,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause, BLangBlockStmt blockStmt) {
         if (onFailClause != null) {
-            this.enclosingOnFailClause.push(this.onFailClause);
-            this.enclosingOnFailCallFunc.push(this.onFailCallFuncDef);
+            this.enclosingOnFailClause.add(this.onFailClause);
+            this.enclosingOnFailCallFunc.add(this.onFailCallFuncDef);
             this.onFailClause = onFailClause;
             if (onFailClause.bodyContainsFail) {
                 blockStmt.isBreakable = false;
@@ -3363,36 +3650,60 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangBlockStmt rewriteNestedOnFail(BLangOnFailClause onFailClause, BLangExpression expression) {
-        BLangBlockStmt onFailBody = onFailClause.body;
-        BLangSimpleVariableDef onFailErrorVariableDef = (BLangSimpleVariableDef) onFailClause.variableDefinitionNode;
-        onFailErrorVariableDef.var.expr = expression;
-        onFailBody.stmts.add(0, onFailErrorVariableDef);
-        this.onFailClause = this.enclosingOnFailClause.peek();
-        this.onFailCallFuncDef = this.enclosingOnFailCallFunc.peek();
-        onFailBody.scope.define(onFailErrorVariableDef.var.symbol.name, onFailErrorVariableDef.var.symbol);
+    private BLangBlockStmt rewriteNestedOnFail(BLangOnFailClause onFailClause, BLangFail fail) {
+        BLangOnFailClause currentOnFail = this.onFailClause;
+        BLangSimpleVariableDef currentOnFailDef = this.onFailCallFuncDef;
+
+        BLangBlockStmt onFailBody = ASTBuilderUtil.createBlockStmt(onFailClause.pos);
+        onFailBody.stmts.addAll(onFailClause.body.stmts);
+        onFailBody.scope = onFailClause.body.scope;
+        onFailBody.mapSymbol = onFailClause.body.mapSymbol;
+        onFailBody.isBreakable = onFailClause.body.isBreakable;
+
+        BVarSymbol onFailErrorVariableSymbol =
+                ((BLangSimpleVariableDef) onFailClause.variableDefinitionNode).var.symbol;
+        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
+                onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
+                onFailErrorVariableSymbol);
+        BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
+        onFailBody.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
+        onFailBody.stmts.add(0, errorVarDef);
+
+        int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
+        int enclosingOnFailIndex = currentOnFailIndex == -1 ? this.enclosingOnFailClause.size() - 1
+                : (currentOnFailIndex - 1);
+        this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
+        this.onFailCallFuncDef = this.enclosingOnFailCallFunc.get(enclosingOnFailIndex);
         onFailBody = rewrite(onFailBody, env);
-        this.onFailClause = null;
-        this.onFailCallFuncDef = null;
+        if (onFailClause.isInternal && fail.exprStmt != null) {
+            if (fail.exprStmt instanceof BLangPanic) {
+                setPanicErrorToTrue(onFailBody, onFailClause);
+            } else {
+                onFailBody.stmts.add((BLangStatement) fail.exprStmt);
+            }
+        }
+
+        this.onFailClause = currentOnFail;
+        this.onFailCallFuncDef = currentOnFailDef;
         return onFailBody;
     }
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
         this.onFailClause = onFailClause;
-        boolean currentSkipDesugring = this.skipFailDesugaring;
         BLangType onFailReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
 
         BLangSimpleVariableDef onFailErrorVariableDef = (BLangSimpleVariableDef) onFailClause.variableDefinitionNode;
         BVarSymbol thrownErrorVarSymbol = new BVarSymbol(0, new Name("$thrownError$"),
                 env.scope.owner.pkgID, symTable.errorType, env.scope.owner, onFailClause.pos, VIRTUAL);
-        thrownErrorVarSymbol.closure = true;
         BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailClause.pos, "$thrownError$",
                 onFailErrorVariableDef.var.type, null, thrownErrorVarSymbol);
         BLangLambdaFunction onFailFunc = createLambdaFunction(onFailClause.pos, "$onFailFunc$",
                 Lists.of(errorVar), onFailReturnType, onFailClause.body.stmts,
                 env, onFailClause.body.scope);
+
         onFailFunc.capturedClosureEnv = env;
+        onFailFunc.parent = env.enclInvokable;
         BLangSimpleVarRef thrownErrorRef = ASTBuilderUtil.createVariableRef(onFailClause.pos, errorVar.symbol);
         onFailErrorVariableDef.var.expr = addConversionExprIfRequired(thrownErrorRef, onFailErrorVariableDef.var.type);
         ((BLangBlockFunctionBody) onFailFunc.function.body).stmts.add(0, onFailErrorVariableDef);
@@ -3410,11 +3721,10 @@ public class Desugar extends BLangNodeVisitor {
         onFailCallFuncDef = ASTBuilderUtil.createVariableDef(onFailClause.pos,
                 onFailLambdaVariable);
         result = onFailFunc;
-        this.skipFailDesugaring = currentSkipDesugring;
     }
 
     private BLangStatementExpression createOnFailInvocation(BLangSimpleVariableDef onFailCallFuncDef,
-                                                            BLangOnFailClause onFailClause, BLangExpression failExpr) {
+                                                            BLangOnFailClause onFailClause, BLangFail fail) {
         BLangStatementExpression expression;
         BLangSimpleVarRef onFailFuncRef = new BLangSimpleVarRef.BLangLocalVarRef(onFailCallFuncDef.var.symbol);
         onFailFuncRef.type = onFailCallFuncDef.var.type;
@@ -3423,7 +3733,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangInvocation onFailLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(onFailClause.pos,
                 onFailFuncRef, onFailFuncRef.symbol, symTable.anyOrErrorType);
-        onFailLambdaInvocation.argExprs = Lists.of(rewrite(failExpr, env));
+        onFailLambdaInvocation.argExprs = Lists.of(rewrite(fail.expr, env));
         onFailLambdaInvocation.requiredArgs = onFailLambdaInvocation.argExprs;
 
         BVarSymbol resultSymbol = new BVarSymbol(0, new Name("$onFailResult$"),
@@ -3433,6 +3743,16 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef trxFuncVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos,
                 resultVariable);
         onFailFuncBlock.stmts.add(trxFuncVarDef);
+        if (onFailClause.isInternal && fail.exprStmt != null) {
+            if (fail.exprStmt instanceof BLangPanic) {
+                setPanicErrorToTrue(onFailFuncBlock, onFailClause);
+            } else {
+                onFailFuncBlock.stmts.add((BLangStatement) fail.exprStmt);
+                if (fail.exprStmt instanceof BLangReturn) {
+                    onFailClause.statementBlockReturns = true;
+                }
+            }
+        }
 
         BLangSimpleVarRef resultRef = ASTBuilderUtil.createVariableRef(onFailClause.pos, resultSymbol);
         if (onFailClause.statementBlockReturns) {
@@ -3445,6 +3765,13 @@ public class Desugar extends BLangNodeVisitor {
                     ASTBuilderUtil.createLiteral(onFailClause.pos, symTable.nilType, Names.NIL_VALUE));
         }
         return expression;
+    }
+
+    private void setPanicErrorToTrue(BLangBlockStmt onfailBlock, BLangOnFailClause onFailClause) {
+        BLangSimpleVarRef shouldPanic = enclosingShouldPanic.get(onFailClause);
+        BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(onFailClause.pos, shouldPanic,
+                ASTBuilderUtil.createLiteral(onFailClause.pos, symTable.booleanType, true));
+        onfailBlock.stmts.add(0, rewrite(assignment, env));
     }
 
     private BLangBlockStmt desugarForeachWithIteratorDef(BLangForeach foreach,
@@ -3570,11 +3897,10 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         if (whileNode.onFailClause != null) {
             BLangOnFailClause onFailClause = whileNode.onFailClause;
             whileNode.onFailClause = null;
+            whileNode.body.isBreakable = false;
             BLangDo doStmt = wrapStatementWithinDo(whileNode.pos, whileNode, onFailClause);
             result = rewrite(doStmt, env);
         } else {
@@ -3582,13 +3908,13 @@ public class Desugar extends BLangNodeVisitor {
             whileNode.body = rewrite(whileNode.body, env);
             result = whileNode;
         }
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
     }
 
     private BLangDo wrapStatementWithinDo(Location location, BLangStatement statement,
                                           BLangOnFailClause onFailClause) {
         BLangDo bLDo = (BLangDo) TreeBuilder.createDoNode();
         BLangBlockStmt doBlock = ASTBuilderUtil.createBlockStmt(location);
+        doBlock.scope = new Scope(env.scope.owner);
         bLDo.body = doBlock;
         bLDo.pos = location;
         bLDo.onFailClause = onFailClause;
@@ -3661,8 +3987,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(lockNode.pos, isErrorTest, ifBody, null);
         blockStmt.addStatement(ifelse);
         result = rewrite(blockStmt, env);
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
         enclLocks.pop();
+        this.onFailClause = currentOnFailClause;
+        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     @Override
@@ -3675,28 +4002,276 @@ public class Desugar extends BLangNodeVisitor {
         result = unLockStmt;
     }
 
+
+    private BLangOnFailClause createTrxInternalOnFail(Location pos, BLangSimpleVarRef shouldPanicRef) {
+        BLangOnFailClause trxOnFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
+        trxOnFailClause.pos = pos;
+        trxOnFailClause.body = ASTBuilderUtil.createBlockStmt(pos);
+        trxOnFailClause.body.scope = new Scope(env.scope.owner);
+        trxOnFailClause.isInternal = true;
+
+        // on fail error $trxError$ {
+        // }
+        BVarSymbol trxOnFailErrorSym = new BVarSymbol(0, names.fromString("$trxError$"),
+                env.scope.owner.pkgID, symTable.errorType, env.scope.owner, pos, VIRTUAL);
+        BLangSimpleVariable trxOnFailError = ASTBuilderUtil.createVariable(pos,
+                "$trxError$", symTable.errorType, null, trxOnFailErrorSym);
+        trxOnFailClause.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos,
+                trxOnFailError);
+        trxOnFailClause.body.scope.define(trxOnFailErrorSym.name, trxOnFailErrorSym);
+
+        // if (($trxError$ is error) && !($trxError$ is TransactionError) && transctional) {
+        //     $shouldCleanUp$ = true;
+        //     check panic rollback $trxError$;
+        // }
+        transactionDesugar.createRollbackIfFailed(pos, trxOnFailClause.body, trxOnFailErrorSym, trxBlockId);
+
+        BLangGroupExpr shouldNotPanic = new BLangGroupExpr();
+        shouldNotPanic.type = symTable.booleanType;
+        shouldNotPanic.expression = createNotBinaryExpression(pos, shouldPanicRef);
+
+        BLangSimpleVarRef caughtError =  ASTBuilderUtil.createVariableRef(pos, trxOnFailErrorSym);
+
+        BLangBlockStmt failBlock = ASTBuilderUtil.createBlockStmt(pos);
+
+        BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
+        panicNode.pos = pos;
+        panicNode.expr = caughtError;
+
+        // if(!$shouldPanic$) {
+        //      fail $trxError$;
+        // } else {
+        //      panic $trxError$;
+        // }
+        BLangIf exitIf = ASTBuilderUtil.createIfElseStmt(pos, shouldNotPanic, failBlock, panicNode);
+        trxOnFailClause.body.stmts.add(exitIf);
+
+        BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
+        failStmt.pos = pos;
+        failStmt.expr = caughtError;
+        failBlock.stmts.add(failStmt);
+        trxOnFailClause.bodyContainsFail = true;
+
+        // at this point;
+        // on fail error $trxError$ {
+        //     if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
+        //          $shouldCleanUp$ = true;
+        //          check panic rollback $trxError$;
+        //      }
+        // }
+        // if(!$shouldPanic$) {
+        //      fail $trxError$;
+        // } else {
+        //      panic $trxError$;
+        // }
+        return trxOnFailClause;
+    }
+
     @Override
     public void visit(BLangTransaction transactionNode) {
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
-        analyzeOnFailClause(transactionNode.onFailClause, transactionNode.transactionBody);
-        BLangStatementExpression transactionStmtExpr = transactionDesugar.rewrite(transactionNode, env,
-                onFailClause != null);
-        result = createExpressionStatement(transactionNode.pos, transactionStmtExpr,
-                transactionNode.statementBlockReturns, env);
-        swapAndResetEnclosingOnFail(currentOnFailClause, currentOnFailCallDef);
+        if (transactionNode.onFailClause != null) {
+            //rewrite user defined on fail within a do statement
+            BLangOnFailClause onFailClause = transactionNode.onFailClause;
+            transactionNode.onFailClause = null;
+            transactionNode.transactionBody.isBreakable = false;
+            BLangDo doStmt = wrapStatementWithinDo(transactionNode.pos, transactionNode, onFailClause);
+            // at this point;
+            // do {
+            //      transction {
+            //        <Transaction Body>
+            //      }
+            // } on fail var e {
+            //     (User Defined On Fail Clause)
+            // }
+            result = rewrite(doStmt, env);
+        } else {
+            BLangLiteral currentTrxBlockId = this.trxBlockId;
+            String uniqueId = String.valueOf(++transactionBlockCount);
+            this.trxBlockId = ASTBuilderUtil.createLiteral(transactionNode.pos, symTable.stringType, uniqueId);
+            boolean currentAddCheckExpr = this.addCheckExpression;
+            boolean currShouldReturnErrors = this.shouldReturnErrors;
+            this.addCheckExpression = true;
+            this.shouldReturnErrors = true;
+
+            BLangOnFailClause currOnFailClause = this.onFailClause;
+            BLangSimpleVariableDef currOnFailCallDef = this.onFailCallFuncDef;
+
+            // boolean $shouldPanic$ = false;
+            BLangLiteral falseLiteral = ASTBuilderUtil.createLiteral(transactionNode.pos, symTable.booleanType, false);
+            BVarSymbol shouldPanicVarSymbol = new BVarSymbol(0, names.fromString("$shouldPanic$"),
+                    env.scope.owner.pkgID, symTable.booleanType, this.env.scope.owner, transactionNode.pos, VIRTUAL);
+            shouldPanicVarSymbol.closure = true;
+            BLangSimpleVariable shouldPanicVariable = ASTBuilderUtil.createVariable(transactionNode.pos,
+                    "$shouldPanic$", symTable.booleanType, falseLiteral, shouldPanicVarSymbol);
+
+            BLangSimpleVariableDef shouldPanicDef = ASTBuilderUtil.createVariableDef(transactionNode.pos,
+                    shouldPanicVariable);
+            BLangSimpleVarRef shouldPanicRef = ASTBuilderUtil.createVariableRef(transactionNode.pos,
+                    shouldPanicVarSymbol);
+
+            // on fail error $trxError$ {
+            //     if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
+            //          $shouldCleanUp$ = true;
+            //          check panic rollback $trxError$;
+            //      }
+            // }
+            // if(!$shouldPanic$) {
+            //      fail $trxError$;
+            // } else {
+            //      panic $trxError$;
+            // }
+            BLangOnFailClause trxInternalOnFail = createTrxInternalOnFail(transactionNode.pos, shouldPanicRef);
+            enclosingShouldPanic.put(trxInternalOnFail, shouldPanicRef);
+
+            boolean userDefinedOnFailAvbl = this.onFailClause != null;
+            analyzeOnFailClause(trxInternalOnFail, transactionNode.transactionBody);
+
+            BLangBlockStmt transactionStmtBlock =
+                    transactionDesugar.rewrite(transactionNode, trxBlockId, env, uniqueId);
+
+            transactionStmtBlock.stmts.add(0, shouldPanicDef);
+            transactionStmtBlock.scope.define(shouldPanicVarSymbol.name, shouldPanicVarSymbol);
+            transactionStmtBlock.isBreakable = !userDefinedOnFailAvbl;
+
+            // at this point;
+            //
+            // boolean $shouldPanic$ = false;
+            // do {
+            //      boolean $shouldCleanUp$ = false;
+            //      transactions:Info? prevAttempt = ();
+            //      string transactionId = "";
+            //      error? $trapResult = trap {
+            //                                  transactionId = startTransaction(1, prevAttempt)
+            //                                  prevAttempt = info();
+            //
+            //                                  <Transaction Body>
+            //                                 }
+            //      if($trapResult$ is error) {
+            //          panic $trapResult$;
+            //      }
+            //      if ($shouldCleanUp$) {
+            //          cleanupTransactionContext(1);
+            //      }
+            // } on fail error $trxError$ {
+            //     if (($trxError$ is error) && !($trxError$ is TransactionError) && transactional) {
+            //          $shouldCleanUp$ = true;
+            //          check panic rollback $trxError$;
+            //      }
+            // }
+            // if(!$shouldPanic$) {
+            //      fail $trxError$;
+            // } else {
+            //      panic $trxError$;
+            // }
+            result = rewrite(transactionStmtBlock, this.env);
+
+            this.addCheckExpression = currentAddCheckExpr;
+            this.shouldReturnErrors = currShouldReturnErrors;
+            this.trxBlockId = currentTrxBlockId;
+            swapAndResetEnclosingOnFail(currOnFailClause, currOnFailCallDef);
+        }
     }
 
     @Override
     public void visit(BLangRollback rollbackNode) {
-        BLangStatementExpression rollbackStmtExpr = transactionDesugar.desugar(rollbackNode);
-        BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckPanickedExpr(rollbackNode.pos, rollbackStmtExpr,
-                symTable.nilType);
-        checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
-        BLangExpressionStmt rollbackExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-        rollbackExprStmt.pos = rollbackNode.pos;
-        rollbackExprStmt.expr = checkedExpr;
-        result = rewrite(rollbackExprStmt, env);
+        BLangBlockStmt rollbackStmtExpr = transactionDesugar.desugar(rollbackNode, trxBlockId);
+        result = rewrite(rollbackStmtExpr, env);
+    }
+
+    private BLangOnFailClause createRetryInternalOnFail(Location pos,
+                                                        BLangSimpleVarRef retryResultRef,
+                                                        BLangSimpleVarRef retryManagerRef,
+                                                        BLangSimpleVarRef shouldRetryRef,
+                                                        BLangSimpleVarRef continueLoopRef,
+                                                        BLangSimpleVarRef returnResult,
+                                                        boolean shouldRollback) {
+        BLangOnFailClause internalOnFail = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
+        internalOnFail.pos = pos;
+        internalOnFail.body = ASTBuilderUtil.createBlockStmt(pos);
+        internalOnFail.body.scope = new Scope(env.scope.owner);
+
+        BVarSymbol caughtErrorSym = new BVarSymbol(0, names.fromString("$caughtError$"),
+                env.scope.owner.pkgID, symTable.errorType, env.scope.owner, pos, VIRTUAL);
+        BLangSimpleVariable caughtError = ASTBuilderUtil.createVariable(pos,
+                "$caughtError$", symTable.errorType, null, caughtErrorSym);
+        internalOnFail.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos,
+                caughtError);
+        env.scope.define(caughtErrorSym.name, caughtErrorSym);
+        BLangSimpleVarRef caughtErrorRef = ASTBuilderUtil.createVariableRef(pos, caughtErrorSym);
+
+        // $retryResult$ = $caughtError$;
+        BLangAssignment errorAssignment = ASTBuilderUtil.createAssignmentStmt(pos, retryResultRef, caughtErrorRef);
+        internalOnFail.body.stmts.add(errorAssignment);
+
+        //$continueLoop$ = true;
+        BLangAssignment continueLoopTrue = ASTBuilderUtil.createAssignmentStmt(pos, continueLoopRef,
+                ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
+        internalOnFail.body.stmts.add(continueLoopTrue);
+
+        if (shouldRollback) {
+            transactionDesugar.createRollbackIfFailed(pos, internalOnFail.body, caughtErrorSym, trxBlockId);
+        }
+
+        // $shouldRetry$ = $retryManager$.shouldRetry();
+        BLangInvocation shouldRetryInvocation = createRetryManagerShouldRetryInvocation(pos,
+                retryManagerRef, caughtErrorRef);
+        BLangAssignment shouldRetryAssignment = ASTBuilderUtil.createAssignmentStmt(pos, shouldRetryRef,
+        shouldRetryInvocation);
+        internalOnFail.body.stmts.add(shouldRetryAssignment);
+
+        BLangGroupExpr shouldNotRetryCheck = new BLangGroupExpr();
+        shouldNotRetryCheck.type = symTable.booleanType;
+        shouldNotRetryCheck.expression = createNotBinaryExpression(pos, shouldRetryRef);
+
+        BLangGroupExpr exitCheck = new BLangGroupExpr();
+        exitCheck.type = symTable.booleanType;
+        exitCheck.expression = shouldNotRetryCheck;
+
+        BLangBlockStmt exitLogicBlock = ASTBuilderUtil.createBlockStmt(pos);
+        BLangIf exitIf = ASTBuilderUtil.createIfElseStmt(pos, exitCheck, exitLogicBlock, null);
+
+        if (this.onFailClause != null) {
+            //adding fail statement to jump to enclosing on fail clause
+            // fail $retryResult$;
+            BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
+            failStmt.pos = pos;
+            failStmt.expr = retryResultRef;
+
+            exitLogicBlock.stmts.add(failStmt);
+            internalOnFail.bodyContainsFail = true;
+            internalOnFail.body.stmts.add(exitIf);
+
+            //continue;
+            BLangContinue loopContinueStmt = (BLangContinue) TreeBuilder.createContinueNode();
+            loopContinueStmt.pos = pos;
+            internalOnFail.body.stmts.add(loopContinueStmt);
+
+            // if (!$shouldRetry$) {
+            //      fail $retryResult$;
+            // }
+            // continue;
+        } else {
+            BLangAssignment returnErrorTrue = ASTBuilderUtil.createAssignmentStmt(pos, returnResult,
+                    ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true));
+            exitLogicBlock.stmts.add(returnErrorTrue);
+            internalOnFail.body.stmts.add(exitIf);
+            // if (!$shouldRetry$) {
+            //      $returnErrorResult$ = true;
+            // }
+        }
+        return internalOnFail;
+    }
+
+    BLangUnaryExpr createNotBinaryExpression(Location pos, BLangExpression expression) {
+        List<BType> paramTypes = new ArrayList<>();
+        paramTypes.add(symTable.booleanType);
+        BInvokableType type = new BInvokableType(paramTypes, symTable.booleanType,
+                null);
+        BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(
+                names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
+                symTable.builtinPos, VIRTUAL);
+        return ASTBuilderUtil.createUnaryExpr(pos, expression, symTable.booleanType,
+                OperatorKind.NOT, notOperatorSymbol);
     }
 
     BLangLambdaFunction createLambdaFunction(Location pos, String functionNamePrefix,
@@ -4361,6 +4936,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        if (!actionInvocation.async && actionInvocation.invokedInsideTransaction) {
+            transactionDesugar.startTransactionCoordinatorOnce(env, actionInvocation.pos);
+        }
         rewriteInvocation(actionInvocation, actionInvocation.async);
     }
 
@@ -4655,6 +5233,12 @@ public class Desugar extends BLangNodeVisitor {
         BLangErrorType errorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorTypeNode.type = symTable.errorType;
         errorTypeNode.pos = symTable.builtinPos;
+        return errorTypeNode;
+    }
+
+    BLangErrorType getErrorOrNillTypeNode() {
+        BLangErrorType errorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+        errorTypeNode.type = symTable.errorOrNilType;
         return errorTypeNode;
     }
 
@@ -4989,6 +5573,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
+        boolean currentTrxVisit = this.addCheckExpression;
+        this.addCheckExpression = false;
         BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         bLangFunction.setName(bLangArrowFunction.functionName);
 
@@ -5041,6 +5627,7 @@ public class Desugar extends BLangNodeVisitor {
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
         result = rewriteExpr(lambdaFunction);
+        this.addCheckExpression = currentTrxVisit;
     }
 
     private void defineInvokableSymbol(BLangInvokableNode invokableNode, BInvokableSymbol funcSymbol,
@@ -5195,13 +5782,13 @@ public class Desugar extends BLangNodeVisitor {
         Name objectClassName = names.fromString(
                 anonModelHelper.getNextRawTemplateTypeKey(env.enclPkg.packageID, tSymbol.name));
 
-        BObjectTypeSymbol classTSymbol = Symbols.createObjectSymbol(tSymbol.flags, objectClassName,
-                                                                    env.enclPkg.packageID, null, env.enclPkg.symbol,
-                                                                    pos, VIRTUAL);
+        BObjectTypeSymbol classTSymbol = Symbols.createClassSymbol(tSymbol.flags, objectClassName,
+                                                                   env.enclPkg.packageID, null, env.enclPkg.symbol,
+                                                                   pos, VIRTUAL, false);
         classTSymbol.flags |= Flags.CLASS;
 
         // Create a new concrete, class type for the provided abstract object type
-        BObjectType objectClassType = new BObjectType(classTSymbol, tSymbol.flags);
+        BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
 
@@ -5346,19 +5933,20 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFail failNode) {
-        if (this.onFailClause != null && !skipFailDesugaring) {
+        if (this.onFailClause != null) {
             if (this.onFailClause.bodyContainsFail) {
-                result = rewriteNestedOnFail(this.onFailClause, failNode.expr);
+                result = rewriteNestedOnFail(this.onFailClause, failNode);
             } else {
                 BLangStatementExpression expression = createOnFailInvocation(onFailCallFuncDef, onFailClause,
-                        failNode.expr);
+                        failNode);
                 failNode.exprStmt = createExpressionStatement(failNode.pos, expression,
                         onFailClause.statementBlockReturns, env);
                 result = failNode;
             }
         } else {
-            BLangReturn stmt = ASTBuilderUtil.createReturnStmt(failNode.pos, failNode.expr);
-            result = rewrite(stmt, env);
+            BLangReturn stmt = ASTBuilderUtil.createReturnStmt(failNode.pos, rewrite(failNode.expr, env));
+            stmt.desugared = true;
+            result = stmt;
         }
     }
 
@@ -5931,6 +6519,31 @@ public class Desugar extends BLangNodeVisitor {
         return invocationNode;
     }
 
+    private BLangInvocation createLangLibInvocationNode(String functionName,
+                                                        List<BLangExpression> args,
+                                                        BType retType,
+                                                        Location pos) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.setLiteral(false);
+        name.setValue(functionName);
+        name.pos = pos;
+        invocationNode.name = name;
+        invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        invocationNode.symbol = symResolver.lookupLangLibMethodInModule(symTable.langInternalModuleSymbol,
+                names.fromString(functionName));
+
+        ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
+        requiredArgs.addAll(args);
+        invocationNode.requiredArgs = requiredArgs;
+
+        invocationNode.type = retType != null ? retType : ((BInvokableSymbol) invocationNode.symbol).retType;
+        invocationNode.langLibInvocation = true;
+        return invocationNode;
+    }
+
     private BLangArrayLiteral createArrayLiteralExprNode() {
         BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         expr.exprs = new ArrayList<>();
@@ -6348,6 +6961,8 @@ public class Desugar extends BLangNodeVisitor {
                 .forEach(expr -> namedArgs.put(((NamedArgNode) expr).getName().value, expr));
 
         List<BVarSymbol> params = invokableSymbol.params;
+        List<BLangRecordLiteral> incRecordLiterals = new ArrayList<>();
+        BLangRecordLiteral incRecordParamAllowAdditionalFields = null;
 
         int varargIndex = 0;
 
@@ -6367,7 +6982,16 @@ public class Desugar extends BLangNodeVisitor {
                 args.add(iExpr.requiredArgs.get(i));
             } else if (namedArgs.containsKey(param.name.value)) {
                 // Else check if named arg is given.
-                args.add(namedArgs.get(param.name.value));
+                args.add(namedArgs.remove(param.name.value));
+            } else if (param.getFlags().contains(Flag.INCLUDED)) {
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+                BType paramType = param.type;
+                recordLiteral.type = paramType;
+                args.add(recordLiteral);
+                incRecordLiterals.add(recordLiteral);
+                if (((BRecordType) paramType).restFieldType != symTable.noType) {
+                    incRecordParamAllowAdditionalFields = recordLiteral;
+                }
             } else if (varargRef == null) {
                 // Else create a dummy expression with an ignore flag.
                 BLangExpression expr = new BLangIgnoreExpr();
@@ -6387,7 +7011,39 @@ public class Desugar extends BLangNodeVisitor {
                 args.add(addConversionExprIfRequired(memberAccessExpr, param.type));
             }
         }
+        if (namedArgs.size() > 0) {
+            setFieldsForIncRecordLiterals(namedArgs, incRecordLiterals, incRecordParamAllowAdditionalFields);
+        }
         iExpr.requiredArgs = args;
+    }
+
+    private void setFieldsForIncRecordLiterals(Map<String, BLangExpression> namedArgs,
+                                               List<BLangRecordLiteral> incRecordLiterals,
+                                               BLangRecordLiteral incRecordParamAllowAdditionalFields) {
+        for (String name : namedArgs.keySet()) {
+            boolean isAdditionalField = true;
+            BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
+            for (BLangRecordLiteral recordLiteral : incRecordLiterals) {
+                LinkedHashMap<String, BField> fields = ((BRecordType) recordLiteral.type).fields;
+                if (fields.containsKey(name) && fields.get(name).type.tag != TypeTags.NEVER) {
+                    isAdditionalField = false;
+                    createAndAddRecordFieldForIncRecordLiteral(recordLiteral, expr);
+                    break;
+                }
+            }
+            if (isAdditionalField) {
+                createAndAddRecordFieldForIncRecordLiteral(incRecordParamAllowAdditionalFields, expr);
+            }
+        }
+    }
+
+    private void createAndAddRecordFieldForIncRecordLiteral(BLangRecordLiteral recordLiteral,
+                                                            BLangNamedArgsExpression expr) {
+        BLangSimpleVarRef varRef = new BLangSimpleVarRef();
+        varRef.variableName = expr.name;
+        BLangRecordLiteral.BLangRecordKeyValueField recordKeyValueField = ASTBuilderUtil.
+                createBLangRecordKeyValue(varRef, expr.expr);
+        recordLiteral.fields.add(recordKeyValueField);
     }
 
     private BLangMatchTypedBindingPatternClause getSafeAssignErrorPattern(Location location,
@@ -6429,6 +7085,12 @@ public class Desugar extends BLangNodeVisitor {
             failStmt.pos = location;
             failStmt.expr = patternFailureCaseVarRef;
             patternBlockFailureCase.stmts.add(failStmt);
+            if (returnOnError && this.shouldReturnErrors) {
+                BLangReturn errorReturn = ASTBuilderUtil.createReturnStmt(location,
+                        rewrite(patternFailureCaseVarRef, env));
+                errorReturn.desugared = true;
+                failStmt.exprStmt = errorReturn;
+            }
         } else {
             // throw e
             BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();

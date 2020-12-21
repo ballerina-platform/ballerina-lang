@@ -18,12 +18,13 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class CreateBaloTask implements Task {
     @Override
     public void execute(Project project) {
         this.out.println();
-        this.out.println("Creating balos");
+        this.out.println("Creating balo");
 
         Target target;
         Path baloPath;
@@ -55,23 +56,25 @@ public class CreateBaloTask implements Task {
             target = new Target(project.sourceRoot());
             baloPath = target.getBaloPath();
         } catch (IOException e) {
-            throw createLauncherException("error occurred while writing the BALO: " + e.getMessage());
+            throw createLauncherException(e.getMessage());
         }
-        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        String baloName = ProjectUtils.getBaloName(
-                project.currentPackage().packageOrg().toString(),
-                project.currentPackage().packageName().toString(),
-                project.currentPackage().packageVersion().toString(),
-                null);
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath.resolve(baloName));
+        JBallerinaBackend jBallerinaBackend;
+        EmitResult emitResult;
+
+        try {
+            PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+            jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+            emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
+        } catch (ProjectException e) {
+            throw createLauncherException("BALO creation failed:" + e.getMessage());
+        }
 
         // Print the path of the BALO file
-        Path relativePathToExecutable = project.sourceRoot().relativize(baloPath.resolve(baloName));
+        Path relativePathToExecutable = project.sourceRoot().relativize(emitResult.generatedArtifactPath());
         if (relativePathToExecutable.toString().contains("..") ||
                 relativePathToExecutable.toString().contains("." + File.separator)) {
-            this.out.println("\t" + baloPath.resolve(baloName).toString());
+            this.out.println("\t" + emitResult.generatedArtifactPath().toString());
         } else {
             this.out.println("\t" + relativePathToExecutable.toString());
         }

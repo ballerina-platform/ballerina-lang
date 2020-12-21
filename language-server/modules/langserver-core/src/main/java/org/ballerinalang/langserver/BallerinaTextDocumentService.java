@@ -31,18 +31,20 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
+import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.util.TokensUtil;
+import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -59,6 +61,8 @@ import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
+import org.eclipse.lsp4j.FoldingRange;
+import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
@@ -72,6 +76,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
 import java.nio.file.Path;
@@ -83,26 +88,21 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.langserver.LSClientLogger.logError;
+import static org.ballerinalang.langserver.LSClientLogger.notifyUser;
 import static org.ballerinalang.langserver.codeaction.CodeActionRouter.getAvailableCodeActions;
-import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
-import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
-import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
  * Text document service implementation for ballerina.
  */
 class BallerinaTextDocumentService implements TextDocumentService {
-    // indicates the frequency to send diagnostics to server upon document did change
     private final BallerinaLanguageServer languageServer;
-    private final DiagnosticsHelper diagnosticsHelper;
     private LSClientCapabilities clientCapabilities;
     private final WorkspaceManager workspaceManager;
 
-
-    BallerinaTextDocumentService(LSGlobalContext globalContext, WorkspaceManager workspaceManager) {
+    BallerinaTextDocumentService(BallerinaLanguageServer languageServer, WorkspaceManager workspaceManager) {
         this.workspaceManager = workspaceManager;
-        this.languageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
-        this.diagnosticsHelper = globalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
+        this.languageServer = languageServer;
     }
 
     /**
@@ -151,7 +151,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 logError(msg, e, position.getTextDocument(), position.getPosition());
                 hover = HoverUtil.getDefaultHoverObject();
             }
-            
+
             return hover;
         });
     }
@@ -233,14 +233,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
             (TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return Either.forLeft(new ArrayList<>());
+                DocumentServiceContext defContext = ContextBuilder.buildBaseContext(position.getTextDocument().getUri(),
+                        this.workspaceManager,
+                        LSContextOperation.TXT_DEFINITION);
+                return Either.forLeft(DefinitionUtil.getDefinition(defContext, position.getPosition()));
             } catch (UserErrorException e) {
                 notifyUser("Goto Definition", e);
-                return Either.forLeft(new ArrayList<>());
+                return Either.forLeft(Collections.emptyList());
             } catch (Throwable e) {
                 String msg = "Operation 'text/definition' failed!";
                 logError(msg, e, position.getTextDocument(), position.getPosition());
-                return Either.forLeft(new ArrayList<>());
+                return Either.forLeft(Collections.emptyList());
             }
         });
     }
@@ -344,8 +347,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
             if (docSymbolFilePath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
                 return new ArrayList<>();
             }
-
-            Path compilationPath = getUntitledFilePath(docSymbolFilePath.toString()).orElse(docSymbolFilePath.get());
 
             DocumentServiceContext codeLensContext = ContextBuilder.buildBaseContext(fileUri,
                     this.workspaceManager,
@@ -460,7 +461,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.workspaceManager.didOpen(context.filePath(), params);
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
                     "' {fileUri: '" + fileUri + "'} opened}");
-            diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
+            DiagnosticsHelper.getInstance().compileAndSendDiagnostics(this.languageServer.getClient(), context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didOpen' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -484,7 +485,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             workspaceManager.didChange(context.filePath(), params);
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
                     "' {fileUri: '" + fileUri + "'} updated}");
-            diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
+            DiagnosticsHelper.getInstance().compileAndSendDiagnostics(this.languageServer.getClient(), context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
             logError(msg, e, params.getTextDocument(), (Position) null);
@@ -509,5 +510,22 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
+    }
+
+    @JsonRequest
+    public CompletableFuture<List<FoldingRange>> foldingRange(FoldingRangeRequestParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                FoldingRangeContext foldingRangeContext = ContextBuilder.buildFoldingRangeContext(
+                        params.getTextDocument().getUri(),
+                        this.workspaceManager,
+                        this.clientCapabilities.getTextDocCapabilities().getFoldingRange().getLineFoldingOnly());
+                return FoldingRangeProvider.getFoldingRange(foldingRangeContext);
+            } catch (Throwable e) {
+                String msg = "Operation 'text/foldingRange' failed!";
+                logError(msg, e, new TextDocumentIdentifier(params.getTextDocument().getUri()), (Position) null);
+                return Collections.emptyList();
+            }
+        });
     }
 }

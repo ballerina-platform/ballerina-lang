@@ -4,18 +4,18 @@ listener test:MockListener echoEP = new(9090);
 listener test:MockListener echoEP2 = new(9091);
 
 # PizzaService HTTP Service
-service PizzaService on echoEP {
+service /PizzaService on echoEP {
 
     # Check orderPizza resource.
     # + conn - HTTP connection.
     # + req - In request.
-    resource function orderPizza(string conn, string req) {
+    resource function get orderPizza(string conn, string req) {
     }
 
     # Check status resource.
     # + conn - HTTP connection.
     # + req - In request.
-    resource function checkStatus(string conn, string req) {
+    resource function get checkStatus(string conn, string req) {
 
     }
 }
@@ -28,19 +28,19 @@ service PizzaService on echoEP {
 # Test parameter `x`
 # Test const `constant`
 # Test annotation `annot`
-service PizzaService2 on echoEP2 {
+service /PizzaService2 on echoEP2 {
 
     # Check orderPizza resource.
     # + conn - HTTP connection.
     # + req - In request.
-    resource function orderPizza(string conn, string req) {
+    resource function get orderPizza(string conn, string req) {
 
     }
 
     # Check status resource.
     # + conn - HTTP connection.
     # + req - In request.
-    resource function checkStatus(string conn, string req) {
+    resource function get checkStatus(string conn, string req) {
 
     }
 }

@@ -42,7 +42,6 @@ public class JavaMethodCall extends BIRTerminator {
                           BIROperand lhsOp, String jClassName, String jMethodVMSig, String name, BIRBasicBlock thenBB) {
 
         super(pos, kind);
-        this.pos = pos;
         this.args = args;
         this.kind = kind;
         this.lhsOp = lhsOp;

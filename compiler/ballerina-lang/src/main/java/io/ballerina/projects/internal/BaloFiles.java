@@ -182,20 +182,21 @@ public class BaloFiles {
     }
 
     private static void extractPlatformLibraries(FileSystem zipFileSystem, PackageJson packageJson, Path balrPath) {
-        if (packageJson.getPlatformDependencies() != null) {
-            packageJson.getPlatformDependencies().forEach(dependency -> {
-                Path libPath = balrPath.getParent().resolve(dependency.getPath());
-                if (!Files.exists(libPath)) {
-                    try {
-                        Files.createDirectories(libPath.getParent());
-                        Files.copy(zipFileSystem.getPath(dependency.getPath()), libPath);
-                    } catch (IOException e) {
-                        throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
-                    }
-                }
-                dependency.setPath(libPath.toString());
-            });
+        if (packageJson.getPlatformDependencies() == null) {
+            return;
         }
+        packageJson.getPlatformDependencies().forEach(dependency -> {
+            Path libPath = balrPath.getParent().resolve(dependency.getPath());
+            if (!Files.exists(libPath)) {
+                try {
+                    Files.createDirectories(libPath.getParent());
+                    Files.copy(zipFileSystem.getPath(dependency.getPath()), libPath);
+                } catch (IOException e) {
+                    throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
+                }
+            }
+            dependency.setPath(libPath.toString());
+        });
     }
 
     private static PackageManifest getPackageManifest(PackageJson packageJson) {

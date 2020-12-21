@@ -21,7 +21,7 @@ package io.ballerina.cli.task;
 import com.google.gson.Gson;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
@@ -89,28 +89,27 @@ public class RunTestsTask implements Task {
     private boolean report;
     private boolean coverage;
     private boolean isSingleTestExecution;
-    private boolean isRerunTestExection;
+    private boolean isRerunTestExecution;
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean testReport, boolean coverage) {
+    public RunTestsTask(PrintStream out, PrintStream err, String[] args) {
         this.out = out;
         this.err = err;
         this.args = Lists.of(args);
-        this.report = testReport;
-        this.coverage = coverage;
     }
 
     public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, boolean testReport, boolean coverage) {
+                        List<String> disableGroupList, List<String> testList) {
         this.out = out;
         this.err = err;
         this.args = Lists.of(args);
         this.isSingleTestExecution = false;
-        this.isRerunTestExection = rerunTests;
+
+        this.isRerunTestExecution = rerunTests;
 
         // If rerunTests is true, we get the rerun test list and assign it to 'testList'
-        if (rerunTests) {
+        if (this.isRerunTestExecution) {
             testList = new ArrayList<>();
         }
 
@@ -122,15 +121,13 @@ public class RunTestsTask implements Task {
             isSingleTestExecution = true;
             singleExecTests = testList;
         }
-
-        //TODO: handle test report generation once CompilerOptions are available
-        this.report = testReport;
-        this.coverage = coverage;
     }
 
     @Override
     public void execute(Project project) {
         filterTestGroups();
+        report = project.buildOptions().testReport();
+        coverage = project.buildOptions().codeCoverage();
 
         if (report || coverage) {
             testReport = new TestReport();
@@ -158,9 +155,10 @@ public class RunTestsTask implements Task {
         this.out.println();
 
         int result = 0;
+        boolean hasTests = false;
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
@@ -169,23 +167,10 @@ public class RunTestsTask implements Task {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
-            TestSuite suite = jBallerinaBackend.testSuite(module);
+
+            TestSuite suite = jBallerinaBackend.testSuite(module).orElse(null);
             Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
-            Path reportDir;
 
-            try {
-                reportDir = target.getReportPath();
-            } catch (IOException e) {
-                throw createLauncherException("error while creating report directory in target", e);
-            }
-
-            if (isRerunTestExection) {
-                singleExecTests = readFailedTestsFromFile(reportDir);
-            }
-
-            if (isSingleTestExecution || isRerunTestExection) {
-                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
-            }
             if (suite == null) {
                 if (!project.currentPackage().packageOrg().anonymous()) {
                     out.println();
@@ -193,12 +178,23 @@ public class RunTestsTask implements Task {
                 }
                 out.println("\t" + "No tests found");
                 continue;
-            } else if (isRerunTestExection && suite.getTests().size() == 0) {
+            } else if (isRerunTestExecution && suite.getTests().isEmpty()) {
                 out.println("\t" + "No failed test/s found in cache");
                 continue;
-            } else if (isSingleTestExecution && suite.getTests().size() == 0) {
+            } else if (isSingleTestExecution && suite.getTests().isEmpty()) {
                 out.println("\t" + "No tests found with the given name/s");
                 continue;
+            }
+            //Set 'hasTests' flag if there are any tests available in the package
+            if (!hasTests) {
+                hasTests = true;
+            }
+
+            if (isRerunTestExecution) {
+                singleExecTests = readFailedTestsFromFile(target.path());
+            }
+            if (isSingleTestExecution || isRerunTestExecution) {
+                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
             }
             suite.setReportRequired(report || coverage);
             Collection<Path> dependencies = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
@@ -225,8 +221,10 @@ public class RunTestsTask implements Task {
         }
 
         try {
-            generateCoverage(project);
-            generateHtmlReport(project, this.out, testReport, target);
+            if (hasTests) {
+                generateCoverage(project);
+                generateHtmlReport(project, this.out, testReport, target);
+            }
         } catch (IOException e) {
             throw createLauncherException("error while generating test report :", e);
         }
@@ -238,12 +236,13 @@ public class RunTestsTask implements Task {
 
     private void generateCoverage(Project project) throws IOException {
         // Generate code coverage
-        if (coverage) {
-            for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-                Module module = project.currentPackage().module(moduleId);
-                CoverageReport coverageReport = new CoverageReport(module);
-                testReport.addCoverage(module.moduleName().toString(), coverageReport.generateReport());
-            }
+        if (!coverage) {
+            return;
+        }
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            CoverageReport coverageReport = new CoverageReport(module);
+            testReport.addCoverage(module.moduleName().toString(), coverageReport.generateReport());
         }
     }
 
@@ -289,66 +288,73 @@ public class RunTestsTask implements Task {
      * @param testReport Data that are parsed to the json
      */
     private void generateHtmlReport(Project project, PrintStream out, TestReport testReport, Target target) {
+
+        if (!report && !coverage) {
+            return;
+        }
+        if (testReport.getModuleStatus().size() <= 0) {
+            return;
+        }
+
+        out.println();
+        out.println("Generating Test Report");
+
         Path reportDir;
         try {
             reportDir = target.getReportPath();
         } catch (IOException e) {
             throw createLauncherException("error while creating report directory in target", e);
         }
-        if ((report || coverage) && (testReport.getModuleStatus().size() > 0)) {
-            out.println();
-            out.println("Generating Test Report");
 
-            // Set projectName in test report
-            String projectName;
-            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                projectName = ProjectUtils.getJarFileName(project.currentPackage().getDefaultModule())
-                        + ProjectConstants.BLANG_SOURCE_EXT;
-            } else {
-                projectName = project.currentPackage().packageName().toString();
-            }
-            testReport.setProjectName(projectName);
-            testReport.finalizeTestResults(coverage);
+        // Set projectName in test report
+        String projectName;
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            projectName = ProjectUtils.getJarFileName(project.currentPackage().getDefaultModule())
+                    + ProjectConstants.BLANG_SOURCE_EXT;
+        } else {
+            projectName = project.currentPackage().packageName().toString();
+        }
+        testReport.setProjectName(projectName);
+        testReport.finalizeTestResults(coverage);
 
-            Gson gson = new Gson();
-            String json = gson.toJson(testReport).replaceAll("\\\\\\(", "(");
+        Gson gson = new Gson();
+        String json = gson.toJson(testReport).replaceAll("\\\\\\(", "(");
 
-            File jsonFile = new File(target.path().resolve(RESULTS_JSON_FILE).toString());
-            try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-                writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                out.println("\t" + Paths.get("").toAbsolutePath().
-                        relativize(Paths.get(jsonFile.getCanonicalPath())) + "\n");
+        File jsonFile = new File(reportDir.resolve(RESULTS_JSON_FILE).toString());
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            out.println("\t" + jsonFile.getAbsolutePath() + "\n");
+        } catch (IOException e) {
+            throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
+        }
+
+        Path reportZipPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
+                resolve(TesterinaConstants.TOOLS_DIR_NAME).resolve(TesterinaConstants.COVERAGE_DIR).
+                resolve(REPORT_ZIP_NAME);
+        if (Files.exists(reportZipPath)) {
+            String content;
+            try {
+                CodeCoverageUtils.unzipReportResources(new FileInputStream(reportZipPath.toFile()),
+                        reportDir.toFile());
+                content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
+                content = content.replace(REPORT_DATA_PLACEHOLDER, json);
             } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
+                throw createLauncherException("error occurred while preparing test report: " + e.toString());
             }
-
-            Path reportZipPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
-                    resolve(TesterinaConstants.TOOLS_DIR_NAME).resolve(TesterinaConstants.COVERAGE_DIR).
-                    resolve(REPORT_ZIP_NAME);
-            if (Files.exists(reportZipPath)) {
-                String content;
-                try {
-                    CodeCoverageUtils.unzipReportResources(new FileInputStream(reportZipPath.toFile()),
-                            reportDir.toFile());
-                    content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
-                    content = content.replace(REPORT_DATA_PLACEHOLDER, json);
-                } catch (IOException e) {
-                    throw createLauncherException("error occurred while preparing test report: " + e.toString());
-                }
-                File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
-                try (Writer writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8)) {
-                    writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                    out.println("\tView the test report at: " + FILE_PROTOCOL + htmlFile.getAbsolutePath());
-                } catch (IOException e) {
-                    throw createLauncherException("couldn't read data from the Json file : " + e.toString());
-                }
-            } else {
-                String reportToolsPath = "<" + BALLERINA_HOME + ">" + File.separator + BALLERINA_HOME_LIB +
-                        File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator +
-                        REPORT_ZIP_NAME;
-                out.println("warning: Could not find the required HTML report tools for code coverage at "
-                    + reportToolsPath);
+            File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
+            try (Writer writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8)) {
+                writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                out.println("\tView the test report at: " +
+                        FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize().toString());
+            } catch (IOException e) {
+                throw createLauncherException("couldn't read data from the Json file : " + e.toString());
             }
+        } else {
+            String reportToolsPath = "<" + BALLERINA_HOME + ">" + File.separator + BALLERINA_HOME_LIB +
+                    File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator +
+                    REPORT_ZIP_NAME;
+            out.println("warning: Could not find the required HTML report tools for code coverage at "
+                + reportToolsPath);
         }
     }
 

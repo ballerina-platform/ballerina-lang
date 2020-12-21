@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
@@ -352,6 +353,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangResourceFunction funcNode) {
+        visit((BLangFunction) funcNode);
+    }
+
+    @Override
     public void visit(BLangFunction funcNode) {
         this.currDependentSymbol.push(funcNode.symbol);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
@@ -502,7 +508,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 this.uninitializedVars.remove(variable.symbol);
                 return;
             }
-
+            // Required configurations will be initialized at the run time
+            long varFlags = variable.symbol.flags;
+            if (Symbols.isFlagOn(varFlags, Flags.CONFIGURABLE) && Symbols.isFlagOn(varFlags, Flags.REQUIRED)) {
+                return;
+            }
             // Handle package/object level variables
             BSymbol owner = variable.symbol.owner;
             if (owner.tag != SymTag.PACKAGE && owner.tag != SymTag.OBJECT) {

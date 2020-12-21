@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -87,7 +87,7 @@ public class RecordFieldWithDefaultValueNodeContext extends
     private List<LSCompletionItem> getNewExprCompletionItems(CompletionContext context, Node typeNameNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        Optional<ObjectTypeSymbol> objectType;
+        Optional<ClassSymbol> objectType;
         if (this.onQualifiedNameIdentifier(context, typeNameNode)) {
             String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeNameNode));
             Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, modulePrefix);
@@ -97,16 +97,16 @@ public class RecordFieldWithDefaultValueNodeContext extends
             String identifier = ((QualifiedNameReferenceNode) typeNameNode).identifier().text();
             ModuleSymbol moduleSymbol = module.get();
             Stream<Symbol> classesAndTypes = Stream.concat(moduleSymbol.classes().stream(),
-                                                           moduleSymbol.typeDefinitions().stream());
+                    moduleSymbol.typeDefinitions().stream());
             objectType = classesAndTypes
-                    .filter(symbol -> SymbolUtil.isObject(symbol) && symbol.name().equals(identifier))
-                    .map(SymbolUtil::getTypeDescForObjectSymbol)
+                    .filter(symbol -> SymbolUtil.isClass(symbol) && symbol.name().equals(identifier))
+                    .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else if (typeNameNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) typeNameNode).name().text();
             objectType = visibleSymbols.stream()
-                    .filter(symbol -> SymbolUtil.isObject(symbol) && symbol.name().equals(identifier))
-                    .map(SymbolUtil::getTypeDescForObjectSymbol)
+                    .filter(symbol -> SymbolUtil.isClass(symbol) && symbol.name().equals(identifier))
+                    .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else {
             objectType = Optional.empty();

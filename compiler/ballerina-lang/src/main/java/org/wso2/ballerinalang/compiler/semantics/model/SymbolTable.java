@@ -48,7 +48,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -59,7 +58,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -68,7 +66,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -132,11 +129,11 @@ public class SymbolTable {
     public final BType stringArrayType = new BArrayType(stringType);
     public final BType jsonArrayType = new BArrayType(jsonType);
     public final BType anydataArrayType = new BArrayType(anydataType);
-    public final BType anyServiceType = new BServiceType(null);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
     public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
     public final BType anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
+    public final BType intStringFloatOrBoolean = BUnionType.create(null, intType, stringType, floatType, booleanType);
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
@@ -192,6 +189,7 @@ public class SymbolTable {
     public BPackageSymbol langXmlModuleSymbol;
     public BPackageSymbol langBooleanModuleSymbol;
     public BPackageSymbol langQueryModuleSymbol;
+    public BPackageSymbol langRuntimeModuleSymbol;
     public BPackageSymbol langTransactionModuleSymbol;
     public BPackageSymbol internalTransactionModuleSymbol;
 
@@ -244,7 +242,6 @@ public class SymbolTable {
         initializeType(anydataType, TypeKind.ANYDATA.typeName(), BUILTIN);
         initializeType(nilType, TypeKind.NIL.typeName(), BUILTIN);
         initializeType(neverType, TypeKind.NEVER.typeName(), BUILTIN);
-        initializeType(anyServiceType, TypeKind.SERVICE.typeName(), BUILTIN);
         initializeType(handleType, TypeKind.HANDLE.typeName(), BUILTIN);
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName(), BUILTIN);
         initializeType(readonlyType, TypeKind.READONLY.typeName(), BUILTIN);
@@ -270,7 +267,7 @@ public class SymbolTable {
                                                                 names.fromString("$anonType$TRUE"),
                                                                 rootPkgNode.packageID, null, rootPkgNode.symbol.owner,
                                                                 this.builtinPos, VIRTUAL);
-        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{
+        this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<>() {{
             add(trueLiteral);
         }});
     }
@@ -360,22 +357,19 @@ public class SymbolTable {
     }
 
     public void loadPredeclaredModules() {
-        Map<Name, BPackageSymbol> modules = new HashMap<>();
-        modules.put(Names.BOOLEAN, this.langBooleanModuleSymbol);
-        modules.put(Names.DECIMAL, this.langDecimalModuleSymbol);
-        modules.put(Names.ERROR, this.langErrorModuleSymbol);
-        modules.put(Names.FLOAT, this.langFloatModuleSymbol);
-        modules.put(Names.FUTURE, this.langFutureModuleSymbol);
-        modules.put(Names.INT, this.langIntModuleSymbol);
-        modules.put(Names.MAP, this.langMapModuleSymbol);
-        modules.put(Names.OBJECT, this.langObjectModuleSymbol);
-        modules.put(Names.STREAM, this.langStreamModuleSymbol);
-        modules.put(Names.STRING, this.langStringModuleSymbol);
-        modules.put(Names.TABLE, this.langTableModuleSymbol);
-        modules.put(Names.TYPEDESC, this.langTypedescModuleSymbol);
-        modules.put(Names.XML, this.langXmlModuleSymbol);
-
-        this.predeclaredModules = Collections.unmodifiableMap(modules);
+        this.predeclaredModules = Map.ofEntries(Map.entry(Names.BOOLEAN, this.langBooleanModuleSymbol),
+                                                Map.entry(Names.DECIMAL, this.langDecimalModuleSymbol),
+                                                Map.entry(Names.ERROR, this.langErrorModuleSymbol),
+                                                Map.entry(Names.FLOAT, this.langFloatModuleSymbol),
+                                                Map.entry(Names.FUTURE, this.langFutureModuleSymbol),
+                                                Map.entry(Names.INT, this.langIntModuleSymbol),
+                                                Map.entry(Names.MAP, this.langMapModuleSymbol),
+                                                Map.entry(Names.OBJECT, this.langObjectModuleSymbol),
+                                                Map.entry(Names.STREAM, this.langStreamModuleSymbol),
+                                                Map.entry(Names.STRING, this.langStringModuleSymbol),
+                                                Map.entry(Names.TABLE, this.langTableModuleSymbol),
+                                                Map.entry(Names.TYPEDESC, this.langTypedescModuleSymbol),
+                                                Map.entry(Names.XML, this.langXmlModuleSymbol));
     }
 
     private void initializeType(BType type, String name, SymbolOrigin origin) {

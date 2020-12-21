@@ -8,7 +8,7 @@
 
 {{/unless}}
 import ballerina/java;{{#if importJavaArraysModule}}
-import ballerina/java.arrays as jarrays;{{/if}}
+import ballerina/jarrays;{{/if}}
 
 # Ballerina object mapping for {{#if isInterface}}Java interface{{else}}{{#if isAbstract}}Java abstract class{{else}}Java class{{/if}}{{/if}} `{{className}}`.
 #

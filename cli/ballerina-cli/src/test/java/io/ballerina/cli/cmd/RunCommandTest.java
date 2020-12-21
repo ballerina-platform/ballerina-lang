@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+
 /**
  * Run command tests.
  *
@@ -51,26 +53,11 @@ public class RunCommandTest extends BaseCommandTest {
         runCommand.execute();
 
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
-                "\tfile_create.bal\n" +
-                "\n" +
-                "Running executable\n\n");
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("run-bal.txt"));
 
         Assert.assertTrue(tempFile.toFile().exists());
 
         Files.delete(tempFile);
-    }
-
-    @Test(description = "Run non .bal file")
-    public void testRunNonBalFile() throws IOException {
-        Path nonBalFilePath = this.testResources.resolve("non-bal-file").resolve("hello_world.txt");
-        RunCommand runCommand = new RunCommand(nonBalFilePath, printStream, false);
-        new CommandLine(runCommand).parse(nonBalFilePath.toString());
-        runCommand.execute();
-
-        String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.replaceAll("\r", "")
-                .contains("Invalid Ballerina source file(.bal): " + nonBalFilePath.toString()));
     }
 
     @Test(description = "Run non existing bal file")
@@ -87,20 +74,6 @@ public class RunCommandTest extends BaseCommandTest {
 
     }
 
-    @Test(description = "Run bal file with no entry")
-    public void testRunBalFileWithNoEntry() {
-        // valid source root path
-        Path projectPath = this.testResources.resolve("valid-bal-file-with-no-entry").resolve("hello_world.bal");
-        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
-        // non existing bal file
-        new CommandLine(runCommand).parse(projectPath.toString());
-        try {
-            runCommand.execute();
-        } catch (RuntimeException e) {
-            Assert.assertTrue(e.getMessage().contains("no entrypoint found in package"));
-        }
-    }
-
     @Test(description = "Run bal file containing syntax error")
     public void testRunBalFileWithSyntaxError() {
         // valid source root path
@@ -115,26 +88,8 @@ public class RunCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Run a valid ballerina file", enabled = false)
-    public void testRunValidBalProject() throws IOException {
-        Path projectPath = this.testResources.resolve("validRunProject");
-
-        System.setProperty("user.dir", projectPath.toString());
-        Path tempFile = projectPath.resolve("temp.txt");
-        // set valid source root
-        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
-        // name of the file as argument
-        new CommandLine(runCommand).parse(tempFile.toString());
-
-        Assert.assertFalse(tempFile.toFile().exists());
-        runCommand.execute();
-        Assert.assertTrue(tempFile.toFile().exists());
-
-        Files.delete(tempFile);
-    }
-
     @Test(description = "Run a valid ballerina file from a different directory")
-    public void testRunValidBalProjectFromDifferentDirectory() throws IOException {
+    public void testRunValidBalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validRunProject");
 
         Path tempFile = projectPath.resolve("temp.txt");

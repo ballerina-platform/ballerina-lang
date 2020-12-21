@@ -14,17 +14,71 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/start_stop_failing_project.basic as basic;
-import testorg/start_stop_failing_project.dependent as dependent;
-import ballerina/io;
+import ballerina/java;
 
 function init() {
-	io:println("Initializing module 'current'");
+	println("Initializing module 'basic'");
 }
 
 public function main() {
-    dependent:sample();
-    io:println("main function invoked for current module");
 }
 
-listener basic:TestListener ep = new basic:TestListener("current");
+public class TestListener {
+
+    private string name = "";
+
+    public function init(string name){
+        self.name = name;
+    }
+
+    public function 'start() returns error? {
+        println("basic:TestListener listener __start called, service name - " + self.name);
+        if (self.name == "dependent") {
+            println("listener __start panicked for service name - " + self.name);
+            error sampleErr = error("panicked while starting module 'dependent'");
+            panic sampleErr;
+        }
+    }
+
+    public function gracefulStop() returns error? {
+        println("basic:TestListener listener __gracefulStop called, service name - " + self.name);
+        if (self.name == "dependent") {
+            println("listener __gracefulStop panicked, service name - " + self.name);
+            error sampleErr = error("panicked while stopping module 'dependent'");
+            panic sampleErr;
+        }
+        return ();
+    }
+
+    public function immediateStop() returns error? {
+        println("basic:TestListener listener __immediateStop called, service name - " + self.name);
+        return ();
+    }
+
+    public function attach(service object {} s, string[]? name) returns error? {
+        println("basic:TestListener listener __attach called, service name - " + self.name);
+    }
+
+    public function detach(service object {} s) returns error? {
+        println("basic:TestListener listener __detach called, service name - " + self.name);
+    }
+}
+
+listener TestListener testListnr = new TestListener("basic");
+
+public function println(string value) {
+    handle strValue = java:fromString(value);
+    handle stdout1 = stdout();
+    printlnInternal(stdout1, strValue);
+}
+
+function stdout() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java/lang/System"
+} external;
+
+function printlnInternal(handle receiver, handle strValue)  = @java:Method {
+    name: "println",
+    'class: "java/io/PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;

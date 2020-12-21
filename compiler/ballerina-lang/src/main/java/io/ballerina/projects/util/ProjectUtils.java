@@ -22,12 +22,14 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.ProjectException;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
+import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -36,6 +38,9 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -239,6 +244,12 @@ public class ProjectUtils {
         return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
     }
 
+    public static Path getChoreoRuntimeJarPath() {
+        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
+        String runtimeJarName = "ballerina-choreo-extension-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
+    }
+
     public static List<Path> testDependencies() {
         List<Path> dependencies = new ArrayList<>();
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
@@ -340,7 +351,7 @@ public class ProjectUtils {
                         s.append(c);
                     }
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new ProjectException(e);
                 }
                 if (c != '\n') {
                     s.append('\n');
@@ -438,5 +449,24 @@ public class ProjectUtils {
     public static boolean isModuleExist(Path projectPath, String moduleName) {
         Path modulePath = projectPath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
         return Files.exists(modulePath);
+    }
+
+    /**
+     * Initialize proxy if proxy is available in settings.toml.
+     *
+     * @param proxy toml model proxy
+     * @return proxy
+     */
+    public static Proxy initializeProxy(org.ballerinalang.toml.model.Proxy proxy) {
+        if (!"".equals(proxy.getHost())) {
+            InetSocketAddress proxyInet = new InetSocketAddress(proxy.getHost(), proxy.getPort());
+            if (!"".equals(proxy.getUserName()) && "".equals(proxy.getPassword())) {
+                Authenticator authenticator = new URIDryConverter.RemoteAuthenticator();
+                Authenticator.setDefault(authenticator);
+            }
+            return new Proxy(Proxy.Type.HTTP, proxyInet);
+        }
+
+        return null;
     }
 }

@@ -17,11 +17,15 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
+import io.ballerina.projects.util.ProjectConstants;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,17 +44,29 @@ public class SingleFileProject extends Project {
      */
     public static SingleFileProject load(ProjectEnvironmentBuilder environmentBuilder, Path filePath) {
         PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(filePath);
-        SingleFileProject singleFileProject = new SingleFileProject(environmentBuilder, filePath);
+        SingleFileProject singleFileProject = new SingleFileProject(
+                environmentBuilder, filePath, new BuildOptionsBuilder().build());
         singleFileProject.addPackage(packageConfig);
         return singleFileProject;
     }
 
     public static SingleFileProject load(Path filePath) {
-        return load(ProjectEnvironmentBuilder.getDefaultBuilder(), filePath);
+        return load(filePath, new BuildOptionsBuilder().build());
     }
 
-    private SingleFileProject(ProjectEnvironmentBuilder environmentBuilder, Path filePath) {
-        super(ProjectKind.SINGLE_FILE_PROJECT, createTempProjectRoot(), environmentBuilder);
+    public static SingleFileProject load(Path filePath, BuildOptions buildOptions) {
+        // todo this is an ugly hack to get the offline build working we need to refactor this later
+        System.setProperty(ProjectConstants.BALLERINA_OFFLINE_FLAG, String.valueOf(buildOptions.offlineBuild()));
+
+        PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(filePath);
+        ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        SingleFileProject singleFileProject = new SingleFileProject(environmentBuilder, filePath, buildOptions);
+        singleFileProject.addPackage(packageConfig);
+        return singleFileProject;
+    }
+
+    private SingleFileProject(ProjectEnvironmentBuilder environmentBuilder, Path filePath, BuildOptions buildOptions) {
+        super(ProjectKind.SINGLE_FILE_PROJECT, createTempProjectRoot(), environmentBuilder, buildOptions);
         populateCompilerContext();
     }
 
@@ -58,7 +74,7 @@ public class SingleFileProject extends Project {
         try {
             return Files.createTempDirectory("ballerina-project" + System.nanoTime());
         } catch (IOException e) {
-            throw new RuntimeException("error while creating project root directory for single file execution. ", e);
+            throw new ProjectException("error while creating project root directory for single file execution. ", e);
         }
     }
 }

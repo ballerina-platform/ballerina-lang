@@ -28,9 +28,9 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -150,10 +150,10 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
 
     private int rankModuleName(String label) {
         if (label.startsWith("ballerina/lang.")) {
-            return 2;
+            return 1;
         }
         if (label.startsWith("ballerina/")) {
-            return 1;
+            return 2;
         }
 
         return 3;
@@ -167,11 +167,11 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         if (!label.contains(SLASH)) {
             return 2;
         }
-        if (label.startsWith("ballerina/lang.")) {
-            return 4;
-        }
         if (label.startsWith("ballerina/")) {
             return 3;
+        }
+        if (label.startsWith("ballerina/lang.")) {
+            return 4;
         }
 
         return 5;
@@ -183,9 +183,6 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         List<Package> packagesList = LSPackageLoader.getDistributionRepoPackages();
 
         packagesList.forEach(pkg -> {
-            if (this.isPreDeclaredLangLib(pkg)) {
-                return;
-            }
             String orgName = pkg.packageOrg().value();
             String pkgName = pkg.packageName().value();
             String fullPkgNameLabel = orgName + SLASH + pkgName;

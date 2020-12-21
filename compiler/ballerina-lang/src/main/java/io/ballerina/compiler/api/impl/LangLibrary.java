@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -42,6 +43,8 @@ import java.util.Map;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 
 
 /**
@@ -98,7 +101,24 @@ public class LangLibrary {
      */
     public List<FunctionSymbol> getMethods(TypeDescKind typeDescKind) {
         String langLibName = getAssociatedLangLibName(typeDescKind);
+        return getMethods(langLibName);
+    }
 
+    /**
+     * Given an internal type kind, return the list of lang library functions that can be called using a method call
+     * expr, on an expression of that type.
+     *
+     * @param typeKind A type kind
+     * @return The associated list of lang library functions
+     */
+    public List<FunctionSymbol> getMethods(TypeKind typeKind) {
+        String langLibName = getAssociatedLangLibName(typeKind);
+        return getMethods(langLibName);
+    }
+
+    // Private Methods
+
+    private List<FunctionSymbol> getMethods(String langLibName) {
         if (wrappedLangLibMethods.containsKey(langLibName)) {
             return wrappedLangLibMethods.get(langLibName);
         }
@@ -117,8 +137,6 @@ public class LangLibrary {
         return wrappedMethods;
     }
 
-    // Private Methods
-
     private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib) {
         for (Map.Entry<String, BInvokableSymbol> entry : langLib.entrySet()) {
             FunctionSymbol method = symbolFactory.createFunctionSymbol(entry.getValue(), entry.getKey());
@@ -128,15 +146,50 @@ public class LangLibrary {
 
     private String getAssociatedLangLibName(TypeDescKind typeDescKind) {
         switch (typeDescKind) {
-            case INT:
-            case BYTE:
-                return INT.getName();
             case ARRAY:
             case TUPLE:
                 return ARRAY.getName();
             case RECORD:
             case MAP:
                 return MAP.getName();
+            case FLOAT:
+            case DECIMAL:
+            case BOOLEAN:
+            case STREAM:
+            case OBJECT:
+            case ERROR:
+            case FUTURE:
+            case TYPEDESC:
+            case TABLE:
+                return typeDescKind.getName();
+            default:
+                if (typeDescKind.isIntegerType()) {
+                    return INT.getName();
+                }
+
+                if (typeDescKind.isXMLType()) {
+                    return XML.getName();
+                }
+
+                if (typeDescKind.isStringType()) {
+                    return STRING.getName();
+                }
+
+                return LANG_VALUE;
+        }
+    }
+
+    private String getAssociatedLangLibName(TypeKind typeKind) {
+        switch (typeKind) {
+            case INT:
+            case BYTE:
+                return TypeKind.INT.typeName();
+            case ARRAY:
+            case TUPLE:
+                return TypeKind.ARRAY.typeName();
+            case RECORD:
+            case MAP:
+                return TypeKind.MAP.typeName();
             case FLOAT:
             case DECIMAL:
             case STRING:
@@ -148,7 +201,7 @@ public class LangLibrary {
             case TYPEDESC:
             case XML:
             case TABLE:
-                return typeDescKind.getName();
+                return typeKind.typeName();
             default:
                 return LANG_VALUE;
         }

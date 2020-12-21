@@ -1,5 +1,6 @@
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 //apply plugin: 'jacoco'
 
@@ -23,9 +24,9 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
     implementation project(':language-server:language-server-commons')
-    implementation project(':language-server:language-server-compiler')
     implementation project(':language-server:language-server-core')
     implementation project(':language-server:language-server-cli')
+    implementation 'org.apache.commons:commons-lang3'
 
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-tool')
@@ -35,10 +36,14 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.1.2'
 
     testCompile 'org.testng:testng'
+
+    compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '11.0.0'
+    compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '11.0.0'
 }
 
 test {
-    systemProperty "ballerina.home", "$buildDir/ballerina-home/test/"
+    dependsOn loadDistributionCache
+    systemProperty "ballerina.home", "$buildDir/"
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
     useTestNG() {

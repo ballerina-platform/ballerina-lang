@@ -19,7 +19,7 @@ package org.ballerinalang.stdlib.task.utils;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -114,13 +114,13 @@ public class Utils {
      *       Issue: https://github.com/ballerina-platform/ballerina-lang/issues/14148
      */
     public static void validateService(ServiceInformation serviceInformation) throws SchedulingException {
-        AttachedFunctionType[] resources = serviceInformation.getService().getType().getAttachedFunctions();
+        MemberFunctionType[] resources = serviceInformation.getService().getType().getAttachedFunctions();
         if (resources.length != VALID_RESOURCE_COUNT) {
             throw new SchedulingException(
                     "Invalid number of resources found in service \'" + serviceInformation.getServiceName()
                             + "\'. Task service should include only one resource.");
         }
-        AttachedFunctionType resource = resources[0];
+        MemberFunctionType resource = resources[0];
 
         if (RESOURCE_ON_TRIGGER.equals(resource.getName())) {
             validateOnTriggerResource(resource.getReturnParameterType());

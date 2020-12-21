@@ -36,6 +36,8 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
+import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+
 /**
  * Build command tests.
  *
@@ -119,14 +121,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parse();
         testCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
-                "\tfoo/winery:0.1.0\n" +
-                "\n" +
-                "Creating balos\n" +
-                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
-                "\n" +
-                "Running Tests\n" +
-                "\twinery\n");
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("test-project.txt"));
     }
 
     @Test(description = "Build a valid ballerina project")
@@ -147,14 +142,7 @@ public class TestCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parse(projectPath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
-                "\tfoo/winery:0.1.0\n" +
-                "\n" +
-                "Creating balos\n" +
-                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
-                "\n" +
-                "Running Tests\n" +
-                "\twinery\n");
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("test-project.txt"));
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

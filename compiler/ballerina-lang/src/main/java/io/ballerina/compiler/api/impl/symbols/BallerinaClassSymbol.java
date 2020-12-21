@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -50,15 +51,18 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
 
     private final ObjectTypeSymbol typeDescriptor;
     private final List<Qualifier> qualifiers;
+    private final List<AnnotationSymbol> annots;
     private final boolean deprecated;
     private final BClassSymbol internalSymbol;
     private final CompilerContext context;
     private MethodSymbol initMethod;
 
     protected BallerinaClassSymbol(CompilerContext context, String name, PackageID moduleID, List<Qualifier> qualifiers,
-                                   ObjectTypeSymbol typeDescriptor, BClassSymbol classSymbol) {
+                                   List<AnnotationSymbol> annots, ObjectTypeSymbol typeDescriptor,
+                                   BClassSymbol classSymbol) {
         super(name, moduleID, SymbolKind.CLASS, classSymbol);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.annots = Collections.unmodifiableList(annots);
         this.typeDescriptor = typeDescriptor;
         this.deprecated = Symbols.isFlagOn(classSymbol.flags, Flags.DEPRECATED);
         this.internalSymbol = classSymbol;
@@ -93,8 +97,8 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     }
 
     @Override
-    public List<TypeQualifier> typeQualifiers() {
-        return this.typeDescriptor.typeQualifiers();
+    public List<AnnotationSymbol> annotations() {
+        return this.annots;
     }
 
     @Override
@@ -151,6 +155,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     public static class ClassSymbolBuilder extends SymbolBuilder<BallerinaClassSymbol.ClassSymbolBuilder> {
 
         protected List<Qualifier> qualifiers = new ArrayList<>();
+        protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected ObjectTypeSymbol typeDescriptor;
         protected CompilerContext context;
 
@@ -169,9 +174,14 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
             return this;
         }
 
+        public ClassSymbolBuilder withAnnotation(AnnotationSymbol annot) {
+            this.annots.add(annot);
+            return this;
+        }
+
         @Override
         public BallerinaClassSymbol build() {
-            return new BallerinaClassSymbol(this.context, this.name, this.moduleID, this.qualifiers,
+            return new BallerinaClassSymbol(this.context, this.name, this.moduleID, this.qualifiers, this.annots,
                                             this.typeDescriptor, (BClassSymbol) this.bSymbol);
         }
     }

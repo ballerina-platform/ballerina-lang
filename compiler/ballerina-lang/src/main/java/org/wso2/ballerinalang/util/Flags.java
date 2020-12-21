@@ -26,6 +26,7 @@ import java.util.Set;
  * @since 0.94
  */
 public class Flags {
+
     public static final long PUBLIC = 1;                                        //  0
     public static final long NATIVE = PUBLIC << 1;                              //  1
     public static final long FINAL = NATIVE << 1;                               //  2
@@ -66,9 +67,16 @@ public class Flags {
     public static final long CLASS = DISTINCT << 1;                             //  28
     public static final long ISOLATED = CLASS << 1;                             //  29
     public static final long ISOLATED_PARAM = ISOLATED << 1;                    //  30
+    public static final long CONFIGURABLE = ISOLATED_PARAM << 1;                //  31
+    public static final long OBJECT_CTOR = CONFIGURABLE << 1;                   //  32
 
-    public static int asMask(Set<Flag> flagSet) {
-        int mask = 0;
+
+    public static final long ENUM = OBJECT_CTOR << 1;                           //  33
+    public static final long INCLUDED = ENUM << 1;                              //  34
+
+
+    public static long asMask(Set<Flag> flagSet) {
+        long mask = 0;
         for (Flag flag : flagSet) {
             switch (flag) {
                 case PUBLIC:
@@ -154,6 +162,18 @@ public class Flags {
                     break;
                 case ISOLATED:
                     mask |= ISOLATED;
+                    break;
+                case CONFIGURABLE:
+                    mask |= CONFIGURABLE;
+                    break;
+                case OBJECT_CTOR:
+                    mask |= OBJECT_CTOR;
+                    break;
+                case ENUM:
+                    mask |= ENUM;
+                    break;
+                case INCLUDED:
+                    mask |= INCLUDED;
                     break;
             }
         }
@@ -242,6 +262,18 @@ public class Flags {
                     break;
                 case ISOLATED:
                     flagVal = ISOLATED;
+                    break;
+                case CONFIGURABLE:
+                    flagVal = CONFIGURABLE;
+                    break;
+                case OBJECT_CTOR:
+                    flagVal = OBJECT_CTOR;
+                    break;
+                case ENUM:
+                    flagVal = ENUM;
+                    break;
+                case INCLUDED:
+                    flagVal = INCLUDED;
                     break;
                 default:
                     continue;

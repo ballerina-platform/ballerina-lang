@@ -78,6 +78,7 @@ dependencies {
     dist 'org.apache.commons:commons-compress:1.18'
     dist 'me.tongfei:progressbar:0.7.4'
     dist 'org.jline:jline:3.11.0'
+    dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
 
     // Following dependencies are required for kraal library
     dist 'org.jetbrains.kotlin:kotlin-stdlib:1.3.31'
@@ -109,11 +110,10 @@ dependencies {
     dist project(':formatter:formatter-cli')
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')
-    dist project(':language-server:language-server-compiler')
+    dist project(':diagram-util')
     dist project(':language-server:language-server-commons')
-    dist project(':ballerina-packerina')
     dist project(':docerina')
-    dist project(':observerability-symbol-collector')
+    dist project(':observability-symbol-collector')
     dist project(':testerina:testerina-runtime')
     docerina project(':docerina-gradle-plugin')
 
@@ -163,6 +163,7 @@ dependencies {
     balDoc project(path: ':ballerina-lang:value', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:xml', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:bool', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:runtime', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:query', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:transaction', configuration: 'balDoc')
 
@@ -179,6 +180,7 @@ dependencies {
     distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:runtime', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')

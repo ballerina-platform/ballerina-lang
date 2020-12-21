@@ -18,6 +18,7 @@
 package org.ballerinalang.test.isolation;
 
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -57,6 +58,14 @@ public class IsolatedObjectTest {
         validateError(result, i++, "incompatible types: expected 'Baz', found 'Bar'", 79, 14);
         validateError(result, i++, "incompatible types: expected 'Qux', found 'Quux'", 81, 14);
         validateError(result, i++, "incompatible types: expected 'Foo', found 'Quux'", 83, 19);
+        validateError(result, i++, "incompatible types: expected 'isolated object { }', " +
+                "found 'object { final int[] x; final NonIsolatedClass y; }'", 96, 37);
+        validateError(result, i++, "incompatible types: expected 'isolated object { int x; }', found 'object { " +
+                "private int x; }'", 101, 42);
+        validateError(result, i++, "incompatible types: expected 'isolated object { }', found 'object { private int " +
+                "x; }'", 106, 38);
+        validateError(result, i++, "incompatible types: expected 'isolated object { int x; }', found 'object { " +
+                "private int x; }'", 109, 46);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -71,8 +80,8 @@ public class IsolatedObjectTest {
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 32, 5);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 47, 6);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 47, 6);
-        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 55, 97);
-        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 55, 97);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 55, 106);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 55, 106);
         validateError(result, i++,
                       "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 71, 39);
         validateError(result, i++,
@@ -178,5 +187,7 @@ public class IsolatedObjectTest {
     public void testIsolatedObjects() {
         CompileResult compileResult = BCompileUtil.compile("test-src/isolated-objects/isolated_objects.bal");
         Assert.assertEquals(compileResult.getDiagnostics().length, 0);
+
+        BRunUtil.invoke(compileResult, "testRuntimeIsolatedFlag");
     }
 }

@@ -8,3 +8,4 @@ io.ballerina.cli.cmd.PullCommand
 io.ballerina.cli.cmd.PushCommand
 io.ballerina.cli.cmd.SearchCommand
 io.ballerina.cli.cmd.AddCommand
+io.ballerina.cli.cmd.CleanCommand

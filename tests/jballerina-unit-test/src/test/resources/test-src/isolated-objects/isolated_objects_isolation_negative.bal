@@ -27,7 +27,7 @@ isolated class InvalidIsolatedClassWithNonPrivateMutableFields {
 
 type IsolatedObject isolated object {};
 
-IsolatedObject invalidIsolatedObjectConstructorWithNonPrivateMutableFields = object {
+IsolatedObject invalidIsolatedObjectConstructorWithNonPrivateMutableFields = isolated object {
     int a;
     public map<int> b;
     private final string c = "invalid";
@@ -52,7 +52,7 @@ isolated class InvalidIsolatedClassNotOverridingMutableFieldsInIncludedIsolatedO
     }
 }
 
-IsolatedObject invalidIsolatedObjectNotOverridingMutableFieldsInIncludedIsolatedObject = object IsolatedObjectType {
+IsolatedObject invalidIsolatedObjectNotOverridingMutableFieldsInIncludedIsolatedObject = isolated object IsolatedObjectType {
    function init() {
        self.a = 1;
        self.b = [];
@@ -83,7 +83,7 @@ isolated class InvalidIsolatedClassAccessingMutableFieldsOutsideLock {
 }
 
 function testInvalidIsolatedObjectConstructorAccessingMutableFieldsOutsideLock() {
-    isolated object {} invalidIsolatedObjectConstructorAccessingMutableFieldsOutsideLock = object {
+    isolated object {} invalidIsolatedObjectConstructorAccessingMutableFieldsOutsideLock = isolated object {
         final int a = 1;
         private string b = "hello";
         private int[] c = [];
@@ -137,7 +137,7 @@ isolated class InvalidIsolatedClassWithNonUniqueInitializerExprs {
 }
 
 function testInvalidIsolatedObjectWithNonUniqueInitializerExprs() {
-    isolated object {} invalidIsolatedObjectWithNonUniqueInitializerExprs = object {
+    isolated object {} invalidIsolatedObjectWithNonUniqueInitializerExprs = isolated object {
         private int[][] a = [globIntArr, globIntArr];
         private map<boolean> b = globBoolMap;
         private record {} c = {[globStr]: accessGlobBoolMap(globStr)};
@@ -198,7 +198,7 @@ isolated class InvalidIsolatedClassWithInvalidCopyIn {
     }
 }
 
-IsolatedObject invalidIsolatedObjectWithInvalidCopyIn = object {
+IsolatedObject invalidIsolatedObjectWithInvalidCopyIn = isolated object {
     public final record {} & readonly a = {"type": "final"};
     private int b = 0;
     private map<boolean>[] c = [];
@@ -267,7 +267,7 @@ isolated class InvalidIsolatedClassWithInvalidCopyOut {
 }
 
 function testInvalidIsolatedObjectWithInvalidCopyOut() {
-    isolated object {} invalidIsolatedObjectWithInvalidCopyOut = object {
+    isolated object {} invalidIsolatedObjectWithInvalidCopyOut = isolated object {
         private map<boolean>[] c = [];
 
         isolated function invalidCopyOutOne(map<boolean>[] boolMaps) returns map<boolean> {
@@ -314,7 +314,7 @@ isolated class InvalidIsolatedClassWithNonIsolatedFunctionInvocation {
     }
 }
 
-IsolatedObject invalidIsolatedObjectWithNonIsolatedFunctionInvocation = object {
+IsolatedObject invalidIsolatedObjectWithNonIsolatedFunctionInvocation = isolated object {
     private int[] x = [];
 
     function testInvalidNonIsolatedInvocation() {
@@ -332,7 +332,7 @@ IsolatedObject invalidIsolatedObjectWithNonIsolatedFunctionInvocation = object {
 
 isolated class InvalidIsolatedClassWithNonInvalidObjectFields {
     IsolatedClass a = new; // Should be `final`
-    isolated object {} b = object { // Should be `final`
+    isolated object {} b = isolated object { // Should be `final`
         final int i = 1;
         private map<int> j = {};
     };

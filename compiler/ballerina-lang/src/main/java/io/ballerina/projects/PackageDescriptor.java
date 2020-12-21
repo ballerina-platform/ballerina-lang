@@ -26,6 +26,8 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class PackageDescriptor {
+    private static final String LANG_LIB_PACKAGE_NAME_PREFIX = "lang.";
+
     private final PackageName packageName;
     private final PackageOrg packageOrg;
     private final PackageVersion packageVersion;
@@ -55,6 +57,10 @@ public class PackageDescriptor {
         return packageVersion;
     }
 
+    public boolean isLangLibPackage() {
+        return org().isBallerinaOrg() && packageName.value().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX);
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) {
@@ -78,10 +84,10 @@ public class PackageDescriptor {
 
     @Override
     public String toString() {
-        return "PackageDescriptor{" +
-                "packageName=" + packageName +
-                ", packageOrg=" + packageOrg +
-                ", packageVersion=" + packageVersion +
-                '}';
+        String pkgStr = packageOrg + ":" + packageName;
+        if (packageVersion == null) {
+            return pkgStr;
+        }
+        return pkgStr + ":" + packageVersion;
     }
 }

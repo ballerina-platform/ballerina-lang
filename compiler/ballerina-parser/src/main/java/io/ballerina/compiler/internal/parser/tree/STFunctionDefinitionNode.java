@@ -35,6 +35,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     public final STNode qualifierList;
     public final STNode functionKeyword;
     public final STNode functionName;
+    public final STNode relativeResourcePath;
     public final STNode functionSignature;
     public final STNode functionBody;
 
@@ -44,6 +45,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
             STNode qualifierList,
             STNode functionKeyword,
             STNode functionName,
+            STNode relativeResourcePath,
             STNode functionSignature,
             STNode functionBody) {
         this(
@@ -52,6 +54,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
                 qualifierList,
                 functionKeyword,
                 functionName,
+                relativeResourcePath,
                 functionSignature,
                 functionBody,
                 Collections.emptyList());
@@ -63,6 +66,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
             STNode qualifierList,
             STNode functionKeyword,
             STNode functionName,
+            STNode relativeResourcePath,
             STNode functionSignature,
             STNode functionBody,
             Collection<STNodeDiagnostic> diagnostics) {
@@ -71,6 +75,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
         this.qualifierList = qualifierList;
         this.functionKeyword = functionKeyword;
         this.functionName = functionName;
+        this.relativeResourcePath = relativeResourcePath;
         this.functionSignature = functionSignature;
         this.functionBody = functionBody;
 
@@ -79,6 +84,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
                 qualifierList,
                 functionKeyword,
                 functionName,
+                relativeResourcePath,
                 functionSignature,
                 functionBody);
     }
@@ -90,6 +96,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
                 this.qualifierList,
                 this.functionKeyword,
                 this.functionName,
+                this.relativeResourcePath,
                 this.functionSignature,
                 this.functionBody,
                 diagnostics);
@@ -101,6 +108,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
             STNode qualifierList,
             STNode functionKeyword,
             STNode functionName,
+            STNode relativeResourcePath,
             STNode functionSignature,
             STNode functionBody) {
         if (checkForReferenceEquality(
@@ -108,6 +116,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
                 qualifierList,
                 functionKeyword,
                 functionName,
+                relativeResourcePath,
                 functionSignature,
                 functionBody)) {
             return this;
@@ -119,6 +128,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
                 qualifierList,
                 functionKeyword,
                 functionName,
+                relativeResourcePath,
                 functionSignature,
                 functionBody,
                 diagnostics);

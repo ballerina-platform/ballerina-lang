@@ -20,12 +20,13 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.projects.Package;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -58,8 +59,10 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         }
 
         List<Package> packagesList = new ArrayList<>(LSPackageLoader.getDistributionRepoPackages());
+        ArrayList<LSCompletionItem> completionItems = moduleNameContextCompletions(ctx, orgName, packagesList);
+        this.sort(ctx, node, completionItems);
 
-        return new ArrayList<>(moduleNameContextCompletions(ctx, orgName, packagesList));
+        return completionItems;
     }
 
     // TODO: Remove the duplicate code with the ImportDeclarationNodeContext
@@ -73,9 +76,6 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         List<String> pkgNameLabels = new ArrayList<>();
 
         packagesList.forEach(ballerinaPackage -> {
-            if (this.isPreDeclaredLangLib(ballerinaPackage)) {
-                return;
-            }
             String packageName = ballerinaPackage.packageName().value();
             String insertText;
             if (orgName.equals(ballerinaPackage.packageOrg().value()) && !pkgNameLabels.contains(packageName)) {
@@ -102,5 +102,17 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         item.setDetail(ItemResolverConstants.MODULE_TYPE);
 
         return new StaticCompletionItem(context, item, StaticCompletionItem.Kind.MODULE);
+    }
+
+    @Override
+    public void sort(CompletionContext context, ImportOrgNameNode node, List<LSCompletionItem> completionItems) {
+        String orgName = node.orgName().text();
+        if (!"ballerina".equals(orgName)) {
+            return;
+        }
+        completionItems.forEach(item -> {
+            int rank = item.getCompletionItem().getLabel().startsWith("lang.") ? 2 : 1;
+            item.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+        });
     }
 }
