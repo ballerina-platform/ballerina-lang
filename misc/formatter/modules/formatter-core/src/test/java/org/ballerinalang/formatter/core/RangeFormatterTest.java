@@ -58,7 +58,7 @@ public abstract class RangeFormatterTest {
             FormatterException {
         String content = getFileContent(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
-        SyntaxTree syntaxTree = SyntaxTree.from(textDocument, sourceFilePath.toString());
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
         for (LineRange lineRange : lineRanges) {
             syntaxTree = Formatter.format(syntaxTree, lineRange);
         }
