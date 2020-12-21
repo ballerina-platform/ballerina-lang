@@ -22,6 +22,7 @@ import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -36,11 +37,27 @@ import java.nio.file.Paths;
 public class TestTomlValidator {
     private static final PrintStream OUT = System.out;
 
-    public static void main(String [] args) throws IOException {
+    @Test
+    public void testC2CSchema() throws IOException {
         Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
         TomlValidator validator = new TomlValidator(Schema.from(resourceDirectory));
 
         Path sampleInput = Paths.get("src", "test", "resources", "validator", "sample.toml");
+
+        Toml toml = Toml.read(sampleInput);
+        validator.validate(toml);
+
+        for (Diagnostic d: toml.diagnostics()) {
+            OUT.println(d);
+        }
+    }
+
+    @Test
+    public void testBalManifestSchema() throws IOException {
+        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "bal-manifest-schema.json");
+        TomlValidator validator = new TomlValidator(Schema.from(resourceDirectory));
+
+        Path sampleInput = Paths.get("src", "test", "resources", "validator", "sample-bal-manifest.toml");
 
         Toml toml = Toml.read(sampleInput);
         validator.validate(toml);
