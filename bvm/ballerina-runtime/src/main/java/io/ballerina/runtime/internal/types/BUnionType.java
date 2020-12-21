@@ -178,6 +178,18 @@ public class BUnionType extends BType implements UnionType {
         return false;
     }
 
+    public void addMember(Type type) {
+        this.memberTypes.add(type);
+        if (type.isNilable()) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
+        }
+        if (!type.isAnydata()) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA);
+        }
+        if (!type.isPureType()) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
+        }
+    }
 
     private void setFlagsBasedOnMembers() {
         if (this.resolving) {
