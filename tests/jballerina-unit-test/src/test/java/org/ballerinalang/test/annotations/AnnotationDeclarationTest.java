@@ -65,13 +65,13 @@ public class AnnotationDeclarationTest {
         BAssertUtil.validateError(compileResult, 1,
                                   "annotation declaration requires a subtype of 'true', " +
                                           "'map<value:Cloneable>' or 'map<value:Cloneable>[]', " +
-                                          "but found 'true[]", 22, 12);
+                                          "but found 'true[]'", 22, 12);
     }
 
     @Test
     public void testAnnotWithInvalidConsts() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_consts.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 2);
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
         BAssertUtil.validateError(compileResult, 0, "expression is not a constant expression", 35, 14);
     }
 }
