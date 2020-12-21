@@ -19,12 +19,11 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -46,7 +45,7 @@ public class CodeActionRouter {
     /**
      * Returns a list of supported code actions.
      *
-     * @param ctx {@link LSContext}
+     * @param ctx {@link CodeActionContext}
      * @return list of code actions
      */
     public static List<CodeAction> getAvailableCodeActions(CodeActionContext ctx) {
@@ -58,7 +57,7 @@ public class CodeActionRouter {
         Optional<Node> matchedNode = CodeActionUtil.getTopLevelNode(ctx.cursorPosition(), syntaxTree);
         CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(matchedNode.orElse(null));
         SemanticModel semanticModel = ctx.workspace().semanticModel(ctx.filePath()).orElseThrow();
-        String relPath = ctx.filePath().toFile().getName();
+        String relPath = ctx.workspace().relativePath(ctx.filePath()).orElseThrow();
         if (matchedNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
             Range range = CommonUtil.toRange(matchedNode.get().lineRange());
             Node expressionNode = CodeActionUtil.largestExpressionNode(matchedNode.get(), range);

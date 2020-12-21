@@ -26,7 +26,6 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.projects.Module;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -44,6 +43,9 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
+import static org.ballerinalang.langserver.common.utils.CommonKeys.CLOSE_BRACE_KEY;
+import static org.ballerinalang.langserver.common.utils.CommonKeys.OPEN_BRACE_KEY;
+import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER_KEYWORD;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getPackageNameComponentsCombined;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getRecordFieldCompletionInsertText;
@@ -179,7 +181,7 @@ public class AnnotationUtil {
     private static String getAnnotationInsertText(@Nonnull String aliasComponent, AnnotationSymbol annotationSymbol) {
         StringBuilder annotationStart = new StringBuilder();
         if (!aliasComponent.isEmpty()) {
-            annotationStart.append(aliasComponent).append(CommonKeys.PKG_DELIMITER_KEYWORD);
+            annotationStart.append(aliasComponent).append(PKG_DELIMITER_KEYWORD);
         }
         if (annotationSymbol.typeDescriptor().isPresent()) {
             annotationStart.append(annotationSymbol.name());
@@ -194,7 +196,7 @@ public class AnnotationUtil {
             if (resultType.isPresent() && (resultType.get().typeKind() == TypeDescKind.RECORD
                     || resultType.get().typeKind() == TypeDescKind.MAP)) {
                 List<FieldSymbol> requiredFields = new ArrayList<>();
-                annotationStart.append(" ").append(CommonKeys.OPEN_BRACE_KEY).append(LINE_SEPARATOR);
+                annotationStart.append(" ").append(OPEN_BRACE_KEY).append(LINE_SEPARATOR);
                 if (resultType.get().typeKind() == TypeDescKind.RECORD) {
                     requiredFields.addAll(CommonUtil.getMandatoryRecordFields((RecordTypeSymbol) resultType.get()));
                 }
@@ -207,7 +209,7 @@ public class AnnotationUtil {
                 if (requiredFields.isEmpty()) {
                     annotationStart.append("\t").append("${1}");
                 }
-                annotationStart.append(LINE_SEPARATOR).append(CommonKeys.CLOSE_BRACE_KEY);
+                annotationStart.append(LINE_SEPARATOR).append(CLOSE_BRACE_KEY);
             }
         } else {
             annotationStart.append(annotationSymbol.name());
@@ -234,7 +236,7 @@ public class AnnotationUtil {
      * @return {@link String} Label string
      */
     private static String getAnnotationLabel(@Nonnull String aliasComponent, AnnotationSymbol annotation) {
-        String pkgComponent = !aliasComponent.isEmpty() ? aliasComponent + CommonKeys.PKG_DELIMITER_KEYWORD : "";
+        String pkgComponent = !aliasComponent.isEmpty() ? aliasComponent + PKG_DELIMITER_KEYWORD : "";
         return pkgComponent + annotation.name();
     }
 

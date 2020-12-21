@@ -24,7 +24,6 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
     implementation project(':language-server:language-server-commons')
-    implementation project(':language-server:language-server-compiler')
     implementation project(':language-server:language-server-core')
     implementation project(':language-server:language-server-cli')
     implementation 'org.apache.commons:commons-lang3'
