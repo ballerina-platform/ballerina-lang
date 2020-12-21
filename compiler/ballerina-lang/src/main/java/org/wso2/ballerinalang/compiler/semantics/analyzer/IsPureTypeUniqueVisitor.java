@@ -82,7 +82,7 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     }
 
     private boolean isPureType(BType type) {
-        return type.tag == TypeTags.ERROR || isAnydata(type);
+        return type.tag == TypeTags.ERROR || type.tag == TypeTags.READONLY || isAnydata(type);
     }
 
     @Override
