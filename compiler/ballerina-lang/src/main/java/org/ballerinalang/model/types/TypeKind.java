@@ -64,7 +64,6 @@ public enum TypeKind {
     JSON("json"),
     XML("xml"),
     ANY("any"),
-    ANYANDREADONLY("anyAndReadOnly"),
     ANYDATA("anydata"),
     MAP("map"),
     FUTURE("future"),

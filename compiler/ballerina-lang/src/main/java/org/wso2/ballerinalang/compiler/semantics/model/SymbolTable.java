@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -136,7 +137,7 @@ public class SymbolTable {
     public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
     public final BType anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
     public final BType intStringFloatOrBoolean = BUnionType.create(null, intType, stringType, floatType, booleanType);
-    public final BType anyAndReadonly;
+    public final BIntersectionType anyAndReadonly;
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
@@ -196,7 +197,6 @@ public class SymbolTable {
     public BPackageSymbol internalTransactionModuleSymbol;
 
     private Names names;
-    private SymbolTable symbolTable;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
 
@@ -213,7 +213,6 @@ public class SymbolTable {
         context.put(SYM_TABLE_KEY, this);
 
         this.names = Names.getInstance(context);
-        this.symbolTable = SymbolTable.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null, null, BUILTIN);
@@ -276,8 +275,8 @@ public class SymbolTable {
         }});
         this.anyAndReadonly =
                 ImmutableTypeCloner.getImmutableIntersectionType((SelectivelyImmutableReferenceType) this.anyType,
-                        this.symbolTable, names);
-        initializeType(this.anyAndReadonly, TypeKind.ANYANDREADONLY.typeName(), BUILTIN);
+                        this, names);
+        initializeType(this.anyAndReadonly, this.anyAndReadonly.effectiveType.name.getValue(), BUILTIN);
     }
 
     public BType getTypeFromTag(int tag) {
