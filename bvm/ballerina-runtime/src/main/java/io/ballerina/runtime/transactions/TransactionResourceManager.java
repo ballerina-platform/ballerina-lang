@@ -21,6 +21,7 @@ import com.atomikos.icatch.jta.UserTransactionManager;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
@@ -403,8 +404,8 @@ public class TransactionResourceManager {
         if (fpValueList != null) {
             for (int i = fpValueList.size(); i > 0; i--) {
                 BFunctionPointer fp = fpValueList.get(i - 1);
-                //TODO: Replace fp.getFunction().apply
-                fp.getFunction().apply(args);
+                AsyncUtils.invokeFunctionPointerAsync(fp, "trxCommit", COMMIT_METADATA, () -> args, result -> {
+                        }, Scheduler.getStrand().scheduler);
             }
         }
     }
@@ -416,8 +417,8 @@ public class TransactionResourceManager {
         if (fpValueList != null) {
             for (int i = fpValueList.size(); i > 0; i--) {
                 BFunctionPointer fp = fpValueList.get(i - 1);
-                //TODO: Replace fp.getFunction().apply
-                fp.getFunction().apply(args);
+                AsyncUtils.invokeFunctionPointerAsync(fp, "trxCommit", COMMIT_METADATA, () -> args, result -> {
+                        }, Scheduler.getStrand().scheduler);
             }
         }
     }

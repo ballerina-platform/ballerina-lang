@@ -62,8 +62,9 @@ public class AsyncUtils {
      * @return Future Value
      */
     public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, String strandName,
-                                                         StrandMetadata metadata, Object[] args, Function<Object,
-            Object> resultHandleFunction, Scheduler scheduler) {
+                                                         StrandMetadata metadata, Object[] args,
+                                                         Function<Object, Object> resultHandleFunction,
+                                                         Scheduler scheduler) {
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
             public void notifySuccess() {
@@ -90,6 +91,50 @@ public class AsyncUtils {
         callback.setStrand(parent);
         return scheduler.scheduleLocal(args, func, parent, future);
     }
+
+    /**
+     *
+     * @param func                 Function pointer to be invoked
+     * @param name                 Name for newly creating strand which is used to execute the function pointer
+     * @param metadata             Meta data of new strand.
+     * @param argsSupplier         Ballerina function arguments. Supplier provides dynamic arguments to function
+     *                             pointer execution
+     * @param futureResultConsumer Consumer used to process the future value received after execution of function.
+     *      *                      Future value result will have the return object of the function pointer.
+     * @param scheduler            The scheduler for invoking functions
+     * @return Future Value
+     */
+
+    public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, String name,
+                                                         StrandMetadata metadata, Supplier<Object[]> argsSupplier,
+                                                         Consumer<Object> futureResultConsumer, Scheduler scheduler) {
+        AsyncFunctionCallback callback = new AsyncFunctionCallback() {
+            @Override
+            public void notifySuccess() {
+                futureResultConsumer.accept(getFutureResult());
+            }
+
+            @Override
+            public void notifyFailure(BError error) {
+                handleRuntimeErrors(error);
+            }
+        };
+        return invokeFunctionPointerAsync(func, Scheduler.getStrand(), name, metadata,
+                argsSupplier, callback, scheduler);
+    }
+
+    public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, Strand parent, String name,
+                                                         StrandMetadata metadata, Supplier<Object[]> argsSupplier,
+                                                         AsyncFunctionCallback callback, Scheduler scheduler) {
+
+        final FutureValue future = scheduler.createFuture(parent, null, null,
+                ((BFunctionType) func.getType()).retType, name, metadata);
+        future.callback = callback;
+        callback.setFuture(future);
+        callback.setStrand(parent);
+        return scheduler.scheduleLocal(argsSupplier.get(), func, parent, future);
+    }
+
 
     public static void blockStrand(Strand strand) {
         if (!strand.blockedOnExtern) {
