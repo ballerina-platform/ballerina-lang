@@ -15,11 +15,12 @@
 // under the License.
 
 import ballerina/lang.'error as errorLib;
+import ballerina/lang.'value as valueLib;
 
 type Detail record {|
     string message?;
     error cause?;
-    (anydata|readonly)...;
+    valueLib:Cloneable...;
 |};
 
 public const CONNECTION_TIMED_OUT = "ConnectionTimedOut";
@@ -30,11 +31,11 @@ public type GenericError distinct error<Detail>;
 
 public type Error GenericError|TimeOutError;
 
-function testTypeTestingErrorUnion() returns [string, map<anydata|readonly>]? {
+function testTypeTestingErrorUnion() returns [string, map<valueLib:Cloneable>]? {
     Error? err = getError();
 
     if (err is Error) {
-        map<anydata|readonly> dt = err.detail();
+        map<valueLib:Cloneable> dt = err.detail();
         return [err.message(), dt];
     }
 }

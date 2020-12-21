@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'value;
 // ========================== Basics ==========================
 
 
@@ -872,7 +873,7 @@ function testFiniteTypeUnionAsFiniteTypeUnionNegative() returns boolean {
 }
 
 string reason = "error reason";
-map<anydata> detail = { code: 11, detail: "detail message" };
+map<value:Cloneable> detail = { code: 11, detail: "detail message" };
 
 function testTypeGuardForErrorPositive() returns boolean {
     any|error a1 = <error> error(reason);
@@ -889,7 +890,7 @@ function errorGuardHelper(any|error a1, any|error a2) returns boolean {
         error e3 = a1;
         error e4 = a2;
 
-        map<anydata|error> m = <map<anydata|error>> e4.detail();
+        map<value:Cloneable> m = <map<value:Cloneable>> e4.detail();
         return e3.message() == reason && e4.message() == reason && m == detail;
     }
     return false;
