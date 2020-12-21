@@ -794,9 +794,6 @@ public class Types {
                 return isAssignableRecordType((BRecordType) source, target, unresolvedTypes);
             }
 
-//            if (isAssignableToUnionType(source, target, unresolvedTypes)) {
-//                return true;
-//            }
         }
 
         if (targetTag == TypeTags.FUTURE && sourceTag == TypeTags.FUTURE) {
@@ -2519,7 +2516,7 @@ public class Types {
         Set<BType> targetTypes = new LinkedHashSet<>();
 
         TypePair pair = new TypePair(source, target);
-        if (!unresolvedTypes.add(pair)) {
+        if (unresolvedTypes.contains(pair)) {
             return true;
         }
 
@@ -2602,6 +2599,7 @@ public class Types {
             }
         }
 
+        unresolvedTypes.add(pair);
         return true;
     }
 
