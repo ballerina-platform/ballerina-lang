@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.LinkedHashMap;
@@ -64,29 +63,6 @@ public class Scope implements org.ballerinalang.model.Scope {
         }
 
         return entry;
-    }
-
-    public void renameTypeSymbol(Name name, Name newSymbolName) {
-        ScopeEntry entry = entries.get(name);
-        if (entry == null) {
-            return;
-        }
-        while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
-                entry = entry.next;
-                continue;
-            }
-            break;
-        }
-        assert entry.symbol.name.equals(name);
-        entry.symbol.name = newSymbolName;
-        entries.put(newSymbolName, entry);
-        entries.remove(name);
-//
-//        ScopeEntry entryAgain = entries.get(newSymbolName);
-//
-//        assert entry.symbol == entryAgain.symbol;
-//        assert entry.next.symbol == entryAgain.next.symbol;
     }
 
     /**
