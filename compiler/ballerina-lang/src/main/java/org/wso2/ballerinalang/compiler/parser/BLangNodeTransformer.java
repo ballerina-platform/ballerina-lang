@@ -3030,7 +3030,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Token token : functionTypeDescriptorNode.qualifierList()) {
             if (token.kind() == SyntaxKind.ISOLATED_KEYWORD) {
                 functionTypeNode.flagSet.add(Flag.ISOLATED);
-                break;
+            }
+            if (token.kind() == SyntaxKind.TRANSACTIONAL_KEYWORD) {
+                functionTypeNode.flagSet.add(Flag.TRANSACTIONAL);
             }
         }
 
