@@ -173,6 +173,61 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
+    @Override
+    public Object reverse() {
+        switch (elementType.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
+                for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
+                    long temp = intValues[j];
+                    intValues[j] = intValues[i];
+                    intValues[i] = temp;
+                }
+                return intValues;
+            case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
+                for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
+                    BString temp = bStringValues[j];
+                    bStringValues[j] = bStringValues[i];
+                    bStringValues[i] = temp;
+                }
+                return bStringValues;
+            case TypeTags.FLOAT_TAG:
+                for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
+                    double temp = floatValues[j];
+                    floatValues[j] = floatValues[i];
+                    floatValues[i] = temp;
+                }
+                return floatValues;
+            case TypeTags.BOOLEAN_TAG:
+                for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
+                    boolean temp = booleanValues[j];
+                    booleanValues[j] = booleanValues[i];
+                    booleanValues[i] = temp;
+                }
+                return booleanValues;
+            case TypeTags.BYTE_TAG:
+                for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
+                    byte temp = byteValues[j];
+                    byteValues[j] = byteValues[i];
+                    byteValues[i] = temp;
+                }
+                return byteValues;
+            default:
+                for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
+                    Object temp = refValues[j];
+                    refValues[j] = refValues[i];
+                    refValues[i] = temp;
+                }
+                return refValues;
+        }
+    }
+
     @Deprecated
     public ArrayValueImpl(ArrayType type, long size) {
         this.arrayType = type;
