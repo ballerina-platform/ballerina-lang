@@ -23,11 +23,15 @@ import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -42,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -69,6 +74,7 @@ public class ServiceDesugar {
     private final Names names;
     private HttpFiltersDesugar httpFiltersDesugar;
     private TransactionDesugar transactionDesugar;
+    private final Types types;
 
     public static ServiceDesugar getInstance(CompilerContext context) {
         ServiceDesugar desugar = context.get(SERVICE_DESUGAR_KEY);
@@ -86,6 +92,7 @@ public class ServiceDesugar {
         this.names = Names.getInstance(context);
         this.httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
         this.transactionDesugar = TransactionDesugar.getInstance(context);
+        this.types = Types.getInstance(context);
     }
 
     void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env, BLangFunction startFunction,
@@ -110,10 +117,11 @@ public class ServiceDesugar {
         final Location pos = variable.pos;
 
         // Find correct symbol.
+        BTypeSymbol listenerTypeSymbol = getListenerType(variable.type).tsymbol;
         final Name functionName = names
-                .fromString(Symbols.getAttachedFuncSymbolName(variable.type.tsymbol.name.value, method));
+                .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, method));
         BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver
-                .lookupMemberSymbol(pos, variable.type.tsymbol.scope, env, functionName,
+                .lookupMemberSymbol(pos, listenerTypeSymbol.scope, env, functionName,
                         SymTag.INVOKABLE);
 
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, variable.symbol);
@@ -160,10 +168,11 @@ public class ServiceDesugar {
 
             //      (.<init>)              ->      y.__attach(x, {});
             // Find correct symbol.
+            BTypeSymbol listenerTypeSymbol = getListenerType(listenerVarRef.type).tsymbol;
             final Name functionName = names
-                    .fromString(Symbols.getAttachedFuncSymbolName(attachExpr.type.tsymbol.name.value, ATTACH_METHOD));
+                    .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, ATTACH_METHOD));
             BInvokableSymbol methodRef = (BInvokableSymbol) symResolver
-                    .lookupMemberSymbol(pos, listenerVarRef.type.tsymbol.scope, env,
+                    .lookupMemberSymbol(pos, listenerTypeSymbol.scope, env,
                             functionName, SymTag.INVOKABLE);
 
             // Create method invocation
@@ -187,13 +196,26 @@ public class ServiceDesugar {
         }
     }
 
+    private BType getListenerType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (types.checkListenerCompatibility(memberType)) {
+                    return memberType;
+                }
+            }
+        }
+        return type;
+    }
+
     private void addMethodInvocation(Location pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
                                      List<BLangExpression> args,
                                      BlockNode body) {
         // Create method invocation
         final BLangInvocation methodInvocation =
                 ASTBuilderUtil.createInvocationExprForMethod(pos, methodRefSymbol, args, symResolver);
-        methodInvocation.expr = varRef;
+        BLangCheckedExpr listenerCheckExpr = ASTBuilderUtil.createCheckExpr(pos, varRef, getListenerType(varRef.type));
+        listenerCheckExpr.equivalentErrorTypeList.add(symTable.errorType);
+        methodInvocation.expr = listenerCheckExpr;
 
         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, methodInvocation, symTable.nilType);
         checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
@@ -214,7 +236,5 @@ public class ServiceDesugar {
                     .createBeginParticipantInvocation(functionNode.pos));
             ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
         }
-//        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
-//        httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
     }
 }

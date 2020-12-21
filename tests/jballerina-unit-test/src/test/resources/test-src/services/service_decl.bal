@@ -37,9 +37,31 @@ public class Listener {
         return externAttach(s, name);
     }
 
-    public function init() {
+    public function init() returns error? {
         var x = externLInit(self);
         self.initialized = true;
+    }
+}
+
+
+public class EmptyListener {
+
+    public isolated function 'start() returns error? {
+    }
+
+    public isolated function gracefulStop() returns error? {
+    }
+
+    public isolated function immediateStop() returns error? {
+    }
+
+    public isolated function detach(service object {} s) returns error? {
+    }
+
+    public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
+    }
+
+    isolated function register(service object {} s, string[]|string? name) returns error? {
     }
 }
 
@@ -83,13 +105,11 @@ function getAnnotationsAtServiceAttach() returns map<any> = @java:Method {
     name: "getAnnotationsAtServiceAttach"
 } external;
 
-listener Listener lsn = new();
+type LE Listener|EmptyListener|error;
+listener LE lsn = new Listener();
 
 type S service object {
-    resource function get processRequest() returns json;
 };
-
-
 
 type Annot record {
     string val;
@@ -133,7 +153,7 @@ function testServiceDecl() {
     reset();
 }
 
-function assertEquality(any|error actual, any|error expected) {
+function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }

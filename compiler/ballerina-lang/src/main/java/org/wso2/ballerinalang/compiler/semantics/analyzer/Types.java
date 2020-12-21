@@ -2057,6 +2057,19 @@ public class Types {
     }
 
     public boolean checkListenerCompatibility(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            for (BType memberType : unionType.getMemberTypes()) {
+                if (memberType.tag == TypeTags.ERROR) {
+                    continue;
+                }
+                if (!checkListenerCompatibility(memberType)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         if (type.tag != TypeTags.OBJECT) {
             return false;
         }
