@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
-
 
 const string DEFAULT_HOST = "0.0.0.0";
 const int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
@@ -38,14 +36,13 @@ boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
 http:ClientConfiguration? hubClientConfig = ();
 
-function (WebSubContent content) onMessageFunction = defaultOnMessageFunction;
-function (string callback, string topic, WebSubContent content) onDeliveryFunction = defaultOnDeliveryFunction;
-function (string callback, string topic, WebSubContent content, http:Response|error response, FailureReason reason)
-                  onDeliveryFailureFunction = defaultOnDeliveryFailureFunction;
+function (WebSubContent content)? tapOnMessageFunction = ();
+function (string callback, string topic, WebSubContent content)? tapOnDeliveryFunction = ();
+function (string callback, string topic, WebSubContent content, http:Response|error response, FailureReason reason)?
+                  tapOnDeliveryFailureFunction = ();
 
 HubPersistenceStore? hubPersistenceStoreImpl = ();
 boolean hubPersistenceEnabled = false;
-boolean asyncContentDelivery = false;
 
 # Attaches and starts the Ballerina WebSub Hub service.
 #
@@ -84,29 +81,4 @@ function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
 
 function getRemotePublishConfig(RemotePublishConfig? remotePublish) returns RemotePublishConfig {
     return remotePublish is RemotePublishConfig ? remotePublish : {};
-}
-
-function defaultOnMessageFunction(WebSubContent content) {
-    log:printDebug("Message received at the hub");
-}
-
-function defaultOnDeliveryFunction(string callback, string topic, WebSubContent content) {
-    log:printDebug(() => "Content delivery to callback[" + callback + "] successful for topic[" + topic + "]");
-}
-
-function defaultOnDeliveryFailureFunction(string callback, string topic, WebSubContent content,
-                           http:Response|error response, FailureReason reason) {
-    if (reason is FAILURE_REASON_SUBSCRIPTION_GONE) {
-       log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
-                     + "], topic[" + topic + "]");
-       return;
-    } else if (reason is FAILURE_REASON_FAILURE_STATUS_CODE) {
-       http:Response resp = <http:Response> response;
-       log:printError("Error delivering content to callback[" + callback + "] for topic["
-                                + topic + "]: received response code " + resp.statusCode.toString());
-       return;
-    }
-    error err = <error> response;
-    log:printError("Error delivering content to callback[" + callback + "] for topic["
-                                   + topic + "]: " + <string> err.detail()?.message);
 }

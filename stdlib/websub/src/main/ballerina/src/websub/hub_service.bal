@@ -159,7 +159,10 @@ function getHubService() returns service {
                         error? publishStatus = ();
                         if (binaryPayload is byte[]) {
                             WebSubContent notification = {payload: binaryPayload, contentType: contentType};
-                            onMessageFunction(notification);
+                            function (WebSubContent content)? tapOnMessageFunc = tapOnMessageFunction;
+                            if (!(tapOnMessageFunc is ())) {
+                               tapOnMessageFunc(notification);
+                            }
                             publishStatus = publishToInternalHub(topic, notification);
                         } else {
                             string errorCause = <string>binaryPayload.detail()?.message;
@@ -525,7 +528,9 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
         if (contentDistributionResponse is http:Response) {
             int respStatusCode = contentDistributionResponse.statusCode;
             if (isSuccessStatusCode(respStatusCode)) {
-                onDeliveryFunction(callback, subscriptionDetails.topic, webSubContent);
+                callOnDelivery(callback, subscriptionDetails.topic, webSubContent);
+                log:printDebug("Content delivery to callback[" + callback + "] successful for topic["
+                                    + subscriptionDetails.topic + "]");
             } else if (respStatusCode == http:STATUS_GONE) {
                 removeNativeSubscription(subscriptionDetails.topic, callback);
                 if (hubPersistenceEnabled) {
@@ -534,18 +539,42 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
                         log:printError("Error removing gone subscription", remResult);
                     }
                 }
-                onDeliveryFailureFunction(callback, subscriptionDetails.topic, webSubContent, contentDistributionResponse,
-                              FAILURE_REASON_SUBSCRIPTION_GONE);
+                callOnDeliveryFailure(callback, subscriptionDetails.topic, webSubContent, contentDistributionResponse,
+                                FAILURE_REASON_SUBSCRIPTION_GONE);
+                log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
+                                + "], topic[" + subscriptionDetails.topic + "]");
             } else {
-                onDeliveryFailureFunction(callback, subscriptionDetails.topic, webSubContent, contentDistributionResponse,
-                              FAILURE_REASON_FAILURE_STATUS_CODE);
+                callOnDeliveryFailure(callback, subscriptionDetails.topic, webSubContent, contentDistributionResponse,
+                            FAILURE_REASON_FAILURE_STATUS_CODE);
+                log:printError("Error delivering content to callback[" + callback + "] for topic["
+                            + subscriptionDetails.topic + "]: received response code " + respStatusCode.toString());
             }
         } else {
-            onDeliveryFailureFunction(callback, subscriptionDetails.topic, webSubContent, contentDistributionResponse,
-                              FAILURE_REASON_DELIVERY_FAILURE);
+            callOnDeliveryFailure(callback, subscriptionDetails.topic, webSubContent, contentDistributionResponse,
+                            FAILURE_REASON_DELIVERY_FAILURE);
+            error err = contentDistributionResponse;
+            string errCause = <string> err.detail()?.message;
+            log:printError("Error delivering content to callback[" + callback + "] for topic["
+                            + subscriptionDetails.topic + "]: " + errCause);
         }
     }
     return;
+}
+
+function callOnDelivery(string callback, string topic, WebSubContent notification) {
+    function (string callback, string topic, WebSubContent content)? tapOnDeliveryFunc = tapOnDeliveryFunction;
+    if (!(tapOnDeliveryFunc is ())) {
+        tapOnDeliveryFunc(callback, topic, notification);
+    }
+}
+
+function callOnDeliveryFailure(string callback, string topic, WebSubContent notification, http:Response|error response,
+                              FailureReason reason) {
+    function (string callback, string topic, WebSubContent content, http:Response|error response, FailureReason reason)?
+                               tapOnDeliveryFailureFunc = tapOnDeliveryFailureFunction;
+    if (!(tapOnDeliveryFailureFunc is ())) {
+       tapOnDeliveryFailureFunc(callback, topic, notification, response, reason);
+    }
 }
 
 # Retrieves the cached `subscriberCallbackClient` for a given callback.

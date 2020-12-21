@@ -502,11 +502,9 @@ public type FailureReason FAILURE_REASON_SUBSCRIPTION_GONE|FAILURE_REASON_FAILUR
 #                               to the topic
 # + clientConfig - The configuration for the hub to communicate with remote HTTP endpoints
 # + hubPersistenceStore - The `HubPersistenceStore` to use to persist hub data
-# + onMessage - The configuration for passing a function to be invoked when an update is received at the hub
-# + onDelivery - The configuration for passing a function to be invoked when an update is successfully delivered to the subscribers
-# + onDeliveryFailure - The configuration for passing a function to be invoked when an update is failed to be delivered to the subscribers
-# + asyncContentDelivery - The configuration to specify is content delivery to subscribers should be done asynchronously.
-#                          Setting this to `true` may result in the order not being preserved in message delivery.
+# + tapOnMessage - The configuration for passing a function to be invoked when an update is received at the hub
+# + tapOnDelivery - The configuration for passing a function to be invoked when an update is successfully delivered to the subscribers
+# + tapOnDeliveryFailure - The configuration for passing a function to be invoked when an update is failed to be delivered to the subscribers
 public type HubConfiguration record {|
     int leaseSeconds = 86400;
     SignatureMethod signatureMethod = SHA256;
@@ -514,11 +512,10 @@ public type HubConfiguration record {|
     boolean topicRegistrationRequired = true;
     http:ClientConfiguration clientConfig?;
     HubPersistenceStore hubPersistenceStore?;
-    function (WebSubContent content) onMessage?;
-    function (string callback, string topic, WebSubContent content) onDelivery?;
+    function (WebSubContent content) tapOnMessage?;
+    function (string callback, string topic, WebSubContent content) tapOnDelivery?;
     function (string callback, string topic, WebSubContent content, http:Response|error response, FailureReason reason)
-                            onDeliveryFailure?;
-    boolean asyncContentDelivery = false;
+                            tapOnDeliveryFailure?;
 |};
 
 # Record representing remote publishing allowance.
@@ -580,19 +577,18 @@ public function startHub(http:Listener hubServiceListener,
     hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
     remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
     hubTopicRegistrationRequired = hubConfiguration.topicRegistrationRequired;
-    var onMessageFunc = hubConfiguration?.onMessage;
+    var onMessageFunc = hubConfiguration["tapOnMessage"];
     if (!(onMessageFunc is ())) {
-       onMessageFunction = onMessageFunc;
+       tapOnMessageFunction = onMessageFunc;
     }
-    var onDeliveryFunc = hubConfiguration["onDelivery"];
+    var onDeliveryFunc = hubConfiguration["tapOnDelivery"];
     if (!(onDeliveryFunc is ())) {
-       onDeliveryFunction = onDeliveryFunc;
+       tapOnDeliveryFunction = onDeliveryFunc;
     }
-    var onDeliveryFailureFunc = hubConfiguration["onDeliveryFailure"];
+    var onDeliveryFailureFunc = hubConfiguration["tapOnDeliveryFailure"];
     if (!(onDeliveryFailureFunc is ())) {
-       onDeliveryFailureFunction = onDeliveryFailureFunc;
+       tapOnDeliveryFailureFunction = onDeliveryFailureFunc;
     }
-    asyncContentDelivery = hubConfiguration.asyncContentDelivery;
 
     // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
@@ -608,7 +604,7 @@ public function startHub(http:Listener hubServiceListener,
     Hub|HubStartedUpError|HubStartupError res = startUpHubService(hubBasePath, hubSubscriptionResourcePath,
                                                                         hubPublishResourcePath,
                                                                         hubTopicRegistrationRequired, hubPublicUrl,
-                                                                        hubServiceListener, asyncContentDelivery);
+                                                                        hubServiceListener);
     if (res is Hub) {
         startHubService(hubServiceListener);
     }
@@ -695,7 +691,10 @@ public type Hub object {
                 content.contentType = mime:APPLICATION_OCTET_STREAM;
             }
         }
-        onMessageFunction(content);
+        function (WebSubContent content)? tapOnMessageFunc = tapOnMessageFunction;
+        if (!(tapOnMessageFunc is ())) {
+           tapOnMessageFunc(content);
+        }
 
         return validateAndPublishToInternalHub(self.publishUrl, topic, content);
     }

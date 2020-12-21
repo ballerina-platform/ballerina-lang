@@ -23,11 +23,8 @@ import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.websub.broker.BallerinaBrokerByteBuf;
 
@@ -49,16 +46,14 @@ public class HubSubscriber extends Consumer {
     private final String callback;
     private final MapValue<String, Object> subscriptionDetails;
     private final Scheduler scheduler;
-    private final boolean asyncContentDelivery;
 
     HubSubscriber(Strand strand, String queue, String topic, String callback,
-                  MapValue<String, Object> subscriptionDetails, boolean asyncContentDelivery) {
+                  MapValue<String, Object> subscriptionDetails) {
         this.scheduler = strand.scheduler;
         this.queue = queue;
         this.topic = topic;
         this.callback = callback;
         this.subscriptionDetails = subscriptionDetails;
-        this.asyncContentDelivery = asyncContentDelivery;
     }
 
     @Override
@@ -69,23 +64,8 @@ public class HubSubscriber extends Consumer {
                         .unwrap()).getValue();
         Object[] args = {getCallback(), getSubscriptionDetails(), content};
         try {
-            if (asyncContentDelivery) {
-                Executor.executeFunctionAsync(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB,
-                        "hub_service", "distributeContent", new CallableUnitCallback() {
-                            @Override
-                            public void notifySuccess() {
-                                //do nothing
-                            }
-
-                            @Override
-                            public void notifyFailure(ErrorValue error) {
-                                ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
-                            }
-                        }, args);
-            } else {
-                Executor.executeFunction(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB, "hub_service",
-                        "distributeContent", args);
-            }
+            Executor.executeFunction(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB, "hub_service",
+                          "distributeContent", args);
         } catch (BallerinaException e) {
             throw new BallerinaException("send failed: " + e.getMessage());
         }

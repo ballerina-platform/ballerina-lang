@@ -118,53 +118,6 @@ public class Executor {
                                          String packageName, String className, String methodName,
                                          Object... paramValues) {
         try {
-
-            CountDownLatch completeFunction = new CountDownLatch(1);
-
-            class Callback implements CallableUnitCallback {
-
-                private CountDownLatch countDownLatch;
-
-                private Callback(CountDownLatch countDownLatch) {
-                    this.countDownLatch = countDownLatch;
-                }
-
-                @Override
-                public void notifySuccess() {
-                    countDownLatch.countDown();
-                }
-
-                @Override
-                public void notifyFailure(ErrorValue error) {
-                    countDownLatch.countDown();
-                }
-            }
-
-            FutureValue futureValue = (FutureValue) executeFunctionAsync(scheduler, classLoader, orgName, packageName,
-                    className, methodName, new Callback(completeFunction), paramValues);
-            completeFunction.await();
-            return futureValue.result;
-        } catch (InterruptedException e) {
-            throw new BallerinaException("invocation failed: " + e.getMessage());
-        }
-    }
-
-    /**
-     * This method will invoke Ballerina function in a non-blocking manner.
-     *
-     * @param scheduler   The Current scheduler
-     * @param classLoader The classLoader
-     * @param orgName     The org which the package belongs to
-     * @param packageName The package which the class belongs to
-     * @param className   The class name or the file name in which the function resides
-     * @param methodName  The method name which is to be the invokable unit
-     * @param callback    The callback to be executed when the execution completes.
-     * @param paramValues The Parameters to be passed to the invokable unit
-     */
-    public static Object executeFunctionAsync(Scheduler scheduler, ClassLoader classLoader, final String orgName,
-            String packageName, String className, String methodName, CallableUnitCallback callback,
-            Object... paramValues) {
-        try {
             Class<?> clazz = classLoader.loadClass(orgName + "." + packageName + "." + className);
             int paramCount = paramValues.length * 2 + 1;
             Class<?>[] jvmParamTypes = new Class[paramCount];
@@ -185,8 +138,21 @@ public class Executor {
                     throw new BallerinaException(methodName + " function invocation failed: " + e.getMessage());
                 }
             };
-            return scheduler.schedule(jvmArgs, func, null, callback, new HashMap<>(), BTypes.typeNull);
-        } catch (NoSuchMethodException | ClassNotFoundException e) {
+            CountDownLatch completeFunction = new CountDownLatch(1);
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, new CallableUnitCallback() {
+                @Override
+                public void notifySuccess() {
+                    completeFunction.countDown();
+                }
+
+                @Override
+                public void notifyFailure(ErrorValue error) {
+                    completeFunction.countDown();
+                }
+            }, new HashMap<>(), BTypes.typeNull);
+            completeFunction.await();
+            return futureValue.result;
+        } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {
             throw new BallerinaException("invocation failed: " + e.getMessage());
         }
     }

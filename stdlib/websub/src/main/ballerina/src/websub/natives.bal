@@ -36,17 +36,15 @@ import ballerina/java;
 #            that the hub is already started, and including the WebSub Hub object representing the
 #            already started up hub
 function startUpHubService(string basePath, string subscriptionResourcePath, string publishResourcePath,
-                           boolean topicRegistrationRequired, string publicUrl, http:Listener hubListener,
-                           boolean asyncContentDelivery)
+                           boolean topicRegistrationRequired, string publicUrl, http:Listener hubListener)
                                     returns Hub|HubStartedUpError|HubStartupError {
     return externStartUpHubService(java:fromString(basePath), java:fromString(subscriptionResourcePath),
                                    java:fromString(publishResourcePath), topicRegistrationRequired,
-                                   java:fromString(publicUrl), hubListener, asyncContentDelivery);
+                                   java:fromString(publicUrl), hubListener);
 }
 
 function externStartUpHubService(handle basePath, handle subscriptionResourcePath, handle publishResourcePath,
-                                 boolean topicRegistrationRequired, handle publicUrl, http:Listener hubListener,
-                                 boolean asyncContentDelivery)
+                                 boolean topicRegistrationRequired, handle publicUrl, http:Listener hubListener)
                                     returns Hub|HubStartedUpError|HubStartupError = @java:Method {
     name: "startUpHubService",
     class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
