@@ -1271,8 +1271,8 @@ public class Types {
     }
 
     private boolean hasIncompatibleTransactionalFlags(BInvokableType source, BInvokableType target) {
-        return Symbols.isFlagOn(source.tsymbol.flags, Flags.TRANSACTIONAL) &&
-                !Symbols.isFlagOn(target.tsymbol.flags, Flags.TRANSACTIONAL);
+        return Symbols.isFlagOn(source.flags, Flags.TRANSACTIONAL) &&
+                !Symbols.isFlagOn(target.flags, Flags.TRANSACTIONAL);
     }
 
     public boolean isSameArrayType(BType source, BType target, Set<TypePair> unresolvedTypes) {
