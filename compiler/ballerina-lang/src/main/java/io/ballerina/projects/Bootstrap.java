@@ -104,24 +104,24 @@ public class Bootstrap {
 
         if (langLib.equals(QUERY)) {
             // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
-            symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
-            symResolver.bootstrapCloneableType();
             symbolTable.langArrayModuleSymbol = loadLangLibFromBalr(ARRAY, compilerContext);
             symbolTable.langMapModuleSymbol = loadLangLibFromBalr(MAP, compilerContext);
             symbolTable.langStringModuleSymbol = loadLangLibFromBalr(STRING, compilerContext);
             symbolTable.langXmlModuleSymbol = loadLangLibFromBalr(XML, compilerContext);
             symbolTable.langTableModuleSymbol = loadLangLibFromBalr(TABLE, compilerContext);
             symbolTable.langStreamModuleSymbol = loadLangLibFromBalr(STREAM, compilerContext);
+            symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
+            symResolver.bootstrapCloneableType();
         }
 
         if (langLib.equals(TRANSACTION)) {
             // Transaction module requires array, map, string, value modules. Hence loading them.
-            symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
-            symResolver.bootstrapCloneableType();
             symbolTable.langArrayModuleSymbol = loadLangLibFromBalr(ARRAY, compilerContext);
             symbolTable.langMapModuleSymbol = loadLangLibFromBalr(MAP, compilerContext);
             symbolTable.langStringModuleSymbol = loadLangLibFromBalr(STRING, compilerContext);
             symbolTable.langErrorModuleSymbol = loadLangLibFromBalr(ERROR, compilerContext);
+            symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
+            symResolver.bootstrapCloneableType();
         }
 
         if (langLib.equals(ERROR)) {

@@ -179,15 +179,14 @@ public class CompilerDriver {
         }
         if (langLib.equals(ANNOTATIONS)) {
             symbolTable.langAnnotationModuleSymbol = getLangModuleFromSource(ANNOTATIONS);
-            symResolver.bootstrapCloneableType();
             return; // Nothing else to load.
         }
 
         // Other lang modules requires annotation module. Hence loading it first.
         symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
-        symResolver.boostrapErrorType();
-        symResolver.bootstrapAnydataType();
         symResolver.bootstrapJsonType();
+        symResolver.bootstrapAnydataType();
+        symResolver.boostrapErrorType();
         symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
 
@@ -209,26 +208,23 @@ public class CompilerDriver {
 
         symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
 
-        // boostrap cloneable type to boostrap error detailType
-
-
         if (langLib.equals(QUERY)) {
-            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
+            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
         }
 
         if (langLib.equals(TRANSACTION)) {
-            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             // Transaction module requires  array, map, string, value modules. Hence loading them.
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
+            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
         }
 
@@ -237,7 +233,6 @@ public class CompilerDriver {
         }
         symResolver.bootstrapCloneableType();
         symResolver.bootstrapIntRangeType();
-        symResolver.defineOperators();
 
         // Now load each module.
         getLangModuleFromSource(langLib);
