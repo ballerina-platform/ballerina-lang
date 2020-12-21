@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.commons.service.spi;
 
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethod;
 import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethodProvider;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
@@ -35,10 +34,9 @@ public interface ExtendedLanguageServerService extends JsonRpcMethodProvider {
     /**
      * Initialize callback for the service.
      *
-     * @param documentManager document manager
-     * @param langServer      language server
+     * @param langServer language server
      */
-    default void init(WorkspaceDocumentManager documentManager, LanguageServer langServer) {
+    default void init(LanguageServer langServer) {
     }
 
     /**
