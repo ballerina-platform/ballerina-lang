@@ -322,6 +322,9 @@ public class TypeChecker {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
+        if (sourceType == targetType) {
+            return true;
+        }
         if (sourceTypeTag == targetTypeTag) {
             if (sourceType.equals(targetType)) {
                 return true;
@@ -604,7 +607,7 @@ public class TypeChecker {
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
         // First check whether both types are the same.
-        if (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType)) {
+        if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
             return true;
         }
 
@@ -706,7 +709,7 @@ public class TypeChecker {
             targetTypeTag = targetType.getTag();
         }
 
-        if (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType)) {
+        if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
             return true;
         }
 
