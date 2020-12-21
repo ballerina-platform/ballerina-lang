@@ -27,9 +27,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test error-constructor-expr
+ * Test error-constructor-expr.
+ *
+ * @since 2.0.0
  */
-public class ErrorConstructorExpr {
+public class ErrorConstructorExprTest {
 
     private CompileResult result, negativeResult;
 
