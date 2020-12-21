@@ -22,9 +22,10 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.BStringInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -47,6 +48,7 @@ import static org.objectweb.asm.Opcodes.T_INT;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NON_BMP_STRING_VALUE;
@@ -60,25 +62,24 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
  */
 public class JvmBStringConstantsGen {
 
-    private ConcurrentHashMap<String, BStringInfo> bStringInfoMap;
+    private ConcurrentHashMap<String, String> bStringVarMap;
 
     private String stringConstantsClass;
 
     private AtomicInteger constantIndex = new AtomicInteger();
 
     public JvmBStringConstantsGen(BIRNode.BIRPackage module) {
-        this.bStringInfoMap = new ConcurrentHashMap<>();
+        this.bStringVarMap = new ConcurrentHashMap<>();
         this.stringConstantsClass = getModuleLevelClassName(module.packageID, MODULE_STRING_CONSTANT_CLASS_NAME);
     }
 
-    public String addBString(String val, int[] highSurrogates) {
-        return bStringInfoMap.computeIfAbsent(val, s ->
-                new BStringInfo(val, JvmConstants.B_STRING_VAR_PREFIX + constantIndex.getAndIncrement(),
-                                highSurrogates)).varName;
+    public String addBString(String val) {
+        return bStringVarMap.computeIfAbsent(val, s ->
+                JvmConstants.B_STRING_VAR_PREFIX + constantIndex.getAndIncrement());
     }
 
     public void generateConstantInit(Map<String, byte[]> jarEntries) {
-        if (bStringInfoMap.isEmpty()) {
+        if (bStringVarMap.isEmpty()) {
             return;
         }
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -92,32 +93,30 @@ public class JvmBStringConstantsGen {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        bStringInfoMap.values().forEach(bString -> visitBStringField(cw, bString.varName, bString.isNonBMPString));
+        bStringVarMap.values().forEach(bStringVar -> visitBStringField(cw, bStringVar));
         generateStaticInitializer(cw);
         cw.visitEnd();
         jarEntries.put(stringConstantsClass + ".class", cw.toByteArray());
     }
 
-    private void visitBStringField(ClassWriter cw, String varName, boolean isNonBMPString) {
+    private void visitBStringField(ClassWriter cw, String varName) {
         FieldVisitor fv;
-        if (isNonBMPString) {
-            fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName,
-                               String.format("L%s;", NON_BMP_STRING_VALUE), null, null);
-        } else {
-            fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName, String.format("L%s;", BMP_STRING_VALUE),
-                               null, null);
-        }
+        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName,
+                           String.format("L%s;", B_STRING_VALUE), null,
+                           null);
         fv.visitEnd();
     }
 
     private void generateStaticInitializer(ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-        for (Map.Entry<String, BStringInfo> entry : bStringInfoMap.entrySet()) {
-            BStringInfo bStringInfo = entry.getValue();
-            if (bStringInfo.isNonBMPString) {
-                createNonBmpString(mv, bStringInfo.value, bStringInfo.highSurrogates, bStringInfo.varName);
+        for (Map.Entry<String, String> entry : bStringVarMap.entrySet()) {
+            String bString = entry.getKey();
+            String bStringVarName = entry.getValue();
+            int[] highSurrogates = listHighSurrogates(bString);
+            if (highSurrogates.length > 0) {
+                createNonBmpString(mv, bString, highSurrogates, bStringVarName);
             } else {
-                createBmpString(mv, bStringInfo.value, bStringInfo.varName);
+                createBmpString(mv, bString, bStringVarName);
             }
         }
         mv.visitInsn(RETURN);
@@ -131,7 +130,7 @@ public class JvmBStringConstantsGen {
         mv.visitLdcInsn(val);
         mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, JVM_INIT_METHOD,
                            String.format("(L%s;)V", STRING_VALUE), false);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, stringConstantsClass, varName, String.format("L%s;", BMP_STRING_VALUE));
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, stringConstantsClass, varName, String.format("L%s;", B_STRING_VALUE));
     }
 
     private void createNonBmpString(MethodVisitor mv, String val, int[] highSurrogates, String varName) {
@@ -151,11 +150,28 @@ public class JvmBStringConstantsGen {
         }
         mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, JVM_INIT_METHOD,
                            String.format("(L%s;[I)V", STRING_VALUE), false);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, stringConstantsClass, varName,
-                          String.format("L%s;", NON_BMP_STRING_VALUE));
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, stringConstantsClass, varName, String.format("L%s;", B_STRING_VALUE));
     }
 
     public String getStringConstantsClass() {
         return stringConstantsClass;
+    }
+
+
+    private int[] listHighSurrogates(String str) {
+
+        List<Integer> highSurrogates = new ArrayList<>();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (Character.isHighSurrogate(c)) {
+                highSurrogates.add(i - highSurrogates.size());
+            }
+        }
+        int[] highSurrogatesArr = new int[highSurrogates.size()];
+        for (int i = 0; i < highSurrogates.size(); i++) {
+            Integer highSurrogate = highSurrogates.get(i);
+            highSurrogatesArr[i] = highSurrogate;
+        }
+        return highSurrogatesArr;
     }
 }

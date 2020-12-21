@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,7 +67,6 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
@@ -84,7 +82,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NON_BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
@@ -585,15 +582,9 @@ public class JvmCodeGenUtil {
             return;
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             String val = String.valueOf(constVal);
-            int[] highSurrogates = listHighSurrogates(val);
-            String varName = stringConstantsGen.addBString(val, highSurrogates);
+            String varName = stringConstantsGen.addBString(val);
             String stringConstantsClass = stringConstantsGen.getStringConstantsClass();
-            if (highSurrogates.length > 0) {
-                mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName,
-                                  String.format("L%s;", NON_BMP_STRING_VALUE));
-            } else {
-                mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, String.format("L%s;", BMP_STRING_VALUE));
-            }
+            mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, String.format("L%s;", B_STRING_VALUE));
             return;
         }
 
@@ -627,23 +618,6 @@ public class JvmCodeGenUtil {
                 throw new BLangCompilerException("JVM generation is not supported for type : " +
                                                          String.format("%s", bType));
         }
-    }
-
-    private static int[] listHighSurrogates(String str) {
-
-        List<Integer> highSurrogates = new ArrayList<>();
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
-            if (Character.isHighSurrogate(c)) {
-                highSurrogates.add(i - highSurrogates.size());
-            }
-        }
-        int[] highSurrogatesArr = new int[highSurrogates.size()];
-        for (int i = 0; i < highSurrogates.size(); i++) {
-            Integer highSurrogate = highSurrogates.get(i);
-            highSurrogatesArr[i] = highSurrogate;
-        }
-        return highSurrogatesArr;
     }
 
     private JvmCodeGenUtil() {
