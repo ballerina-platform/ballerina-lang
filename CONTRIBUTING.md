@@ -15,7 +15,7 @@ We appreciate your help!
 
 ## Get started
 
-- Download [Ballerina](https://ballerina.io/downloads/) and go through the [learning resources](https://ballerina.io/learn).
+- Download [Ballerina](https://ballerina.io/downloads/) and go through the [learning resources](https://ballerina.io/swan-lake/learn).
 - Read the <a href="https://ballerina.io/code-of-conduct">Ballerina Code of Conduct</a>.
 
 - Join the conversations at:
@@ -40,7 +40,7 @@ We appreciate your help!
 
 ## Build the source code 
 
-For instructions, see <a href="https://ballerina.io/learn/installing-ballerina/#installing-from-source">Installing from source</a>.
+For instructions, see <a href="https://ballerina.io/swan-lake/learn/getting-started/installing-ballerina/#building-from-source">Building from source</a>.
 
 ## Set up the development environment
 
@@ -48,17 +48,9 @@ See the below sections to set up the required plugins in your preferred IDEs/Edi
 
 ### Set up the Ballerina plugins
 
-Currently, Ballerina has the below plugins developed for IntelliJ IDEA and VS Code. 
-- [Ballerina plugin for IntelliJ IDEA](https://plugins.jetbrains.com/plugin/9520-ballerina)
+Set up the [Ballerina plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=ballerina.ballerina)
     
-    For installation instructions, see [Ballerina IntelliJ Plugin Documentation](https://ballerina.io/learn/intellij-plugin/).
-- [Ballerina plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=ballerina.ballerina)
-    
-    For installation instructions, see [Ballerina VS Code Documentation](https://ballerina.io/learn/vscode-plugin).
-
-### Set up the ANTLR4 plugin
-
-This plugin will be useful to check and validate a grammar rule you wrote. For instructions on installing the ANTLR4 plugin based on your preferred IDE/Editor (which supports ANTLR 4.x version), go to [ANTLR Documentation](https://www.antlr.org/tools.html).
+For installation instructions, see [Ballerina VS Code Documentation](https://ballerina.io/swan-lake/learn/getting-started/setting-up-visual-studio-code/).
 
 ## Submit your contribution
 
