@@ -17,6 +17,7 @@
 */
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -42,7 +43,7 @@ public class BUnionType extends BType implements UnionType {
     private String cachedToString;
     private int typeFlags;
     private final boolean readonly;
-    private IntersectionType immutableType;
+    protected IntersectionType immutableType;
     private boolean resolving = false;
 
     /**
@@ -90,6 +91,11 @@ public class BUnionType extends BType implements UnionType {
         setFlagsBasedOnMembers();
     }
 
+    public BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
+        super(typeName, pkg, valueClass);
+        this.readonly = readonly;
+    }
+
     /**
      * Constructor used when defining union type defs where cyclic reference is possible.
      *
@@ -103,6 +109,19 @@ public class BUnionType extends BType implements UnionType {
         this.readonly = readonly;
         this.memberTypes = new ArrayList<>();
         this.isCyclic = isCyclic;
+    }
+
+    /**
+     * Constructor used when defining union type defs where cyclic reference is possible.
+     *
+     * @param unionType flags associated with the type
+     */
+    public BUnionType(BUnionType unionType) {
+        super(unionType.typeName, unionType.pkg, unionType.valueClass);
+        this.typeFlags = unionType.typeFlags;
+        this.readonly = unionType.readonly;
+        this.memberTypes = unionType.memberTypes;
+        this.isCyclic = unionType.isCyclic;
     }
 
     /**

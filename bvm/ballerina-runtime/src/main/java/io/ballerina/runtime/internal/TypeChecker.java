@@ -828,6 +828,7 @@ public class TypeChecker {
 
         switch (sourceType.getTag()) {
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
                 return isUnionTypeMatch((BUnionType) sourceType, targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
@@ -1501,6 +1502,7 @@ public class TypeChecker {
             case TypeTags.ERROR_TAG:
                 return false;
             case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
                 for (Type memberType : ((BUnionType) sourceType).getMemberTypes()) {
                     if (!checkIsAnyType(memberType)) {
                         return false;

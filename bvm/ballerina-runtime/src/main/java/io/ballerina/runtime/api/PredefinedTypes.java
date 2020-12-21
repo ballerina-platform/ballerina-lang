@@ -143,8 +143,7 @@ public class PredefinedTypes {
                                                      new BUnionType(Arrays.asList(TYPE_ELEMENT, TYPE_COMMENT,
                                                                                   TYPE_PROCESSING_INSTRUCTION,
                                                                                   TYPE_TEXT)), EMPTY_MODULE);
-    public static final JsonType TYPE_JSON = new BJsonType(TypeConstants.JSON_TNAME, EMPTY_MODULE, false);
-    public static final ArrayType TYPE_JSON_ARRAY = new BArrayType(TYPE_JSON);
+
     public static final JsonType TYPE_READONLY_JSON = new BJsonType(TypeConstants.READONLY_JSON_TNAME, EMPTY_MODULE,
                                                                     true);
     public static final AnyType TYPE_ANY = new BAnyType(TypeConstants.ANY_TNAME, EMPTY_MODULE, false);
@@ -164,6 +163,9 @@ public class PredefinedTypes {
     public static final IteratorType TYPE_ITERATOR = new BIteratorType(TypeConstants.ITERATOR_TNAME, EMPTY_MODULE);
     public static final ServiceType TYPE_ANY_SERVICE = new BServiceType(TypeConstants.SERVICE, EMPTY_MODULE, 0);
     public static final HandleType TYPE_HANDLE = new BHandleType(TypeConstants.HANDLE_TNAME, EMPTY_MODULE);
+
+    public static final JsonType TYPE_JSON;
+    public static final ArrayType TYPE_JSON_ARRAY;
     public static final MapType TYPE_DETAIL;
     public static final Type TYPE_ERROR_DETAIL;
     public static final ErrorType TYPE_ERROR;
@@ -178,9 +180,26 @@ public class PredefinedTypes {
 
     static {
         ArrayList<Type> members = new ArrayList<>();
+        members.add(TYPE_NULL);
+        members.add(TYPE_BOOLEAN);
+        members.add(TYPE_INT);
+        members.add(TYPE_FLOAT);
+        members.add(TYPE_DECIMAL);
+        members.add(TYPE_STRING);
+        BJsonType jsonType = new BJsonType(new BUnionType(members));
+        jsonType.isCyclic = true;
+        MapType internalJsonMap = new BMapType(TypeConstants.MAP_TNAME, jsonType, EMPTY_MODULE);
+        ArrayType internalJsonArray = new BArrayType(jsonType);
+        members.add(internalJsonArray);
+        members.add(internalJsonMap);
+        TYPE_JSON = jsonType;
+        TYPE_JSON_ARRAY = new BArrayType(TYPE_JSON);
+    }
+
+    static {
+        ArrayList<Type> members = new ArrayList<>();
         members.add(TYPE_XML);
         members.add(TYPE_READONLY);
-        members.add(TYPE_JSON);
         BUnionType cloneable = new BUnionType(members);
         cloneable.isCyclic = true;
         MapType internalCloneableMap = new BMapType(TypeConstants.MAP_TNAME, cloneable, EMPTY_MODULE);
