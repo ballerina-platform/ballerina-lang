@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # The type of value to which `clone` and `cloneReadOnly` can be applied.
-public type Cloneable xml|readonly|Cloneable[]|map<Cloneable>|table<map<Cloneable>>;
+public type Cloneable readonly|xml|json|Cloneable[]|map<Cloneable>|table<map<Cloneable>>;
 
 # A type parameter that is a subtype of `Cloneable`.
 # Has the special semantic that when used in a declaration
