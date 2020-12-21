@@ -333,6 +333,28 @@ public class DocumentationLexer extends AbstractLexer {
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
+    private STToken getDeprecationLiteral() {
+        STNode leadingTrivia = getLeadingTrivia();
+        String lexeme = getLexeme();
+
+        // Trivia for "Deprecated" token can only be an end of line.
+        // Rest of the trivia after that belongs to the documentation description.
+        STNode trailingTrivia;
+        List<STNode> triviaList = new ArrayList<>(1);
+
+        int nextChar = peek();
+        if (nextChar == LexerTerminals.NEWLINE || nextChar == LexerTerminals.CARRIAGE_RETURN) {
+            reader.mark();
+            triviaList.add(processEndOfLine());
+            // end of line reached, hence end documentation mode
+            endMode();
+        }
+
+        trailingTrivia = STNodeFactory.createNodeList(triviaList);
+        return STNodeFactory
+                .createLiteralValueToken(SyntaxKind.DEPRECATION_LITERAL, lexeme, leadingTrivia, trailingTrivia);
+    }
+
     private STToken getDocumentationLiteral(SyntaxKind kind) {
         STNode leadingTrivia = getLeadingTrivia();
 
@@ -454,7 +476,7 @@ public class DocumentationLexer extends AbstractLexer {
         reader.advance(); // Advance reader for #
         reader.advance(whitespaceCount); // Advance reader for WS
         reader.advance(10); // Advance reader for "Deprecated" word
-        return getDocumentationLiteral(SyntaxKind.DEPRECATION_LITERAL);
+        return getDeprecationLiteral();
     }
 
     /*
