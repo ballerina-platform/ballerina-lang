@@ -37,7 +37,7 @@ public class BLangMatchStatement extends BLangStatement implements MatchStatemen
     public BLangExpression expr; // TODO : replace with new node `action|expression`
     public List<BLangMatchClause> matchClauses = new ArrayList<>();
     public BLangOnFailClause onFailClause;
-    public boolean hasLasPattern;
+    public boolean hasLastPattern;
 
     @Override
     public ExpressionNode getExpression() {

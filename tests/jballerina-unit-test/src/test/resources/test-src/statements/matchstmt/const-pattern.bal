@@ -463,8 +463,7 @@ public function constPattern15(any animal) returns string {
         "Mouse" => {
             if (total == 2) {
                 return "Total 2";
-            }
-            else {
+            } else {
                 return "Not 2";
             }
         }
@@ -490,8 +489,7 @@ public function constPattern16(any animal) returns string {
                 } else {
                     return "Age is less than 3";
                 }
-            }
-            else {
+            } else {
                 if (age > 3) {
                     return "Age is greater that 3";
                 } else {

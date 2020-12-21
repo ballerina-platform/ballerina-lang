@@ -193,8 +193,7 @@ public function testNegative6(any animal) returns string { // this function must
                 if (age > 3) {
                     return "Age is greater that 3";
                 }
-            }
-            else {
+            } else {
                 if (age > 3) {
                     return "Age is greater that 3";
                 } else {

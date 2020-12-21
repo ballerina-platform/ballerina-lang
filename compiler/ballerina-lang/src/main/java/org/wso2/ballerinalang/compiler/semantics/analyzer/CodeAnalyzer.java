@@ -800,7 +800,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         boolean currentErrorThrown = this.errorThrown;
         this.hasLastPatternInStatement = false;
-        matchStatement.hasLasPattern = false;
+        matchStatement.hasLastPattern = false;
         boolean allClausesReturns = true;
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
         for (int i = 0; i < matchClauses.size(); i++) {
@@ -815,11 +815,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(matchClause, env);
             allClausesReturns = allClausesReturns && this.statementReturns;
             resetStatementReturns();
-            matchStatement.hasLasPattern = matchStatement.hasLasPattern
+            matchStatement.hasLastPattern = matchStatement.hasLastPattern
                     || (matchClause.matchGuard == null && matchClause.hasLastPatternInClause);
-            this.hasLastPatternInStatement = matchStatement.hasLasPattern;
+            this.hasLastPatternInStatement = matchStatement.hasLastPattern;
         }
-        this.statementReturns = allClausesReturns && matchStatement.hasLasPattern;
+        this.statementReturns = allClausesReturns && matchStatement.hasLastPattern;
         this.errorThrown = currentErrorThrown;
         analyzeOnFailClause(matchStatement.onFailClause);
     }
@@ -1019,7 +1019,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
-        wildCardMatchPattern.isLastPattern = wildCardMatchPattern.matchesAll =
+        wildCardMatchPattern.isLastPattern =
                 wildCardMatchPattern.matchExpr != null && types.isAssignable(wildCardMatchPattern.matchExpr.type,
                         symTable.anyType);
     }

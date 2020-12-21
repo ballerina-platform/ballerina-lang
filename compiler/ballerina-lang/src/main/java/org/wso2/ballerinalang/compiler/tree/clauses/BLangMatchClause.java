@@ -94,11 +94,6 @@ public class BLangMatchClause extends BLangNode implements MatchClauseNode {
     }
 
     @Override
-    public void setLastPatternInClause() {
-        this.hasLastPatternInClause = hasLastPatternInClause;
-    }
-
-    @Override
     public ExpressionNode getExpression() {
         return expr;
     }

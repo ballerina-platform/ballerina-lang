@@ -46,8 +46,6 @@ public interface MatchClauseNode extends Node {
 
     boolean hasLastPatternInClause();
 
-    void setLastPatternInClause();
-
     ExpressionNode getExpression();
 
     void setExpression(ExpressionNode expression);
