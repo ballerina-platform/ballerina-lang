@@ -65,6 +65,7 @@ import org.ballerinalang.core.model.types.BField;
 import org.ballerinalang.core.model.types.BFiniteType;
 import org.ballerinalang.core.model.types.BFunctionType;
 import org.ballerinalang.core.model.types.BMapType;
+import org.ballerinalang.core.model.types.BTableType;
 import org.ballerinalang.core.model.types.BObjectType;
 import org.ballerinalang.core.model.types.BRecordType;
 import org.ballerinalang.core.model.types.BServiceType;
@@ -1127,19 +1128,29 @@ public class BRunUtil {
                         newBTypes));
             case io.ballerina.runtime.api.TypeTags.UNION_TAG:
                 io.ballerina.runtime.api.types.UnionType unionType = (io.ballerina.runtime.api.types.UnionType) jvmType;
-                if (!visitedTypes.empty() && visitedTypes.peek() == unionType) {
-                    visitedTypes.pop();
-                    return newBTypes.pop();
+                int id = visitedTypes.search(unionType);
+                if (id != -1) {
+                    return newBTypes.elementAt(newBTypes.size() - id);
                 }
+
                 memberTypes = new ArrayList<>();
                 BUnionType newUnionModelType = new BUnionType(memberTypes);
+
                 visitedTypes.push(unionType);
                 newBTypes.push(newUnionModelType);
+
                 for (Type type : unionType.getMemberTypes()) {
-                    memberTypes.add(getBVMType(type, selfTypeStack, visitedTypes, newBTypes));
+                    id = visitedTypes.search(type);
+                    if (id != -1) {
+                        memberTypes.add(newBTypes.elementAt(newBTypes.size() - id));
+                        continue;
+                    }
+                    BType btype = getBVMType(type, selfTypeStack, visitedTypes, newBTypes);
+                    visitedTypes.push(type);
+                    newBTypes.push(btype);
+                    memberTypes.add(btype);
                 }
-                visitedTypes.pop();
-                newBTypes.pop();
+
                 return newUnionModelType;
             case io.ballerina.runtime.api.TypeTags.INTERSECTION_TAG:
                 return getBVMType(((IntersectionType) jvmType).getEffectiveType(), selfTypeStack, new Stack<>(),
@@ -1200,6 +1211,13 @@ public class BRunUtil {
                 return new BServiceType(jvmType.getName(), null, 0);
             case io.ballerina.runtime.api.TypeTags.READONLY_TAG:
                 return BTypes.typeReadonly;
+            case io.ballerina.runtime.api.TypeTags.TABLE_TAG:
+                io.ballerina.runtime.api.types.TableType jvmTableType =
+                        (io.ballerina.runtime.api.types.TableType) jvmType;
+                BType constraintType = getBVMType(jvmTableType.getConstrainedType(), selfTypeStack, visitedTypes,
+                        newBTypes);
+                BTableType tableType = new BTableType(constraintType);
+                return tableType;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }
