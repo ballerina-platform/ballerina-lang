@@ -118,41 +118,33 @@ public class Executor {
                                          String packageName, String className, String methodName,
                                          Object... paramValues) {
         try {
-            Class<?> clazz = classLoader.loadClass(orgName + "." + packageName + "." + className);
-            int paramCount = paramValues.length * 2 + 1;
-            Class<?>[] jvmParamTypes = new Class[paramCount];
-            Object[] jvmArgs = new Object[paramCount];
-            jvmParamTypes[0] = Strand.class;
-            jvmArgs[0] = scheduler;
-            for (int i = 0, j = 1; i < paramValues.length; i++) {
-                jvmArgs[j] = paramValues[i];
-                jvmParamTypes[j++] = getJvmType(paramValues[i]);
-                jvmArgs[j] = true;
-                jvmParamTypes[j++] = boolean.class;
-            }
-            Method method = clazz.getDeclaredMethod(methodName, jvmParamTypes);
-            Function<Object[], Object> func = args -> {
-                try {
-                    return method.invoke(null, args);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new BallerinaException(methodName + " function invocation failed: " + e.getMessage());
-                }
-            };
+
             CountDownLatch completeFunction = new CountDownLatch(1);
-            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, new CallableUnitCallback() {
+
+            class Callback implements CallableUnitCallback {
+
+                private CountDownLatch countDownLatch;
+
+                private Callback(CountDownLatch countDownLatch) {
+                    this.countDownLatch = countDownLatch;
+                }
+
                 @Override
                 public void notifySuccess() {
-                    completeFunction.countDown();
+                    countDownLatch.countDown();
                 }
 
                 @Override
                 public void notifyFailure(ErrorValue error) {
-                    completeFunction.countDown();
+                    countDownLatch.countDown();
                 }
-            }, new HashMap<>(), BTypes.typeNull);
+            }
+
+            FutureValue futureValue = (FutureValue) executeFunctionAsync(scheduler, classLoader, orgName, packageName,
+                    className, methodName, new Callback(completeFunction), paramValues);
             completeFunction.await();
             return futureValue.result;
-        } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {
+        } catch (InterruptedException e) {
             throw new BallerinaException("invocation failed: " + e.getMessage());
         }
     }
@@ -169,7 +161,7 @@ public class Executor {
      * @param callback    The callback to be executed when the execution completes.
      * @param paramValues The Parameters to be passed to the invokable unit
      */
-    public static void executeFunctionAsync(Scheduler scheduler, ClassLoader classLoader, final String orgName,
+    public static Object executeFunctionAsync(Scheduler scheduler, ClassLoader classLoader, final String orgName,
             String packageName, String className, String methodName, CallableUnitCallback callback,
             Object... paramValues) {
         try {
@@ -193,8 +185,7 @@ public class Executor {
                     throw new BallerinaException(methodName + " function invocation failed: " + e.getMessage());
                 }
             };
-            FutureValue futureValue = scheduler
-                    .schedule(jvmArgs, func, null, callback, new HashMap<>(), BTypes.typeNull);
+            return scheduler.schedule(jvmArgs, func, null, callback, new HashMap<>(), BTypes.typeNull);
         } catch (NoSuchMethodException | ClassNotFoundException e) {
             throw new BallerinaException("invocation failed: " + e.getMessage());
         }

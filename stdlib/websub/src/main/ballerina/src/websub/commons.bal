@@ -480,7 +480,8 @@ public type SubscriptionChangeResponse record {|
 /////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Commons /////////////////////
 /////////////////////////////////////////////////////////////
-# Represents subscription delivery failures related to the HTTP 410 Gone status code.
+# Represents subscription delivery failure due to the subscriber's callback URL
+# replying with a HTTP 410 Gone status code.
 public const FAILURE_REASON_SUBSCRIPTION_GONE = "SUBSCRIPTION_GONE";
 
 # Represents subscription delivery failures related to HTTP failure status codes except 410 Gone.
@@ -504,8 +505,8 @@ public type FailureReason FAILURE_REASON_SUBSCRIPTION_GONE|FAILURE_REASON_FAILUR
 # + onMessage - The configuration for passing a function to be invoked when an update is received at the hub
 # + onDelivery - The configuration for passing a function to be invoked when an update is successfully delivered to the subscribers
 # + onDeliveryFailure - The configuration for passing a function to be invoked when an update is failed to be delivered to the subscribers
-# + asyncContentDelivery - The configuration for specifying the way(sync/async) of the update delivery to subscribers. Setting this to true
-#                          may change the order
+# + asyncContentDelivery - The configuration to specify is content delivery to subscribers should be done asynchronously.
+#                          Setting this to `true` may result in the order not being preserved in message delivery.
 public type HubConfiguration record {|
     int leaseSeconds = 86400;
     SignatureMethod signatureMethod = SHA256;
@@ -579,7 +580,7 @@ public function startHub(http:Listener hubServiceListener,
     hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
     remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
     hubTopicRegistrationRequired = hubConfiguration.topicRegistrationRequired;
-    var onMessageFunc = hubConfiguration["onMessage"];
+    var onMessageFunc = hubConfiguration?.onMessage;
     if (!(onMessageFunc is ())) {
        onMessageFunction = onMessageFunc;
     }
@@ -591,7 +592,7 @@ public function startHub(http:Listener hubServiceListener,
     if (!(onDeliveryFailureFunc is ())) {
        onDeliveryFailureFunction = onDeliveryFailureFunc;
     }
-    asyncContentDelivery = hubConfiguration["asyncContentDelivery"];
+    asyncContentDelivery = hubConfiguration.asyncContentDelivery;
 
     // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code

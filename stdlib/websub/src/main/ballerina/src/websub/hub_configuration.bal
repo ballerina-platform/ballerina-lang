@@ -91,7 +91,7 @@ function defaultOnMessageFunction(WebSubContent content) {
 }
 
 function defaultOnDeliveryFunction(string callback, string topic, WebSubContent content) {
-    log:printDebug("Content delivery to callback[" + callback + "] successful for topic[" + topic + "]");
+    log:printDebug(() => "Content delivery to callback[" + callback + "] successful for topic[" + topic + "]");
 }
 
 function defaultOnDeliveryFailureFunction(string callback, string topic, WebSubContent content,
@@ -99,13 +99,14 @@ function defaultOnDeliveryFailureFunction(string callback, string topic, WebSubC
     if (reason is FAILURE_REASON_SUBSCRIPTION_GONE) {
        log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
                      + "], topic[" + topic + "]");
+       return;
     } else if (reason is FAILURE_REASON_FAILURE_STATUS_CODE) {
        http:Response resp = <http:Response> response;
        log:printError("Error delivering content to callback[" + callback + "] for topic["
                                 + topic + "]: received response code " + resp.statusCode.toString());
-    } else {
-       error err = <error> response;
-       log:printError("Error delivering content to callback[" + callback + "] for topic["
-                                   + topic + "]: " + <string> err.detail()?.message);
+       return;
     }
+    error err = <error> response;
+    log:printError("Error delivering content to callback[" + callback + "] for topic["
+                                   + topic + "]: " + <string> err.detail()?.message);
 }
