@@ -99,19 +99,18 @@ function testGroupedTypedescLibInvocation() returns boolean {
     return f is Foo && f.s == data["s"];
 }
 
-// isNaN() invocation on (0.0/0.0) expression is not supported yet.
 function testGroupedBuiltInInvocationRef() returns boolean {
     float f = 0.0/0.0;
-    return f.isNaN() && (f).isNaN(); // && (0.0/0.0).isNaN();
+    return f.isNaN() && (f).isNaN() && (0.0/0.0).isNaN();
 }
 
-// function testGroupedLangLibInvocationRef() returns boolean {
-//     string x = "value";
-//     return (("string " + x)).length() == 12;
-// }
+function testGroupedLangLibInvocationRef() returns boolean {
+    string x = "value";
+    return (("string " + x)).length() == 12;
+}
 
-// function testNestedGroupedInvocationRef() returns boolean {
-//     PersonObj p = new;
-//     map<PersonObj> dataMap = {"a": p};
-//     return p.getName() === (<PersonObj>(dataMap)["a"]).getName();
-// }
+function testNestedGroupedInvocationRef() returns boolean {
+    PersonObj p = new;
+    map<PersonObj> dataMap = {"a": p};
+    return p.getName() === (<PersonObj>(dataMap)["a"]).getName();
+}
