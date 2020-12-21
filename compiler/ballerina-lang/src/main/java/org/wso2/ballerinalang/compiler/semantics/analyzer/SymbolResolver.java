@@ -1509,7 +1509,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         boolean foundDefaultableParam = false;
         List<String> paramNames = new ArrayList<>();
-        for (BLangVariable paramNode :  paramVars) {
+        for (BLangVariable paramNode : paramVars) {
             BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
             Name paramName = names.fromIdNode(param.name);
             if (paramName != Names.EMPTY) {
@@ -1866,55 +1866,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         return types.getTypeIntersection(lhsType, rhsType);
     }
-
-//    public void resolveCyclicUnionType(BUnionType unionType) {
-//        var unionsymbolName = unionType.tsymbol.name.getValue();
-//
-//        for (BType member : unionType.getMemberTypes()) {
-//            if (member.tag == TypeTags.ARRAY) {
-//                var arrayType = (BArrayType) member;
-//                if (arrayType.eType == unionType) {
-//                    continue;
-//                }
-//                if (arrayType.eType.tsymbol.name.getValue().equals(unionsymbolName)) {
-//                    arrayType.eType = unionType;
-//                    continue;
-//                }
-//            }
-//
-//            if (member.tag == TypeTags.MAP) {
-//                var mapType = (BMapType) member;
-//                if (mapType.constraint == unionType) {
-//                    continue;
-//                }
-//                if (mapType.constraint.tsymbol.name.getValue().equals(unionsymbolName)) {
-//                    mapType.constraint = unionType;
-//                    continue;
-//                }
-//            }
-//
-//            if (member.tag == TypeTags.TABLE) {
-//                var tableType = (BTableType) member;
-//                if (tableType.constraint == unionType) {
-//                    continue;
-//                }
-//                if (tableType.constraint.tsymbol.name.getValue().equals(unionsymbolName)) {
-//                    tableType.constraint = unionType;
-//                    continue;
-//                }
-//                if (tableType.constraint.tag == TypeTags.MAP) {
-//                    var mapType = (BMapType) tableType.constraint;
-//                    if (mapType.constraint == unionType) {
-//                        continue;
-//                    }
-//                    if (mapType.constraint.tsymbol.name.getValue().equals(unionsymbolName)) {
-//                        mapType.constraint = unionType;
-//                        continue;
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     private static class ParameterizedTypeInfo {
         BType paramValueType;
