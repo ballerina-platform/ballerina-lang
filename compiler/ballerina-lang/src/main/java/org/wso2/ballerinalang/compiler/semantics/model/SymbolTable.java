@@ -729,7 +729,7 @@ public class SymbolTable {
     }
 
     private void defineCloneableCyclicTypeAndDependentTypes() {
-        cloneableType = BUnionType.create(null, readonlyType, xmlType, jsonType);
+        cloneableType = BUnionType.create(null, readonlyType, xmlType);
         cloneableType.isCyclic = true;
         BArrayType arrayCloneableType = new BArrayType(cloneableType);
         BMapType mapCloneableType = new BMapType(TypeTags.MAP, cloneableType, null);
