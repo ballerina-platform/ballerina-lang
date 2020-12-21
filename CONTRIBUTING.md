@@ -56,7 +56,7 @@ For installation instructions, see [Ballerina VS Code Documentation](https://bal
 
 1. Do your changes in the source code.
     
-    <details>
+    <!--<details>
     <summary>Contributing to Ballerina Grammer:</summary>
 
     Ballerina grammar has been implemented using ANTLR plugin version 4.5.3. To get a basic understanding of ANTLR grammar syntax and concepts before working with Ballerina grammar, go to [Parr, Terence (January 15, 2013), The Definitive ANTLR 4 Reference](https://www.oreilly.com/library/view/the-definitive-antlr/9781941222621/).
@@ -78,7 +78,7 @@ For installation instructions, see [Ballerina VS Code Documentation](https://bal
 
     For more information about the Ballerina compiler, go to [Ballerina Compiler — Design](https://medium.com/@sameerajayasoma/ballerina-compiler-design-3406acc2476c?).
 
-    </details>
+    </details>-->
 
 2. Add unit tests accordingly. (The build process will automatically execute all the tests.)
 3. Commit the changes to your fork and push them to the corresponding original repo by sending a Pull Request (PR). 
