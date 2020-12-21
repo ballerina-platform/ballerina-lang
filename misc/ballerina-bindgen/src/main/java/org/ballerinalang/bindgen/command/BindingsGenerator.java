@@ -251,8 +251,6 @@ public class BindingsGenerator {
                 }
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
                 failedClassGens.put(c, e.toString());
-            } catch (BindgenException e) {
-                throw new BindgenException("Error while generating Ballerina bridge code: " + e);
             }
         }
     }
