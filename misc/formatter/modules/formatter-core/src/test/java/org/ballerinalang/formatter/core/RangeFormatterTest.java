@@ -54,8 +54,8 @@ public abstract class RangeFormatterTest {
     private static final Gson gson = new Gson();
 
     @Test(dataProvider = "test-file-provider")
-    public void test(Path sourceFilePath, Path assertFilePath, ArrayList<LineRange> lineRanges)
-            throws IOException, FormatterException {
+    public void test(Path sourceFilePath, Path assertFilePath, ArrayList<LineRange> lineRanges) throws IOException,
+            FormatterException {
         String content = getFileContent(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument, sourceFilePath.toString());
