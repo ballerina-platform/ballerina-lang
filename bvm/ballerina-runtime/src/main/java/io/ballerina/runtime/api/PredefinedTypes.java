@@ -41,7 +41,6 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
-import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlAttributesType;
 import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.internal.IteratorUtils;
@@ -65,12 +64,14 @@ import io.ballerina.runtime.internal.types.BReadonlyType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BStringType;
+import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlAttributesType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
@@ -163,10 +164,11 @@ public class PredefinedTypes {
     public static final IteratorType TYPE_ITERATOR = new BIteratorType(TypeConstants.ITERATOR_TNAME, EMPTY_MODULE);
     public static final ServiceType TYPE_ANY_SERVICE = new BServiceType(TypeConstants.SERVICE, EMPTY_MODULE, 0);
     public static final HandleType TYPE_HANDLE = new BHandleType(TypeConstants.HANDLE_TNAME, EMPTY_MODULE);
-    public static final UnionType ANYDATA_OR_READONLY = new BUnionType(Arrays.asList(TYPE_ANYDATA, TYPE_READONLY));
-    private static final MapType TYPE_DETAIL = new BMapType(TypeConstants.MAP_TNAME, ANYDATA_OR_READONLY, EMPTY_MODULE);
-    public static final Type TYPE_ERROR_DETAIL = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_DETAIL);
-    public static final ErrorType TYPE_ERROR = new BErrorType(TypeConstants.ERROR, EMPTY_MODULE, TYPE_DETAIL);
+    public static final MapType TYPE_DETAIL;
+    public static final Type TYPE_ERROR_DETAIL;
+    public static final ErrorType TYPE_ERROR;
+    public static final BUnionType TYPE_CLONEABLE;
+
 
     public static final RecordType STRING_ITR_NEXT_RETURN_TYPE =
             IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING);
@@ -174,6 +176,22 @@ public class PredefinedTypes {
             .createIteratorNextReturnType(
                     new BUnionType(Arrays.asList(PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_XML)));
 
-    private PredefinedTypes() {
+    static {
+        ArrayList<Type> members = new ArrayList<>();
+        members.add(TYPE_XML);
+        members.add(TYPE_READONLY);
+        members.add(TYPE_JSON);
+        BUnionType cloneable = new BUnionType(members);
+        cloneable.isCyclic = true;
+        MapType internalCloneableMap = new BMapType(TypeConstants.MAP_TNAME, cloneable, EMPTY_MODULE);
+        ArrayType internalCloneableArray = new BArrayType(cloneable);
+        BTableType internalCloneableMapTable = new BTableType(cloneable, false);
+        members.add(internalCloneableMap);
+        members.add(internalCloneableArray);
+        members.add(internalCloneableMapTable);
+        TYPE_CLONEABLE = cloneable;
+        TYPE_DETAIL = new BMapType(TypeConstants.MAP_TNAME, TYPE_CLONEABLE, EMPTY_MODULE);
+        TYPE_ERROR_DETAIL = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_DETAIL);
+        TYPE_ERROR = new BErrorType(TypeConstants.ERROR, EMPTY_MODULE, TYPE_DETAIL);
     }
 }
