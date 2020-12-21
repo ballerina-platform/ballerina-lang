@@ -17,8 +17,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CompletionContext;
@@ -28,6 +26,8 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -48,11 +48,11 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
             return this.getClassBodyCompletions(context);
         }
 
-        if (this.onTypeReferenceContext(context)) {
-            return new ArrayList<>();
+        if (onClassTypeQualifiers(context, node)) {
+            return getClassTypeCompletions(context);
         }
 
-        return this.getClassTypeCompletions(context, node);
+        return Collections.emptyList();
     }
 
     @Override
@@ -60,29 +60,19 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         return !node.classKeyword().isMissing();
     }
 
-    private List<LSCompletionItem> getClassTypeCompletions(CompletionContext context, ClassDefinitionNode node) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        SnippetCompletionItem kwDistinct = new SnippetCompletionItem(context, Snippet.KW_DISTINCT.get());
-        SnippetCompletionItem kwClient = new SnippetCompletionItem(context, Snippet.KW_CLIENT.get());
-        SnippetCompletionItem kwReadonly = new SnippetCompletionItem(context, Snippet.KW_READONLY.get());
-        completionItems.add(kwDistinct);
-        completionItems.add(kwClient);
-        completionItems.add(kwReadonly);
-        node.classTypeQualifiers().forEach(token -> {
-            switch (token.kind()) {
-                case DISTINCT_KEYWORD:
-                    completionItems.remove(kwDistinct);
-                    break;
-                case CLIENT_KEYWORD:
-                    completionItems.remove(kwClient);
-                    break;
-                case READONLY_KEYWORD:
-                    completionItems.remove(kwReadonly);
-                    break;
-                default:
-                    break;
-            }
-        });
+    private boolean onClassTypeQualifiers(CompletionContext context, ClassDefinitionNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token classKeyword = node.classKeyword();
+
+        return cursor < classKeyword.textRange().startOffset();
+    }
+
+    private List<LSCompletionItem> getClassTypeCompletions(CompletionContext context) {
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
+        List<Snippet> snippets = Arrays.asList(
+                Snippet.KW_DISTINCT, Snippet.KW_READONLY, Snippet.KW_ISOLATED, Snippet.KW_CLIENT, Snippet.KW_SERVICE
+        );
+        snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
 
         return completionItems;
     }
@@ -115,18 +105,5 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         completionItems.addAll(this.getModuleCompletionItems(context));
 
         return completionItems;
-    }
-
-    private boolean onTypeReferenceContext(CompletionContext context) {
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-
-        while (nodeAtCursor.kind() != SyntaxKind.CLASS_DEFINITION) {
-            if (nodeAtCursor.kind() == SyntaxKind.TYPE_REFERENCE) {
-                return true;
-            }
-            nodeAtCursor = nodeAtCursor.parent();
-        }
-
-        return false;
     }
 }
