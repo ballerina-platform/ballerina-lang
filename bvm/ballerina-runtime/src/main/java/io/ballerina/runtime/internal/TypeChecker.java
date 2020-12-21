@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
@@ -915,8 +916,13 @@ public class TypeChecker {
             }
             BXmlType source = (BXmlType) sourceType;
             if (source.constraint.getTag() == TypeTags.NEVER_TAG) {
-                return targetConstraint.getTag() == TypeTags.UNION_TAG ||
-                        targetConstraint.getTag() == TypeTags.XML_TEXT_TAG ||
+                if (targetConstraint.getTag() == TypeTags.UNION_TAG) {
+//                    Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) target.constraint);
+//                    Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
+//                            ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
+//                    return builtinXMLConstraintTypes.equals(collectionTypes);
+                }
+                return targetConstraint.getTag() == TypeTags.XML_TEXT_TAG ||
                         targetConstraint.getTag() == TypeTags.NEVER_TAG;
             }
             return checkIsType(source.constraint, targetConstraint, unresolvedTypes);
