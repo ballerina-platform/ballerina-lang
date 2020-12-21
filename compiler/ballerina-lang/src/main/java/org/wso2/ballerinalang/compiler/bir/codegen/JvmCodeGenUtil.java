@@ -18,8 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -95,6 +97,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
 public class JvmCodeGenUtil {
     public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
     public static final String INITIAL_METHOD_DESC = String.format("(L%s;", STRAND_CLASS);
+    private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
 
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
@@ -213,19 +216,18 @@ public class JvmCodeGenUtil {
     }
 
     static void generateStrandMetadata(MethodVisitor mv, String moduleClass,
-                                       BIRNode.BIRPackage module, AsyncDataCollector asyncDataCollector) {
+                                       PackageID packageID, AsyncDataCollector asyncDataCollector) {
         asyncDataCollector.getStrandMetadata().forEach(
-                (varName, metaData) -> genStrandMetadataField(mv, moduleClass, module, varName, metaData));
+                (varName, metaData) -> genStrandMetadataField(mv, moduleClass, packageID, varName, metaData));
     }
 
-    private static void genStrandMetadataField(MethodVisitor mv, String moduleClass, BIRNode.BIRPackage module,
+    private static void genStrandMetadataField(MethodVisitor mv, String moduleClass, PackageID packageID,
                                                String varName, ScheduleFunctionInfo metaData) {
-
         mv.visitTypeInsn(Opcodes.NEW, STRAND_METADATA);
         mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.org.value));
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.name.value));
-        mv.visitLdcInsn(module.version.value);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.orgName.value));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.name.value));
+        mv.visitLdcInsn(packageID.version.value);
         if (metaData.typeName == null) {
             mv.visitInsn(Opcodes.ACONST_NULL);
         } else {
@@ -257,26 +259,14 @@ public class JvmCodeGenUtil {
     }
 
     public static String getPackageName(PackageID packageID) {
-        return getPackageName(packageID.orgName, packageID.name, packageID.version);
+        return getPackageNameWithSeparator(packageID, "/");
     }
 
-    public static String getPackageName(BIRNode.BIRPackage module) {
-        return getPackageName(module.org, module.name, module.version);
-    }
-
-    public static String getPackageName(Name orgName, Name moduleName, Name version) {
-        return getPackageName(orgName.getValue(), moduleName.getValue(), version.getValue());
-    }
-
-    public static String getPackageName(String orgName, String moduleName, String version) {
-        return getPackageNameWithSeparator(orgName, moduleName, version, "/");
-    }
-
-    private static String getPackageNameWithSeparator(String orgName, String moduleName, String version,
-                                                      String separator) {
+    private static String getPackageNameWithSeparator(PackageID packageID, String separator) {
         String packageName = "";
-        orgName = IdentifierUtils.encodeNonFunctionIdentifier(orgName);
-        moduleName = IdentifierUtils.encodeNonFunctionIdentifier(moduleName);
+        String orgName = IdentifierUtils.encodeNonFunctionIdentifier(packageID.orgName.value);
+        String moduleName = IdentifierUtils.encodeNonFunctionIdentifier(packageID.name.value);
+        String version = packageID.version.value;
         if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
             if (!version.equals("")) {
                 packageName = getVersionDirectoryName(version) + separator;
@@ -294,23 +284,17 @@ public class JvmCodeGenUtil {
         return name.replace(".", "_");
     }
 
-    public static String getModuleLevelClassName(BIRNode.BIRPackage module, String sourceFileName) {
-        return getModuleLevelClassName(module.org.value, module.name.value, module.version.value, sourceFileName);
+    public static String getModuleLevelClassName(PackageID packageID, String sourceFileName) {
+        return getModuleLevelClassName(packageID, sourceFileName, "/");
     }
 
-    public static String getModuleLevelClassName(String orgName, String moduleName, String version,
-                                                 String sourceFileName) {
-        return getModuleLevelClassName(orgName, moduleName, version, sourceFileName, "/");
-    }
-
-    static String getModuleLevelClassName(String orgName, String moduleName, String version, String sourceFileName,
-                                          String separator) {
+    static String getModuleLevelClassName(PackageID packageID, String sourceFileName, String separator) {
         String className = cleanupSourceFileName(sourceFileName);
         // handle source file path start with '/'.
         if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
             className = className.substring(1);
         }
-        return getPackageNameWithSeparator(orgName, moduleName, version, separator) + className;
+        return getPackageNameWithSeparator(packageID, separator) + className;
     }
 
     private static String cleanupSourceFileName(String name) {
@@ -580,6 +564,11 @@ public class JvmCodeGenUtil {
     public static boolean isBuiltInPackage(PackageID packageID) {
         packageID = cleanupPackageID(packageID);
         return BALLERINA.equals(packageID.orgName.value) && BUILT_IN_PACKAGE_NAME.equals(packageID.name.value);
+    }
+
+    public static String cleanupFunctionName(String functionName) {
+        return StringUtils.containsAny(functionName, "\\.:/<>") ?
+                "$" + JVM_RESERVED_CHAR_SET.matcher(functionName).replaceAll("_") : functionName;
     }
 
     private JvmCodeGenUtil() {

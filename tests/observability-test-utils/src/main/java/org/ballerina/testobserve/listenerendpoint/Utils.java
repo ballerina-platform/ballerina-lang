@@ -21,7 +21,6 @@ package org.ballerina.testobserve.listenerendpoint;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BObject;
 
 import java.io.PrintStream;
 
@@ -45,23 +44,18 @@ public class Utils {
                                                 StringUtils.fromString(t.getMessage()));
     }
 
-    /**
-     * Get the sanitized service name of a Ballerina service object.
-     *
-     * @param serviceObject The Ballerina service object of which the name should be fetched
-     * @return The name of the service object
-     */
-    public static String getServiceName(BObject serviceObject) {
-        String serviceTypeName = serviceObject.getType().getName();
-        int serviceIdentifierIndex = serviceTypeName.indexOf("$$service$");
-        return serviceTypeName.substring(0, serviceIdentifierIndex);
-    }
-
     public static void logInfo(String format, Object ... args) {
         out.printf("[Mock Listener] - INFO - " + format + "\n", args);
     }
 
     public static void logError(String format, Object ... args) {
         out.printf("[Mock Listener] - ERROR - " + format + "\n", args);
+    }
+
+    public static String normalizeResourcePath(String resourcePath) {
+        if (!resourcePath.startsWith("/")) {
+            resourcePath = "/"  + resourcePath;
+        }
+        return resourcePath;
     }
 }

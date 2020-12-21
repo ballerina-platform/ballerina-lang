@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.util;
 
+import io.ballerina.cli.utils.JarFileWriter;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
@@ -25,7 +26,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -80,7 +80,9 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAR_CACHE
  * Utility methods for compile Ballerina files.
  *
  * @since 0.94
+ * @deprecated use {@link org.ballerinalang.test.BCompileUtil} instead.
  */
+@Deprecated
 public class BCompileUtil {
 
     //TODO find a way to remove below line.
@@ -169,16 +171,14 @@ public class BCompileUtil {
 
         BIRNode.BIRPackage birPackage = bLangPackage.symbol.bir;
 
-        String initClassName = BFileUtil.getQualifiedClassName(birPackage.org.value,
-                                                               birPackage.name.value,
-                                                               birPackage.version.value,
+        String initClassName = BFileUtil.getQualifiedClassName(birPackage.packageID,
                                                                TestConstant.MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
         if (temp) {
-            scheduler.immortal = true;
+            scheduler.setImmortal(true);
             new Thread(scheduler::start).start();
         }
     }
@@ -487,6 +487,24 @@ public class BCompileUtil {
         return comResult;
     }
 
+    public static CompileResult compile(String projectPath, String packageName, CompilerContext context,
+                                        CompilerPhase compilerPhase) {
+        Path sourceRoot = resourceDir.resolve(projectPath);
+
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRoot.toString());
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(OFFLINE, "true");
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage packageNode = compiler.compile(packageName);
+        CompileResult comResult = new CompileResult(context, packageNode);
+        return comResult;
+    }
+
     private static CompileResult compile(CompilerContext context,
                                          String packageName,
                                          CompilerPhase compilerPhase,
@@ -601,10 +619,7 @@ public class BCompileUtil {
     public static ExitDetails run(CompileResult compileResult, String[] args) {
 
         BIRNode.BIRPackage compiledPkg = ((BLangPackage) compileResult.getAST()).symbol.bir;
-        String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.org.value,
-                                                               compiledPkg.name.value,
-                                                               compiledPkg.version.value,
-                                                               MODULE_INIT_CLASS_NAME);
+        String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.packageID, MODULE_INIT_CLASS_NAME);
         URLClassLoader classLoader = compileResult.classLoader;
 
         try {

@@ -25,10 +25,10 @@ import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -171,11 +171,6 @@ public class LangLibArrayTest {
     }
 
     @Test
-    public void testSliceOnTupleWithRestDesc() {
-        BRunUtil.invokeFunction(compileResult, "testSliceOnTupleWithRestDesc");
-    }
-
-    @Test
     public void testRemove() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemove");
         assertEquals(returns[0].stringValue(), "FooFoo");
@@ -223,7 +218,7 @@ public class LangLibArrayTest {
     @Test
     public void testReverseInt() {
         BRunUtil.invoke(compileResult, "testReverseInt");
-    }
+    } 
 
     @Test
     public void testReverseFloat() {
@@ -308,11 +303,6 @@ public class LangLibArrayTest {
     public void testRemoveAll() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAll");
         assertEquals(returns[0].stringValue(), "[]");
-    }
-
-    @Test
-    public void testPush() {
-        BRunUtil.invoke(compileResult, "testPush");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -500,19 +490,10 @@ public class LangLibArrayTest {
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
-    @Test
-    public void testShiftOperation() {
-        BRunUtil.invoke(compileResult, "testShiftOperation");
-    }
 
-    @Test
-    public void testSort1() {
-        BRunUtil.invoke(compileResult, "testSort1");
-    }
-
-    @Test
-    public void testSort2() {
-        BRunUtil.invoke(compileResult, "testSort2");
+    @Test(dataProvider = "FunctionList")
+    public void testArrayFunctions(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
     }
 
     @Test
@@ -530,38 +511,23 @@ public class LangLibArrayTest {
         }
     }
 
-    @Test
-    public void testSort4() {
-        BRunUtil.invoke(compileResult, "testSort4");
-    }
-
-    @Test
-    public void testSort5() {
-        BRunUtil.invoke(compileResult, "testSort5");
-    }
-
-    @Test
-    public void testSort6() {
-        BRunUtil.invoke(compileResult, "testSort6");
-    }
-
-    @Test
-    public void testSort7() {
-        BRunUtil.invoke(compileResult, "testSort7");
-    }
-
-    @Test
-    public void testSort8() {
-        BRunUtil.invoke(compileResult, "testSort8");
-    }
-
-    @Test
-    public void testSort9() {
-        BRunUtil.invoke(compileResult, "testSort9");
-    }
-
-    @Test
-    public void testSort10() {
-        BRunUtil.invoke(compileResult, "testSort10");
+    @DataProvider(name = "FunctionList")
+    public Object[] testFunctions() {
+        return new Object[]{
+                "testSliceOnTupleWithRestDesc",
+                "testLastIndexOf",
+                "testPush",
+                "testShiftOperation",
+                "testSort1",
+                "testSort2",
+                "testSort4",
+                "testSort5",
+                "testSort6",
+                "testSort7",
+                "testSort8",
+                "testSort9",
+                "testSort10",
+                "testReadOnlyArrayFilter"
+        };
     }
 }

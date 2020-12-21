@@ -60,11 +60,17 @@
                       ]
                     },
                     {
-                      "kind": "TYPE_KEYWORD",
-                      "isMissing": true,
+                      "kind": "LIST",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_TYPE_KEYWORD"
+                      "children": [
+                        {
+                          "kind": "TYPE_KEYWORD",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_TYPE_KEYWORD"
+                          ]
+                        }
                       ]
                     }
                   ]
@@ -101,11 +107,17 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "TYPE_KEYWORD",
-                      "isMissing": true,
+                      "kind": "LIST",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_TYPE_KEYWORD"
+                      "children": [
+                        {
+                          "kind": "TYPE_KEYWORD",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_TYPE_KEYWORD"
+                          ]
+                        }
                       ]
                     }
                   ]

@@ -30,4 +30,9 @@ public class TomlBooleanValueNode extends TomlBasicValueNode<Boolean> {
     public TomlBooleanValueNode(Boolean value, TomlNodeLocation location) {
         super(value, TomlType.BOOLEAN, location);
     }
+
+    @Override
+    public void accept(TomlNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -19,9 +19,9 @@
 package org.ballerinalang.langlib.table;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.TableType;
-import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
@@ -51,8 +51,10 @@ public class Filter {
                                                                       TABLE_VERSION, "filter");
 
     public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
-        Type newTableType = tbl.getType();
-        BTable newTable = ValueCreator.createTableValue((TableType) newTableType);
+        TableType tableType = (TableType) tbl.getType();
+        BTable newTable =
+                ValueCreator.createTableValue(TypeCreator.createTableType(tableType.getConstrainedType(),
+                        tableType.getFieldNames(), false));
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         // accessing the parent strand here to use it with each iteration

@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.internal.diagnostics;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 /**
@@ -226,6 +227,15 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_NAMED_WORKER_DECLARATION_IN_FORK_STMT("BCE0513",
             "error.missing.named.worker.declaration.in.fork.stmt"),
     ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE0514", "error.missing.key.expr.in.member.access.expr"),
+    ERROR_MISSING_ERROR_MESSAGE_BINDING_PATTERN("BCE0515", "error.missing.error.message.binding.pattern"),
+    ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED("BCE0516",
+            "error.configurable.variable.must.be.initialized"),
+    ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION("BCE0517",
+            "error.missing.resource.path.in.resource.accessor.definition"),
+    ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION("BCE0518",
+            "error.missing.resource.path.in.resource.accessor.declaration"),
+    ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0519", "error.missing.positional.arg.in.error.constructor"),
+    ERROR_MISSING_ARG_WITHIN_PARENTHESIS("BCE0520", "error.missing.arg.within.parenthesis"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -256,7 +266,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_EXPR_IN_COMPOUND_ASSIGNMENT_LHS("BCE0620", "error.invalid.expr.in.compound.assignment.lhs"),
     ERROR_INVALID_METADATA("BCE0621", "error.invalid.metadata"),
     ERROR_INVALID_QUALIFIER("BCE0622", "error.invalid.qualifier"),
-    ERROR_INVALID_ANNOTATIONS("BCE0623", "error.invalid.annotations"),
+    ERROR_ANNOTATIONS_ATTACHED_TO_STATEMENT("BCE0623", "error.annotations.attached.to.statement"),
     ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD("BCE0624", "error.more.field.match.patterns.after.rest.field"),
     ERROR_ACTION_AS_A_WAIT_EXPR("BCE0625", "error.action.as.a.wait.expr"),
     ERROR_INVALID_USAGE_OF_VAR("BCE0626", "error.invalid.usage.of.var"),
@@ -268,7 +278,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE0631",
             "error.required.parameter.after.the.defaultable.parameter"),
     ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG("BCE0632", "error.named.arg.followed.by.positional.arg"),
-    ERROR_ARG_FOLLOWED_BY_REST_ARG("BCE0633", "error.arg.followed.by.rest.arg"),
+    ERROR_REST_ARG_FOLLOWED_BY_ANOTHER_ARG("BCE0633", "error.rest.arg.followed.by.another.arg"),
     ERROR_BINDING_PATTERN_NOT_ALLOWED("BCE0634", "error.binding.pattern.not.allowed"),
     ERROR_INVALID_BASE16_CONTENT_IN_BYTE_ARRAY_LITERAL("BCE0635", "error.invalid.base16.content.in.byte.array.literal"),
     ERROR_INVALID_BASE64_CONTENT_IN_BYTE_ARRAY_LITERAL("BCE0636", "error.invalid.base64.content.in.byte.array.literal"),
@@ -294,6 +304,18 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_DOUBLE_HYPHEN_NOT_ALLOWED_WITHIN_XML_COMMENT("BCE0655", "error.double.hyphen.not.allowed.within.xml.comment"),
     ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED("BCE0656",
             "error.version.in.import.declaration.no.longer.supported"),
+    ERROR_MORE_THAN_ONE_OBJECT_NETWORK_QUALIFIERS("BCE657", "error.more.than.one.object.network.qualifiers"),
+    ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER("BCE658", "error.remote.method.has.a.visibility.qualifier"),
+    ERROR_PRIVATE_QUALIFIER_IN_OBJECT_MEMBER_DESCRIPTOR("BCE659",
+            "error.private.qualifier.in.object.member.descriptor"),
+    ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION("BCE660", "error.resource.path.in.function.definition"),
+    ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH("BCE0661",
+            "error.rest.param.must.be.the.last.segment.of.resource.path"),
+    ERROR_REST_ARG_IN_ERROR_CONSTRUCTOR("BCE0662", "error.rest.arg.in.error.constructor"),
+    ERROR_ADDITIONAL_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0663",
+            "error.additional.positional.arg.in.error.constructor"),
+    ERROR_DEFAULTABLE_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE664",
+            "error.defaultable.parameter.cannot.be.included.record.parameter"),
     ;
 
     String diagnosticId;
@@ -317,5 +339,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     @Override
     public String messageKey() {
         return messageKey;
+    }
+
+    public boolean equals(DiagnosticCode code) {
+        return this.messageKey.equals(code.messageKey());
     }
 }

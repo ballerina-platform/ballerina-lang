@@ -31,7 +31,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.CLASS_NOT_FOUND;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.CLASS_NOT_FOUND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 
 /**

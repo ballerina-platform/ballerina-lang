@@ -28,8 +28,8 @@ buildscript {
 }
 
 apply plugin: 'name.valery1707.kaitai'
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
-
+apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 dependencies {
     implementation project(':ballerina-core')
@@ -38,25 +38,6 @@ dependencies {
     implementation 'io.kaitai:kaitai-struct-runtime:0.8'
     implementation 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'
     implementation 'com.github.jknack:handlebars'
-
-    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:floatingpoint', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
 
     testCompile 'org.testng:testng'
     testCompile project(':ballerina-test-utils')

@@ -7,4 +7,4 @@ SYNOPSIS
 
 DESCRIPTION
        Clean removes artifacts generated inside the target directory during
-       the build. This command is only valid inside a Ballerina project.
+       the build. This command is only valid inside a Ballerina package.

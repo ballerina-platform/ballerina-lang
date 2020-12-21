@@ -87,6 +87,10 @@ dependencies {
         implementation 'org.javassist:javassist:3.24.1-GA'
         implementation 'org.jvnet.mimepull:mimepull:1.9.11'
         implementation 'org.mockito:mockito-all:1.10.19'
+        implementation 'org.powermock:powermock-mockito-release-full:1.6.4'
+        implementation 'org.powermock:powermock-module-testng-common:1.6.4'
+        implementation 'org.powermock:powermock-mockito-release-full:1.6.4'
+        implementation 'org.powermock:powermock-module-testng-common:1.6.4'
         implementation 'org.mvel:mvel2:2.4.4.Final'
         implementation 'org.ow2.asm:asm:7.1'
         implementation 'org.ow2.asm:asm-util:7.1'
@@ -125,6 +129,7 @@ dependencies {
         implementation 'me.tongfei:progressbar:0.7.4'
         implementation 'org.jline:jline:3.11.0'
         implementation 'jakarta.activation:jakarta.activation-api:1.2.2'
+        implementation 'com.github.zafarkhaja:java-semver:0.9.0'
 
         implementation 'javax.transaction:javax.transaction-api:1.3'
         implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1'

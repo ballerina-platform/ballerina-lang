@@ -15,9 +15,7 @@
  */
 package org.ballerinalang.langserver.commons.codeaction.spi;
 
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -45,46 +43,39 @@ public interface LSCodeActionProvider {
      *
      * @return True if code action is enabled, False otherwise
      */
-    boolean isEnabled();
+    default boolean isEnabled() {
+        return true;
+    }
 
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
-     * @param matchedNode     matched {@link NonTerminalNode}
-     * @param matchedNodeType matched {@link CodeActionNodeType}
-     * @param allDiagnostics  diagnostics list of the module
-     * @param syntaxTree      {@link SyntaxTree}
      * @param context         language server context
      * @return list of Code Actions
      */
-    List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
-                                             List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                             LSContext context);
+    List<CodeAction> getNodeBasedCodeActions(CodeActionContext context);
 
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
-     *
-     * @param diagnostic
-     * @param positionDetails {@link PositionDetails}
-     * @param allDiagnostics  diagnostics list of the module
-     * @param syntaxTree      {@link SyntaxTree}
+     * @param diagnostic      diagnostic to evaluate
      * @param context         language server context
      * @return list of Code Actions
      */
-    List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, PositionDetails positionDetails,
-                                             List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                             LSContext context);
+    List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                             CodeActionContext context);
 
     /**
      * Returns True of node type based code actions are supported.
-     * @return  True of node type based code actions are supported, False otherwise
+     *
+     * @return True of node type based code actions are supported, False otherwise
      */
     boolean isNodeBasedSupported();
 
     /**
      * Returns True of code diagnostics type based code actions are supported.
-     * @return  True of code diagnostics based code actions are supported, False otherwise
+     *
+     * @return True of code diagnostics based code actions are supported, False otherwise
      */
     boolean isDiagBasedSupported();
 

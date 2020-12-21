@@ -18,24 +18,19 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.CLIENT;
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
@@ -45,7 +40,6 @@ import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.READONLY;
 import static io.ballerina.compiler.api.symbols.Qualifier.REMOTE;
 import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
-import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.compile;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -61,10 +55,8 @@ public class SymbolFlagToQualifierMappingTest {
 
     @BeforeClass
     public void setup() {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/symbol_flag_to_qualifier_mapping_test.bal", context);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        model = new BallerinaSemanticModel(pkg, context);
+        model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/symbol_flag_to_qualifier_mapping_test.bal");
     }
 
     @Test(dataProvider = "QualifierProvider")
@@ -78,16 +70,16 @@ public class SymbolFlagToQualifierMappingTest {
     @DataProvider(name = "QualifierProvider")
     public Object[][] getPositionsAndQualifiers() {
         return new Object[][]{
-                {18, 27, getQualifiers(LISTENER, FINAL)},
-                {20, 13, Collections.EMPTY_SET},
-                {23, 25, getQualifiers(PUBLIC)},
-                {39, 19, getQualifiers(READONLY)},
-                {53, 20, getQualifiers(ISOLATED)},
-                {56, 22, getQualifiers(READONLY)},
-                {60, 16, getQualifiers(CLIENT)},
-                {61, 22, getQualifiers(REMOTE)},
-                {70, 24, getQualifiers(RESOURCE)},
-//                {75, 13, getQualifiers(DISTINCT)}, // TODO: enable once issue #26212 is fixed
+                {16, 27, Set.of(LISTENER, FINAL)},
+                {18, 13, new HashSet<Qualifier>()},
+                {19, 20, Set.of(PUBLIC)},
+                {35, 19, Set.of(READONLY)},
+                {49, 20, Set.of(ISOLATED)},
+                {52, 22, Set.of(READONLY, PUBLIC)},
+                {56, 16, Set.of(CLIENT)},
+                {57, 22, Set.of(REMOTE)},
+                {65, 17, Set.of(LISTENER, FINAL)},
+                {66, 24, Set.of(RESOURCE)}
         };
     }
 
@@ -102,13 +94,8 @@ public class SymbolFlagToQualifierMappingTest {
     @DataProvider(name = "SymbolKindProvider")
     public Object[][] getSymbolKinds() {
         return new Object[][]{
-                {23, 25, SymbolKind.METHOD},
-                {69, 10, SymbolKind.SERVICE},
-                {81, 7, SymbolKind.CONSTANT},
+                {19, 20, SymbolKind.METHOD},
+                {75, 7, SymbolKind.CONSTANT},
         };
-    }
-
-    private Set<Qualifier> getQualifiers(Qualifier... quals) {
-        return Stream.of(quals).collect(Collectors.toSet());
     }
 }

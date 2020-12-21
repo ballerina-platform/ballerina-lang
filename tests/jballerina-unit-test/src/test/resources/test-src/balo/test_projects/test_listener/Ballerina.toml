@@ -1,3 +1,4 @@
-[project]
-org-name = "listenerProject"
+[package]
+org = "listenerproject"
+name = "test_listener"
 version = "0.0.0"

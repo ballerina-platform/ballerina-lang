@@ -18,10 +18,9 @@
 
 package org.ballerinalang.test.parser;
 
-import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -199,8 +198,7 @@ public class ResilientParserTest {
 
     @Test
     public void testResilientParsingClassDefn() {
-        CompileResult result = BCompileUtil.compile("test-src/parser/resilient-parsing-class-defn.bal",
-                CompilerPhase.COMPILER_PLUGIN);
+        CompileResult result = BCompileUtil.compile("test-src/parser/resilient-parsing-class-defn.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "missing close brace token", 1, 22);
         BAssertUtil.validateError(result, 1, "missing identifier", 1, 22);
@@ -209,8 +207,7 @@ public class ResilientParserTest {
 
     @Test
     public void testResilientParsingError() {
-        CompileResult result = BCompileUtil.compile("test-src/parser/resilient-parsing-error.bal",
-                CompilerPhase.COMPILER_PLUGIN);
+        CompileResult result = BCompileUtil.compile("test-src/parser/resilient-parsing-error.bal");
         Assert.assertEquals(result.getErrorCount(), 4);
         BAssertUtil.validateError(result, 0, "missing error message binding pattern", 2, 5);
         BAssertUtil.validateError(result, 1, "incompatible types: expected 'error', found 'other'", 2, 12);

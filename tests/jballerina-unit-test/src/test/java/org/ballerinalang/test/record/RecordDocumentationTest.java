@@ -18,9 +18,9 @@ package org.ballerinalang.test.record;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -107,7 +107,7 @@ public class RecordDocumentationTest {
         BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'successfuls'", 47, 9);
         BAssertUtil.validateWarning(compileResult, i++, "field 'url' already documented", 71, 5);
         BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'urls'", 72, 5);
-        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'conn'", 79, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'conn'", 79, 5);
         BAssertUtil.validateWarning(compileResult, i++, "parameter 'req' already documented", 85, 9);
         BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'reqest'", 86, 9);
         BAssertUtil.validateWarning(compileResult, i++, "field 'abc' already documented", 95, 5);

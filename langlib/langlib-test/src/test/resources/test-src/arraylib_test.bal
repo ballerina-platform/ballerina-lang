@@ -25,7 +25,7 @@ function testLength() returns int {
 function testIterator() returns string {
     string[] arr = ["Hello", "World!", "From", "Ballerina"];
     object {
-         public function next() returns record {| string value; |}?;
+         public isolated function next() returns record {| string value; |}?;
     } itr = arr.iterator();
 
     record {| string value; |}|() elem = itr.next();
@@ -1157,6 +1157,17 @@ function testAsyncFpArgsWithArrays() returns [int, int[]] {
         return total + a;
     }, 0);
     return [reduce, filter];
+}
+
+function testReadOnlyArrayFilter() {
+    int[] & readonly numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    int[] evenNumbers = numbers.filter(val => val % 2 == 0);
+    int count = 0;
+    foreach int number in evenNumbers {
+        assertValueEquality(count * 2, number);
+        count += 1;
+    }
+    assertFalse(evenNumbers.isReadOnly());
 }
 
 function getRandomNumber(int i) returns int {

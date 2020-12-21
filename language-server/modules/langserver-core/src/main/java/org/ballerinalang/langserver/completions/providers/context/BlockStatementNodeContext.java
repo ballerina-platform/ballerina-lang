@@ -17,8 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
@@ -36,14 +35,14 @@ public class BlockStatementNodeContext extends BlockNodeContextProvider<BlockSta
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, BlockStatementNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, BlockStatementNode node)
             throws LSCompletionException {
         return super.getCompletions(context, node);
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, BlockStatementNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    public boolean onPreValidation(CompletionContext context, BlockStatementNode node) {
+        int cursor = context.getCursorPositionInTree();
         return !node.openBraceToken().isMissing() && !node.closeBraceToken().isMissing()
                 && node.closeBraceToken().textRange().startOffset() >= cursor
                 && node.openBraceToken().textRange().endOffset() <= cursor;

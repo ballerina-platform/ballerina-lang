@@ -35,6 +35,7 @@ public class SymbolFlags {
     public static final long REMOTE = 32768;
     public static final long RESOURCE = 131072;
     public static final long SERVICE = 262144;
+    public static final long TRANSACTIONAL = 33554432;
     public static final long CLASS = 268435456;
     public static final long ISOLATED = 536870912;
 

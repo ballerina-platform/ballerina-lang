@@ -18,9 +18,9 @@
 
 package org.ballerinalang.test.types.globalvar;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -72,5 +72,19 @@ public class GlobalVarNegativeTest {
         int i = 0;
         BAssertUtil.validateError(result, i++, "variable(s) 'i, s' not initialized", 21, 9);
         BAssertUtil.validateError(result, i, "variable(s) 's' not initialized", 22, 9);
+    }
+
+    @Test
+    public void testConfigurableModuleVarDeclNegative() {
+        CompileResult result = BCompileUtil.compile
+                ("test-src/statements/variabledef/configurable_global_var_decl_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "configurable variable must be initialized", 18, 19);
+        BAssertUtil.validateError(result, i++, "configurable variable cannot be declared with var", 20, 1);
+        BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 22, 22);
+        BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 24, 14);
+        BAssertUtil.validateError(result, i++, "invalid token 'configurable'", 28, 18);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for 'decimal'", 31, 14);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 }
