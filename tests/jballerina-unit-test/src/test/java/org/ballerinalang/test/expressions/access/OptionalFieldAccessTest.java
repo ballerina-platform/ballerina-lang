@@ -141,7 +141,7 @@ public class OptionalFieldAccessTest {
     }
 
     @Test
-    public void testOptionalFieldAccessOnClassDef() {
-        BRunUtil.invoke(result, "testOptionalFieldAccessOnClassDef");
+    public void testOptionalFieldAccessOnMethodCall() {
+        BRunUtil.invoke(result, "testOptionalFieldAccessOnMethodCall");
     }
 }
