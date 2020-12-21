@@ -124,7 +124,9 @@ public class TypeCompletionItemBuilder {
             item.setDocumentation(bSymbol.docAttachment().get().description().get());
         }
         // set sub bType
-        String name = typeDescriptor.get().typeKind().getName();
+        String name = typeDescriptor.get().kind() == SymbolKind.CLASS
+                ? typeDescriptor.get().kind().name()
+                : typeDescriptor.get().typeKind().getName();
         String detail = name.substring(0, 1).toUpperCase(Locale.ENGLISH)
                 + name.substring(1).toLowerCase(Locale.ENGLISH);
         item.setDetail(detail);
