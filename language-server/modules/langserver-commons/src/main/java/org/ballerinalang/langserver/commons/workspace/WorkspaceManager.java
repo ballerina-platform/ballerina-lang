@@ -38,6 +38,14 @@ import java.util.Optional;
 public interface WorkspaceManager {
 
     /**
+     * Get the relative file path of the document in the given path.
+     * 
+     * @param path document path to evaluate
+     * @return {@link String} relative path
+     */
+    Optional<String> relativePath(Path path);
+
+    /**
      * Returns a project root from the path provided.
      *
      * @param path ballerina project or standalone file path

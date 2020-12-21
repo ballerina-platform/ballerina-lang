@@ -346,21 +346,12 @@ public class SymbolFactory {
         BallerinaClassSymbol.ClassSymbolBuilder symbolBuilder =
                 new BallerinaClassSymbol.ClassSymbolBuilder(this.context, name, classSymbol.pkgID, classSymbol);
 
-        if (isFlagOn(classSymbol.flags, Flags.PUBLIC)) {
-            symbolBuilder.withQualifier(Qualifier.PUBLIC);
-        }
-        if (isFlagOn(classSymbol.flags, Flags.DISTINCT)) {
-            symbolBuilder.withQualifier(Qualifier.DISTINCT);
-        }
-        if (isFlagOn(classSymbol.flags, Flags.SERVICE)) {
-            symbolBuilder.withQualifier(Qualifier.SERVICE);
-        }
-        if (isFlagOn(classSymbol.flags, Flags.CLIENT)) {
-            symbolBuilder.withQualifier(Qualifier.CLIENT);
-        }
-        if (isFlagOn(classSymbol.flags, Flags.READONLY)) {
-            symbolBuilder.withQualifier(Qualifier.READONLY);
-        }
+        addIfFlagSet(symbolBuilder, classSymbol.flags, Flags.PUBLIC, Qualifier.PUBLIC);
+        addIfFlagSet(symbolBuilder, classSymbol.flags, Flags.DISTINCT, Qualifier.DISTINCT);
+        addIfFlagSet(symbolBuilder, classSymbol.flags, Flags.READONLY, Qualifier.READONLY);
+        addIfFlagSet(symbolBuilder, classSymbol.flags, Flags.ISOLATED, Qualifier.ISOLATED);
+        addIfFlagSet(symbolBuilder, classSymbol.flags, Flags.CLIENT, Qualifier.CLIENT);
+        addIfFlagSet(symbolBuilder, classSymbol.flags, Flags.SERVICE, Qualifier.SERVICE);
 
         if (type.typeKind() == TypeDescKind.TYPE_REFERENCE) {
             type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
@@ -446,7 +437,7 @@ public class SymbolFactory {
     }
 
     // Private methods
-    public static boolean isFlagOn(long mask, long flags) {
+    private static boolean isFlagOn(long mask, long flags) {
         return (mask & flags) == flags;
     }
 
@@ -462,5 +453,12 @@ public class SymbolFactory {
 
         throw new IllegalStateException(
                 format("Method symbol for '%s' not found in owner symbol '%s'", method.name, owner.name));
+    }
+
+    private void addIfFlagSet(BallerinaClassSymbol.ClassSymbolBuilder symbolBuilder, final long mask, final long flag,
+                              Qualifier qualifier) {
+        if (Symbols.isFlagOn(mask, flag)) {
+            symbolBuilder.withQualifier(qualifier);
+        }
     }
 }

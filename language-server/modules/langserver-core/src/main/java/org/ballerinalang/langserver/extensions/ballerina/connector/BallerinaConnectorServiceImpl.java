@@ -38,9 +38,7 @@ import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.diagramutil.DiagramUtil;
-import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.exception.LSConnectorException;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
@@ -62,11 +60,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
+import static org.ballerinalang.langserver.LSClientLogger.logError;
 
 /**
  * Implementation of the BallerinaConnectorService.
@@ -80,12 +76,10 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             .resolve("repo")
             .resolve("balo");
     private String connectorConfig;
-    private LSGlobalContext lsContext;
-    private WorkspaceManager workspaceManager;
+    private final ConnectorExtContext connectorExtContext;
 
-    public BallerinaConnectorServiceImpl(WorkspaceManager workspaceManager, LSGlobalContext lsContext) {
-        this.workspaceManager = workspaceManager;
-        this.lsContext = lsContext;
+    public BallerinaConnectorServiceImpl() {
+        this.connectorExtContext = new ConnectorExtContext();
         connectorConfig = System.getenv(DEFAULT_CONNECTOR_FILE_KEY);
         if (connectorConfig == null) {
             connectorConfig = System.getProperty(DEFAULT_CONNECTOR_FILE_KEY);
@@ -132,7 +126,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     public CompletableFuture<BallerinaConnectorResponse> connector(BallerinaConnectorRequest request) {
 
         String cacheableKey = getCacheableKey(request.getOrg(), request.getModule(), request.getVersion());
-        LSConnectorCache connectorCache = LSConnectorCache.getInstance(lsContext);
+        LSConnectorCache connectorCache = LSConnectorCache.getInstance(connectorExtContext);
         JsonElement st = connectorCache
                 .getConnectorConfig(request.getOrg(), request.getModule(), request.getVersion(), request.getName());
         String error = "";
@@ -176,7 +170,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     JsonElement jsonST = DiagramUtil.getClassDefinitionSyntaxJson(connector, semanticModel);
                     if (jsonST instanceof JsonObject) {
                         JsonElement recordsJson = gson.toJsonTree(connectorRecords);
-                        ((JsonObject) jsonST).add("records", recordsJson);
+                        ((JsonObject) ((JsonObject) jsonST).get("typeData")).add("records", recordsJson);
                     }
                     connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
                             request.getVersion(), connector.className().text(), jsonST);
@@ -204,33 +198,26 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         if (paramType.isPresent()) {
             if (paramType.get().typeKind() == TypeDescKind.UNION) {
                 Arrays.stream(paramType.get().signature().split("\\|")).forEach(type -> {
-                    /* todo : need a better way to get types other than string splitting and checking regex */
-                    String typeName = type;
-                    Pattern typeRefPattern = Pattern.compile("\\w+/\\w+:[\\d.]+:(\\w+)");
-                    Matcher typeRefPatternMatcher = typeRefPattern.matcher(type);
-                    if (typeRefPatternMatcher.find()) {
-                        typeName = typeRefPatternMatcher.group(1);
-                    }
-                    TypeDefinitionNode record = jsonRecords.get(typeName);
+                    TypeDefinitionNode record = jsonRecords.get(type);
                     if (record != null) {
-                        connectorRecords.put(typeName, DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
+                        connectorRecords.put(type, DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
                         populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
                     }
                 });
             } else if (paramType.get().typeKind() == TypeDescKind.ARRAY) {
-                Pattern arraySignaturePattern = Pattern.compile("(\\w+)\\[\\]$");
-                Matcher signatureMatcher = arraySignaturePattern.matcher(paramType.get().signature());
-
-                if (signatureMatcher.find()) {
-                    // there is only one group in the regex and array signature always matches
-                    TypeDefinitionNode record = jsonRecords.get(signatureMatcher.group(1));
-                    if (record != null) {
-                        connectorRecords.put(signatureMatcher.group(1),
-                                DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
-                        populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
-                    }
+                TypeDefinitionNode record = jsonRecords.get(paramType.get().signature());
+                if (record != null) {
+                    connectorRecords.put(paramType.get().signature(),
+                            DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
+                    populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
                 }
-
+            } else if (paramType.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                TypeDefinitionNode record = jsonRecords.get(paramType.get().signature());
+                if (record != null) {
+                    connectorRecords.put(paramType.get().signature(),
+                            DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
+                    populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
+                }
             }
         }
     }
@@ -239,21 +226,13 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                                           Map<String, TypeDefinitionNode> jsonRecords,
                                           Map<String, JsonElement> connectorRecords) {
         RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) recordTypeDefinition
-                                                                                            .typeDescriptor();
+                .typeDescriptor();
 
         recordTypeDescriptorNode.fields().forEach(field -> {
             Optional<TypeSymbol> fieldType = semanticModel.type(field.syntaxTree().filePath(), field.lineRange());
 
             if (fieldType.isPresent() && fieldType.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
-                String type = fieldType.get().signature();
-                String typeName = type;
-                Pattern typeRefPattern = Pattern.compile("\\w+/\\w+:[\\d.]+:(\\w+)");
-                Matcher typeRefPatternMatcher = typeRefPattern.matcher(typeName);
-
-                if (typeRefPatternMatcher.find()) {
-                    typeName = typeRefPatternMatcher.group(1);
-                }
-
+                String typeName = fieldType.get().signature();
                 TypeDefinitionNode record = jsonRecords.get(typeName);
                 if (record != null && !recordTypeDefinition.typeName().text().equals(typeName)) {
                     connectorRecords.put(typeName, DiagramUtil.getSyntaxTreeJSON(record.syntaxTree(), semanticModel));
@@ -266,7 +245,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     @Override
     public CompletableFuture<BallerinaRecordResponse> record(BallerinaRecordRequest request) {
         String cacheableKey = getCacheableKey(request.getOrg(), request.getModule(), request.getVersion());
-        LSRecordCache recordCache = LSRecordCache.getInstance(lsContext);
+        LSRecordCache recordCache = LSRecordCache.getInstance(connectorExtContext);
 
         JsonElement ast = recordCache.getRecordAST(request.getOrg(), request.getModule(),
                 request.getVersion(), request.getName());

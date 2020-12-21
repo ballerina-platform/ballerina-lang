@@ -36,19 +36,20 @@ import java.util.zip.ZipOutputStream;
  */
 public class JBallerinaBaloWriter extends BaloWriter {
 
-    JBallerinaBackend backend;
+    private JBallerinaBackend backend;
 
     public JBallerinaBaloWriter(JBallerinaBackend backend) {
         this.backend = backend;
-        this.target = backend.jdkVersion().code();
+        this.packageContext = backend.packageContext();
+        this.target = getTargetPlatform(packageContext.getResolution()).code();
     }
 
 
     @Override
-    protected Optional<JsonArray> addPlatformLibs(ZipOutputStream baloOutputStream, Package pkg)
+    protected Optional<JsonArray> addPlatformLibs(ZipOutputStream baloOutputStream)
             throws IOException {
         // retrieve platform dependencies that have default scope
-        Collection<PlatformLibrary> jars = backend.platformLibraryDependencies(pkg.packageId(),
+        Collection<PlatformLibrary> jars = backend.platformLibraryDependencies(packageContext.packageId(),
                 PlatformLibraryScope.DEFAULT);
         if (jars.isEmpty()) {
             return Optional.empty();
@@ -87,5 +88,19 @@ public class JBallerinaBaloWriter extends BaloWriter {
         }
 
         return Optional.of(newPlatformLibs);
+    }
+
+    private CompilerBackend.TargetPlatform getTargetPlatform(PackageResolution pkgResolution) {
+        ResolvedPackageDependency resolvedPackageDependency = new ResolvedPackageDependency(
+                this.packageContext.project().currentPackage(), PackageDependencyScope.DEFAULT);
+        Collection<ResolvedPackageDependency> resolvedPackageDependencies = pkgResolution.dependencyGraph()
+                .getDirectDependencies(resolvedPackageDependency);
+        for (ResolvedPackageDependency dependency : resolvedPackageDependencies) {
+            if (dependency.packageInstance().packageOrg().value().equals("ballerina")
+                    && dependency.packageInstance().packageName().value().equals("java")) {
+                return this.backend.targetPlatform();
+            }
+        }
+        return AnyTarget.ANY;
     }
 }
