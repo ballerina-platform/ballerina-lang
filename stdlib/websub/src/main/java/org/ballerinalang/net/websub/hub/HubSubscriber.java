@@ -49,16 +49,16 @@ public class HubSubscriber extends Consumer {
     private final String callback;
     private final MapValue<String, Object> subscriptionDetails;
     private final Scheduler scheduler;
-    private final boolean sameOrderDelivery;
+    private final boolean asyncContentDelivery;
 
     HubSubscriber(Strand strand, String queue, String topic, String callback,
-                  MapValue<String, Object> subscriptionDetails, boolean sameOrderDelivery) {
+                  MapValue<String, Object> subscriptionDetails, boolean asyncContentDelivery) {
         this.scheduler = strand.scheduler;
         this.queue = queue;
         this.topic = topic;
         this.callback = callback;
         this.subscriptionDetails = subscriptionDetails;
-        this.sameOrderDelivery = sameOrderDelivery;
+        this.asyncContentDelivery = asyncContentDelivery;
     }
 
     @Override
@@ -69,10 +69,7 @@ public class HubSubscriber extends Consumer {
                         .unwrap()).getValue();
         Object[] args = {getCallback(), getSubscriptionDetails(), content};
         try {
-            if (sameOrderDelivery) {
-                Executor.executeFunction(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB, "hub_service",
-                        "distributeContent", args);
-            } else {
+            if (asyncContentDelivery) {
                 Executor.executeFunctionAsync(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB,
                         "hub_service", "distributeContent", new CallableUnitCallback() {
                             @Override
@@ -85,6 +82,9 @@ public class HubSubscriber extends Consumer {
                                 ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
                             }
                         }, args);
+            } else {
+                Executor.executeFunction(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB, "hub_service",
+                        "distributeContent", args);
             }
         } catch (BallerinaException e) {
             throw new BallerinaException("send failed: " + e.getMessage());

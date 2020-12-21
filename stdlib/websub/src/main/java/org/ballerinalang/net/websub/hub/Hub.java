@@ -67,7 +67,7 @@ public class Hub {
     private String publishResourcePath = "/publish";
     private String subscribeResourcePath = "/";
     private static final String HUB_SERVICE = "hub_service";
-    private boolean sameOrderDelivery;
+    private boolean asyncContentDelivery;
 
     private static final String SLASH = "/";
 
@@ -122,13 +122,13 @@ public class Hub {
         } else if (!topics.contains(topic) && hubTopicRegistrationRequired) {
             logger.warn("Subscription request ignored for unregistered topic[" + topic + "]");
         } else {
-            if (getSubscribers().contains(new HubSubscriber(strand, "", topic, callback, null, sameOrderDelivery))) {
+            if (getSubscribers().contains(new HubSubscriber(strand, "", topic, callback, null, asyncContentDelivery))) {
                 unregisterSubscription(strand, topic, callback);
             }
             String queue = UUID.randomUUID().toString();
 
             HubSubscriber subscriberToAdd = new HubSubscriber(strand, queue, topic, callback, subscriptionDetails,
-                    sameOrderDelivery);
+                    asyncContentDelivery);
             brokerInstance.addSubscription(topic, subscriberToAdd);
             getSubscribers().add(subscriberToAdd);
         }
@@ -146,7 +146,7 @@ public class Hub {
             logger.error("Hub Service not started: unsubscription failed.");
             return;
         }
-        HubSubscriber subscriberToUnregister = new HubSubscriber(strand, "", topic, callback, null, sameOrderDelivery);
+        HubSubscriber subscriberToUnregister = new HubSubscriber(strand, "", topic, callback, null, asyncContentDelivery);
         if (!getSubscribers().contains(subscriberToUnregister)) {
             if (callback.endsWith("/")) {
                 unregisterSubscription(strand, topic, callback.substring(0, callback.length() - 1));
@@ -203,7 +203,7 @@ public class Hub {
     @SuppressWarnings("unchecked")
     public Object startUpHubService(Strand strand, String basePath, String subscriptionResourcePath,
                                   String publishResourcePath, boolean topicRegistrationRequired, String publicUrl,
-                                  ObjectValue hubListener, boolean sameOrderDelivery) {
+                                  ObjectValue hubListener, boolean asyncContentDelivery) {
         synchronized (this) {
             if (!isStarted()) {
                 try {
@@ -212,7 +212,7 @@ public class Hub {
                     throw new BallerinaException("Error starting up internal broker for WebSub Hub");
                 }
                 this.basePath = basePath.startsWith(SLASH) ? basePath : SLASH.concat(basePath);
-                this.sameOrderDelivery = sameOrderDelivery;
+                this.asyncContentDelivery = asyncContentDelivery;
                 this.subscribeResourcePath = subscriptionResourcePath.startsWith(SLASH) ? subscriptionResourcePath :
                         SLASH.concat(subscriptionResourcePath);
                 this.publishResourcePath = publishResourcePath.startsWith(SLASH) ? publishResourcePath :

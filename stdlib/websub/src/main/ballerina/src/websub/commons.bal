@@ -504,7 +504,8 @@ public type FailureReason FAILURE_REASON_SUBSCRIPTION_GONE|FAILURE_REASON_FAILUR
 # + onMessage - The configuration for passing a function to be invoked when an update is received at the hub
 # + onDelivery - The configuration for passing a function to be invoked when an update is successfully delivered to the subscribers
 # + onDeliveryFailure - The configuration for passing a function to be invoked when an update is failed to be delivered to the subscribers
-# + sameOrderDelivery - The configuration for specifying the order of the update delivery
+# + asyncContentDelivery - The configuration for specifying the way(sync/async) of the update delivery to subscribers. Setting this to true
+#                          may change the order
 public type HubConfiguration record {|
     int leaseSeconds = 86400;
     SignatureMethod signatureMethod = SHA256;
@@ -516,7 +517,7 @@ public type HubConfiguration record {|
     function (string callback, string topic, WebSubContent content) onDelivery?;
     function (string callback, string topic, WebSubContent content, http:Response|error response, FailureReason reason)
                             onDeliveryFailure?;
-    boolean sameOrderDelivery = false;
+    boolean asyncContentDelivery = false;
 |};
 
 # Record representing remote publishing allowance.
@@ -590,7 +591,7 @@ public function startHub(http:Listener hubServiceListener,
     if (!(onDeliveryFailureFunc is ())) {
        onDeliveryFailureFunction = onDeliveryFailureFunc;
     }
-    sameOrderDelivery = hubConfiguration["sameOrderDelivery"];
+    asyncContentDelivery = hubConfiguration["asyncContentDelivery"];
 
     // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
@@ -606,7 +607,7 @@ public function startHub(http:Listener hubServiceListener,
     Hub|HubStartedUpError|HubStartupError res = startUpHubService(hubBasePath, hubSubscriptionResourcePath,
                                                                         hubPublishResourcePath,
                                                                         hubTopicRegistrationRequired, hubPublicUrl,
-                                                                        hubServiceListener, sameOrderDelivery);
+                                                                        hubServiceListener, asyncContentDelivery);
     if (res is Hub) {
         startHubService(hubServiceListener);
     }
