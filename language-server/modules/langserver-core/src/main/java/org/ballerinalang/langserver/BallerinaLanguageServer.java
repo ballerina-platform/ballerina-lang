@@ -79,8 +79,11 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
-        WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
+        this(new BallerinaWorkspaceManager());
+    }
 
+    public BallerinaLanguageServer(WorkspaceManager workspaceManager) {
+        super(workspaceManager);
         this.textService = new BallerinaTextDocumentService(this, workspaceManager);
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager);
         this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(workspaceManager);
