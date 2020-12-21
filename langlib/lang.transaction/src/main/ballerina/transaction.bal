@@ -63,7 +63,7 @@ public isolated function getInfo(byte[] xid) returns Info? = @java:Method {
 # + error - the error that caused the rollback or `()`, if there is none
 public transactional isolated function setRollbackOnly(error? e) {
     if(e is error) {
-      TransactionError trxError = prepareError(e.message(), e);
+      Error trxError = prepareError(e.message(), e);
       wrapRollbackError(trxError);
     }
 }

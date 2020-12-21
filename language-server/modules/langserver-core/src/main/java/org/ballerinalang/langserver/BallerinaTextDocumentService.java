@@ -36,7 +36,6 @@ import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -89,25 +88,20 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
-import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
-import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+import static org.ballerinalang.langserver.LSClientLogger.logError;
+import static org.ballerinalang.langserver.LSClientLogger.notifyUser;
 
 /**
  * Text document service implementation for ballerina.
  */
 class BallerinaTextDocumentService implements TextDocumentService {
-    // indicates the frequency to send diagnostics to server upon document did change
     private final BallerinaLanguageServer languageServer;
-    private final DiagnosticsHelper diagnosticsHelper;
     private LSClientCapabilities clientCapabilities;
     private final WorkspaceManager workspaceManager;
 
-
-    BallerinaTextDocumentService(LSGlobalContext globalContext, WorkspaceManager workspaceManager) {
+    BallerinaTextDocumentService(BallerinaLanguageServer languageServer, WorkspaceManager workspaceManager) {
         this.workspaceManager = workspaceManager;
-        this.languageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
-        this.diagnosticsHelper = globalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
+        this.languageServer = languageServer;
     }
 
     /**
@@ -339,8 +333,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return new ArrayList<>();
             }
 
-            Path compilationPath = getUntitledFilePath(docSymbolFilePath.toString()).orElse(docSymbolFilePath.get());
-
             DocumentServiceContext codeLensContext = ContextBuilder.buildBaseContext(fileUri,
                     this.workspaceManager,
                     LSContextOperation.TXT_CODE_LENS);
@@ -454,7 +446,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.workspaceManager.didOpen(context.filePath(), params);
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
                     "' {fileUri: '" + fileUri + "'} opened}");
-            diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
+            DiagnosticsHelper.getInstance().compileAndSendDiagnostics(this.languageServer.getClient(), context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didOpen' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -478,7 +470,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             workspaceManager.didChange(context.filePath(), params);
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
                     "' {fileUri: '" + fileUri + "'} updated}");
-            diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
+            DiagnosticsHelper.getInstance().compileAndSendDiagnostics(this.languageServer.getClient(), context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
             logError(msg, e, params.getTextDocument(), (Position) null);

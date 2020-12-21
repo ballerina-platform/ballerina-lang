@@ -1091,7 +1091,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public FunctionTypeDescriptorNode transform(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
         NodeList<Token> qualifierList = formatNodeList(functionTypeDescriptorNode.qualifierList(), 1, 0, 1, 0);
-        Token functionKeyword = formatToken(functionTypeDescriptorNode.functionKeyword(), 0, 0);
+        Token functionKeyword = formatToken(functionTypeDescriptorNode.functionKeyword(), 1, 0);
         FunctionSignatureNode functionSignature = formatNode(functionTypeDescriptorNode.functionSignature(),
                 env.trailingWS, env.trailingNL);
         return functionTypeDescriptorNode.modify()
@@ -1714,7 +1714,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token visibilityQualifier = formatToken(listenerDeclarationNode.visibilityQualifier().orElse(null), 1, 0);
         MetadataNode metadata = formatNode(listenerDeclarationNode.metadata().orElse(null), 0, 1);
         Token listenerKeyword = formatToken(listenerDeclarationNode.listenerKeyword(), 1, 0);
-        Node typeDescriptor = formatNode(listenerDeclarationNode.typeDescriptor(), 1, 0);
+        TypeDescriptorNode typeDescriptor = formatNode(listenerDeclarationNode.typeDescriptor().orElse(null), 1, 0);
         Token variableName = formatToken(listenerDeclarationNode.variableName(), 1, 0);
         Token equalsToken = formatToken(listenerDeclarationNode.equalsToken(), 1, 0);
         Node initializer = formatNode(listenerDeclarationNode.initializer(), 0, 0);
