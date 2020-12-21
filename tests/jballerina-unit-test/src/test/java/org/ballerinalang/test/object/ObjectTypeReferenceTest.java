@@ -70,7 +70,7 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++,
                                   "invalid cyclic type reference in '[C, D, A, B, C]'", 74, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "invalid type reference in '[E, C, E]'", 74, 1);
+                                  "invalid cyclic type reference in '[E, C, E]'", 74, 1);
         // Disable as new class definition will replace objects that can have method implementations.
 //        BAssertUtil.validateError(negativeResult, i++,
 //                                  "no implementation found for the function 'getName' of non-abstract object " +
