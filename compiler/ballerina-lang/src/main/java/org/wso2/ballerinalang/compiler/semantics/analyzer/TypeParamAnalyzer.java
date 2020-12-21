@@ -262,10 +262,10 @@ public class TypeParamAnalyzer {
                 return anydataType;
             case TypeTags.READONLY:
                 return new BReadonlyType(type.tag, null, name, flags);
-            case TypeTags.UNION:
-                BUnionType unionType = new BUnionType((BUnionType) type);
-                unionType.flags |= flags;
-                return unionType;
+//            case TypeTags.UNION:
+//                BUnionType unionType = new BUnionType((BUnionType) type);
+//                type.flags |= flags;
+//                return unionType;
         }
         // For others, we will use TSymbol.
         return type;
@@ -618,11 +618,12 @@ public class TypeParamAnalyzer {
 
     private BType getMatchingBoundType(BType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         if (isTypeParam(expType)) {
-            return env.typeParamsEntries.stream().filter(typeParamEntry -> typeParamEntry.typeParam == expType)
-                    .findFirst()
-                    .map(typeParamEntry -> typeParamEntry.boundType)
-                    // Else, this need to be inferred from the context.
-                    .orElse(symTable.noType);
+            for (SymbolEnv.TypeParamEntry typeParamEntry : env.typeParamsEntries) {
+                if (typeParamEntry.typeParam == expType) {
+                    return typeParamEntry.boundType;
+                }
+            }
+            return symTable.noType;
         }
 
         if (resolvedTypes.contains(expType)) {
