@@ -22,7 +22,6 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -413,12 +412,15 @@ public class MockDesugar {
 
     // This function synthesizes the Ballerina equivalent of : `MockHandler()`
     private BInvokableSymbol getMockHandlerInvokableSymbol() {
-        BSymbol testPkg = bLangPackage.getTestablePkg().symbol.scope.lookup(new Name("test")).symbol;
-
-        BInvokableSymbol mockHandlerSymbol =
-                (BInvokableSymbol) testPkg.scope.lookup(new Name("mockHandler")).symbol;
-
-        return mockHandlerSymbol;
+        List<BLangImportPackage> packageList = bLangPackage.getTestablePkg().getImports();
+        for (BLangImportPackage importPackage : packageList) {
+            if (importPackage.alias.getValue().equals("test")) {
+                BInvokableSymbol mockHandlerSymbol =
+                        (BInvokableSymbol) importPackage.symbol.scope.lookup(new Name("mockHandler")).symbol;
+                return mockHandlerSymbol;
+            }
+        }
+        return null;
     }
 
     // This function synthesizes the Ballerina equivalent of : `(<mockFnObj>, args)`
