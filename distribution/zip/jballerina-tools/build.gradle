@@ -97,7 +97,6 @@ dependencies {
 
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
-    dist project(':ballerina-tool')
     dist project(':ballerina-tools-api')
     dist project(':ballerina-cli-module')
     dist project(':central-client')
@@ -111,7 +110,6 @@ dependencies {
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')
     dist project(':diagram-util')
-    dist project(':language-server:language-server-compiler')
     dist project(':language-server:language-server-commons')
     dist project(':docerina')
     dist project(':observability-symbol-collector')

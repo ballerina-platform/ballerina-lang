@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
@@ -108,8 +109,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     TypeSymbol rawType = getRawType(typeSymbol.get());
                     if (rawType.typeKind() == TypeDescKind.OBJECT) {
                         ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
-                        boolean isEndpoint = objectTypeSymbol.typeQualifiers()
-                                .contains(ObjectTypeSymbol.TypeQualifier.CLIENT);
+                        boolean isEndpoint = objectTypeSymbol.qualifiers()
+                                .contains(Qualifier.CLIENT);
                         if (isEndpoint) {
                             symbolJson.addProperty("isEndpoint", true);
                             JsonObject ep = visibleEP(node, typeSymbol.get());
@@ -206,8 +207,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         TypeSymbol rawType = getRawType(variableSymbol.typeDescriptor());
         if (rawType.typeKind() == TypeDescKind.OBJECT) {
             ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
-            boolean isEndpoint = objectTypeSymbol.typeQualifiers()
-                    .contains(ObjectTypeSymbol.TypeQualifier.CLIENT);
+            boolean isEndpoint = objectTypeSymbol.qualifiers()
+                    .contains(Qualifier.CLIENT);
             if (isEndpoint) {
                 symbolJson.addProperty("isEndpoint", true);
                 JsonObject ep = visibleEP(node, rawType);
@@ -335,6 +336,17 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (node instanceof Token) {
             nodeInfo.addProperty("isToken", true);
             nodeInfo.addProperty("value", ((Token) node).text());
+            if (node.lineRange() != null) {
+                LineRange lineRange = node.lineRange();
+                LinePosition startLine = lineRange.startLine();
+                LinePosition endLine = lineRange.endLine();
+                JsonObject position = new JsonObject();
+                position.addProperty("startLine", startLine.line());
+                position.addProperty("startColumn", startLine.offset());
+                position.addProperty("endLine", endLine.line());
+                position.addProperty("endColumn", endLine.offset());
+                nodeInfo.add("position", position);
+            }
         } else {
             JsonElement memberValues = node.apply(this);
             memberValues.getAsJsonObject().entrySet().forEach(memberEntry -> {

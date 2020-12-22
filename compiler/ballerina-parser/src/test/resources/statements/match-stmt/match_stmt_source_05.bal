@@ -5,7 +5,7 @@ function foo() {
         var [a, b, ...c] => {}
         var [] => {}
         () => {}
-        var { a:b } => {}
+        var {a:b} => {}
         "east" => {}
         "west" if getX() | getY() => {}
     }

@@ -19,8 +19,9 @@
 package io.ballerina.projects.test;
 
 import com.google.gson.Gson;
+import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
@@ -30,7 +31,6 @@ import io.ballerina.projects.internal.balo.ModuleDependency;
 import io.ballerina.projects.internal.balo.PackageJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
@@ -81,21 +81,19 @@ public class TestBaloWriter {
         Project project = BuildProject.load(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        if (packageCompilation.diagnosticResult().hasErrors()) {
+            Assert.fail("compilation failed:" + packageCompilation.diagnosticResult().errors());
+        }
+
         Target target = new Target(project.sourceRoot());
-        String baloName = ProjectUtils.getBaloName(
-                project.currentPackage().packageOrg().toString(),
-                project.currentPackage().packageName().toString(),
-                project.currentPackage().packageVersion().toString(),
-                null);
-        Path baloPath = target.getBaloPath().resolve(baloName);
-        // balo name
-        Assert.assertEquals(baloName, "foo-winery-any-0.1.0.balo");
+        Path baloPath = target.getBaloPath();
         // invoke write balo method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
+        Assert.assertTrue(emitResult.successful());
 
         // unzip balo
-        TestUtils.unzip(String.valueOf(baloPath), String.valueOf(BALO_PATH));
+        TestUtils.unzip(String.valueOf(baloPath.resolve("foo-winery-java11-0.1.0.balo")), String.valueOf(BALO_PATH));
 
         // balo.json
         Path baloJsonPath = BALO_PATH.resolve("balo.json");
@@ -191,10 +189,32 @@ public class TestBaloWriter {
         try (FileReader reader = new FileReader(String.valueOf(dependenciesJsonPath))) {
             DependencyGraphJson dependencyGraphJson = gson.fromJson(reader, DependencyGraphJson.class);
 
-            Dependency dependency = dependencyGraphJson.getPackageDependencyGraph().get(0);
-            Assert.assertEquals(dependency.getOrg(), "foo");
-            Assert.assertEquals(dependency.getName(), "winery");
-            Assert.assertEquals(dependency.getVersion(), "0.1.0");
+            Assert.assertEquals(dependencyGraphJson.getPackageDependencyGraph().size(), 2);
+            Dependency firstDependency = dependencyGraphJson.getPackageDependencyGraph().get(0);
+            Dependency javaDependency;
+            Dependency fooDependency;
+
+            if (firstDependency.getOrg().equals("ballerina")) {
+                javaDependency = firstDependency;
+                fooDependency = dependencyGraphJson.getPackageDependencyGraph().get(1);
+            } else {
+                fooDependency = firstDependency;
+                javaDependency = dependencyGraphJson.getPackageDependencyGraph().get(1);
+            }
+
+            Assert.assertEquals(javaDependency.getOrg(), "ballerina");
+            Assert.assertEquals(javaDependency.getName(), "java");
+
+            Assert.assertEquals(fooDependency.getOrg(), "foo");
+            Assert.assertEquals(fooDependency.getName(), "winery");
+            Assert.assertEquals(fooDependency.getVersion(), "0.1.0");
+
+            // foo has a dependency on java, assert foo's dependencies
+            List<Dependency> fooDependencies = fooDependency.getDependencies();
+            Assert.assertEquals(fooDependencies.size(), 1);
+            Assert.assertEquals(fooDependencies.get(0).getOrg(), "ballerina");
+            Assert.assertEquals(fooDependencies.get(0).getName(), "java");
+
 
             List<ModuleDependency> moduleDependencyGraph = dependencyGraphJson.getModuleDependencies();
             Assert.assertEquals(moduleDependencyGraph.size(), 3);
@@ -217,22 +237,15 @@ public class TestBaloWriter {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
 
-        String baloName = ProjectUtils.getBaloName(
-                project.currentPackage().packageOrg().toString(),
-                project.currentPackage().packageName().toString(),
-                project.currentPackage().packageVersion().toString(),
-                null);
-        Path baloPath = target.getBaloPath().resolve(baloName);
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, target.getBaloPath());
 
-        // balo name
-        Assert.assertEquals(baloName, "bar-winery-any-0.1.0.balo");
         // invoke write balo method
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, target.getBaloPath());
 
         // unzip balo
-        TestUtils.unzip(String.valueOf(baloPath), String.valueOf(BALO_PATH));
+        TestUtils.unzip(String.valueOf(target.getBaloPath().resolve("bar-winery-any-0.1.0.balo")),
+                        String.valueOf(BALO_PATH));
 
         // balo.json
         Path baloJsonPath = BALO_PATH.resolve("balo.json");
@@ -275,18 +288,13 @@ public class TestBaloWriter {
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
-        String baloName = ProjectUtils.getBaloName(project.currentPackage().packageOrg().toString(),
-                project.currentPackage().packageName().toString(), project.currentPackage().packageVersion().toString(),
-                null);
-        Path baloPath = target.getBaloPath().resolve(baloName);
-        // balo name
-        Assert.assertEquals(baloName, "samjs-package_d-any-0.1.0.balo");
         // invoke write balo method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, target.getBaloPath());
 
         // unzip balo
-        TestUtils.unzip(String.valueOf(baloPath), String.valueOf(BALO_PATH));
+        TestUtils.unzip(String.valueOf(target.getBaloPath().resolve("samjs-package_d-any-0.1.0.balo")),
+                        String.valueOf(BALO_PATH));
 
         // balo.json
         Path baloJsonPath = BALO_PATH.resolve("balo.json");
@@ -307,7 +315,7 @@ public class TestBaloWriter {
             Assert.assertEquals(packageJson.getOrganization(), "samjs");
             Assert.assertEquals(packageJson.getName(), "package_d");
             Assert.assertEquals(packageJson.getVersion(), "0.1.0");
-            Assert.assertEquals(packageJson.getPlatform(), "java11");
+            Assert.assertEquals(packageJson.getPlatform(), "any");
         }
 
         // module sources
@@ -355,7 +363,7 @@ public class TestBaloWriter {
         Project project = BuildProject.load(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloPath);
 
 //        // invoke write balo method
