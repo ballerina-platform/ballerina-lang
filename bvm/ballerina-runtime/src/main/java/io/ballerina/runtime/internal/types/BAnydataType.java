@@ -23,11 +23,8 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.AnydataType;
-import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.values.RefValue;
-
-import java.util.LinkedHashSet;
 
 /**
  * {@code BAnydataType} represents the data types in Ballerina.
@@ -55,7 +52,7 @@ public class BAnydataType extends BUnionType implements AnydataType {
         super(unionType);
         BAnydataType immutableJsonType = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME, pkg, true);
         this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
-                immutableJsonType, TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA, TypeFlags.PURETYPE),true);
+                immutableJsonType, TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA, TypeFlags.PURETYPE), true);
 
     }
 
