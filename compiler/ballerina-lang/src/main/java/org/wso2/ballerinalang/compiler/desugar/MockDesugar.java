@@ -26,12 +26,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -317,6 +319,23 @@ public class MockDesugar {
                 generateFieldBasedAccess("functionToMockPackage"),
                 generateRHSExpr(functionToMockPackageVal));
 
+        BLangTestablePackage bLangTestablePackage = this.bLangPackage.getTestablePkg();
+        List<BLangCompilationUnit> compUnitList = bLangTestablePackage.getCompilationUnits();
+
+        String mockFunctionClassList = "";
+
+        for (BLangCompilationUnit compUnit : compUnitList) {
+            String sourceName = compUnit.getName();
+            sourceName = sourceName.replace("/", ".");
+            sourceName = sourceName.replace(".bal", "");
+            mockFunctionClassList += sourceName + "/";
+        }
+
+        BLangAssignment bLangAssignment3 = ASTBuilderUtil.createAssignmentStmt(
+                bLangPackage.pos,
+                generateFieldBasedAccess("mockFunctionClasses"),
+                generateRHSExpr(mockFunctionClassList));
+
         // The following synthesizes the equivalent of :
         // `BLangReturn Statement <retType> test:MockHandler(<MockFunctionObj>, [<args?>])`
         BLangReturn blangReturn =
@@ -326,6 +345,7 @@ public class MockDesugar {
 
         statements.add(bLangAssignment1);
         statements.add(bLangAssignment2);
+        statements.add(bLangAssignment3);
         statements.add(blangReturn);
 
         return statements;
