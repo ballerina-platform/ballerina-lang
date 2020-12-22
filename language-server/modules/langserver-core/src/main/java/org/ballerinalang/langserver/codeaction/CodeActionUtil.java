@@ -482,7 +482,7 @@ public class CodeActionUtil {
      * @param syntaxTree {@link SyntaxTree}
      * @return {@link String}   Top level node
      */
-    public static Optional<Node> getTopLevelNode(Position position, SyntaxTree syntaxTree) {
+    public static Optional<NonTerminalNode> getTopLevelNode(Position position, SyntaxTree syntaxTree) {
         NonTerminalNode member = CommonUtil.findNode(new Range(position, position), syntaxTree);
         LinePosition cursorPosition = LinePosition.from(position.getLine(), position.getCharacter());
         int cursorPosOffset = syntaxTree.textDocument().textPositionFrom(cursorPosition);
@@ -505,7 +505,7 @@ public class CodeActionUtil {
                         if (memberNode.kind() == SyntaxKind.FUNCTION_DEFINITION
                                 && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
                             // Cursor on the resource function
-                            return Optional.of(memberNode);
+                            return Optional.of((NonTerminalNode) memberNode);
                         }
                     }
                     return Optional.of(member);
@@ -529,7 +529,7 @@ public class CodeActionUtil {
                         if (memberNode.kind() == SyntaxKind.METHOD_DECLARATION
                                 && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
                             // Cursor on the object function
-                            return Optional.of(memberNode);
+                            return Optional.of((NonTerminalNode) memberNode);
                         }
                     }
                     return Optional.of(member);
@@ -546,7 +546,7 @@ public class CodeActionUtil {
                         if (memberNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION
                                 && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
                             // Cursor on the class function
-                            return Optional.of(memberNode);
+                            return Optional.of((NonTerminalNode) memberNode);
                         }
                     }
                     return Optional.of(member);
