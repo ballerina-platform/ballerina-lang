@@ -18,7 +18,7 @@
 
 package io.ballerina.cli.task;
 
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import org.ballerinalang.maven.Dependency;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 
 /**
  * Resolve maven dependencies.
@@ -46,14 +46,14 @@ public class ResolveMavenDependenciesTask implements Task {
 
     @Override
     public void execute(Project project) {
-        PackageManifest.Platform platform = project.currentPackage().manifest().platform(JdkVersion.JAVA_11.code());
+        PackageManifest.Platform platform = project.currentPackage().manifest().platform(JvmTarget.JAVA_11.code());
 
         if (platform == null) {
             return;
         }
 
         List<Map<String, Object>> platformLibraries = platform.dependencies();
-//        List<Repository> mavenCustomRepos = manifest.getPlatform().getRepositories();
+        //List<Repository> mavenCustomRepos = manifest.getPlatform().getRepositories();
         List<Map<String, Object>> mavenDependencies = new ArrayList<>();
         if (platformLibraries == null) {
             return;
