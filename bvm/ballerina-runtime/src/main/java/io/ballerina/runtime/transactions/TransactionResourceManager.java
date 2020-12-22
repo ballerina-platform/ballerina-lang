@@ -402,11 +402,10 @@ public class TransactionResourceManager {
         List<BFunctionPointer> fpValueList = committedFuncRegistry.get(transactionId);
         Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true };
         if (fpValueList != null) {
-            for (int i = fpValueList.size(); i > 0; i--) {
-                BFunctionPointer fp = fpValueList.get(i - 1);
-                AsyncUtils.invokeFunctionPointerAsync(fp, "trxCommit", COMMIT_METADATA, () -> args, result -> {
-                        }, Scheduler.getStrand().scheduler);
-            }
+            AsyncUtils.invokeAndForgetFunctionPointerAsync(fpValueList, "trxCommit",
+                    COMMIT_METADATA, () -> args,
+                    result -> {
+                    }, () -> null, Scheduler.getStrand().scheduler);
         }
     }
 
@@ -415,11 +414,10 @@ public class TransactionResourceManager {
         //TODO: Need to pass the retryManager to get the willRetry value.
         Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true, error, true, false, true };
         if (fpValueList != null) {
-            for (int i = fpValueList.size(); i > 0; i--) {
-                BFunctionPointer fp = fpValueList.get(i - 1);
-                AsyncUtils.invokeFunctionPointerAsync(fp, "trxCommit", COMMIT_METADATA, () -> args, result -> {
-                        }, Scheduler.getStrand().scheduler);
-            }
+            AsyncUtils.invokeAndForgetFunctionPointerAsync(fpValueList, "trxCommit",
+                    COMMIT_METADATA, () -> args,
+                    result -> {
+                    }, () -> null, Scheduler.getStrand().scheduler);
         }
     }
 
