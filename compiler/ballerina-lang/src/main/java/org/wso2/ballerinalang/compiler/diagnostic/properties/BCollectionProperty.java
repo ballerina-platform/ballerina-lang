@@ -29,8 +29,8 @@ import java.util.Collection;
  * @since Swan Lake
  */
 public class BCollectionProperty implements ConstantProperty {
-    private DiagnosticPropertyKind kind;
-    private Collection<DiagnosticProperty> values;
+    private final DiagnosticPropertyKind kind;
+    private final Collection<DiagnosticProperty> values;
 
     public BCollectionProperty(Collection<DiagnosticProperty> values) {
         this.kind = DiagnosticPropertyKind.COLLECTION;

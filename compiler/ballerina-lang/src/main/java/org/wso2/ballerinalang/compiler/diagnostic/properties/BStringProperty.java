@@ -26,8 +26,8 @@ import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
  * @since Swan Lake
  */
 public class BStringProperty implements ConstantProperty {
-    private DiagnosticPropertyKind kind;
-    private String value;
+    private final DiagnosticPropertyKind kind;
+    private final String value;
 
     public BStringProperty(String value) {
         this.kind = DiagnosticPropertyKind.STRING;

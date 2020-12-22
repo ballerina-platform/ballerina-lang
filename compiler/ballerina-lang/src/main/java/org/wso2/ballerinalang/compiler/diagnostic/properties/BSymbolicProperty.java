@@ -27,8 +27,8 @@ import io.ballerina.tools.diagnostics.properties.SymbolicProperty;
  * @since Swan Lake
  */
 public class BSymbolicProperty implements SymbolicProperty {
-    private DiagnosticPropertyKind kind;
-    private Symbol value;
+    private final DiagnosticPropertyKind kind;
+    private final Symbol value;
 
     public BSymbolicProperty(Symbol symbol) {
         this.kind = DiagnosticPropertyKind.SYMBOLIC;

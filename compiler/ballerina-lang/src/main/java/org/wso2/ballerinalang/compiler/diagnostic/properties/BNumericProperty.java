@@ -26,8 +26,8 @@ import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
  * @since Swan Lake
  */
 public class BNumericProperty implements ConstantProperty {
-    private DiagnosticPropertyKind kind;
-    private Number value;
+    private final DiagnosticPropertyKind kind;
+    private final Number value;
 
     public BNumericProperty(Number value) {
         this.kind = DiagnosticPropertyKind.NUMERIC;

@@ -26,8 +26,8 @@ import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
  * @since Swan Lake
  */
 public class NonCatProperty implements DiagnosticProperty {
-    private DiagnosticPropertyKind kind;
-    private Object value;
+    private final DiagnosticPropertyKind kind;
+    private final Object value;
 
     public NonCatProperty(Object value) {
         this.kind = DiagnosticPropertyKind.OTHER;
