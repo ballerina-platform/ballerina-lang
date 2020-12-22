@@ -667,14 +667,16 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE3977", "invalid.read.only.class.inclusion.in.object.type.descriptor"),
     INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS("BCE3978", "invalid.inclusion.with.mismatched.qualifiers"),
     INVALID_REFERENCE_WITH_MISMATCHED_QUALIFIERS("BCE3979", "invalid.reference.with.mismatched.qualifiers"),
+    INVALID_READ_ONLY_TYPEDESC_INCLUSION_IN_NON_READ_ONLY_CLASS(
+            "BCE3980", "invalid.read.only.typedesc.inclusion.in.non.read.only.class"),
     INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS(
-            "BCE3980", "invalid.read.only.class.inclusion.in.non.read.only.class"),
+            "BCE3981", "invalid.read.only.class.inclusion.in.non.read.only.class"),
     INVALID_FIELD_IN_OBJECT_CONSTUCTOR_EXPR_WITH_READONLY_REFERENCE(
-            "BCE3981", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
+            "BCE3982", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
 
-    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3982", "multiple.receive.action.not.yet.supported"),
+    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3983", "multiple.receive.action.not.yet.supported"),
 
-    INVALID_READONLY_FIELD_TYPE("BCE3983", "invalid.readonly.field.type")
+    INVALID_READONLY_FIELD_TYPE("BCE3984", "invalid.readonly.field.type")
     ;
 
     private String diagnosticId;
