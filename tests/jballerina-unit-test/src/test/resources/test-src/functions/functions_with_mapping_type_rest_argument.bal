@@ -62,10 +62,6 @@ function testFunctionWithMappingTypeRestArg() {
 
     Baz z = {c:10};
     assertEquality(30, getTotal(10, 10, ...z));
-
-    Val v = {};
-    assertEquality(30, getTotal(10, 10, 10, ...v));
-
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

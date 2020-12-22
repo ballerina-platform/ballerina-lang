@@ -59,6 +59,7 @@ public class FunctionsWithRestArguments {
         BAssertUtil.validateError(result, i++, "rest argument not allowed after named arguments", 56, 35);
         BAssertUtil.validateError(result, i++, "incompatible types: expected '([int,int,int,int...]|record " +
                 "{| int a; int b; int c; |})', found 'Bar'", 59, 29);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'int[]', found 'Val'", 62, 42);
 
         Assert.assertEquals(i, result.getErrorCount());
     }

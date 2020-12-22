@@ -5523,63 +5523,56 @@ public class TypeChecker extends BLangNodeVisitor {
         BType listTypeRestArg = restParam == null ? null : restParam.type;
         BRecordType mappingTypeRestArg = null;
 
-        if (vararg != null) {
+        if (vararg != null && nonRestArgs.size() < nonRestParams.size()) {
+            // We only reach here if there are no named args and there is a vararg, and part of the non-rest params
+            // are provided via the vararg.
+            // Create a new tuple type and a closed record type as the expected rest param type with expected
+            // required/defaultable paramtypes as members.
             PackageID pkgID = env.enclPkg.symbol.pkgID;
+            List<BType> tupleMemberTypes = new ArrayList<>();
             BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, null, VIRTUAL);
             mappingTypeRestArg = new BRecordType(recordSymbol);
-            if (nonRestArgs.size() < nonRestParams.size()) {
-                // We only reach here if there are no named args and there is a vararg, and part of the non-rest params
-                // are provided via the vararg.
-                // Create a new tuple type as the expected rest param type with expected required/defaultable param
-                // types as members.
-                List<BType> tupleMemberTypes = new ArrayList<>();
-                LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
-                BType tupleRestType = null;
-                BVarSymbol fieldSymbol;
+            LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+            BType tupleRestType = null;
+            BVarSymbol fieldSymbol;
 
-                for (int j = nonRestArgs.size(); j < nonRestParams.size(); j++) {
-                    BType paramType = paramTypes.get(j);
-                    BVarSymbol nonRestParam = nonRestParams.get(j);
-                    Name paramName = nonRestParam.name;
-                    tupleMemberTypes.add(paramType);
-                    if (requiredParams.contains(nonRestParam)) {
-                        fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
-                            add(Flag.REQUIRED);
-                        }}), paramName, pkgID, paramType, recordSymbol, null, VIRTUAL);
-                    } else {
-                        fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
-                            add(Flag.OPTIONAL);
-                        }}), paramName, pkgID, paramType, recordSymbol, null, VIRTUAL);
-                    }
-                    fields.put(paramName.value, new BField(paramName, null, fieldSymbol));
+            for (int j = nonRestArgs.size(); j < nonRestParams.size(); j++) {
+                BType paramType = paramTypes.get(j);
+                BVarSymbol nonRestParam = nonRestParams.get(j);
+                Name paramName = nonRestParam.name;
+                tupleMemberTypes.add(paramType);
+                if (requiredParams.contains(nonRestParam)) {
+                    fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
+                        add(Flag.REQUIRED);
+                    }}), paramName, pkgID, paramType, recordSymbol, null, VIRTUAL);
+                } else {
+                    fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
+                        add(Flag.OPTIONAL);
+                    }}), paramName, pkgID, paramType, recordSymbol, null, VIRTUAL);
                 }
-
-                if (listTypeRestArg != null) {
-                    if (listTypeRestArg.tag == TypeTags.ARRAY) {
-                        tupleRestType = ((BArrayType) listTypeRestArg).eType;
-                    } else if (listTypeRestArg.tag == TypeTags.TUPLE) {
-                        BTupleType restTupleType = (BTupleType) listTypeRestArg;
-                        tupleMemberTypes.addAll(restTupleType.tupleTypes);
-                        if (restTupleType.restType != null) {
-                            tupleRestType = restTupleType.restType;
-                        }
-                    }
-                }
-
-                BTupleType tupleType = new BTupleType(tupleMemberTypes);
-                tupleType.restType = tupleRestType;
-                listTypeRestArg = tupleType;
-                mappingTypeRestArg.sealed = true;
-                mappingTypeRestArg.restFieldType = symTable.noType;
-                mappingTypeRestArg.fields = fields;
-                recordSymbol.type = mappingTypeRestArg;
-                mappingTypeRestArg.tsymbol = recordSymbol;
-            } else {
-                mappingTypeRestArg.sealed = true;
-                mappingTypeRestArg.restFieldType = symTable.noType;
-                recordSymbol.type = mappingTypeRestArg;
-                mappingTypeRestArg.tsymbol = recordSymbol;
+                fields.put(paramName.value, new BField(paramName, null, fieldSymbol));
             }
+
+            if (listTypeRestArg != null) {
+                if (listTypeRestArg.tag == TypeTags.ARRAY) {
+                    tupleRestType = ((BArrayType) listTypeRestArg).eType;
+                } else if (listTypeRestArg.tag == TypeTags.TUPLE) {
+                    BTupleType restTupleType = (BTupleType) listTypeRestArg;
+                    tupleMemberTypes.addAll(restTupleType.tupleTypes);
+                    if (restTupleType.restType != null) {
+                        tupleRestType = restTupleType.restType;
+                    }
+                }
+            }
+
+            BTupleType tupleType = new BTupleType(tupleMemberTypes);
+            tupleType.restType = tupleRestType;
+            listTypeRestArg = tupleType;
+            mappingTypeRestArg.sealed = true;
+            mappingTypeRestArg.restFieldType = symTable.noType;
+            mappingTypeRestArg.fields = fields;
+            recordSymbol.type = mappingTypeRestArg;
+            mappingTypeRestArg.tsymbol = recordSymbol;
         }
 
         // Check whether the expected param count and the actual args counts are matching.
@@ -5600,11 +5593,15 @@ public class TypeChecker extends BLangNodeVisitor {
             iExpr.restArgs.add(vararg);
         } else if (vararg != null) {
             iExpr.restArgs.add(vararg);
-            LinkedHashSet<BType> restTypes = new LinkedHashSet<>();
-            restTypes.add(listTypeRestArg);
-            restTypes.add(mappingTypeRestArg);
-            BType actualType = BUnionType.create(null, restTypes);
-            checkTypeParamExpr(vararg, this.env, actualType, iExpr.langLibInvocation);
+            if (mappingTypeRestArg != null) {
+                LinkedHashSet<BType> restTypes = new LinkedHashSet<>();
+                restTypes.add(listTypeRestArg);
+                restTypes.add(mappingTypeRestArg);
+                BType actualType = BUnionType.create(null, restTypes);
+                checkTypeParamExpr(vararg, this.env, actualType, iExpr.langLibInvocation);
+            } else {
+                checkTypeParamExpr(vararg, this.env, listTypeRestArg, iExpr.langLibInvocation);
+            }
         } else if (!iExpr.restArgs.isEmpty()) {
             if (listTypeRestArg.tag == TypeTags.ARRAY) {
                 BType elementType = ((BArrayType) listTypeRestArg).eType;

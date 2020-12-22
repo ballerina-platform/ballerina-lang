@@ -57,4 +57,7 @@ function testFunctionWithMappingTypeRestArgNegative() {
 
     Bar b2 = {a:10, b: 10, c:50, d: 10};
     int total = getTotal(...b2);
+
+    Val v = { };
+    int total1 = getTotal(10, 10, 10, ...v);
 }
