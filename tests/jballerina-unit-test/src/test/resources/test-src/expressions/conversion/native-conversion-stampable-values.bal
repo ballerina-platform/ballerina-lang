@@ -127,8 +127,11 @@ function assert(anydata|error actual, anydata|error expected) {
     if (expected != actual) {
         typedesc<anydata|error> expT = typeof expected;
         typedesc<anydata|error> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+
+        string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+        string actualValAsString = actual is error ? actual.toString() : actual.toString();
+        string reason = "expected [" + expectedValAsString + "] of type [" + expT.toString()
+                            + "], but found [" + actualValAsString + "] of type [" + actT.toString() + "]";
 
         panic error(reason);
     }

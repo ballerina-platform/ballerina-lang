@@ -209,12 +209,16 @@ function testFromJsonDecimalString() returns map<json|error> {
     return result;
 }
 
-function testToStringMethod() returns [string, string, string, string] {
+function testToStringMethod() returns [string, string, string, string, string, string] {
     int a = 4;
     anydata b = a;
     any c = b;
     var d = c.toString();
-    return [a.toString(), b.toString(), c.toString(), d];
+    error err1 = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
+               val3 = {"x":"AA","y":(1.0/0.0)});
+    FirstError err2 = FirstError(REASON_1, message = "Test passing error union to a function");
+
+    return [a.toString(), b.toString(), c.toString(), d, err1.toString(), err2.toString()];
 }
 
 /////////////////////////// Tests for `mergeJson()` ///////////////////////////
@@ -1309,7 +1313,7 @@ function tesFromJsonWithTypeMapWithDecimal() {
         panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
     }
 
-    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget>or;
+    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget> checkpanic or;
     assertEquality(castedValue["factor"], mp["factor"]);
     assertEquality(castedValue["name"], mp["name"]);
 }

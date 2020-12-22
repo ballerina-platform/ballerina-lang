@@ -4690,7 +4690,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // This list will be used in the desugar phase
         checkedExpr.equivalentErrorTypeList = errorTypes;
-        if (checkedExpr.equivalentErrorTypeList.isEmpty()) {
+        if (errorTypes.isEmpty()) {
             // No member types in this union is equivalent to the error type
             dlog.error(checkedExpr.expr.pos,
                     DiagnosticErrorCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorType);
