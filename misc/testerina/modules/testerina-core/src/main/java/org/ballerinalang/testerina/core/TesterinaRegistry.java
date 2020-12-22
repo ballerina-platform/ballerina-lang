@@ -43,7 +43,7 @@ public class TesterinaRegistry {
     private List<String> initializedPackages = new ArrayList<>();
     /**
      * This is required to stop the annotation processor from processing annotations upon the compilation of the
-     * service skeleton. This flag will make sure that @{@link TestAnnotationProcessor}'s methods will skip the
+     * service skeleton. This flag will make sure that @{@link TestProcessor}'s methods will skip the
      * annotation processing once the test suites are compiled.
      */
     private boolean testSuitesCompiled;

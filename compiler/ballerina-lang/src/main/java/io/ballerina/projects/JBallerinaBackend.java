@@ -265,92 +265,21 @@ public class JBallerinaBackend extends CompilerBackend {
         return jarResolver;
     }
 
-    /**
-     * Generate and return the testsuite for module tests.
-     *
-     * @param module module
-     * @return test suite
-     */
-    public Optional<TestSuite> testSuite(Module module) {
-        if (module.project().kind() != ProjectKind.SINGLE_FILE_PROJECT
-                && !module.moduleContext().bLangPackage().hasTestablePackage()) {
-            return Optional.empty();
-        }
-        // skip generation of the testsuite if --skip-tests option is set to true
-        if (Boolean.getBoolean(compilerOptions.get(SKIP_TESTS))) {
-            return Optional.empty();
-        }
-
-        return Optional.of(generateTestSuite(module.moduleContext(), compilerContext));
-    }
-
-    private TestSuite generateTestSuite(ModuleContext moduleContext, CompilerContext compilerContext) {
-        BLangPackage bLangPackage = moduleContext.bLangPackage();
-        TestSuite testSuite = new TestSuite(bLangPackage.packageID.name.value,
-                bLangPackage.packageID.toString(),
-                bLangPackage.packageID.orgName.value,
-                bLangPackage.packageID.version.value);
-        TesterinaRegistry.getInstance().getTestSuites().put(
-                moduleContext.descriptor().name().toString(), testSuite);
-
-        // set data
-        testSuite.setInitFunctionName(bLangPackage.initFunction.name.value);
-        testSuite.setStartFunctionName(bLangPackage.startFunction.name.value);
-        testSuite.setStopFunctionName(bLangPackage.stopFunction.name.value);
-        testSuite.setPackageName(bLangPackage.packageID.toString());
-        testSuite.setSourceRootPath(moduleContext.project().sourceRoot().toString());
-
-        // add functions of module/standalone file
-        bLangPackage.functions.forEach(function -> {
-            Location pos = function.pos;
-            if (pos != null && !(function.getFlags().contains(Flag.RESOURCE) ||
-                    function.getFlags().contains(Flag.REMOTE))) {
-                // Remove the duplicated annotations.
-                String className = pos.lineRange().filePath().replace(".bal", "")
-                        .replace("/", ".");
-                String functionClassName = JarResolver.getQualifiedClassName(
-                        bLangPackage.packageID.orgName.value,
-                        bLangPackage.packageID.name.value,
-                        bLangPackage.packageID.version.value,
-                        className);
-                testSuite.addTestUtilityFunction(function.name.value, functionClassName);
-            }
-        });
-
+    public void processMockAnnotations(Module module, Project project) {
+        CompilerContext compilerContext = project.projectEnvironmentContext().getService(CompilerContext.class);
+        BLangPackage bLangPackage = module.moduleContext().bLangPackage();
         BLangPackage testablePkg;
-        if (moduleContext.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             testablePkg = bLangPackage;
         } else {
             testablePkg = bLangPackage.getTestablePkg();
-            testSuite.setTestInitFunctionName(testablePkg.initFunction.name.value);
-            testSuite.setTestStartFunctionName(testablePkg.startFunction.name.value);
-            testSuite.setTestStopFunctionName(testablePkg.stopFunction.name.value);
-
-            testablePkg.functions.forEach(function -> {
-                Location location = function.pos;
-                if (location != null && !(function.getFlags().contains(Flag.RESOURCE) ||
-                        function.getFlags().contains(Flag.REMOTE))) {
-                    String className = location.lineRange().filePath().replace(".bal", "").
-                            replace("/", ".");
-                    String functionClassName = JarResolver.getQualifiedClassName(
-                            bLangPackage.packageID.orgName.value,
-                            bLangPackage.packageID.name.value,
-                            bLangPackage.packageID.version.value,
-                            className);
-                    testSuite.addTestUtilityFunction(function.name.value, functionClassName);
-                }
-            });
         }
-
-        // process annotations in test functions
-        TestAnnotationProcessor testAnnotationProcessor = new TestAnnotationProcessor();
-        testAnnotationProcessor.init(compilerContext, testablePkg);
-        testablePkg.functions.forEach(testAnnotationProcessor::processFunction);
-
+        // process mock annotations in test functions
+        MockAnnotationProcessor mockAnnotationProcessor = new MockAnnotationProcessor();
+        mockAnnotationProcessor.init(compilerContext, testablePkg);
         testablePkg.topLevelNodes.stream().filter(topLevelNode ->
                 topLevelNode instanceof BLangSimpleVariable).map(topLevelNode ->
-                (SimpleVariableNode) topLevelNode).forEach(testAnnotationProcessor::processMockFunction);
-        return testSuite;
+                (SimpleVariableNode) topLevelNode).forEach(mockAnnotationProcessor::processMockFunction);
     }
 
     // TODO Can we move this method to Module.displayName()

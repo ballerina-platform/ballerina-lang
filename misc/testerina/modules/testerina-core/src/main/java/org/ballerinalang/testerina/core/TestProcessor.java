@@ -18,6 +18,8 @@
 package org.ballerinalang.testerina.core;
 
 import com.google.gson.Gson;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.symbols.*;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -43,6 +45,7 @@ import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.testsuite.TesterinaRegistry;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 
@@ -54,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -75,54 +79,39 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * Responsible of processing Testerina annotations.
  * Lifetime of an instance of this class will end upon the completion of processing a ballerina package.
  */
-public class TestAnnotationProcessor {
-    private static final String TEST_ANNOTATION_NAME = "@test:Config";
-    private static final String BEFORE_SUITE_ANNOTATION_NAME = "@test:BeforeSuite";
-    private static final String AFTER_SUITE_ANNOTATION_NAME = "@test:AfterSuite";
-    private static final String BEFORE_EACH_ANNOTATION_NAME = "@test:BeforeEach";
-    private static final String AFTER_EACH_ANNOTATION_NAME = "@test:AfterEach";
-    private static final String MOCK_ANNOTATION_NAME = "@test:Mock";
+public class TestProcessor {
+    private static final String TEST_ANNOTATION_NAME = "Config";
+    private static final String BEFORE_SUITE_ANNOTATION_NAME = "BeforeSuite";
+    private static final String AFTER_SUITE_ANNOTATION_NAME = "AfterSuite";
+    private static final String BEFORE_EACH_ANNOTATION_NAME = "BeforeEach";
+    private static final String AFTER_EACH_ANNOTATION_NAME = "AfterEach";
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
-    private static final String MODULE = "moduleName";
-    private static final String FUNCTION = "functionName";
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
     private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
     private static final String AFTER_SUITE_ALWAYS_RUN_FIELD_NAME = "alwaysRun";
     private static final String VALUE_FIELD_NAME = "value";
-    private static final String MOCK_ANNOTATION_DELIMITER = "#";
-    private static final String MOCK_FN_DELIMITER = "~";
-    private static final String BEFORE_GROUPS_ANNOTATION_NAME = "@test:BeforeGroups";
-    private static final String AFTER_GROUPS_ANNOTATION_NAME = "@test:AfterGroups";
+    private static final String BEFORE_GROUPS_ANNOTATION_NAME = "BeforeGroups";
+    private static final String AFTER_GROUPS_ANNOTATION_NAME = "AfterGroups";
+    private static final String TEST_PREFIX = "@test:";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private boolean enabled = true;
-    private DiagnosticLog diagnosticLog;
-    private Types typeChecker;
-    private SymbolResolver symbolResolver;
-
-    private PackageCache packageCache;
-    private Map<BPackageSymbol, SymbolEnv> packageEnvironmentMap;
 
     /**
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
      * Annotation currently emits package import events too to the process method.
      */
 
-    public void init(CompilerContext compilerContext) {
-        this.diagnosticLog = BLangDiagnosticLog.getInstance(compilerContext);
-        this.packageEnvironmentMap = SymbolTable.getInstance(compilerContext).pkgEnvMap;
-        this.packageCache = PackageCache.getInstance(compilerContext);
-        this.typeChecker = Types.getInstance(compilerContext);
-        this.symbolResolver = SymbolResolver.getInstance(compilerContext);
-
+    public void init() {
         if (TesterinaRegistry.getInstance().isTestSuitesCompiled()) {
             enabled = false;
         }
@@ -170,7 +159,7 @@ public class TestAnnotationProcessor {
             Document document = module.document(documentId);
             sourceSyntaxTreeMap.put(document.name(), document.syntaxTree());
         });
-        addUtilityFunctions(sourceSyntaxTreeMap, project, testSuite);
+        addUtilityFunctions(sourceSyntaxTreeMap, module, project, testSuite);
         Map<String, SyntaxTree> testSyntaxTreeMap;
         //set test init functions
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
@@ -188,19 +177,16 @@ public class TestAnnotationProcessor {
             testSuite.setTestInitFunctionName(".<testinit>");
             testSuite.setTestStartFunctionName(".<teststart>");
             testSuite.setTestStopFunctionName(".<teststop>");
-            addUtilityFunctions(testSyntaxTreeMap, project, testSuite);
+            addUtilityFunctions(testSyntaxTreeMap, module, project, testSuite);
         }
         // process annotations in test functions
-        TestAnnotationProcessor testAnnotationProcessor = new TestAnnotationProcessor();
-        CompilerContext compilerContext = project.projectEnvironmentContext().getService(CompilerContext.class);
-        testAnnotationProcessor.init(compilerContext);
+        TestProcessor testProcessor = new TestProcessor();
+        testProcessor.init();
         processAnnotations(module, testSyntaxTreeMap);
         return testSuite;
     }
 
     private void processAnnotations(Module module, Map<String, SyntaxTree> syntaxTreeMap) {
-        //Map to maintain all the mock functions
-        Map<String, String> mockFunctionNamesMap = new HashMap<>();
         if (!enabled) {
             return;
         }
@@ -226,35 +212,52 @@ public class TestAnnotationProcessor {
                 return;
             }
         }
+        List<FunctionSymbol> functionSymbolList = getFunctionSymbolList(syntaxTreeMap, module);
+        for (FunctionSymbol functionSymbol: functionSymbolList) {
+            String functionName = functionSymbol.name();
+            List<AnnotationSymbol> annotations = functionSymbol.annotations();
+            for(AnnotationSymbol annotationSymbol: annotations){
+                String annotationName = annotationSymbol.name();
+                if (annotationName.contains(BEFORE_SUITE_ANNOTATION_NAME)) {
+                    suite.addBeforeSuiteFunction(functionName);
+                } else if (annotationName.contains(AFTER_SUITE_ANNOTATION_NAME)) {
+                    suite.addAfterSuiteFunction(functionName,
+                            isAlwaysRunAfterSuite(getAnnotationNode(annotationSymbol, syntaxTreeMap, functionName)));
+                } else if (annotationName.contains(BEFORE_GROUPS_ANNOTATION_NAME)) {
+                    processGroupsAnnotation(getAnnotationNode(annotationSymbol, syntaxTreeMap, functionName), functionName, suite, true);
+                } else if (annotationName.contains(AFTER_GROUPS_ANNOTATION_NAME)) {
+                    processGroupsAnnotation(getAnnotationNode(annotationSymbol, syntaxTreeMap, functionName), functionName, suite, false);
+                } else if (annotationName.contains(BEFORE_EACH_ANNOTATION_NAME)) {
+                    suite.addBeforeEachFunction(functionName);
+                } else if (annotationName.contains(AFTER_EACH_ANNOTATION_NAME)) {
+                    suite.addAfterEachFunction(functionName);
+                } else if (annotationName.contains(TEST_ANNOTATION_NAME)) {
+                    processTestAnnotation(getAnnotationNode(annotationSymbol, syntaxTreeMap, functionName), functionName, suite);
+                } else {
+                    // disregard this annotation
+                }
+            }
+        }
+    }
+
+    private AnnotationNode getAnnotationNode(AnnotationSymbol annotationSymbol, Map<String, SyntaxTree> syntaxTreeMap,
+                                             String function){
         for (Map.Entry<String, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
             if (syntaxTreeEntry.getValue().containsModulePart()) {
                 ModulePartNode modulePartNode = syntaxTreeMap.get(syntaxTreeEntry.getKey()).rootNode();
                 for (Node node : modulePartNode.members()) {
                     if ((node.kind() == SyntaxKind.FUNCTION_DEFINITION) && node instanceof FunctionDefinitionNode) {
                         String functionName = ((FunctionDefinitionNode) node).functionName().text();
-                        Optional<MetadataNode> optionalMetadataNode = ((FunctionDefinitionNode)node).metadata();
-                        if (optionalMetadataNode.isEmpty()) {
-                            continue;
-                        }else{
-                            NodeList<AnnotationNode> annotations = optionalMetadataNode.get().annotations();
-                            for (AnnotationNode annotationNode : annotations) {
-                                String annotationName = annotationNode.toString().trim();
-                                if (annotationName.contains(BEFORE_SUITE_ANNOTATION_NAME)) {
-                                    suite.addBeforeSuiteFunction(functionName);
-                                } else if (annotationName.contains(AFTER_SUITE_ANNOTATION_NAME)) {
-                                    suite.addAfterSuiteFunction(functionName, isAlwaysRunAfterSuite(annotationNode));
-                                } else if (annotationName.contains(BEFORE_GROUPS_ANNOTATION_NAME)) {
-                                    processGroupsAnnotation(annotationNode, functionName, suite, true);
-                                } else if (annotationName.contains(AFTER_GROUPS_ANNOTATION_NAME)) {
-                                    processGroupsAnnotation(annotationNode, functionName, suite, false);
-                                } else if (annotationName.contains(BEFORE_EACH_ANNOTATION_NAME)) {
-                                    suite.addBeforeEachFunction(functionName);
-                                } else if (annotationName.contains(AFTER_EACH_ANNOTATION_NAME)) {
-                                    suite.addAfterEachFunction(functionName);
-                                } else if (annotationName.contains(TEST_ANNOTATION_NAME)) {
-                                    processTestAnnotation(annotationNode, functionName, suite);
-                                } else {
-                                    // disregard this annotation
+                        if (functionName.equals(function)) {
+                            Optional<MetadataNode> optionalMetadataNode = ((FunctionDefinitionNode) node).metadata();
+                            if (optionalMetadataNode.isEmpty()) {
+                                continue;
+                            } else {
+                                NodeList<AnnotationNode> annotations = optionalMetadataNode.get().annotations();
+                                for (AnnotationNode annotation : annotations) {
+                                    if ((annotation.toString().trim()).contains(TEST_PREFIX + annotationSymbol.name())) {
+                                        return annotation;
+                                    }
                                 }
                             }
                         }
@@ -262,39 +265,50 @@ public class TestAnnotationProcessor {
                 }
             }
         }
+        return null;
     }
 
-    private void addUtilityFunctions(Map<String, SyntaxTree> syntaxTreeMap, Project project, TestSuite testSuite) {
+    private List<FunctionSymbol> getFunctionSymbolList(Map<String, SyntaxTree> syntaxTreeMap, Module module){
+        List<FunctionSymbol> functionSymbolList = new ArrayList<>();
         for (Map.Entry<String, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
-            if (syntaxTreeEntry.getValue().containsModulePart()) {
-                ModulePartNode modulePartNode = syntaxTreeMap.get(syntaxTreeEntry.getKey()).rootNode();
-                for (Node node : modulePartNode.members()) {
-                    if ((node.kind() == SyntaxKind.FUNCTION_DEFINITION) && node instanceof FunctionDefinitionNode) {
-                        //Add test utility functions
-                        String functionName = ((FunctionDefinitionNode) node).functionName().text();
-                        Location pos = node.location();
-                        NodeList<Token> qualifiers = ((FunctionDefinitionNode) node).qualifierList();
-                        boolean isUtility = true;
-                        for (Token qualifier : qualifiers) {
-                            if (Flag.RESOURCE.name().equals(qualifier.text()) ||
-                                    Flag.REMOTE.name().equals(qualifier.text())) {
-                                isUtility = false;
-                                break;
-                            }
-                        }
-                        if (pos != null && isUtility) {
-                            // Remove the duplicated annotations.
-                            String className = pos.lineRange().filePath().replace(".bal", "")
-                                    .replace("/", ".");
-                            String functionClassName = JarResolver.getQualifiedClassName(
-                                    project.currentPackage().packageOrg().value(),
-                                    project.currentPackage().packageName().value(),
-                                    project.currentPackage().packageVersion().value().toString(),
-                                    className);
-                            testSuite.addTestUtilityFunction(functionName, functionClassName);
-                        }
-                    }
+            List<Symbol> symbols = module.getCompilation().getSemanticModel().visibleSymbols(
+                    syntaxTreeEntry.getKey(),
+                    LinePosition.from(syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().line(),
+                            syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().offset()));
+            for(Symbol symbol: symbols){
+                if(symbol.kind() == SymbolKind.FUNCTION && symbol instanceof FunctionSymbol){
+                    functionSymbolList.add((FunctionSymbol)symbol);
                 }
+            }
+        }
+            return functionSymbolList;
+    }
+
+    private void addUtilityFunctions(Map<String, SyntaxTree> syntaxTreeMap, Module module, Project project, TestSuite testSuite) {
+
+        List<FunctionSymbol> functionSymbolList = getFunctionSymbolList(syntaxTreeMap,module);
+        for (FunctionSymbol functionSymbol: functionSymbolList) {
+            String functionName = functionSymbol.name();
+            Location pos = functionSymbol.location();
+            List<Qualifier> qualifiers = functionSymbol.qualifiers();
+            boolean isUtility = true;
+            for(Qualifier qualifier: qualifiers){
+                    if (Flag.RESOURCE.name().equals(qualifier.getValue()) ||
+                            Flag.REMOTE.name().equals(qualifier.getValue())) {
+                        isUtility = false;
+                        break;
+                    }
+            }
+            if (pos != null && isUtility) {
+                // Remove the duplicated annotations.
+                String className = pos.lineRange().filePath().replace(".bal", "")
+                        .replace("/", ".");
+                String functionClassName = JarResolver.getQualifiedClassName(
+                        project.currentPackage().packageOrg().value(),
+                        project.currentPackage().packageName().value(),
+                        project.currentPackage().packageVersion().value().toString(),
+                        className);
+                testSuite.addTestUtilityFunction(functionName, functionClassName);
             }
         }
     }
@@ -321,88 +335,9 @@ public class TestAnnotationProcessor {
         return valueExpr.toString().replaceAll("\\\"","").trim();
     }
 
-    private String getModuleName(String orgName, String moduleName,String version){
-        return orgName.concat(Names.ORG_NAME_SEPARATOR.value).concat(moduleName).
-                concat(Names.VERSION_SEPARATOR.value).concat(version);
-    }
-    /**
-     * Formats the package name obtained from the mock annotation.
-     * Checks for empty, '.', or single module names and replaces them.
-     * Ballerina modules and fully qualified packages are simply returned
-     *
-     * @param value package name
-     * @return formatted package name
-     */
-    private String formatPackageName(String value, Module module) {
-        // If empty or '.' then return the current package ID
-        if (value.isEmpty() || value.equals(Names.DOT.value)) {
-            value = PackageID.DEFAULT.toString();
-            // If value does NOT contain 'ballerina/' then it could be fully qualified
-        } else if (!value.contains(Names.ORG_NAME_SEPARATOR.value) && !value.contains(Names.VERSION_SEPARATOR.value)) {
-            value = getPackageID(module, value).toString();
-        }
-        return value;
-    }
-
-    private PackageID getPackageID(Module module, String packageName) {
-        PackageID packageID;
-        // If empty or '.' then return the current package ID
-        if (packageName.equals(Names.DOT.value)) {
-            packageID = PackageID.DEFAULT;
-            // If value does NOT contain 'ballerina/' then it could be fully qualified
-        } else {
-            packageID = new PackageID(new Name(module.descriptor().org().value()), new Name(packageName),
-                    new Name(module.descriptor().version().toString()));
-        }
-        return packageID;
-    }
-
-    private FunctionDefinitionNode getFunctionDefinition(Module module, String functionName){
-        FunctionDefinitionNode functionNode = null;
-        for (DocumentId documentId: module.documentIds()) {
-            Document document = module.document(documentId);
-            ModulePartNode modulePartNode = document.syntaxTree().rootNode();
-            for (Node node : modulePartNode.members()) {
-                if ((node.kind() == SyntaxKind.FUNCTION_DEFINITION) && node instanceof FunctionDefinitionNode) {
-                    String function = ((FunctionDefinitionNode) node).functionName().text();
-                    if(functionName.equals(function)){
-                        functionNode = (FunctionDefinitionNode) node;
-                    }
-                }
-            }
-        }
-        return functionNode;
-    }
-
-    // Iterate through each field and assign the annotation values for moduleName and functionName
-    private void setAnnotationValues(AnnotationNode annotationNode, String[] annotationValues, Module module) {
-        Optional<MappingConstructorExpressionNode> mappingNodes = annotationNode.annotValue();
-        if(!mappingNodes.isEmpty()) {
-            for (MappingFieldNode mappingFieldNode : mappingNodes.get().fields()) {
-                if (mappingFieldNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
-                    SpecificFieldNode specificField = (SpecificFieldNode) mappingFieldNode;
-                    String fieldName = specificField.fieldName().toString().trim();
-                    ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
-                    if(valueExpr!=null) {
-                        String value = getStringValue(valueExpr);
-                        if (MODULE.equals(fieldName)) {
-                            value = formatPackageName(value, module);
-                            annotationValues[0] = value;
-                        } else if (FUNCTION.equals(fieldName)) {
-                            annotationValues[1] = value;
-                        }
-                    }
-                }else{
-                    diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, annotationNode.location(),
-                            "Annotation fields must be key-value pairs");
-                }
-            }
-        }
-    }
-
     private AtomicBoolean isAlwaysRunAfterSuite(AnnotationNode annotationNode){
         AtomicBoolean alwaysRun = new AtomicBoolean(false);
-        if(!annotationNode.annotValue().isEmpty()){
+        if(annotationNode!= null && !annotationNode.annotValue().isEmpty()){
             Optional<MappingConstructorExpressionNode> mappingNodes = annotationNode.annotValue();
             if(!mappingNodes.isEmpty()){
                 mappingNodes.get().fields().forEach(mappingFieldNode -> {
@@ -424,7 +359,7 @@ public class TestAnnotationProcessor {
     }
 
     private void processGroupsAnnotation(AnnotationNode annotationNode, String functionName, TestSuite suite, boolean isBeforeGroups){
-        if(!annotationNode.annotValue().isEmpty()){
+        if(annotationNode!= null && !annotationNode.annotValue().isEmpty()){
             Optional<MappingConstructorExpressionNode> mappingNodes = annotationNode.annotValue();
             if(!mappingNodes.isEmpty()){
                 for (MappingFieldNode mappingFieldNode:mappingNodes.get().fields()) {
@@ -456,7 +391,7 @@ public class TestAnnotationProcessor {
         AtomicBoolean groupsFound = new AtomicBoolean();
         List<String> groups = registry.getGroups();
         boolean shouldIncludeGroups = registry.shouldIncludeGroups();
-        if(!annotationNode.annotValue().isEmpty()){
+        if(annotationNode!= null && !annotationNode.annotValue().isEmpty()){
             Optional<MappingConstructorExpressionNode> mappingNodes = annotationNode.annotValue();
             if(!mappingNodes.isEmpty()) {
                 for (MappingFieldNode mappingFieldNode : mappingNodes.get().fields()) {
@@ -541,7 +476,7 @@ public class TestAnnotationProcessor {
      *
      * @param testSuite Data that are parsed to the json
      */
-    private static void writeToJson(TestSuite testSuite, Path moduleTestsCachePath) throws IOException {
+    public void writeToJson(TestSuite testSuite, Path moduleTestsCachePath) throws IOException {
         if (!Files.exists(moduleTestsCachePath)) {
             Files.createDirectories(moduleTestsCachePath);
         }

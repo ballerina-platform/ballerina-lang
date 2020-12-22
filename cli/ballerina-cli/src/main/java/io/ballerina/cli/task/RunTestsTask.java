@@ -19,16 +19,9 @@
 package io.ballerina.cli.task;
 
 import com.google.gson.Gson;
-import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JarResolver;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.ModuleName;
-import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
-import org.ballerinalang.testerina.core.TestAnnotationProcessor;
+import org.ballerinalang.testerina.core.TestProcessor;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.testsuite.TesterinaRegistry;
@@ -161,8 +154,7 @@ public class RunTestsTask implements Task {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
-        TestAnnotationProcessor testAnnotationProcessor = new TestAnnotationProcessor();
-
+        TestProcessor testProcessor = new TestProcessor();
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
         // in packages.
@@ -170,8 +162,8 @@ public class RunTestsTask implements Task {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
 
-            //TestSuite suite = jBallerinaBackend.testSuite(module).orElse(null);
-            TestSuite suite = testAnnotationProcessor.testSuite(module, project).orElse(null);
+            TestSuite suite = testProcessor.testSuite(module, project).orElse(null);
+            jBallerinaBackend.processMockAnnotations(module, project);
             Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
 
             if (suite == null) {
@@ -207,12 +199,15 @@ public class RunTestsTask implements Task {
             } else {
                 out.println("\t" + module.moduleName().toString());
             }
-            writeToJson(suite, moduleTestCachePath);
+//            try {
+                writeToJson(suite, moduleTestCachePath);
+//            } catch (IOException e) {
+//                throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
+//            }
             int testResult = runTestSuit(moduleTestCachePath, target, dependencies, module);
             if (result == 0) {
                 result = testResult;
             }
-
             if (report || coverage) {
                 try {
                     ModuleStatus moduleStatus = loadModuleStatusFromFile(moduleTestCachePath
@@ -258,30 +253,6 @@ public class RunTestsTask implements Task {
         } else if (groupList != null) {
             testerinaRegistry.setGroups(groupList);
             testerinaRegistry.setShouldIncludeGroups(true);
-        }
-    }
-
-    /**
-     * Write the content into a json.
-     *
-     * @param testSuite Data that are parsed to the json
-     */
-    private static void writeToJson(TestSuite testSuite, Path moduleTestsCachePath) {
-        if (!Files.exists(moduleTestsCachePath)) {
-            try {
-                Files.createDirectories(moduleTestsCachePath);
-            } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("couldn't create test suite : " + e.toString());
-            }
-        }
-        Path tmpJsonPath = Paths.get(moduleTestsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
-        File jsonFile = new File(tmpJsonPath.toString());
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            Gson gson = new Gson();
-            String json = gson.toJson(testSuite);
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
         }
     }
 
@@ -432,6 +403,30 @@ public class RunTestsTask implements Task {
             return gson.fromJson(bufferedReader, ArrayList.class);
         } catch (IOException e) {
             throw createLauncherException("error while running failed tests. ", e);
+        }
+    }
+
+    /**
+     * Write the content into a json.
+     *
+     * @param testSuite Data that are parsed to the json
+     */
+    private static void writeToJson(TestSuite testSuite, Path moduleTestsCachePath) {
+        if (!Files.exists(moduleTestsCachePath)) {
+            try {
+                Files.createDirectories(moduleTestsCachePath);
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException("couldn't create test suite : " + e.toString());
+            }
+        }
+        Path tmpJsonPath = Paths.get(moduleTestsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+        File jsonFile = new File(tmpJsonPath.toString());
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            String json = gson.toJson(testSuite);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
         }
     }
 }

@@ -17,6 +17,8 @@
 */
 package io.ballerina.projects.testsuite;
 
+import io.ballerina.projects.MockAnnotationProcessor;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +42,7 @@ public class TesterinaRegistry {
     private List<String> initializedPackages = new ArrayList<>();
     /**
      * This is required to stop the annotation processor from processing annotations upon the compilation of the
-     * service skeleton. This flag will make sure that {@link io.ballerina.projects.TestAnnotationProcessor}'s
+     * service skeleton. This flag will make sure that {@link MockAnnotationProcessor}'s
      * methods will skip the annotation processing once the test suites are compiled.
      */
     private boolean testSuitesCompiled;
