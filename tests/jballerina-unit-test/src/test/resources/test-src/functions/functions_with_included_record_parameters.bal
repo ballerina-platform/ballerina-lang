@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type NewPerson record {
+public type NewPerson record {
     string firstName;
     string secondName;
 };
@@ -177,29 +177,29 @@ function functionOfFunctionTypedParamWithIncludedRecordParam22(*Pairs values) re
     return <float[]>values["a"];
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam() {
+function testFuctionWithIncludedRecordParameters() {
     string fullName = functionOfFunctionTypedParamWithIncludedRecordParam(firstName = "chiran", secondName = "sachintha");
     assertEquality("chiran sachintha", fullName);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam2() {
+function testFuctionWithIncludedRecordParameters2() {
     [string, int] details = functionOfFunctionTypedParamWithIncludedRecordParam2(firstName = "chiran", secondName = "sachintha", age = 24);
     assertEquality("chiran sachintha", details[0]);
     assertEquality(24, details[1]);
 
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam3() {
+function testFuctionWithIncludedRecordParameters3() {
     string Address = functionOfFunctionTypedParamWithIncludedRecordParam3();
     assertEquality("Sri Lanka", Address);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam4() {
+function testFuctionWithIncludedRecordParameters4() {
     anydata valueType = functionOfFunctionTypedParamWithIncludedRecordParam4(a = 3, b = 4, value = "Integer");
     assertEquality("Integer", valueType);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam5() {
+function testFuctionWithIncludedRecordParameters5() {
     [anydata, anydata, anydata, anydata, anydata] details = functionOfFunctionTypedParamWithIncludedRecordParam5(a = 30, b = 400.0, value = "Integer", isCorrect = true, path = "c/usr/filename");
     assertEquality("Integer", details[0]);
     assertEquality(30, details[1]);
@@ -208,63 +208,63 @@ function testFunctionOfFunctionTypedParamWithIncludedRecordParam5() {
     assertEquality("c/usr/filename", details[4]);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam6() {
+function testFuctionWithIncludedRecordParameters6() {
     anydata a = ();
     anydata valueType = functionOfFunctionTypedParamWithIncludedRecordParam6(a = 3, b = 4);
     assertEquality(a, valueType);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam7() {
+function testFuctionWithIncludedRecordParameters7() {
     anydata value = functionOfFunctionTypedParamWithIncludedRecordParam7(a = 3, b = 4, value = 13);
     assertEquality(20, value);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam8() {
+function testFuctionWithIncludedRecordParameters8() {
     anydata value = functionOfFunctionTypedParamWithIncludedRecordParam8(a = 5, b = 3, c = 3, d = 4, value = 10);
     assertEquality(25, value);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam9() {
+function testFuctionWithIncludedRecordParameters9() {
     anydata path = functionOfFunctionTypedParamWithIncludedRecordParam9("x", "y", filename = "xyz.abc", path = "a/b/c");
     assertEquality("xya/b/cxyz.abc", path);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam10() {
+function testFuctionWithIncludedRecordParameters10() {
     string country = functionOfFunctionTypedParamWithIncludedRecordParam10(country = "Brazil");
     assertEquality("Brazil", country);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam11() {
+function testFuctionWithIncludedRecordParameters11() {
     functionOfFunctionTypedParamWithIncludedRecordParam11();
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam12() {
+function testFuctionWithIncludedRecordParameters12() {
     string email = functionOfFunctionTypedParamWithIncludedRecordParam12(firstName = "chiran", secondName = "sachintha", age = 24, email = "chirans", tel = 785, physics = 75, maths = 80, chemistry = 85);
     assertEquality("chirans", email);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam13() {
+function testFuctionWithIncludedRecordParameters13() {
     int totalMarks = functionOfFunctionTypedParamWithIncludedRecordParam13(maths = 80, physics = 75, chemistry = 85);
     assertEquality(240, totalMarks);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam14() {
+function testFuctionWithIncludedRecordParameters14() {
     int sum = functionOfFunctionTypedParamWithIncludedRecordParam14(10, 25);
     assertEquality(35, sum);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam15() {
+function testFuctionWithIncludedRecordParameters15() {
     int sum = functionOfFunctionTypedParamWithIncludedRecordParam15(a = 10, b = 15, c = 5);
     assertEquality(20, sum);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam16() {
+function testFuctionWithIncludedRecordParameters16() {
     anydata anyVal = ();
     anydata val = functionOfFunctionTypedParamWithIncludedRecordParam16(a = 10, b = 15, c = 5);
     assertEquality(anyVal, val);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam17() {
+function testFuctionWithIncludedRecordParameters17() {
     anydata anyVal = ();
     Foo2 foo = {
         b : "ballerina"
@@ -273,31 +273,46 @@ function testFunctionOfFunctionTypedParamWithIncludedRecordParam17() {
     assertEquality("ballerina", val);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam18() {
+function testFuctionWithIncludedRecordParameters18() {
     int sum = functionOfFunctionTypedParamWithIncludedRecordParam18(a = 10, b = 15, c = 5, d = 20);
     assertEquality(50, sum);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam19() {
+function testFuctionWithIncludedRecordParameters19() {
     int val = functionOfFunctionTypedParamWithIncludedRecordParam19(c = 10);
     assertEquality(10, val);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam20() {
+function testFuctionWithIncludedRecordParameters20() {
     int val = functionOfFunctionTypedParamWithIncludedRecordParam20(c = 5);
     assertEquality(5, val);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam21() {
+function testFuctionWithIncludedRecordParameters21() {
     int[] x = [1, 2];
     int[] val = functionOfFunctionTypedParamWithIncludedRecordParam21(a = [1, 2]);
     assertEquality(x, val);
 }
 
-function testFunctionOfFunctionTypedParamWithIncludedRecordParam22() {
+function testFuctionWithIncludedRecordParameters22() {
     float[] x = [1, 2];
     float[] val = functionOfFunctionTypedParamWithIncludedRecordParam22(a = [1, 2]);
     assertEquality(x, val);
+}
+
+public class TestClass {
+    public string firstName;
+    public string secondName;
+    public function init(*NewPerson p) {
+        self.firstName = p.firstName;
+        self.secondName = p.secondName;
+    }
+}
+
+function testFuctionWithIncludedRecordParameters23() {
+    TestClass tclass = new (firstName = "chiran", secondName = "sachintha");
+    string fullName = tclass.firstName + " " + tclass.secondName;
+    assertEquality("chiran sachintha", fullName);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
