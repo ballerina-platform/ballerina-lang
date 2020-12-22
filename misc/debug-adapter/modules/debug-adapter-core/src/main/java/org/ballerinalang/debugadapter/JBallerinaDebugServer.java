@@ -32,7 +32,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
@@ -375,7 +375,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<ContinueResponse> continue_(ContinueArguments args) {
         clearState();
-        eventProcessor.restoreBreakpoints();
+        eventProcessor.restoreBreakpoints(true);
         debuggeeVM.resume();
         ContinueResponse continueResponse = new ContinueResponse();
         continueResponse.setAllThreadsContinued(true);
@@ -392,7 +392,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> stepIn(StepInArguments args) {
         clearState();
-        eventProcessor.restoreBreakpoints();
+        eventProcessor.restoreBreakpoints(false);
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
         return CompletableFuture.completedFuture(null);
     }
@@ -400,7 +400,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> stepOut(StepOutArguments args) {
         clearState();
-        eventProcessor.restoreBreakpoints();
+        eventProcessor.restoreBreakpoints(false);
         eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_OUT);
         return CompletableFuture.completedFuture(null);
     }

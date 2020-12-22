@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -105,6 +106,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private String uniqueId;
     private BLangLiteral trxBlockId;
     private boolean transactionInternalModuleIncluded = false;
+    private boolean trxCoordinatorServiceStarted = false;
     private int trxResourceCount;
 
     private TransactionDesugar(CompilerContext context) {
@@ -331,7 +333,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return startTransactionInvocation;
     }
 
-    public BLangInvocation createStartTransactionCoordinatorInvocation(Location pos) {
+    private BLangInvocation createStartTransactionCoordinatorInvocation(Location pos) {
         BInvokableSymbol startTransactionInvokableSymbol =
                 (BInvokableSymbol) getInternalTransactionModuleInvokableSymbol(START_TRANSACTION_COORDINATOR);
 
@@ -346,6 +348,24 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 createInvocationExprForMethod(pos, startTransactionInvokableSymbol, args, symResolver);
         startTransactionCoordinatorInvocation.argExprs = args;
         return startTransactionCoordinatorInvocation;
+    }
+
+    private BLangSimpleVariableDef createVarDefForCoordinator(SymbolEnv env, Location pos) {
+        BLangExpression invocation = createStartTransactionCoordinatorInvocation(pos);
+        BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$trxCoordinatorErr$"),
+                env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner, pos, VIRTUAL);
+        BLangSimpleVariable outputVariable =
+                ASTBuilderUtil.createVariable(pos, "$trxCoordinatorErr$", symTable.errorOrNilType,
+                        invocation, outputVarSymbol);
+        return ASTBuilderUtil.createVariableDef(pos, outputVariable);
+    }
+
+    public void startTransactionCoordinatorOnce(SymbolEnv env, Location pos) {
+        if (!trxCoordinatorServiceStarted) {
+            BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) env.enclPkg.initFunction.body;
+            funcBody.stmts.add(0, createVarDefForCoordinator(env, pos));
+            trxCoordinatorServiceStarted = true;
+        }
     }
 
     BLangSimpleVariableDef createPrevAttemptInfoVarDef(SymbolEnv env, Location pos) {
@@ -391,7 +411,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         onFailBodyBlock.stmts.add(stmtIndex, rollbackCheck);
 
         BConstructorSymbol transactionErrorSymbol = (BConstructorSymbol) symTable.langTransactionModuleSymbol
-                .scope.lookup(names.fromString("TransactionError")).symbol;
+                .scope.lookup(names.fromString("Error")).symbol;
         BType errorType = transactionErrorSymbol.type;
 
         BLangErrorType trxErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();

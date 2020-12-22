@@ -210,6 +210,16 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     /**
+     * Reverse the array in-place.
+     *
+     * @return reversed array
+     */
+    @Override
+    public Object reverse() {
+        return reverse();
+    }
+
+    /**
      * Removes and returns first member of an array.
      * 
      * @return the value that was the first member of the array

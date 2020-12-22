@@ -245,6 +245,9 @@ public class TypeConverter {
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
+                    if (TypeChecker.getType(inputValue) == memType) {
+                        return List.of(memType);
+                    }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, unresolvedValues));
                 }
                 break;

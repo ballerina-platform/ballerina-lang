@@ -17,6 +17,7 @@
  */
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
@@ -34,7 +35,6 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
-import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 
 import java.io.PrintStream;

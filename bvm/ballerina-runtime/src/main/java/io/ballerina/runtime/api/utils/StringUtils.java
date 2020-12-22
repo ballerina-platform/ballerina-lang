@@ -175,8 +175,7 @@ public class StringUtils {
 
         Type type = TypeChecker.getType(value);
 
-        //TODO: bstring - change to type tag check
-        if (value instanceof BString) {
+        if (type.getTag() == TypeTags.STRING_TAG) {
             return ((BString) value).getValue();
         }
 
@@ -233,8 +232,7 @@ public class StringUtils {
 
         Type type = TypeChecker.getType(value);
 
-        //TODO: bstring - change to type tag check
-        if (value instanceof BString) {
+        if (type.getTag() == TypeTags.STRING_TAG) {
             return "\"" + ((BString) value).getValue() + "\"";
         }
 
