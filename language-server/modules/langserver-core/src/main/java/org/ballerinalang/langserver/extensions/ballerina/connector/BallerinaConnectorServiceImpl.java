@@ -147,7 +147,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
                 BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
-                ModuleId moduleId = baloProject.currentPackage().moduleIds().stream().findFirst().get();
+                ModuleId moduleId = baloProject.currentPackage().moduleIds().stream()
+                        .filter(modId -> modId.moduleName().equals(request.getModule())).findFirst().get();
                 Module module = baloProject.currentPackage().module(moduleId);
                 SemanticModel semanticModel = module.getCompilation().getSemanticModel();
 
@@ -178,7 +179,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     }
 
                     JsonElement jsonST = DiagramUtil.getClassDefinitionSyntaxJson(connector, semanticModel);
-                    if (jsonST instanceof JsonObject) {
+                    if (jsonST instanceof JsonObject && ((JsonObject) jsonST).has("typeData")) {
                         JsonElement recordsJson = gson.toJsonTree(connectorRecords);
                         ((JsonObject) ((JsonObject) jsonST).get("typeData")).add("records", recordsJson);
                     }
