@@ -17,20 +17,20 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.api.types.MemberFunctionType;
-import io.ballerina.runtime.api.types.RemoteFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.Type;
 
 import java.util.StringJoiner;
 
 /**
- * {@code RemoteFunctionType} represents a remote function in Ballerina.
+ * {@code BRemoteMethodType} represents a remote function in Ballerina.
  *
  * @since 2.0
  */
-public class BRemoteFunctionType extends BMemberFunctionType implements RemoteFunctionType {
+public class BRemoteMethodType extends BMethodType implements RemoteMethodType {
 
-    public BRemoteFunctionType(String funcName, BObjectType parent, BFunctionType type, long flags) {
+    public BRemoteMethodType(String funcName, BObjectType parent, BFunctionType type, long flags) {
         super(funcName, parent, type, flags);
     }
 
@@ -44,7 +44,7 @@ public class BRemoteFunctionType extends BMemberFunctionType implements RemoteFu
     }
 
     @Override
-    public <T extends MemberFunctionType> MemberFunctionType duplicate() {
-        return new BRemoteFunctionType(funcName, parentObjectType, type, flags);
+    public <T extends MethodType> MethodType duplicate() {
+        return new BRemoteMethodType(funcName, parentObjectType, type, flags);
     }
 }

@@ -76,5 +76,5 @@ function getAnnotsAndService() returns [map<int>?, map<string>?, service object 
 function getResourceAnnot(service object {} obj, string methodName, string[] path, string annotName) returns any =
 @java:Method {
     'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
-    name: "getAnnotMap"
+    name: "getResourceMethodAnnotations"
 } external;

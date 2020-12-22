@@ -19,8 +19,8 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
-import io.ballerina.runtime.api.types.MemberFunctionType;
-import io.ballerina.runtime.api.types.ResourceFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 
 import java.util.ArrayList;
@@ -32,14 +32,14 @@ import java.util.ArrayList;
  */
 public class BServiceType extends BObjectType implements ServiceType {
 
-    private ResourceFunctionType[] resourceFunctions;
-    private volatile MemberFunctionType[] remoteFunctions;
+    private ResourceMethodType[] resourceFunctions;
+    private volatile MethodType[] remoteFunctions;
 
     public BServiceType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags);
     }
 
-    public void setResourceFunctions(ResourceFunctionType[] resourceFunctions) {
+    public void setResourceFunctions(ResourceMethodType[] resourceFunctions) {
         this.resourceFunctions = resourceFunctions;
     }
 
@@ -49,9 +49,9 @@ public class BServiceType extends BObjectType implements ServiceType {
      * @return array of remote functions
      */
     @Override
-    public MemberFunctionType[] getRemoteFunctions() {
+    public MethodType[] getRemoteFunctions() {
         if (remoteFunctions == null) {
-            MemberFunctionType[] funcs = getRemoteFunctions(getMemberFunctionTypes());
+            MethodType[] funcs = getRemoteFunctions(getMethodTypes());
             synchronized (this) {
                 if (remoteFunctions == null) {
                     remoteFunctions = funcs;
@@ -61,14 +61,14 @@ public class BServiceType extends BObjectType implements ServiceType {
         return remoteFunctions;
     }
 
-    private MemberFunctionType[] getRemoteFunctions(MemberFunctionType[] attachedFunctions) {
-        ArrayList<MemberFunctionType> functions = new ArrayList<>();
-        for (MemberFunctionType funcType : attachedFunctions) {
-            if (SymbolFlags.isFlagOn(((BMemberFunctionType) funcType).flags, SymbolFlags.REMOTE)) {
+    private MethodType[] getRemoteFunctions(MethodType[] attachedFunctions) {
+        ArrayList<MethodType> functions = new ArrayList<>();
+        for (MethodType funcType : attachedFunctions) {
+            if (SymbolFlags.isFlagOn(((BMethodType) funcType).flags, SymbolFlags.REMOTE)) {
                 functions.add(funcType);
             }
         }
-        return functions.toArray(new MemberFunctionType[]{});
+        return functions.toArray(new MethodType[]{});
     }
 
     /**
@@ -77,7 +77,7 @@ public class BServiceType extends BObjectType implements ServiceType {
      * @return resource functions
      */
     @Override
-    public ResourceFunctionType[] getResourceFunctions() {
+    public ResourceMethodType[] getResourceFunctions() {
         return resourceFunctions;
     }
 
@@ -90,7 +90,7 @@ public class BServiceType extends BObjectType implements ServiceType {
     public BObjectType duplicate() {
         BServiceType type = new BServiceType(this.typeName, this.pkg, this.flags);
         type.setFields(fields);
-        type.setMemberFunctionTypes(duplicateArray(getMemberFunctionTypes()));
+        type.setMethodTypes(duplicateArray(getMethodTypes()));
         type.immutableType = this.immutableType;
         type.typeIdSet = this.typeIdSet;
         type.setResourceFunctions(duplicateArray(resourceFunctions));

@@ -209,7 +209,7 @@ public class ReadOnlyUtils {
                 immutableObjectType.setFields(immutableObjectFields);
                 immutableObjectType.generatedInitializer = origObjectType.generatedInitializer;
                 immutableObjectType.initializer = origObjectType.initializer;
-                immutableObjectType.setMemberFunctionTypes(origObjectType.getMemberFunctionTypes());
+                immutableObjectType.setMethodTypes(origObjectType.getMethodTypes());
 
                 BIntersectionType objectIntersectionType = createAndSetImmutableIntersectionType(origObjectType,
                                                                                                  immutableObjectType);

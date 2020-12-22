@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
-import io.ballerina.runtime.api.types.MemberFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 
@@ -38,9 +38,9 @@ import java.util.StringJoiner;
  */
 public class BObjectType extends BStructureType implements ObjectType {
 
-    private MemberFunctionType[] memberFunctionTypes;
-    public MemberFunctionType initializer;
-    public MemberFunctionType generatedInitializer;
+    private MethodType[] methodTypes;
+    public MethodType initializer;
+    public MethodType generatedInitializer;
 
     private final boolean readonly;
     protected IntersectionType immutableType;
@@ -78,19 +78,19 @@ public class BObjectType extends BStructureType implements ObjectType {
         return TypeTags.OBJECT_TYPE_TAG;
     }
 
-    public MemberFunctionType[] getMemberFunctionTypes() {
-        return memberFunctionTypes;
+    public MethodType[] getMethodTypes() {
+        return methodTypes;
     }
 
-    public void setMemberFunctionTypes(MemberFunctionType[] memberFunctionTypes) {
-        this.memberFunctionTypes = memberFunctionTypes;
+    public void setMethodTypes(MethodType[] methodTypes) {
+        this.methodTypes = methodTypes;
     }
 
-    public void setInitializer(BMemberFunctionType initializer) {
+    public void setInitializer(BMethodType initializer) {
         this.initializer = initializer;
     }
 
-    public void setGeneratedInitializer(BMemberFunctionType generatedInitializer) {
+    public void setGeneratedInitializer(BMethodType generatedInitializer) {
         this.generatedInitializer = generatedInitializer;
     }
 
@@ -108,7 +108,7 @@ public class BObjectType extends BStructureType implements ObjectType {
             sj.add(field.getKey() + " : " + field.getValue().getFieldType());
         }
 
-        for (MemberFunctionType func : memberFunctionTypes) {
+        for (MethodType func : methodTypes) {
             sj.add(func.toString());
         }
 
@@ -137,17 +137,17 @@ public class BObjectType extends BStructureType implements ObjectType {
     public BObjectType duplicate() {
         BObjectType type = new BObjectType(this.typeName, this.pkg, this.flags);
         type.setFields(fields);
-        type.setMemberFunctionTypes(duplicateArray(memberFunctionTypes));
+        type.setMethodTypes(duplicateArray(methodTypes));
         type.immutableType = this.immutableType;
         type.typeIdSet = this.typeIdSet;
         return type;
     }
 
-    protected  <T extends MemberFunctionType> T[] duplicateArray(T[] memberFunctionTypes) {
-        Class<?> elemType = memberFunctionTypes.getClass().getComponentType();
-        T[] array = (T[]) Array.newInstance(elemType, memberFunctionTypes.length);
-        for (int i = 0; i < memberFunctionTypes.length; i++) {
-            BMemberFunctionType functionType = (BMemberFunctionType) memberFunctionTypes[i];
+    protected  <T extends MethodType> T[] duplicateArray(T[] methodTypes) {
+        Class<?> elemType = methodTypes.getClass().getComponentType();
+        T[] array = (T[]) Array.newInstance(elemType, methodTypes.length);
+        for (int i = 0; i < methodTypes.length; i++) {
+            BMethodType functionType = (BMethodType) methodTypes[i];
             array[i] = (T) functionType.duplicate();
         }
 

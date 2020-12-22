@@ -46,7 +46,7 @@ public class WebSocketService {
     }
 
     private void populateResourcesMap(BObject service) {
-        for (AttachedFunctionType resource : service.getType().getMemberFunctionTypes()) {
+        for (AttachedFunctionType resource : service.getType().setMethodTypes()) {
             resourcesMap.put(resource.getName(), resource);
         }
     }

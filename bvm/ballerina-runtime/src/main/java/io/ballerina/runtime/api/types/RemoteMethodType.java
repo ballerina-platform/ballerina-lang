@@ -18,11 +18,11 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code {@link RemoteFunctionType }} represents remote function type in ballerina.
+ * {@code {@link RemoteMethodType }} represents remote function type in ballerina.
  *
  * @since 2.0.0
  */
-public interface RemoteFunctionType extends MemberFunctionType {
+public interface RemoteMethodType extends MethodType {
 
     ObjectType getParentObjectType();
 

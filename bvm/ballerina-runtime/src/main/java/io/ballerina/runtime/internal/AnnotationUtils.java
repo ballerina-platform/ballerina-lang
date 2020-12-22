@@ -18,13 +18,13 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.types.MemberFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
-import io.ballerina.runtime.internal.types.BMemberFunctionType;
+import io.ballerina.runtime.internal.types.BMethodType;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.FPValue;
@@ -59,10 +59,10 @@ public class AnnotationUtils {
             return;
         }
         BObjectType objectType = (BObjectType) type;
-        for (MemberFunctionType attachedFunction : objectType.getMemberFunctionTypes()) {
+        for (MethodType attachedFunction : objectType.getMethodTypes()) {
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
             if (globalAnnotMap.containsKey(annotationKey)) {
-                ((BMemberFunctionType) attachedFunction).setAnnotations((MapValue<BString, Object>)
+                ((BMethodType) attachedFunction).setAnnotations((MapValue<BString, Object>)
                                                                              globalAnnotMap.get(annotationKey));
             }
         }
@@ -77,7 +77,7 @@ public class AnnotationUtils {
             Object annotValue = ((FPValue) annot).call(new Object[]{strand});
             bType.setAnnotations((MapValue<BString, Object>) annotValue);
         }
-        for (MemberFunctionType attachedFunction : bType.getMemberFunctionTypes()) {
+        for (MethodType attachedFunction : bType.getMethodTypes()) {
             processObjectMethodLambdaAnnotation(globalAnnotMap, strand, attachedFunction);
         }
         if (bType instanceof BServiceType) {
@@ -89,11 +89,11 @@ public class AnnotationUtils {
     }
 
     private static void processObjectMethodLambdaAnnotation(MapValue globalAnnotMap, Strand strand,
-                                                            MemberFunctionType attachedFunction) {
+                                                            MethodType attachedFunction) {
         BString annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
 
         if (globalAnnotMap.containsKey(annotationKey)) {
-            ((BMemberFunctionType) attachedFunction)
+            ((BMethodType) attachedFunction)
                     .setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
                             .call(new Object[]{strand}));
         }

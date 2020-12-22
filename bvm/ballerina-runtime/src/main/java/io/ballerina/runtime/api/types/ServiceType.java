@@ -23,7 +23,7 @@ package io.ballerina.runtime.api.types;
  */
 public interface ServiceType extends ObjectType {
 
-    MemberFunctionType[] getRemoteFunctions();
+    MethodType[] getRemoteFunctions();
 
-    ResourceFunctionType[] getResourceFunctions();
+    ResourceMethodType[] getResourceFunctions();
 }
