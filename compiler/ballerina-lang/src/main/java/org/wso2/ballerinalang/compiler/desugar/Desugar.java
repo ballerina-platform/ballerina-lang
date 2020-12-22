@@ -5542,7 +5542,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
-        if (conversionExpr.type.tag == TypeTags.STRING && types.isXMLConversionExprCastableToString(conversionExpr)) {
+        if (types.isXMLExprCastableToString(conversionExpr.type, conversionExpr.expr.type)) {
             result = convertXMLTextToString(conversionExpr);
             return;
         }

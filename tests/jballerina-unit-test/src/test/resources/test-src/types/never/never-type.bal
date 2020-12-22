@@ -87,6 +87,14 @@ function testXMLWithNeverType() {
     xml k = xml `${empty}`;
     xml<never>|'xml:Text l = xml ``;
     string testString6 = l;
+    xml<never> & readonly m =  xml ``;
+    string|'xml:Text n = a;
+
+    string|'xml:Text p = d;
+    string q = p;
+
+    string|'xml:Text r = a;
+    string s = r;
 }
 
 //---------------Test 'never' types with 'union-type' descriptors ------------

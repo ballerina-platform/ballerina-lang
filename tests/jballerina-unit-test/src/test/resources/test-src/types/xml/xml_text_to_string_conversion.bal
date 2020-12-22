@@ -18,6 +18,7 @@ import ballerina/lang.'xml;
 import ballerina/lang.'string as strings;
 
 const ASSERTION_ERR_REASON = "AssertionError";
+type FooBar "foo"|"bar";
 
 function assignToString() {
     string s1 = xml `test1`;
@@ -36,6 +37,16 @@ function assignToString() {
 
     if (s1 == "test1" && s2 == "test2" && s3 == "test3" && s4 == "test4" && s5 == "test5" && s6[2] == "my" &&
         s7.get("firstElement") == "hello" && s7.get("secondElement") == "my" && s7.get("thirdElement") == "world") {
+        return;
+    }
+    panic error(ASSERTION_ERR_REASON, message = "expected 'true', found 'false'");
+}
+
+function castToString() {
+    'xml:Text x3 = xml `foo`;
+    FooBar s8 = <FooBar> x3;
+
+    if (s8 == "foo") {
         return;
     }
     panic error(ASSERTION_ERR_REASON, message = "expected 'true', found 'false'");
@@ -74,4 +85,5 @@ function testXMLTestToStringConversion() {
     assignToString();
     passToFunction();
     invokeLangLibMethods();
+    castToString();
 }

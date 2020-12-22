@@ -1091,6 +1091,7 @@ public function testXMLNeverType() {
     assertEquality(<any> e is xml, true);
     assertEquality(<any> e is 'xml:Text, true);
     assertEquality(<any> e is 'xml:Element, false);
+    assertEquality(<any> e is xml<'xml:Element|'xml:Comment>, false);
 }
 
 function assertTrue(anydata actual) {
