@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
+import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
@@ -35,8 +35,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
-import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
+import static org.ballerinalang.langserver.LSClientLogger.logError;
+import static org.ballerinalang.langserver.LSClientLogger.notifyUser;
 
 /**
  * Workspace service implementation for Ballerina.

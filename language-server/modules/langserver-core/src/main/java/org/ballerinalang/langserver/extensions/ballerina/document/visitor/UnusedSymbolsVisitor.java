@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
@@ -33,6 +34,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 /**
  * Common node visitor to override and remove assertion errors from NodeVisitor methods.
  */
@@ -169,7 +172,12 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
         addUnusedImportNode(importDeclarationNode);
 
         if (importDeclarationNode.moduleName().size() > 0 && importDeclarationNode.moduleName().get(0) != null) {
-            moveUnusedtoUsedImport(importDeclarationNode.moduleName().get(0).lineRange(), importDeclarationNode);
+            Optional<ImportPrefixNode> prefix = importDeclarationNode.prefix();
+            if (prefix.isPresent()) {
+                moveUnusedtoUsedImport(prefix.get().prefix().lineRange(), importDeclarationNode);
+            } else {
+                moveUnusedtoUsedImport(importDeclarationNode.moduleName().get(0).lineRange(), importDeclarationNode);
+            }
         }
     }
 
