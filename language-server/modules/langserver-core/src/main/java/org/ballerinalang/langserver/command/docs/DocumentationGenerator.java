@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.command.docs;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
@@ -22,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
@@ -55,53 +58,74 @@ public class DocumentationGenerator {
     }
 
     /**
+     * Checks whether the node has documentation.
+     *
+     * @param node documentatable {@link NonTerminalNode}
+     * @return returns True if has documentation False otherwise
+     */
+    public static boolean hasDocs(NonTerminalNode node) {
+        for (Node next : node.children()) {
+            if (next.kind() == SyntaxKind.METADATA && ((MetadataNode) next).documentationString().isPresent()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Generate documentation for non-terminal node.
      *
      * @param node non-terminal node
      * @return optional documentation
      */
-    public static Optional<DocAttachmentInfo> getDocumentationEditForNode(NonTerminalNode node, boolean skipIfExists) {
+    public static Optional<DocAttachmentInfo> getDocumentationEditForNode(NonTerminalNode node) {
+        switch (node.kind()) {
+            case FUNCTION_DEFINITION:
+            case OBJECT_METHOD_DEFINITION: {
+                return Optional.of(generateFunctionDocumentation((FunctionDefinitionNode) node));
+            }
+            case METHOD_DECLARATION: {
+                return Optional.of(generateMethodDocumentation((MethodDeclarationNode) node));
+            }
+            case SERVICE_DECLARATION: {
+                return Optional.of(generateServiceDocumentation((ServiceDeclarationNode) node));
+            }
+            case TYPE_DEFINITION: {
+                return Optional.of(generateRecordOrObjectDocumentation((TypeDefinitionNode) node));
+            }
+            case CLASS_DEFINITION: {
+                return Optional.of(generateClassDocumentation((ClassDefinitionNode) node));
+            }
+            default:
+                break;
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<Symbol> getDocumentableSymbol(NonTerminalNode node, SemanticModel semanticModel,
+                                                         String fileName) {
         switch (node.kind()) {
             case FUNCTION_DEFINITION:
             case OBJECT_METHOD_DEFINITION: {
                 FunctionDefinitionNode functionDefNode = (FunctionDefinitionNode) node;
-                Optional<MetadataNode> metadata = functionDefNode.metadata();
-                if (skipIfExists && metadata.isPresent() && metadata.get().documentationString().isPresent()) {
-                    return Optional.empty();
-                }
-                return Optional.of(getFunctionDefNodeDocumentation(functionDefNode));
+                return semanticModel.symbol(fileName, functionDefNode.functionName().lineRange().startLine());
             }
             case METHOD_DECLARATION: {
                 MethodDeclarationNode methodDeclrNode = (MethodDeclarationNode) node;
-                Optional<MetadataNode> metadata = methodDeclrNode.metadata();
-                if (skipIfExists && metadata.isPresent() && metadata.get().documentationString().isPresent()) {
-                    return Optional.empty();
-                }
-                return Optional.of(getMethodDeclrNodeDocumentation(methodDeclrNode));
+                return semanticModel.symbol(fileName, methodDeclrNode.methodName().lineRange().startLine());
             }
-            case SERVICE_DECLARATION: {
-                ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) node;
-                Optional<MetadataNode> metadata = serviceDeclrNode.metadata();
-                if (skipIfExists && metadata.isPresent() && metadata.get().documentationString().isPresent()) {
-                    return Optional.empty();
-                }
-                return Optional.of(getServiceDocumentation((ServiceDeclarationNode) node));
-            }
+//            case SERVICE_DECLARATION: {
+//                ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) node;
+//                return semanticModel.symbol(fileName, serviceDeclrNode.typeDescriptor().map(s->s.lineRange()
+//                .startLine()).);
+//            }
             case TYPE_DEFINITION: {
                 TypeDefinitionNode typeDefNode = (TypeDefinitionNode) node;
-                Optional<MetadataNode> metadata = typeDefNode.metadata();
-                if (skipIfExists && metadata.isPresent() && metadata.get().documentationString().isPresent()) {
-                    return Optional.empty();
-                }
-                return Optional.of(getRecordOrObjectDocumentation(typeDefNode));
+                return semanticModel.symbol(fileName, typeDefNode.typeName().lineRange().startLine());
             }
             case CLASS_DEFINITION: {
                 ClassDefinitionNode classDefNode = (ClassDefinitionNode) node;
-                Optional<MetadataNode> metadata = classDefNode.metadata();
-                if (skipIfExists && metadata.isPresent() && metadata.get().documentationString().isPresent()) {
-                    return Optional.empty();
-                }
-                return Optional.of(getClassDefNodeDocumentation(classDefNode));
+                return semanticModel.symbol(fileName, classDefNode.className().lineRange().startLine());
             }
             default:
                 break;
@@ -115,7 +139,7 @@ public class DocumentationGenerator {
      * @param serviceDeclrNode service declaration node
      * @return
      */
-    private static DocAttachmentInfo getServiceDocumentation(ServiceDeclarationNode serviceDeclrNode) {
+    private static DocAttachmentInfo generateServiceDocumentation(ServiceDeclarationNode serviceDeclrNode) {
         MetadataNode metadata = serviceDeclrNode.metadata().orElse(null);
         Position docStart = CommonUtil.toRange(serviceDeclrNode.lineRange()).getStart();
         if (metadata != null && !metadata.annotations().isEmpty()) {
@@ -131,7 +155,7 @@ public class DocumentationGenerator {
      * @param bLangFunction function definition node
      * @return
      */
-    private static DocAttachmentInfo getFunctionDefNodeDocumentation(FunctionDefinitionNode bLangFunction) {
+    private static DocAttachmentInfo generateFunctionDocumentation(FunctionDefinitionNode bLangFunction) {
         return getFunctionNodeDocumentation(bLangFunction.functionSignature(),
                                             bLangFunction.metadata().orElse(null),
                                             CommonUtil.toRange(bLangFunction.lineRange()));
@@ -143,7 +167,7 @@ public class DocumentationGenerator {
      * @param methodDeclrNode method declaration node
      * @return
      */
-    private static DocAttachmentInfo getMethodDeclrNodeDocumentation(MethodDeclarationNode methodDeclrNode) {
+    private static DocAttachmentInfo generateMethodDocumentation(MethodDeclarationNode methodDeclrNode) {
         return getFunctionNodeDocumentation(methodDeclrNode.methodSignature(),
                                             methodDeclrNode.metadata().orElse(null),
                                             CommonUtil.toRange(methodDeclrNode.lineRange()));
@@ -155,7 +179,7 @@ public class DocumentationGenerator {
      * @param typeDefNode type definition node
      * @return
      */
-    private static DocAttachmentInfo getRecordOrObjectDocumentation(TypeDefinitionNode typeDefNode) {
+    private static DocAttachmentInfo generateRecordOrObjectDocumentation(TypeDefinitionNode typeDefNode) {
         MetadataNode metadata = typeDefNode.metadata().orElse(null);
         Position docStart = CommonUtil.toRange(typeDefNode.lineRange()).getStart();
         if (metadata != null && !metadata.annotations().isEmpty()) {
@@ -201,7 +225,7 @@ public class DocumentationGenerator {
      * @param classDefNode class definition node
      * @return
      */
-    private static DocAttachmentInfo getClassDefNodeDocumentation(ClassDefinitionNode classDefNode) {
+    private static DocAttachmentInfo generateClassDocumentation(ClassDefinitionNode classDefNode) {
         MetadataNode metadata = classDefNode.metadata().orElse(null);
         Position docStart = CommonUtil.toRange(classDefNode.lineRange()).getStart();
         if (metadata != null && !metadata.annotations().isEmpty()) {

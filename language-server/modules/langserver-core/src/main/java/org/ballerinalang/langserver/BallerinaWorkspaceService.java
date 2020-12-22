@@ -15,10 +15,12 @@
  */
 package org.ballerinalang.langserver;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -32,8 +34,10 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.LSClientLogger.logError;
 import static org.ballerinalang.langserver.LSClientLogger.notifyUser;
@@ -46,7 +50,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     private final LSClientConfigHolder configHolder = LSClientConfigHolder.getInstance();
     private LSClientCapabilities clientCapabilities;
     private final WorkspaceManager workspaceManager;
-
+    private final Gson gson = new Gson();
 
     BallerinaWorkspaceService(BallerinaLanguageServer languageServer, WorkspaceManager workspaceManager) {
         this.languageServer = languageServer;
@@ -83,10 +87,13 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     @Override
     public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
         return CompletableFuture.supplyAsync(() -> {
+            List<CommandArgument> commandArguments = params.getArguments().stream()
+                    .map(CommandArgument::from)
+                    .collect(Collectors.toList());
             ExecuteCommandContext context = ContextBuilder.buildExecuteCommandContext(this.workspaceManager,
-                    params.getArguments(),
-                    this.clientCapabilities,
-                    this.languageServer);
+                                                                                      commandArguments,
+                                                                                      this.clientCapabilities,
+                                                                                      this.languageServer);
 
             try {
                 Optional<LSCommandExecutor> executor = LSCommandExecutorProvidersHolder.getInstance()

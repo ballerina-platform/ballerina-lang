@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
@@ -34,14 +35,14 @@ import java.util.List;
  */
 public class ExecuteCommandContextImpl extends AbstractWorkspaceServiceContext implements ExecuteCommandContext {
 
-    private final List<Object> arguments;
+    private final List<CommandArgument> arguments;
 
     private final LSClientCapabilities clientCapabilities;
 
     private final BallerinaLanguageServer languageServer;
 
     ExecuteCommandContextImpl(WorkspaceManager wsManager,
-                              List<Object> arguments,
+                              List<CommandArgument> arguments,
                               LSClientCapabilities clientCapabilities,
                               BallerinaLanguageServer languageServer) {
         super(LSContextOperation.WS_EXEC_CMD, wsManager);
@@ -51,7 +52,7 @@ public class ExecuteCommandContextImpl extends AbstractWorkspaceServiceContext i
     }
 
     @Override
-    public List<Object> getArguments() {
+    public List<CommandArgument> getArguments() {
         return this.arguments;
     }
 
@@ -77,7 +78,7 @@ public class ExecuteCommandContextImpl extends AbstractWorkspaceServiceContext i
      */
     protected static class ExecuteCommandContextBuilder extends AbstractContextBuilder<ExecuteCommandContextBuilder> {
 
-        private final List<Object> arguments;
+        private final List<CommandArgument> arguments;
 
         private final LSClientCapabilities clientCapabilities;
 
@@ -86,7 +87,7 @@ public class ExecuteCommandContextImpl extends AbstractWorkspaceServiceContext i
         /**
          * Context Builder constructor.
          */
-        public ExecuteCommandContextBuilder(List<Object> arguments,
+        public ExecuteCommandContextBuilder(List<CommandArgument> arguments,
                                             LSClientCapabilities clientCapabilities,
                                             BallerinaLanguageServer languageServer) {
             super(LSContextOperation.WS_EXEC_CMD);

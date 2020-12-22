@@ -62,12 +62,10 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
 
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
-        int line = position.getLine();
-        int column = position.getCharacter();
         String uri = context.fileUri();
-        CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
-        CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
-        CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
+        CommandArgument lineArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_LINE, position.getLine());
+        CommandArgument colArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_COLUMN, position.getCharacter());
+        CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
         List<Object> args = Arrays.asList(lineArg, colArg, uriArg);

@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -27,6 +26,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.eclipse.lsp4j.Position;
@@ -71,19 +71,17 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         int line = -1;
         int column = -1;
 
-        for (Object arg : context.getArguments()) {
-            String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
-            String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
-            switch (argKey) {
+        for (CommandArgument arg : context.getArguments()) {
+            switch (arg.getArgumentK()) {
                 case CommandConstants.ARG_KEY_DOC_URI:
-                    uri = argVal;
+                    uri = arg.getArgumentV();
                     textDocumentIdentifier.setUri(uri);
                     break;
                 case CommandConstants.ARG_KEY_NODE_LINE:
-                    line = Integer.parseInt(argVal);
+                    line = arg.getArgumentV();
                     break;
                 case CommandConstants.ARG_KEY_NODE_COLUMN:
-                    column = Integer.parseInt(argVal);
+                    column = arg.getArgumentV();
                     break;
                 default:
             }

@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
@@ -137,10 +138,11 @@ public class ContextBuilder {
      * Build the command execution context.
      *
      * @param workspaceManager workspace manager instance
+     * @param arguments
      * @return {@link ExecuteCommandContext} generated command execution context
      */
     public static ExecuteCommandContext buildExecuteCommandContext(WorkspaceManager workspaceManager,
-                                                                   List<Object> arguments,
+                                                                   List<CommandArgument> arguments,
                                                                    LSClientCapabilities clientCapabilities,
                                                                    BallerinaLanguageServer languageServer) {
         return new ExecuteCommandContextImpl.ExecuteCommandContextBuilder(arguments, clientCapabilities, languageServer)
