@@ -17,14 +17,24 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionParams;
+
+import java.util.List;
+
 /**
- * Represents the language server features.
- * 
+ * Represents a code-action extension.
+ *
  * @since 2.0.0
  */
-public enum LanguageFeatureKind {
-    COMPLETION,
-    CODEACTION,
-    DIAGNOSTIC,
-    FORMAT
+public interface CodeActionExtension
+        extends LanguageExtension<CodeActionParams, List<? extends CodeAction>, CodeActionContext> {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    default LanguageFeatureKind kind() {
+        return LanguageFeatureKind.CODEACTION;
+    }
 }

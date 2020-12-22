@@ -90,7 +90,6 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.LSClientLogger.logError;
 import static org.ballerinalang.langserver.LSClientLogger.notifyUser;
-import static org.ballerinalang.langserver.codeaction.CodeActionRouter.getAvailableCodeActions;
 
 /**
  * Text document service implementation for ballerina.
@@ -298,24 +297,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            List<CodeAction> actions = new ArrayList<>();
-            TextDocumentIdentifier identifier = params.getTextDocument();
-            String fileUri = identifier.getUri();
-            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
-
-            // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (filePath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
-                return new ArrayList<>();
-            }
-
+            String fileUri = params.getTextDocument().getUri();
             try {
-                // Compile and get Top level node
-                CodeActionContext context = ContextBuilder.buildCodeActionContext(fileUri,
-                        this.workspaceManager,
-                        params);
-
-                // Add code actions
-                actions = getAvailableCodeActions(context);
+                CodeActionContext context = ContextBuilder.buildCodeActionContext(fileUri, workspaceManager, params);
+                return LangExtensionDelegator.instance().codeActions(params, context).stream()
+                        .map((Function<CodeAction, Either<Command, CodeAction>>) Either::forRight)
+                        .collect(Collectors.toList());
             } catch (UserErrorException e) {
                 notifyUser("Code Action", e);
             } catch (Throwable e) {
@@ -323,9 +310,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 Range range = params.getRange();
                 logError(msg, e, params.getTextDocument(), range.getStart(), range.getEnd());
             }
-
-            return actions.stream().map(
-                    (Function<CodeAction, Either<Command, CodeAction>>) Either::forRight).collect(Collectors.toList());
+            return Collections.emptyList();
         });
     }
 
