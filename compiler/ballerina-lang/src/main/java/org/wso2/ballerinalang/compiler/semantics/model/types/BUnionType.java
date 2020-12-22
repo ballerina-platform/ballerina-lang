@@ -245,11 +245,6 @@ public class BUnionType extends BType implements UnionType {
             return;
         }
 
-        if (type instanceof BUnionType) {
-            BUnionType unionType = (BUnionType) type;
-            this.isCyclic = unionType.isCyclic;
-        }
-
         if (type instanceof BArrayType) {
             BArrayType arrayType = (BArrayType) type;
             if (arrayType.eType == this) {
@@ -324,6 +319,7 @@ public class BUnionType extends BType implements UnionType {
             }
             return;
         }
+        this.isCyclic = true;
         for (BType member : unionType.getMemberTypes()) {
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;

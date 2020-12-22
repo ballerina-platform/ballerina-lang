@@ -2526,7 +2526,7 @@ public class Types {
             sourceTypes.add(source);
         }
 
-        if (target.tag == TypeTags.UNION || source.tag == TypeTags.JSON || source.tag == TypeTags.ANYDATA) {
+        if (target.tag == TypeTags.UNION || target.tag == TypeTags.JSON || target.tag == TypeTags.ANYDATA) {
             targetTypes.addAll(getEffectiveMemberTypes((BUnionType) target));
         } else {
             targetTypes.add(target);
