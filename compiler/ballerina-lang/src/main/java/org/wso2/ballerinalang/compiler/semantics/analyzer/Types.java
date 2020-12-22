@@ -975,6 +975,11 @@ public class Types {
             return false;
         }
         if (exprTag == TypeTags.UNION) {
+            for (BType member : ((BUnionType) conversionExprType).getMemberTypes()) {
+                if (!TypeTags.isXMLTypeTag(member.tag)) {
+                    return false;
+                }
+            }
             return isAssignable(conversionExprType, symTable.xmlTextType);
         }
         return false;
@@ -1957,8 +1962,6 @@ public class Types {
                 && (actualType.tag == TypeTags.UNION
                 && isAllErrorMembers((BUnionType) actualType))) {
             return true;
-        } else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.XML_TEXT) {
-            return true;
         } else if (targetType.tag == TypeTags.STRING) {
             if (actualType.tag == TypeTags.XML) {
                 return isXMLTypeAssignable(actualType, targetType, new HashSet<>());
@@ -1966,6 +1969,7 @@ public class Types {
             if (actualType.tag == TypeTags.UNION) {
                 return isAssignable(actualType, symTable.xmlTextType);
             }
+            return actualType.tag == TypeTags.XML_TEXT;
         }
         return false;
     }
