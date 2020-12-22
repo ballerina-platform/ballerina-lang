@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.tool.util;
+package io.ballerina.cli.launcher.util;
 
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.wso2.ballerinalang.compiler.util.Names;

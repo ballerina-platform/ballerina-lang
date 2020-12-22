@@ -15,7 +15,7 @@
  *   specific language governing permissions and limitations
  *   under the License.
  */
-package org.ballerinalang.tool;
+package io.ballerina.cli.launcher;
 
 /**
  * Thrown to indicate a non zero exit code from Ballerina executable.

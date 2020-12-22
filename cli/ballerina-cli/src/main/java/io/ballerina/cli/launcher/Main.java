@@ -16,14 +16,15 @@
  * under the License.
  */
 
-package org.ballerinalang.tool;
+package io.ballerina.cli.launcher;
 
+import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.util.BCompileUtil;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.tool.util.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -87,16 +88,16 @@ public class Main {
             // for the run command
             cmdParser.setStopAtPositional(true);
 
-            HelpCmd helpCmd = new HelpCmd();
-            cmdParser.addSubcommand(BallerinaCliCommands.HELP, helpCmd);
-            helpCmd.setParentCmdParser(cmdParser);
-
             // loading additional commands via SPI
             ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
             for (BLauncherCmd bCmd : bCmds) {
                 cmdParser.addSubcommand(bCmd.getName(), bCmd);
                 bCmd.setParentCmdParser(cmdParser);
             }
+
+            HelpCmd helpCmd = new HelpCmd();
+            cmdParser.addSubcommand(BallerinaCliCommands.HELP, helpCmd);
+            helpCmd.setParentCmdParser(cmdParser);
 
             // set stop at positional to run command
             cmdParser.getSubcommands().get("run").setStopAtPositional(true)

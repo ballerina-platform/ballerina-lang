@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.tool;
+package io.ballerina.cli.launcher;
 
 /**
  * Ballerina CLI commands.
