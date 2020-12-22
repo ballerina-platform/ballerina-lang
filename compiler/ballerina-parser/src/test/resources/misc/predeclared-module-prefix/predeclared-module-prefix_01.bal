@@ -5,8 +5,11 @@ import ballerina/foo.bar.baz as int;
 @int:annot
 listener stream:Element myListner = getListner();
 
+xml:Element x = xmlElement;
+
 type myRecord record {
     int a;
+    xml:Element b;
     *table:tableRecod;
 };
 

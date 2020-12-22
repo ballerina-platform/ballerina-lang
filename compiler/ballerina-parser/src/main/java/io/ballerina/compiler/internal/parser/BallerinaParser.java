@@ -2368,42 +2368,41 @@ public class BallerinaParser extends AbstractParser {
         if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             reportInvalidQualifierList(qualifiers);
             return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
-        } else {
-            ParserRuleContext context;
-            switch (preDeclaredPrefix.kind) {
-                case ERROR_KEYWORD:
-                    context = ParserRuleContext.ERROR_TYPE_OR_TYPE_REF;
-                    break;
-                case MAP_KEYWORD:
-                case FUTURE_KEYWORD:
-                    context = ParserRuleContext.PARAMETERIZED_TYPE_OR_TYPE_REF;
-                    break;
-                case OBJECT_KEYWORD:
-                    context = ParserRuleContext.OBJECT_TYPE_OR_TYPE_REF;
-                    break;
-                case STREAM_KEYWORD:
-                    context = ParserRuleContext.STREAM_TYPE_OR_TYPE_REF;
-                    break;
-                case TABLE_KEYWORD:
-                    context = ParserRuleContext.TABLE_TYPE_OR_TYPE_REF;
-                    break;
-                case TYPEDESC_KEYWORD:
-                    context = ParserRuleContext.TYPEDESC_TYPE_OR_TYPE_REF;
-                    break;
-                case XML_KEYWORD:
-                    context = ParserRuleContext.XML_TYPE_OR_TYPE_REF;
-                    break;
-                default:
-                    context = ParserRuleContext.TYPEDESC_RHS_OR_TYPE_REF;
-            }
-            Solution solution = recover(peek(), context);
-
-            if (solution.action == Action.KEEP) {
-                reportInvalidQualifierList(qualifiers);
-                return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
-            }
-            return parseTypeDescStartWithPredeclPrefix(preDeclaredPrefix, qualifiers);
         }
+        ParserRuleContext context;
+        switch (preDeclaredPrefix.kind) {
+            case ERROR_KEYWORD:
+                context = ParserRuleContext.ERROR_TYPE_OR_TYPE_REF;
+                break;
+            case MAP_KEYWORD:
+            case FUTURE_KEYWORD:
+                context = ParserRuleContext.PARAMETERIZED_TYPE_OR_TYPE_REF;
+                break;
+            case OBJECT_KEYWORD:
+                context = ParserRuleContext.OBJECT_TYPE_OR_TYPE_REF;
+                break;
+            case STREAM_KEYWORD:
+                context = ParserRuleContext.STREAM_TYPE_OR_TYPE_REF;
+                break;
+            case TABLE_KEYWORD:
+                context = ParserRuleContext.TABLE_TYPE_OR_TYPE_REF;
+                break;
+            case TYPEDESC_KEYWORD:
+                context = ParserRuleContext.TYPEDESC_TYPE_OR_TYPE_REF;
+                break;
+            case XML_KEYWORD:
+                context = ParserRuleContext.XML_TYPE_OR_TYPE_REF;
+                break;
+            default:
+                context = ParserRuleContext.TYPEDESC_RHS_OR_TYPE_REF;
+        }
+        Solution solution = recover(peek(), context);
+
+        if (solution.action == Action.KEEP) {
+            reportInvalidQualifierList(qualifiers);
+            return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
+        }
+        return parseTypeDescStartWithPredeclPrefix(preDeclaredPrefix, qualifiers);
     }
 
     private STNode parseTypeDescStartWithPredeclPrefix(STToken preDeclaredPrefix, List<STNode> qualifiers) {
@@ -4533,42 +4532,41 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseQualifiedIdentifierOrExpression(boolean isInConditionalExpr, boolean isRhsExpr) {
         STToken preDeclaredPrefix = consume();
         STToken nextNextToken = getNextNextToken();
-        if (nextNextToken.kind != SyntaxKind.IDENTIFIER_TOKEN || isKeyKeyword(nextNextToken)) {
-            ParserRuleContext context;
-            switch (preDeclaredPrefix.kind) {
-                case TABLE_KEYWORD:
-                    context = ParserRuleContext.TABLE_CONS_OR_QUERY_EXPR_OR_VAR_REF;
-                    break;
-                case STREAM_KEYWORD:
-                    context = ParserRuleContext.QUERY_EXPR_OR_VAR_REF;
-                    break;
-                case ERROR_KEYWORD:
-                    context = ParserRuleContext.ERROR_CONS_EXPR_OR_VAR_REF;
-                    break;
-                default:
-                    return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
-            }
-
-            Solution solution = recover(peek(), context);
-            if (solution.action == Action.KEEP) {
-                return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
-            }
-            if (preDeclaredPrefix.kind == SyntaxKind.ERROR_KEYWORD) {
-                return parseErrorConstructorExpr(preDeclaredPrefix);
-            }
-            startContext(ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION);
-            STNode tableOrQuery;
-            if (preDeclaredPrefix.kind == SyntaxKind.STREAM_KEYWORD) {
-                STNode queryConstructType = parseQueryConstructType(preDeclaredPrefix, null);
-                tableOrQuery = parseQueryExprRhs(queryConstructType, isRhsExpr);
-            } else {
-                tableOrQuery = parseTableConstructorOrQuery(preDeclaredPrefix, isRhsExpr);
-            }
-            endContext();
-            return tableOrQuery;
-
+        if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN && !isKeyKeyword(nextNextToken)) {
+            return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
         }
-        return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
+        ParserRuleContext context;
+        switch (preDeclaredPrefix.kind) {
+            case TABLE_KEYWORD:
+                context = ParserRuleContext.TABLE_CONS_OR_QUERY_EXPR_OR_VAR_REF;
+                break;
+            case STREAM_KEYWORD:
+                context = ParserRuleContext.QUERY_EXPR_OR_VAR_REF;
+                break;
+            case ERROR_KEYWORD:
+                context = ParserRuleContext.ERROR_CONS_EXPR_OR_VAR_REF;
+                break;
+            default:
+                return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
+        }
+
+        Solution solution = recover(peek(), context);
+        if (solution.action == Action.KEEP) {
+            return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
+        }
+        if (preDeclaredPrefix.kind == SyntaxKind.ERROR_KEYWORD) {
+            return parseErrorConstructorExpr(preDeclaredPrefix);
+        }
+        startContext(ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION);
+        STNode tableOrQuery;
+        if (preDeclaredPrefix.kind == SyntaxKind.STREAM_KEYWORD) {
+            STNode queryConstructType = parseQueryConstructType(preDeclaredPrefix, null);
+            tableOrQuery = parseQueryExprRhs(queryConstructType, isRhsExpr);
+        } else {
+            tableOrQuery = parseTableConstructorOrQuery(preDeclaredPrefix, isRhsExpr);
+        }
+        endContext();
+        return tableOrQuery;
     }
 
     private void validateExprAnnotsAndQualifiers(STToken nextToken, STNode annots, List<STNode> qualifiers) {
