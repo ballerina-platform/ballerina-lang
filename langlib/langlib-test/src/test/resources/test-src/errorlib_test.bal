@@ -66,7 +66,7 @@ public function testPassingErrorUnionToFunction() returns AnotherDetail? {
 }
 
 public function funcFoo() returns int|ErrorUnion {
-    FirstError e = FirstError(REASON_1, message = "Test passing error union to a function");
+    FirstError e = error FirstError(REASON_1, message = "Test passing error union to a function");
     return e;
 }
 
