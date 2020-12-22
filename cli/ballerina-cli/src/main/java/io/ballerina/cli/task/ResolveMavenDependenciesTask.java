@@ -53,7 +53,7 @@ public class ResolveMavenDependenciesTask implements Task {
         }
 
         List<Map<String, Object>> platformLibraries = platform.dependencies();
-        //List<Repository> mavenCustomRepos = manifest.getPlatform().getRepositories();
+//        List<Repository> mavenCustomRepos = manifest.getPlatform().getRepositories();
         List<Map<String, Object>> mavenDependencies = new ArrayList<>();
         if (platformLibraries == null) {
             return;
@@ -85,11 +85,6 @@ public class ResolveMavenDependenciesTask implements Task {
 
         for (Map<String, Object> library : platformLibraries) {
             if (library.get("path") == null) {
-                if (library.get("version") == null) {
-                    throw createLauncherException("path or maven dependency properties are not specified for " +
-                            "given platform library dependency.");
-                }
-
                 if (library.get("artifactId") == null || library.get("groupId") == null
                         || library.get("version") == null) {
                     throw createLauncherException("artifact-id, group-id, and version should be specified to " +
