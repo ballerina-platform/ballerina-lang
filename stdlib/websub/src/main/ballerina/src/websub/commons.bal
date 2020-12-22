@@ -480,6 +480,19 @@ public type SubscriptionChangeResponse record {|
 /////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Commons /////////////////////
 /////////////////////////////////////////////////////////////
+# Represents subscription delivery failure due to the subscriber's callback URL
+# replying with a HTTP 410 Gone status code.
+public const FAILURE_REASON_SUBSCRIPTION_GONE = "SUBSCRIPTION_GONE";
+
+# Represents subscription delivery failures related to HTTP failure status codes except 410 Gone.
+public const FAILURE_REASON_FAILURE_STATUS_CODE = "FAILURE_STATUS_CODE";
+
+# Represents subscription delivery failures related to network issues.
+public const FAILURE_REASON_DELIVERY_FAILURE = "DELIVERY_FAILURE";
+
+# Represents subscription delivery failure reasons.
+public type FailureReason FAILURE_REASON_SUBSCRIPTION_GONE|FAILURE_REASON_FAILURE_STATUS_CODE|FAILURE_REASON_DELIVERY_FAILURE;
+
 # Record representing hub specific configurations.
 #
 # + leaseSeconds - The default lease seconds value to honour if not specified in subscription requests
@@ -489,6 +502,9 @@ public type SubscriptionChangeResponse record {|
 #                               to the topic
 # + clientConfig - The configuration for the hub to communicate with remote HTTP endpoints
 # + hubPersistenceStore - The `HubPersistenceStore` to use to persist hub data
+# + tapOnMessage - The configuration for passing a function to be invoked when an update is received at the hub
+# + tapOnDelivery - The configuration for passing a function to be invoked when an update is successfully delivered to the subscribers
+# + tapOnDeliveryFailure - The configuration for passing a function to be invoked when an update is failed to be delivered to the subscribers
 public type HubConfiguration record {|
     int leaseSeconds = 86400;
     SignatureMethod signatureMethod = SHA256;
@@ -496,6 +512,10 @@ public type HubConfiguration record {|
     boolean topicRegistrationRequired = true;
     http:ClientConfiguration clientConfig?;
     HubPersistenceStore hubPersistenceStore?;
+    function (WebSubContent content) tapOnMessage?;
+    function (string callback, string topic, WebSubContent content) tapOnDelivery?;
+    function (string callback, string topic, WebSubContent content, http:Response|error response, FailureReason reason)
+                            tapOnDeliveryFailure?;
 |};
 
 # Record representing remote publishing allowance.
@@ -557,6 +577,18 @@ public function startHub(http:Listener hubServiceListener,
     hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
     remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
     hubTopicRegistrationRequired = hubConfiguration.topicRegistrationRequired;
+    var onMessageFunc = hubConfiguration["tapOnMessage"];
+    if (!(onMessageFunc is ())) {
+       tapOnMessageFunction = onMessageFunc;
+    }
+    var onDeliveryFunc = hubConfiguration["tapOnDelivery"];
+    if (!(onDeliveryFunc is ())) {
+       tapOnDeliveryFunction = onDeliveryFunc;
+    }
+    var onDeliveryFailureFunc = hubConfiguration["tapOnDeliveryFailure"];
+    if (!(onDeliveryFailureFunc is ())) {
+       tapOnDeliveryFailureFunction = onDeliveryFailureFunc;
+    }
 
     // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
@@ -658,6 +690,10 @@ public type Hub object {
             } else {
                 content.contentType = mime:APPLICATION_OCTET_STREAM;
             }
+        }
+        function (WebSubContent content)? tapOnMessageFunc = tapOnMessageFunction;
+        if (!(tapOnMessageFunc is ())) {
+           tapOnMessageFunc(content);
         }
 
         return validateAndPublishToInternalHub(self.publishUrl, topic, content);
@@ -793,7 +829,7 @@ function unregisterTopic(string topic) returns error? {
 #
 # + payload - The payload to be sent
 # + contentType - The content-type of the payload
-type WebSubContent record {|
+public type WebSubContent record {|
     string|xml|json|byte[]|io:ReadableByteChannel payload = "";
     string contentType = "";
 |};
