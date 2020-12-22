@@ -43,6 +43,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NA
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.MODULES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
@@ -68,6 +69,7 @@ public class BindingsGenerator {
     private String accessModifier;
     private PrintStream errStream;
     private PrintStream outStream;
+    private boolean modulesFlag = false;
     private Set<String> classNames = new HashSet<>();
 
     private static String outputPath;
@@ -174,16 +176,15 @@ public class BindingsGenerator {
 
     private void setDirectoryPaths() throws BindgenException {
         String userPath = userDir.toString();
-        if (outputPath != null) {
+        if (modulesFlag) {
+            utilsDirPath = dependenciesPath = modulePath = Paths.get(userPath, MODULES_DIR);
+        } else if (outputPath != null) {
             if (!Paths.get(outputPath).toFile().exists()) {
                 throw new BindgenException("Output path provided [" + outputPath + "] could not be found.");
             }
             userPath = outputPath;
+            utilsDirPath = dependenciesPath = modulePath = Paths.get(userPath);
         }
-        // The folder structure is flattened to address the Project API changes.
-        modulePath = Paths.get(userPath);
-        dependenciesPath = Paths.get(userPath);
-        utilsDirPath = Paths.get(userPath);
     }
 
     private void handleFailedClassGens() {
@@ -214,6 +215,10 @@ public class BindingsGenerator {
         for (JError jError : exceptionList) {
             jError.setAccessModifier(accessModifier);
             String fileName = jError.getShortExceptionName() + BAL_EXTENSION;
+            if (modulesFlag) {
+                utilsDirStrPath = Paths.get(modulePath.toString(), jError.getPackageName()).toString();
+                createDirectory(utilsDirStrPath);
+            }
             // The folder structure is flattened to address the Project API changes.
             writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
                     Paths.get(utilsDirStrPath, fileName).toString(), false);
@@ -242,9 +247,9 @@ public class BindingsGenerator {
                     if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance);
                         jClass.setAccessModifier(accessModifier);
-                        // The folder structure is flattened to address the Project API changes.
-                        String filePath = Paths.get(modulePath.toString(), jClass.getShortClassName()
-                                + BAL_EXTENSION).toString();
+                        String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
+                        createDirectory(outputFile);
+                        String filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
                         writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
                         outStream.println("\t" + c);
                     }
@@ -305,5 +310,9 @@ public class BindingsGenerator {
 
     void setPublic() {
         this.accessModifier = "public ";
+    }
+
+    public void setModulesFlag(boolean modulesFlag) {
+        this.modulesFlag = modulesFlag;
     }
 }
