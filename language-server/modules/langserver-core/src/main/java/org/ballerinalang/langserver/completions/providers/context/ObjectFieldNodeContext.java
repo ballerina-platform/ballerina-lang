@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
@@ -31,11 +32,13 @@ import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.context.util.ClassDefinitionNodeContextUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ObjectFieldNode} context.
@@ -83,13 +86,16 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
-        if (node.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+        
+        if (ClassDefinitionNodeContextUtil.onSuggestResourceSnippet(node.parent())) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
-        } else if (node.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+        }
+        if (node.parent().kind() == SyntaxKind.SERVICE_DECLARATION
+                || node.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR
                 || node.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-        } else if (node.parent().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
+        }
+        if (node.parent().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION_SIGNATURE.get()));
         }
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));

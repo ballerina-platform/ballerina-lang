@@ -17,18 +17,22 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.context.util.ClassDefinitionNodeContextUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link AnnotationNode} context.
@@ -45,7 +49,7 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
     @Override
     public List<LSCompletionItem> getCompletions(CompletionContext context, ClassDefinitionNode node) {
         if (this.withinBody(context, node)) {
-            return this.getClassBodyCompletions(context);
+            return this.getClassBodyCompletions(context, node);
         }
 
         if (onClassTypeQualifiers(context, node)) {
@@ -89,7 +93,7 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         return cursor >= openBrace.textRange().endOffset() && cursor <= closeBrace.textRange().startOffset();
     }
 
-    private List<LSCompletionItem> getClassBodyCompletions(CompletionContext context) {
+    private List<LSCompletionItem> getClassBodyCompletions(CompletionContext context, ClassDefinitionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
@@ -101,6 +105,9 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
+        if (ClassDefinitionNodeContextUtil.onSuggestResourceSnippet(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
+        }
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
 
