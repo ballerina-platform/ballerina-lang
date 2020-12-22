@@ -537,7 +537,7 @@ public class Desugar extends BLangNodeVisitor {
                                                   requiredParameter.name.getValue(), requiredParameter.type,
                                                   createRequiredParamExpr(requiredParameter.expr),
                                                   new BVarSymbol(Flags.asMask(requiredParameter.flagSet),
-                                                  names.fromString(requiredParameter.name.getValue()),
+                                                                 names.fromString(requiredParameter.name.getValue()),
                                                                  requiredParameter.symbol.pkgID,
                                                                  requiredParameter.type, requiredParameter.symbol.owner,
                                                                  initFunction.pos, VIRTUAL));
