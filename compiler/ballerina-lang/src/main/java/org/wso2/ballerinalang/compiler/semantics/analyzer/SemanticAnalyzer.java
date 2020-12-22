@@ -3498,7 +3498,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     qualifierString.append(" ").append(mismatchedFlags.get(i).toString().toLowerCase());
                 }
 
-                dlog.error(typeRef.pos, DiagnosticErrorCode.INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS,
+                dlog.error(typeRef.pos,
+                           objectConstructorExpr ?
+                                   DiagnosticErrorCode.INVALID_REFERENCE_WITH_MISMATCHED_QUALIFIERS :
+                                   DiagnosticErrorCode.INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS,
                            qualifierString.toString());
             }
 

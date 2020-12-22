@@ -190,14 +190,14 @@ public class ObjectTypeReferenceTest {
                 " in the referencing object", 76, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated client' " +
                 "qualifier(s) in the referencing object", 77, 6);
-        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated' qualifier" +
-                "(s) in the referencing object", 80, 18);
-        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'client' qualifier(s) " +
-                "in the referencing object", 84, 24);
+        BAssertUtil.validateError(negativeResult, i++, "invalid type reference: missing 'isolated' qualifier(s) in " +
+                "the referencing object constructor expression", 80, 18);
+        BAssertUtil.validateError(negativeResult, i++, "invalid type reference: missing 'client' qualifier(s) in the " +
+                "referencing object constructor expression", 84, 24);
         BAssertUtil.validateError(negativeResult, i++, "remote qualifier only allowed in client and service objects",
                                   87, 5);
-        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated client' " +
-                "qualifier(s) in the referencing object", 93, 21);
+        BAssertUtil.validateError(negativeResult, i++, "invalid type reference: missing 'isolated client' " +
+                "qualifier(s) in the referencing object constructor expression", 93, 21);
         BAssertUtil.validateError(negativeResult, i++, "invalid field in an object constructor expression with a " +
                 "'readonly' reference: 'stream<int>' can never be 'readonly'", 106, 5);
         BAssertUtil.validateError(negativeResult, i++, "invalid field in an object constructor expression with a " +
