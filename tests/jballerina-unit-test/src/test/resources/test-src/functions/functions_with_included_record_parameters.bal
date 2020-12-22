@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type NewPerson record {
+public type NewPerson record {
     string firstName;
     string secondName;
 };
@@ -298,6 +298,21 @@ function testFunctionOfFunctionTypedParamWithIncludedRecordParam22() {
     float[] x = [1, 2];
     float[] val = functionOfFunctionTypedParamWithIncludedRecordParam22(a = [1, 2]);
     assertEquality(x, val);
+}
+
+public class TestClass {
+    public string firstName;
+    public string secondName;
+    public function init(*NewPerson p) {
+        self.firstName = p.firstName;
+        self.secondName = p.secondName;
+    }
+}
+
+function testFunctionOfFunctionTypedParamWithIncludedRecordParam23() {
+    TestClass tclass =  new(firstName = "chiran", secondName = "sachintha");
+    string fullName = tclass.firstName + " " + tclass.secondName;
+    assertEquality("chiran sachintha", fullName);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
