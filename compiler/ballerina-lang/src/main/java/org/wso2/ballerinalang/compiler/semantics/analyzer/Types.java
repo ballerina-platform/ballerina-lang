@@ -929,7 +929,7 @@ public class Types {
         }
         if (sourceTag == TypeTags.XML) {
             BXMLType source = (BXMLType) sourceType;
-            if (targetTag == TypeTags.XML_TEXT){
+            if (targetTag == TypeTags.XML_TEXT) {
                 if (source.constraint != null) {
                     return source.constraint.tag == TypeTags.NEVER;
                 }
