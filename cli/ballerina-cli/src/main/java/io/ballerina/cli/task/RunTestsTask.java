@@ -19,8 +19,15 @@
 package io.ballerina.cli.task;
 
 import com.google.gson.Gson;
-import io.ballerina.projects.*;
+import io.ballerina.cli.launcher.LauncherUtils;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.testerina.core.TestProcessor;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.testsuite.TestSuite;
@@ -33,7 +40,6 @@ import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
-import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedReader;
@@ -54,6 +60,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.StringJoiner;
 
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
@@ -64,7 +71,6 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TOOLS_DIR_NAME;
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -152,7 +158,7 @@ public class RunTestsTask implements Task {
         boolean hasTests = false;
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         TestProcessor testProcessor = new TestProcessor();
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
@@ -188,9 +194,8 @@ public class RunTestsTask implements Task {
             if (isRerunTestExecution) {
                 singleExecTests = readFailedTestsFromFile(target.path());
             }
-
             if (isSingleTestExecution || isRerunTestExecution) {
-                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
+                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
             }
             suite.setReportRequired(report || coverage);
             Collection<Path> dependencies = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);

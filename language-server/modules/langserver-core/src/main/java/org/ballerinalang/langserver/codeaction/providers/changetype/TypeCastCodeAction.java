@@ -115,8 +115,8 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
     private Optional<VariableSymbol> getVariableSymbol(CodeActionContext context, Node matchedNode) {
         AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Optional<Symbol> symbol = semanticModel.symbol(context.filePath().toFile().getName(),
-                                                       assignmentStmtNode.varRef().lineRange().startLine());
+        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
+        Optional<Symbol> symbol = semanticModel.symbol(relPath, assignmentStmtNode.varRef().lineRange().startLine());
         if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.VARIABLE) {
             return Optional.empty();
         }

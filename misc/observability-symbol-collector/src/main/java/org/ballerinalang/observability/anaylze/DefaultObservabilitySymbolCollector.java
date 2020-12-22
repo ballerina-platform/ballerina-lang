@@ -20,8 +20,11 @@ package org.ballerinalang.observability.anaylze;
 import com.google.gson.JsonElement;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.observability.anaylze.model.DocumentHolder;
@@ -80,12 +83,17 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             return;
         }
         Package currentPackage = project.currentPackage();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        packageCompilation.diagnosticResult();      // Trigger Compilation
+
         packageHolder.setOrg(currentPackage.packageOrg().toString());
         packageHolder.setName(currentPackage.packageName().toString());
         packageHolder.setVersion(currentPackage.packageVersion().toString());
-        for (Module module : currentPackage.modules()) {
-            SemanticModel semanticModel = module.getCompilation().getSemanticModel();
-            for (Document document : module.documents()) {
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
+            Module module = currentPackage.module(moduleId);
+            for (DocumentId documentId : module.documentIds()) {
+                Document document = module.document(documentId);
                 JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(document.syntaxTree(), semanticModel);
                 packageHolder.addSyntaxTree(module.descriptor(), document.name(), syntaxTreeJSON);
             }

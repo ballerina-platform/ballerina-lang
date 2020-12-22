@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -40,11 +39,6 @@ public class BallerinaXMLTypeSymbol extends AbstractTypeSymbol implements XMLTyp
 
     public BallerinaXMLTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLType xmlType) {
         super(context, TypeDescKind.XML, moduleID, xmlType);
-    }
-
-    public BallerinaXMLTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLSubType xmlSubType) {
-        super(context, TypeDescKind.XML, moduleID, xmlSubType);
-        this.typeName = xmlSubType.name.getValue();
     }
 
     @Override

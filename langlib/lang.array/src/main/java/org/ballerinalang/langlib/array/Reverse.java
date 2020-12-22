@@ -18,8 +18,6 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.values.BArray;
 
 /**
@@ -36,14 +34,7 @@ import io.ballerina.runtime.api.values.BArray;
 public class Reverse {
 
     public static BArray reverse(BArray arr) {
-        BArray reversedArr = ValueCreator.createArrayValue((ArrayType) arr.getType());
-        int elemTypeTag = reversedArr.getElementType().getTag();
-        int size = arr.size();
-
-        for (int i = size - 1, j = 0; i >= 0; i--, j++) {
-            reversedArr.add(j, arr.get(i));
-        }
-
-        return reversedArr;
+        arr.reverse();
+        return arr;
     }
 }

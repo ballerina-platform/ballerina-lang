@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.hover;
 
 import com.google.gson.JsonParser;
-import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -28,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -50,11 +48,6 @@ public class HoverProviderTest {
         serviceEndpoint = TestUtil.initializeLanguageSever();
         TestUtil.openDocument(serviceEndpoint, balPath);
     }
-    
-    @BeforeMethod
-    public void clearPackageCache() {
-        LSContextManager.getInstance().clearAllContexts();
-    }
 
     @Test(description = "Test Hover for built in functions", dataProvider = "hoverBuiltinFuncPosition")
     public void hoverForBuiltInFunctionTest(Position position, String expectedFile) throws IOException {
@@ -63,7 +56,7 @@ public class HoverProviderTest {
 
         Assert.assertEquals(parser.parse(expected).getAsJsonObject(), parser.parse(response).getAsJsonObject(),
                 "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
-                + " character:" + position.getCharacter());
+                        + " character:" + position.getCharacter());
     }
 
     @Test(description = "Test Hover for current package's functions", dataProvider = "hoverCurrentPackageFuncPosition",
