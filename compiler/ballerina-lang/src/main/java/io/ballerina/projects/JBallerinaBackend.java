@@ -21,11 +21,9 @@ import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.jballerina.JarWriter;
-import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.testsuite.TesterinaRegistry;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -283,6 +281,7 @@ public class JBallerinaBackend extends CompilerBackend {
         BLangPackage testablePkg;
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             testablePkg = bLangPackage;
+            testablePkg.flagSet.add(Flag.TESTABLE);
         } else {
             testablePkg = bLangPackage.getTestablePkg();
         }

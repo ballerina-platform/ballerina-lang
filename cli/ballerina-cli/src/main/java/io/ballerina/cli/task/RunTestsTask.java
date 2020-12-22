@@ -25,10 +25,10 @@ import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import org.ballerinalang.testerina.core.TestProcessor;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.testsuite.TesterinaRegistry;
@@ -40,6 +40,7 @@ import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
+import org.ballerinalang.testerina.core.TestProcessor;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedReader;
@@ -169,7 +170,9 @@ public class RunTestsTask implements Task {
             ModuleName moduleName = module.moduleName();
 
             TestSuite suite = testProcessor.testSuite(module, project).orElse(null);
-            jBallerinaBackend.processMockAnnotations(module, project);
+            if (suite != null) {
+                jBallerinaBackend.processMockAnnotations(module, project);
+            }
             Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
 
             if (suite == null) {
@@ -204,11 +207,7 @@ public class RunTestsTask implements Task {
             } else {
                 out.println("\t" + module.moduleName().toString());
             }
-//            try {
-                writeToJson(suite, moduleTestCachePath);
-//            } catch (IOException e) {
-//                throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
-//            }
+            writeToJson(suite, moduleTestCachePath);
             int testResult = runTestSuit(moduleTestCachePath, target, dependencies, module);
             if (result == 0) {
                 result = testResult;
