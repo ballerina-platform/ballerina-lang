@@ -18,6 +18,7 @@
 
 package io.ballerina.toml.validator;
 
+import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
 import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
@@ -172,6 +173,23 @@ public class SchemaValidator extends TomlNodeVisitor {
                         tomlLongValueNode.location());
         for (Diagnostic diagnostic : diagnostics) {
             tomlLongValueNode.addDiagnostic(diagnostic);
+        }
+    }
+
+    @Override
+    public void visit(TomlArrayValueNode tomlArrayValueNode) {
+        if (schema.type() != Type.ARRAY) {
+            TomlDiagnostic diagnostic =
+                    getTomlDiagnostic(tomlArrayValueNode.location(), "TVE0002", "error.invalid.type",
+                            DiagnosticSeverity.ERROR, String.format("Key \"%s\" expects %s . Found array", this.key,
+                                    schema.type()));
+            tomlArrayValueNode.addDiagnostic(diagnostic);
+            return;
+        }
+        ArraySchema arraySchema = (ArraySchema) schema;
+        AbstractSchema items = arraySchema.items();
+        for (TomlValueNode valueNode: tomlArrayValueNode.elements()) {
+            visitNode(valueNode, items);
         }
     }
 
