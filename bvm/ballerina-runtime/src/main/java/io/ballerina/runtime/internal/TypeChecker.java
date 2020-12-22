@@ -18,7 +18,6 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
@@ -98,6 +97,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_16;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_32;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_8;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_XML;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_JSON;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
@@ -917,10 +917,10 @@ public class TypeChecker {
             BXmlType source = (BXmlType) sourceType;
             if (source.constraint.getTag() == TypeTags.NEVER_TAG) {
                 if (targetConstraint.getTag() == TypeTags.UNION_TAG) {
-//                    Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) target.constraint);
-//                    Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
-//                            ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
-//                    return builtinXMLConstraintTypes.equals(collectionTypes);
+                    List<Type> constraintTypes = ((BUnionType) targetConstraint).getMemberTypes();
+                    List<Type> builtinXMLConstraintTypes = ((BUnionType) ((BXmlType)
+                            TYPE_XML).constraint).getMemberTypes();
+                    return builtinXMLConstraintTypes.equals(constraintTypes);
                 }
                 return targetConstraint.getTag() == TypeTags.XML_TEXT_TAG ||
                         targetConstraint.getTag() == TypeTags.NEVER_TAG;
@@ -1792,6 +1792,8 @@ public class TypeChecker {
             case TypeTags.FUNCTION_POINTER_TAG:
             case TypeTags.HANDLE_TAG:
                 return true;
+            case TypeTags.XML_TAG:
+                return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
         }
         return false;
     }
