@@ -67,7 +67,7 @@ public class BUnionType extends BType implements UnionType {
 
     public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly, boolean isCyclic) {
         super(null, null, Object.class);
-        this.memberTypes = memberTypes;
+        setMemberTypes(memberTypes);
         this.typeFlags = typeFlags;
         this.readonly = readonly;
         this.isCyclic = isCyclic;
@@ -75,7 +75,7 @@ public class BUnionType extends BType implements UnionType {
 
     public BUnionType(List<Type> memberTypes, String typeName, int typeFlags, boolean readonly, boolean isCyclic) {
         super(typeName, null, Object.class);
-        this.memberTypes = memberTypes;
+        setMemberTypes(memberTypes);
         this.typeFlags = typeFlags;
         this.readonly = readonly;
         this.isCyclic = isCyclic;
@@ -86,9 +86,14 @@ public class BUnionType extends BType implements UnionType {
         this(memberTypes, false);
     }
 
+    public BUnionType(String typeName, Module pkg, List<Type> memberTypes) {
+        super(typeName, pkg, Object.class);
+        setMemberTypes(memberTypes);
+        this.readonly = false;
+    }
+
     public BUnionType(List<Type> memberTypes, boolean readonly) {
         this(memberTypes, 0, readonly, false);
-        setFlagsBasedOnMembers();
     }
 
     public BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
@@ -162,6 +167,11 @@ public class BUnionType extends BType implements UnionType {
 
     public void setMemberTypes(Type[] memberTypes) {
         this.memberTypes = Arrays.asList(memberTypes);
+        setFlagsBasedOnMembers();
+    }
+
+    private void setMemberTypes(List<Type> memberTypes) {
+        this.memberTypes = memberTypes;
         setFlagsBasedOnMembers();
     }
 

@@ -77,6 +77,7 @@ import java.util.Arrays;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 
 /**
@@ -148,8 +149,7 @@ public class PredefinedTypes {
                                                                     true);
     public static final AnyType TYPE_ANY = new BAnyType(TypeConstants.ANY_TNAME, EMPTY_MODULE, false);
     public static final AnyType TYPE_READONLY_ANY = new BAnyType(TypeConstants.READONLY_ANY_TNAME, EMPTY_MODULE, true);
-    public static final AnydataType TYPE_ANYDATA =
-            new BAnydataType(TypeConstants.ANYDATA_TNAME, EMPTY_MODULE, false);
+    public static final AnydataType TYPE_ANYDATA;
     public static final AnydataType TYPE_READONLY_ANYDATA = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME,
                                                                              EMPTY_MODULE, true);
     public static final StreamType TYPE_STREAM = new BStreamType(TypeConstants.STREAM_TNAME, TYPE_ANY, EMPTY_MODULE);
@@ -178,6 +178,7 @@ public class PredefinedTypes {
             .createIteratorNextReturnType(
                     new BUnionType(Arrays.asList(PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_XML)));
 
+    // type anydata =  ()|boolean|int|float|decimal|string|xml|anydata[]|map<anydata>|table<map<anydata>>
     static {
         ArrayList<Type> members = new ArrayList<>();
         members.add(TYPE_NULL);
@@ -186,7 +187,26 @@ public class PredefinedTypes {
         members.add(TYPE_FLOAT);
         members.add(TYPE_DECIMAL);
         members.add(TYPE_STRING);
-        BJsonType jsonType = new BJsonType(new BUnionType(members));
+        members.add(TYPE_XML);
+        BAnydataType anydataType = new BAnydataType(new BUnionType(TypeConstants.ANYDATA_TNAME, EMPTY_MODULE, members));
+        anydataType.isCyclic = true;
+        MapType internalAnydataMap = new BMapType(TypeConstants.MAP_TNAME, anydataType, EMPTY_MODULE);
+        ArrayType internalAnydataArray = new BArrayType(anydataType);
+        members.add(internalAnydataArray);
+        members.add(internalAnydataMap);
+        TYPE_ANYDATA = anydataType;
+    }
+
+    // type json = ()|boolean|int|float|decimal|string|json[]|map<json>
+    static {
+        ArrayList<Type> members = new ArrayList<>();
+        members.add(TYPE_NULL);
+        members.add(TYPE_BOOLEAN);
+        members.add(TYPE_INT);
+        members.add(TYPE_FLOAT);
+        members.add(TYPE_DECIMAL);
+        members.add(TYPE_STRING);
+        BJsonType jsonType = new BJsonType(new BUnionType(TypeConstants.JSON_TNAME, EMPTY_MODULE, members));
         jsonType.isCyclic = true;
         MapType internalJsonMap = new BMapType(TypeConstants.MAP_TNAME, jsonType, EMPTY_MODULE);
         ArrayType internalJsonArray = new BArrayType(jsonType);
@@ -196,13 +216,15 @@ public class PredefinedTypes {
         TYPE_JSON_ARRAY = new BArrayType(TYPE_JSON);
     }
 
+    // public type Cloneable readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>
     static {
         ArrayList<Type> members = new ArrayList<>();
         members.add(TYPE_XML);
         members.add(TYPE_READONLY);
-        BUnionType cloneable = new BUnionType(members);
+        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        BUnionType cloneable = new BUnionType(TypeConstants.CLONEABLE_TNAME, valueModule, members);
         cloneable.isCyclic = true;
-        MapType internalCloneableMap = new BMapType(TypeConstants.MAP_TNAME, cloneable, EMPTY_MODULE);
+        MapType internalCloneableMap = new BMapType(TypeConstants.MAP_TNAME, cloneable, valueModule);
         ArrayType internalCloneableArray = new BArrayType(cloneable);
         BTableType internalCloneableMapTable = new BTableType(cloneable, false);
         members.add(internalCloneableMap);

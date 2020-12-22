@@ -36,7 +36,7 @@ public class BJSONType extends BUnionType {
     public BJSONType(BJSONType type, boolean nullable) {
         super(type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable,
                 Symbols.isFlagOn(type.flags, Flags.READONLY));
-        resolveCyclicType(type);
+        mergeUnionType(type);
         this.tag = TypeTags.JSON;
         this.isCyclic = true;
     }
@@ -44,7 +44,7 @@ public class BJSONType extends BUnionType {
     public BJSONType(BUnionType type) {
         super(type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), type.isNullable(), Symbols.isFlagOn(type.flags,
                 Flags.READONLY));
-        resolveCyclicType(type);
+        mergeUnionType(type);
         this.immutableType = type.immutableType;
         this.tag = TypeTags.JSON;
     }

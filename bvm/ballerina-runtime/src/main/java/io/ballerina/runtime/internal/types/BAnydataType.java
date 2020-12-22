@@ -27,15 +27,14 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.values.RefValue;
 
+import java.util.LinkedHashSet;
+
 /**
  * {@code BAnydataType} represents the data types in Ballerina.
  *
  * @since 0.995.0
  */
-public class BAnydataType extends BType implements AnydataType {
-
-    private final boolean readonly;
-    private IntersectionType immutableType;
+public class BAnydataType extends BUnionType implements AnydataType {
 
     /**
      * Create a {@code BAnydataType} which represents the anydata type.
@@ -43,16 +42,21 @@ public class BAnydataType extends BType implements AnydataType {
      * @param typeName string name of the type
      */
     public BAnydataType(String typeName, Module pkg, boolean readonly) {
-        super(typeName, pkg, RefValue.class);
-        this.readonly = readonly;
-
+        super(typeName, pkg, readonly, RefValue.class);
         if (!readonly) {
             BAnydataType immutableAnydataType = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME, pkg, true);
             this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
-                                                       immutableAnydataType,
-                                                       TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
-                                                                        TypeFlags.PURETYPE), true);
+                                                       immutableAnydataType, TypeFlags.asMask(TypeFlags.NILABLE,
+                                                        TypeFlags.ANYDATA, TypeFlags.PURETYPE), true);
         }
+    }
+
+    public BAnydataType(BUnionType unionType) {
+        super(unionType);
+        BAnydataType immutableJsonType = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME, pkg, true);
+        this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
+                immutableJsonType, TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA, TypeFlags.PURETYPE),true);
+
     }
 
     @Override
@@ -75,17 +79,10 @@ public class BAnydataType extends BType implements AnydataType {
     }
 
     @Override
-    public boolean isReadOnly() {
-        return this.readonly;
-    }
-
-    @Override
-    public Type getImmutableType() {
-        return this.immutableType;
-    }
-
-    @Override
-    public void setImmutableType(IntersectionType immutableType) {
-        this.immutableType = immutableType;
+    public String toString() {
+        if (this.typeName != null) {
+            return this.typeName;
+        }
+        return super.toString();
     }
 }

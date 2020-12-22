@@ -32,7 +32,6 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-//public class BJsonType extends BType implements JsonType {
 public class BJsonType extends BUnionType implements JsonType {
 
     /**
@@ -89,5 +88,13 @@ public class BJsonType extends BUnionType implements JsonType {
 
     public boolean isNilable() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        if (this.typeName != null) {
+            return this.typeName;
+        }
+        return super.toString();
     }
 }

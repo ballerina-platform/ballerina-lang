@@ -62,7 +62,7 @@ public class BAnydataType extends BUnionType {
         this.isCyclic = true;
         this.name = type.name;
         this.flags = type.flags;
-        resolveCyclicType(type);
+        mergeUnionType(type);
     }
 
     public BAnydataType(BAnydataType type, boolean nullable) {
@@ -71,7 +71,7 @@ public class BAnydataType extends BUnionType {
         this.flags = type.flags;
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
-        resolveCyclicType(type);
+        mergeUnionType(type);
     }
 
     @Override
