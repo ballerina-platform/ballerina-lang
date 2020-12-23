@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.values.FutureValue;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -62,8 +63,9 @@ public class AsyncUtils {
      * @return Future Value
      */
     public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, String strandName,
-                                                         StrandMetadata metadata, Object[] args, Function<Object,
-            Object> resultHandleFunction, Scheduler scheduler) {
+                                                         StrandMetadata metadata, Object[] args,
+                                                         Function<Object, Object> resultHandleFunction,
+                                                         Scheduler scheduler) {
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
             public void notifySuccess() {
@@ -155,6 +157,59 @@ public class AsyncUtils {
             }
         };
         invokeFunctionPointerAsync(func, strand, strandName, metadata, argsSupplier.get(), callback, scheduler);
+    }
+
+    public static FutureValue invokeAndForgetFunctionPointerAsync(BFunctionPointer<?, ?> func, Strand parent,
+                                                                  String name, StrandMetadata metadata, Object[] args,
+                                                                  AsyncFunctionCallback callback,
+                                                                  Scheduler scheduler) {
+
+        final FutureValue future = scheduler.createFuture(parent, null, null,
+                ((BFunctionType) func.getType()).retType, name, metadata);
+        future.callback = callback;
+        callback.setFuture(future);
+        callback.setStrand(parent);
+        return scheduler.scheduleLocal(args, func, parent, future);
+    }
+
+    public static void invokeAndForgetFunctionPointerAsync(List<BFunctionPointer> fpList,
+                                                           String strandName,
+                                                           StrandMetadata metadata,
+                                                           Supplier<Object[]> argsSupplier,
+                                                           Consumer<Object> futureResultConsumer,
+                                                           Supplier<Object> returnValueSupplier,
+                                                           Scheduler scheduler) {
+
+        Strand strand = Scheduler.getStrand();
+        AtomicInteger callCount = new AtomicInteger(0);
+        scheduleNextFunction(fpList, strand, strandName, metadata, callCount, argsSupplier,
+                futureResultConsumer, returnValueSupplier, scheduler);
+    }
+
+    private static void scheduleNextFunction(List<BFunctionPointer> fpList, Strand strand, String strandName,
+                                             StrandMetadata metadata, AtomicInteger callCount,
+                                             Supplier<Object[]> argsSupplier,
+                                             Consumer<Object> futureResultConsumer,
+                                             Supplier<Object> returnValueSupplier, Scheduler scheduler) {
+        AsyncFunctionCallback callback = new AsyncFunctionCallback() {
+            @Override
+            public void notifySuccess() {
+                futureResultConsumer.accept(getFutureResult());
+                if (callCount.incrementAndGet() != fpList.size()) {
+                    scheduleNextFunction(fpList, strand, strandName, metadata, callCount, argsSupplier,
+                            futureResultConsumer, returnValueSupplier, scheduler);
+                } else {
+                    setReturnValues(returnValueSupplier.get());
+                }
+            }
+
+            @Override
+            public void notifyFailure(BError error) {
+                handleRuntimeErrors(error);
+            }
+        };
+        invokeAndForgetFunctionPointerAsync(fpList.get(callCount.get()), strand, strandName, metadata,
+                argsSupplier.get(), callback, scheduler);
     }
 
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {
