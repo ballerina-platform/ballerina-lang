@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
@@ -28,7 +27,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -38,14 +37,13 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ObjectFieldNode} context.
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFieldNode> {
 
     public ObjectFieldNodeContext() {
@@ -53,7 +51,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ObjectFieldNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectFieldNode node) {
         if (this.onExpressionContext(context, node)) {
             return this.getExpressionContextCompletions(context);
         }
@@ -66,7 +64,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         return this.getClassBodyCompletions(context, node);
     }
 
-    private List<LSCompletionItem> getClassBodyCompletions(CompletionContext context, ObjectFieldNode node) {
+    private List<LSCompletionItem> getClassBodyCompletions(BallerinaCompletionContext context, ObjectFieldNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         
         if (this.onResourceMethodDef(context, node)) {
@@ -107,7 +105,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         return completionItems;
     }
 
-    private List<LSCompletionItem> getExpressionContextCompletions(CompletionContext ctx) {
+    private List<LSCompletionItem> getExpressionContextCompletions(BallerinaCompletionContext ctx) {
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
@@ -117,7 +115,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         return this.expressionCompletions(ctx);
     }
 
-    private boolean onModuleTypeDescriptorsOnly(CompletionContext context, ObjectFieldNode node) {
+    private boolean onModuleTypeDescriptorsOnly(BallerinaCompletionContext context, ObjectFieldNode node) {
         int cursor = context.getCursorPositionInTree();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         Optional<Token> qualifier = node.visibilityQualifier();
@@ -126,14 +124,14 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
                 && nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE;
     }
 
-    private boolean onExpressionContext(CompletionContext context, ObjectFieldNode node) {
+    private boolean onExpressionContext(BallerinaCompletionContext context, ObjectFieldNode node) {
         int cursor = context.getCursorPositionInTree();
         Optional<Token> equalsToken = node.equalsToken();
 
         return equalsToken.isPresent() && equalsToken.get().textRange().endOffset() <= cursor;
     }
     
-    private boolean onResourceMethodDef(CompletionContext context, ObjectFieldNode node) {
+    private boolean onResourceMethodDef(BallerinaCompletionContext context, ObjectFieldNode node) {
         int cursor = context.getCursorPositionInTree();
         for (Minutiae minutiae : node.leadingMinutiae()) {
             int endOffset = minutiae.textRange().endOffset();
@@ -149,7 +147,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, ObjectFieldNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, ObjectFieldNode node) {
         /*
         This validation is added in order to avoid identifying the following context as object field node context.
         This is happened due to the parser recovery strategy.

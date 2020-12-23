@@ -20,11 +20,12 @@ public class ClassDefinitionNodeContextUtil {
         if (node.kind() == SyntaxKind.SERVICE_DECLARATION) {
             return true;
         }
-        if (node.kind() != SyntaxKind.CLASS_DEFINITION) {
-            return false;
+        if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
+            return ((ClassDefinitionNode) node).classTypeQualifiers().stream()
+                    .map(Token::text).collect(Collectors.toList())
+                    .contains("service");
         }
-        return ((ClassDefinitionNode) node).classTypeQualifiers().stream()
-                .map(Token::text).collect(Collectors.toList())
-                .contains("service");
+        
+        return false;
     }
 }

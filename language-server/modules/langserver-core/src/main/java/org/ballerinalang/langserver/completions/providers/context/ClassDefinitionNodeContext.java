@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ClassDefinitionNodeContext extends AbstractCompletionProvider<ClassDefinitionNode> {
 
     public ClassDefinitionNodeContext() {
@@ -43,7 +43,7 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ClassDefinitionNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ClassDefinitionNode node) {
         if (this.withinBody(context, node)) {
             return this.getClassBodyCompletions(context, node);
         }
@@ -56,18 +56,18 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, ClassDefinitionNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, ClassDefinitionNode node) {
         return !node.classKeyword().isMissing();
     }
 
-    private boolean onClassTypeQualifiers(CompletionContext context, ClassDefinitionNode node) {
+    private boolean onClassTypeQualifiers(BallerinaCompletionContext context, ClassDefinitionNode node) {
         int cursor = context.getCursorPositionInTree();
         Token classKeyword = node.classKeyword();
 
         return cursor < classKeyword.textRange().startOffset();
     }
 
-    private List<LSCompletionItem> getClassTypeCompletions(CompletionContext context) {
+    private List<LSCompletionItem> getClassTypeCompletions(BallerinaCompletionContext context) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<Snippet> snippets = Arrays.asList(
                 Snippet.KW_DISTINCT, Snippet.KW_READONLY, Snippet.KW_ISOLATED, Snippet.KW_CLIENT, Snippet.KW_SERVICE
@@ -77,7 +77,7 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         return completionItems;
     }
 
-    private boolean withinBody(CompletionContext context, ClassDefinitionNode node) {
+    private boolean withinBody(BallerinaCompletionContext context, ClassDefinitionNode node) {
         int cursor = context.getCursorPositionInTree();
         Token openBrace = node.openBrace();
         Token closeBrace = node.closeBrace();
@@ -89,7 +89,8 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         return cursor >= openBrace.textRange().endOffset() && cursor <= closeBrace.textRange().startOffset();
     }
 
-    private List<LSCompletionItem> getClassBodyCompletions(CompletionContext context, ClassDefinitionNode node) {
+    private List<LSCompletionItem> getClassBodyCompletions(BallerinaCompletionContext context,
+                                                           ClassDefinitionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));

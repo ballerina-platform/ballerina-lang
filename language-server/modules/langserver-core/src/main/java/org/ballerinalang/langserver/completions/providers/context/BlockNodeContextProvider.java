@@ -33,7 +33,7 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -60,7 +60,8 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, T node) throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, T node)
+            throws LSCompletionException {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
@@ -99,7 +100,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return completionItems;
     }
 
-    protected List<LSCompletionItem> getStaticCompletionItems(CompletionContext context) {
+    protected List<LSCompletionItem> getStaticCompletionItems(BallerinaCompletionContext context) {
 
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -120,7 +121,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return completionItems;
     }
 
-    protected List<LSCompletionItem> getStatementCompletionItems(CompletionContext context, T node) {
+    protected List<LSCompletionItem> getStatementCompletionItems(BallerinaCompletionContext context, T node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         boolean withinLoop = this.withinLoopConstructs(node);
@@ -167,7 +168,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return completionItems;
     }
 
-    protected List<LSCompletionItem> getSymbolCompletions(CompletionContext context) {
+    protected List<LSCompletionItem> getSymbolCompletions(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         // TODO: Can we get this filter to a common place
@@ -192,7 +193,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return withinLoops;
     }
 
-    private Optional<Node> nodeBeforeCursor(CompletionContext context, Node node) {
+    private Optional<Node> nodeBeforeCursor(BallerinaCompletionContext context, Node node) {
         NodeList<StatementNode> statements;
         if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
             statements = ((FunctionBodyBlockNode) node).statements();
@@ -225,7 +226,8 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return Optional.empty();
     }
 
-    private List<LSCompletionItem> getTypeguardDestructedItems(List<Symbol> scopeEntries, CompletionContext ctx) {
+    private List<LSCompletionItem> getTypeguardDestructedItems(List<Symbol> scopeEntries,
+                                                               BallerinaCompletionContext ctx) {
         List<String> capturedSymbols = new ArrayList<>();
         // In the case of type guarded variables multiple symbols with the same symbol name and we ignore those
         return scopeEntries.stream()
