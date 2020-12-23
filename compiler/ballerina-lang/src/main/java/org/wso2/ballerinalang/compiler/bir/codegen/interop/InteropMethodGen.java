@@ -112,10 +112,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.getNextDesugarBBId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 
 /**
  * Interop related method generation class for JVM byte code generation.
@@ -124,15 +122,17 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunct
  */
 public class InteropMethodGen {
 
-    static void genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper, ClassWriter classWriter,
-                                         PackageID birModule, JvmPackageGen jvmPackageGen, String moduleClassName,
+    static void genJFieldForInteropField(JFieldBIRFunction birFunc,
+                                         ClassWriter classWriter,
+                                         PackageID packageID,
+                                         JvmPackageGen jvmPackageGen,
+                                         String moduleClassName,
                                          AsyncDataCollector asyncDataCollector) {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
         indexMap.addIfNotExists("$_strand_$", jvmPackageGen.symbolTable.stringType);
 
         // Generate method desc
-        BIRFunction birFunc = jFieldFuncWrapper.func;
         BType retType = birFunc.type.retType;
 
         if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
@@ -142,10 +142,10 @@ public class InteropMethodGen {
         String desc = JvmCodeGenUtil.getMethodDesc(birFunc.type.paramTypes, retType);
         int access = birFunc.receiver != null ? ACC_PUBLIC : ACC_PUBLIC + ACC_STATIC;
         MethodVisitor mv = classWriter.visitMethod(access, birFunc.name.value, desc, null, null);
-        JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, birModule, jvmPackageGen);
+        JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, packageID, jvmPackageGen);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         LabelGenerator labelGen = new LabelGenerator();
-        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, birModule, instGen,
+        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, packageID, instGen,
                 jvmPackageGen);
         mv.visitCode();
 
@@ -195,7 +195,7 @@ public class InteropMethodGen {
             birFuncParamIndex += 1;
         }
 
-        JavaField jField = jFieldFuncWrapper.jField;
+        JavaField jField = birFunc.javaField;
         JType jFieldType = JInterop.getJType(jField.getFieldType());
 
         // Load receiver which is the 0th parameter in the birFunc
@@ -311,14 +311,13 @@ public class InteropMethodGen {
         }
     }
 
-    public static void desugarInteropFuncs(JMethodFunctionWrapper extFuncWrapper, BIRFunction birFunc,
-                                           InitMethodGen initMethodGen) {
+    public static void desugarInteropFuncs(JMethodBIRFunction birFunc, InitMethodGen initMethodGen) {
         // resetting the variable generation index
         BType retType = birFunc.type.retType;
         if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
             retType = JvmCodeGenUtil.TYPE_BUILDER.build(birFunc.type.retType);
         }
-        JMethod jMethod = extFuncWrapper.jMethod;
+        JMethod jMethod = birFunc.jMethod;
         Class<?>[] jMethodParamTypes = jMethod.getParamTypes();
         JType jMethodRetType = JInterop.getJType(jMethod.getReturnType());
 
@@ -421,7 +420,7 @@ public class InteropMethodGen {
 
             BIRBasicBlock catchBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, initMethodGen));
             JErrorEntry ee = new JErrorEntry(beginBB, thenBB, retRef, catchBB);
-            for (Class exception : extFuncWrapper.jMethod.getExceptionTypes()) {
+            for (Class exception : birFunc.jMethod.getExceptionTypes()) {
                 BIRTerminator.Return exceptionRet = new BIRTerminator.Return(birFunc.pos);
                 CatchIns catchIns = new CatchIns();
                 catchIns.errorClass = exception.getName().replace(".", "/");
@@ -725,47 +724,6 @@ public class InteropMethodGen {
             default:
                 throw new BLangCompilerException(String.format("invalid type for var-arg: %s", elementType));
         }
-    }
-
-    static BIRFunctionWrapper createJInteropFunctionWrapper(InteropValidator interopValidator,
-                                                            InteropValidationRequest jInteropValidationReq,
-                                                            BIRFunction birFunc,
-                                                            PackageID packageID,
-                                                            String birModuleClassName,
-                                                            SymbolTable symbolTable) {
-        if (interopValidator.isEntryModuleValidation()) {
-            addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
-        }
-        // Update the function wrapper only for Java interop functions
-        BIRFunctionWrapper birFuncWrapper = getFunctionWrapper(birFunc, packageID, birModuleClassName);
-        if (jInteropValidationReq instanceof InteropValidationRequest.MethodValidationRequest) {
-            InteropValidationRequest.MethodValidationRequest methodValidationRequest =
-                    ((InteropValidationRequest.MethodValidationRequest) jInteropValidationReq);
-            methodValidationRequest.restParamExist = birFunc.restParam != null;
-            return createJMethodWrapper(interopValidator, methodValidationRequest, birFuncWrapper);
-        } else {
-            InteropValidationRequest.FieldValidationRequest fieldValidationRequest =
-                    (InteropValidationRequest.FieldValidationRequest) jInteropValidationReq;
-            return createJFieldWrapper(interopValidator, fieldValidationRequest, birFuncWrapper);
-        }
-    }
-
-    private static JMethodFunctionWrapper createJMethodWrapper(InteropValidator interopValidator,
-                                                               InteropValidationRequest jMethodValidationReq,
-                                                               BIRFunctionWrapper birFuncWrapper) {
-
-        JMethod jMethod = interopValidator.validateAndGetJMethod(
-                (InteropValidationRequest.MethodValidationRequest) jMethodValidationReq);
-        return new JMethodFunctionWrapper(birFuncWrapper, jMethod);
-    }
-
-    private static JFieldFunctionWrapper createJFieldWrapper(InteropValidator interopValidator,
-                                                             InteropValidationRequest jFieldValidationReq,
-                                                             BIRFunctionWrapper birFuncWrapper) {
-
-        JavaField jField = interopValidator.validateAndGetJField(
-                (InteropValidationRequest.FieldValidationRequest) jFieldValidationReq);
-        return new JFieldFunctionWrapper(birFuncWrapper, jField);
     }
 
     private InteropMethodGen() {
