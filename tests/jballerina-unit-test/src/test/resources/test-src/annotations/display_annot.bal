@@ -14,15 +14,33 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@icon { path: "/fooIconPath.icon" }
+@display {icon: "/fooIconPath.icon", label: "Foo function"}
 function foo(int i, string k) returns int {
     return i;
 }
 
-@icon { path: "/barIconPath.icon" }
+@display {icon: "/barIconPath.icon", label: "Bar class"}
 class Bar {
-    @icon { path: "/kMemberFuncIconPath.icon" }
+    @display {icon: "/kMemberFuncIconPath.icon", label: "k method"}
     function k() {
 
     }
 }
+
+@display {icon: "/RecIcon.icon", label: "The main record!"}
+type Rec record {|
+    string s;
+    int i;
+|};
+
+@display {icon: "/service.icon", label: "service"}
+service on new L() {
+    @display {icon: "k-func.icon", label: "k method"}
+    function k() {
+    }
+
+    @display {icon: "k.icon", label: "resource method"}
+    function resource get k() {
+    }
+}
+

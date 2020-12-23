@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@icon { path: "/fooIconPath.icon" }
-@icon { path: "/fooIconPath.icon" }
+@display {icon: "/fooIconPath.icon", label: "l"}
+@display {icon: "/fooIconPath.icon", label: "j"}
 function foo(int i, string k) returns int {
     return i;
 }
 
-@icon { path: "/fooIconPath.icon" }
+@display {icon: "/fooIconPath.icon", label: "k"}
 int GLOBAL = 3;
