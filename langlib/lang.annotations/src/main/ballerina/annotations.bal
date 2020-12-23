@@ -76,11 +76,10 @@ public const annotation StrandData strand on source worker;
 # Describes display metadata.
 #
 # + label - label to be dispaled for a Ballerina construct
-# + icon  - icon metadata
+# + iconPath  - icon path relative to module's resouce directory
 public type DisplayData record {
     string label;
-    // Path to the icon
-    string icon;
+    string iconPath;
 };
 
 # Denotes general-purpose metadata to customize how Ballerina symbols are displayed in a UI environment.
