@@ -17,12 +17,14 @@
  */
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBaloTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
+import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
@@ -34,7 +36,6 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
-import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -111,9 +112,6 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
                                                               "dependencies.")
     private Boolean offline;
-
-//    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
-//    private boolean skipLock;
 
     @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
     private Boolean skipTests;
@@ -227,15 +225,13 @@ public class BuildCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory
-//                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
+                .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
-//                .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
-                                                            // the given skipLock flag does not exist(projects only)
-                .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
                 .addTask(new RunTestsTask(outStream, errStream, args),
                         project.buildOptions().skipTests() || isSingleFileBuild)
                     // run tests (projects only)
+                .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
                 .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();

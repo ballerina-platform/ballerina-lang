@@ -20,9 +20,9 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.projects.Package;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -61,7 +61,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         List<Package> packagesList = new ArrayList<>(LSPackageLoader.getDistributionRepoPackages());
         ArrayList<LSCompletionItem> completionItems = moduleNameContextCompletions(ctx, orgName, packagesList);
         this.sort(ctx, node, completionItems);
-        
+
         return completionItems;
     }
 

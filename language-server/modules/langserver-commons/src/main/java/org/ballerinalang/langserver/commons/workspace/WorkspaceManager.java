@@ -38,6 +38,14 @@ import java.util.Optional;
 public interface WorkspaceManager {
 
     /**
+     * Get the relative file path of the document in the given path.
+     * 
+     * @param path document path to evaluate
+     * @return {@link String} relative path
+     */
+    Optional<String> relativePath(Path path);
+
+    /**
      * Returns a project root from the path provided.
      *
      * @param path ballerina project or standalone file path
@@ -92,6 +100,14 @@ public interface WorkspaceManager {
      * @return {@link ModuleCompilation}
      */
     Optional<ModuleCompilation> waitAndGetModuleCompilation(Path filePath);
+
+    /**
+     * Returns module compilation from the module provided.
+     *
+     * @param module {@link Module}
+     * @return {@link ModuleCompilation}
+     */
+    Optional<ModuleCompilation> waitAndGetModuleCompilation(Module module);
 
     /**
      * The document open notification is sent from the client to the server to signal newly opened text documents.

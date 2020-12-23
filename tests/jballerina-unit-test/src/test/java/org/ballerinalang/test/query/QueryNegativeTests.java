@@ -39,35 +39,35 @@ public class QueryNegativeTests {
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
-                                  48, 18);
+                                  64, 18);
         validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                              "non-required field 'lastName'", 51, 30);
+                              "non-required field 'lastName'", 67, 30);
         validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                              "non-required field 'age'", 52, 25);
-        validateError(compileResult, index++, "unknown type 'XYZ'", 67, 18);
-        validateError(compileResult, index++, "undefined field 'lastName' in record 'Teacher'", 87, 20);
-        validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection", 100, 32);
-        validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'", 101, 19);
-        validateError(compileResult, index++, "incompatible types: expected 'Person', found 'int'", 102, 20);
-        validateError(compileResult, index++, "missing non-defaultable required record field 'lastName'", 116, 10);
-        validateError(compileResult, index++, "incompatible types: expected 'float', found 'int'", 137, 13);
-        validateError(compileResult, index++, "undefined function 'calculateScore'", 152, 22);
+                              "non-required field 'age'", 68, 25);
+        validateError(compileResult, index++, "unknown type 'XYZ'", 83, 18);
+        validateError(compileResult, index++, "undefined field 'lastName' in record 'Teacher'", 103, 20);
+        validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection", 116, 32);
+        validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'", 117, 19);
+        validateError(compileResult, index++, "incompatible types: expected 'Person', found 'int'", 118, 20);
+        validateError(compileResult, index++, "missing non-defaultable required record field 'lastName'", 132, 10);
+        validateError(compileResult, index++, "incompatible types: expected 'float', found 'int'", 153, 13);
+        validateError(compileResult, index++, "undefined function 'calculateScore'", 168, 22);
         validateError(compileResult, index++, "invalid record binding pattern; unknown field " +
-                "'fname' in record type 'Student'", 189, 12);
-        validateError(compileResult, index++, "undefined symbol 'fname'", 191, 15);
+                "'fname' in record type 'Student'", 205, 12);
+        validateError(compileResult, index++, "undefined symbol 'fname'", 207, 15);
         validateError(compileResult, index++, "incompatible types: expected 'Student', found " +
-                "'(string|float)'", 206, 10);
-        validateError(compileResult, index++, "incompatible types: expected 'Address', found 'map<string>'", 225, 13);
-        validateError(compileResult, index++, "incompatible types: expected 'FullName[]', found 'error?'", 250, 13);
-        validateError(compileResult, index++, "incompatible types: expected 'xml', found '(xml|string)'", 267, 24);
-        validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 281, 24);
+                "'(string|float)'", 222, 10);
+        validateError(compileResult, index++, "incompatible types: expected 'Address', found 'map<string>'", 241, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'FullName[]', found 'error?'", 266, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'xml', found '(xml|string)'", 283, 24);
+        validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 297, 24);
         validateError(compileResult, index++, "a type compatible with mapping constructor expressions " +
-                "not found in type 'string'", 295, 24);
-        validateError(compileResult, index++, "ambiguous type '[xml, xml]'", 317, 24);
-        validateError(compileResult, index++, "ambiguous type '[string, string]'", 330, 24);
-        validateError(compileResult, index++, "redeclared symbol 'fname'", 354, 36);
-        validateError(compileResult, index++, "redeclared symbol 'age'", 367, 21);
-        validateError(compileResult, index, "redeclared symbol 'age'", 384, 44);
+                "not found in type 'string'", 311, 24);
+        validateError(compileResult, index++, "ambiguous type '[xml, xml]'", 333, 24);
+        validateError(compileResult, index++, "ambiguous type '[string, string]'", 346, 24);
+        validateError(compileResult, index++, "redeclared symbol 'fname'", 370, 36);
+        validateError(compileResult, index++, "redeclared symbol 'age'", 383, 21);
+        validateError(compileResult, index, "redeclared symbol 'age'", 400, 44);
     }
 
 

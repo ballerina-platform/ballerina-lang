@@ -55,20 +55,6 @@ public interface ModuleSymbol extends Symbol {
     List<ConstantSymbol> constants();
 
     /**
-     * Get the listeners in the Module.
-     *
-     * @return {@link List} of listeners
-     */
-    List<ObjectTypeSymbol> listeners();
-
-    /**
-     * Get the module service definitions.
-     * 
-     * @return {@link List} of services defined at the module level
-     */
-    List<ServiceSymbol> services();
-    
-    /**
      * Get all public the symbols within the module.
      *
      * @return {@link List} of type definitions

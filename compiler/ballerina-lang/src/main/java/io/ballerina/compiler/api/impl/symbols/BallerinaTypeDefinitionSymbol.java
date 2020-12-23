@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -47,7 +48,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
                                             List<Qualifier> qualifiers,
                                             TypeSymbol typeDescriptor,
                                             BSymbol bSymbol) {
-        super(name, moduleID, SymbolKind.TYPE, bSymbol);
+        super(name, moduleID, SymbolKind.TYPE_DEFINITION, bSymbol);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
@@ -79,6 +80,11 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
         return this.readonly;
     }
 
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return Collections.emptyList();
+    }
+
     /**
      * Represents a type definition symbol builder.
      *
@@ -90,7 +96,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
         protected TypeSymbol typeDescriptor;
 
         public TypeDefSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
-            super(name, moduleID, SymbolKind.TYPE, symbol);
+            super(name, moduleID, SymbolKind.TYPE_DEFINITION, symbol);
         }
 
         public TypeDefSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {

@@ -81,15 +81,12 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
         if (filePath.isEmpty()) {
             return Collections.emptyList();
         }
-        Optional<SyntaxTree> syntaxTree = ctx.workspace().syntaxTree(filePath.get());
-        if (syntaxTree.isEmpty()) {
-            return Collections.emptyList();
-        }
-        TextDocument textDocument = syntaxTree.get().textDocument();
+        SyntaxTree syntaxTree = ctx.workspace().syntaxTree(filePath.get()).orElseThrow();
+        TextDocument textDocument = syntaxTree.textDocument();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(line, 1));
-        NonTerminalNode node = ((ModulePartNode) syntaxTree.get().rootNode()).findNode(TextRange.from(txtPos, 0));
+        NonTerminalNode node = ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
         Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(getDocumentableNode(node),
-                false);
+                                                                                    false);
         if (docAttachmentInfo.isPresent()) {
             DocAttachmentInfo docs = docAttachmentInfo.get();
             Range range = new Range(docs.getDocStartPos(), docs.getDocStartPos());
@@ -102,7 +99,7 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
 
     private NonTerminalNode getDocumentableNode(NonTerminalNode node) {
         while (node.parent().kind() != SyntaxKind.MODULE_PART &&
-                node.parent().kind() != SyntaxKind.SERVICE_BODY &&
+                //node.parent().kind() != SyntaxKind.SERVICE_BODY &&
                 node.parent().kind() != SyntaxKind.OBJECT_TYPE_DESC &&
                 node.parent().kind() != SyntaxKind.CLASS_DEFINITION) {
             node = node.parent();

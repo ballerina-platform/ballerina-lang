@@ -537,6 +537,56 @@ function testFunctionCastNegativeHelper() returns string|int {
     return "successful";
 }
 
+type Manager record {|
+    readonly int 'emp\-id;
+    string 'first\.name;
+|};
+
+type Engineer record {|
+    readonly int 'emp\-id;
+    string 'first\.name;
+|};
+
+function testRecordCastWithSpecialChars() returns boolean {
+    Engineer engineer = {'emp\-id: 1, 'first\.name: "John"};
+    Manager manager = engineer;
+    Engineer engineer2 = <Engineer> manager;
+    Manager manager2 = <Manager> engineer;
+    return engineer === engineer2 && engineer2 == manager2;
+}
+
+class EngineerObject {
+    string 'first\.name;
+    function init(string name) {
+        self.'first\.name = name;
+    }
+}
+
+class ManagerObject {
+    string 'first\.name;
+    function init(string name) {
+        self.'first\.name = name;
+    }
+}
+
+function testObjectCastWithSpecialChars() returns boolean {
+    EngineerObject engineer = new ("Sam");
+    ManagerObject manager = engineer;
+    EngineerObject engineer2 = <EngineerObject> manager;
+    return engineer === engineer2;
+}
+
+function testTableCastWithSpecialChars() returns boolean {
+    table<Engineer> engineers = table key('emp\-id) [
+        {'emp\-id: 1, 'first\.name: "Mary"},
+        {'emp\-id: 2, 'first\.name: "James"},
+        {'emp\-id: 3, 'first\.name: "Jim"}
+        ];
+
+    table<Manager> managers = <table<Manager>> engineers;
+    return engineers === managers;
+}
+
 //////////////////////// from string ////////////////////////
 
 function testStringAsString(string s1) returns boolean {

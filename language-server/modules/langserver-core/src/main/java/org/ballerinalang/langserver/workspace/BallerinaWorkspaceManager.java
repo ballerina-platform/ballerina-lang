@@ -35,15 +35,16 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
@@ -74,6 +75,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 .maximumSize(1000)
                 .build();
         pathToSourceRootCache = cache.asMap();
+    }
+
+    @Override
+    public Optional<String> relativePath(Path path) {
+        Optional<Document> document = this.document(path);
+        return document.map(Document::name);
     }
 
     /**
@@ -184,6 +191,33 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     /**
+     * Returns module compilation from the file path provided.
+     *
+     * @param module {@link Module}
+     * @return {@link ModuleCompilation}
+     */
+    @Override
+    public Optional<ModuleCompilation> waitAndGetModuleCompilation(Module module) {
+        // TODO: Remove this once singleProject.sourceRoot is tempDir issue fixed
+        Optional<ProjectPair> projectPair = sourceRootToProject.entrySet().stream()
+                .filter(e -> e.getValue().project().equals(module.project()))
+                .findFirst()
+                .map(Map.Entry::getValue);
+        // Get Project and Lock
+        if (projectPair.isEmpty()) {
+            return Optional.empty();
+        }
+        // Lock Project Instance
+        projectPair.get().locker().lock();
+        try {
+            return Optional.of(module.getCompilation());
+        } finally {
+            // Unlock Project Instance
+            projectPair.get().locker().unlock();
+        }
+    }
+
+    /**
      * The document open notification is sent from the client to the server to signal newly opened text documents.
      *
      * @param filePath {@link Path} of the document
@@ -270,9 +304,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             Path projectRoot = project.get().sourceRoot();
             sourceRootToProject.remove(projectRoot);
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
-                                            "' {project: '" + projectRoot.toUri().toString() +
-                                            "' kind: '" + project.get().kind().name().toLowerCase(Locale.getDefault()) +
-                                            "'} removed}");
+                    "' {project: '" + projectRoot.toUri().toString() +
+                    "' kind: '" + project.get().kind().name().toLowerCase(Locale.getDefault()) +
+                    "'} removed}");
         }
     }
 
@@ -343,8 +377,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             project = SingleFileProject.load(projectRoot, options);
         }
         LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
-                                        "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
-                                        project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
+                "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
+                project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
         return ProjectPair.from(project);
     }
 
@@ -379,6 +413,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
         // Build Project
         Path parent = documentFilePath.getParent();
+        String filePathDocName = documentFilePath.getFileName().toString();
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             // TODO: Check whether this logic also works for Single File projects
             Optional<Path> modulePath = modulePath(moduleId, project);
@@ -387,15 +422,14 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                         || parent.equals(modulePath.get().resolve(ProjectConstants.TEST_DIR_NAME))) {
                     Module module = project.currentPackage().module(moduleId);
                     for (DocumentId documentId : module.documentIds()) {
-                        if (module.document(documentId).name().equals(
-                                documentFilePath.getFileName().toString())) {
+                        if (module.document(documentId).name().equals(filePathDocName)) {
                             return Optional.of(documentId);
                         }
                     }
 
                     for (DocumentId documentId : module.testDocumentIds()) {
-                        if (module.document(documentId).name().equals(
-                                documentFilePath.getFileName().toString())) {
+                        String docName = module.document(documentId).name();
+                        if (docName.equals(ProjectConstants.TEST_DIR_NAME + File.separator + filePathDocName)) {
                             return Optional.of(documentId);
                         }
                     }

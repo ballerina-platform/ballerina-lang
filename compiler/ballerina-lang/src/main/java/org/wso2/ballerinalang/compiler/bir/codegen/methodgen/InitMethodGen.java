@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -105,7 +105,7 @@ public class InitMethodGen {
         generateLambdaForModuleFunction(cw, MODULE_START, initClass);
 
         MethodVisitor mv = visitFunction(cw, MethodGenUtils
-                .calculateLambdaStopFuncName(MethodGenUtils.packageToModuleId(pkg)));
+                .calculateLambdaStopFuncName(pkg.packageID));
 
         invokeStopFunction(initClass, mv);
 
@@ -167,9 +167,9 @@ public class InitMethodGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, "()V", false);
         mv.visitVarInsn(ASTORE, 1);
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.org.value));
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.name.value));
-        mv.visitLdcInsn(module.version.value);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.packageID.orgName.getValue()));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.packageID.name.getValue()));
+        mv.visitLdcInsn(module.packageID.version.getValue());
         mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", VALUE_CREATOR), "addValueCreator",
                            String.format("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE,
@@ -181,18 +181,16 @@ public class InitMethodGen {
         MethodGenUtils.visitReturn(mv);
     }
 
-    public void addInitAndTypeInitInstructions(BIRNode.BIRPackage pkg, BIRNode.BIRFunction func) {
+    public void addInitAndTypeInitInstructions(PackageID packageID, BIRNode.BIRFunction func) {
         List<BIRNode.BIRBasicBlock> basicBlocks = new ArrayList<>();
         nextId = -1;
         BIRNode.BIRBasicBlock nextBB = new BIRNode.BIRBasicBlock(getNextBBId());
         basicBlocks.add(nextBB);
 
-        PackageID modID = MethodGenUtils.packageToModuleId(pkg);
-
         BIRNode.BIRBasicBlock typeOwnerCreateBB = new BIRNode.BIRBasicBlock(getNextBBId());
         basicBlocks.add(typeOwnerCreateBB);
 
-        nextBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modID,
+        nextBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, packageID,
                                                    new Name(CURRENT_MODULE_INIT),
                                                    new ArrayList<>(), null, typeOwnerCreateBB, Collections.emptyList(),
                                                    Collections.emptySet());
@@ -247,9 +245,8 @@ public class InitMethodGen {
             addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef, boolRef);
         }
 
-        PackageID currentModId = MethodGenUtils.packageToModuleId(pkg);
         String currentInitFuncName = MethodGenUtils.encodeModuleSpecialFuncName(initName);
-        BIRNode.BIRBasicBlock lastBB = addCheckedInvocation(modInitFunc, currentModId, currentInitFuncName, retVarRef,
+        BIRNode.BIRBasicBlock lastBB = addCheckedInvocation(modInitFunc, pkg.packageID, currentInitFuncName, retVarRef,
                                                             boolRef);
 
         lastBB.terminator = new BIRTerminator.Return(null);

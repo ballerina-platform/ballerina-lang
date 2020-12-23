@@ -24,11 +24,15 @@ type foo object {
 service foo on bar {
 
     @annot9 {
-    resource function getName() {
+    remote function getName() {
     }
 
     @annot10 {
     function getName() {
+    }
+
+    @annot11 {
+    resource function get Name() {
     }
 }
 

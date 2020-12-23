@@ -31,6 +31,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+
 /**
  * Push command tests.
  *
@@ -93,18 +95,7 @@ public class PushCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
-                "\tfoo/winery:0.1.0\n" +
-                "\n" +
-                "Creating balos\n" +
-                "\ttarget/balo/foo-winery-any-0.1.0.balo\n" +
-                "\n" +
-                "Running Tests\n\n" +
-                "\twinery\n" +
-                "\tNo tests found\n" +
-                "\n" +
-                "Generating executable\n" +
-                "\ttarget/bin/winery.jar\n");
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-bal-project.txt"));
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("balo").resolve("foo-winery-any-0.1.0.balo").toFile().exists());
 

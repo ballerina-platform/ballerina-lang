@@ -3,7 +3,7 @@
     "character": 4,
     "expected": [
         {
-            "title": "Create Variable with 'map<any>'",
+            "title": "Create variable with 'map<any>'",
             "edits": [
                 {
                     "range": {

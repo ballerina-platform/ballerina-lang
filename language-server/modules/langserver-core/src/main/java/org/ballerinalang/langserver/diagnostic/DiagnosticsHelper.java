@@ -107,7 +107,7 @@ public class DiagnosticsHelper {
                 modulePath = (moduleNamePart == null) ? projectRoot
                         : projectRoot.resolve("modules").resolve(moduleNamePart);
             }
-            Optional<ModuleCompilation> modCompilation = workspace.waitAndGetModuleCompilation(context.filePath());
+            Optional<ModuleCompilation> modCompilation = workspace.waitAndGetModuleCompilation(module);
             if (modCompilation.isEmpty()) {
                 continue;
             }
@@ -146,6 +146,8 @@ public class DiagnosticsHelper {
                     break;
                 case INFO:
                     diagnostic.setSeverity(DiagnosticSeverity.Information);
+                    break;
+                default:
                     break;
             }
 
