@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.commons;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.Token;
-import org.eclipse.lsp4j.Position;
 
 import java.util.List;
 
@@ -72,25 +71,4 @@ public interface BallerinaCompletionContext extends CompletionContext {
      * @return {@link List} of nodes
      */
     List<Node> getResolverChain();
-
-    /**
-     * Set the cursor position as an offset value according to the syntax tree.
-     *
-     * @param offset of the cursor
-     */
-    void setCursorPositionInTree(int offset);
-
-    /**
-     * Get the cursor position as an offset value according to the syntax tree.
-     *
-     * @return {@link Integer} offset of the cursor
-     */
-    int getCursorPositionInTree();
-
-    /**
-     * Get the cursor position where the auto completion request triggered.
-     *
-     * @return {@link Position} cursor position
-     */
-    Position getCursorPosition();
 }
