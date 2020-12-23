@@ -21,7 +21,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -33,14 +33,14 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class FailStatementNodeContext extends AbstractCompletionProvider<FailStatementNode> {
     public FailStatementNodeContext() {
         super(FailStatementNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, FailStatementNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FailStatementNode node)
             throws LSCompletionException {
         NonTerminalNode symbolAtCursor = context.getNodeAtCursor();
         if (symbolAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
