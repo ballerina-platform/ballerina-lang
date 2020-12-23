@@ -33,7 +33,6 @@ dependencies {
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-tool')
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
     implementation 'info.picocli:picocli'
@@ -41,6 +40,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.7'
     implementation project(':docerina')
     implementation project(':testerina:testerina-runtime')
+    implementation project(':maven-resolver')
     testCompile 'org.testng:testng'
     testCompile 'org.mockito:mockito-all'
     testImplementation 'org.powermock:powermock-mockito-release-full'
@@ -54,6 +54,8 @@ dependencies {
     balRt project(':ballerina-rt')
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-core')
 }
 
 task createTestDistributionCache(type: Copy) {
@@ -79,6 +81,19 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+}
+
+processResources {
+    include 'META-INF/services/*'
+    include '**/tool.properties'
+    include 'cli-help/*'
+    include 'create_cmd_templates/**'
+    include 'new_cmd_defaults/**'
+    include 'package_md_defaults/**'
+    filter { String line -> line.replace('${project.version}', "${project.version}")}
+    filter { String line -> line.replace('${short.version}', "${project.shortVersion}")}
+    filter { String line -> line.replace('${display.text}', "${project.versionDisplayText}")}
+    filter { String line -> line.replace('${spec.version}', "${project.specVersion}")}
 }
 
 description = 'Ballerina - CLI'

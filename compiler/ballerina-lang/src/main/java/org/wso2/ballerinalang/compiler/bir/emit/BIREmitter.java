@@ -17,10 +17,17 @@
  */
 package org.wso2.ballerinalang.compiler.bir.emit;
 
+import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +43,7 @@ import static org.wso2.ballerinalang.compiler.bir.emit.InstructionEmitter.emitIn
 import static org.wso2.ballerinalang.compiler.bir.emit.InstructionEmitter.emitTerminator;
 import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitType;
 import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitTypeRef;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getBooleanValueIfSet;
 
 /**
  * BIR module emitter which prints the BIR model to console.
@@ -46,6 +54,8 @@ public class BIREmitter {
 
     private static final CompilerContext.Key<BIREmitter> BIR_EMITTER = new CompilerContext.Key<>();
     private static final PrintStream console = System.out;
+    private boolean dumbBIR;
+    private final String dumpBIRFile;
 
     public static BIREmitter getInstance(CompilerContext context) {
 
@@ -60,11 +70,23 @@ public class BIREmitter {
     private BIREmitter(CompilerContext context) {
 
         context.put(BIR_EMITTER, this);
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
+        this.dumbBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
+        this.dumpBIRFile = compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE);
     }
 
-    public void emit(BIRNode.BIRPackage birPackage) {
-
-        console.println(emitModule(birPackage));
+    public BLangPackage emit(BLangPackage bLangPackage) {
+        if (dumbBIR) {
+            console.println(emitModule(bLangPackage.symbol.bir));
+        }
+        if (dumpBIRFile != null) {
+            try {
+                Files.write(Paths.get(dumpBIRFile), bLangPackage.symbol.birPackageFile.pkgBirBinaryContent);
+            } catch (IOException e) {
+                throw new BLangCompilerException("BIR file dumping failed", e);
+            }
+        }
+        return bLangPackage;
     }
 
     private String emitModule(BIRNode.BIRPackage mod) {
@@ -73,11 +95,11 @@ public class BIREmitter {
         modStr += emitLBreaks(1);
         modStr += "module";
         modStr += emitSpaces(1);
-        modStr += emitName(mod.org) + "/" + emitName(mod.name);
+        modStr += emitName(mod.packageID.orgName) + "/" + emitName(mod.packageID.name);
         modStr += emitSpaces(1);
         modStr += "v";
         modStr += emitSpaces(1);
-        modStr += emitName(mod.version) + ";";
+        modStr += emitName(mod.packageID.version) + ";";
         modStr += emitLBreaks(2);
         modStr += emitImports(mod.importModules);
         modStr += emitLBreaks(2);
@@ -105,13 +127,13 @@ public class BIREmitter {
     private String emitImport(BIRNode.BIRImportModule impMod) {
 
         String impStr = "import ";
-        impStr += emitName(impMod.org) + "/";
-        impStr += emitName(impMod.name);
-        if (!isEmpty(impMod.version)) {
+        impStr += emitName(impMod.packageID.orgName) + "/";
+        impStr += emitName(impMod.packageID.name);
+        if (!isEmpty(impMod.packageID.version)) {
             impStr += emitSpaces(1);
             impStr += "v";
             impStr += emitSpaces(1);
-            impStr += emitName(impMod.version);
+            impStr += emitName(impMod.packageID.version);
         }
         impStr += ";";
         return impStr;

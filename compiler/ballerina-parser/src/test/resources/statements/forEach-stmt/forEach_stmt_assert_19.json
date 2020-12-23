@@ -171,13 +171,7 @@
                       "kind": "MAPPING_BINDING_PATTERN",
                       "children": [
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -263,13 +257,7 @@
                                           "kind": "MAPPING_BINDING_PATTERN",
                                           "children": [
                                             {
-                                              "kind": "OPEN_BRACE_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "OPEN_BRACE_TOKEN"
                                             },
                                             {
                                               "kind": "LIST",
@@ -294,13 +282,7 @@
                                                       "children": [
                                                         {
                                                           "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "m",
-                                                          "trailingMinutiae": [
-                                                            {
-                                                              "kind": "WHITESPACE_MINUTIAE",
-                                                              "value": " "
-                                                            }
-                                                          ]
+                                                          "value": "m"
                                                         }
                                                       ]
                                                     }
@@ -353,25 +335,19 @@
                                   "value": " "
                                 }
                               ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "REST_BINDING_PATTERN",
-                          "children": [
-                            {
-                              "kind": "ELLIPSIS_TOKEN"
                             },
                             {
-                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "kind": "REST_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "h",
-                                  "trailingMinutiae": [
+                                  "kind": "ELLIPSIS_TOKEN"
+                                },
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "h"
                                     }
                                   ]
                                 }

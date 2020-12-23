@@ -1029,7 +1029,7 @@ public class Types {
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
                                              Set<TypePair> unresolvedTypes) {
-        if (hasIncompatibleIsolatedFlags(source, target)) {
+        if (hasIncompatibleIsolatedFlags(source, target) || hasIncompatibleTransactionalFlags(source, target)) {
             return false;
         }
 
@@ -1235,7 +1235,7 @@ public class Types {
 
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
                                               Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
-        if (hasIncompatibleIsolatedFlags(source, target)) {
+        if (hasIncompatibleIsolatedFlags(source, target) || hasIncompatibleTransactionalFlags(source, target)) {
             return false;
         }
 
@@ -1268,6 +1268,11 @@ public class Types {
 
     private boolean hasIncompatibleIsolatedFlags(BInvokableType source, BInvokableType target) {
         return Symbols.isFlagOn(target.flags, Flags.ISOLATED) && !Symbols.isFlagOn(source.flags, Flags.ISOLATED);
+    }
+
+    private boolean hasIncompatibleTransactionalFlags(BInvokableType source, BInvokableType target) {
+        return Symbols.isFlagOn(source.flags, Flags.TRANSACTIONAL) &&
+                !Symbols.isFlagOn(target.flags, Flags.TRANSACTIONAL);
     }
 
     public boolean isSameArrayType(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -3782,9 +3787,7 @@ public class Types {
             }
 
             BType firstParamType = func.type.paramTypes.get(0);
-            boolean isMatchingSignature = firstParamType.tag == TypeTags.OBJECT
-                    && types.isServiceObject((BObjectTypeSymbol) firstParamType.tsymbol);
-            return detachFound = isMatchingSignature;
+            return detachFound = isServiceObject(firstParamType);
         }
 
         private boolean checkAttachMethod(BAttachedFunction func) {
@@ -3798,18 +3801,22 @@ public class Types {
 
             // todo: change is unions are allowed as service type.
             BType firstParamType = func.type.paramTypes.get(0);
-            if (firstParamType.tag != TypeTags.OBJECT) {
-                return false;
-            }
-
-            if (!types.isServiceObject((BObjectTypeSymbol) firstParamType.tsymbol)) {
+            if (!isServiceObject(firstParamType)) {
                 return false;
             }
 
             BType secondParamType = func.type.paramTypes.get(1);
-            boolean sameType = types.isSameType(this.serviceNameType, secondParamType);
+            boolean sameType = types.isAssignable(secondParamType, this.serviceNameType);
             return attachFound = sameType;
 
+        }
+
+        private boolean isServiceObject(BType type) {
+            if (type.tag != TypeTags.OBJECT) {
+                return false;
+            }
+
+            return types.isServiceObject((BObjectTypeSymbol) type.tsymbol);
         }
     }
 }

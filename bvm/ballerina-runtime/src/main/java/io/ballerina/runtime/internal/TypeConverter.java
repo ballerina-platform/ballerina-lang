@@ -245,6 +245,9 @@ public class TypeConverter {
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
+                    if (TypeChecker.getType(inputValue) == memType) {
+                        return List.of(memType);
+                    }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, unresolvedValues));
                 }
                 break;
@@ -317,8 +320,8 @@ public class TypeConverter {
         Map<String, Type> targetFieldTypes = new HashMap<>();
         Type restFieldType = targetType.restFieldType;
 
-        for (Field field : targetType.getFields().values()) {
-            targetFieldTypes.put(field.getFieldName(), field.getFieldType());
+        for (Map.Entry<String, Field> field : targetType.getFields().entrySet()) {
+            targetFieldTypes.put(field.getKey(), field.getValue().getFieldType());
         }
 
         MapValueImpl sourceMapValueImpl = (MapValueImpl) sourceValue;

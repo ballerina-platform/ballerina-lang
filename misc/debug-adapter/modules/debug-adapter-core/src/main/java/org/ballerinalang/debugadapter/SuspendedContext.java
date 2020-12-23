@@ -26,6 +26,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
@@ -35,6 +36,7 @@ import org.ballerinalang.debugadapter.utils.PackageUtils;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
 /**
@@ -54,6 +56,7 @@ public class SuspendedContext {
     private int lineNumber;
     private Document document;
     private ClassLoaderReference classLoader;
+    private DebugExpressionCompiler debugCompiler;
 
     SuspendedContext(Project project, String projectRoot, VirtualMachineProxyImpl vm,
                      ThreadReferenceProxyImpl threadRef, StackFrameProxyImpl frame) {
@@ -135,6 +138,13 @@ public class SuspendedContext {
         }
     }
 
+    public DebugExpressionCompiler getDebugCompiler() {
+        if (debugCompiler == null) {
+            debugCompiler = new DebugExpressionCompiler(this);
+        }
+        return debugCompiler;
+    }
+
     public Optional<String> getFileName() {
         if (fileName == null) {
             Optional<Path> breakPointPath = getBreakPointSourcePath();
@@ -144,6 +154,10 @@ public class SuspendedContext {
             fileName = getFileNameFrom(breakPointPath.get());
         }
         return Optional.ofNullable(fileName);
+    }
+
+    public Optional<String> getFileNameWithExt() {
+        return getFileName().isEmpty() ? getFileName() : Optional.of(getFileName().get() + BAL_FILE_EXT);
     }
 
     public int getLineNumber() {

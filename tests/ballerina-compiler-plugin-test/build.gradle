@@ -15,8 +15,8 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
-apply from: "$rootDir/gradle/birTestableProject.gradle"
+apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
     balRuntime
@@ -53,35 +53,10 @@ dependencies {
     testRuntime project(':ballerina-lang:query')
     testRuntime project(':ballerina-lang:transaction')
     testRuntime 'org.slf4j:slf4j-jdk14'
-
-    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:future', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:integer', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:map', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:object', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:string', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:typedesc', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:runtime', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')
-    baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
 }
 
 description = 'Ballerina - Compiler plugin tests'
 
-task createBre(type: org.gradle.api.tasks.Copy) {
-    from configurations.balRuntime
-    into "$buildDir/bre/lib"
-}
 
 test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
@@ -95,8 +70,6 @@ test {
     afterSuite { suite, result ->
         result.exception?.printStackTrace()
     }
-
-    dependsOn createBre
 }
 
 configurations {

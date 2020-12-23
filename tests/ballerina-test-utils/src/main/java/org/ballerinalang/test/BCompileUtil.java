@@ -18,7 +18,7 @@
 package org.ballerinalang.test;
 
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
@@ -34,7 +34,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.UUID;
 
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
@@ -47,7 +46,6 @@ public class BCompileUtil {
 
     private static final Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath().normalize();
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath().normalize();
-    public static final String TEST_COMPILATION_CACHE_DIR_NAME = "test_compilation_cache";
 
     public static Project loadProject(String sourceFilePath) {
         Path sourcePath = Paths.get(sourceFilePath);
@@ -62,8 +60,7 @@ public class BCompileUtil {
         Project project = loadProject(sourceFilePath);
 
         Package currentPackage = project.currentPackage();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
         if (jBallerinaBackend.diagnosticResult().hasErrors()) {
             return new CompileResult(currentPackage, jBallerinaBackend);
         }
@@ -73,13 +70,16 @@ public class BCompileUtil {
         return compileResult;
     }
 
-    public static Project getProject(String sourceFilePath) {
-        Path sourcePath = Paths.get(sourceFilePath);
-        String sourceFileName = sourcePath.getFileName().toString();
-        Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
+    public static CompileResult compileWithoutInitInvocation(String sourceFilePath) {
+        Project project = loadProject(sourceFilePath);
 
-        Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        return ProjectLoader.loadProject(projectPath);
+        Package currentPackage = project.currentPackage();
+        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            return new CompileResult(currentPackage, jBallerinaBackend);
+        }
+
+        return new CompileResult(currentPackage, jBallerinaBackend);
     }
 
     public static CompileResult compileAndCacheBalo(String sourceFilePath) {
@@ -95,8 +95,7 @@ public class BCompileUtil {
         }
 
         Package currentPackage = project.currentPackage();
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
         if (jBallerinaBackend.diagnosticResult().hasErrors()) {
             return new CompileResult(currentPackage, jBallerinaBackend);
         }
@@ -108,6 +107,11 @@ public class BCompileUtil {
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
+    }
+
+    private static JBallerinaBackend jBallerinaBackend(Package currentPackage) {
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        return JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
     }
 
     /**
@@ -123,7 +127,8 @@ public class BCompileUtil {
                                                 String org,
                                                 String pkgName,
                                                 String version) throws IOException {
-        Path targetPath = baloCachePath(org, pkgName, version);
+        String baloFileName = ProjectUtils.getBaloName(org, pkgName, version, null);
+        Path targetPath = baloCachePath(org, pkgName, version).resolve(baloFileName);
         Files.copy(srcPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
@@ -159,8 +164,7 @@ public class BCompileUtil {
                     .resolve(pkgName)
                     .resolve(version);
             Files.createDirectories(baloDirPath);
-            String baloFileName = ProjectUtils.getBaloName(org, pkgName, version, null);
-            return baloDirPath.resolve(baloFileName);
+            return baloDirPath;
         } catch (IOException e) {
             throw new RuntimeException("error while creating the balo distribution cache directory at " +
                     testBuildDirectory, e);
@@ -177,8 +181,7 @@ public class BCompileUtil {
         }
 
         private static TestCompilationCache from(Project project) {
-            Path testCompilationCachePath = testBuildDirectory.resolve(TEST_COMPILATION_CACHE_DIR_NAME).
-                    resolve(UUID.randomUUID().toString());
+            Path testCompilationCachePath = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
             return new TestCompilationCache(project, testCompilationCachePath);
         }
     }

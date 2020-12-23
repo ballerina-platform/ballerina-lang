@@ -37,13 +37,7 @@
                   "kind": "MAPPING_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "OPEN_BRACE_TOKEN"
                     },
                     {
                       "kind": "LIST",
@@ -120,13 +114,7 @@
                   "kind": "MAPPING_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "OPEN_BRACE_TOKEN"
                     },
                     {
                       "kind": "LIST",
@@ -188,25 +176,19 @@
                               "value": " "
                             }
                           ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "REST_BINDING_PATTERN",
-                      "children": [
-                        {
-                          "kind": "ELLIPSIS_TOKEN"
                         },
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "REST_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "d",
-                              "trailingMinutiae": [
+                              "kind": "ELLIPSIS_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d"
                                 }
                               ]
                             }
@@ -285,34 +267,23 @@
                   "kind": "MAPPING_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "OPEN_BRACE_TOKEN"
                     },
                     {
                       "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "REST_BINDING_PATTERN",
                       "children": [
                         {
-                          "kind": "ELLIPSIS_TOKEN"
-                        },
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "REST_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "d",
-                              "trailingMinutiae": [
+                              "kind": "ELLIPSIS_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d"
                                 }
                               ]
                             }
@@ -391,13 +362,7 @@
                   "kind": "MAPPING_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "OPEN_BRACE_TOKEN"
                     },
                     {
                       "kind": "LIST",
@@ -444,13 +409,7 @@
                               "kind": "MAPPING_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "OPEN_BRACE_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
@@ -512,25 +471,19 @@
                                           "value": " "
                                         }
                                       ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "REST_BINDING_PATTERN",
-                                  "children": [
-                                    {
-                                      "kind": "ELLIPSIS_TOKEN"
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "REST_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "s",
-                                          "trailingMinutiae": [
+                                          "kind": "ELLIPSIS_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "s"
                                             }
                                           ]
                                         }
@@ -553,25 +506,19 @@
                               "value": " "
                             }
                           ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "REST_BINDING_PATTERN",
-                      "children": [
-                        {
-                          "kind": "ELLIPSIS_TOKEN"
                         },
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "REST_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "d",
-                              "trailingMinutiae": [
+                              "kind": "ELLIPSIS_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d"
                                 }
                               ]
                             }
@@ -650,13 +597,7 @@
                   "kind": "MAPPING_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "OPEN_BRACE_TOKEN"
                     },
                     {
                       "kind": "LIST",
@@ -743,21 +684,21 @@
                                           "value": " "
                                         }
                                       ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "REST_BINDING_PATTERN",
-                                  "children": [
-                                    {
-                                      "kind": "ELLIPSIS_TOKEN"
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "REST_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "s"
+                                          "kind": "ELLIPSIS_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "s"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -778,25 +719,19 @@
                               "value": " "
                             }
                           ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "REST_BINDING_PATTERN",
-                      "children": [
-                        {
-                          "kind": "ELLIPSIS_TOKEN"
                         },
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "kind": "REST_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "d",
-                              "trailingMinutiae": [
+                              "kind": "ELLIPSIS_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d"
                                 }
                               ]
                             }
@@ -947,13 +882,7 @@
                               "kind": "MAPPING_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "OPEN_BRACE_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
@@ -1036,13 +965,7 @@
                               "kind": "MAPPING_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "OPEN_BRACE_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
@@ -1104,25 +1027,19 @@
                                           "value": " "
                                         }
                                       ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "REST_BINDING_PATTERN",
-                                  "children": [
-                                    {
-                                      "kind": "ELLIPSIS_TOKEN"
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "REST_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "d",
-                                          "trailingMinutiae": [
+                                          "kind": "ELLIPSIS_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "d"
                                             }
                                           ]
                                         }
@@ -1207,34 +1124,23 @@
                               "kind": "MAPPING_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "OPEN_BRACE_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "REST_BINDING_PATTERN",
                                   "children": [
                                     {
-                                      "kind": "ELLIPSIS_TOKEN"
-                                    },
-                                    {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "REST_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "d",
-                                          "trailingMinutiae": [
+                                          "kind": "ELLIPSIS_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "d"
                                             }
                                           ]
                                         }
@@ -1319,13 +1225,7 @@
                               "kind": "MAPPING_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "OPEN_BRACE_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
@@ -1372,13 +1272,7 @@
                                           "kind": "MAPPING_BINDING_PATTERN",
                                           "children": [
                                             {
-                                              "kind": "OPEN_BRACE_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "OPEN_BRACE_TOKEN"
                                             },
                                             {
                                               "kind": "LIST",
@@ -1440,25 +1334,19 @@
                                                       "value": " "
                                                     }
                                                   ]
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "REST_BINDING_PATTERN",
-                                              "children": [
-                                                {
-                                                  "kind": "ELLIPSIS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "kind": "REST_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "s",
-                                                      "trailingMinutiae": [
+                                                      "kind": "ELLIPSIS_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                                      "children": [
                                                         {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "s"
                                                         }
                                                       ]
                                                     }
@@ -1481,25 +1369,19 @@
                                           "value": " "
                                         }
                                       ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "REST_BINDING_PATTERN",
-                                  "children": [
-                                    {
-                                      "kind": "ELLIPSIS_TOKEN"
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "REST_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "d",
-                                          "trailingMinutiae": [
+                                          "kind": "ELLIPSIS_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "d"
                                             }
                                           ]
                                         }
@@ -1584,13 +1466,7 @@
                               "kind": "MAPPING_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "OPEN_BRACE_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
                                   "kind": "LIST",
@@ -1677,21 +1553,21 @@
                                                       "value": " "
                                                     }
                                                   ]
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "REST_BINDING_PATTERN",
-                                              "children": [
-                                                {
-                                                  "kind": "ELLIPSIS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "kind": "REST_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "s"
+                                                      "kind": "ELLIPSIS_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                                      "children": [
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "s"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -1712,25 +1588,19 @@
                                           "value": " "
                                         }
                                       ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "REST_BINDING_PATTERN",
-                                  "children": [
-                                    {
-                                      "kind": "ELLIPSIS_TOKEN"
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "REST_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "d",
-                                          "trailingMinutiae": [
+                                          "kind": "ELLIPSIS_TOKEN"
+                                        },
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "d"
                                             }
                                           ]
                                         }

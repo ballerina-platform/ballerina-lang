@@ -3,7 +3,7 @@
     "character": 4,
     "expected": [
         {
-            "title": "Create Variable with 'int[]'",
+            "title": "Create variable with 'int[]'",
             "edits": [
                 {
                     "range": {

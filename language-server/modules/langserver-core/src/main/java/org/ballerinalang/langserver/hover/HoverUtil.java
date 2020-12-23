@@ -59,8 +59,8 @@ public class HoverUtil {
 
         Position cursorPosition = context.getCursorPosition();
         LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
-        Optional<Symbol> symbolAtCursor = semanticModel.get()
-                .symbol(context.filePath().getFileName().getFileName().toString(), linePosition);
+        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
+        Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(relPath, linePosition);
         if (symbolAtCursor.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }

@@ -77,8 +77,9 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'acceptObjectAndObjectReturn' with '3' " +
-                        "parameter(s) found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                "{ballerina/java}METHOD_NOT_FOUND 'No such public static method 'acceptObjectAndObjectReturn' with " +
+                        "'3' " + "parameter(s) found in class 'class org.ballerinalang.nativeimpl.jvm.tests" +
+                        ".StaticMethods''",
                 "method_not_found2.bal", 22, 1);
     }
 
@@ -92,8 +93,9 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/java}METHOD_NOT_FOUND 'No such public method 'acceptRecordAndRecordReturn' with '3' " +
-                        "parameter(s) found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                "{ballerina/java}METHOD_NOT_FOUND 'No such public static method 'acceptRecordAndRecordReturn' with " +
+                        "'3' " + "parameter(s) found in class 'class org.ballerinalang.nativeimpl.jvm.tests" +
+                        ".StaticMethods''",
                 "method_not_found3.bal", 21, 1);
     }
 
