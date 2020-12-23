@@ -44,7 +44,6 @@ public class BLangMatchClause extends BLangNode implements MatchClauseNode {
     public List<BLangMatchPattern> matchPatterns = new ArrayList<>();
     public BLangMatchGuard matchGuard;
     public BLangBlockStmt blockStmt;
-    public boolean hasLastPatternInClause;
     public BLangExpression expr; // This is used to keep the expression of match statement.
     public Map<String, BVarSymbol> declaredVars = new HashMap<>();
 
@@ -86,11 +85,6 @@ public class BLangMatchClause extends BLangNode implements MatchClauseNode {
     @Override
     public void addMatchPattern(MatchPatternNode matchPattern) {
         matchPatterns.add((BLangMatchPattern) matchPattern);
-    }
-
-    @Override
-    public boolean hasLastPatternInClause() {
-        return hasLastPatternInClause;
     }
 
     @Override

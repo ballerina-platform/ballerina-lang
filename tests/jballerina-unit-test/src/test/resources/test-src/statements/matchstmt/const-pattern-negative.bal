@@ -206,5 +206,3 @@ public function testNegative6(any animal) returns string { // this function must
         }
     }
 }
-
-
