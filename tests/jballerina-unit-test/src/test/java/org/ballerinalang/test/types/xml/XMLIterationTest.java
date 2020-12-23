@@ -64,40 +64,40 @@ public class XMLIterationTest {
                 " found 'function ([int,xml,string]) returns ()'", 18, 19);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:Element'",
-                25, 13);
+                29, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml:Element' is not an iterable collection",
-                25, 34);
+                29, 34);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| xml:Element value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
-                30, 54);
+                33, 54);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:Comment'",
-                37, 13);
+                40, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml:Comment' is not an iterable collection",
-                37, 34);
+                40, 34);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| xml:Comment value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
-                42, 54);
+                44, 54);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:ProcessingInstruction'",
-                49, 13);
+                51, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml:ProcessingInstruction' is not an iterable collection",
-                49, 48);
+                51, 48);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| xml:ProcessingInstruction value; |}?', " +
                         "found 'record {| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
-                54, 63);
+                55, 63);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
-                62, 13);
+                63, 13);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: '(xml:Element|xml:Text)' is not an iterable collection",
-                62, 44);
+                63, 44);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
                 68, 13);
@@ -107,11 +107,11 @@ public class XMLIterationTest {
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
-                73, 68);
+                72, 68);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'record {| (xml:Element|xml:Text) value; |}?', found 'record " +
                         "{| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
-                74, 68);
+                73, 68);
     }
 
     @Test
@@ -143,11 +143,11 @@ public class XMLIterationTest {
 
     @Test
     public void testXMLTypesForeachOp() {
-        BRunUtil.invoke(result, "xmlTypeParamElementIter");
-        BRunUtil.invoke(result, "xmlTypeParamTextIter");
-        BRunUtil.invoke(result, "xmlTypeParamCommentIter");
-        BRunUtil.invoke(result, "xmlTypeParamPIIter");
-        BRunUtil.invoke(result, "xmlTypeParamUnionIter");
+        BRunUtil.invoke(result, "testXmlElementSequenceIteration");
+        BRunUtil.invoke(result, "testXmlTextSequenceIteration");
+        BRunUtil.invoke(result, "testXmlCommentSequenceIteration");
+        BRunUtil.invoke(result, "testXmlPISequenceIteration");
+        BRunUtil.invoke(result, "testXmlUnionSequenceIteration");
     }
 
     @Test

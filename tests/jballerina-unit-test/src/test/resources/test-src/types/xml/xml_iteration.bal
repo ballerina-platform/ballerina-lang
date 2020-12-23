@@ -1,4 +1,3 @@
-import ballerina/io;
 import ballerina/lang.'int as intlib;
 
 // Sample XML taken from: https://www.w3schools.com/xml/books.xml
@@ -41,8 +40,8 @@ function foreachTest() returns [int, string][] {
     int i = 0;
     foreach var x in bookstore/<book> {
         titles[count] = [i, (x/<title>/*).toString()];
-        count +=1;
-        i +=1;
+        count += 1;
+        i += 1;
     }
 
     return titles;
@@ -118,6 +117,7 @@ function chainedIterableOps() returns xml {
 xml theXml = xml `<book>the book</book>`;
 xml bitOfText = xml `bit of text\u2702\u2705`;
 xml compositeXml = theXml + bitOfText;
+string output = "";
 
 xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <p:name>bob</p:name>
@@ -128,106 +128,104 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <q:ID>1131313</q:ID>
     </p:person>`;
 
+function concatString (string v) {
+    output += v + "\n";
+}
+
 function xmlSequenceIter() returns string {
-    string result = "";
+    output = "";
 
     foreach xml elem in compositeXml {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+        concatString(elem.toString());
     }
-    return result;
+    return output;
 }
 
 function xmlCharItemIter() returns string {
-    string result = "";
+    output = "";
     int i = 0;
     foreach xml elem in bitOfText {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+        concatString(elem.toString());
         i += 1;
     }
-    return result;
+    return output;
 }
 
-function xmlTypeParamElementIter() {
-    xml<'xml:Element> el1 = xml `<foo>foo</foo><bar/>`;
+function testXmlElementSequenceIteration() {
+    xml el = xml `<foo>foo</foo>`;
+    xml<'xml:Element> seq = <xml<'xml:Element>> el.concat(xml `<bar/>`);
 
-    string result = "";
-    foreach 'xml:Element elem in el1 {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+    output = "";
+    foreach 'xml:Element elem in seq {
+        concatString(elem.toString());
     }
-    assert(result, "<foo>foo</foo>\n");
+    assert(output, "<foo>foo</foo>\n<bar></bar>\n");
 
-    record {| 'xml:Element value; |}? nextElement1 = el1.iterator().next();
-    assert(result, "<foo>foo</foo>\n");
+    record {| 'xml:Element value; |}? nextElement1 = seq.iterator().next();
+    assert(nextElement1.toString(), "{\"value\":`<foo>foo</foo>`}");
 }
 
-function xmlTypeParamTextIter() {
+function testXmlTextSequenceIteration() {
     xml<'xml:Text> txt1 = xml `bit of text\u2702\u2705`;
     'xml:Text txt2 = xml `bit of text\u2702\u2705`;
 
-    string result = "";
+    output = "";
     foreach 'xml:Text elem in txt1 {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+        concatString(elem.toString());
     }
-    assert(result, "bit of text\\u2702\\u2705\n");
+    assert(output, "bit of text\\u2702\\u2705\n");
 
-    result = "";
+    output = "";
     foreach 'xml:Text elem in txt2 {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+        concatString(elem.toString());
     }
-    assert(result, "bit of text\\u2702\\u2705\n");
+    assert(output, "bit of text\\u2702\\u2705\n");
 
     record {| 'xml:Text value; |}? nextText1 = txt1.iterator().next();
-    assert(result, "bit of text\\u2702\\u2705\n");
+    assert(nextText1.toString(), "{\"value\":`bit of text\\u2702\\u2705`}");
 
     record {| 'xml:Text value; |}? nextText2 = txt2.iterator().next();
-    assert(result, "bit of text\\u2702\\u2705\n");
+    assert(nextText2.toString(), "{\"value\":`bit of text\\u2702\\u2705`}");
 }
 
-function xmlTypeParamCommentIter() {
+function testXmlCommentSequenceIteration() {
      xml<'xml:Comment> comment1 = xml `<!--I am a comment-->`;
 
-     string result = "";
+     output = "";
      foreach 'xml:Comment elem in comment1 {
-         string str = io:sprintf("%s\n", elem);
-         result += str;
+         concatString(elem.toString());
      }
-     assert(result, "");
+     assert(output, "");
 
      record {| 'xml:Comment value; |}? nextComment1 = comment1.iterator().next();
-     assert(result, "");
+     assert(nextComment1.toString(), "");
 }
 
-function xmlTypeParamPIIter() {
+function testXmlPISequenceIteration() {
      xml<'xml:ProcessingInstruction> pi1 = xml `<?target data?>`;
 
-     string result = "";
+     output = "";
      foreach 'xml:ProcessingInstruction elem in pi1 {
-         string str = io:sprintf("%s\n", elem);
-         result += str;
+         concatString(elem.toString());
      }
-     assert(result, "");
+     assert(output, "");
 
      record {| 'xml:ProcessingInstruction value; |}? nextPI1 = pi1.iterator().next();
-     assert(result, "");
+     assert(nextPI1.toString(), "");
 }
 
-function xmlTypeParamUnionIter() {
-    xml<'xml:Element|'xml:Text> el1 = xml `<foo>foo</foo><bar/>`;
+function testXmlUnionSequenceIteration() {
+    xml el = xml `<foo>foo</foo>`;
+    xml<'xml:Element|'xml:Text> seq = <xml<'xml:Element|'xml:Text>> el.concat(xml `<bar/>`);
 
-    string result = "";
-    foreach 'xml:Element|'xml:Text elem in el1 {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+    output = "";
+    foreach 'xml:Element|'xml:Text elem in seq {
+        concatString(elem.toString());
     }
-    assert(result, "<foo>foo</foo>\n");
+    assert(output, "<foo>foo</foo>\n<bar></bar>\n");
 
-    record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal1 = el1.iterator().next();
-    assert(result, "<foo>foo</foo>\n");
+    record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal1 = seq.iterator().next();
+    assert(nextUnionXMLVal1.toString(), "{\"value\":`<foo>foo</foo>`}");
 }
 
 function assert(anydata actual, anydata expected) {

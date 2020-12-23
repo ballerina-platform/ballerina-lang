@@ -69,6 +69,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXMLIteratorInvocation() {
+        BRunUtil.invoke(compileResult, "testXMLIteratorInvocation");
+    }
+
+    @Test
     public void testFromXml() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFromString");
         assertEquals(returns[0].stringValue(),

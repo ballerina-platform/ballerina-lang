@@ -397,6 +397,53 @@ function testElementChildrenNS() {
     assert(toNoNs.toString(), "<to>Irshad</to><to>Irshad</to>");
 }
 
+function testXMLIteratorInvocation() {
+    xml a = xml `<!--first-->`;
+    xml<'xml:Comment> seq1 = <xml<'xml:Comment>> a.concat(xml `<!--second-->`);
+
+    object {
+        public isolated function next() returns record {| 'xml:Comment value; |}?;
+    } iter1 = seq1.iterator();
+
+    assert((iter1.next()).toString(), "{\"value\":`<!--first-->`}");
+
+    xml b = xml `<one>first</one>`;
+    xml<'xml:Element> seq2 = <xml<'xml:Element>> b.concat(xml `<two>second</two>`);
+
+    object {
+            public isolated function next() returns record {| 'xml:Element value; |}?;
+    } iter2 = seq2.iterator();
+
+    assert((iter2.next()).toString(), "{\"value\":`<one>first</one>`}");
+
+    xml c = xml `bit of text1`;
+    xml<'xml:Text> seq3 = <xml<'xml:Text>> c.concat(xml ` bit of text2`);
+
+    object {
+        public isolated function next() returns record {| 'xml:Text value; |}?;
+    } iter3 = seq3.iterator();
+
+    assert((iter3.next()).toString(), "{\"value\":`bit of text1`}");
+
+    xml d = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
+    xml<'xml:ProcessingInstruction> seq4 = <xml<'xml:ProcessingInstruction>> d.concat(xml `<?pi-node type="cont"?>`);
+
+    object {
+        public isolated function next() returns record {| 'xml:ProcessingInstruction value; |}?;
+    } iter4 = seq4.iterator();
+
+    assert((iter4.next()).toString(), "{\"value\":`<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>`}");
+
+    xml e = xml `<one>first</one>`;
+    xml<'xml:Element|'xml:Text> seq5 = <xml<'xml:Element|'xml:Text>> e.concat(xml `<two>second</two>`);
+
+    object {
+        public isolated function next() returns record {| 'xml:Element|'xml:Text value; |}?;
+    } iter5 = seq5.iterator();
+
+    assert((iter5.next()).toString(), "{\"value\":`<one>first</one>`}");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

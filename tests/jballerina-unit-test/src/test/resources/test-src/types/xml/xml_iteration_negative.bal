@@ -1,5 +1,3 @@
-import ballerina/io;
-
 xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
                     <p:name>bob</p:name>
                     <p:address>
@@ -8,6 +6,8 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
                     </p:address>
                     <q:ID>1131313</q:ID>
                   </p:person>`;
+
+string result = "";
 
 function testExcessVars() {
     foreach var [i, x, y] in xdata {
@@ -18,13 +18,16 @@ function testExcessVarsIterableOp() {
     xdata.forEach(function ([int, xml, string] entry) {});
 }
 
+function concatString (string v) {
+    result += v + " ";
+}
+
 function xmlTypeParamElementIter() {
     'xml:Element el2 = xml `<foo>foo</foo><bar/>`;
 
-    string result = "";
+    result = "";
     foreach 'xml:Element elem in el2 {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+        concatString(elem.toString());
     }
 
     record {| 'xml:Element value; |}? nextElement2 = el2.iterator().next();
@@ -33,10 +36,9 @@ function xmlTypeParamElementIter() {
 function xmlTypeParamCommentIter() {
     'xml:Comment comment2 = xml `<!--I am a comment-->`;
 
-    string result = "";
+    result = "";
     foreach 'xml:Comment elem in comment2 {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+        concatString(elem.toString());
     }
 
     record {| 'xml:Comment value; |}? nextComment2 = comment2.iterator().next();
@@ -45,10 +47,9 @@ function xmlTypeParamCommentIter() {
 function xmlTypeParamPIIter() {
     'xml:ProcessingInstruction pi2 = xml `<?target data?>`;
 
-    string result = "";
+    result = "";
     foreach 'xml:ProcessingInstruction elem in pi2 {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+        concatString(elem.toString());
     }
 
     record {| 'xml:ProcessingInstruction value; |}? nextPI2 = pi2.iterator().next();
@@ -58,16 +59,14 @@ function xmlTypeParamUnionIter() {
     'xml:Element|'xml:Text el2 = xml `<foo>foo</foo><bar/>`;
     xml<'xml:Element>|xml<'xml:Text> el3 = xml `<foo>foo</foo><bar/>`;
 
-    string result = "";
+    result = "";
     foreach 'xml:Element|'xml:Text elem in el2 {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+        concatString(elem.toString());
     }
 
     result = "";
     foreach 'xml:Element|'xml:Text elem in el3 {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+        concatString(elem.toString());
     }
 
     record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal2 = el2.iterator().next();
