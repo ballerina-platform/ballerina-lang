@@ -16,17 +16,16 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -50,10 +49,10 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, TypeParameterNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, TypeParameterNode node)
             throws LSCompletionException {
-        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
-        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode refNode = ((QualifiedNameReferenceNode) nodeAtCursor);
@@ -66,8 +65,11 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
                 (2) xml<mod:x*cursor*>
                  */
                 Predicate<Symbol> predicate = (symbol -> {
-                    Optional<TypeDescKind> typeDescKind = SymbolUtil.getTypeKind(symbol);
-                    return typeDescKind.isPresent() && typeDescKind.get() == TypeDescKind.XML;
+                    if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
+                        return false;
+                    }
+                    Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+                    return typeDescriptor.isPresent() && typeDescriptor.get().typeKind().isXMLType();
                 });
                 moduleContent = QNameReferenceUtil.getModuleContent(context, refNode, predicate);
             } else {
@@ -93,8 +95,11 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
             // modules and the xml sub types are suggested
             List<Symbol> xmlSubTypes = visibleSymbols.stream()
                     .filter(symbol -> {
-                        Optional<TypeDescKind> typeDescKind = SymbolUtil.getTypeKind(symbol);
-                        return typeDescKind.isPresent() && typeDescKind.get() == TypeDescKind.XML;
+                        if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
+                            return false;
+                        }
+                        Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+                        return typeDescriptor.isPresent() && typeDescriptor.get().typeKind().isXMLType();
                     })
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(xmlSubTypes, context));
@@ -111,8 +116,8 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
     }
 
     @Override
-    public boolean onPreValidation(LSContext context, TypeParameterNode node) {
-        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+    public boolean onPreValidation(CompletionContext context, TypeParameterNode node) {
+        int cursor = context.getCursorPositionInTree();
         int gtToken = node.gtToken().textRange().endOffset();
         int ltToken = node.ltToken().textRange().startOffset();
 

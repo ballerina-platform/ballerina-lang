@@ -14,7 +14,7 @@ public function foo() {
 
         function getName();
 
-        public remote function get();
+        remote function get();
 
         object {
             *A;

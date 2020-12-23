@@ -1,0 +1,8 @@
+[package]
+org = "intg_tests"
+name = "metrics_tests"
+version = "0.0.1"
+
+
+[[platform.java11.dependency]]
+path = "../../../../../../observability-test-utils/build/libs/observability-test-utils.jar"

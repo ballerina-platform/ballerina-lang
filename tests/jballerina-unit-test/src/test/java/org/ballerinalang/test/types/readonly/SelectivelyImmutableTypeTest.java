@@ -18,13 +18,13 @@
 
 package org.ballerinalang.test.types.readonly;
 
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -63,7 +63,7 @@ public class SelectivelyImmutableTypeTest {
                 "'PersonalDetails'", 60, 18);
         validateError(result, index++, "incompatible types: expected '(A|B|(any & readonly))', found 'Obj'", 78, 26);
         validateError(result, index++, "incompatible types: expected 'anydata & readonly', found 'string[]'", 81, 28);
-        validateError(result, index++, "incompatible types: expected 'any & readonly', found 'future'", 83, 30);
+        validateError(result, index++, "incompatible types: expected 'any & readonly', found 'future'", 83, 24);
         validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'string[]'",
                       85, 32);
         validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +

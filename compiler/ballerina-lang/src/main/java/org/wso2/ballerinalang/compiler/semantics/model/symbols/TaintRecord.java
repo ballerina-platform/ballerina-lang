@@ -18,8 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 
 import java.util.ArrayList;
 import java.util.List;

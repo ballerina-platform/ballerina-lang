@@ -19,18 +19,16 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,8 +38,6 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
-import static org.ballerinalang.compiler.CompilerPhase.COMPILER_PLUGIN;
-import static org.ballerinalang.test.util.BCompileUtil.compile;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -53,14 +49,11 @@ import static org.testng.Assert.assertTrue;
 public class ClassSymbolTest {
 
     private SemanticModel model;
-    private String fileName = "class_symbols_test.bal";
+    private final String fileName = "class_symbols_test.bal";
 
     @BeforeClass
     public void setup() {
-        CompilerContext context = new CompilerContext();
-        CompileResult result = compile("test-src/class_symbols_test.bal", context, COMPILER_PLUGIN);
-        BLangPackage pkg = (BLangPackage) result.getAST();
-        model = new BallerinaSemanticModel(pkg, context);
+        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/class_symbols_test.bal");
     }
 
     @Test
@@ -128,5 +121,14 @@ public class ClassSymbolTest {
                 {42, 13, "Person2"},
                 {42, 21, "Person2"},
         };
+    }
+
+    @Test
+    public void testDistinctClasses() {
+        Symbol symbol = model.symbol(fileName, LinePosition.from(45, 15)).get();
+        ClassSymbol clazz = (ClassSymbol) symbol;
+        assertEquals(clazz.typeKind(), OBJECT);
+        assertEquals(clazz.kind(), CLASS);
+        assertTrue(clazz.qualifiers().contains(Qualifier.DISTINCT));
     }
 }

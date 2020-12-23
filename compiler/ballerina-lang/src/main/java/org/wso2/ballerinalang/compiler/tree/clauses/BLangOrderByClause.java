@@ -36,7 +36,6 @@ public class BLangOrderByClause extends BLangNode implements OrderByClauseNode {
     public List<OrderKeyNode> orderByKeyList = new ArrayList<>();
 
     public BLangOrderByClause() {
-
     }
 
     @Override

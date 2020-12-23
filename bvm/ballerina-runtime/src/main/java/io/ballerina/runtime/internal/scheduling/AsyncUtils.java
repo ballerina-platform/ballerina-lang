@@ -68,7 +68,7 @@ public class AsyncUtils {
                                                          Scheduler scheduler) {
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
-            public void notifySuccess() {
+            public void notifySuccess(Object result) {
                 setReturnValues(resultHandleFunction.apply(getFutureResult()));
             }
 
@@ -141,7 +141,7 @@ public class AsyncUtils {
                                              Supplier<Object> returnValueSupplier, Scheduler scheduler) {
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
-            public void notifySuccess() {
+            public void notifySuccess(Object result) {
                 futureResultConsumer.accept(getFutureResult());
                 if (callCount.incrementAndGet() != noOfIterations) {
                     scheduleNextFunction(func, strand, strandName, metadata, noOfIterations, callCount, argsSupplier,

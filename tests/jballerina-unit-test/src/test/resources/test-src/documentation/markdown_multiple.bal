@@ -38,19 +38,19 @@ type Employee record {
 };
 
 # PizzaService HTTP Service
-service PizzaService on new test:MockListener(9090){
+service /PizzaService on new test:MockListener(9090){
 
     # Check orderPizza resource.
     # + conn - connection.
     # + req - In request.
-    resource function orderPizza(string conn, string req) {
+    resource function get orderPizza(string conn, string req) {
 
     }
 
     # Check status resource.
     # + conn - connection.
     # + req - In request.
-    resource function checkStatus(string conn, string req) {
+    resource function get checkStatus(string conn, string req) {
 
     }
 }

@@ -177,6 +177,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -1005,5 +1006,9 @@ public class TreeBuilder {
 
     public static BLangObjectConstructorExpression createObjectCtorExpression() {
         return new BLangObjectConstructorExpression();
+    }
+
+    public static FunctionNode createResourceFunctionNode() {
+        return new BLangResourceFunction();
     }
 }

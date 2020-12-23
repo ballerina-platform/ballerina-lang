@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -26,9 +27,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Represents a ballerina type definition implementation.
@@ -37,18 +38,18 @@ import java.util.Set;
  */
 public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements TypeDefinitionSymbol {
 
-    private final Set<Qualifier> qualifiers;
+    private final List<Qualifier> qualifiers;
     private final TypeSymbol typeDescriptor;
     private final boolean deprecated;
     private final boolean readonly;
 
     protected BallerinaTypeDefinitionSymbol(String name,
                                             PackageID moduleID,
-                                            Set<Qualifier> qualifiers,
+                                            List<Qualifier> qualifiers,
                                             TypeSymbol typeDescriptor,
                                             BSymbol bSymbol) {
-        super(name, moduleID, SymbolKind.TYPE, bSymbol);
-        this.qualifiers = Collections.unmodifiableSet(qualifiers);
+        super(name, moduleID, SymbolKind.TYPE_DEFINITION, bSymbol);
+        this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
         this.readonly = Symbols.isFlagOn(bSymbol.flags, Flags.READONLY);
@@ -60,7 +61,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
     }
 
     @Override
-    public Set<Qualifier> qualifiers() {
+    public List<Qualifier> qualifiers() {
         return qualifiers;
     }
 
@@ -79,6 +80,11 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
         return this.readonly;
     }
 
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return Collections.emptyList();
+    }
+
     /**
      * Represents a type definition symbol builder.
      *
@@ -86,11 +92,11 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
      */
     public static class TypeDefSymbolBuilder extends SymbolBuilder<TypeDefSymbolBuilder> {
 
-        protected Set<Qualifier> qualifiers = new HashSet<>();
+        protected List<Qualifier> qualifiers = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
         public TypeDefSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
-            super(name, moduleID, SymbolKind.TYPE, symbol);
+            super(name, moduleID, SymbolKind.TYPE_DEFINITION, symbol);
         }
 
         public TypeDefSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {

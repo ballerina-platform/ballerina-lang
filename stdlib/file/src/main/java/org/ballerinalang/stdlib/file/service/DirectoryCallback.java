@@ -31,7 +31,7 @@ public class DirectoryCallback implements Callback {
     private static final Logger log = LoggerFactory.getLogger(DirectoryCallback.class);
 
     @Override
-    public void notifySuccess() {
+    public void notifySuccess(Object result) {
         log.debug("File Listener: event deliver successfully.");
     }
 

@@ -15,13 +15,9 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
@@ -41,8 +37,8 @@ import java.util.List;
  * @since 1.1.1
  */
 public abstract class AbstractCodeActionProvider implements LSCodeActionProvider {
-    private List<CodeActionNodeType> codeActionNodeTypes;
-    private final boolean isNodeTypeBased;
+    protected List<CodeActionNodeType> codeActionNodeTypes;
+    protected boolean isNodeTypeBased;
 
     @Override
     public boolean isEnabled() {
@@ -70,9 +66,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(NonTerminalNode matchedNode, CodeActionNodeType matchedNodeType,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -80,10 +74,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    PositionDetails positionDetails,
-                                                    List<Diagnostic> allDiagnostics, SyntaxTree syntaxTree,
-                                                    LSContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -126,33 +117,5 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
                 new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
         action.setDiagnostics(diagnostics);
         return action;
-    }
-
-    /**
-     * Allows convenient transformation of ImportDeclarationNode node model representation for org-name, module-name,
-     * version and alias.
-     */
-    protected static class ImportModel {
-        private static final String ORG_SEPARATOR = "/";
-        protected final String orgName;
-        protected final String moduleName;
-        protected final String version;
-        protected final String alias;
-
-        private ImportModel(String orgName, String moduleName, String alias, String version) {
-            this.orgName = orgName;
-            this.moduleName = moduleName;
-            this.alias = alias;
-            this.version = version;
-        }
-
-        static ImportModel from(ImportDeclarationNode importPkg) {
-            String orgName = importPkg.orgName().isPresent() ? importPkg.orgName().get().orgName() + ORG_SEPARATOR : "";
-            StringBuilder pkgNameBuilder = new StringBuilder();
-            importPkg.moduleName().forEach(pkgNameBuilder::append);
-            String pkgName = pkgNameBuilder.toString();
-            String alias = importPkg.prefix().isEmpty() ? "" : importPkg.prefix().get().prefix().text();
-            return new ImportModel(orgName, pkgName, alias, "");
-        }
     }
 }

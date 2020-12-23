@@ -20,7 +20,6 @@ package io.ballerina.runtime.observability;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.metrics.Tag;
 import io.ballerina.runtime.observability.tracer.BSpan;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,8 +45,6 @@ import static io.ballerina.runtime.observability.tracer.TraceConstants.TAG_KEY_H
  */
 public class TracingUtils {
 
-    private static final String SEPARATOR = ":";
-
     private TracingUtils() {
     }
 
@@ -59,16 +56,12 @@ public class TracingUtils {
      */
     public static void startObservation(ObserverContext observerContext, boolean isClient) {
         BSpan span = new BSpan(observerContext, isClient);
-        span.setServiceName(observerContext.getServiceName() != null ?
-                observerContext.getServiceName() : ObservabilityConstants.UNKNOWN_SERVICE);
+        span.setServiceName(observerContext.getServiceName());
 
+        span.setOperationName(observerContext.getOperationName());
         if (isClient) {
-            span.setOperationName(StringUtils.isNotEmpty(observerContext.getObjectName())
-                    ? observerContext.getObjectName() + SEPARATOR + observerContext.getFunctionName()
-                    : observerContext.getFunctionName());
             observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, span.getProperties());
         } else {
-            span.setOperationName(observerContext.getResourceName());
             Map<String, String> httpHeaders =
                     (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
 
@@ -115,9 +108,10 @@ public class TracingUtils {
             if (statusCode != null && statusCode >= 100) {
                 span.addTags(Collections.singletonMap(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(statusCode)));
             }
-            span.addTags(observerContext.getAllTags()
+            Map<String, String> traceTags = observerContext.getAllTags()
                     .stream()
-                    .collect(Collectors.toMap(Tag::getKey, Tag::getValue)));
+                    .collect(Collectors.toMap(Tag::getKey, Tag::getValue));
+            span.addTags(traceTags);
             span.finishSpan();
         }
     }

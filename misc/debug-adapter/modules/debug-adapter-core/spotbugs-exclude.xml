@@ -29,6 +29,13 @@
             <And>
                 <Bug pattern="REC_CATCH_EXCEPTION"/>
             </And>
+            <And>
+                <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+                <And>
+                    <Class name="org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler"/>
+                    <Method name="validateForCompilationErrors"/>
+                </And>
+            </And>
         </Or>
     </Match>
 </FindBugsFilter>

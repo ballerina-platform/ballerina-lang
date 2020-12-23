@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -26,10 +27,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Represents a ballerina variable.
@@ -38,18 +38,21 @@ import java.util.Set;
  */
 public class BallerinaVariableSymbol extends BallerinaSymbol implements VariableSymbol {
 
-    private final Set<Qualifier> qualifiers;
+    private final List<Qualifier> qualifiers;
+    private final List<AnnotationSymbol> annots;
     private final TypeSymbol typeDescriptorImpl;
     private final boolean deprecated;
 
     protected BallerinaVariableSymbol(String name,
                                       PackageID moduleID,
                                       SymbolKind ballerinaSymbolKind,
-                                      Set<Qualifier> qualifiers,
+                                      List<Qualifier> qualifiers,
+                                      List<AnnotationSymbol> annots,
                                       TypeSymbol typeDescriptorImpl,
                                       BSymbol bSymbol) {
         super(name, moduleID, ballerinaSymbolKind, bSymbol);
-        this.qualifiers = Collections.unmodifiableSet(qualifiers);
+        this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.annots = Collections.unmodifiableList(annots);
         this.typeDescriptorImpl = typeDescriptorImpl;
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
     }
@@ -60,7 +63,7 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
      * @return {@link List} of access modifiers
      */
     @Override
-    public Set<Qualifier> qualifiers() {
+    public List<Qualifier> qualifiers() {
         return qualifiers;
     }
 
@@ -79,12 +82,18 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
         return this.deprecated;
     }
 
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return this.annots;
+    }
+
     /**
      * Represents Ballerina XML Namespace Symbol Builder.
      */
     public static class VariableSymbolBuilder extends SymbolBuilder<VariableSymbolBuilder> {
 
-        protected Set<Qualifier> qualifiers = new HashSet<>();
+        protected List<Qualifier> qualifiers = new ArrayList<>();
+        protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
         public VariableSymbolBuilder(String name, PackageID moduleID, BSymbol bSymbol) {
@@ -93,12 +102,8 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
 
         @Override
         public BallerinaVariableSymbol build() {
-            return new BallerinaVariableSymbol(this.name,
-                    this.moduleID,
-                    this.ballerinaSymbolKind,
-                    this.qualifiers,
-                    this.typeDescriptor,
-                    this.bSymbol);
+            return new BallerinaVariableSymbol(this.name, this.moduleID, this.ballerinaSymbolKind, this.qualifiers,
+                                               this.annots, this.typeDescriptor, this.bSymbol);
         }
 
         public VariableSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
@@ -108,6 +113,11 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
 
         public VariableSymbolBuilder withQualifier(Qualifier qualifier) {
             this.qualifiers.add(qualifier);
+            return this;
+        }
+
+        public VariableSymbolBuilder withAnnotation(AnnotationSymbol annot) {
+            this.annots.add(annot);
             return this;
         }
     }

@@ -11,10 +11,10 @@
         },
         "end":{
           "line":73,
-          "character":30
+          "character":29
         }
       },
-        "newText":"mapHomeToBoardingPlace(home_1);"
+        "newText":"mapHomeToBoardingPlace(home_1)"
       },
       {"range":{
         "start":{

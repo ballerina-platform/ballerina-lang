@@ -15,8 +15,9 @@
  */
 package org.ballerinalang.debugadapter.cmd;
 
-import org.ballerinalang.tool.BLauncherCmd;
-import org.ballerinalang.tool.LauncherUtils;
+import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.LauncherUtils;
+import org.ballerinalang.debugadapter.DebugAdapterLauncher;
 import picocli.CommandLine;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.List;
  */
 @CommandLine.Command(name = "start-debugger-adapter", description = "start Ballerina Debug adapter")
 public class DebugAdapterStartCmd implements BLauncherCmd {
+
     private static final String CMD_NAME = "start-debugger-adapter";
     private static final String BALLERINA_HOME;
 
@@ -50,7 +52,7 @@ public class DebugAdapterStartCmd implements BLauncherCmd {
 
             // Start Debug Adaptor
             String[] args = (argList != null) ? argList.toArray(new String[0]) : new String[]{};
-            org.ballerinalang.debugadapter.launcher.Launcher.main(args);
+            DebugAdapterLauncher.main(args);
         } catch (Throwable e) {
             throw LauncherUtils.createLauncherException("Could not start debug adaptor");
         }

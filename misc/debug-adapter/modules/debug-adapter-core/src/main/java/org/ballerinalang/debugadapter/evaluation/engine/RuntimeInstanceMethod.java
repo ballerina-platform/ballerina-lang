@@ -23,9 +23,7 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,18 +31,12 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class RuntimeInstanceMethod extends JvmMethod {
+public class RuntimeInstanceMethod extends RuntimeMethod {
 
     private final Value objectValueRef;
 
     public RuntimeInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef) {
         super(context, methodRef);
-        this.objectValueRef = objectRef;
-    }
-
-    public RuntimeInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef,
-                                 List<Evaluator> argEvaluators, List<Value> argsList) {
-        super(context, methodRef, argEvaluators, argsList);
         this.objectValueRef = objectRef;
     }
 
@@ -63,30 +55,6 @@ public class RuntimeInstanceMethod extends JvmMethod {
                     methodRef.name()));
         } catch (EvaluationException e) {
             throw e;
-        } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
-                    methodRef.name()));
-        }
-    }
-
-    @Override
-    protected List<Value> getMethodArgs(JvmMethod method) throws EvaluationException {
-        try {
-            if (argValues == null && argEvaluators == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR
-                        .getString(), methodRef.name()));
-            }
-            if (argValues != null) {
-                return argValues;
-            }
-            List<Value> argValueList = new ArrayList<>();
-            // Evaluates all function argument expressions at first.
-            for (Evaluator argEvaluator : argEvaluators) {
-                argValueList.add(argEvaluator.evaluate().getJdiValue());
-                // Assuming all the arguments are positional args.
-                argValueList.add(EvaluationUtils.make(context, true).getJdiValue());
-            }
-            return argValueList;
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
                     methodRef.name()));

@@ -1027,6 +1027,35 @@ function testToJsonWithTable() {
     ];
     json j = tb.toJson();
     assert(j.toJsonString(), "[{\"id\":12, \"str\":\"abc\"}, {\"id\":34, \"str\":\"def\"}]");
+
+    table<map<anydata>> tab1 = table [
+          {id: 12, name: "abc"},
+          {id: 34, name: "def"}
+    ];
+    json j1 = tab1.toJson();
+    assert(j1.toJsonString(), "[{\"id\":12, \"name\":\"abc\"}, {\"id\":34, \"name\":\"def\"}]");
+
+    table<map<string>> tab2 = table [
+          {fname: "John", lname: "Wick"},
+          {fname: "Robert", lname: "Downey"}
+    ];
+    json j2 = tab2.toJson();
+    assert(j2.toJsonString(), "[{\"fname\":\"John\", \"lname\":\"Wick\"}, {\"fname\":\"Robert\", " +
+    "\"lname\":\"Downey\"}]");
+
+    table<map<any>> tab3 = table [
+          {id: 12, name: "abc"},
+          {id: 34, name: "def"}
+    ];
+    json j3 = tab3.toJson();
+    assert(j3.toJsonString(), "[{\"id\":12, \"name\":\"abc\"}, {\"id\":34, \"name\":\"def\"}]");
+
+    table<map<Boo>> tab4 = table [
+          {info: {id: 12, str: "abc"}},
+          {info: {id: 12, str: "abc"}}
+    ];
+    json j4 = tab4.toJson();
+    assert(j4.toJsonString(), "[{\"info\":{\"id\":12, \"str\":\"abc\"}}, {\"info\":{\"id\":12, \"str\":\"abc\"}}]");
 }
 
 function testToStringOnCycles() {
@@ -1244,4 +1273,42 @@ function testEnsureTypeNegative() {
     assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'float[]'\")", e4.toString());
     assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: '()' cannot be cast to 'int'\")", e5.toString());
     assertEquality("error(\"{ballerina/lang.map}KeyNotFound\",message=\"Key 'children' not found in JSON mapping\")", e6.toString());
+}
+
+type OpenRecordWithUnionTarget record {|
+    string|decimal...;
+|};
+
+function tesFromJsonWithTypeMapWithDecimal() {
+    map<json> mp = {
+        name: "foo",
+        factor: 1.23d
+    };
+    var or = mp.fromJsonWithType(OpenRecordWithUnionTarget);
+
+    if (or is error) {
+        panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
+    }
+
+    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget>or;
+    assertEquality(castedValue["factor"], mp["factor"]);
+    assertEquality(castedValue["name"], mp["name"]);
+}
+
+public type Maps record {|int i; int...;|}|record {|int i?;|};
+
+public type Value record {|
+    Maps value;
+|};
+
+public function testConvertJsonToAmbiguousType() {
+    json j = {"value": <map<int>> {i: 1}};
+    Value|error res = j.cloneWithType(Value);
+
+    if res is error {
+        assertEquality("'map<json>' value cannot be converted to 'Value'", res.detail()["message"]);
+        return;
+    }
+
+    panic error("Invalid respone.", message = "Expected error");
 }

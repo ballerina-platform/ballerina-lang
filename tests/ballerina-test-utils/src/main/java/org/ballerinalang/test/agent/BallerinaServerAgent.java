@@ -77,10 +77,6 @@ public class BallerinaServerAgent {
     private static String agentHost = DEFAULT_AGENT_HOST;
     private static int agentPort = DEFAULT_AGENT_PORT;
 
-    public BallerinaServerAgent() {
-
-    }
-
     /**
      * This method will be called before invoking ballerina Main method.
      *
@@ -118,7 +114,7 @@ public class BallerinaServerAgent {
                         cc.addField(CtField.make("boolean agentStarted;", cc));
 
                         CtMethod m = cc.getDeclaredMethod("start");
-                        m.insertBefore("if (!agentStarted && immortal) {" +
+                        m.insertBefore("if (!agentStarted) {" +
                                 "org.ballerinalang.test.agent.BallerinaServerAgent.startAgentServer();" +
                                 "agentStarted = true;" +
                                 " }");

@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -51,11 +51,11 @@ public class StringTemplateLiteralNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid token 'return'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid token 's'", 4, 74);
+        BAssertUtil.validateError(resultNegative, index++, "invalid escape sequence '\\l'", 10, 24);
         BAssertUtil.validateError(resultNegative, index++, "missing plus token", 10, 24);
-        BAssertUtil.validateError(resultNegative, index++, "undefined symbol 'He'", 10, 24);
-        BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 26);
+        BAssertUtil.validateError(resultNegative, index++, "undefined symbol 'He\\llo'", 10, 24);
+        BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 31);
         BAssertUtil.validateError(resultNegative, index++, "invalid token '$'", 10, 33);
-        BAssertUtil.validateError(resultNegative, index++, "invalid token '\\llo'", 10, 33);
         BAssertUtil.validateError(resultNegative, index++, "unknown type 'name'", 10, 34);
         BAssertUtil.validateError(resultNegative, index++, "missing identifier", 10, 38);
         BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 38);

@@ -17,26 +17,18 @@
 package org.ballerinalang.langserver.extensions.ballerina.traces;
 
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.trace.TraceRecord;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of Ballerina Traces extension for Language Server.
  */
 public class BallerinaTraceServiceImpl implements BallerinaTraceService {
-    private static final Logger logger = LoggerFactory.getLogger(BallerinaTraceServiceImpl.class);
 
     private final BallerinaLanguageServer ballerinaLanguageServer;
-    private final WorkspaceDocumentManager documentManager;
 
-    public BallerinaTraceServiceImpl(LSGlobalContext globalContext) {
-        this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
-        this.documentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
+    public BallerinaTraceServiceImpl(BallerinaLanguageServer ballerinaLanguageServer) {
+        this.ballerinaLanguageServer = ballerinaLanguageServer;
     }
 
     @Override

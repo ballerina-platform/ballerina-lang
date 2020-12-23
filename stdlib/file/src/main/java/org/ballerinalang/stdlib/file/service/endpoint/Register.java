@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.file.service.endpoint;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.MemberFunctionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -48,7 +48,7 @@ public class Register {
     public static Object register(Environment env, BObject listener, BObject service, Object name) {
         BMap serviceEndpointConfig = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG);
         try {
-            final Map<String, AttachedFunctionType> resourceRegistry = getResourceRegistry(service);
+            final Map<String, MemberFunctionType> resourceRegistry = getResourceRegistry(service);
             final String events = String.join(",", resourceRegistry.keySet());
             final Map<String, String> paramMap = getParamMap(serviceEndpointConfig, events);
             LocalFileSystemConnectorFactory connectorFactory = new LocalFileSystemConnectorFactoryImpl();
@@ -64,10 +64,10 @@ public class Register {
         return null;
     }
 
-    private static Map<String, AttachedFunctionType> getResourceRegistry(BObject service) {
-        Map<String, AttachedFunctionType> registry = new HashMap<>(5);
-        final AttachedFunctionType[] attachedFunctions = service.getType().getAttachedFunctions();
-        for (AttachedFunctionType resource : attachedFunctions) {
+    private static Map<String, MemberFunctionType> getResourceRegistry(BObject service) {
+        Map<String, MemberFunctionType> registry = new HashMap<>(5);
+        final MemberFunctionType[] attachedFunctions = service.getType().getAttachedFunctions();
+        for (MemberFunctionType resource : attachedFunctions) {
             switch (resource.getName()) {
                 case DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE:
                     registry.put(DirectoryListenerConstants.EVENT_CREATE, resource);

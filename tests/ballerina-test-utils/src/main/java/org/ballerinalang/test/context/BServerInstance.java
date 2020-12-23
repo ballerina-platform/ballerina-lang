@@ -180,9 +180,8 @@ public class BServerInstance implements BServer {
     public void startServer(String sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
                             Map<String, String> envProperties, int[] requiredPorts, boolean useBallerinaRunCommand)
             throws BallerinaTestException {
-        if (sourceRoot == null || sourceRoot.isEmpty() || packagePath == null || packagePath.isEmpty()) {
-            throw new IllegalArgumentException("Invalid ballerina program file provided, sourceRoot - "
-                    + sourceRoot + " packagePath - " + packagePath);
+        if (sourceRoot == null || sourceRoot.isEmpty()) {
+            throw new IllegalArgumentException("Invalid ballerina program file provided, sourceRoot - " + sourceRoot);
         }
 
         if (buildArgs == null) {
@@ -198,7 +197,7 @@ public class BServerInstance implements BServer {
         }
         addJavaAgents(envProperties);
 
-        String[] newArgs = new String[] { "--sourceroot", sourceRoot, packagePath };
+        String[] newArgs = new String[] { sourceRoot };
         newArgs = ArrayUtils.addAll(buildArgs, newArgs);
         if (useBallerinaRunCommand) {
             runBalSource(newArgs, envProperties);
@@ -256,28 +255,12 @@ public class BServerInstance implements BServer {
     }
 
     private void cleanupServer() {
-        process.destroy();
-        serverInfoLogReader.stop();
-        serverErrorLogReader.stop();
-        process = null;
         //wait until port to close
         Utils.waitForPortsToClose(requiredPorts, 30000);
         log.info("Server Stopped Successfully");
-
-        if (serverInfoLogReader != null) {
-            serverInfoLogReader.stop();
-            serverErrorLogReader.removeAllLeechers();
-            serverInfoLogReader = null;
-        }
-
-        if (serverErrorLogReader != null) {
-            serverErrorLogReader.stop();
-            serverErrorLogReader.removeAllLeechers();
-            serverErrorLogReader = null;
-        }
     }
 
-    private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+    private synchronized void addJavaAgents(Map<String, String> envProperties) {
         if (agentsAdded) {
             return;
         }

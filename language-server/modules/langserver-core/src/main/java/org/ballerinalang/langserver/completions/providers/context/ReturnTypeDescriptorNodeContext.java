@@ -22,11 +22,10 @@ import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.eclipse.lsp4j.Position;
 
@@ -47,7 +46,7 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, ReturnTypeDescriptorNode node)
+    public List<LSCompletionItem> getCompletions(CompletionContext context, ReturnTypeDescriptorNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -79,9 +78,9 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
         return completionItems;
     }
 
-    private boolean withinIdentifierContext(LSContext context, QualifiedNameReferenceNode node) {
+    private boolean withinIdentifierContext(CompletionContext context, QualifiedNameReferenceNode node) {
         LineRange colonLineRange = node.colon().lineRange();
-        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position cursor = context.getCursorPosition();
 
         return colonLineRange.endLine().line() == cursor.getLine()
                 && colonLineRange.endLine().offset() <= cursor.getCharacter();

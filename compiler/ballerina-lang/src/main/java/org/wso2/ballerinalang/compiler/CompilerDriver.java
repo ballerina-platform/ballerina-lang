@@ -21,7 +21,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -30,14 +30,12 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsolationAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObserverbilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -61,6 +59,7 @@ import static org.ballerinalang.model.elements.PackageID.JAVA;
 import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.QUERY;
+import static org.ballerinalang.model.elements.PackageID.RUNTIME;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
@@ -95,10 +94,9 @@ public class CompilerDriver {
     private final ConstantPropagation constantPropagation;
     private final DocumentationAnalyzer documentationAnalyzer;
     private final CompilerPluginRunner compilerPluginRunner;
-    private final ObservabilitySymbolCollector observabilitySymbolCollector;
     private final Desugar desugar;
     private final BIRGen birGenerator;
-    private final CodeGenerator codeGenerator;
+    private final BIREmitter birEmitter;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private final IsolationAnalyzer isolationAnalyzer;
@@ -128,10 +126,9 @@ public class CompilerDriver {
         this.taintAnalyzer = TaintAnalyzer.getInstance(context);
         this.constantPropagation = ConstantPropagation.getInstance(context);
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
-        this.observabilitySymbolCollector = ObserverbilitySymbolCollectorRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
-        this.codeGenerator = CodeGenerator.getInstance(context);
+        this.birEmitter = BIREmitter.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
@@ -169,6 +166,7 @@ public class CompilerDriver {
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
+            symbolTable.langRuntimeModuleSymbol = pkgLoader.loadPackageSymbol(RUNTIME, null, null);
             symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
             symbolTable.loadPredeclaredModules();
             return;
@@ -245,8 +243,7 @@ public class CompilerDriver {
             return;
         }
 
-        HashSet<BLangImportPackage> importPkgList = new HashSet<>();
-        importPkgList.addAll(pkgNode.imports);
+        HashSet<BLangImportPackage> importPkgList = new HashSet<>(pkgNode.imports);
         // If tests are enabled then get the imports of the testable package as well.
         String testsEnabled = this.options.get(CompilerOptionName.SKIP_TESTS);
         if (testsEnabled != null && testsEnabled.equals(Constants.SKIP_TESTS)) {
@@ -301,11 +298,6 @@ public class CompilerDriver {
         }
 
         annotationProcess(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.OBSERVABILITY_DATA_GEN)) {
-            return;
-        }
-
-        generateObservabilityData(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
             return;
         }
@@ -316,6 +308,11 @@ public class CompilerDriver {
         }
 
         birGen(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.BIR_EMIT)) {
+            return;
+        }
+
+        birEmit(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
             return;
         }
@@ -324,11 +321,8 @@ public class CompilerDriver {
     }
 
     private BLangPackage codeGen(BLangPackage pkgNode) {
-        return this.codeGenerator.generate(pkgNode);
-    }
-
-    private void generateObservabilityData(BLangPackage pkgNode) {
-        this.observabilitySymbolCollector.process(pkgNode);
+        // Disable old code generation
+        return null;
     }
 
     public BLangPackage define(BLangPackage pkgNode) {
@@ -375,6 +369,10 @@ public class CompilerDriver {
         return this.birGenerator.genBIR(pkgNode);
     }
 
+    private BLangPackage birEmit(BLangPackage pkgNode) {
+        return this.birEmitter.emit(pkgNode);
+    }
+
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
@@ -403,6 +401,6 @@ public class CompilerDriver {
             return null;
         }
 
-        return codeGen(birGen(desugar(pkg))).symbol;
+        return codeGen(birEmit(birGen(desugar(pkg)))).symbol;
     }
 }

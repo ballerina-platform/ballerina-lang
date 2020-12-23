@@ -19,15 +19,15 @@ package org.ballerinalang.test.expressions.access;
 
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
  * Test cases for optional field access.
@@ -47,7 +47,7 @@ public class OptionalFieldAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 11);
+        Assert.assertEquals(negativeResult.getErrorCount(), 12);
         int i = 0;
         validateError(negativeResult, i++, "invalid operation: type 'Foo' does not support optional field access",
                       23, 19);
@@ -65,8 +65,10 @@ public class OptionalFieldAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 71, 15);
         validateError(negativeResult, i++, "invalid operation: type 'Qux' does not support optional field access", 87
                 , 9);
-        validateError(negativeResult, i, "invalid operation: type 'string[]' does not support optional field access",
+        validateError(negativeResult, i++, "invalid operation: type 'string[]' does not support optional field access",
                       91, 9);
+        validateError(negativeResult, i, "invalid operation: type 'Address?' does not support optional field access " +
+                        "for field 'road'", 120, 18);
     }
 
     @Test(dataProvider = "recordOptionalFieldAccessFunctions")
@@ -136,5 +138,10 @@ public class OptionalFieldAccessTest {
     @Test
     public void testOptionalFieldAccessInUnionType() {
         BRunUtil.invoke(result, "testOptionalFieldAccessInUnionType");
+    }
+
+    @Test
+    public void testOptionalFieldAccessOnMethodCall() {
+        BRunUtil.invoke(result, "testOptionalFieldAccessOnMethodCall");
     }
 }

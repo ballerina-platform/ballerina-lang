@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -26,14 +27,16 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -57,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
@@ -391,6 +395,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangResourceFunction funcNode) {
+        visit((BLangFunction) funcNode);
+    }
+
+    @Override
     public void visit(BLangFunction funcNode) {
         if (funcNode.flagSet.contains(Flag.LAMBDA)) {
             funcNode.symbol.taintTable = null;
@@ -412,7 +421,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         analysisState.restParam = funcNode.restParam;
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        if (funcNode.flagSet.contains(Flag.RESOURCE) || CompilerUtils.isMainFunction(funcNode)) {
+        boolean isResourceFuncDef = funcNode.flagSet.contains(Flag.RESOURCE) && !funcNode.interfaceFunction;
+
+        boolean isServiceRemote = false;
+        if (funcNode.symbol.receiverSymbol != null) {
+            boolean isRemoteFuncDef = funcNode.flagSet.contains(Flag.REMOTE) && !funcNode.interfaceFunction;
+            isServiceRemote = Symbols.isService(funcNode.symbol.receiverSymbol) && isRemoteFuncDef;
+        }
+
+        if (isResourceFuncDef || isServiceRemote || CompilerUtils.isMainFunction(funcNode)) {
             // This is to analyze the entry-point function and attach taint table to it.
             entryPointPreAnalysis = true;
             boolean isBlocked = visitInvokable(funcNode, funcEnv);
@@ -464,6 +481,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (serviceNode.isAnonymousServiceValue) {
             setTaintedStatus(serviceNode.symbol, TaintedStatus.TAINTED);
             setTaintedStatus(serviceNode.serviceClass.symbol, TaintedStatus.TAINTED);
+        }
+
+        boolean isAllListenersUntaintedRefs = true;
+        for (BLangExpression expr : serviceNode.attachedExprs) {
+            if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && !((BLangSimpleVarRef) expr).symbol.tainted) {
+                continue;
+            }
+            isAllListenersUntaintedRefs = false;
+        }
+
+        if (!isAllListenersUntaintedRefs) {
+            // Service type tainted due to listeners being tainted.
+            setTaintedStatus(serviceNode.serviceClass.type.tsymbol, TaintedStatus.TAINTED);
         }
     }
 
@@ -540,7 +570,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (isModuleVariable(varNode.symbol)
                     && getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
                 dlogSet.add(new TaintRecord.TaintError(varNode.pos, varNode.name.value,
-                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE));
+                        DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE));
             }
             setTaintedStatus(varNode, getCurrentAnalysisState().taintedStatus);
         }
@@ -639,21 +669,21 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 if (isMutableVariable(varRef) && isGlobalVarOrServiceVar(varRef) && !isMarkedTainted(varRef)) {
                     if (varRef.symbol != null && varRef.symbol.type.tag == TypeTags.OBJECT) {
                         addTaintError(location, getVariableName(varRef),
-                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT);
+                                DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT);
                     } else {
                         addTaintError(location, getVariableName(varRef),
-                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
+                                DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
                     }
                     return;
                 } else if (varRef.symbol != null && varRef.symbol.closure
                         && !varRef.symbol.tainted && notInSameScope(varRef, env)) {
                     addTaintError(location, getVariableName(varRef),
-                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE);
+                            DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE);
                     return;
                 } else if (varRef.symbol != null && isMarkedUntainted(varRef)
                         && (varRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
                     addTaintError(location, getVariableName(varRef),
-                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
+                            DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                 }
             }
             // TODO: Re-evaluating the full data-set (array) when a change occur.
@@ -1883,12 +1913,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
 
         boolean markParamsTainted = true;
-        if (invNode.getKind() == NodeKind.FUNCTION
+        if ((invNode.getKind() == NodeKind.FUNCTION || invNode.getKind() == NodeKind.RESOURCE_FUNC)
                 && ((BLangFunction) invNode).receiver != null) {
-            if (((BLangFunction) invNode).receiver.type.tag == TypeTags.SERVICE) {
+            BTypeSymbol receiverTSymbol = ((BLangFunction) invNode).receiver.type.tsymbol;
+            if (Symbols.isService(receiverTSymbol)) {
                 // When service definition is bound to a untainted listeners, arguments to resource functions
                 // are considered untainted.
-                if (!((BLangFunction) invNode).receiver.type.tsymbol.tainted) {
+                if (receiverTSymbol instanceof BClassSymbol && ((BClassSymbol) receiverTSymbol).isServiceDecl
+                        && !receiverTSymbol.tainted) {
                     markParamsTainted = false;
                 }
             }
@@ -1912,9 +1944,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (!isBlocked) {
             // Display errors only if scan of was fully complete, so that errors will not get duplicated.
             for (TaintRecord.TaintError taintError : getCurrentAnalysisState().taintErrorSet) {
-                if (taintError.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT) {
+                if (taintError.diagnosticCode == DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT) {
                     dlogSet.add(new TaintRecord.TaintError(taintError.pos, taintError.paramName,
-                            DiagnosticCode.INVOCATION_TAINT_GLOBAL_OBJECT));
+                            DiagnosticErrorCode.INVOCATION_TAINT_GLOBAL_OBJECT));
                 } else {
                     dlogSet.add(taintError);
                 }
@@ -1932,7 +1964,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
 
                 if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
-                    this.dlog.error(param.pos, DiagnosticCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED,
+                    this.dlog.error(param.pos, DiagnosticErrorCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED,
                             param.name.value);
                     return true;
                 }
@@ -1952,8 +1984,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      */
     private boolean visitInvokable(BLangInvokableNode invNode, SymbolEnv symbolEnv) {
         if (analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS || invNode.symbol.taintTable == null) {
-            if (Symbols.isNative(invNode.symbol)
-                    || (invNode.getKind() == NodeKind.FUNCTION && ((BLangFunction) invNode).interfaceFunction)) {
+            if (Symbols.isNative(invNode.symbol) || isMethodDeclaration(invNode)) {
                 attachNativeFunctionTaintTable(invNode);
                 return false;
             }
@@ -2017,6 +2048,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
+    private boolean isMethodDeclaration(BLangInvokableNode invNode) {
+        return (invNode.getKind() == NodeKind.FUNCTION || invNode.getKind() == NodeKind.RESOURCE_FUNC)
+                && ((BLangFunction) invNode).interfaceFunction;
+    }
+
     private void visitAttachedInvokable(BLangFunction invNode) {
         List<BLangSimpleVariable> prevRequiredParam = invNode.requiredParams;
         if (invNode.symbol.receiverSymbol != null) {
@@ -2066,7 +2102,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (taintRecord.returnTaintedStatus == TaintedStatus.TAINTED
                 && !hasAnnotation(invokableNode.returnTypeAnnAttachments, ANNOTATION_TAINTED)
                 && !invokableNode.flagSet.contains(Flag.LAMBDA)) {
-            dlog.error(invokableNode.returnTypeNode.pos, DiagnosticCode.TAINTED_RETURN_NOT_ANNOTATED_TAINTED,
+            dlog.error(invokableNode.returnTypeNode.pos, DiagnosticErrorCode.TAINTED_RETURN_NOT_ANNOTATED_TAINTED,
                     invokableNode.name.getValue());
             stopAnalysis = true;
         }
@@ -2084,7 +2120,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
                 if (!hasAnnotation(param, ANNOTATION_TAINTED)) {
-                    dlog.error(param.pos, DiagnosticCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED, param.name,
+                    dlog.error(param.pos, DiagnosticErrorCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED, param.name,
                             invokableNode.name);
                     stopAnalysis = true;
                 }
@@ -2274,7 +2310,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 BLangSimpleVariable param = getParam(function, paramIndex, requiredParamCount);
                 if (taintRecord == null) {
                     addTaintError(argExpr.pos, param.name.value,
-                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
+                            DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                 } else if (taintRecord.taintError != null && taintRecord.taintError.size() > 0) {
                     addTaintError(taintRecord.taintError);
                 }
@@ -2710,7 +2746,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 // This scenario indicate that passing a tainted value to the receiver causes tainted value to be
                 // passed to a untainted parameter somewhere inside the function.
                 addTaintError(invocationExpr.pos, receiverSymbol.name.value,
-                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT);
+                        DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT);
                 return returnTaintedStatus;
             }
 
@@ -2720,16 +2756,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
             if (receiverTaintRecord.taintError != null && !receiverTaintRecord.taintError.isEmpty()) {
                 for (TaintRecord.TaintError error : receiverTaintRecord.taintError) {
-                    if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE) {
+                    if (error.diagnosticCode == DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE) {
                         addTaintError(receiverTaintRecord.taintError);
-                    } else if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT) {
+                    } else if (error.diagnosticCode == DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT) {
                         addTaintError(invocationExpr.pos,
                                 getMethodReceiverSymbol(invocationExpr).name.value, error.diagnosticCode);
                     } else {
                         // Indicate that at this point receiver/self being tainted cause tainted value
                         // (via receiver/self) passing to a untainted parameter down the call.
                         addTaintError(invocationExpr.pos, error.paramName.get(0), invocationExpr.name.value,
-                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT);
+                                DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT);
                     }
                 }
             }
@@ -2903,18 +2939,18 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 // parameter is invalid and should return a compiler error.
                 Location argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
                 addTaintError(argPos, paramSymbol.name.value,
-                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
+                        DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                 this.stopAnalysis = false;
             } else if (taintRecord.taintError != null && taintRecord.taintError.size() > 0) {
                 // This is when current parameter is derived to be untainted.
                 taintRecord.taintError.forEach(error -> {
-                    if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE
-                        || error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT) {
+                    if (error.diagnosticCode == DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE
+                        || error.diagnosticCode == DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT) {
                         addTaintError(taintRecord.taintError);
                     } else {
                         Location argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
                         addTaintError(argPos, paramSymbol.name.value,
-                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
+                                DiagnosticErrorCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                     }
                 });
             } else {

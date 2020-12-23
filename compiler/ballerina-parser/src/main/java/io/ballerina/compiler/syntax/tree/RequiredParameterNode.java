@@ -37,12 +37,16 @@ public class RequiredParameterNode extends ParameterNode {
         return new NodeList<>(childInBucket(0));
     }
 
+    public Optional<Token> asteriskToken() {
+        return optionalChildInBucket(1);
+    }
+
     public Node typeName() {
-        return childInBucket(1);
+        return childInBucket(2);
     }
 
     public Optional<Token> paramName() {
-        return optionalChildInBucket(2);
+        return optionalChildInBucket(3);
     }
 
     @Override
@@ -59,23 +63,29 @@ public class RequiredParameterNode extends ParameterNode {
     protected String[] childNames() {
         return new String[]{
                 "annotations",
+                "asteriskToken",
                 "typeName",
                 "paramName"};
     }
 
     public RequiredParameterNode modify(
+            SyntaxKind kind,
             NodeList<AnnotationNode> annotations,
+            Token asteriskToken,
             Node typeName,
             Token paramName) {
         if (checkForReferenceEquality(
                 annotations.underlyingListNode(),
+                asteriskToken,
                 typeName,
                 paramName)) {
             return this;
         }
 
         return NodeFactory.createRequiredParameterNode(
+                kind,
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName);
     }
@@ -92,12 +102,14 @@ public class RequiredParameterNode extends ParameterNode {
     public static class RequiredParameterNodeModifier {
         private final RequiredParameterNode oldNode;
         private NodeList<AnnotationNode> annotations;
+        private Token asteriskToken;
         private Node typeName;
         private Token paramName;
 
         public RequiredParameterNodeModifier(RequiredParameterNode oldNode) {
             this.oldNode = oldNode;
             this.annotations = oldNode.annotations();
+            this.asteriskToken = oldNode.asteriskToken().orElse(null);
             this.typeName = oldNode.typeName();
             this.paramName = oldNode.paramName().orElse(null);
         }
@@ -106,6 +118,13 @@ public class RequiredParameterNode extends ParameterNode {
                 NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
+            return this;
+        }
+
+        public RequiredParameterNodeModifier withAsteriskToken(
+                Token asteriskToken) {
+            Objects.requireNonNull(asteriskToken, "asteriskToken must not be null");
+            this.asteriskToken = asteriskToken;
             return this;
         }
 
@@ -124,7 +143,9 @@ public class RequiredParameterNode extends ParameterNode {
 
         public RequiredParameterNode apply() {
             return oldNode.modify(
+                    oldNode.kind(),
                     annotations,
+                    asteriskToken,
                     typeName,
                     paramName);
         }

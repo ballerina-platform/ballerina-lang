@@ -25,13 +25,11 @@ import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BAssertUtil;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -49,8 +47,7 @@ public class OpenRecordTypeReferenceTest {
 
     @BeforeClass
     public void setup() {
-        BaloCreator.cleanCacheDirectories();
-        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "records");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_records");
         compileResult = BCompileUtil.compile("test-src/record/open_record_type_reference.bal");
     }
 
@@ -173,10 +170,5 @@ public class OpenRecordTypeReferenceTest {
     @Test()
     public void testCreatingRecordWithOverriddenFields() {
         BRunUtil.invoke(compileResult, "testCreatingRecordWithOverriddenFields");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "records");
     }
 }

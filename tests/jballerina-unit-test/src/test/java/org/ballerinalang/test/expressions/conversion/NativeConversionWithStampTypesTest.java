@@ -22,9 +22,9 @@ import org.ballerinalang.core.model.types.BTupleType;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -122,5 +122,20 @@ public class NativeConversionWithStampTypesTest {
 
         Assert.assertEquals(originalMap.get("school").toString(), "ABC College");
         Assert.assertEquals(convertedMap.get("school").stringValue(), "ABC College");
+    }
+
+    @Test
+    public void testConvertMapJsonWithDecimalToOpenRecord() {
+        BRunUtil.invoke(compileResult, "testConvertMapJsonWithDecimalToOpenRecord");
+    }
+
+    @Test
+    public void testConvertMapJsonWithDecimalUnionTarget() {
+        BRunUtil.invoke(compileResult, "testConvertMapJsonWithDecimalUnionTarget");
+    }
+
+    @Test
+    void testConvertToUnionWithActualType() {
+        BRunUtil.invoke(compileResult, "testConvertToUnionWithActualType");
     }
 }
