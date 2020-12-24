@@ -325,6 +325,35 @@ public abstract class BIRNode {
 
         public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
 
+        public BIRFunction(Location pos, Name name, long flags, SymbolOrigin origin, BInvokableType type,
+                           List<BIRParameter> requiredParams, BIRVariableDcl receiver, BIRParameter restParam,
+                           int argsCount, List<BIRVariableDcl> localVars,
+                           BIRVariableDcl returnVariable, Map<BIRFunctionParameter, List<BIRBasicBlock>> parameters,
+                           List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTable, Name workerName,
+                           ChannelDetails[] workerChannels, TaintTable taintTable,
+                           List<BIRAnnotationAttachment> annotAttachments,
+                           Set<BIRGlobalVariableDcl> dependentGlobalVars) {
+            super(pos);
+            this.name = name;
+            this.flags = flags;
+            this.origin = origin;
+            this.type = type;
+            this.requiredParams = requiredParams;
+            this.receiver = receiver;
+            this.restParam = restParam;
+            this.argsCount = argsCount;
+            this.localVars = localVars;
+            this.returnVariable = returnVariable;
+            this.parameters = parameters;
+            this.basicBlocks = basicBlocks;
+            this.errorTable = errorTable;
+            this.workerName = workerName;
+            this.workerChannels = workerChannels;
+            this.taintTable = taintTable;
+            this.annotAttachments = annotAttachments;
+            this.dependentGlobalVars = dependentGlobalVars;
+        }
+
         public BIRFunction(Location pos, Name name, long flags, BInvokableType type, Name workerName,
                            int sendInsCount, TaintTable taintTable, SymbolOrigin origin) {
             super(pos);

@@ -119,6 +119,12 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Parameters
     private List<String> argList;
 
+    @CommandLine.Option(names = "--dump-bir", hidden = true)
+    private boolean dumpBIR;
+
+    @CommandLine.Option(names = "--dump-bir-file", hidden = true)
+    private String dumpBIRFile;
+
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
@@ -250,6 +256,8 @@ public class BuildCommand implements BLauncherCmd {
                 .skipTests(skipTests)
                 .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
+                .dumpBir(dumpBIR)
+                .dumpBirFile(dumpBIRFile)
                 .build();
     }
 

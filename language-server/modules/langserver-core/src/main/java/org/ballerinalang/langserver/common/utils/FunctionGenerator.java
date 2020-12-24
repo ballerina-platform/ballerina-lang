@@ -20,7 +20,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -106,12 +106,12 @@ public class FunctionGenerator {
      *
      * @param importsAcceptor imports accepter
      * @param parent          Parent node
-     * @param context         {@link CompletionContext}
+     * @param context         {@link BallerinaCompletionContext}
      * @return {@link List} List of arguments
      */
     @Deprecated
     public static List<String> getFuncArguments(ImportsAcceptor importsAcceptor, BLangNode parent,
-                                                CompletionContext context) {
+                                                BallerinaCompletionContext context) {
         List<String> list = new ArrayList<>();
         if (parent instanceof BLangInvocation) {
             BLangInvocation bLangInvocation = (BLangInvocation) parent;
