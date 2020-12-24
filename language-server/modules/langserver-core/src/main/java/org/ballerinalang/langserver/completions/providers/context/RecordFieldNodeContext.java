@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class RecordFieldNodeContext extends AbstractCompletionProvider<RecordFieldNode> {
 
     public RecordFieldNodeContext() {
@@ -38,7 +38,7 @@ public class RecordFieldNodeContext extends AbstractCompletionProvider<RecordFie
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, RecordFieldNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RecordFieldNode node)
             throws LSCompletionException {
         if (this.onTypeNameContext(context, node)) {
             /*
@@ -57,7 +57,7 @@ public class RecordFieldNodeContext extends AbstractCompletionProvider<RecordFie
         return CompletionUtil.route(context, node.parent());
     }
 
-    private boolean onTypeNameContext(CompletionContext context, RecordFieldNode node) {
+    private boolean onTypeNameContext(BallerinaCompletionContext context, RecordFieldNode node) {
         int cursor = context.getCursorPositionInTree();
         int typeEnd = node.typeName().textRange().endOffset();
 

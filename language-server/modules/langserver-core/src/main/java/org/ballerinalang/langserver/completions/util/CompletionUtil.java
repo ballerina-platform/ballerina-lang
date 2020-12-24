@@ -22,10 +22,10 @@ import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
+import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
 import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
@@ -49,7 +49,7 @@ public class CompletionUtil {
      * @param ctx Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem> getCompletionItems(CompletionContext ctx) throws LSCompletionException,
+    public static List<CompletionItem> getCompletionItems(BallerinaCompletionContext ctx) throws LSCompletionException,
             TokenOrSymbolNotFoundException {
         fillTokenInfoAtCursor(ctx);
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
@@ -70,15 +70,15 @@ public class CompletionUtil {
      * @param node node to evaluate
      * @return {@link Optional} provider which resolved
      */
-    public static List<LSCompletionItem> route(CompletionContext ctx, Node node)
+    public static List<LSCompletionItem> route(BallerinaCompletionContext ctx, Node node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (node == null) {
             return completionItems;
         }
-        Map<Class<?>, CompletionProvider<Node>> providers = ProviderFactory.instance().getProviders();
+        Map<Class<?>, BallerinaCompletionProvider<Node>> providers = ProviderFactory.instance().getProviders();
         Node reference = node;
-        CompletionProvider<Node> provider = null;
+        BallerinaCompletionProvider<Node> provider = null;
 
         while ((reference != null)) {
             provider = providers.get(reference.getClass());
@@ -102,7 +102,7 @@ public class CompletionUtil {
     /**
      * Find the token at cursor.
      */
-    public static void fillTokenInfoAtCursor(CompletionContext context) throws TokenOrSymbolNotFoundException {
+    public static void fillTokenInfoAtCursor(BallerinaCompletionContext context) throws TokenOrSymbolNotFoundException {
         context.setTokenAtCursor(TokensUtil.findTokenAtPosition(context, context.getCursorPosition()));
         Optional<Document> document = context.workspace().document(context.filePath());
         if (document.isEmpty()) {
