@@ -44,6 +44,16 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "DisplayData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes display metadata.\n"
+      },
+      "insertText": "DisplayData",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
