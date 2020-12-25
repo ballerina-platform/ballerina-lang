@@ -844,6 +844,11 @@ public class ASTBuilderUtil {
             dupInvokableType.flags |= Flags.ISOLATED;
         }
 
+        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.TRANSACTIONAL)) {
+            dupFuncSymbol.flags |= Flags.TRANSACTIONAL;
+            dupInvokableType.flags |= Flags.TRANSACTIONAL;
+        }
+
         dupFuncSymbol.type = dupInvokableType;
         dupFuncSymbol.dependentGlobalVars = invokableSymbol.dependentGlobalVars;
 

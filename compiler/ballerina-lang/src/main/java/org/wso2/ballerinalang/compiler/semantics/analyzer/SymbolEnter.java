@@ -2469,6 +2469,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.ISOLATED)) {
             funcSymbol.type.flags |= Flags.ISOLATED;
         }
+
+        if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.TRANSACTIONAL)) {
+            funcSymbol.type.flags |= Flags.TRANSACTIONAL;
+        }
     }
 
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
@@ -3104,6 +3108,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (function.flagSet.contains(Flag.ISOLATED)) {
             invokableType.flags |= Flags.ISOLATED;
             invokableType.tsymbol.flags |= Flags.ISOLATED;
+        }
+
+        if (function.flagSet.contains(Flag.TRANSACTIONAL)) {
+            invokableType.flags |= Flags.TRANSACTIONAL;
+            invokableType.tsymbol.flags |= Flags.TRANSACTIONAL;
         }
 
         variable.type = invokableType;

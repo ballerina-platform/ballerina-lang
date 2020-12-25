@@ -1731,7 +1731,7 @@ public class TypeChecker {
         }
 
         BFunctionType source = (BFunctionType) sourceType;
-        if (hasIncompatibleIsolatedFlags(targetType, source)) {
+        if (hasIncompatibleIsolatedFlags(targetType, source) || hasIncompatibleTransactionalFlags(targetType, source)) {
             return false;
         }
 
@@ -1751,6 +1751,11 @@ public class TypeChecker {
     private static boolean hasIncompatibleIsolatedFlags(FunctionType target, FunctionType source) {
         return SymbolFlags.isFlagOn(target.getFlags(), SymbolFlags.ISOLATED) && !SymbolFlags
                 .isFlagOn(source.getFlags(), SymbolFlags.ISOLATED);
+    }
+
+    private static boolean hasIncompatibleTransactionalFlags(FunctionType target, FunctionType source) {
+        return SymbolFlags.isFlagOn(source.getFlags(), SymbolFlags.TRANSACTIONAL) && !SymbolFlags
+                .isFlagOn(target.getFlags(), SymbolFlags.TRANSACTIONAL);
     }
 
     private static boolean checkIsServiceType(Type sourceType) {

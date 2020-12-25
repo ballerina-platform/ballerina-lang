@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.commons.completion.spi;
 
 import io.ballerina.compiler.syntax.tree.Node;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
@@ -30,7 +30,7 @@ import java.util.List;
  * @param <T> generic syntax tree node
  * @since 1.2.0
  */
-public interface CompletionProvider<T extends Node> {
+public interface BallerinaCompletionProvider<T extends Node> {
 
     /**
      * Precedence for a given provider.
@@ -50,7 +50,7 @@ public interface CompletionProvider<T extends Node> {
      * @return {@link List}     List of calculated Completion Items
      * @throws LSCompletionException when completion fails
      */
-    List<LSCompletionItem> getCompletions(CompletionContext context, T node) throws LSCompletionException;
+    List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, T node) throws LSCompletionException;
 
     /**
      * Sort a given list of completion Items.
@@ -60,7 +60,7 @@ public interface CompletionProvider<T extends Node> {
      * @param completionItems list of completion items to sort
      * @param metaData        Meta data for further processing the sorting
      */
-    void sort(CompletionContext context, T node, List<LSCompletionItem> completionItems, Object... metaData);
+    void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems, Object... metaData);
 
     /**
      * Sort a given list of completion Items.
@@ -69,7 +69,7 @@ public interface CompletionProvider<T extends Node> {
      * @param node            Node instance for the parser context
      * @param completionItems list of completion items to sort
      */
-    void sort(CompletionContext context, T node, List<LSCompletionItem> completionItems);
+    void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems);
 
     /**
      * Get the attachment points where the current provider attached to.
@@ -96,5 +96,5 @@ public interface CompletionProvider<T extends Node> {
      * @param node    Node to evaluate
      * @return {@link Boolean} pre-validation status
      */
-    boolean onPreValidation(CompletionContext context, T node);
+    boolean onPreValidation(BallerinaCompletionContext context, T node);
 }
