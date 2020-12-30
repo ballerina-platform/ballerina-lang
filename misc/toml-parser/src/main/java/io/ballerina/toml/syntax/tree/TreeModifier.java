@@ -131,6 +131,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public LiteralStringLiteralNode transform(
+            LiteralStringLiteralNode literalStringLiteralNode) {
+        Token startSingleQuote =
+                modifyToken(literalStringLiteralNode.startSingleQuote());
+        Token content =
+                modifyToken(literalStringLiteralNode.content().orElse(null));
+        Token endSingleQuote =
+                modifyToken(literalStringLiteralNode.endSingleQuote());
+        return literalStringLiteralNode.modify(
+                startSingleQuote,
+                content,
+                endSingleQuote);
+    }
+
+    @Override
     public NumericLiteralNode transform(
             NumericLiteralNode numericLiteralNode) {
         Token sign =

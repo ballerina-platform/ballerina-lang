@@ -81,7 +81,7 @@ public class KeyValueTest {
         Assert.assertEquals(longValue, Long.valueOf(123L));
         Assert.assertEquals(doubleValue, 56.55);
         Assert.assertEquals(multiString,
-                String.format("%sRoses are red%sViolets are blue", System.lineSeparator(), System.lineSeparator()));
+                String.format("Roses are red%sViolets are blue", System.lineSeparator()));
         Assert.assertFalse(boolfalse);
         Assert.assertTrue(booltrue);
 
@@ -138,6 +138,46 @@ public class KeyValueTest {
 
         Double flt8 = ((TomlDoubleValueNodeNode) read.get("flt8")).getValue();
         Assert.assertEquals(flt8, 224617.445991228);
+
+        String stringEscape = ((TomlStringValueNode) read.get("str0")).getValue();
+        Assert.assertEquals(stringEscape, "I'm a string. \"You can quote me\". Name\tJosé\n" +
+                "Location\tSF.");
+
+        String basicString = ((TomlStringValueNode) read.get("str1")).getValue();
+        Assert.assertEquals(basicString, "The quick brown fox jumps over the lazy dog.");
+        String backslashWithWhitespace = ((TomlStringValueNode) read.get("str2")).getValue();
+        Assert.assertEquals(backslashWithWhitespace, "The quick brown fox jumps over the lazy dog.");
+        String multilineBasklash = ((TomlStringValueNode) read.get("str3")).getValue();
+        Assert.assertEquals(multilineBasklash, "The quick brown fox jumps over the lazy dog.");
+
+        String twoEscapes = ((TomlStringValueNode) read.get("str4")).getValue();
+        Assert.assertEquals(twoEscapes, "Here are two quotation marks: \"\". Simple enough.");
+        String threeQuotesEscapes = ((TomlStringValueNode) read.get("str5")).getValue();
+        Assert.assertEquals(threeQuotesEscapes, "Here are three quotation marks: \"\"\".");
+        String fifteenQuotes = ((TomlStringValueNode) read.get("str6")).getValue();
+        Assert.assertEquals(fifteenQuotes, "Here are fifteen quotation marks: \"\"\"\"\"\"\"\"\"\"\"\"\"\"\".");
+        String mixedEscape = ((TomlStringValueNode) read.get("str7")).getValue();
+        Assert.assertEquals(mixedEscape, "\"This,\" she said, \"is just a pointless statement.");
+
+        String absPathLiteralString = ((TomlStringValueNode) read.get("lit1")).getValue();
+        Assert.assertEquals(absPathLiteralString, "C:\\Users\\nodejs\\templates");
+        String windowsPathLiteralString = ((TomlStringValueNode) read.get("lit2")).getValue();
+        Assert.assertEquals(windowsPathLiteralString, "\\\\ServerX\\admin$\\system32\\");
+        String doubeQuoteLiteralString = ((TomlStringValueNode) read.get("lit3")).getValue();
+        Assert.assertEquals(doubeQuoteLiteralString, "Tom \"Dubs\" Preston-Werner");
+        String regexLiteralString = ((TomlStringValueNode) read.get("lit4")).getValue();
+        Assert.assertEquals(regexLiteralString, "<\\i\\c*\\s*>");
+        String regex2LiteralString = ((TomlStringValueNode) read.get("lit5")).getValue();
+        Assert.assertEquals(regex2LiteralString, "I [dw]on't need \\d{2} apples");
+
+        String multilineLiteralString = ((TomlStringValueNode) read.get("lit6")).getValue();
+        Assert.assertEquals(multilineLiteralString, String.format(
+                "The first newline is%strimmed in raw strings.%s   All other whitespace%s   is preserved.%s",
+                System.lineSeparator(), System.lineSeparator(), System.lineSeparator(), System.lineSeparator()));
+        String fifteenQuotesWithLiteral = ((TomlStringValueNode) read.get("lit7")).getValue();
+        Assert.assertEquals(fifteenQuotesWithLiteral, "Here are fifteen quotation marks: \"\"\"\"\"\"\"\"\"\"\"\"\"\"\"");
+        String fifteenSingleQuotes = ((TomlStringValueNode) read.get("lit8")).getValue();
+        Assert.assertEquals(fifteenSingleQuotes, "Here are fifteen apostrophes: '''''''''''''''");
     }
 
     @Test

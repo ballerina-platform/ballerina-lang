@@ -62,7 +62,9 @@ public enum ParserRuleContext {
     // Expressions
     DECIMAL_INTEGER_LITERAL("decimal-int-literal"),
     STRING_BODY("string-body"),
+    LITERAL_STRING_BODY("string-content"),
     STRING_CONTENT("string-content"),
+    LITERAL_STRING_CONTENT("string-content"),
     NIL_LITERAL("nil-literal"),
     DECIMAL_FLOATING_POINT_LITERAL("decimal-floating-point-literal"),
     HEX_INTEGER_LITERAL("hex-int-literal"),
@@ -81,7 +83,8 @@ public enum ParserRuleContext {
 
     STRING_START("\""),
     STRING_END("\""),
-
+    LITERAL_STRING_START("'"),
+    LITERAL_STRING_END("'"),
     ;
 
     private String value;

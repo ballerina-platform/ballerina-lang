@@ -56,6 +56,9 @@ public class TomlLexer extends AbstractLexer {
             case LITERAL_STRING:
                 token = readLiteralStringToken();
                 break;
+            case MULTILINE_LITERAL_STRING:
+                token = readMultilineLiteralStringToken();
+                break;
             case NEW_LINE:
                 token = readNewlineToken();
                 if (token == null) {
@@ -100,10 +103,11 @@ public class TomlLexer extends AbstractLexer {
                         this.reader.peek(1) == LexerTerminals.SINGLE_QUOTE) {
                     this.reader.advance(2);
                     token = getQuoteToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
+                    startMode(ParserMode.MULTILINE_LITERAL_STRING);
                 } else {
                     token = getQuoteToken(SyntaxKind.SINGLE_QUOTE_TOKEN);
+                    startMode(ParserMode.LITERAL_STRING);
                 }
-                startMode(ParserMode.LITERAL_STRING);
                 break;
             // Arithmetic operators
             case LexerTerminals.EQUAL:
@@ -296,9 +300,11 @@ public class TomlLexer extends AbstractLexer {
             nextChar = this.reader.peek();
             switch (nextChar) {
                 case LexerTerminals.SINGLE_QUOTE:
+                    break;
                 case LexerTerminals.CARRIAGE_RETURN:
                 case LexerTerminals.NEWLINE:
-                    break;
+                    endMode();
+                    return getUnquotedKey();
                 default:
                     reader.advance();
                     continue;
@@ -354,6 +360,32 @@ public class TomlLexer extends AbstractLexer {
                     reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE, escapeSequence);
                     this.reader.advance();
             }
+        }
+        return getUnquotedKey();
+    }
+
+    private STToken readMultilineLiteralStringToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        char nextChar = this.reader.peek();
+        char secondNextChar = this.reader.peek(1);
+        char thirdNextChar = this.reader.peek(2);
+        if (nextChar == LexerTerminals.SINGLE_QUOTE && secondNextChar == LexerTerminals.SINGLE_QUOTE && thirdNextChar
+                == LexerTerminals.SINGLE_QUOTE) {
+            endMode();
+            reader.advance(3);
+            return getSyntaxToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
+        }
+        while (!reader.isEOF()) {
+            nextChar = this.reader.peek();
+            if (nextChar == LexerTerminals.SINGLE_QUOTE && this.reader.peek(1) == LexerTerminals.SINGLE_QUOTE &&
+                    this.reader.peek(2) == LexerTerminals.SINGLE_QUOTE) {
+                break;
+            }
+            reader.advance();
         }
         return getUnquotedKey();
     }

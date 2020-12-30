@@ -429,6 +429,8 @@ public class ParserTestUtils {
                 return SyntaxKind.IDENTIFIER_LITERAL;
             case "STRING_LITERAL":
                 return SyntaxKind.STRING_LITERAL;
+            case "LITERAL_STRING":
+                return SyntaxKind.LITERAL_STRING;
             case "WHITESPACE_MINUTIAE":
                 return SyntaxKind.WHITESPACE_MINUTIAE;
             case "END_OF_LINE_MINUTIAE":

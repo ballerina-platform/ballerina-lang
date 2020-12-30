@@ -53,6 +53,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(stringLiteralNode);
     }
 
+    public T transform(STLiteralStringLiteralNode literalStringLiteralNode) {
+        return transformSyntaxNode(literalStringLiteralNode);
+    }
+
     public T transform(STNumericLiteralNode numericLiteralNode) {
         return transformSyntaxNode(numericLiteralNode);
     }

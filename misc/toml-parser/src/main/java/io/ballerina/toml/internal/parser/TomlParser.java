@@ -37,6 +37,7 @@ import static io.ballerina.toml.syntax.tree.SyntaxKind.NEWLINE;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.OCT_INT;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.OPEN_BRACKET_TOKEN;
 import static io.ballerina.toml.syntax.tree.SyntaxKind.SINGLE_QUOTE_TOKEN;
+import static io.ballerina.toml.syntax.tree.SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN;
 
 /**
  * A LL(k) recursive-descent parser for TOML.
@@ -295,9 +296,9 @@ public class TomlParser extends AbstractParser {
             case IDENTIFIER_LITERAL:
                 return parseIdentifierLiteral();
             case DOUBLE_QUOTE_TOKEN:
-            case TRIPLE_DOUBLE_QUOTE_TOKEN:
-            case SINGLE_QUOTE_TOKEN:
                 return parseStringValue();
+            case SINGLE_QUOTE_TOKEN:
+                return parseLiteralStringValue();
             case EQUAL_TOKEN:
                 return null;
             default:
@@ -374,6 +375,9 @@ public class TomlParser extends AbstractParser {
             case DOUBLE_QUOTE_TOKEN:
             case TRIPLE_DOUBLE_QUOTE_TOKEN:
                 return parseStringValue();
+            case SINGLE_QUOTE_TOKEN:
+            case TRIPLE_SINGLE_QUOTE_TOKEN:
+                return parseLiteralStringValue();
             case DECIMAL_INT_TOKEN:
             case DECIMAL_FLOAT_TOKEN:
             case HEX_INTEGER_LITERAL_TOKEN:
@@ -469,14 +473,40 @@ public class TomlParser extends AbstractParser {
     }
 
     /**
+     * Parse Literal String Value.
+     *
+     * @return String Literal Node.
+     */
+    private STNode parseLiteralStringValue() {
+        STNode startingDoubleQuote = parseSingleQuoteToken(ParserRuleContext.LITERAL_STRING_START);
+        STNode content = parseStringContent();
+        STNode endingDoubleQuote = parseSingleQuoteToken(ParserRuleContext.LITERAL_STRING_END);
+        return STNodeFactory.createLiteralStringLiteralNode(startingDoubleQuote, content, endingDoubleQuote);
+    }
+
+    /**
+     * Parse Double quote token.
+     *
+     * @return Double quote token
+     */
+    private STNode parseSingleQuoteToken(ParserRuleContext ctx) {
+        STToken token = peek();
+        if (token.kind == SINGLE_QUOTE_TOKEN || token.kind == TRIPLE_SINGLE_QUOTE_TOKEN) {
+            return consume();
+        } else {
+            recover(token, ctx);
+            return parseSingleQuoteToken(ctx);
+        }
+    }
+
+    /**
      * Parse Double quote token.
      *
      * @return Double quote token
      */
     private STNode parseDoubleQuoteToken(ParserRuleContext ctx) {
         STToken token = peek();
-        if (token.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN || token.kind == SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN
-                || token.kind == SINGLE_QUOTE_TOKEN) {
+        if (token.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN || token.kind == SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN) {
             return consume();
         } else {
             recover(token, ctx);
@@ -582,6 +612,8 @@ public class TomlParser extends AbstractParser {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN || nextToken.kind == SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN) {
             return parseStringValue();
+        } else if (nextToken.kind == SyntaxKind.SINGLE_QUOTE_TOKEN || nextToken.kind == SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN) {
+            return parseLiteralStringValue();
         } else if (isBasicValue(nextToken)) {
             return parseValue();
         } else if (nextToken.kind == OPEN_BRACKET_TOKEN) {

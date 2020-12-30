@@ -51,6 +51,7 @@ public enum SyntaxKind {
 
     IDENTIFIER_LITERAL(1000),
     STRING_LITERAL(1001),
+    LITERAL_STRING(1002),
 
     // Minutiae kinds
     WHITESPACE_MINUTIAE(1500),

@@ -66,3 +66,41 @@ flt7 = 6.626e-34
 
 # Underscore with float
 flt8 = 224_617.445_991_228
+
+
+#Strings
+str0 = "I'm a string. \"You can quote me\". Name\tJos\u00E9\nLocation\tSF." #Escaping
+str1 = "The quick brown fox jumps over the lazy dog."
+str2 = """
+The quick brown \
+
+
+  fox jumps over \
+    the lazy dog.""" #Line ending backslash
+str3 = """\
+       The quick brown \
+       fox jumps over \
+       the lazy dog.\
+       """
+str4 = """Here are two quotation marks: "". Simple enough."""
+str5 = """Here are three quotation marks: ""\"."""
+str6 = """Here are fifteen quotation marks: ""\"""\"""\"""\"""\"."""
+str7 = """"This," she said, "is just a pointless statement.""""
+
+#Literal strings
+lit1 = 'C:\Users\nodejs\templates'
+lit2 = '\\ServerX\admin$\system32\'
+lit3   = 'Tom "Dubs" Preston-Werner'
+lit4    = '<\i\c*\s*>'
+
+lit5 = '''I [dw]on't need \d{2} apples'''
+lit6  = '''
+The first newline is
+trimmed in raw strings.
+   All other whitespace
+   is preserved.
+'''
+
+lit7 = '''Here are fifteen quotation marks: """""""""""""""'''
+lit8 = "Here are fifteen apostrophes: '''''''''''''''"
+

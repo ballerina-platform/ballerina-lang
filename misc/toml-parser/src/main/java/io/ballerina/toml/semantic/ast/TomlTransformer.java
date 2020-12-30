@@ -29,6 +29,7 @@ import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.IdentifierLiteralNode;
 import io.ballerina.toml.syntax.tree.KeyValueNode;
+import io.ballerina.toml.syntax.tree.LiteralStringLiteralNode;
 import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.NodeList;
 import io.ballerina.toml.syntax.tree.NodeTransformer;
@@ -307,7 +308,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         List<TomlKeyEntryNode> nodeList = new ArrayList<>();
         for (Node node : identifierList) {
             TomlBasicValueNode transformedNode = (TomlBasicValueNode) node.apply(this);
-            nodeList.add(new TomlKeyEntryNode (transformedNode));
+            nodeList.add(new TomlKeyEntryNode(transformedNode));
         }
 
         return new TomlKeyNode(nodeList);
@@ -339,17 +340,61 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
 
     @Override
     public TomlNode transform(StringLiteralNode stringLiteralNode) {
+        boolean multilineString = isMultilineString(stringLiteralNode.startDoubleQuote());
         Optional<Token> content = stringLiteralNode.content();
         String valueString;
         if (content.isEmpty()) {
             valueString = "";
         } else {
             valueString = content.get().text();
+            if (multilineString) {
+                valueString = removeFirstNewline(valueString);
+                valueString = trimBackslashWhitespaces(valueString);
+            }
         }
         String unescapedJava = StringEscapeUtils.unescapeJava(valueString);
         TomlNodeLocation position = getPosition(stringLiteralNode);
 
         return new TomlStringValueNode(unescapedJava, position);
+    }
+
+    private String trimBackslashWhitespaces (String value) {
+        StringBuilder output = new StringBuilder();
+        String[] split = value.split("\\\\\\r?\\n");
+        for (String str : split) {
+            output.append(str.stripLeading());
+        }
+        return output.toString();
+    }
+
+    @Override
+    public TomlNode transform(LiteralStringLiteralNode literalStringLiteralNode) {
+        boolean multilineString = isMultilineString(literalStringLiteralNode.startSingleQuote());
+        Optional<Token> content = literalStringLiteralNode.content();
+        String valueString;
+        if (content.isEmpty()) {
+            valueString = "";
+        } else {
+            valueString = content.get().text();
+            if (multilineString) {
+                valueString = removeFirstNewline(valueString);
+            }
+        }
+        TomlNodeLocation position = getPosition(literalStringLiteralNode);
+
+        return new TomlStringValueNode(valueString, position);
+    }
+
+    private boolean isMultilineString(Token token) {
+        return token.kind().equals(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN) ||
+                token.kind().equals(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
+    }
+
+    private String removeFirstNewline(String value) {
+        if (value.startsWith("\n")) {
+            return value.substring(1);
+        }
+        return value;
     }
 
     @Override
@@ -371,11 +416,11 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             value = value.replace("0x", "").replace("0X", "");
             return new TomlLongValueNode(Long.parseLong(value, 16),
                     getPosition(numericLiteralNode));
-        }  else if (numericLiteralNode.kind() == SyntaxKind.OCT_INT) {
+        } else if (numericLiteralNode.kind() == SyntaxKind.OCT_INT) {
             value = value.replace("0o", "").replace("0O", "");
             return new TomlLongValueNode(Long.parseLong(value, 8),
                     getPosition(numericLiteralNode));
-        }  else if (numericLiteralNode.kind() == SyntaxKind.BINARY_INT) {
+        } else if (numericLiteralNode.kind() == SyntaxKind.BINARY_INT) {
             value = value.replace("0b", "").replace("0B", "");
             return new TomlLongValueNode(Long.parseLong(value, 2),
                     getPosition(numericLiteralNode));
