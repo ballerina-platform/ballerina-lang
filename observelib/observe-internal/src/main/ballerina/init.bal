@@ -17,7 +17,32 @@
 import ballerina/java;
 import ballerina/observe;
 
-function init() {
+public class Listener {
+
+    public isolated function init() {   // Do Nothing
+    }
+
+    public isolated function attach(service object {} s, string[]|string? name = ()) {  // Do Nothing
+    }
+
+    public isolated function detach(service object {} s) {  // Do Nothing
+    }
+
+    public function 'start() returns error? {
+        // Start hook to initialize extensions
+        initializeExtensions();
+    }
+
+    public isolated function gracefulStop() {   // Do Nothing
+    }
+
+    public isolated function immediateStop() {  // Do Nothing
+    }
+}
+
+listener Listener initListener = new();
+
+function initializeExtensions() {
     if (externIsMetricsEnabled()) {
         var metricReporter = initializeMetricReporter();
         if (metricReporter is observe:MetricReporter) {
