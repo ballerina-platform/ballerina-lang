@@ -1,0 +1,19 @@
+[
+  {
+    "description": "Define integer",
+    "input": "int i = 10"
+  },
+  {
+    "description": "Add value to integer",
+    "input": "i += 100"
+  },
+  {
+    "description": "View variable value",
+    "input": "i",
+    "output": "110"
+  },
+  {
+    "description": "Exit terminal",
+    "input": "/exit"
+  }
+]
