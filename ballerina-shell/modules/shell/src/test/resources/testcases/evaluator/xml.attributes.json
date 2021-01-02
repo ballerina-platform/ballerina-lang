@@ -1,0 +1,45 @@
+[
+  {
+    "description": "Imports xml module.",
+    "code": "import ballerina/lang.'xml as xmllib;"
+  },
+  {
+    "description": "Define namespace.",
+    "code": "xmlns \"http://ballerina.com/aa\" as ns0;"
+  },
+  {
+    "description": "Create XML element.",
+    "code": "xmllib:Element x1 = <xmllib:Element> xml `<ns0:book ns0:status=\"available\" count=\"5\"/>`; x1",
+    "expr": "<ns0:book xmlns:ns0=\"http://ballerina.com/aa\" ns0:status=\"available\" count=\"5\"/>"
+  },
+  {
+    "description": "Attribute of the element.",
+    "code": "x1.ns0:status",
+    "expr": "available"
+  },
+  {
+    "description": "Attributes access is lax types.",
+    "code": "x1.count",
+    "expr": "5"
+  },
+  {
+    "description": "Accessing non-existing element will cause error.",
+    "code": "x1.count2 is error",
+    "expr": "true"
+  },
+  {
+    "description": "Get all attributes.",
+    "code": " map<string> attributeMap = x1.getAttributes(); attributeMap",
+    "expr": "{\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://ballerina.com/aa\",\"{http://ballerina.com/aa}status\":\"available\",\"count\":\"5\"}"
+  },
+  {
+    "description": "Get using string representation.",
+    "code": "attributeMap[\"{http://ballerina.com/aa}status\"]",
+    "expr": "available"
+  },
+  {
+    "description": "Update attribute.",
+    "code": "attributeMap[ns0:status] = \"Not Available\"; x1.ns0:status",
+    "expr": "Not Available"
+  }
+]
