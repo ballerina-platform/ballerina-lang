@@ -20,6 +20,9 @@ package io.ballerina.shell.test.unit.base;
 
 import java.util.List;
 
+/**
+ * Test case for unit tests.
+ */
 public class TestCase {
     private String name;
     private String input;
