@@ -1,0 +1,25 @@
+NAME
+       ballerina-shell - Run ballerina interactive REPL
+
+SYNOPSIS
+       ballerina shell [-d|--debug]
+
+
+DESCRIPTION
+       Shell runs a REPL instance of ballerina to enable users to run small
+       snippets to code to check their outputs. Please not that this is an
+       experimental feature.
+
+       Debug messages can be enabled via -d parameter.
+
+OPTIONS
+       -d
+           Enable debug mode from the beginning.
+
+
+EXAMPLES
+       Run ballerina shell.
+          $ ballerina shell
+
+       Run ballerina shell in debug mode.
+          $ ballerina shell -d

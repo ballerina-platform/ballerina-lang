@@ -16,4 +16,5 @@ module io.ballerina.cli {
     requires io.ballerina.config;
     requires io.ballerina.core;
     requires slf4j.api;
+    requires io.ballerina.shell.cli;
 }
