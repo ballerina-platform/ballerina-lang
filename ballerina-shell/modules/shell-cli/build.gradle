@@ -17,6 +17,7 @@
  */
 
 apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 description = 'Ballerina - Ballerina Shell CLI'
 
@@ -43,7 +44,6 @@ compileJava {
 
 test {
     dependsOn ':ballerina-lang:build'
-    dependsOn ':ballerina-io:build'
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

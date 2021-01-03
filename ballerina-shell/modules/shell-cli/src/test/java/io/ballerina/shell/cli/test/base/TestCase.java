@@ -16,12 +16,37 @@
  * under the License.
  */
 
-package base;
-
-import java.util.ArrayList;
+package io.ballerina.shell.cli.test.base;
 
 /**
- * Test case list.
+ * Test case for terminal testing.
  */
-public class TestCases extends ArrayList<TestCase> {
+public class TestCase {
+    private String input;
+    private String output;
+    private String description;
+
+    public String getInput() {
+        return input;
+    }
+
+    public void setInput(String input) {
+        this.input = input;
+    }
+
+    public String getOutput() {
+        return output;
+    }
+
+    public void setOutput(String output) {
+        this.output = output;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

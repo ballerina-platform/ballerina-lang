@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package base;
+package io.ballerina.shell.cli.test.base;
 
 import io.ballerina.shell.cli.TerminalAdapter;
 import org.testng.Assert;

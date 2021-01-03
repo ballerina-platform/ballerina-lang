@@ -16,6 +16,8 @@
  * under the License.
  */
 
+package io.ballerina.shell.cli.test;
+
 import com.google.gson.Gson;
 
 import java.io.InputStream;

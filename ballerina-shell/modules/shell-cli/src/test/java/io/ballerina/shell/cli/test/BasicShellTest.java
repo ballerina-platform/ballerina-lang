@@ -16,6 +16,8 @@
  * under the License.
  */
 
+package io.ballerina.shell.cli.test;
+
 import org.testng.annotations.Test;
 
 /**
