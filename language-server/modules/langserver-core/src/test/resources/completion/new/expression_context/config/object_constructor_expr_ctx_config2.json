@@ -8,14 +8,14 @@
     {
       "label": "constructor",
       "kind": "Variable",
-      "detail": "client object {}",
+      "detail": "isolated client object {}",
       "insertText": "constructor",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "$anonType$_0",
       "kind": "Interface",
-      "detail": "Object",
+      "detail": "Class",
       "insertText": "$anonType$_0",
       "insertTextFormat": "Snippet"
     },

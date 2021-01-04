@@ -35,11 +35,11 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
@@ -75,6 +75,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 .maximumSize(1000)
                 .build();
         pathToSourceRootCache = cache.asMap();
+    }
+
+    @Override
+    public Optional<String> relativePath(Path path) {
+        Optional<Document> document = this.document(path);
+        return document.map(Document::name);
     }
 
     /**
@@ -298,9 +304,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             Path projectRoot = project.get().sourceRoot();
             sourceRootToProject.remove(projectRoot);
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
-                                            "' {project: '" + projectRoot.toUri().toString() +
-                                            "' kind: '" + project.get().kind().name().toLowerCase(Locale.getDefault()) +
-                                            "'} removed}");
+                    "' {project: '" + projectRoot.toUri().toString() +
+                    "' kind: '" + project.get().kind().name().toLowerCase(Locale.getDefault()) +
+                    "'} removed}");
         }
     }
 
@@ -371,8 +377,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             project = SingleFileProject.load(projectRoot, options);
         }
         LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
-                                        "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
-                                        project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
+                "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
+                project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
         return ProjectPair.from(project);
     }
 

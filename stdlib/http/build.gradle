@@ -52,7 +52,7 @@ dependencies {
     implementation project(':ballerina-task')
     implementation project(':ballerina-stringutils')
     implementation project(':ballerina-observability')
-    testCompile project(':ballerina-tool')
+    testCompile project(':ballerina-cli')
     testCompile 'org.slf4j:slf4j-simple'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
