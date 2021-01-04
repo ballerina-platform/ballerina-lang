@@ -77,112 +77,117 @@ public class FunctionWithIncludedRecordParam {
 
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam");
+    public void testFuctionWithIncludedRecordParameters() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam2() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam2");
+    public void testFuctionWithIncludedRecordParameters2() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters2");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam3() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam3");
+    public void testFuctionWithIncludedRecordParameters3() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters3");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam4() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam4");
+    public void testFuctionWithIncludedRecordParameters4() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters4");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam5() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam5");
+    public void testFuctionWithIncludedRecordParameters5() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters5");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam6() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam6");
+    public void testFuctionWithIncludedRecordParameters6() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters6");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam7() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam7");
+    public void testFuctionWithIncludedRecordParameters7() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters7");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam8() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam8");
+    public void testFuctionWithIncludedRecordParameters8() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters8");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam9() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam9");
+    public void testFuctionWithIncludedRecordParameters9() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters9");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam10() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam10");
+    public void testFuctionWithIncludedRecordParameters10() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters10");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam11() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam11");
+    public void testFuctionWithIncludedRecordParameters11() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters11");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam12() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam12");
+    public void testFuctionWithIncludedRecordParameters12() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters12");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam13() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam13");
+    public void testFuctionWithIncludedRecordParameters13() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters13");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam14() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam14");
+    public void testFuctionWithIncludedRecordParameters14() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters14");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam15() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam15");
+    public void testFuctionWithIncludedRecordParameters15() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters15");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam16() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam16");
+    public void testFuctionWithIncludedRecordParameters16() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters16");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam17() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam17");
+    public void testFuctionWithIncludedRecordParameters17() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters17");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam18() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam18");
+    public void testFuctionWithIncludedRecordParameters18() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters18");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam19() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam19");
+    public void testFuctionWithIncludedRecordParameters19() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters19");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam20() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam20");
+    public void testFuctionWithIncludedRecordParameters20() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters20");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam21() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam21");
+    public void testFuctionWithIncludedRecordParameters21() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters21");
     }
 
     @Test
-    public void testFunctionOfFunctionTypedParamWithIncludedRecordParam22() {
-        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithIncludedRecordParam22");
+    public void testFuctionWithIncludedRecordParameters22() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters22");
+    }
+
+    @Test
+    public void testFuctionWithIncludedRecordParameters23() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters23");
     }
 }

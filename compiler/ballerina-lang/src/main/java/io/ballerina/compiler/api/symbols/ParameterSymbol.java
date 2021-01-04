@@ -24,7 +24,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface ParameterSymbol {
+public interface ParameterSymbol extends Annotatable {
 
     /**
      * Get the parameter name.

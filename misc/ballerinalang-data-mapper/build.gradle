@@ -24,19 +24,21 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
     implementation project(':language-server:language-server-commons')
-    implementation project(':language-server:language-server-compiler')
     implementation project(':language-server:language-server-core')
     implementation project(':language-server:language-server-cli')
     implementation 'org.apache.commons:commons-lang3'
 
     implementation project(':testerina:testerina-core')
-    implementation project(':ballerina-tool')
+    implementation project(':ballerina-cli')
 
     implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
 
     compile 'com.fasterxml.jackson.core:jackson-databind:2.1.2'
 
     testCompile 'org.testng:testng'
+
+    compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '11.0.0'
+    compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '11.0.0'
 }
 
 test {

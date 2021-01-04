@@ -23,7 +23,7 @@ import io.ballerina.projects.internal.model.Target;
 
 import java.io.IOException;
 
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 
 /**
  * Cleans up the target directory.

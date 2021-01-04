@@ -1091,8 +1091,9 @@ public class TypeChecker {
         Map<String, Field> sourceFields = sourceRecordType.getFields();
         Set<String> targetFieldNames = targetType.getFields().keySet();
 
-        for (Field targetField : targetType.getFields().values()) {
-            Field sourceField = sourceFields.get(targetField.getFieldName());
+        for (Map.Entry<String, Field> targetFieldEntry : targetType.getFields().entrySet()) {
+            Field targetField = targetFieldEntry.getValue();
+            Field sourceField = sourceFields.get(targetFieldEntry.getKey());
 
             if (sourceField == null) {
                 return false;
@@ -1120,12 +1121,12 @@ public class TypeChecker {
         }
 
         // If it's an open record, check if they are compatible with the rest field of the target type.
-        for (Field field : sourceFields.values()) {
-            if (targetFieldNames.contains(field.getFieldName())) {
+        for (Map.Entry<String, Field> sourceFieldEntry : sourceFields.entrySet()) {
+            if (targetFieldNames.contains(sourceFieldEntry.getKey())) {
                 continue;
             }
 
-            if (!checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes)) {
+            if (!checkIsType(sourceFieldEntry.getValue().getFieldType(), targetType.restFieldType, unresolvedTypes)) {
                 return false;
             }
         }
@@ -1177,8 +1178,9 @@ public class TypeChecker {
 
         Map<String, Field> fields = recordType.getFields();
 
-        for (Field field : fields.values()) {
-            String fieldName = field.getFieldName();
+        for (Map.Entry<String, Field> fieldEntry : fields.entrySet()) {
+            String fieldName = fieldEntry.getKey();
+            Field field = fieldEntry.getValue();
 
             if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY)) {
                 BString fieldNameBString = StringUtils.fromString(fieldName);
@@ -1237,8 +1239,9 @@ public class TypeChecker {
         Map<String, Field> sourceFields = sourceRecordType.getFields();
         Set<String> targetFieldNames = targetType.getFields().keySet();
 
-        for (Field targetField : targetType.getFields().values()) {
-            String fieldName = targetField.getFieldName();
+        for (Map.Entry<String, Field> targetFieldEntry : targetType.getFields().entrySet()) {
+            String fieldName = targetFieldEntry.getKey();
+            Field targetField = targetFieldEntry.getValue();
             Field sourceField = sourceFields.get(fieldName);
 
             if (sourceField == null) {
@@ -1280,13 +1283,15 @@ public class TypeChecker {
             return targetFieldNames.containsAll(sourceFields.keySet());
         }
 
-        for (Field field : sourceFields.values()) {
-            if (targetFieldNames.contains(field.getFieldName())) {
+        for (Map.Entry<String, Field> targetFieldEntry : sourceFields.entrySet()) {
+            String fieldName = targetFieldEntry.getKey();
+            Field field = targetFieldEntry.getValue();
+            if (targetFieldNames.contains(fieldName)) {
                 continue;
             }
 
             if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.READONLY)) {
-                if (!checkIsLikeType(sourceRecordValue.get(StringUtils.fromString(field.getFieldName())),
+                if (!checkIsLikeType(sourceRecordValue.get(StringUtils.fromString(fieldName)),
                                      targetType.restFieldType)) {
                     return false;
                 }
@@ -1714,7 +1719,7 @@ public class TypeChecker {
         }
 
         BFunctionType source = (BFunctionType) sourceType;
-        if (hasIncompatibleIsolatedFlags(targetType, source)) {
+        if (hasIncompatibleIsolatedFlags(targetType, source) || hasIncompatibleTransactionalFlags(targetType, source)) {
             return false;
         }
 
@@ -1734,6 +1739,11 @@ public class TypeChecker {
     private static boolean hasIncompatibleIsolatedFlags(FunctionType target, FunctionType source) {
         return SymbolFlags.isFlagOn(target.getFlags(), SymbolFlags.ISOLATED) && !SymbolFlags
                 .isFlagOn(source.getFlags(), SymbolFlags.ISOLATED);
+    }
+
+    private static boolean hasIncompatibleTransactionalFlags(FunctionType target, FunctionType source) {
+        return SymbolFlags.isFlagOn(source.getFlags(), SymbolFlags.TRANSACTIONAL) && !SymbolFlags
+                .isFlagOn(target.getFlags(), SymbolFlags.TRANSACTIONAL);
     }
 
     private static boolean checkIsServiceType(Type sourceType) {

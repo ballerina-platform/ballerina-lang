@@ -48,7 +48,7 @@ dependencies {
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-io')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-tool')
+    implementation project(':ballerina-cli')
 //    implementation project(':ballerina-http')
 //    implementation project(':ballerina-transactions')
     implementation project(':ballerina-cli')

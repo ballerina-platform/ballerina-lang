@@ -20,7 +20,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -33,7 +33,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class StreamTypeParamsNodeContext extends AbstractCompletionProvider<StreamTypeParamsNode> {
 
     public StreamTypeParamsNodeContext() {
@@ -41,7 +41,7 @@ public class StreamTypeParamsNodeContext extends AbstractCompletionProvider<Stre
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, StreamTypeParamsNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, StreamTypeParamsNode node)
             throws LSCompletionException {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
+import ballerina/java;
 
 function waitTest1() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo", f6: true}
     future<int> f1 = @strand{thread:"any"} start add_1(5, 2);
@@ -173,7 +173,7 @@ function waitTest17() returns any{
         future<int> f1 = @strand{thread:"any"} start add_1(6, 6);
         future<string> f2 = @strand{thread:"any"} start concat("foo");
         map <int|string> m = wait {id: f1, name : f2};
-        runtime:sleep(2000);
+        sleep(2000);
         return m;
     }
     any a = wait {f1: w1, f2: w2};
@@ -401,3 +401,7 @@ function add_panic(int i, int j) returns int {
     }
     return k;
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

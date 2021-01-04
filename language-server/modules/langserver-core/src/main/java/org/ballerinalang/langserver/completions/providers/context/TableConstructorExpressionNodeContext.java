@@ -19,7 +19,7 @@ import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -35,7 +35,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class TableConstructorExpressionNodeContext extends AbstractCompletionProvider<TableConstructorExpressionNode> {
 
     public TableConstructorExpressionNodeContext() {
@@ -43,13 +43,13 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, TableConstructorExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, TableConstructorExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (this.withinKeySpecifier(context, node)) {
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_KEY.get()));
+        if (this.withinKeySpecifier(ctx, node)) {
+            return Collections.singletonList(new SnippetCompletionItem(ctx, Snippet.KW_KEY.get()));
         }
-        int cursor = context.getCursorPositionInTree();
+        int cursor = ctx.getCursorPositionInTree();
         if (node.keySpecifier().isPresent() && node.keySpecifier().get().textRange().endOffset() < cursor) {
             /*
             Covers the following
@@ -57,14 +57,14 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
             (2) var test = stream f<cursor>
             This particular section hits only when (1) and (2) are being the last statement of a block (ex: in function)
              */
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_FROM.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.CLAUSE_FROM.get()));
         }
 
         return completionItems;
     }
 
-    private boolean withinKeySpecifier(CompletionContext context, TableConstructorExpressionNode node) {
+    private boolean withinKeySpecifier(BallerinaCompletionContext context, TableConstructorExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
         Optional<KeySpecifierNode> keySpecifier = node.keySpecifier();
         Token tableKeyword = node.tableKeyword();

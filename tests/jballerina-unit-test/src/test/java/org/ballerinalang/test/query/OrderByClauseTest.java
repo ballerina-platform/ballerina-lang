@@ -245,11 +245,11 @@ public class OrderByClauseTest {
 
         validateError(negativeResult, index++, "order by not supported for complex type fields, " +
                         "order key should belong to a basic type",
-                19, 18);
+                35, 18);
         validateError(negativeResult, index++, "undefined symbol 'address'",
-                19, 18);
+                35, 18);
         validateError(negativeResult, index, "order by not supported for complex type fields, " +
                         "order key should belong to a basic type",
-                31, 18);
+                47, 18);
     }
 }
