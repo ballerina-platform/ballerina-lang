@@ -3412,13 +3412,11 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
             case DOCUMENTATION_STRING:
             case AT_TOKEN:
-                STNode metadata = parseMetaData();
-                return parseRecordField(isInclusive, metadata);
+                return parseRecordField(isInclusive);
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
                     // individual-field-descriptor
-                    metadata = STNodeFactory.createEmptyNode();
-                    return parseRecordField(isInclusive, metadata);
+                    return parseRecordField(isInclusive);
                 }
 
                 recover(peek(), ParserRuleContext.RECORD_FIELD_OR_RECORD_END, isInclusive);
@@ -3426,8 +3424,9 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseRecordField(boolean isInclusive, STNode metadata) {
+    private STNode parseRecordField(boolean isInclusive) {
         startContext(ParserRuleContext.RECORD_FIELD);
+        STNode metadata = parseMetaData();
         STNode fieldOrRestDesc = parseRecordField(peek(), isInclusive, metadata);
         endContext();
         return fieldOrRestDesc;
