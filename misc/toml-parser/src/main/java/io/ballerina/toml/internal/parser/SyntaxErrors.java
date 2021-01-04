@@ -111,6 +111,15 @@ public class SyntaxErrors {
             case STRING_END:
             case STRING_START:
                 return DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE_TOKEN;
+            case MULTILINE_STRING_START:
+            case MULTILINE_STRING_END:
+                return DiagnosticErrorCode.ERROR_MISSING_TRIPLE_DOUBLE_QUOTE_TOKEN;
+            case LITERAL_STRING_END:
+            case LITERAL_STRING_START:
+                return DiagnosticErrorCode.ERROR_MISSING_SINGLE_QUOTE_TOKEN;
+            case MULTILINE_LITERAL_STRING_START:
+            case MULTILINE_LITERAL_STRING_END:
+                return DiagnosticErrorCode.ERROR_MISSING_TRIPLE_SINGLE_QUOTE_TOKEN;
             case DECIMAL_INTEGER_LITERAL:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case BOOLEAN_LITERAL:

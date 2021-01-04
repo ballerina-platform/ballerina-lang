@@ -210,9 +210,10 @@ public class TomlLexer extends AbstractLexer {
             // Other
             default:
                 // Process invalid token as trivia, and continue to next token
-                processInvalidToken();
+                STToken invalidToken = processInvalidToken();
                 // Use the internal method to use the already captured trivia.
                 token = nextToken();
+                token = SyntaxErrors.addDiagnostic(token, DiagnosticErrorCode.ERROR_INVALID_TOKEN, invalidToken);
                 break;
         }
 

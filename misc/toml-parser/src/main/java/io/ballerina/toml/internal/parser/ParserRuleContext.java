@@ -62,9 +62,13 @@ public enum ParserRuleContext {
     // Expressions
     DECIMAL_INTEGER_LITERAL("decimal-int-literal"),
     STRING_BODY("string-body"),
-    LITERAL_STRING_BODY("string-content"),
+    MULTILINE_STRING_BODY("multiline-string-body"),
+    LITERAL_STRING_BODY("literal-string-content"),
+    MULTILINE_LITERAL_STRING_BODY("multiline-literal-string-body"),
     STRING_CONTENT("string-content"),
-    LITERAL_STRING_CONTENT("string-content"),
+    MULTILINE_STRING_CONTENT("multiline-string-content"),
+    LITERAL_STRING_CONTENT("literal-string-content"),
+    MULTILINE_LITERAL_STRING_CONTENT("multiline-literal-string-content"),
     NIL_LITERAL("nil-literal"),
     DECIMAL_FLOATING_POINT_LITERAL("decimal-floating-point-literal"),
     HEX_INTEGER_LITERAL("hex-int-literal"),
@@ -82,9 +86,14 @@ public enum ParserRuleContext {
     TOML_TABLE_ARRAY("toml-table-array"),
 
     STRING_START("\""),
+    MULTILINE_STRING_START("\""),
     STRING_END("\""),
+    MULTILINE_STRING_END("\""),
+
     LITERAL_STRING_START("'"),
+    MULTILINE_LITERAL_STRING_START("'"),
     LITERAL_STRING_END("'"),
+    MULTILINE_LITERAL_STRING_END("'"),
     ;
 
     private String value;
