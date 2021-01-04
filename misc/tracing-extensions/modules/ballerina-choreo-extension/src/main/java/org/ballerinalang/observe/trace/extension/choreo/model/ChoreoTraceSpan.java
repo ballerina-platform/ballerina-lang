@@ -33,9 +33,11 @@ public class ChoreoTraceSpan {
     private long duration;
     private Map<String, String> tags;
     private List<Reference> references;
+    private List<SpanEvent> events;
 
     public ChoreoTraceSpan(long traceId, long spanId, String serviceName, String operationName,
-                           long timestamp, long duration, Map<String, String> tags, List<Reference> references) {
+                           long timestamp, long duration, Map<String, String> tags, List<Reference> references,
+                           List<SpanEvent> events) {
         this.traceId = traceId;
         this.spanId = spanId;
         this.serviceName = serviceName;
@@ -44,6 +46,7 @@ public class ChoreoTraceSpan {
         this.duration = duration;
         this.tags = tags;
         this.references = references;
+        this.events = events;
     }
 
     public long getTraceId() {
@@ -78,6 +81,10 @@ public class ChoreoTraceSpan {
         return references;
     }
 
+    public List<SpanEvent> getEvents() {
+        return events;
+    }
+
     /**
      * Trace reference.
      */
@@ -110,6 +117,33 @@ public class ChoreoTraceSpan {
         public enum Type {
             CHILD_OF,
             FOLLOWS_FROM
+        }
+    }
+
+    /**
+    * Trace Span Event.
+    */
+    public static class SpanEvent {
+        private long time;
+        private String moduleID;
+        private String positionID;
+
+        public SpanEvent(long time, String moduleID, String positionID) {
+            this.time = time;
+            this.moduleID = moduleID;
+            this.positionID = positionID;
+        }
+
+        public long getTime() {
+            return time;
+        }
+
+        public String getModuleID() {
+            return moduleID;
+        }
+
+        public String getPositionID() {
+            return positionID;
         }
     }
 }

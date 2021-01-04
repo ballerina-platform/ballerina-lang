@@ -48,6 +48,27 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         final String span4Position = FILE_NAME + ":24:15";
         final String span5Position = FILE_NAME + ":32:21";
         final String span6Position = FILE_NAME + ":38:16";
+        final String moduleID = "intg_tests/tracing_tests:0.0.1";
+        final List<BMockSpan.BMockSpanEvent> expectedCheckpoints = Arrays.asList(
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":20:5"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":22:13"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":25:23"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":32:16"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":32:21"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":33:11"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":38:16"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":39:11"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":53:33"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":53:33"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":54:31"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":55:5"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":55:5"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":56:11"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":56:5"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":56:5"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":57:1"),
+                new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":29:9")
+        );
 
         List<BMockSpan> spans = this.getFinishedSpans("Unknown Service");
         Assert.assertEquals(spans.stream()
@@ -73,6 +94,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.entry_point.main", "true"),
                     new AbstractMap.SimpleEntry<>("function", "main")
             ));
+            Assert.assertEquals(span.getCheckpoints(), expectedCheckpoints);
         });
 
         Optional<BMockSpan> span2 = spans.stream()

@@ -200,6 +200,15 @@ public class ChoreoClient implements AutoCloseable {
                                     : TelemetryOuterClass.TraceReferenceType.FOLLOWS_FROM));
                 }
 
+                if (traceSpan.getEvents() != null) {
+                    for (ChoreoTraceSpan.SpanEvent spanEvent: traceSpan.getEvents()) {
+                        traceSpanBuilder.addCheckpoints(TelemetryOuterClass.Checkpoint.newBuilder()
+                                .setTimestamp(spanEvent.getTime())
+                                .setModuleID(spanEvent.getModuleID())
+                                .setPositionID(spanEvent.getPositionID()));
+                    }
+                }
+
                 TelemetryOuterClass.TraceSpan traceSpanMessage = traceSpanBuilder.build();
                 int currentMessageSize = traceSpanMessage.getSerializedSize();
                 if (currentMessageSize >= SERVER_MAX_FRAME_SIZE_BYTES) {
