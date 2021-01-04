@@ -408,10 +408,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Update globalVar for endpoints.
         for (BLangVariable var : pkgNode.globalVars) {
-            BTypeSymbol tSymbol = var.symbol.type.tsymbol;
-           if (var.getKind() == NodeKind.VARIABLE && tSymbol != null &&
-                   Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT)) {
-               var.symbol.tag = SymTag.ENDPOINT;
+            if (var.getKind() == NodeKind.VARIABLE){
+                BTypeSymbol tSymbol = var.symbol.type.tsymbol;
+                if (tSymbol != null && Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT)) {
+                    var.symbol.tag = SymTag.ENDPOINT;
+                }
             }
         }
     }

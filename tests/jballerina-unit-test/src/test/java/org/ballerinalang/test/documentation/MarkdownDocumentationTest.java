@@ -369,7 +369,7 @@ public class MarkdownDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 37);
+        Assert.assertEquals(compileResult.getWarnCount(), 40);
 
         int index = 0;
 
@@ -423,7 +423,10 @@ public class MarkdownDocumentationTest {
                 "invalid identifier in documentation reference '9function'", 108, 13);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid reference in documentation 'filePath1' for type 'parameter'", 109, 3);
-        BAssertUtil.validateWarning(compileResult, index, "undocumented parameter 'filePath'", 110, 22);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented parameter 'filePath'", 110, 22);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'a'", 114, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 115, 1);
+        BAssertUtil.validateWarning(compileResult, index, "invalid usage of parameter reference outside of function definition 'invalidParameter'", 116, 5);
     }
 
     @Test(description = "Test doc service")
