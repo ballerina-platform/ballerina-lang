@@ -15,27 +15,25 @@
 // under the License.
 
 import ballerina/java;
-import ballerina/lang.'object as lang;
 
 public class Listener {
-    *lang:Listener;
-    public isolated function __start() returns error? {
+    public isolated function 'start() returns error? {
     }
-    public isolated function __gracefulStop() returns error? {
+    public isolated function gracefulStop() returns error? {
     }
-    public isolated function __immediateStop() returns error? {
+    public isolated function immediateStop() returns error? {
     }
-    public isolated function __detach(service s) returns error? {
+    public isolated function detach(service object {} s) returns error? {
     }
-     public isolated function __attach(service s, string? name = ()) returns error? {
+    public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
         return self.register(s, name);
     }
-    isolated function register(service s, string? name) returns error? {
+    isolated function register(service object {} s, string[]|string? name) returns error? {
         return externAttach(s);
     }
 }
 
-isolated function externAttach(service s) returns error? = @java:Method {
+isolated function externAttach(service object {} s) returns error? = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.MockListener",
     name: "attach"
 } external;
@@ -43,8 +41,8 @@ isolated function externAttach(service s) returns error? = @java:Method {
 listener Listener lsn = new();
 error err = error("An Error");
 error diff = error("A different error");
-service hello on lsn {
-    resource function processRequest() returns error? {
+service /hello on lsn {
+    resource function get processRequest() returns error? {
         error? aDifferentError = createADifferentError();
         assertEquals(diff, aDifferentError);
         error? anotherErr = self.createError();
@@ -66,7 +64,7 @@ function invokeResource(string name) returns error? = @java:Method {
 } external;
 
 public function testErrorFunction() {
-    var err = invokeResource("processRequest");
+    var err = invokeResource("$get$processRequest");
     if(err is error) {
         panic err;
     }

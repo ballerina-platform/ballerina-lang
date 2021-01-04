@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.array;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
@@ -44,7 +44,7 @@ public class Filter {
                                                                       ARRAY_VERSION, "filter");
 
     public static BArray filter(BArray arr, BFunctionPointer<Object, Boolean> func) {
-        BArray newArr = ValueCreator.createArrayValue((ArrayType) arr.getType());
+        BArray newArr = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);

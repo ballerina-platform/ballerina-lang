@@ -1,8 +1,7 @@
-import ballerina/io;
-import ballerina/lang.'object;
+import ballerina/java;
 
 function init() {
-	io:println("Initializing module a");
+	println("Initializing module a");
 }
 
 public function main() {
@@ -10,34 +9,50 @@ public function main() {
 
 public class ABC {
 
-    *'object:Listener;
     private string name = "";
 
     public function init(string name){
         self.name = name;
     }
 
-    public function __start() returns error? {
-        io:println("a:ABC listener __start called, service name - " + self.name);
+    public function 'start() returns error? {
+        println("a:ABC listener __start called, service name - " + self.name);
     }
 
-    public function __gracefulStop() returns error? {
-        io:println("a:ABC listener __gracefulStop called, service name - " + self.name);
+    public function gracefulStop() returns error? {
+        println("a:ABC listener __gracefulStop called, service name - " + self.name);
         return ();
     }
 
-    public function __immediateStop() returns error? {
-        io:println("a:ABC listener __immediateStop called, service name - " + self.name);
+    public function immediateStop() returns error? {
+        println("a:ABC listener __immediateStop called, service name - " + self.name);
         return ();
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
-        io:println("a:ABC listener __attach called, service name - " + self.name);
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
+        println("a:ABC listener __attach called, service name - " + self.name);
     }
 
-    public function __detach(service s) returns error? {
-        io:println("a:ABC listener __detach called, service name - " + self.name);
+    public function detach(service object {} s) returns error? {
+        println("a:ABC listener __detach called, service name - " + self.name);
     }
 }
 
 listener ABC ep = new ABC("ModA");
+
+public function println(string value) {
+    handle strValue = java:fromString(value);
+    handle stdout1 = stdout();
+    printlnInternal(stdout1, strValue);
+}
+
+function stdout() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java/lang/System"
+} external;
+
+function printlnInternal(handle receiver, handle strValue)  = @java:Method {
+    name: "println",
+    'class: "java/io/PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;

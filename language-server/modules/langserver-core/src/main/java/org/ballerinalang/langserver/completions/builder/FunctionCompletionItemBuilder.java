@@ -22,12 +22,9 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -100,17 +97,16 @@ public final class FunctionCompletionItemBuilder {
         return item;
     }
 
-    public static CompletionItem build(ObjectTypeSymbol typeDesc, InitializerBuildMode mode, CompletionContext ctx) {
+    public static CompletionItem build(ClassSymbol typeDesc, InitializerBuildMode mode, CompletionContext ctx) {
         MethodSymbol initMethod = null;
-        if (typeDesc.kind() == SymbolKind.CLASS && ((ClassSymbol) typeDesc).initMethod().isPresent()) {
-            initMethod = ((ClassSymbol) typeDesc).initMethod().get();
+        if (typeDesc.initMethod().isPresent()) {
+            initMethod = typeDesc.initMethod().get();
         }
         CompletionItem item = new CompletionItem();
         setMeta(item, initMethod, ctx);
         String functionName;
-        if (mode == InitializerBuildMode.EXPLICIT && typeDesc.typeKind() == TypeDescKind.TYPE_REFERENCE) {
-            functionName = ((TypeReferenceTypeSymbol) typeDesc).name();
-            // TODO: Following is blocked due to the Type Referencing issue in Semantic Model
+        if (mode == InitializerBuildMode.EXPLICIT) {
+            functionName = typeDesc.name();
 //            Optional<BLangIdentifier> moduleAlias = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
 //                    .filter(pkg -> pkg.symbol != null && pkg.symbol.pkgID == typeDesc.pkgID)
 //                    .map(BLangImportPackage::getAlias)
@@ -241,9 +237,6 @@ public final class FunctionCompletionItemBuilder {
         signature.append(")");
         insertText.append(")");
         Optional<TypeSymbol> returnType = functionTypeDesc.returnTypeDescriptor();
-        if (returnType.isEmpty() || returnType.get().typeKind() == TypeDescKind.NIL) {
-            insertText.append(";");
-        }
         String initString = "(";
         String endString = ")";
 

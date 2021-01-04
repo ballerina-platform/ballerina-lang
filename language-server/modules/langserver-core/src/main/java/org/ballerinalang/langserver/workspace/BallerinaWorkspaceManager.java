@@ -44,6 +44,7 @@ import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
@@ -74,6 +75,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 .maximumSize(1000)
                 .build();
         pathToSourceRootCache = cache.asMap();
+    }
+
+    @Override
+    public Optional<String> relativePath(Path path) {
+        Optional<Document> document = this.document(path);
+        return document.map(Document::name);
     }
 
     /**
@@ -173,6 +180,33 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
         // Get Module
         Module module = document.get().module();
+        // Lock Project Instance
+        projectPair.get().locker().lock();
+        try {
+            return Optional.of(module.getCompilation());
+        } finally {
+            // Unlock Project Instance
+            projectPair.get().locker().unlock();
+        }
+    }
+
+    /**
+     * Returns module compilation from the file path provided.
+     *
+     * @param module {@link Module}
+     * @return {@link ModuleCompilation}
+     */
+    @Override
+    public Optional<ModuleCompilation> waitAndGetModuleCompilation(Module module) {
+        // TODO: Remove this once singleProject.sourceRoot is tempDir issue fixed
+        Optional<ProjectPair> projectPair = sourceRootToProject.entrySet().stream()
+                .filter(e -> e.getValue().project().equals(module.project()))
+                .findFirst()
+                .map(Map.Entry::getValue);
+        // Get Project and Lock
+        if (projectPair.isEmpty()) {
+            return Optional.empty();
+        }
         // Lock Project Instance
         projectPair.get().locker().lock();
         try {
@@ -379,6 +413,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
         // Build Project
         Path parent = documentFilePath.getParent();
+        String filePathDocName = documentFilePath.getFileName().toString();
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             // TODO: Check whether this logic also works for Single File projects
             Optional<Path> modulePath = modulePath(moduleId, project);
@@ -387,15 +422,14 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                         || parent.equals(modulePath.get().resolve(ProjectConstants.TEST_DIR_NAME))) {
                     Module module = project.currentPackage().module(moduleId);
                     for (DocumentId documentId : module.documentIds()) {
-                        if (module.document(documentId).name().equals(
-                                documentFilePath.getFileName().toString())) {
+                        if (module.document(documentId).name().equals(filePathDocName)) {
                             return Optional.of(documentId);
                         }
                     }
 
                     for (DocumentId documentId : module.testDocumentIds()) {
-                        if (module.document(documentId).name().equals(
-                                documentFilePath.getFileName().toString())) {
+                        String docName = module.document(documentId).name();
+                        if (docName.equals(ProjectConstants.TEST_DIR_NAME + File.separator + filePathDocName)) {
                             return Optional.of(documentId);
                         }
                     }

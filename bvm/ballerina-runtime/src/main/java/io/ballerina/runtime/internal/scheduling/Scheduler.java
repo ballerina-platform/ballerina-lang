@@ -345,7 +345,7 @@ public class Scheduler {
                             item.future.strand.currentTrxContext.notifyLocalRemoteParticipantFailure();
                         }
                     } else {
-                        item.future.callback.notifySuccess();
+                        item.future.callback.notifySuccess(result);
                     }
                 }
 
@@ -509,7 +509,7 @@ public class Scheduler {
 
         public synchronized void stopListeners(Strand strand) {
             for (BObject listener : listenerSet) {
-                listener.call(strand, "__gracefulStop");
+                listener.call(strand, "gracefulStop");
             }
         }
     }

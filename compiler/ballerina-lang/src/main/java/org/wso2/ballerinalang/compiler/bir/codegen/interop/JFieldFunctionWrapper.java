@@ -27,9 +27,8 @@ public class JFieldFunctionWrapper extends BIRFunctionWrapper implements Externa
     JavaField jField;
 
     JFieldFunctionWrapper(BIRFunctionWrapper functionWrapper, JavaField jField) {
-
-        super(functionWrapper.orgName, functionWrapper.moduleName, functionWrapper.version, functionWrapper.func,
-                functionWrapper.fullQualifiedClassName, functionWrapper.jvmMethodDescription);
+        super(functionWrapper.packageID, functionWrapper.func, functionWrapper.fullQualifiedClassName,
+              functionWrapper.jvmMethodDescription);
         this.jField = jField;
     }
 }

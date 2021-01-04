@@ -72,7 +72,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             Predicate<Symbol> filter = symbol ->
-                    symbol.kind() == SymbolKind.TYPE
+                    symbol.kind() == SymbolKind.TYPE_DEFINITION
                             || symbol.kind() == SymbolKind.VARIABLE
                             || symbol.kind() == SymbolKind.CONSTANT
                             || symbol.kind() == SymbolKind.FUNCTION
@@ -111,6 +111,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));

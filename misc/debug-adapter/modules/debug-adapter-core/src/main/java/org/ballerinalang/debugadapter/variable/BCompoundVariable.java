@@ -22,7 +22,7 @@ import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Map;
 
-import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 
 /**
  * Base implementation for ballerina variable types with child variables.

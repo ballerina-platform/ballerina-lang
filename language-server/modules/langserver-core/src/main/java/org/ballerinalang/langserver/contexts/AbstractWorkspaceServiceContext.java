@@ -24,7 +24,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 /**
  * Language server workspace service context implementation.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
 public class AbstractWorkspaceServiceContext implements WorkspaceServiceContext {
 
@@ -48,14 +48,13 @@ public class AbstractWorkspaceServiceContext implements WorkspaceServiceContext 
     }
 
     /**
-     * Represents Language server context Builder.
+     * Represents Language server workspace service context Builder.
      *
      * @param <T> builder type
      * @since 2.0.0
      */
     protected abstract static class AbstractContextBuilder<T extends AbstractContextBuilder<T>> {
         protected final LSOperation operation;
-        protected String fileUri;
         protected WorkspaceManager wsManager;
 
         /**

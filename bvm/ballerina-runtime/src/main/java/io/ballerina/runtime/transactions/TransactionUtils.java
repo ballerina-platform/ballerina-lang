@@ -98,7 +98,7 @@ public class TransactionUtils {
             CountDownLatch completeFunction = new CountDownLatch(1);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, new Callback() {
                 @Override
-                public void notifySuccess() {
+                public void notifySuccess(Object result) {
                     completeFunction.countDown();
                 }
 

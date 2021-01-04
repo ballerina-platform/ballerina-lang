@@ -72,39 +72,43 @@ public class CommandConstants {
     public static final String ARG_KEY_PARAMETER = "parameter";
 
     // Command Titles
-    public static final String IMPORT_MODULE_TITLE = "Import Module '%s'";
+    public static final String IMPORT_MODULE_TITLE = "Import module '%s'";
 
-    public static final String CREATE_VARIABLE_TITLE = "Create Variable";
+    public static final String CREATE_VARIABLE_TITLE = "Create variable";
 
-    public static final String IGNORE_RETURN_TITLE = "Ignore Return Value";
+    public static final String IGNORE_RETURN_TITLE = "Ignore return value";
 
-    public static final String CREATE_FUNCTION_TITLE = "Create Function ";
+    public static final String CREATE_FUNCTION_TITLE = "Create function '%s'";
 
-    public static final String MARK_UNTAINTED_TITLE = "Mark '%s' as Untainted";
+    public static final String MARK_UNTAINTED_TITLE = "Mark '%s' as untainted";
 
-    public static final String CREATE_TEST_FUNC_TITLE = "Create Test For Function";
+    public static final String CREATE_TEST_FUNC_TITLE = "Create test for function";
 
-    public static final String CREATE_TEST_SERVICE_TITLE = "Create Test For Service";
+    public static final String CREATE_TEST_SERVICE_TITLE = "Create test for service";
 
-    public static final String ADD_DOCUMENTATION_TITLE = "Document This";
+    public static final String ADD_DOCUMENTATION_TITLE = "Document this";
 
-    public static final String ADD_ALL_DOC_TITLE = "Document All";
+    public static final String ADD_ALL_DOC_TITLE = "Document all";
 
-    public static final String CREATE_INITIALIZER_TITLE = "Create Initializer";
+    public static final String CREATE_INITIALIZER_TITLE = "Create initializer";
 
     public static final String PULL_MOD_TITLE = "Pull from Ballerina Central";
 
-    public static final String CHANGE_RETURN_TYPE_TITLE = "Change Return Type to '";
+    public static final String CHANGE_RETURN_TYPE_TITLE = "Change return type to '";
 
-    public static final String ADD_TYPE_CAST_TITLE = "Add Type Cast to Assignment";
+    public static final String ADD_TYPE_CAST_TITLE = "Add type cast to assignment";
 
-    public static final String MAKE_OBJ_ABSTRACT_TITLE = "Make '%s' an Abstract Object";
+    public static final String CHANGE_VAR_TYPE_TITLE = "Change variable '%s' type to '%s'";
 
-    public static final String MAKE_OBJ_NON_ABSTRACT_TITLE = "Make '%s' an Non-Abstract Object";
+    public static final String CHANGE_PARAM_TYPE_TITLE = "Change parameter '%s' type to '%s'";
 
-    public static final String TYPE_GUARD_TITLE = "Create Variable and Type Guard";
+    public static final String CREATE_VAR_TYPE_GUARD_TITLE = "Create variable and type guard";
 
-    public static final String ADD_CHECK_TITLE = "Create Variable and Check Error";
+    public static final String TYPE_GUARD_TITLE = "Type guard variable";
+
+    public static final String CREATE_VAR_ADD_CHECK_TITLE = "Create variable and check error";
+
+    public static final String ADD_CHECK_TITLE = "Add check error";
 
     public static final String CREATE_SERVICE_RESOURCE = "Create service resource for the path '%s'";
 
@@ -114,7 +118,7 @@ public class CommandConstants {
     public static final String ADD_MISSING_PARAMETER_IN_BALLERINA =
             "Add missing parameter '%s' for the method '%s' for the path '%s'";
 
-    public static final String IMPLEMENT_FUNCS_TITLE = "Implement '%s' Method";
+    public static final String IMPLEMENT_FUNCS_TITLE = "Implement method '%s'";
 
-    public static final String OPTIMIZE_IMPORTS_TITLE = "Optimize All Imports";
+    public static final String OPTIMIZE_IMPORTS_TITLE = "Optimize all imports";
 }

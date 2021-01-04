@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object as lang;
+
 
 type Annot record {
     string val;
@@ -24,10 +24,10 @@ public annotation Annot v1 on type, class;
 annotation Annot v2 on class;
 public annotation Annot v3 on function;
 annotation map<int> v4 on object function;
-public annotation Annot v5 on resource function;
+public annotation Annot v5 on object function;
 annotation Annot v6 on parameter;
 public annotation v7 on return;
-annotation Annot v8 on service;
+annotation Annot v8 on service, class;
 
 public const annotation map<string> v9 on source listener;
 const annotation map<string> v10 on source annotation;
@@ -97,7 +97,7 @@ listener Listener lis = new;
 @v8 {
     val: "v8"
 }
-service ser on lis {
+service /ser on lis {
 
     @v3 {
         val: "v34"
@@ -105,43 +105,43 @@ service ser on lis {
     @v5 {
         val: "54"
     }
-    resource function res(@v6 { val: "v64" } int intVal) returns @v7 error? {
+    resource function get res(@v6 { val: "v64" } int intVal) returns @v7 error? {
         return;
     }
 }
 
-service serTwo = @v8 {
+service object {} serTwo = @v8 {
                  val: "v82"
-              } service {
+              } service object {
 
     @v5 {
         val: "542"
     }
-    resource function res(@v6 { val: "v642" } int intVal) returns @v7 () {
+    resource function get res(@v6 { val: "v642" } int intVal) returns @v7 () {
         return;
     }
 };
 
 class Listener {
-    *lang:Listener;
+
 
     public function init() {
     }
 
-    public function __attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
     }
 
-    public function __detach(service s) returns error? {
+    public function detach(service object {} s) returns error? {
     }
 
-    public function __start() returns error? {
+    public function 'start() returns error? {
     }
 
-    public function __gracefulStop() returns error? {
+    public function gracefulStop() returns error? {
         return ();
     }
 
-    public function __immediateStop() returns error? {
+    public function immediateStop() returns error? {
         return ();
     }
 }

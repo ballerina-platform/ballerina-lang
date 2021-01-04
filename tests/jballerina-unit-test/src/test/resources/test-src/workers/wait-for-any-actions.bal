@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
+import ballerina/java;
 
 function waitTest1() returns int {
     future<int> f1 = @strand{thread:"any"} start add_1(5, 2);
@@ -155,7 +155,7 @@ function waitTest16() returns int|string|boolean {
     worker w1 returns int {
         future<int> f1 = @strand{thread:"any"} start add_1(5, 2);
         future<int> f2 = @strand{thread:"any"} start add_3(50, 100);
-        runtime:sleep(3000);
+        sleep(3000);
         int r = wait f1 | f2;
         return r;
     }
@@ -170,7 +170,7 @@ function waitTest16() returns int|string|boolean {
         future<string> f2 = @strand{thread:"any"} start concat("bar");
         future<boolean> f3 = @strand{thread:"any"} start status();
         int|string|boolean r = wait f1 | f2 | f3;
-        runtime:sleep(2000);
+        sleep(2000);
         return r;
     }
     int|string|boolean result = wait w1 | w2 | w3;
@@ -185,13 +185,13 @@ function waitTest17() returns int|error {
         worker w1 {
             int a = 10;
             m["x"] = a;
-            runtime:sleep(1000);
+            sleep(1000);
         }
         @strand{thread:"any"}
         worker w2 {
             int a = 5;
             int b = 15;
-            runtime:sleep(2000);
+            sleep(2000);
             m["x"] = a + b;
         }
         @strand{thread:"any"}
@@ -218,7 +218,7 @@ function waitTest18() returns int {
         int b = 15;
         a = <- w1;
         b -> w1;
-        runtime:sleep(2000);
+        sleep(2000);
         return a;
     }
     int result = wait w1 | w2;
@@ -255,7 +255,7 @@ function waitTest22() returns int|string|error {
 }
 
 function waitTest23() returns int|string|() {
-    future<()> f1 = start runtime:sleep(50);
+    future<()> f1 = start sleep(50);
     future<int> f2 = @strand{thread:"any"} start add_1(5, 2);
     future<string> f3 = @strand{thread:"any"} start greet();
     int|string|() result = wait f1 | f2 | f3;
@@ -307,7 +307,7 @@ function add_panic3(int i, int j) returns int {
 function add_1(int i, int j) returns int {
     int k = i + j;
     // sleep for 2s
-    runtime:sleep(2000);
+    sleep(2000);
     int l = 0;
     while(l < 999999) {
         l = l + 1;
@@ -330,7 +330,7 @@ function concat(string name) returns string {
 }
 
 function greet() returns string {
-    runtime:sleep(3000);
+    sleep(3000);
     return "good morning";
 }
 
@@ -345,7 +345,7 @@ function fuInt() returns future<int> {
 
 function getEmpMap() returns map<string> {
     map<string> empMap = { fname: "foo", lname: "bar"};
-    runtime:sleep(2000);
+    sleep(2000);
     return empMap;
 }
 
@@ -370,7 +370,7 @@ function fError() returns int|error {
 
 function sError() returns error {
     error err = error("A hazardous error occurred!!! Abort immediately!!" );
-    runtime:sleep(2000);
+    sleep(2000);
     return err;
 }
 
@@ -380,9 +380,13 @@ function funcWithErr() returns error {
 }
 
 function funcWithPanic() {
-    runtime:sleep(1500);
+    sleep(1500);
     if (true) {
         error err = error("A hazardous error occurred!!! Panic!!" );
         panic err;
     }
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;
