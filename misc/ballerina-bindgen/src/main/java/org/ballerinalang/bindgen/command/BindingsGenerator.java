@@ -78,6 +78,7 @@ public class BindingsGenerator {
     private static Path userDir = Paths.get(System.getProperty(USER_DIR));
 
     private static Set<String> allClasses = new HashSet<>();
+    private static Set<String> allPackages = new HashSet<>();
     private static Set<String> classListForLooping = new HashSet<>();
     private static Set<String> allJavaClasses = new HashSet<>();
     private static Set<JError> exceptionList = new HashSet<>();
@@ -202,13 +203,14 @@ public class BindingsGenerator {
         createDirectory(utilsDirStrPath);
 
         // Create the Constants.bal file.
-        Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
-        Set<String> names = new HashSet<>(allClasses);
-        if (constantsPath.toFile().exists()) {
-            getUpdatedConstantsList(constantsPath, names);
-        }
-        if (!names.isEmpty()) {
-            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
+        if (!modulesFlag) {
+            Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
+            generateConstantFiles(constantsPath);
+        } else {
+            for (String packagePath : allPackages) {
+                Path constantsPath = Paths.get(modulePath.toString(), packagePath, CONSTANTS_FILE_NAME);
+                generateConstantFiles(constantsPath);
+            }
         }
 
         // Create the .bal files for Ballerina error types.
@@ -222,6 +224,16 @@ public class BindingsGenerator {
             // The folder structure is flattened to address the Project API changes.
             writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
                     Paths.get(utilsDirStrPath, fileName).toString(), false);
+        }
+    }
+
+    private void generateConstantFiles(Path constantPaths) throws BindgenException {
+        Set<String> names = new HashSet<>(allClasses);
+        if (constantPaths.toFile().exists()) {
+            getUpdatedConstantsList(constantPaths, names);
+        }
+        if (!names.isEmpty()) {
+            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantPaths.toString(), true);
         }
     }
 
@@ -247,6 +259,7 @@ public class BindingsGenerator {
                     if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance);
                         jClass.setAccessModifier(accessModifier);
+                        allPackages.add(jClass.getPackageName());
                         String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
                         createDirectory(outputFile);
                         String filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
