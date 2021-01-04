@@ -6,5 +6,5 @@ The Ballerina-shell tool is an interactive tool for learning the Ballerina progr
 
 ## Demo
 
-![Recording](../docs/demo.gif)
+![Recording](../../docs/demo.gif)
 
