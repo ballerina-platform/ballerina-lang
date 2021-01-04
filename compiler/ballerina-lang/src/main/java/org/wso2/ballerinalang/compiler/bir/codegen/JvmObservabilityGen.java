@@ -216,7 +216,7 @@ class JvmObservabilityGen {
             } else {
                 desugaredPos = currentBB.terminator.pos;
             }
-            if (desugaredPos != null) {
+            if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0) {
                 BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
                 swapBasicBlockContent(currentBB, newBB);
                 injectCheckpointCall(currentBB, pkg, desugaredPos);

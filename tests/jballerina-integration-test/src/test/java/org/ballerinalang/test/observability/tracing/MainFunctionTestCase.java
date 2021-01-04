@@ -60,8 +60,6 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                 new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":39:11"),
                 new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":53:33"),
                 new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":53:33"),
-                new BMockSpan.BMockSpanEvent(moduleID, ":0:0"),
-                new BMockSpan.BMockSpanEvent(moduleID, ":0:0"),
                 new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":54:31"),
                 new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":55:5"),
                 new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":55:5"),
@@ -70,7 +68,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                 new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":56:5"),
                 new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":57:1"),
                 new BMockSpan.BMockSpanEvent(moduleID, FILE_NAME + ":29:9")
-                );
+        );
 
         List<BMockSpan> spans = this.getFinishedSpans("Unknown Service");
         Assert.assertEquals(spans.stream()
@@ -96,7 +94,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.entry_point.main", "true"),
                     new AbstractMap.SimpleEntry<>("function", "main")
             ));
-           Assert.assertEquals(span.getCheckpoints(), expectedCheckpoints);
+            Assert.assertEquals(span.getCheckpoints(), expectedCheckpoints);
         });
 
         Optional<BMockSpan> span2 = spans.stream()
