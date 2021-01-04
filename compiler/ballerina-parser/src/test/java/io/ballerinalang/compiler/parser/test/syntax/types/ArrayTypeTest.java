@@ -105,6 +105,11 @@ public class ArrayTypeTest extends AbstractTypesTest {
     }
 
     @Test
+    public void testTopLevelArrayTypeWithMissingCloseBracket() {
+        testTopLevelNode("array-type/array_type_assert_05.bal", "array-type/array_type_assert_20.json");
+    }
+
+    @Test
     public void testInvalidArrayTypeExtraCloseBracket() {
         test("int[]] a;", "array-type/array_type_assert_18.json");
     }
@@ -123,5 +128,4 @@ public class ArrayTypeTest extends AbstractTypesTest {
     public void testLocalInValidArrayType() {
         testTopLevelNode("array-type/array_type_assert_04.bal", "array-type/array_type_assert_17.json");
     }
-
 }

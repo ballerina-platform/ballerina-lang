@@ -2193,8 +2193,14 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTypeDescriptor(List<STNode> qualifiers, ParserRuleContext context,
                                        boolean isTypedBindingPattern, boolean isInConditionalExpr) {
         startContext(context);
-        STNode typeDesc = parseTypeDescriptorInternal(qualifiers, context, isInConditionalExpr);
+        STNode typeDesc = parseTypeDescriptorInternal(qualifiers, context, isTypedBindingPattern, isInConditionalExpr);
         endContext();
+        return typeDesc;
+    }
+
+    private STNode parseTypeDescriptorInternal(List<STNode> qualifiers, ParserRuleContext context,
+                                               boolean isTypedBindingPattern, boolean isInConditionalExpr) {
+        STNode typeDesc = parseTypeDescriptorInternal(qualifiers, context, isInConditionalExpr);
 
         // var is parsed as a built-in simple type. However, since var is not allowed everywhere,
         // validate it here. This is done to give better error messages.
@@ -2206,8 +2212,15 @@ public class BallerinaParser extends AbstractParser {
             typeDesc = STNodeFactory.createSimpleNameReferenceNode(missingToken);
         }
 
-        typeDesc = parseComplexTypeDescriptor(typeDesc, context, isTypedBindingPattern);
-        return typeDesc;
+        return parseComplexTypeDescriptorInternal(typeDesc, context, isTypedBindingPattern);
+    }
+
+    private STNode parseComplexTypeDescriptor(STNode typeDesc, ParserRuleContext context,
+                                              boolean isTypedBindingPattern) {
+        startContext(context);
+        STNode complexTypeDesc = parseComplexTypeDescriptorInternal(typeDesc, context, isTypedBindingPattern);
+        endContext();
+        return complexTypeDesc;
     }
 
     /**
@@ -2216,10 +2229,8 @@ public class BallerinaParser extends AbstractParser {
      * @param typeDesc LHS type of the complex type
      * @return Parsed type descriptor node
      */
-    private STNode parseComplexTypeDescriptor(STNode typeDesc, ParserRuleContext context,
+    private STNode parseComplexTypeDescriptorInternal(STNode typeDesc, ParserRuleContext context,
                                               boolean isTypedBindingPattern) {
-        // Assume we reach here without starting a context for the rhs type descriptor.
-        // Although in error handler, TYPEDESC_RHS is called within already started type descriptor context.
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case QUESTION_MARK_TOKEN:
@@ -2229,14 +2240,14 @@ public class BallerinaParser extends AbstractParser {
                         isValidExprStart(getNextNextToken().kind)) {
                     return typeDesc;
                 }
-                return parseComplexTypeDescriptor(parseOptionalTypeDescriptor(typeDesc), context,
+                return parseComplexTypeDescriptorInternal(parseOptionalTypeDescriptor(typeDesc), context,
                         isTypedBindingPattern);
             case OPEN_BRACKET_TOKEN:
                 // If next token after a type descriptor is '[' then it is an array type descriptor
                 if (isTypedBindingPattern) { // checking for typedesc parsing originating at typed-binding-pattern
                     return typeDesc;
                 }
-                return parseComplexTypeDescriptor(parseArrayTypeDescriptor(typeDesc), context, isTypedBindingPattern);
+                return parseComplexTypeDescriptorInternal(parseArrayTypeDescriptor(typeDesc), context, false);
             case PIPE_TOKEN:
                 // If next token after a type descriptor is '|' then it is an union type descriptor
                 return parseUnionTypeDescriptor(typeDesc, context, isTypedBindingPattern);
@@ -8833,7 +8844,7 @@ public class BallerinaParser extends AbstractParser {
                                             boolean isTypedBindingPattern) {
         // we come here only after seeing | token hence consume.
         STNode pipeToken = consume();
-        STNode rightTypeDesc = parseTypeDescriptor(context, isTypedBindingPattern, false);
+        STNode rightTypeDesc = parseTypeDescriptorInternal(new ArrayList<>(), context, isTypedBindingPattern, false);
         return createUnionTypeDesc(leftTypeDesc, pipeToken, rightTypeDesc);
     }
 
@@ -11150,7 +11161,7 @@ public class BallerinaParser extends AbstractParser {
                                                    boolean isTypedBindingPattern) {
         // we come here only after seeing & token hence consume.
         STNode bitwiseAndToken = consume();
-        STNode rightTypeDesc = parseTypeDescriptor(context, isTypedBindingPattern, false);
+        STNode rightTypeDesc = parseTypeDescriptorInternal(new ArrayList<>(), context, isTypedBindingPattern, false);
         return createIntersectionTypeDesc(leftTypeDesc, bitwiseAndToken, rightTypeDesc);
     }
 
