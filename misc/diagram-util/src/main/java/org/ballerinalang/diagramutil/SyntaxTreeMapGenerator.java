@@ -78,6 +78,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         }
         nodeJson.addProperty("source", node.toSourceCode());
         nodeJson.addProperty("kind", prettifyKind(node.kind().toString()));
+        nodeJson.add("leadingMinutiae", detectMinutiae(node.leadingMinutiae()));
+        nodeJson.add("trailingMinutiae", detectMinutiae(node.trailingMinutiae()));
 
         if (node.lineRange() != null) {
             LineRange lineRange = node.lineRange();
