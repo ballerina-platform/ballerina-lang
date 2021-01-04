@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langserver.commons.completion;
 
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 
@@ -30,7 +30,7 @@ public abstract class AbstractLSCompletionItem implements LSCompletionItem {
 
     protected CompletionItem completionItem;
 
-    public AbstractLSCompletionItem(CompletionContext context, CompletionItem completionItem) {
+    public AbstractLSCompletionItem(BallerinaCompletionContext context, CompletionItem completionItem) {
         this.completionItem = completionItem;
         this.setInsertTextFormat(context);
     }
@@ -52,7 +52,7 @@ public abstract class AbstractLSCompletionItem implements LSCompletionItem {
                 .replaceAll("(\\$\\{\\d+\\})", "");
     }
 
-    private void setInsertTextFormat(CompletionContext context) {
+    private void setInsertTextFormat(BallerinaCompletionContext context) {
         boolean isSnippetSupported = context.getCapabilities().getCompletionItem().getSnippetSupport();
         if (!isSnippetSupported) {
             this.completionItem.setInsertText(this.getPlainTextSnippet(this.completionItem.getInsertText()));

@@ -29,6 +29,8 @@ class CompilationOptionsBuilder {
     private Boolean buildOffline;
     private Boolean experimental;
     private Boolean observabilityIncluded;
+    private Boolean dumpBir;
+    private String dumpBirFile;
 
     public CompilationOptionsBuilder() {
     }
@@ -53,7 +55,20 @@ class CompilationOptionsBuilder {
         return this;
     }
 
-    public CompilationOptions build() {
-        return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded);
+    public CompilationOptionsBuilder dumpBir(Boolean value) {
+        dumpBir = value;
+        return this;
     }
+
+    public CompilationOptionsBuilder dumpBirFile(String value) {
+        dumpBirFile = value;
+        return this;
+    }
+
+    public CompilationOptions build() {
+        return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, dumpBir,
+                                      dumpBirFile);
+    }
+
+
 }

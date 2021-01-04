@@ -536,7 +536,8 @@ public class Desugar extends BLangNodeVisitor {
                     ASTBuilderUtil.createVariable(initFunction.pos,
                                                   requiredParameter.name.getValue(), requiredParameter.type,
                                                   createRequiredParamExpr(requiredParameter.expr),
-                                                  new BVarSymbol(0, names.fromString(requiredParameter.name.getValue()),
+                                                  new BVarSymbol(Flags.asMask(requiredParameter.flagSet),
+                                                                 names.fromString(requiredParameter.name.getValue()),
                                                                  requiredParameter.symbol.pkgID,
                                                                  requiredParameter.type, requiredParameter.symbol.owner,
                                                                  initFunction.pos, VIRTUAL));
@@ -3377,7 +3378,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression createConditionForWildCardMatchPattern(BLangWildCardMatchPattern wildCardMatchPattern) {
         return ASTBuilderUtil.createLiteral(wildCardMatchPattern.pos, symTable.booleanType,
-                wildCardMatchPattern.matchesAll);
+                wildCardMatchPattern.isLastPattern);
     }
 
     private BLangExpression createConditionForConstMatchPattern(BLangConstPattern constPattern,

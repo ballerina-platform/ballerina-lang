@@ -20,7 +20,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -34,14 +34,14 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class IfElseStatementNodeContext extends AbstractCompletionProvider<IfElseStatementNode> {
     public IfElseStatementNodeContext() {
         super(IfElseStatementNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, IfElseStatementNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, IfElseStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
@@ -55,7 +55,7 @@ public class IfElseStatementNodeContext extends AbstractCompletionProvider<IfEls
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, IfElseStatementNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, IfElseStatementNode node) {
         BlockStatementNode ifBody = node.ifBody();
         if (ifBody.openBraceToken().isMissing()) {
             return true;
