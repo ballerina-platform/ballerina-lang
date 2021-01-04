@@ -32,7 +32,9 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -229,6 +231,20 @@ public class PackageUtils {
             return replaceSeparators(path);
         } catch (Exception e) {
             return referenceType.name();
+        }
+    }
+
+    /**
+     * Closes the given Closeable and swallows any IOException that may occur.
+     *
+     * @param c Closeable to close, can be null.
+     */
+    public static void closeQuietly(final Closeable c) {
+        if (c != null) {
+            try {
+                c.close();
+            } catch (final IOException ignored) { // NOPMD
+            }
         }
     }
 

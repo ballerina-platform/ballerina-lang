@@ -30,7 +30,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -57,7 +57,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class AnnotationAccessExpressionNodeContext extends AbstractCompletionProvider<AnnotAccessExpressionNode> {
 
     public AnnotationAccessExpressionNodeContext() {
@@ -65,7 +65,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, AnnotAccessExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, AnnotAccessExpressionNode node) {
 //        List<LSCompletionItem> completionItems = new ArrayList<>();
 //        Optional<Symbol> expressionEntry = this.getExpressionEntry(context, node.expression());
 
@@ -85,7 +85,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         return new ArrayList<>();
     }
 
-    public List<LSCompletionItem> getAnnotationTags(CompletionContext context, BTypedescType typedescType) {
+    public List<LSCompletionItem> getAnnotationTags(BallerinaCompletionContext context, BTypedescType typedescType) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         AttachPoint.Point attachPoint = getAttachPointForType(typedescType);
 
@@ -138,7 +138,8 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         }
     }
 
-    private LSCompletionItem getAnnotationsCompletionItem(CompletionContext ctx, AnnotationSymbol annotationSymbol) {
+    private LSCompletionItem getAnnotationsCompletionItem(BallerinaCompletionContext ctx,
+                                                          AnnotationSymbol annotationSymbol) {
         Optional<TypeSymbol> attachedType = annotationSymbol.typeDescriptor();
         CompletionItem item = new CompletionItem();
         item.setInsertText(annotationSymbol.name());
@@ -157,7 +158,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
      * @param expressionNode expression node
      * @return {@link Optional} scope entry for the node
      */
-    private Optional<Symbol> getExpressionEntry(CompletionContext context, Node expressionNode) {
+    private Optional<Symbol> getExpressionEntry(BallerinaCompletionContext context, Node expressionNode) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
 
         switch (expressionNode.kind()) {

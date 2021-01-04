@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -35,14 +35,14 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class NamedWorkerDeclarationNodeContext extends AbstractCompletionProvider<NamedWorkerDeclarationNode> {
     public NamedWorkerDeclarationNodeContext() {
         super(NamedWorkerDeclarationNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, NamedWorkerDeclarationNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, NamedWorkerDeclarationNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         boolean inReturnContext = this.withinReturnTypeContext(context, node);
@@ -58,7 +58,7 @@ public class NamedWorkerDeclarationNodeContext extends AbstractCompletionProvide
         return completionItems;
     }
 
-    private boolean withinReturnTypeContext(CompletionContext context, NamedWorkerDeclarationNode node) {
+    private boolean withinReturnTypeContext(BallerinaCompletionContext context, NamedWorkerDeclarationNode node) {
         int textPosition = context.getCursorPositionInTree();
         TextRange nameRange = node.workerName().textRange();
         TextRange bodyStart = node.workerBody().openBraceToken().textRange();
