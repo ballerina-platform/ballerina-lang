@@ -50,9 +50,9 @@ public class DefinitionUtil {
         if (semanticModel.isEmpty()) {
             return Collections.emptyList();
         }
-        String fileName = context.filePath().toFile().getName();
+        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
         LinePosition linePosition = LinePosition.from(position.getLine(), position.getCharacter());
-        Optional<Symbol> symbol = semanticModel.get().symbol(fileName, linePosition);
+        Optional<Symbol> symbol = semanticModel.get().symbol(relPath, linePosition);
 
         if (symbol.isEmpty()) {
             return Collections.emptyList();

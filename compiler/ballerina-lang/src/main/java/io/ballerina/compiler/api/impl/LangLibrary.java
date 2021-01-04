@@ -43,6 +43,8 @@ import java.util.Map;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 
 
 /**
@@ -144,9 +146,6 @@ public class LangLibrary {
 
     private String getAssociatedLangLibName(TypeDescKind typeDescKind) {
         switch (typeDescKind) {
-            case INT:
-            case BYTE:
-                return INT.getName();
             case ARRAY:
             case TUPLE:
                 return ARRAY.getName();
@@ -155,17 +154,27 @@ public class LangLibrary {
                 return MAP.getName();
             case FLOAT:
             case DECIMAL:
-            case STRING:
             case BOOLEAN:
             case STREAM:
             case OBJECT:
             case ERROR:
             case FUTURE:
             case TYPEDESC:
-            case XML:
             case TABLE:
                 return typeDescKind.getName();
             default:
+                if (typeDescKind.isIntegerType()) {
+                    return INT.getName();
+                }
+
+                if (typeDescKind.isXMLType()) {
+                    return XML.getName();
+                }
+
+                if (typeDescKind.isStringType()) {
+                    return STRING.getName();
+                }
+
                 return LANG_VALUE;
         }
     }

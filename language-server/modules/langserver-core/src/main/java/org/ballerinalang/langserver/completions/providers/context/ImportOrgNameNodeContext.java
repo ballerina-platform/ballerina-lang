@@ -20,9 +20,9 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.projects.Package;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.LSPackageLoader;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -39,7 +39,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportOrgNameNode> {
 
     public ImportOrgNameNodeContext() {
@@ -47,7 +47,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext ctx, ImportOrgNameNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ImportOrgNameNode node) {
         /*
         Following use cases are addressed.
         Eg: (1) import org/<cursor>
@@ -61,7 +61,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         List<Package> packagesList = new ArrayList<>(LSPackageLoader.getDistributionRepoPackages());
         ArrayList<LSCompletionItem> completionItems = moduleNameContextCompletions(ctx, orgName, packagesList);
         this.sort(ctx, node, completionItems);
-        
+
         return completionItems;
     }
 
@@ -70,7 +70,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         return pkgName.replace(".", ".'") + ";";
     }
 
-    private ArrayList<LSCompletionItem> moduleNameContextCompletions(CompletionContext context, String orgName,
+    private ArrayList<LSCompletionItem> moduleNameContextCompletions(BallerinaCompletionContext context, String orgName,
                                                                      List<Package> packagesList) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> pkgNameLabels = new ArrayList<>();
@@ -94,7 +94,8 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         return completionItems;
     }
 
-    private static LSCompletionItem getImportCompletion(CompletionContext context, String label, String insertText) {
+    private static LSCompletionItem getImportCompletion(BallerinaCompletionContext context,
+                                                        String label, String insertText) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
@@ -105,12 +106,12 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
     }
 
     @Override
-    public void sort(CompletionContext context, ImportOrgNameNode node, List<LSCompletionItem> completionItems) {
+    public void sort(BallerinaCompletionContext context, ImportOrgNameNode node, List<LSCompletionItem> compItems) {
         String orgName = node.orgName().text();
         if (!"ballerina".equals(orgName)) {
             return;
         }
-        completionItems.forEach(item -> {
+        compItems.forEach(item -> {
             int rank = item.getCompletionItem().getLabel().startsWith("lang.") ? 2 : 1;
             item.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
         });

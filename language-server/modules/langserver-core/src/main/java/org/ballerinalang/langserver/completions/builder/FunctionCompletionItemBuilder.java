@@ -31,7 +31,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
@@ -63,13 +63,13 @@ public final class FunctionCompletionItemBuilder {
      * @param funcSymbol BSymbol or null
      * @param label      label
      * @param insertText insert text
-     * @param context    {@link CompletionContext}
+     * @param context    {@link BallerinaCompletionContext}
      * @return {@link CompletionItem}
      */
     public static CompletionItem build(FunctionSymbol funcSymbol,
                                        String label,
                                        String insertText,
-                                       CompletionContext context) {
+                                       BallerinaCompletionContext context) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
@@ -84,7 +84,7 @@ public final class FunctionCompletionItemBuilder {
      * @param context        LS context
      * @return {@link CompletionItem}
      */
-    public static CompletionItem build(FunctionSymbol functionSymbol, CompletionContext context) {
+    public static CompletionItem build(FunctionSymbol functionSymbol, BallerinaCompletionContext context) {
         CompletionItem item = new CompletionItem();
         setMeta(item, functionSymbol, context);
         if (functionSymbol != null) {
@@ -97,7 +97,8 @@ public final class FunctionCompletionItemBuilder {
         return item;
     }
 
-    public static CompletionItem build(ClassSymbol typeDesc, InitializerBuildMode mode, CompletionContext ctx) {
+    public static CompletionItem build(ClassSymbol typeDesc, InitializerBuildMode mode,
+                                       BallerinaCompletionContext ctx) {
         MethodSymbol initMethod = null;
         if (typeDesc.initMethod().isPresent()) {
             initMethod = typeDesc.initMethod().get();
@@ -131,7 +132,7 @@ public final class FunctionCompletionItemBuilder {
         return item;
     }
 
-    private static void setMeta(CompletionItem item, FunctionSymbol bSymbol, CompletionContext ctx) {
+    private static void setMeta(CompletionItem item, FunctionSymbol bSymbol, BallerinaCompletionContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         item.setKind(CompletionItemKind.Function);
@@ -149,7 +150,8 @@ public final class FunctionCompletionItemBuilder {
     }
 
     private static Either<String, MarkupContent> getDocumentation(FunctionSymbol functionSymbol,
-                                                                  boolean skipFirstParam, CompletionContext ctx) {
+                                                                  boolean skipFirstParam,
+                                                                  BallerinaCompletionContext ctx) {
         String pkgID = functionSymbol.moduleID().toString();
         FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
 
@@ -222,7 +224,7 @@ public final class FunctionCompletionItemBuilder {
      */
     private static Pair<String, String> getFunctionInvocationSignature(FunctionSymbol functionSymbol,
                                                                        String functionName,
-                                                                       CompletionContext ctx) {
+                                                                       BallerinaCompletionContext ctx) {
         if (functionSymbol == null) {
             return ImmutablePair.of(functionName + "();", functionName + "()");
         }
@@ -255,7 +257,7 @@ public final class FunctionCompletionItemBuilder {
      * @param ctx    Lang Server Operation context
      * @return {@link List} List of arguments
      */
-    private static List<String> getFuncArguments(FunctionSymbol symbol, CompletionContext ctx) {
+    private static List<String> getFuncArguments(FunctionSymbol symbol, BallerinaCompletionContext ctx) {
         List<String> args = new ArrayList<>();
         boolean skipFirstParam = skipFirstParam(ctx, symbol);
         FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
@@ -284,7 +286,7 @@ public final class FunctionCompletionItemBuilder {
      * @param functionSymbol invokable symbol
      * @return {@link Boolean} whether we show the first param or not
      */
-    private static boolean skipFirstParam(CompletionContext context, FunctionSymbol functionSymbol) {
+    private static boolean skipFirstParam(BallerinaCompletionContext context, FunctionSymbol functionSymbol) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         return CommonUtil.isLangLib(functionSymbol.moduleID())
                 && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;

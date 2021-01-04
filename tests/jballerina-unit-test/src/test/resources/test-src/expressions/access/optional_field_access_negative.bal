@@ -90,3 +90,32 @@ function testInvalidOptionalFieldAccessOnInvocation1() {
 function testInvalidOptionalFieldAccessOnInvocation2() {
     _ = getNonOptionalFieldAccessibleValue()?.x;
 }
+
+class Student {
+    public Details? details = ();
+
+    function init(Details? details) {
+        self.details = details;
+    }
+
+    public function getDetails() returns Details? {
+        return self.details;
+    }
+}
+
+public type Details record {
+    Address addr?;
+};
+
+public type Address record {
+    string street;
+};
+
+function testOptionalFieldAccessOnClassDef() {
+    Address addr = {street: "Colombo"};
+
+    Details details = {addr: addr};
+
+    Student person = new Student(details);
+    string? c1 = person.getDetails()?.addr?.road;
+}

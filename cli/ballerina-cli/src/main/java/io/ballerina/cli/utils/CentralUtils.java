@@ -17,10 +17,10 @@
  */
 package io.ballerina.cli.utils;
 
+import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.SettingsProcessor;
-import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_DEV_CENTRAL;
 import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
 

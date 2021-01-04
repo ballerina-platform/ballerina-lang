@@ -18,15 +18,12 @@ package org.ballerinalang.langserver.extensions.document;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
-import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -39,9 +36,9 @@ public class VisibleEndpointTest {
     private Endpoint serviceEndpoint;
 
     private Path nestedVisibleEPsFile = FileUtils.RES_DIR.resolve("extensions")
-                                        .resolve("document")
-                                        .resolve("sources")
-                                        .resolve("nestedVisibleEndpoints.bal");
+            .resolve("document")
+            .resolve("sources")
+            .resolve("nestedVisibleEndpoints.bal");
 
     private Path transactionVisibleEPsFile = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
@@ -52,59 +49,6 @@ public class VisibleEndpointTest {
     public void startLangServer() throws IOException {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
         TestUtil.openDocument(serviceEndpoint, nestedVisibleEPsFile);
-    }
-
-
-    @Test(description = "Test nested visible endpoint detection.")
-    public void testNestedVisibleEndpoints() {
-        BallerinaASTResponse astResponse = LSExtensionTestUtil
-                .getBallerinaDocumentAST(nestedVisibleEPsFile.toString(), this.serviceEndpoint);
-        Assert.assertTrue(astResponse.isParseSuccess());
-        assertVisibleEndpoints(astResponse.getAst());
-    }
-
-    @Test(description = "Test visible endpoints in transactions.", enabled = false)
-    public void testVisibleEndpointsInTransactions() {
-        BallerinaASTResponse astResponse = LSExtensionTestUtil
-                .getBallerinaDocumentAST(transactionVisibleEPsFile.toString(), this.serviceEndpoint);
-        Assert.assertTrue(astResponse.isParseSuccess());
-        JsonArray topLevelNodes = ((JsonObject) astResponse.getAst()).getAsJsonArray("topLevelNodes");
-
-        // validate first function
-        JsonObject func = topLevelNodes.get(2).getAsJsonObject();
-        JsonObject transaction = func.getAsJsonObject("body")
-                .getAsJsonArray("statements")
-                .get(0).getAsJsonObject(); // first statement is the transaction
-        Assert.assertNotNull(transaction);
-
-        // EP in transaction body
-        String trBodyEP = transaction.getAsJsonObject("transactionBody")
-                .getAsJsonArray("VisibleEndpoints")
-                .get(0).getAsJsonObject().get("name")
-                .getAsString();
-        Assert.assertEquals(trBodyEP, "clientEPInTransactionBody");
-
-        // EP in retry body
-        String retryBodyEP = transaction.getAsJsonObject("onRetryBody")
-                .getAsJsonArray("VisibleEndpoints")
-                .get(0).getAsJsonObject().get("name")
-                .getAsString();
-        Assert.assertEquals(retryBodyEP, "clientEPInRetryBody");
-
-        // EP in committed body
-        String committedEP = transaction.getAsJsonObject("committedBody")
-                .getAsJsonArray("VisibleEndpoints")
-                .get(0).getAsJsonObject().get("name")
-                .getAsString();
-        Assert.assertEquals(committedEP, "clientEPInCommittedBody");
-
-        // EP in aborted body
-        String abortedBodyEP = transaction.getAsJsonObject("abortedBody")
-                .getAsJsonArray("VisibleEndpoints")
-                .get(0).getAsJsonObject().get("name")
-                .getAsString();
-        Assert.assertEquals(abortedBodyEP, "clientEPInAbortedBody");
-
     }
 
     private void assertVisibleEndpoints(JsonElement ast) {
