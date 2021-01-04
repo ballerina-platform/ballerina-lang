@@ -357,8 +357,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 case TUPLE_VARIABLE:
                     checkForUninitializedGlobalVars(((BLangTupleVariable) globalVar).memberVariables);
                     break;
-                default:
-                    break;
             }
         }
     }
@@ -1680,8 +1678,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
-        BLangVariable var = bLangTupleVariableDef.var;
-        analyzeNode(var, env);
+        analyzeNode(bLangTupleVariableDef.var, env);
     }
 
     @Override

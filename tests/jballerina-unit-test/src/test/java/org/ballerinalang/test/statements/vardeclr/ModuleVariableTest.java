@@ -20,6 +20,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -45,14 +46,21 @@ public class ModuleVariableTest {
         BRunUtil.invoke(compileResult, "testBasic");
     }
     
-    @Test
-    public void testComplexModuleLevelTupleVarDecl() {
-        BRunUtil.invoke(compileResult, "testTupleBindingWithRecordsAndObjects");
-        BRunUtil.invoke(compileResult, "testTupleBindingPatternWithRestBindingPattern");
-        BRunUtil.invoke(compileResult, "testDeclaredWithVar");
-        BRunUtil.invoke(compileResult, "testTupleVarWithAnnotations");
-        BRunUtil.invoke(compileResult, "testVariableForwardReferencing");
-        BRunUtil.invoke(compileResult, "testVariableDeclaredInTupleAsAnnotationValue");
+    @Test(dataProvider = "complexModuleLevelTupleVarDeclData")
+    public void testComplexModuleLevelTupleVarDecl(String functionName) {
+        BRunUtil.invoke(compileResult, functionName);
+    }
+
+    @DataProvider
+    public Object[] complexModuleLevelTupleVarDeclData() {
+        return new Object[]{
+                "testTupleBindingWithRecordsAndObjects",
+                "testTupleBindingPatternWithRestBindingPattern",
+                "testDeclaredWithVar",
+                "testTupleVarWithAnnotations",
+                "testVariableForwardReferencing",
+                "testVariableDeclaredInTupleAsAnnotationValue"
+        };
     }
 
     @Test

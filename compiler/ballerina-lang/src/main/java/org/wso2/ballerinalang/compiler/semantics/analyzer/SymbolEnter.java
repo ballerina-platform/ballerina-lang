@@ -407,12 +407,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         // Update globalVar for endpoints.
-        pkgNode.globalVars.forEach(var -> {
-           if (var.getKind() == NodeKind.VARIABLE && var.symbol.type.tsymbol != null &&
-                   Symbols.isFlagOn(var.symbol.type.tsymbol.flags, Flags.CLIENT)) {
+        for (BLangVariable var : pkgNode.globalVars) {
+            BTypeSymbol tSymbol = var.symbol.type.tsymbol;
+           if (var.getKind() == NodeKind.VARIABLE && tSymbol != null &&
+                   Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT)) {
                var.symbol.tag = SymTag.ENDPOINT;
             }
-        });
+        }
     }
 
     private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
@@ -1663,16 +1664,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             switch (varNode.type.tag) {
                 case TypeTags.UNION:
                     Set<BType> unionType = types.expandAndGetMemberTypesRecursive(varNode.type);
-                    List<BType> possibleTypes = unionType.stream()
-                            .filter(type -> {
-                                if (TypeTags.TUPLE == type.tag &&
-                                        (varNode.memberVariables.size() == ((BTupleType) type).tupleTypes.size())) {
-                                    return true;
-                                }
-                                return TypeTags.ANY == type.tag || TypeTags.ANYDATA == type.tag;
-                            })
-                            .collect(Collectors.toList());
-
+                    List<BType> possibleTypes = new ArrayList<>();
+                    for (BType type :unionType) {
+                        if (!(TypeTags.TUPLE == type.tag &&
+                                (varNode.memberVariables.size() == ((BTupleType) type).tupleTypes.size())) &&
+                                TypeTags.ANY != type.tag &&
+                                TypeTags.ANYDATA != type.tag) {
+                            continue;
+                        }
+                        possibleTypes.add(type);
+                    }
                     if (possibleTypes.isEmpty()) {
                         dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
                         return false;
