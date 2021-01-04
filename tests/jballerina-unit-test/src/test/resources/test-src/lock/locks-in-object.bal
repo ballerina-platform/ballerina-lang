@@ -1,4 +1,4 @@
-import ballerina/runtime;
+import ballerina/java;
 
 // Test when there is a lock block in a attached function
 class person {
@@ -26,7 +26,7 @@ function lockFieldInSameObject() returns string {
      }
 
      p1.update("#");
-     runtime:sleep(10);
+     sleep(10);
      return p1.stars;
  }
 
@@ -50,7 +50,7 @@ function workerFunc() {
         increment();
     }
 
-    runtime:sleep(10);
+    sleep(10);
     increment();
 
 }
@@ -78,7 +78,7 @@ function workerFuncParam(Student param, person p) {
         incrementParam(param,p);
     }
 
-    runtime:sleep(10);
+    sleep(10);
     incrementParam(param,p);
 
 }
@@ -94,3 +94,6 @@ function incrementParam(Student param, person p) {
     }
 }
 
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;

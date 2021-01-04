@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 3,
-    "character": 46
+    "character": 39
   },
   "source": "class_def/source/source10.bal",
   "items": [
@@ -260,7 +260,7 @@
     {
       "label": "testClass",
       "kind": "Interface",
-      "detail": "Object",
+      "detail": "Class",
       "insertText": "testClass",
       "insertTextFormat": "Snippet"
     },

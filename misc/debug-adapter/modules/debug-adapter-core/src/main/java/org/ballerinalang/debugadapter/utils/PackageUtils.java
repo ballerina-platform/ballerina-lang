@@ -32,7 +32,9 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -40,15 +42,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
+
 /**
  * Package Utils.
  */
 public class PackageUtils {
 
-    public static final String MODULE_DIR_NAME = "modules";
     public static final String BAL_FILE_EXT = ".bal";
     public static final String INIT_CLASS_NAME = "$_init";
     public static final String GENERATED_VAR_PREFIX = "$";
+    private static final String MODULE_DIR_NAME = "modules";
     private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
     /**
@@ -74,9 +79,11 @@ public class PackageUtils {
             if (!srcPaths[0].equals(orgName)) {
                 return null;
             }
-            String modulePart = srcPaths[1].replaceFirst(defaultModuleName, "");
-            if (modulePart.startsWith("_")) {
-                modulePart = modulePart.replaceFirst("_", "");
+
+            String modulePart = decodeIdentifier(srcPaths[1]);
+            modulePart = modulePart.replaceFirst(defaultModuleName, "");
+            if (modulePart.startsWith(".")) {
+                modulePart = modulePart.replaceFirst("\\.", "");
             }
 
             if (modulePart.isBlank()) {
@@ -145,36 +152,6 @@ public class PackageUtils {
         }
     }
 
-    public static boolean isBlank(String str) {
-        return str == null || str.isEmpty() || str.chars().allMatch(Character::isWhitespace);
-    }
-
-    /**
-     * Returns full-qualified class name for a given JDI class reference instance.
-     *
-     * @param context       Debug context
-     * @param referenceType JDI class reference instance
-     * @return full-qualified class name
-     */
-    public static String getQualifiedClassName(DebugContext context, ReferenceType referenceType) {
-        try {
-            List<String> paths = referenceType.sourcePaths(null);
-            if (paths.isEmpty()) {
-                return referenceType.name();
-            }
-            String path = paths.get(0);
-            if (!path.endsWith(BAL_FILE_EXT) || (context.getSourceProject() instanceof BuildProject &&
-                    !path.startsWith(context.getSourceProject().currentPackage().packageOrg().value()))) {
-                return referenceType.name();
-            }
-            // Removes ".bal" extension if exists.
-            path = path.replaceAll(BAL_FILE_EXT + "$", "");
-            return replaceSeparators(path);
-        } catch (Exception e) {
-            return referenceType.name();
-        }
-    }
-
     /**
      * Returns full-qualified class name for a given ballerina JVM generated class name.
      *
@@ -218,10 +195,57 @@ public class PackageUtils {
 
         StringJoiner classNameJoiner = new StringJoiner(".");
         classNameJoiner.add(document.module().packageInstance().packageOrg().value())
-                .add(document.module().moduleName().toString().replace(".", "_"))
+                .add(encodeModuleName(document.module().moduleName().toString()))
                 .add(document.module().packageInstance().packageVersion().toString().replace(".", "_"))
                 .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".").replace("/", "."));
         return classNameJoiner.toString();
+    }
+
+    /**
+     * Returns full-qualified class name for a given JDI class reference instance.
+     *
+     * @param context       Debug context
+     * @param referenceType JDI class reference instance
+     * @return full-qualified class name
+     */
+    public static String getQualifiedClassName(DebugContext context, ReferenceType referenceType) {
+        try {
+            List<String> paths = referenceType.sourcePaths(null);
+            List<String> names = referenceType.sourceNames(null);
+            if (paths.isEmpty() || names.isEmpty()) {
+                return referenceType.name();
+            }
+            String path = paths.get(0);
+            String name = names.get(0);
+            String[] nameParts = getNameParts(name);
+            String srcFileName = nameParts[nameParts.length - 1];
+
+            if (!path.endsWith(BAL_FILE_EXT) || (context.getSourceProject() instanceof BuildProject &&
+                    !path.startsWith(context.getSourceProject().currentPackage().packageOrg().value()))) {
+                return referenceType.name();
+            }
+
+            // Removes ".bal" extension if exists.
+            srcFileName = srcFileName.replaceAll(BAL_FILE_EXT + "$", "");
+            path = path.replaceAll(name + "$", srcFileName);
+            return replaceSeparators(path);
+        } catch (Exception e) {
+            return referenceType.name();
+        }
+    }
+
+    /**
+     * Closes the given Closeable and swallows any IOException that may occur.
+     *
+     * @param c Closeable to close, can be null.
+     */
+    public static void closeQuietly(final Closeable c) {
+        if (c != null) {
+            try {
+                c.close();
+            } catch (final IOException ignored) { // NOPMD
+            }
+        }
     }
 
     public static String[] getNameParts(String path) {

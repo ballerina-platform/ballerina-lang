@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+
 /**
  * Language server context implementation.
  *
@@ -82,6 +84,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
      *
      * @return {@link Path} file path
      */
+    @Nonnull
     public Path filePath() {
         return this.filePath;
     }
@@ -95,12 +98,12 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     public List<Symbol> visibleSymbols(Position position) {
         if (this.visibleSymbols == null) {
             Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(this.filePath);
-            if (semanticModel.isEmpty()) {
+            Optional<String> relativePath = this.workspaceManager.relativePath(filePath);
+            if (semanticModel.isEmpty() || relativePath.isEmpty()) {
                 return Collections.emptyList();
             }
             // TODO: file uri here should be the relative file URI
-            visibleSymbols = semanticModel.get().visibleSymbols(
-                    this.filePath.toFile().getName(),
+            visibleSymbols = semanticModel.get().visibleSymbols(relativePath.get(),
                     LinePosition.from(position.getLine(), position.getCharacter()));
         }
 

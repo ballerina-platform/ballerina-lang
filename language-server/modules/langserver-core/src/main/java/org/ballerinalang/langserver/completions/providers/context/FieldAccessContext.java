@@ -35,7 +35,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.FieldCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -66,7 +66,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      * @param expr expression node to evaluate
      * @return {@link List} of filtered scope entries
      */
-    protected List<LSCompletionItem> getEntries(CompletionContext ctx, ExpressionNode expr) {
+    protected List<LSCompletionItem> getEntries(BallerinaCompletionContext ctx, ExpressionNode expr) {
         Optional<? extends TypeSymbol> typeDesc = this.getTypeDesc(ctx, expr);
         if (typeDesc.isEmpty()) {
             return new ArrayList<>();
@@ -83,7 +83,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      */
     protected abstract boolean removeOptionalFields();
 
-    private Optional<? extends TypeSymbol> getTypeDesc(CompletionContext ctx, ExpressionNode expr) {
+    private Optional<? extends TypeSymbol> getTypeDesc(BallerinaCompletionContext ctx, ExpressionNode expr) {
         switch (expr.kind()) {
             case SIMPLE_NAME_REFERENCE:
                 /*
@@ -129,7 +129,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         }
     }
 
-    private Optional<? extends TypeSymbol> getTypeDescForFieldAccess(CompletionContext context,
+    private Optional<? extends TypeSymbol> getTypeDescForFieldAccess(BallerinaCompletionContext context,
                                                                      FieldAccessExpressionNode node) {
         String fieldName = ((SimpleNameReferenceNode) node.fieldName()).name().text();
         ExpressionNode expressionNode = node.expression();
@@ -153,7 +153,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                 .findAny();
     }
 
-    private Optional<? extends TypeSymbol> getTypeDescForNameRef(CompletionContext context,
+    private Optional<? extends TypeSymbol> getTypeDescForNameRef(BallerinaCompletionContext context,
                                                                  NameReferenceNode referenceNode) {
         if (referenceNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();
@@ -170,7 +170,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return SymbolUtil.getTypeDescriptor(symbolRef.get());
     }
 
-    private Optional<? extends TypeSymbol> getTypeDescForFunctionCall(CompletionContext context,
+    private Optional<? extends TypeSymbol> getTypeDescForFunctionCall(BallerinaCompletionContext context,
                                                                       FunctionCallExpressionNode expr) {
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
@@ -185,7 +185,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return symbolRef.get().typeDescriptor().returnTypeDescriptor();
     }
 
-    private Optional<? extends TypeSymbol> getTypeDescForMethodCall(CompletionContext context,
+    private Optional<? extends TypeSymbol> getTypeDescForMethodCall(BallerinaCompletionContext context,
                                                                     MethodCallExpressionNode node) {
         String methodName = ((SimpleNameReferenceNode) node.methodName()).name().text();
 
@@ -210,7 +210,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return filteredMethod.get().typeDescriptor().returnTypeDescriptor();
     }
 
-    private Optional<? extends TypeSymbol> getTypeDescForIndexedExpr(CompletionContext context,
+    private Optional<? extends TypeSymbol> getTypeDescForIndexedExpr(BallerinaCompletionContext context,
                                                                      IndexedExpressionNode node) {
         Optional<? extends TypeSymbol> typeDesc = getTypeDesc(context, node.containerExpression());
 
@@ -221,7 +221,8 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return Optional.of(((ArrayTypeSymbol) typeDesc.get()).memberTypeDescriptor());
     }
 
-    private List<LSCompletionItem> getCompletionsForTypeDesc(CompletionContext context, TypeSymbol typeDescriptor) {
+    private List<LSCompletionItem> getCompletionsForTypeDesc(BallerinaCompletionContext context,
+                                                             TypeSymbol typeDescriptor) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor);
         switch (rawType.typeKind()) {

@@ -32,7 +32,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -45,7 +45,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider<ImplicitNewExpressionNode> {
 
     public ImplicitNewExpressionNodeContext() {
@@ -53,7 +53,7 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ImplicitNewExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ImplicitNewExpressionNode node) {
         /*
         Supports the following
         (1) lhs = new <cursor>
@@ -65,12 +65,12 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         return completionItems;
     }
 
-    private Optional<ClassSymbol> getClassSymbol(CompletionContext context, Node node) {
+    private Optional<ClassSymbol> getClassSymbol(BallerinaCompletionContext context, Node node) {
         Node typeDescriptor;
 
         switch (node.parent().kind()) {
             case LISTENER_DECLARATION:
-                typeDescriptor = ((ListenerDeclarationNode) node.parent()).typeDescriptor();
+                typeDescriptor = ((ListenerDeclarationNode) node.parent()).typeDescriptor().orElse(null);
                 break;
             case LOCAL_VAR_DECL:
                 typeDescriptor = ((VariableDeclarationNode) node.parent()).typedBindingPattern().typeDescriptor();
@@ -113,7 +113,7 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         return Optional.of(SymbolUtil.getTypeDescForClassSymbol(nameReferenceSymbol.get()));
     }
 
-    private Optional<ClassSymbol> getObjectTypeForVarRef(CompletionContext context, Node varRefNode) {
+    private Optional<ClassSymbol> getObjectTypeForVarRef(BallerinaCompletionContext context, Node varRefNode) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         if (varRefNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();

@@ -168,3 +168,13 @@ function testfunctionWithIncludedRecordParam8() {
 
 function foo(*int a) {
 }
+
+public type KeyValues record {|int[]...;|};
+
+function bal(*KeyValues baz) returns string {
+    return "";
+}
+
+function testfunctionWithIncludedRecordParam9() {
+    string result = bal(username = 2);
+}

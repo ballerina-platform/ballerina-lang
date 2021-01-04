@@ -151,42 +151,42 @@
     {
       "label": "Signed32",
       "kind": "Unit",
-      "detail": "Int",
+      "detail": "Signed32",
       "insertText": "Signed32",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Signed16",
       "kind": "Unit",
-      "detail": "Int",
+      "detail": "Signed16",
       "insertText": "Signed16",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Signed8",
       "kind": "Unit",
-      "detail": "Int",
+      "detail": "Signed8",
       "insertText": "Signed8",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Unsigned32",
       "kind": "Unit",
-      "detail": "Int",
+      "detail": "Unsigned32",
       "insertText": "Unsigned32",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Unsigned16",
       "kind": "Unit",
-      "detail": "Int",
+      "detail": "Unsigned16",
       "insertText": "Unsigned16",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Unsigned8",
       "kind": "Unit",
-      "detail": "Int",
+      "detail": "Unsigned8",
       "insertText": "Unsigned8",
       "insertTextFormat": "Snippet"
     },

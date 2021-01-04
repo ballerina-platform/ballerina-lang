@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
@@ -44,6 +44,12 @@ import java.util.regex.Matcher;
 public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     private static final String UNDEFINED_FUNCTION = "undefined function";
 
+    @Override
+    public boolean isEnabled() {
+        //TODO: Need to get return type of the function invocation blocked due to #27211
+        return false;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -67,12 +73,12 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
         Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
         String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
-        NonTerminalNode cursorNode = context.positionDetails().matchedNode();
+        Node cursorNode = context.positionDetails().matchedNode();
         if (cursorNode != null && cursorNode.kind() == SyntaxKind.FUNCTION_CALL) {
             FunctionCallExpressionNode callExpr = (FunctionCallExpressionNode) cursorNode;
             boolean isWithinFile = callExpr.functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
             if (isWithinFile) {
-                String commandTitle = CommandConstants.CREATE_FUNCTION_TITLE + functionName;
+                String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);
                 CodeAction action = new CodeAction(commandTitle);
                 action.setKind(CodeActionKind.QuickFix);
                 action.setCommand(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args));

@@ -216,7 +216,7 @@ import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
-import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -2463,7 +2463,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangSimpleVariable var = new SimpleVarBuilder()
                 .with(listenerDeclarationNode.variableName())
-                .setTypeByNode(listenerDeclarationNode.typeDescriptor())
+                .setTypeByNode(listenerDeclarationNode.typeDescriptor().orElse(null))
                 .setExpressionByNode(listenerDeclarationNode.initializer())
                 .setVisibility(visibilityQualifier)
                 .isListenerVar()
@@ -3030,7 +3030,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Token token : functionTypeDescriptorNode.qualifierList()) {
             if (token.kind() == SyntaxKind.ISOLATED_KEYWORD) {
                 functionTypeNode.flagSet.add(Flag.ISOLATED);
-                break;
+            } else if (token.kind() == SyntaxKind.TRANSACTIONAL_KEYWORD) {
+                functionTypeNode.flagSet.add(Flag.TRANSACTIONAL);
             }
         }
 
@@ -3421,6 +3422,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         Collections.reverse(bLangUnionTypeNode.memberTypeNodes);
         bLangTypeDefinition.setTypeNode(bLangUnionTypeNode);
+
+        bLangTypeDefinition.annAttachments = applyAll(getAnnotations(enumDeclarationNode.metadata()));
+        bLangTypeDefinition.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(getDocumentationString(enumDeclarationNode.metadata()));
         return bLangTypeDefinition;
     }
 
@@ -3431,6 +3436,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (publicQualifier) {
             bLangConstant.flagSet.add(Flag.PUBLIC);
         }
+
+        bLangConstant.annAttachments = applyAll(getAnnotations(member.metadata()));
+        bLangConstant.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(getDocumentationString(member.metadata()));
 
         bLangConstant.setName((BLangIdentifier) transform(member.identifier()));
 

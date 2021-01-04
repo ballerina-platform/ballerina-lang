@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -29,13 +29,14 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -43,7 +44,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider<ExplicitNewExpressionNode> {
 
     public ExplicitNewExpressionNodeContext() {
@@ -51,19 +52,20 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ExplicitNewExpressionNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ExplicitNewExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         TypeDescriptorNode typeDescriptor = node.typeDescriptor();
 
+        // TODO During the sorting we have to consider the LHS/ parent of the node
         if (typeDescriptor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
             /*
             Supports the following
-            (1) public listener mod:Listener test = new <cursor>
-            (2) public listener mod:Listener test = new a<cursor>
+            (1) new <cursor>
+            (2) new a<cursor>
              */
             List<ClassSymbol> filteredList = visibleSymbols.stream()
-                    .filter(SymbolUtil::isListener)
+                    .filter(SymbolUtil::isClass)
                     .map(SymbolUtil::getTypeDescForClassSymbol)
                     .collect(Collectors.toList());
             for (ClassSymbol classSymbol : filteredList) {
@@ -71,28 +73,32 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
             }
             completionItems.addAll(this.getModuleCompletionItems(context));
         } else if (this.onQualifiedNameIdentifier(context, typeDescriptor)) {
+            /*
+            Supports the following
+            (1) new module:<cursor>
+            (2) new module:a<cursor>
+             */
             QualifiedNameReferenceNode referenceNode = (QualifiedNameReferenceNode) typeDescriptor;
             String moduleName = QNameReferenceUtil.getAlias(referenceNode);
             Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, moduleName);
             if (module.isEmpty()) {
                 return completionItems;
             }
-            List<ClassSymbol> filteredList = new ArrayList<>();
-            for (Symbol symbol : module.get().allSymbols()) {
-                if (SymbolUtil.isListener(symbol)) {
-                    Optional<? extends TypeSymbol> typeSymbol = SymbolUtil.getTypeDescriptor(symbol);
-                    if (typeSymbol.isEmpty()) {
-                        continue;
-                    }
-                    ClassSymbol classSymbol = (ClassSymbol) typeSymbol.get();
-                    filteredList.add(classSymbol);
-                }
-            }
-            for (ClassSymbol classSymbol : filteredList) {
-                completionItems.add(this.getExplicitNewCompletionItem(classSymbol, context));
-            }
+            module.get().allSymbols().stream()
+                    .filter(this.getModuleContentFilter(node))
+                    .map(symbol -> (ClassSymbol) symbol)
+                    .forEach(symbol -> completionItems.add(this.getExplicitNewCompletionItem(symbol, context)));
         }
 
         return completionItems;
+    }
+    
+    private Predicate<Symbol> getModuleContentFilter(ExplicitNewExpressionNode node) {
+        if (node.parent().kind() == SyntaxKind.SERVICE_DECLARATION
+                || node.parent().kind() == SyntaxKind.LISTENER_DECLARATION) {
+            return symbol -> symbol.kind() == SymbolKind.CLASS && SymbolUtil.isListener(symbol);
+        }
+        
+        return symbol -> symbol.kind() == SymbolKind.CLASS;
     }
 }

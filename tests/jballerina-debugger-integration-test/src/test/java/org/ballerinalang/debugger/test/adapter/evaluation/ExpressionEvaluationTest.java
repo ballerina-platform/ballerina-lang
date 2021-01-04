@@ -19,19 +19,12 @@
 package org.ballerinalang.debugger.test.adapter.evaluation;
 
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Test implementation for debug expression evaluation scenarios.
  */
 public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
-
-    @BeforeClass
-    public void setup() throws BallerinaTestException {
-        prepareForEvaluation();
-    }
 
     @Override
     @Test
@@ -301,9 +294,49 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void methodCallEvaluationTest() throws BallerinaTestException {
-        // object methods
+
+        // 1. object methods
         debugTestRunner.assertExpression(context, OBJECT_VAR + ".getSum(34,56)", "90", "int");
-        // Todo - add lang-lib functions related tests, after the implementation
+
+        // 2. lang library methods
+
+        // array
+        // Todo - Enable after semantic API fixes (https://github.com/ballerina-platform/ballerina-lang/issues/27520)
+        // debugTestRunner.assertExpression(context, ARRAY_VAR + ".length()", "4", "int");
+        // debugTestRunner.assertExpression(context, ARRAY_VAR + ".slice(1,3)", "any[2]", "array");
+
+        // Todo - boolean
+        // decimal
+        debugTestRunner.assertExpression(context, DECIMAL_VAR + ".round()", "4", "decimal");
+        debugTestRunner.assertExpression(context, DECIMAL_VAR + ".abs()", "3.5", "decimal");
+        // error
+        debugTestRunner.assertExpression(context, ERROR_VAR + ".message()", "SimpleErrorType", "string");
+        // float
+        debugTestRunner.assertExpression(context, FLOAT_VAR + ".sin()", "0.5440211108893698", "float");
+        debugTestRunner.assertExpression(context, FLOAT_VAR + ".pow(3.0)", "-1000.0", "float");
+        // future
+        debugTestRunner.assertExpression(context, FUTURE_VAR + ".cancel()", "()", "nil");
+        // int
+        debugTestRunner.assertExpression(context, INT_VAR + ".abs()", "20", "int");
+        // map
+        debugTestRunner.assertExpression(context, MAP_VAR + ".get(\"country\")", "Sri Lanka", "string");
+        // Todo - object
+        // Todo - query
+        // Todo - stream
+        // string
+        debugTestRunner.assertExpression(context, STRING_VAR + ".getCodePoint(1)", "111", "int");
+        debugTestRunner.assertExpression(context, STRING_VAR + ".substring(1,3)", "oo", "string");
+        // Todo - table
+        // Todo - typedesc
+
+        // value
+        // Todo - Enable after semantic API fixes (https://github.com/ballerina-platform/ballerina-lang/issues/27520)
+        // debugTestRunner.assertExpression(context, TYPEDESC_VAR + ".toBalString()", "typedesc int", "string");
+
+        // xml
+        debugTestRunner.assertExpression(context, XML_VAR + ".getName()", "person", "string");
+        debugTestRunner.assertExpression(context, XML_VAR + ".children()",
+                "<firstname>Praveen</firstname><lastname>Nada</lastname>", "xml");
     }
 
     @Override
@@ -375,8 +408,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void multiplicativeExpressionEvaluationTest() throws BallerinaTestException {
-        ///////////////////////////////-----------multiplication----------------/////////////////
- /////////////////////
+        ///////////////////////////////-----------multiplication----------------//////////////////////////////////////
         // int * int
         debugTestRunner.assertExpression(context, String.format("%s * %s", INT_VAR, INT_VAR), "400", "int");
         // float * int
@@ -397,8 +429,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // decimal * float
         debugTestRunner.assertExpression(context, String.format("%s * %s", DECIMAL_VAR, FLOAT_VAR), "-35.0", "decimal");
 
-        ///////////////////////////////-------------division--------------------///////////////////////
- ///////////////
+        ///////////////////////////////-------------division--------------------//////////////////////////////////////
         // int / int
         debugTestRunner.assertExpression(context, String.format("%s / %s", INT_VAR, INT_VAR), "1", "int");
         // float / int
@@ -421,8 +452,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // decimal / float
         debugTestRunner.assertExpression(context, String.format("%s / %s", DECIMAL_VAR, FLOAT_VAR), "-0.35", "decimal");
 
-        /////////////////////////////////-----------modulus----------------////////////////////
- ///////////////////////
+        /////////////////////////////////-----------modulus----------------///////////////////////////////////////////
         // int % int
         debugTestRunner.assertExpression(context, String.format("%s %% %s", INT_VAR, INT_VAR), "0", "int");
         // float % int
@@ -443,8 +473,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void additiveExpressionEvaluationTest() throws BallerinaTestException {
-        //////////////////////////////-------------addition------------------///////////////////////////
- //////////////
+        //////////////////////////////-------------addition------------------/////////////////////////////////////////
         // int + int
         debugTestRunner.assertExpression(context, String.format("%s + %s", INT_VAR, INT_VAR), "40", "int");
         // float + int
@@ -471,8 +500,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
                 "<firstname>Praveen</firstname><lastname>Nada</lastname></person><person gender=\"male\">" +
                 "<firstname>Praveen</firstname><lastname>Nada</lastname></person>", "xml");
 
-        //////////////////////////////-------------subtraction------------------/////////////////////////////
- /////////
+        //////////////////////////////-------------subtraction------------------//////////////////////////////////////
         // int - int
         debugTestRunner.assertExpression(context, String.format("%s - %s", INT_VAR, INT_VAR), "0", "int");
         // float - int
@@ -706,11 +734,5 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void xmlNavigationEvaluationTest() throws BallerinaTestException {
         // Todo
-    }
-
-    @AfterClass(alwaysRun = true)
-    private void cleanup() {
-        debugTestRunner.terminateDebugSession();
-        this.context = null;
     }
 }

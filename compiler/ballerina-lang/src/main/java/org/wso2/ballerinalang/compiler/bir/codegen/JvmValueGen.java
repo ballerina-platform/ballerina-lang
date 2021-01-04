@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.internal.IdentifierUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -28,8 +28,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldBIRFunction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodBIRFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
@@ -53,7 +54,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.internal.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -131,7 +132,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrich
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.lookupBIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
 
 /**
@@ -176,12 +176,13 @@ class JvmValueGen {
             BType bType = optionalTypeDef.type;
             if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
-                desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, initMethodGen, jvmPackageGen);
+                desugarObjectMethods(module.packageID, bType, optionalTypeDef.attachedFuncs, initMethodGen,
+                                     jvmPackageGen);
             }
         }
     }
 
-    private static void desugarObjectMethods(BIRNode.BIRPackage module, BType bType,
+    private static void desugarObjectMethods(PackageID module, BType bType,
                                              List<BIRNode.BIRFunction> attachedFuncs, InitMethodGen initMethodGen,
                                              JvmPackageGen jvmPackageGen) {
         if (attachedFuncs == null) {
@@ -192,13 +193,14 @@ class JvmValueGen {
                 continue;
             }
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
-                BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, bType, jvmPackageGen);
+                BIRFunctionWrapper extFuncWrapper = ExternalMethodGen.lookupBIRFunctionWrapper(module, birFunc, bType,
+                                                                                               jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
                     desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
-                } else if (extFuncWrapper instanceof JMethodFunctionWrapper) {
-                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
+                } else if (birFunc instanceof JMethodBIRFunction) {
+                    desugarInteropFuncs((JMethodBIRFunction) birFunc, initMethodGen);
                     enrichWithDefaultableParamInits(birFunc, initMethodGen);
-                } else if (!(extFuncWrapper instanceof JFieldFunctionWrapper)) {
+                } else if (!(birFunc instanceof JFieldBIRFunction)) {
                     enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 }
             } else {
@@ -221,7 +223,7 @@ class JvmValueGen {
         for (NamedNode node : nodes) {
             if (node != null) {
                 labels.add(i, new Label());
-                String name = decodeIdentifier(node.getName().value);;
+                String name = decodeIdentifier(node.getName().value);
                 hashCodes[i] = name.hashCode();
                 i += 1;
             }
@@ -252,32 +254,8 @@ class JvmValueGen {
         mv.visitInsn(ATHROW);
     }
 
-    static String getTypeDescClassName(Object module, String typeName) {
-
-        String packageName = calculateJavaPkgName(module);
+    static String getTypeDescClassName(String packageName, String typeName) {
         return packageName + TYPEDESC_CLASS_PREFIX + typeName;
-    }
-
-    static String getTypeValueClassName(Object module, String typeName) {
-
-        String packageName = calculateJavaPkgName(module);
-        return packageName + VALUE_CLASS_PREFIX + typeName;
-    }
-
-    private static String calculateJavaPkgName(Object module) {
-
-        String packageName;
-        if (module instanceof BIRNode.BIRPackage) {
-            BIRNode.BIRPackage birPackage = (BIRNode.BIRPackage) module;
-            packageName = JvmCodeGenUtil.getPackageName(birPackage);
-        } else if (module instanceof PackageID) {
-            PackageID packageID = (PackageID) module;
-            packageName = JvmCodeGenUtil.getPackageName(packageID);
-        } else {
-            throw new ClassCastException("module should be PackageID or BIRPackage but is : "
-                    + (module == null ? "null" : module.getClass()));
-        }
-        return packageName;
     }
 
     static List<Label> createDecodedLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
@@ -640,6 +618,14 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
+    static String getTypeValueClassName(PackageID packageID, String typeName) {
+        return getTypeValueClassName(JvmCodeGenUtil.getPackageName(packageID), typeName);
+    }
+
+    static String getTypeValueClassName(String packageName, String typeName) {
+        return packageName + VALUE_CLASS_PREFIX + typeName;
+    }
+
     private StringBuilder calcClosureMapSignature(int size) {
         StringBuilder closureParamSignature = new StringBuilder();
         for (int i = 0; i < size; i++) {
@@ -687,7 +673,7 @@ class JvmValueGen {
         this.createRecordInitWrapper(cw, className, typeDef);
         this.createLambdas(cw, asyncDataCollector);
         JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
-        this.generateStaticInitializer(cw, className, module, asyncDataCollector);
+        this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
         cw.visitEnd();
 
         return jvmPackageGen.getBytes(cw, typeDef);
@@ -742,8 +728,8 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void generateStaticInitializer(ClassWriter cw, String moduleClass, BIRNode.BIRPackage module,
-                                                  AsyncDataCollector asyncDataCollector) {
+    private void generateStaticInitializer(ClassWriter cw, String moduleClass, PackageID module,
+                                           AsyncDataCollector asyncDataCollector) {
 
         if (asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
@@ -1334,21 +1320,21 @@ class JvmValueGen {
     }
 
     void generateValueClasses(Map<String, byte[]> jarEntries) {
-
+        String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
-                String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
+                String className = getTypeValueClassName(packageName, optionalTypeDef.name.value);
                 byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
-                String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
+                String className = getTypeValueClassName(packageName, optionalTypeDef.name.value);
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef);
                 jarEntries.put(className + ".class", bytes);
 
-                String typedescClass = getTypeDescClassName(this.module, optionalTypeDef.name.value);
+                String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.name.value);
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef);
                 jarEntries.put(typedescClass + ".class", bytes);
             }
@@ -1378,7 +1364,7 @@ class JvmValueGen {
         this.createObjectSetOnInitializationMethod(cw, fields, className);
         this.createLambdas(cw, asyncDataCollector);
         JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
-        this.generateStaticInitializer(cw, className, module, asyncDataCollector);
+        this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
 
         cw.visitEnd();
         return jvmPackageGen.getBytes(cw, typeDef);

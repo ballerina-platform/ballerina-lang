@@ -8,4 +8,5 @@ module io.ballerina.central.client {
     requires progressbar;
     requires jdk.httpserver;
     requires io.ballerina.runtime;
+    requires java.semver;
 }

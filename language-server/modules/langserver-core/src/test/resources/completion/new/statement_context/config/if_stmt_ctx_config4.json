@@ -15,7 +15,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "doSomeTask();",
+      "insertText": "doSomeTask()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -28,7 +28,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
-      "insertText": "testFunction();",
+      "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
     {

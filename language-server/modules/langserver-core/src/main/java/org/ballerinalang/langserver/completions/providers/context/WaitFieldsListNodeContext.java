@@ -20,7 +20,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.WaitFieldsListNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFieldsListNode> {
 
     public WaitFieldsListNodeContext() {
@@ -42,7 +42,7 @@ public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFi
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, WaitFieldsListNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WaitFieldsListNode node)
             throws LSCompletionException {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<Symbol> filteredSymbols = visibleSymbols.stream().filter(symbol -> {
