@@ -360,7 +360,7 @@ public class SignatureHelpUtil {
                 funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
                 List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
                 filteredContent = visibleSymbols.stream()
-                        .filter(symbol -> symbol.kind() == FUNCTION && symbol.name().equals(funcName))
+                        .filter(symbolPredicate.and(symbol -> symbol.name().equals(funcName)))
                         .collect(Collectors.toList());
             }
 
