@@ -17,19 +17,33 @@
  */
 package org.ballerinalang.langserver.commons;
 
-import org.eclipse.lsp4j.SignatureHelpCapabilities;
+import org.eclipse.lsp4j.Position;
 
 /**
- * Represents the Signature help operation context.
+ * Represents an operation context which is triggered with a cursor position.
  *
  * @since 2.0.0
  */
-public interface SignatureContext extends PositionedOperationContext {
+public interface PositionedOperationContext extends DocumentServiceContext {
 
     /**
-     * Get the client's signature capabilities.
+     * Set the cursor position as an offset value according to the syntax tree.
      *
-     * @return {@link SignatureHelpCapabilities}
+     * @param offset of the cursor
      */
-    SignatureHelpCapabilities capabilities();
+    void setCursorPositionInTree(int offset);
+
+    /**
+     * Get the cursor position as an offset value according to the syntax tree.
+     *
+     * @return {@link Integer} offset of the cursor
+     */
+    int getCursorPositionInTree();
+
+    /**
+     * Get the cursor position where the auto completion request triggered.
+     *
+     * @return {@link Position} cursor position
+     */
+    Position getCursorPosition();
 }
