@@ -50,7 +50,7 @@ import java.util.ArrayDeque;
  */
 public class TomlParserErrorHandler extends AbstractParserErrorHandler {
 
-    private static final ParserRuleContext[] TOP_LEVEL_NODE = {ParserRuleContext.EOF,
+    private static final ParserRuleContext[] TOP_LEVEL_NODE = { ParserRuleContext.EOF,
             ParserRuleContext.NEWLINE,
             ParserRuleContext.KEY_VALUE_PAIR,
             ParserRuleContext.TOML_TABLE,
@@ -59,16 +59,16 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] ARRAY_VALUE_END = {
             ParserRuleContext.COMMA,
-            ParserRuleContext.ARRAY_VALUE_LIST_END};
+            ParserRuleContext.ARRAY_VALUE_LIST_END };
 
     private static final ParserRuleContext[] ARRAY_VALUE_START_OR_VALUE_LIST_END =
             { ParserRuleContext.ARRAY_VALUE_LIST_END, ParserRuleContext.ARRAY_VALUE_START };
 
-    private static final ParserRuleContext[] NUMERICAL_LITERAL = {ParserRuleContext.DECIMAL_INTEGER_LITERAL,
+    private static final ParserRuleContext[] NUMERICAL_LITERAL = { ParserRuleContext.DECIMAL_INTEGER_LITERAL,
             ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL, ParserRuleContext.HEX_INTEGER_LITERAL,
-            ParserRuleContext.OCTAL_INTEGER_LITERAL, ParserRuleContext.BINARY_INTEGER_LITERAL};
+            ParserRuleContext.OCTAL_INTEGER_LITERAL, ParserRuleContext.BINARY_INTEGER_LITERAL };
 
-    private static final ParserRuleContext[] VALUE = {ParserRuleContext.STRING_START,
+    private static final ParserRuleContext[] VALUE = { ParserRuleContext.STRING_START,
             ParserRuleContext.LITERAL_STRING_START, ParserRuleContext.SIGN_TOKEN, ParserRuleContext.BOOLEAN_LITERAL,
             ParserRuleContext.NUMERICAL_LITERAL,
 //            ParserRuleContext.ARRAY_VALUE_LIST
@@ -76,20 +76,20 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] ARRAY_VALUE_START = VALUE;
 
-    private static final ParserRuleContext[] KEY_START = {ParserRuleContext.IDENTIFIER_LITERAL,
+    private static final ParserRuleContext[] KEY_START = { ParserRuleContext.IDENTIFIER_LITERAL,
             ParserRuleContext.NUMERICAL_LITERAL, ParserRuleContext.BOOLEAN_LITERAL, ParserRuleContext.STRING_START,
-            ParserRuleContext.LITERAL_STRING_START};
+            ParserRuleContext.LITERAL_STRING_START };
 
-    private static final ParserRuleContext[] KEY_END = {ParserRuleContext.DOT, ParserRuleContext.KEY_LIST_END};
+    private static final ParserRuleContext[] KEY_END = { ParserRuleContext.DOT, ParserRuleContext.KEY_LIST_END };
 
     private static final ParserRuleContext[] KEY_LIST_END = {
-            ParserRuleContext.ASSIGN_OP, ParserRuleContext.TABLE_END, ParserRuleContext.ARRAY_TABLE_FIRST_END};
+            ParserRuleContext.ASSIGN_OP, ParserRuleContext.TABLE_END, ParserRuleContext.ARRAY_TABLE_FIRST_END };
 
     private static final ParserRuleContext[] STRING_CONTENT = { ParserRuleContext.STRING_END,
-            ParserRuleContext.STRING_BODY};
+            ParserRuleContext.STRING_BODY };
 
     private static final ParserRuleContext[] LITERAL_STRING_CONTENT = { ParserRuleContext.LITERAL_STRING_END,
-            ParserRuleContext.LITERAL_STRING_BODY};
+            ParserRuleContext.LITERAL_STRING_BODY };
 
     public TomlParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);

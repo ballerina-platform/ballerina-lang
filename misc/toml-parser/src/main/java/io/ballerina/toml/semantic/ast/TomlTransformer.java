@@ -394,6 +394,9 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         if (value.startsWith("\n")) {
             return value.substring(1);
         }
+        if (value.startsWith("\r\n")) {
+            return value.substring(2);
+        }
         return value;
     }
 
