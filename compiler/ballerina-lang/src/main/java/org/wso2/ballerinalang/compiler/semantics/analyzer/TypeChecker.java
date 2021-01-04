@@ -2675,10 +2675,17 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        String typeName = errorConstructorExpr.errorTypeRef == null ? "error" :
-                errorConstructorExpr.errorTypeRef.typeName.value;
+        String typeName = "";
+        String pkgAlias = "";
+        if (errorConstructorExpr.errorTypeRef == null) {
+            typeName = "error";
+        } else {
+            typeName = errorConstructorExpr.errorTypeRef.typeName.value;
+            pkgAlias = errorConstructorExpr.errorTypeRef.pkgAlias.value;
+        }
+
         BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(errorConstructorExpr.pos, env,
-                names.fromString(""), names.fromString(typeName));
+                names.fromString(pkgAlias), names.fromString(typeName));
         if (symbol == symTable.notFoundSymbol || symbol.tag != SymTag.ERROR) {
             dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.UNDEFINED_ERROR_TYPE_DESCRIPTOR, typeName);
             resultType = symTable.semanticError;
