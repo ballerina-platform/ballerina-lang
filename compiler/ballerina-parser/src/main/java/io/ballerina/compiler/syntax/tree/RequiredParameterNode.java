@@ -123,7 +123,6 @@ public class RequiredParameterNode extends ParameterNode {
 
         public RequiredParameterNodeModifier withAsteriskToken(
                 Token asteriskToken) {
-            Objects.requireNonNull(asteriskToken, "asteriskToken must not be null");
             this.asteriskToken = asteriskToken;
             return this;
         }

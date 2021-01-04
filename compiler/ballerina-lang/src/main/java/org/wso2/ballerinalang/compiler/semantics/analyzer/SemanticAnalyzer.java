@@ -2619,7 +2619,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         BType matchExprType = wildCardMatchPattern.matchExpr.type;
         if (types.isAssignable(matchExprType, symTable.anyType)) {
-            wildCardMatchPattern.matchesAll = true;
             wildCardMatchPattern.type = symTable.anyType;
             return;
         }
