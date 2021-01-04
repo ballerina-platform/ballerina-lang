@@ -40,16 +40,20 @@ function testEnsureTypeWithUnion1() returns error? {
 
 function testToStringNegative() {
     json j = {
-        name : "Name",
-        address : {
-            country : "Country",
-            city : "City"
+        name: "Name",
+        address: {
+            country: "Country",
+            city: "City"
         }
     };
 
     var x1 = j.age.toString();
     var x2 = j.address.town.toString();
     var x3 = foo().toString();
+
+    var x4 = j.age.toBalString();
+    var x5 = j.address.town.toBalString();
+    var x6 = foo().toBalString();
 }
 
 function foo() returns int|error {

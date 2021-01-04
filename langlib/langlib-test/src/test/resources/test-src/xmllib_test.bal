@@ -49,7 +49,7 @@ function getXML() returns xml[] {
 
 function testFromString() returns xml|error {
     string s = catalog.toString();
-    xml x = <xml> check 'xml:fromString(s);
+    xml x = <xml> checkpanic 'xml:fromString(s);
     return x/<CD>/<TITLE>;
 }
 

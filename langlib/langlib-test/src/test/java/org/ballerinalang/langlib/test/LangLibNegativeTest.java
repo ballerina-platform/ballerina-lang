@@ -52,6 +52,12 @@ public class LangLibNegativeTest {
                 51, 14);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(int|error)'",
                 52, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(json|error)'",
+                54, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(json|error)'",
+                55, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(int|error)'",
+                56, 14);
 
         Assert.assertEquals(negativeResult.getErrorCount(), err);
     }

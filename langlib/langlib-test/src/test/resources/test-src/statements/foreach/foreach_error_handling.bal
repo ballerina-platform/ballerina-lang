@@ -16,7 +16,7 @@
 
 import ballerina/lang.'int as ints;
 
-function testArrayForeachAndTrap() returns int {
+function testArrayForeachAndTrap() {
     string[] invalidArray = ["2", "waruna", "7"];
     int|error result = trap convertAndGetSumFromArray(invalidArray);
     assertTrue(result is error);
@@ -24,10 +24,15 @@ function testArrayForeachAndTrap() returns int {
     string[] validArray = ["2", "5", "7"];
     result = trap convertAndGetSumFromArray(validArray);
     assertTrue(result is int);
-    if (result is int) {
-        return result;
-    }
-    return -1;
+    assertTrue(checkpanic result == 14);
+}
+
+function testArrayForeachAndPanic() {
+    string[] invalidArray = ["2", "waruna", "7"];
+    int result = convertAndGetSumFromArray(invalidArray);
+    // This line should not be executed.
+    panic error(ASSERTION_ERROR_REASON,
+                message = "Program should be panic before this line");
 }
 
 function convertAndGetSumFromArray(string[] stringNumbers) returns int {

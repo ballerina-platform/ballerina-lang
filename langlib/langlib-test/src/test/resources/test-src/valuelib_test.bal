@@ -209,7 +209,7 @@ function testFromJsonDecimalString() returns map<json|error> {
     return result;
 }
 
-function testToStringMethod() returns [string, string, string, string, string, string] {
+function testToStringMethod() {
     int a = 4;
     anydata b = a;
     any c = b;
@@ -218,7 +218,14 @@ function testToStringMethod() returns [string, string, string, string, string, s
                val3 = {"x":"AA","y":(1.0/0.0)});
     FirstError err2 = FirstError(REASON_1, message = "Test passing error union to a function");
 
-    return [a.toString(), b.toString(), c.toString(), d, err1.toString(), err2.toString()];
+    assertEquality("4", a.toString());
+    assertEquality("4", b.toString());
+    assertEquality("4", c.toString());
+    assertEquality("4", d);
+    assertEquality("error(\"Failed to get account balance\",details=true,val1=NaN,val2=\"This Error\","
+                                                            + "val3={\"x\":\"AA\",\"y\":Infinity})", err1.toString());
+    assertEquality("error FirstError (\"Reason1\",message=\"Test passing error union to a function\")",
+                                                                                                    err2.toString());
 }
 
 /////////////////////////// Tests for `mergeJson()` ///////////////////////////
@@ -581,10 +588,7 @@ function testCloneWithTypeNumeric1() {
     int a = 1234;
     float|error b = a.cloneWithType(float);
     assert(b is float, true);
-
-    if (b is float) {
-        assert(b, 1234.0);
-    }
+    assert(checkpanic b, 1234.0);
 }
 
 function testCloneWithTypeNumeric2() {

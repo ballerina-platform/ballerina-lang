@@ -166,19 +166,10 @@ public class LangLibValueTest {
 
     @Test
     public void testToString() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testToStringMethod");
-        BValueArray array = (BValueArray) returns[0];
-        assertEquals(array.getRefValue(0).stringValue(), "4");
-        assertEquals(array.getRefValue(1).stringValue(), "4");
-        assertEquals(array.getRefValue(2).stringValue(), "4");
-        assertEquals(array.getRefValue(3).stringValue(), "4");
-        assertEquals(array.getRefValue(4).stringValue(), "error(\"Failed to get account balance\",details=true," +
-                "val1=NaN,val2=\"This Error\",val3={\"x\":\"AA\",\"y\":Infinity})");
-        assertEquals(array.getRefValue(5).stringValue(), "error FirstError (\"Reason1\",message=\"Test passing error " +
-                "union to a function\")");
+        BRunUtil.invokeFunction(compileResult, "testToStringMethod");
 
-        returns = BRunUtil.invokeFunction(compileResult, "testToString");
-        array = (BValueArray) returns[0];
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testToString");
+        BValueArray array = (BValueArray) returns[0];
         int i = 0;
         Assert.assertEquals(array.getString(i++), "6");
         Assert.assertEquals(array.getString(i++), "6.0");
