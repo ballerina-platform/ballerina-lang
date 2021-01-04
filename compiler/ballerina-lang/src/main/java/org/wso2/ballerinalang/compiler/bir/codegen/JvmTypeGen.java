@@ -81,6 +81,7 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.DUP_X1;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
@@ -189,6 +190,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createDefaultCase;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 
 /**
@@ -215,6 +217,10 @@ public class JvmTypeGen {
                 FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, fieldName, String.format("L%s;", TYPE), null,
                                                 null);
                 fv.visitEnd();
+
+                FieldVisitor fvTypeDesc = cw.visitField(ACC_STATIC + ACC_PUBLIC, "typedesc" + fieldName,
+                                                        String.format("L%s;", TYPEDESC_VALUE), null, null);
+                fvTypeDesc.visitEnd();
             }
             // do not generate anything for other types (e.g.: finite type, unions, etc.)
         }
@@ -254,6 +260,19 @@ public class JvmTypeGen {
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.RECORD) {
                 createRecordType(mv, (BRecordType) bType);
+
+                mv.visitInsn(DUP);
+                String packageName = JvmCodeGenUtil.getPackageName(bType.tsymbol.pkgID);
+                String className = getTypeDescClassName(packageName, toNameString(bType));
+                mv.visitTypeInsn(NEW, className);
+                mv.visitInsn(DUP_X1);
+                mv.visitInsn(SWAP);
+                mv.visitInsn(ACONST_NULL);
+                String descriptor = String.format("(L%s;[L%s;)V", TYPE, MAP_VALUE);
+                mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, descriptor, false);
+                String fieldType = String.format("L%s;", TYPEDESC_VALUE);
+                mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, "typedesc" + fieldName, fieldType);
+
             } else if (bType.tag == TypeTags.OBJECT) {
                 createObjectType(mv, (BObjectType) bType);
             } else if (bType.tag == TypeTags.ERROR) {
