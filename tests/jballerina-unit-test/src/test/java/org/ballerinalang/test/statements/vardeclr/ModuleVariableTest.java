@@ -91,7 +91,8 @@ public class ModuleVariableTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/vardeclr/module_tuple_var_decl_annotation_negetive.bal");
         int index = 0;
-        validateError(compileResult, index++, "annotation 'ballerina/lang.annotations:1.0.0:deprecated' is not allowed on var", 20, 1);
+        validateError(compileResult, index++,
+                "annotation 'ballerina/lang.annotations:1.0.0:deprecated' is not allowed on var", 20, 1);
         assertEquals(compileResult.getErrorCount(), index);
     }
 

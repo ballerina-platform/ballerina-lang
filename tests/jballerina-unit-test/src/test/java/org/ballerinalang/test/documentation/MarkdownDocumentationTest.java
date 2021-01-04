@@ -426,7 +426,8 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "undocumented parameter 'filePath'", 110, 22);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'a'", 114, 5);
         BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 115, 1);
-        BAssertUtil.validateWarning(compileResult, index, "invalid usage of parameter reference outside of function definition 'invalidParameter'", 116, 5);
+        BAssertUtil.validateWarning(compileResult, index,
+                "invalid usage of parameter reference outside of function definition 'invalidParameter'", 116, 5);
     }
 
     @Test(description = "Test doc service")
