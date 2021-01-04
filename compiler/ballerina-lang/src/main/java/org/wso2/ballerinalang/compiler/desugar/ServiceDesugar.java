@@ -91,11 +91,11 @@ public class ServiceDesugar {
 
     void rewriteListeners(List<BLangVariable> variables, SymbolEnv env, BLangFunction startFunction,
                           BLangFunction stopFunction) {
-        variables.forEach(varNode -> {
+        for (BLangVariable varNode : variables) {
             if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
                 rewriteListener(varNode, env, startFunction, stopFunction);
             }
-        });
+        }
     }
 
     private void rewriteListener(BLangVariable variable, SymbolEnv env, BLangFunction startFunction,
