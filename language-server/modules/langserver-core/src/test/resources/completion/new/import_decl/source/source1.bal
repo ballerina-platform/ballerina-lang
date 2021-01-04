@@ -1,4 +1,4 @@
-import ballerina/
+import
 
 function testFunction() {
 }
