@@ -41,12 +41,16 @@ public class ShellCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"-d", "--debug"}, description = "Whether to enable debug mode from start.")
     private boolean isDebug = false;
 
+    @CommandLine.Option(names = {"-f", "--force-dumb"}, description = "Whether to force use of dumb terminal.")
+    private boolean forceDumb = false;
+
     public ShellCommand() {
         errStream = System.err;
     }
 
-    public ShellCommand(PrintStream errStream) {
+    public ShellCommand(PrintStream errStream, boolean forceDumb) {
         this.errStream = errStream;
+        this.forceDumb = forceDumb;
     }
 
     @Override
@@ -57,7 +61,7 @@ public class ShellCommand implements BLauncherCmd {
             return;
         }
         try {
-            Configuration configuration = new Configuration(isDebug, Configuration.EvaluatorMode.DEFAULT);
+            Configuration configuration = new Configuration(isDebug, forceDumb, Configuration.EvaluatorMode.DEFAULT);
             ReplShellApplication.execute(configuration);
         } catch (Exception e) {
             errStream.println("Something went wrong while executing REPL: " + e.toString());

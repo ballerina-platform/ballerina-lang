@@ -29,16 +29,11 @@ import java.util.Objects;
 public class Configuration {
     protected boolean isDebug;
     protected Evaluator evaluator;
+    private boolean isDumb;
 
-    /**
-     * Modes to create the evaluator.
-     */
-    public enum EvaluatorMode {
-        DEFAULT
-    }
-
-    public Configuration(boolean isDebug, EvaluatorMode mode) {
+    public Configuration(boolean isDebug, boolean isDumb, EvaluatorMode mode) {
         Objects.requireNonNull(mode, "Mode is a required parameter.");
+        this.isDumb = isDumb;
         this.isDebug = isDebug;
         this.evaluator = createEvaluator(mode);
     }
@@ -79,5 +74,27 @@ public class Configuration {
      */
     public void toggleDebug() {
         isDebug = !isDebug;
+    }
+
+    /**
+     * isDumb refers whether the created application is a
+     * fully featured one. If isDumb, some features such as auto completion
+     * may not be available. This has to be set as true in a testing environment.
+     *
+     * @return Whether the terminal is forced to be dumb.
+     */
+    public boolean isDumb() {
+        return isDumb;
+    }
+
+    public void setDumb(boolean dumb) {
+        isDumb = dumb;
+    }
+
+    /**
+     * Modes to create the evaluator.
+     */
+    public enum EvaluatorMode {
+        DEFAULT
     }
 }

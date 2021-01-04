@@ -19,6 +19,7 @@
 package io.ballerina.shell.cli;
 
 
+import io.ballerina.shell.cli.jline.DumbJlineTerminalAdapter;
 import io.ballerina.shell.cli.jline.JlineSimpleCompleter;
 import io.ballerina.shell.cli.jline.JlineTerminalAdapter;
 import org.jline.reader.Completer;
@@ -42,33 +43,52 @@ public class ReplShellApplication {
      * @throws Exception If the execution failed with an unexpected error.
      */
     public static void execute(Configuration configuration) throws Exception {
-        Terminal terminal = TerminalBuilder.terminal();
-        Completer completer = new JlineSimpleCompleter();
-        DefaultHighlighter highlighter = new DefaultHighlighter();
+        TerminalAdapter terminalAdapter;
+        Terminal terminal;
 
-        DefaultParser parser = new DefaultParser();
-        parser.setEofOnUnclosedBracket(DefaultParser.Bracket.CURLY,
-                DefaultParser.Bracket.ROUND, DefaultParser.Bracket.SQUARE);
-        parser.setQuoteChars(new char[]{'"'});
-        parser.setEscapeChars(new char[]{});
+        if (configuration.isDumb()) {
+            terminal = TerminalBuilder.builder()
+                    .streams(System.in, System.out)
+                    .dumb(true).build();
+        } else {
+            terminal = TerminalBuilder.terminal();
+            configuration.setDumb(terminal.getType().equals(Terminal.TYPE_DUMB));
+        }
 
-        LineReader lineReader = LineReaderBuilder.builder()
-                .variable(LineReader.SECONDARY_PROMPT_PATTERN, "%P > ")
-                .appName(PropertiesLoader.getProperty(APP_NAME))
-                .variable(LineReader.INDENTATION, 2)
-                .highlighter(highlighter)
-                .completer(completer)
-                .terminal(terminal)
-                .parser(parser)
-                .build();
+        if (configuration.isDumb()) {
+            LineReader lineReader = LineReaderBuilder.builder()
+                    .appName(PropertiesLoader.getProperty(APP_NAME))
+                    .terminal(terminal)
+                    .build();
+            terminalAdapter = new DumbJlineTerminalAdapter(lineReader);
+        } else {
+            Completer completer = new JlineSimpleCompleter();
+            DefaultHighlighter highlighter = new DefaultHighlighter();
 
-        TerminalAdapter adapter = new JlineTerminalAdapter(lineReader);
-        BallerinaShell shell = new BallerinaShell(configuration, adapter);
+            DefaultParser parser = new DefaultParser();
+            parser.setEofOnUnclosedBracket(DefaultParser.Bracket.CURLY,
+                    DefaultParser.Bracket.ROUND, DefaultParser.Bracket.SQUARE);
+            parser.setQuoteChars(new char[]{'"'});
+            parser.setEscapeChars(new char[]{});
+
+            LineReader lineReader = LineReaderBuilder.builder()
+                    .variable(LineReader.SECONDARY_PROMPT_PATTERN, "%P > ")
+                    .appName(PropertiesLoader.getProperty(APP_NAME))
+                    .variable(LineReader.INDENTATION, 2)
+                    .highlighter(highlighter)
+                    .completer(completer)
+                    .terminal(terminal)
+                    .parser(parser)
+                    .build();
+            terminalAdapter = new JlineTerminalAdapter(lineReader);
+        }
+
+        BallerinaShell shell = new BallerinaShell(configuration, terminalAdapter);
         shell.run();
     }
 
     public static void main(String... args) throws Exception {
-        Configuration configuration = new Configuration(false,
+        Configuration configuration = new Configuration(false, false,
                 Configuration.EvaluatorMode.DEFAULT);
         ReplShellApplication.execute(configuration);
     }

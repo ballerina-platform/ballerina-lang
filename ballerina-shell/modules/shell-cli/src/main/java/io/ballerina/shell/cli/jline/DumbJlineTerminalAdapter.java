@@ -18,41 +18,30 @@
 
 package io.ballerina.shell.cli.jline;
 
-import io.ballerina.shell.cli.TerminalAdapter;
 import org.jline.reader.LineReader;
 import org.jline.reader.UserInterruptException;
-import org.jline.utils.AttributedStringBuilder;
-import org.jline.utils.AttributedStyle;
 
 /**
  * Terminal adapter which encapsulates Jline.
  */
-public class JlineTerminalAdapter extends TerminalAdapter {
-    protected final LineReader lineReader;
-
-    public JlineTerminalAdapter(LineReader lineReader) {
-        this.lineReader = lineReader;
+public class DumbJlineTerminalAdapter extends JlineTerminalAdapter {
+    public DumbJlineTerminalAdapter(LineReader lineReader) {
+        super(lineReader);
     }
 
     @Override
     protected String color(String text, int color) {
-        return new AttributedStringBuilder()
-                .style(AttributedStyle.DEFAULT.foreground(color))
-                .append(text).toAnsi();
+        // No coloring is done in dumb adapter
+        return text;
     }
 
     @Override
     public String readLine(String prefix, String postfix) {
+        // No postfix done in dumb
         try {
-            return lineReader.readLine(prefix, postfix, (Character) null, null);
+            return lineReader.readLine(prefix);
         } catch (UserInterruptException e) {
             return "";
         }
-    }
-
-    @Override
-    public void println(String text) {
-        lineReader.getTerminal().writer().println(text);
-        lineReader.getTerminal().writer().flush();
     }
 }
