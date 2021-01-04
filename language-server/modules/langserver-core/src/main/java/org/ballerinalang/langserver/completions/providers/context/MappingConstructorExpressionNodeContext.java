@@ -43,7 +43,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class MappingConstructorExpressionNodeContext extends
         AbstractCompletionProvider<MappingConstructorExpressionNode> {
     public MappingConstructorExpressionNodeContext() {
@@ -75,8 +75,8 @@ public class MappingConstructorExpressionNodeContext extends
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, MappingConstructorExpressionNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
+                                                 MappingConstructorExpressionNode node) throws LSCompletionException {
 
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         NonTerminalNode evalNode = (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
@@ -116,11 +116,11 @@ public class MappingConstructorExpressionNodeContext extends
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, MappingConstructorExpressionNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, MappingConstructorExpressionNode node) {
         return !node.openBrace().isMissing() && !node.closeBrace().isMissing();
     }
 
-    private boolean withinValueExpression(CompletionContext context, NonTerminalNode evalNodeAtCursor) {
+    private boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
         Token colon = null;
 
         if (evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD) {
@@ -139,7 +139,7 @@ public class MappingConstructorExpressionNodeContext extends
         return cursorPosInTree > colonEnd;
     }
 
-    private boolean withinComputedNameContext(CompletionContext context, NonTerminalNode evalNodeAtCursor) {
+    private boolean withinComputedNameContext(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
         if (evalNodeAtCursor.kind() != SyntaxKind.COMPUTED_NAME_FIELD) {
             return false;
         }
@@ -151,7 +151,7 @@ public class MappingConstructorExpressionNodeContext extends
         return cursorPosInTree >= openBracketEnd && cursorPosInTree <= closeBracketStart;
     }
 
-    private Optional<RecordTypeSymbol> getRecordTypeDesc(CompletionContext context,
+    private Optional<RecordTypeSymbol> getRecordTypeDesc(BallerinaCompletionContext context,
                                                          MappingConstructorExpressionNode node) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         NonTerminalNode parent = node.parent();
@@ -209,7 +209,8 @@ public class MappingConstructorExpressionNodeContext extends
         return Optional.empty();
     }
 
-    private List<LSCompletionItem> getVariableCompletionsForFields(CompletionContext ctx, List<FieldSymbol> recFields) {
+    private List<LSCompletionItem> getVariableCompletionsForFields(BallerinaCompletionContext ctx,
+                                                                   List<FieldSymbol> recFields) {
         List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
         Map<String, TypeSymbol> fieldTypeMap = new HashMap<>();
         recFields.forEach(fieldDesc -> fieldTypeMap.put(fieldDesc.name(), fieldDesc.typeDescriptor()));
@@ -232,7 +233,7 @@ public class MappingConstructorExpressionNodeContext extends
         return completionItems;
     }
 
-    private Optional<RecordTypeSymbol> getRecordSymbolForInnerMapping(CompletionContext context,
+    private Optional<RecordTypeSymbol> getRecordSymbolForInnerMapping(BallerinaCompletionContext context,
                                                                       MappingConstructorExpressionNode node) {
         List<String> fieldNames = new ArrayList<>();
         Node evalNode = node;
@@ -274,7 +275,8 @@ public class MappingConstructorExpressionNodeContext extends
         return Optional.ofNullable(recordType);
     }
 
-    private Optional<RecordTypeSymbol> getAnnotationAttachedType(CompletionContext context, AnnotationNode annotNode) {
+    private Optional<RecordTypeSymbol> getAnnotationAttachedType(BallerinaCompletionContext context,
+                                                                 AnnotationNode annotNode) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Node annotRef = annotNode.annotReference();
         List<Symbol> searchableEntries;
@@ -307,7 +309,7 @@ public class MappingConstructorExpressionNodeContext extends
         return Optional.of((RecordTypeSymbol) CommonUtil.getRawType(bTypeSymbol.get()));
     }
 
-    private List<LSCompletionItem> getComputedNameCompletions(CompletionContext context) {
+    private List<LSCompletionItem> getComputedNameCompletions(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
 
         List<Symbol> filteredList = visibleSymbols.stream()
@@ -324,7 +326,7 @@ public class MappingConstructorExpressionNodeContext extends
                 && ((SpecificFieldNode) evalNodeAtCursor).readonlyKeyword().isPresent());
     }
 
-    private List<LSCompletionItem> getExpressionsCompletionsForQNameRef(CompletionContext context,
+    private List<LSCompletionItem> getExpressionsCompletionsForQNameRef(BallerinaCompletionContext context,
                                                                         QualifiedNameReferenceNode qNameRef) {
         Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
                 || symbol.kind() == SymbolKind.FUNCTION;

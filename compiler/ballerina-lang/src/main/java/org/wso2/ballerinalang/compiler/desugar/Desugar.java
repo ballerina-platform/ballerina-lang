@@ -536,7 +536,8 @@ public class Desugar extends BLangNodeVisitor {
                     ASTBuilderUtil.createVariable(initFunction.pos,
                                                   requiredParameter.name.getValue(), requiredParameter.type,
                                                   createRequiredParamExpr(requiredParameter.expr),
-                                                  new BVarSymbol(0, names.fromString(requiredParameter.name.getValue()),
+                                                  new BVarSymbol(Flags.asMask(requiredParameter.flagSet),
+                                                                 names.fromString(requiredParameter.name.getValue()),
                                                                  requiredParameter.symbol.pkgID,
                                                                  requiredParameter.type, requiredParameter.symbol.owner,
                                                                  initFunction.pos, VIRTUAL));
@@ -2913,7 +2914,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     protected BLangSimpleVariableDef createRetryManagerDef(BLangRetrySpec retrySpec, Location pos) {
-        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langObjectModuleSymbol.scope
+        BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langErrorModuleSymbol.scope
                 .lookup(names.fromString("DefaultRetryManager")).symbol;
         BType retryManagerType = retryManagerTypeSymbol.type;
         if (retrySpec.retryManagerType != null) {
@@ -3377,7 +3378,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression createConditionForWildCardMatchPattern(BLangWildCardMatchPattern wildCardMatchPattern) {
         return ASTBuilderUtil.createLiteral(wildCardMatchPattern.pos, symTable.booleanType,
-                wildCardMatchPattern.matchesAll);
+                wildCardMatchPattern.isLastPattern);
     }
 
     private BLangExpression createConditionForConstMatchPattern(BLangConstPattern constPattern,
@@ -7768,9 +7769,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // If the parent of current expr is the root, terminate
         NodeKind kind = accessExpr.expr.getKind();
-        if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR ||
-                kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
-                kind == NodeKind.INVOCATION) {
+        if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR || kind == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             handleSafeNavigation((BLangAccessExpression) accessExpr.expr, type, tempResultVar);
         }
 

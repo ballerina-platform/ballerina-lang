@@ -24,8 +24,8 @@ import org.ballerinalang.build.kaitai.Bir;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
@@ -112,7 +112,7 @@ class BIRTestUtils {
     }
 
     private static BIRCompileResult compile(String testSource) {
-        CompileResult result = BCompileUtil.compileAndGetBIR(testSource);
+        CompileResult result = BCompileUtil.compile(testSource);
         Assert.assertEquals(result.getErrorCount(), 0);
 
         BPackageSymbol packageSymbol = ((BLangPackage) result.getAST()).symbol;

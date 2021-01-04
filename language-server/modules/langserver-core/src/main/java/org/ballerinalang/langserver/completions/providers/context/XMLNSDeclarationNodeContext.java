@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -33,7 +33,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLNamespaceDeclarationNode> {
 
     public XMLNSDeclarationNodeContext() {
@@ -41,7 +41,7 @@ public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLN
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, XMLNamespaceDeclarationNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, XMLNamespaceDeclarationNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (node.asKeyword().isEmpty() || Objects.requireNonNull(node.asKeyword().orElse(null)).isMissing()) {

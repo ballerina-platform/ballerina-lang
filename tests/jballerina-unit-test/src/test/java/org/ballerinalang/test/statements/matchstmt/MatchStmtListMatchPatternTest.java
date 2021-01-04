@@ -169,8 +169,6 @@ public class MatchStmtListMatchPatternTest {
 
     @Test(description = "invalid match patterns")
     public void testListMatchPatternNegative() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 26);
-
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 23, 9);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
@@ -187,6 +185,7 @@ public class MatchStmtListMatchPatternTest {
                 71, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 71, 39);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 71, 39);
+        BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 78, 5);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 86, 22);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 90, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 92, 18);
@@ -201,6 +200,8 @@ public class MatchStmtListMatchPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 152, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 164, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 184, 9);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 
     @Test(description = "test negative semantics")

@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.langserver.Experimental.INTROSPECTION;
-import static org.ballerinalang.langserver.Experimental.SEMANTIC_SYNTAX_HIGHLIGHTER;
 import static org.ballerinalang.langserver.Experimental.SHOW_TEXT_DOCUMENT;
 
 /**
@@ -33,9 +32,9 @@ import static org.ballerinalang.langserver.Experimental.SHOW_TEXT_DOCUMENT;
  * @since 1.2.0
  */
 public class LSClientCapabilitiesImpl implements LSClientCapabilities {
-    private ExperimentalClientCapabilities experimentalCapabilities;
-    private WorkspaceClientCapabilities workspaceCapabilities;
-    private TextDocumentClientCapabilities textDocCapabilities;
+    private final ExperimentalClientCapabilities experimentalCapabilities;
+    private final WorkspaceClientCapabilities workspaceCapabilities;
+    private final TextDocumentClientCapabilities textDocCapabilities;
 
     LSClientCapabilitiesImpl(TextDocumentClientCapabilities textDocCapabilities,
                              WorkspaceClientCapabilities workspaceCapabilities,
@@ -84,15 +83,11 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         Object introspection = experimentalCapabilities.get(INTROSPECTION.getValue());
         boolean introspectionEnabled = introspection instanceof Boolean && (Boolean) introspection;
 
-        Object semanticHighlighter = experimentalCapabilities.get(SEMANTIC_SYNTAX_HIGHLIGHTER.getValue());
-        boolean semanticHighlighterEnabled = semanticHighlighter instanceof Boolean && (Boolean) semanticHighlighter;
-
         Object showTextDocument = experimentalCapabilities.get(SHOW_TEXT_DOCUMENT.getValue());
         boolean showTextDocumentEnabled = showTextDocument instanceof Boolean && (Boolean) showTextDocument;
 
         ExperimentalClientCapabilitiesImpl capabilities = new ExperimentalClientCapabilitiesImpl();
         capabilities.setIntrospectionEnabled(introspectionEnabled);
-        capabilities.setSemanticSyntaxEnabled(semanticHighlighterEnabled);
         capabilities.setShowTextDocumentEnabled(showTextDocumentEnabled);
 
         return capabilities;
@@ -103,7 +98,6 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
      */
     public static class ExperimentalClientCapabilitiesImpl implements ExperimentalClientCapabilities {
         private boolean introspectionEnabled = false;
-        private boolean semanticSyntaxEnabled = false;
         private boolean showTextDocumentEnabled = false;
 
         /**
@@ -114,16 +108,6 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         @Override
         public boolean isIntrospectionEnabled() {
             return introspectionEnabled;
-        }
-
-        /**
-         * Returns whether the semantic syntax highlighting enabled or not.
-         *
-         * @return True when enabled, False otherwise
-         */
-        @Override
-        public boolean isSemanticSyntaxEnabled() {
-            return semanticSyntaxEnabled;
         }
 
         /**
@@ -138,10 +122,6 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         private void setIntrospectionEnabled(boolean introspectionEnabled) {
             this.introspectionEnabled = introspectionEnabled;
-        }
-
-        private void setSemanticSyntaxEnabled(boolean semanticSyntaxEnabled) {
-            this.semanticSyntaxEnabled = semanticSyntaxEnabled;
         }
 
         private void setShowTextDocumentEnabled(boolean showTextDocumentEnabled) {

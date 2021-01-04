@@ -34,6 +34,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -87,6 +88,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private final PackageCache packageCache;
     private final CompilerContext compilerContext;
     private final CodeGenerator jvmCodeGenerator;
+    private final InteropValidator interopValidator;
     private final JarResolver jarResolver;
     private final CompilerOptions compilerOptions;
     private DiagnosticResult diagnosticResult;
@@ -106,6 +108,7 @@ public class JBallerinaBackend extends CompilerBackend {
         ProjectEnvironment projectEnvContext = this.packageContext.project().projectEnvironmentContext();
         this.packageCache = projectEnvContext.getService(PackageCache.class);
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
+        this.interopValidator = InteropValidator.getInstance(compilerContext);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
         this.compilerOptions = CompilerOptions.getInstance(compilerContext);
 
@@ -239,7 +242,11 @@ public class JBallerinaBackend extends CompilerBackend {
     @Override
     public void performCodeGen(ModuleContext moduleContext, CompilationCache compilationCache) {
         BLangPackage bLangPackage = moduleContext.bLangPackage();
-        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(moduleContext.moduleId(), this, bLangPackage);
+        interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
+        if (bLangPackage.getErrorCount() > 0) {
+            return;
+        }
+        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage);
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile);
@@ -258,8 +265,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
-        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(
-                moduleContext.moduleId(), this, bLangPackage.testablePkgs.get(0));
+        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile);
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
