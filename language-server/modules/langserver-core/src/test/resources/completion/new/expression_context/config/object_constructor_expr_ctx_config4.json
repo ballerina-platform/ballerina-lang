@@ -8,7 +8,7 @@
     {
       "label": "$anonType$_0",
       "kind": "Interface",
-      "detail": "Object",
+      "detail": "Class",
       "insertText": "$anonType$_0",
       "insertTextFormat": "Snippet"
     },

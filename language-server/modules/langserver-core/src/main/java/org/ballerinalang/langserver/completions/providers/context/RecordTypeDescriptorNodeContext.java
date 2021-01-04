@@ -22,7 +22,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -35,7 +35,7 @@ import java.util.function.Predicate;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<RecordTypeDescriptorNode> {
 
     public RecordTypeDescriptorNodeContext() {
@@ -43,7 +43,7 @@ public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, RecordTypeDescriptorNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RecordTypeDescriptorNode node) {
         /*
         Covers the following cases,
         (1) public type T5 record {
