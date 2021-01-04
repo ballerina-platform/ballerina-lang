@@ -53,7 +53,7 @@ public class StackTrace {
 
         ObjectType callStackObjType = TypeCreator
                 .createObjectType("CallStack", new Module("ballerina", "lang.error", null), 0);
-        callStackObjType.setMethodTypes(new MethodType[]{});
+        callStackObjType.setMethods(new MethodType[]{});
         callStackObjType
                 .setFields(Collections.singletonMap("callStack",
                                                     TypeCreator.createField(TypeCreator.createArrayType(

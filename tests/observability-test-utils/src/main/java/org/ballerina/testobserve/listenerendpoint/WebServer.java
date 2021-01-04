@@ -98,7 +98,7 @@ public class WebServer {
      * @param basePath The base path of the service
      */
     public void addService(BObject serviceObject, String basePath) {
-        ResourceMethodType[] resourceFunctions = ((ServiceType) serviceObject.getType()).getResourceFunctions();
+        ResourceMethodType[] resourceFunctions = ((ServiceType) serviceObject.getType()).getResourceMethods();
         for (ResourceMethodType resourceMethodType : resourceFunctions) {
             Resource resource = new Resource(serviceObject, resourceMethodType, basePath);
             String resourceMapKey = generateResourceMapKey(resource.getAccessor(), resource.getResourcePath());

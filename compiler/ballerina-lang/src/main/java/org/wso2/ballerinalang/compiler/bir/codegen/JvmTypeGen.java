@@ -902,7 +902,7 @@ public class JvmTypeGen {
         }
 
         // Set the fields of the object
-        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setMethodTypes",
+        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setMethods",
                            String.format("([L%s;)V", METHOD_TYPE), false);
     }
 

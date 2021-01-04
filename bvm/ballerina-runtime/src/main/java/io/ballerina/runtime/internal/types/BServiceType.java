@@ -49,9 +49,9 @@ public class BServiceType extends BObjectType implements ServiceType {
      * @return array of remote functions
      */
     @Override
-    public MethodType[] getRemoteFunctions() {
+    public MethodType[] getRemoteMethods() {
         if (remoteFunctions == null) {
-            MethodType[] funcs = getRemoteFunctions(getMethodTypes());
+            MethodType[] funcs = getRemoteFunctions(getMethods());
             synchronized (this) {
                 if (remoteFunctions == null) {
                     remoteFunctions = funcs;
@@ -77,7 +77,7 @@ public class BServiceType extends BObjectType implements ServiceType {
      * @return resource functions
      */
     @Override
-    public ResourceMethodType[] getResourceFunctions() {
+    public ResourceMethodType[] getResourceMethods() {
         return resourceFunctions;
     }
 
@@ -90,7 +90,7 @@ public class BServiceType extends BObjectType implements ServiceType {
     public BObjectType duplicate() {
         BServiceType type = new BServiceType(this.typeName, this.pkg, this.flags);
         type.setFields(fields);
-        type.setMethodTypes(duplicateArray(getMethodTypes()));
+        type.setMethods(duplicateArray(getMethods()));
         type.immutableType = this.immutableType;
         type.typeIdSet = this.typeIdSet;
         type.setResourceFunctions(duplicateArray(resourceFunctions));

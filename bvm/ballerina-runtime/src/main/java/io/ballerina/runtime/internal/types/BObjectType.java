@@ -78,11 +78,11 @@ public class BObjectType extends BStructureType implements ObjectType {
         return TypeTags.OBJECT_TYPE_TAG;
     }
 
-    public MethodType[] getMethodTypes() {
+    public MethodType[] getMethods() {
         return methodTypes;
     }
 
-    public void setMethodTypes(MethodType[] methodTypes) {
+    public void setMethods(MethodType[] methodTypes) {
         this.methodTypes = methodTypes;
     }
 
@@ -137,7 +137,7 @@ public class BObjectType extends BStructureType implements ObjectType {
     public BObjectType duplicate() {
         BObjectType type = new BObjectType(this.typeName, this.pkg, this.flags);
         type.setFields(fields);
-        type.setMethodTypes(duplicateArray(methodTypes));
+        type.setMethods(duplicateArray(methodTypes));
         type.immutableType = this.immutableType;
         type.typeIdSet = this.typeIdSet;
         return type;

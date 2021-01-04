@@ -78,7 +78,7 @@ public class ServiceValue {
             return null;
         }
 
-        for (ResourceMethodType attachedFunction : ((ServiceType) type).getResourceFunctions()) {
+        for (ResourceMethodType attachedFunction : ((ServiceType) type).getResourceMethods()) {
             if (attachedFunction.getName().equals(methodName.getValue())) {
                 String[] paramNames = attachedFunction.getParamNames();
                 BArray arrayValue = ValueCreator.createArrayValue(
@@ -151,7 +151,7 @@ public class ServiceValue {
     public static BValue getResourceAnnotation(BString methodName, ArrayValue path, BString annotName) {
         String funcName = generateMethodName(methodName, path);
 
-        for (var r : ((ServiceType) ServiceValue.service.getType()).getResourceFunctions()) {
+        for (var r : ((ServiceType) ServiceValue.service.getType()).getResourceMethods()) {
             if (r.getName().equals(funcName)) {
                 return (BValue) r.getAnnotation(annotName);
             }
@@ -181,7 +181,7 @@ public class ServiceValue {
                                                       BString annotName) {
         String methodName = generateMethodName(method, resourcePath);
 
-        for (var r : ((ServiceType) service.getType()).getResourceFunctions()) {
+        for (var r : ((ServiceType) service.getType()).getResourceMethods()) {
             if (r.getName().equals(methodName)) {
                 return (BValue) r.getAnnotation(annotName);
             }
