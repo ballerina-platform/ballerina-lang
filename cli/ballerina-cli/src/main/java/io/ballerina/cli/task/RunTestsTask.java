@@ -31,7 +31,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.testsuite.TestSuite;
-import io.ballerina.projects.testsuite.TesterinaRegistry;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.runtime.entity.CoverageReport;
@@ -41,6 +40,7 @@ import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.core.TestProcessor;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedReader;
@@ -170,9 +170,6 @@ public class RunTestsTask implements Task {
             ModuleName moduleName = module.moduleName();
 
             TestSuite suite = testProcessor.testSuite(module, project).orElse(null);
-            if (suite != null) {
-                jBallerinaBackend.processMockAnnotations(module, project);
-            }
             Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
 
             if (suite == null) {

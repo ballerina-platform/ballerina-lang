@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.testerina.core;
 
-import org.ballerinalang.test.runtime.entity.TestSuite;
+import io.ballerina.projects.testsuite.TestSuite;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,9 +28,7 @@ import java.util.Map;
  * Keep a registry of instances.
  * This is required to modify the runtime behavior.
  *
- * @deprecated Use {@link io.ballerina.projects.testsuite.TesterinaRegistry} instead.
  */
-@Deprecated
 public class TesterinaRegistry {
 
     private String orgName = null;

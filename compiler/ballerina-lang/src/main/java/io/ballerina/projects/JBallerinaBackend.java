@@ -21,21 +21,17 @@ import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.jballerina.JarWriter;
-import io.ballerina.projects.testsuite.TesterinaRegistry;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.util.Lists;
@@ -106,9 +102,6 @@ public class JBallerinaBackend extends CompilerBackend {
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
         this.compilerOptions = CompilerOptions.getInstance(compilerContext);
-
-        // TODO The following line is a temporary solution to cleanup the TesterinaRegistry
-        TesterinaRegistry.reset();
 
         // TODO: Move to a compiler extension once Compiler revamp is complete
         if (packageContext.compilationOptions().observabilityIncluded()) {
@@ -273,24 +266,6 @@ public class JBallerinaBackend extends CompilerBackend {
 
     public JarResolver jarResolver() {
         return jarResolver;
-    }
-
-    public void processMockAnnotations(Module module, Project project) {
-        CompilerContext compilerContext = project.projectEnvironmentContext().getService(CompilerContext.class);
-        BLangPackage bLangPackage = module.moduleContext().bLangPackage();
-        BLangPackage testablePkg;
-        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            testablePkg = bLangPackage;
-            testablePkg.flagSet.add(Flag.TESTABLE);
-        } else {
-            testablePkg = bLangPackage.getTestablePkg();
-        }
-        // process mock annotations in test functions
-        MockAnnotationProcessor mockAnnotationProcessor = new MockAnnotationProcessor();
-        mockAnnotationProcessor.init(compilerContext, testablePkg);
-        testablePkg.topLevelNodes.stream().filter(topLevelNode ->
-                topLevelNode instanceof BLangSimpleVariable).map(topLevelNode ->
-                (SimpleVariableNode) topLevelNode).forEach(mockAnnotationProcessor::processMockFunction);
     }
 
     // TODO Can we move this method to Module.displayName()

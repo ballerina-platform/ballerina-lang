@@ -42,7 +42,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.testsuite.Test;
 import io.ballerina.projects.testsuite.TestSuite;
-import io.ballerina.projects.testsuite.TesterinaRegistry;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.elements.Flag;
@@ -121,9 +120,6 @@ public class TestProcessor {
                 module.descriptor().org().value(), module.descriptor().version().toString());
         TesterinaRegistry.getInstance().getTestSuites().put(
                 module.descriptor().name().toString(), testSuite);
-        testSuite.setInitFunctionName(".<init>");
-        testSuite.setStartFunctionName(".<start>");
-        testSuite.setStopFunctionName(".<stop>");
         testSuite.setPackageName(module.descriptor().packageName().toString());
         testSuite.setSourceRootPath(project.sourceRoot().toString());
         //Get syntax tree for source files in the module
@@ -134,11 +130,10 @@ public class TestProcessor {
         });
         addUtilityFunctions(sourceSyntaxTreeMap, module, project, testSuite);
         Map<String, SyntaxTree> testSyntaxTreeMap;
+        boolean isSingleFileProject = false;
         //set test init functions
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            testSuite.setTestInitFunctionName(".<init>");
-            testSuite.setTestStartFunctionName(".<start>");
-            testSuite.setTestStopFunctionName(".<stop>");
+            isSingleFileProject = true;
             testSyntaxTreeMap = sourceSyntaxTreeMap;
         } else {
             //Get syntax tree for test files in the module
@@ -147,15 +142,33 @@ public class TestProcessor {
                 Document document = module.document(documentId);
                 testSyntaxTreeMap.put(document.name(), document.syntaxTree());
             });
-            testSuite.setTestInitFunctionName(".<testinit>");
-            testSuite.setTestStartFunctionName(".<teststart>");
-            testSuite.setTestStopFunctionName(".<teststop>");
             addUtilityFunctions(testSyntaxTreeMap, module, project, testSuite);
         }
+        setInitFunctions(testSuite, isSingleFileProject);
         // process annotations in test functions
         init();
         processAnnotations(module, testSyntaxTreeMap);
         return testSuite;
+    }
+
+    /**
+     * Set init functions for the testSuite.
+     * @param testSuite TestSuite
+     * @param isSingleFileProject boolean
+     */
+    private void setInitFunctions(TestSuite testSuite, boolean isSingleFileProject) {
+        testSuite.setInitFunctionName(".<init>");
+        testSuite.setStartFunctionName(".<start>");
+        testSuite.setStopFunctionName(".<stop>");
+        if (isSingleFileProject) {
+            testSuite.setTestInitFunctionName(".<init>");
+            testSuite.setTestStartFunctionName(".<start>");
+            testSuite.setTestStopFunctionName(".<stop>");
+        } else {
+            testSuite.setTestInitFunctionName(".<testinit>");
+            testSuite.setTestStartFunctionName(".<teststart>");
+            testSuite.setTestStopFunctionName(".<teststop>");
+        }
     }
 
     /**
