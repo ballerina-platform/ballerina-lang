@@ -91,7 +91,6 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
         // Iterate through all the annotations
         for (AnnotationAttachmentNode attachmentNode : annotations) {
             String annotationName = attachmentNode.getAnnotationName().getValue();
-
             if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
                 String type = ((BLangUserDefinedType) ((BLangSimpleVariable) simpleVariableNode).typeNode).
                         typeName.getValue();
@@ -100,21 +99,15 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     String mockFnObjectName = simpleVariableNode.getName().getValue();
                     String[] annotationValues = new String[2]; // [0] - moduleName, [1] - functionName
                     annotationValues[0] = packageName; // Set default value of the annotation as the current package
-
                     if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                         // Get list of attributes in the Mock annotation
                         List<RecordLiteralNode.RecordField> fields =
                                 ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();
-
                         setAnnotationValues(fields, annotationValues, attachmentNode, parent);
-
                         PackageID functionToMockID = getPackageID(annotationValues[0]);
-
                         validateFunctionName(annotationValues[1], functionToMockID, attachmentNode);
-
                         BLangTestablePackage bLangTestablePackage =
                                 (BLangTestablePackage) ((BLangSimpleVariable) simpleVariableNode).parent;
-
                         // Value added to the map '<packageId> # <functionToMock> --> <MockFnObjectName>`
                         bLangTestablePackage.addMockFunction(
                                 functionToMockID + MOCK_ANNOTATION_DELIMITER + annotationValues[1],
@@ -129,29 +122,32 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
         }
     }
 
-    // Iterate through each field and assign the annotation values for moduleName and functionName
+    /**
+     * Iterate through each field and assign the annotation values for moduleName and functionName.
+     *
+     * @param fields list of fields
+     * @param annotationValues Array of annotation values
+     * @param attachmentNode AnnotationAttachmentNode
+     * @param parent BLangPackage
+     */
     private void setAnnotationValues(List<RecordLiteralNode.RecordField> fields, String[] annotationValues,
                                      AnnotationAttachmentNode attachmentNode, BLangPackage parent) {
         // Iterate through each field and assign the annotation values for moduleName and functionName
         fields.forEach(field -> {
             String name;
             BLangExpression valueExpr;
-
             if (field.isKeyValueField()) {
                 BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
                         (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 name = attributeNode.getKey().toString();
                 valueExpr = attributeNode.getValue();
-
                 String value = valueExpr.toString();
-
                 if (MODULE.equals(name)) {
                     value = formatPackageName(value, parent);
                     annotationValues[0] = value;
                 } else if (FUNCTION.equals(name)) {
                     annotationValues[1] = value;
                 }
-
             } else {
                 diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                         "Annotation fields must be key-value pairs");
@@ -202,7 +198,6 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
      */
     private void validateFunctionName(String functionName, PackageID functionToMockID,
                                       AnnotationAttachmentNode attachmentNode) {
-
         if (functionToMockID == null) {
             diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                     "could not find module specified ");
@@ -221,7 +216,6 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                         }
                     }
                 }
-
                 // If it reaches this part, then the function has'nt been found in both packages
                 diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                         "Function \'" + functionName + "\' cannot be found in the package \'"
@@ -230,6 +224,11 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
         }
     }
 
+    /**
+     * Get Package Name.
+     * @param packageNode PackageNode instance
+     * @return package name
+     */
     private String getPackageName(PackageNode packageNode) {
         BLangPackage bLangPackage = ((BLangPackage) packageNode);
         return bLangPackage.packageID.toString();
