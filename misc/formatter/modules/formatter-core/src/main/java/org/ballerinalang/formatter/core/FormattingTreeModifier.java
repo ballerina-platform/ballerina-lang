@@ -389,8 +389,8 @@ public class FormattingTreeModifier extends TreeModifier {
         Token asterisk = formatToken(includedRecordParameterNode.asteriskToken(), 0, 0);
         if (includedRecordParameterNode.paramName().isPresent()) {
             typeName = formatNode(includedRecordParameterNode.typeName(), 1, 0);
-            Token paramName =
-                    formatToken(includedRecordParameterNode.paramName().orElse(null), env.trailingWS, env.trailingNL);
+            Token paramName = formatToken(includedRecordParameterNode.paramName().orElse(null),
+                                          env.trailingWS, env.trailingNL);
             return includedRecordParameterNode.modify()
                     .withAsteriskToken(asterisk)
                     .withAnnotations(annotations)
