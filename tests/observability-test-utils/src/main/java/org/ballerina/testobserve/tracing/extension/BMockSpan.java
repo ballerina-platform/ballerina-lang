@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_INVOCATION_POSITION;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_MODULE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_MODULE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_POSITION;
 
 /**
  * Class that holds the mock spans of the tracing integration tests.
@@ -103,9 +103,9 @@ public class BMockSpan {
             for (MockSpan.LogEntry eventLog : getEvents()) {
                 BMockSpan.BMockSpanEvent checkpoint = new BMockSpan.BMockSpanEvent(
                         (((Map) eventLog.fields().get(CHECKPOINT_EVENT_NAME)).
-                                get(TAG_KEY_MODULE)).toString(),
+                                get(TAG_KEY_SRC_MODULE)).toString(),
                         (((Map) eventLog.fields().get(CHECKPOINT_EVENT_NAME)).
-                                get(TAG_KEY_INVOCATION_POSITION)).toString()
+                                get(TAG_KEY_SRC_POSITION)).toString()
                 );
                 checkpoints.add(checkpoint);
             }
@@ -128,14 +128,14 @@ public class BMockSpan {
         }
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) {
+        public boolean equals(Object object) {
+            if (this == object) {
                 return true;
             }
-            if (o == null || getClass() != o.getClass()) {
+            if (object == null || getClass() != object.getClass()) {
                 return false;
             }
-            BMockSpanEvent that = (BMockSpanEvent) o;
+            BMockSpanEvent that = (BMockSpanEvent) object;
             return Objects.equals(moduleID, that.moduleID) &&
                     Objects.equals(positionID, that.positionID);
         }

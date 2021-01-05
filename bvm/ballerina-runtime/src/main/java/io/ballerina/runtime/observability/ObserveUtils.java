@@ -182,8 +182,8 @@ public class ObserveUtils {
 
         // Adding Position and Module ID to the Jaeger Span
         Map<String, String> eventAttributes = new HashMap<>(2);
-        eventAttributes.put(TAG_KEY_MODULE, pkg.getValue());
-        eventAttributes.put(TAG_KEY_INVOCATION_POSITION, position.getValue());
+        eventAttributes.put(TAG_KEY_SRC_MODULE, pkg.getValue());
+        eventAttributes.put(TAG_KEY_SRC_POSITION, position.getValue());
 
         HashMap<String, Object> events = new HashMap<>(1);
         events.put(CHECKPOINT_EVENT_NAME, eventAttributes);

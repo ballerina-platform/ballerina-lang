@@ -238,7 +238,7 @@ class JvmObservabilityGen {
      * @param originalInsPosition The source code position of the invocation
      */
     private void injectCheckpointCall(BIRBasicBlock currentBB, BIRPackage pkg, Location originalInsPosition) {
-        String pkgId = generatePackageId(pkg);
+        String pkgId = generatePackageId(pkg.packageID);
         String position = generatePositionId(originalInsPosition);
 
         BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
