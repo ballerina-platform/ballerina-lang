@@ -143,7 +143,7 @@ public class ImmutableTypeCloner {
                                           BSymbol owner, SymbolTable symTable,
                                           BLangAnonymousModelHelper anonymousModelHelper, Names names,
                                           Set<BType> unresolvedTypes) {
-        if (types.isInherentlyImmutableType(type)) {
+        if (types.isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             return type;
         }
 
@@ -537,6 +537,10 @@ public class ImmutableTypeCloner {
             immutableStructureSymbol.scope.define(origFieldName, immutableFieldSymbol);
         }
         immutableStructureType.fields = fields;
+
+        if (origStructureType.tag == TypeTags.OBJECT) {
+            return;
+        }
 
         BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
                 ASTBuilderUtil.createIdentifier(pos, getPackageAlias(env, pos.lineRange().filePath(),
