@@ -470,7 +470,7 @@ public class TomlParser extends AbstractParser {
      */
     private STNode parseStringValue() {
         STNode startingDoubleQuote = parseDoubleQuoteToken(ParserRuleContext.STRING_START);
-        STNode content = parseStringContent(ParserRuleContext.STRING_CONTENT);
+        STNode content = parseStringContent();
         STNode endingDoubleQuote = parseDoubleQuoteToken(ParserRuleContext.STRING_END);
         return STNodeFactory.createStringLiteralNode(startingDoubleQuote, content, endingDoubleQuote);
     }
@@ -482,9 +482,21 @@ public class TomlParser extends AbstractParser {
      */
     private STNode parseMultilineStringValue() {
         STNode startingDoubleQuote = parseTripleDoubleQuoteToken(ParserRuleContext.MULTILINE_STRING_START);
-        STNode content = parseStringContent(ParserRuleContext.MULTILINE_STRING_CONTENT);
+        STNode content = parseMultilineStringContent();
         STNode endingDoubleQuote = parseTripleDoubleQuoteToken(ParserRuleContext.MULTILINE_STRING_END);
         return STNodeFactory.createStringLiteralNode(startingDoubleQuote, content, endingDoubleQuote);
+    }
+
+    private STNode parseMultilineStringContent() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL) {
+            return consume();
+        }
+        if (nextToken.kind == TRIPLE_DOUBLE_QUOTE_TOKEN) {
+            return STNodeFactory.createEmptyNode();
+        }
+        recover(nextToken, ParserRuleContext.MULTILINE_STRING_CONTENT);
+        return parseMultilineStringContent();
     }
 
     /**
@@ -494,9 +506,21 @@ public class TomlParser extends AbstractParser {
      */
     private STNode parseLiteralStringValue() {
         STNode startingDoubleQuote = parseSingleQuoteToken(ParserRuleContext.LITERAL_STRING_START);
-        STNode content = parseStringContent(ParserRuleContext.LITERAL_STRING_CONTENT);
+        STNode content = parseLiteralStringContent();
         STNode endingDoubleQuote = parseSingleQuoteToken(ParserRuleContext.LITERAL_STRING_END);
         return STNodeFactory.createLiteralStringLiteralNode(startingDoubleQuote, content, endingDoubleQuote);
+    }
+
+    private STNode parseLiteralStringContent() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL) {
+            return consume();
+        }
+        if (nextToken.kind == SINGLE_QUOTE_TOKEN) {
+            return STNodeFactory.createEmptyNode();
+        }
+        recover(nextToken, ParserRuleContext.LITERAL_STRING_CONTENT);
+        return parseLiteralStringContent();
     }
 
     /**
@@ -505,10 +529,22 @@ public class TomlParser extends AbstractParser {
      * @return Multiline String Literal Node.
      */
     private STNode parseMultilineLiteralStringValue() {
-        STNode startingDoubleQuote = parseMultipleSingleQuoteToken(ParserRuleContext.MULTILINE_LITERAL_STRING_START);
-        STNode content = parseStringContent(ParserRuleContext.MULTILINE_LITERAL_STRING_CONTENT);
-        STNode endingDoubleQuote = parseMultipleSingleQuoteToken(ParserRuleContext.MULTILINE_LITERAL_STRING_END);
+        STNode startingDoubleQuote = parseTripleSingleQuoteToken(ParserRuleContext.MULTILINE_LITERAL_STRING_START);
+        STNode content = parseMultilineLiteralStringContent();
+        STNode endingDoubleQuote = parseTripleSingleQuoteToken(ParserRuleContext.MULTILINE_LITERAL_STRING_END);
         return STNodeFactory.createLiteralStringLiteralNode(startingDoubleQuote, content, endingDoubleQuote);
+    }
+
+    private STNode parseMultilineLiteralStringContent() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL) {
+            return consume();
+        }
+        if (nextToken.kind == TRIPLE_SINGLE_QUOTE_TOKEN) {
+            return STNodeFactory.createEmptyNode();
+        }
+        recover(nextToken, ParserRuleContext.MULTILINE_LITERAL_STRING_CONTENT);
+        return parseMultilineLiteralStringContent();
     }
 
     /**
@@ -531,13 +567,13 @@ public class TomlParser extends AbstractParser {
      *
      * @return Single quote token
      */
-    private STNode parseMultipleSingleQuoteToken(ParserRuleContext ctx) {
+    private STNode parseTripleSingleQuoteToken(ParserRuleContext ctx) {
         STToken token = peek();
         if (token.kind == TRIPLE_SINGLE_QUOTE_TOKEN) {
             return consume();
         } else {
             recover(token, ctx);
-            return parseMultipleSingleQuoteToken(ctx);
+            return parseTripleSingleQuoteToken(ctx);
         }
     }
 
@@ -571,17 +607,16 @@ public class TomlParser extends AbstractParser {
         }
     }
 
-    private STNode parseStringContent(ParserRuleContext ctx) {
+    private STNode parseStringContent() {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.IDENTIFIER_LITERAL) {
             return consume();
         }
-        if (nextToken.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN || nextToken.kind == SINGLE_QUOTE_TOKEN ||
-                nextToken.kind == TRIPLE_SINGLE_QUOTE_TOKEN || nextToken.kind == TRIPLE_DOUBLE_QUOTE_TOKEN) {
+        if (nextToken.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN) {
             return STNodeFactory.createEmptyNode();
         }
-        recover(nextToken, ctx);
-        return parseStringContent(ctx);
+        recover(nextToken, ParserRuleContext.STRING_CONTENT);
+        return parseStringContent();
     }
 
     /**
@@ -668,33 +703,30 @@ public class TomlParser extends AbstractParser {
 
     private STNode parseArrayValue() {
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN) {
-            return parseStringValue();
-        } else if (nextToken.kind == SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN) {
-            return parseMultilineStringValue();
-        } else if (nextToken.kind == SyntaxKind.SINGLE_QUOTE_TOKEN) {
-            return parseLiteralStringValue();
-        } else if (nextToken.kind == SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN) {
-            return parseMultilineLiteralStringValue();
-        } else if (isBasicValue(nextToken)) {
-            return parseValue();
-        } else if (nextToken.kind == OPEN_BRACKET_TOKEN) {
-            return parseArray();
-        } else if (nextToken.kind == CLOSE_BRACKET_TOKEN) {
-            return null;
-        } else if (nextToken.kind == NEWLINE) {
-            consume();
-            return parseArrayValue();
-        } else {
-            recover(peek(), ParserRuleContext.ARRAY_VALUE_START);
-            return parseArrayValue();
+        switch (nextToken.kind) {
+            case DOUBLE_QUOTE_TOKEN:
+                return parseStringValue();
+            case TRIPLE_DOUBLE_QUOTE_TOKEN:
+                return parseMultilineStringValue();
+            case SINGLE_QUOTE_TOKEN:
+                return parseLiteralStringValue();
+            case TRIPLE_SINGLE_QUOTE_TOKEN:
+                return parseMultilineLiteralStringValue();
+            case DECIMAL_INT_TOKEN:
+            case DECIMAL_FLOAT_TOKEN:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+                return parseValue();
+            case OPEN_BRACKET_TOKEN:
+                return parseArray();
+            case CLOSE_BRACKET_TOKEN:
+                return null;
+            case NEWLINE:
+                consume();
+                return parseArrayValue();
+            default:
+                recover(peek(), ParserRuleContext.ARRAY_VALUE_START);
+                return parseArrayValue();
         }
-    }
-
-    private static boolean isBasicValue(STToken token) {
-        return token.kind == SyntaxKind.DECIMAL_INT_TOKEN ||
-                token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN ||
-                token.kind == SyntaxKind.TRUE_KEYWORD ||
-                token.kind == SyntaxKind.FALSE_KEYWORD;
     }
 }

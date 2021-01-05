@@ -358,7 +358,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return new TomlStringValueNode(unescapedJava, position);
     }
 
-    private String trimBackslashWhitespaces (String value) {
+    private String trimBackslashWhitespaces(String value) {
         StringBuilder output = new StringBuilder();
         String[] split = value.split("\\\\\\r?\\n");
         for (String str : split) {
@@ -386,8 +386,8 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     }
 
     private boolean isMultilineString(Token token) {
-        return token.kind().equals(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN) ||
-                token.kind().equals(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
+        return token.kind() == SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN ||
+                token.kind() == SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN;
     }
 
     private String removeFirstNewline(String value) {

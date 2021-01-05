@@ -374,8 +374,8 @@ public class TomlLexer extends AbstractLexer {
         char nextChar = this.reader.peek();
         char secondNextChar = this.reader.peek(1);
         char thirdNextChar = this.reader.peek(2);
-        if (nextChar == LexerTerminals.SINGLE_QUOTE && secondNextChar == LexerTerminals.SINGLE_QUOTE && thirdNextChar
-                == LexerTerminals.SINGLE_QUOTE) {
+        if (nextChar == LexerTerminals.SINGLE_QUOTE && secondNextChar == LexerTerminals.SINGLE_QUOTE &&
+                thirdNextChar == LexerTerminals.SINGLE_QUOTE) {
             endMode();
             reader.advance(3);
             return getSyntaxToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
@@ -839,7 +839,6 @@ public class TomlLexer extends AbstractLexer {
     private boolean isIdentifierFollowingChar(int c) {
         return isAlphabeticChar(c) || isValidNumericalDigit(c) || c == '-';
     }
-
 
     private static boolean isValidNumericalDigit(int c) {
         return c == '_' || isDigit(c);

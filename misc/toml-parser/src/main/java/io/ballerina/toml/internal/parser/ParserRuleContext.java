@@ -63,7 +63,7 @@ public enum ParserRuleContext {
     DECIMAL_INTEGER_LITERAL("decimal-int-literal"),
     STRING_BODY("string-body"),
     MULTILINE_STRING_BODY("multiline-string-body"),
-    LITERAL_STRING_BODY("literal-string-content"),
+    LITERAL_STRING_BODY("literal-string-body"),
     MULTILINE_LITERAL_STRING_BODY("multiline-literal-string-body"),
     STRING_CONTENT("string-content"),
     MULTILINE_STRING_CONTENT("multiline-string-content"),
