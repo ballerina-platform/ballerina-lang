@@ -106,6 +106,25 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         return types.isAssignable(this.bType, getTargetBType(targetType));
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof TypeSymbol)) {
+            return false;
+        }
+
+        Types types = Types.getInstance(this.context);
+        return types.isSameType(this.bType, ((AbstractTypeSymbol) obj).getBType());
+    }
+
+    @Override
+    public int hashCode() {
+        return this.bType.hashCode();
+    }
+
     /**
      * Get the BType.
      *

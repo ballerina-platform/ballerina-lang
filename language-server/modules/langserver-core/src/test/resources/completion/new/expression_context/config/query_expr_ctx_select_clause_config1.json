@@ -423,6 +423,13 @@
       "detail": "Person[]",
       "insertText": "personList",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "on conflict",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "on conflict ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

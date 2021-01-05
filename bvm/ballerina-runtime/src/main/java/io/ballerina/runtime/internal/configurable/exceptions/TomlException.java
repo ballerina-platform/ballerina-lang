@@ -23,8 +23,12 @@ package io.ballerina.runtime.internal.configurable.exceptions;
  *
  * @since 2.0.0
  */
-public class TomlException extends Exception {
+public class TomlException extends RuntimeException {
     public TomlException(String message) {
         super(message);
+    }
+
+    public TomlException(String message, Throwable e) {
+        super(message, e);
     }
 }
