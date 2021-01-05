@@ -54,3 +54,21 @@ function testFutureFunc() returns int {
 }
 
 type FooInt "foo"|int;
+
+function testCastWithErrorType() {
+    json j = {
+        name : "Name",
+        address : {
+            country : "Country",
+            city : "City"
+        }
+    };
+
+    var a = <int>foo();
+    var b = <string>j.id;
+    var c = <string>j.address.town;
+}
+
+function foo() returns int|error {
+    return 1;
+}

@@ -119,7 +119,7 @@ function testSimpleInitializationForSelectivelyImmutableListTypes() {
     assertTrue(r2 is [Employee, Employee] & readonly);
     assertTrue(r2 is Employee[2] & readonly);
 
-    [Employee, Employee] & readonly empTup = <[Employee, Employee] & readonly> r2;
+    [Employee, Employee] & readonly empTup = <[Employee, Employee] & readonly> checkpanic r2;
 
     assertEquality(emp, empTup[0]);
     record {} rec = empTup[0];
@@ -145,7 +145,7 @@ function testSimpleInitializationForSelectivelyImmutableListTypes() {
     assertTrue(r3 is [Details[], Employee...] & readonly);
     assertTrue(r3 is [[Details, Details], Employee] & readonly);
 
-    [[Details, Details], Employee] & readonly vals = <[[Details, Details], Employee] & readonly> r3;
+    [[Details, Details], Employee] & readonly vals = <[[Details, Details], Employee] & readonly> checkpanic r3;
     assertTrue(vals[0].isReadOnly());
 
     Details d1 = vals[0][0];
@@ -246,7 +246,7 @@ function testSimpleInitializationForSelectivelyImmutableTableTypes() {
     readonly r1 = a;
     assertTrue(r1 is table<map<string>> & readonly);
 
-    table<map<string>> tbString = <table<map<string>>> <any> r1;
+    table<map<string>> tbString = <table<map<string>>> <any> checkpanic r1;
     assertEquality(2, tbString.length());
 
     map<string>[] mapArr = tbString.toArray();
@@ -264,7 +264,7 @@ function testSimpleInitializationForSelectivelyImmutableTableTypes() {
     assertTrue(r2 is table<Identifier> key(name) & readonly);
     assertTrue(r2 is table<Identifier> & readonly);
 
-    table<Identifier> tbDetails = <table<Identifier>> <any> r2;
+    table<Identifier> tbDetails = <table<Identifier>> <any> checkpanic r2;
     assertEquality(3, tbDetails.length());
 
     Identifier[] detailsArr = tbDetails.toArray();
@@ -1023,5 +1023,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic AssertionError(ASSERTION_ERROR_REASON,
+                            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

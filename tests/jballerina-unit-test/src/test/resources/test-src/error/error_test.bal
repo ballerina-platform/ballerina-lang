@@ -118,13 +118,13 @@ function testOneLinePanic() returns string[] {
     if error2 is error {
         results[1] = error2.message();
         var detail = error2.detail();
-        results[2] = <string>detail.get("msg");
+        results[2] = <string> checkpanic detail.get("msg");
     }
 
     if error3 is error {
         results[3] = error3.message();
         var detail = error3.detail();
-        results[4] = <string>detail.get("message");
+        results[4] = <string> checkpanic detail.get("message");
         results[5] = detail.get("statusCode").toString();
     }
 
@@ -155,8 +155,8 @@ function testGenericErrorWithDetailRecord() returns boolean {
     error e = error(reason, message = detailMessage, statusCode = detailStatusCode);
     string errReason = e.message();
     map<anydata|readonly> errDetail = e.detail();
-    return errReason == reason && <string> errDetail.get("message") == detailMessage &&
-            <int> errDetail.get("statusCode") == detailStatusCode;
+    return errReason == reason && <string> checkpanic errDetail.get("message") == detailMessage &&
+            <int> checkpanic errDetail.get("statusCode") == detailStatusCode;
 }
 
 type ErrorReasons "reason one"|"reason two";
@@ -381,6 +381,8 @@ function assertEquality(any|error actual, any|error expected) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

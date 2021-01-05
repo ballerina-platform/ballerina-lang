@@ -124,7 +124,7 @@ isolated class InvalidIsolatedClassWithNonUniqueInitializerExprs {
     ];
     final readonly & xml[] f = [xml `hello ${globStr}`, xml `<!-- int: ${globIntArr[0]} -->`, xml `ok`,
                                 xml `?pi ${globBoolMap["a"] is boolean ? "true" : globStr}?`];
-    final int g = checkpanic trap <int> 'int:fromString(globStr);
+    final int g = <int> checkpanic trap 'int:fromString(globStr);
     private float h;
 
     function init(int[][]? a) returns error? {
@@ -148,7 +148,7 @@ function testInvalidIsolatedObjectWithNonUniqueInitializerExprs() {
         ];
         final readonly & xml[] f = [xml `hello ${globStr}`, xml `<!-- int: ${globIntArr[0]} -->`, xml `ok`,
                                     xml `?pi ${globBoolMap["a"] is boolean ? "true" : globStr}?`];
-        final int g = checkpanic trap <int> 'int:fromString(globStr);
+        final int g = <int> checkpanic trap 'int:fromString(globStr);
         private float h;
 
         function init() {
