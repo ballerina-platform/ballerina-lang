@@ -85,6 +85,9 @@ public class ConfigTomlParser {
             TomlTableNode orgNode = orgName.equals(ANON_ORG) ? tomlNode : extractOrganizationNode(tomlNode, orgName);
             TomlTableNode moduleNode = moduleName.equals(DEFAULT_MODULE) ? orgNode : extractModuleNode(orgNode,
                     moduleName);
+            if (moduleNode == null) {
+                continue;
+            }
             for (VariableKey key : moduleEntry.getValue()) {
                 if (!moduleNode.entries().containsKey(key.variable)) {
                     //It is an optional configurable variable
