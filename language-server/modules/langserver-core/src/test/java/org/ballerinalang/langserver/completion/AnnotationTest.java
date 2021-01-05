@@ -38,7 +38,6 @@ public class AnnotationTest extends CompletionTestNew {
     }
 
     @Override
-    @Test(groups = "broken")
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
         super.test(config, configPath);
     }
