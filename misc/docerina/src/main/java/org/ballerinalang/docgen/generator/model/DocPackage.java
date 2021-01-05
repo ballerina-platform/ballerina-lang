@@ -22,17 +22,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a Ballerina Project.
+ * Represents a Ballerina Package.
  */
-public class Project {
+public class DocPackage {
     @Expose
     public boolean isSingleFile;
     @Expose
     public String sourceFileName;
     @Expose
-    public String name;
+    public String name = "";
+    @Expose
+    public String orgName;
+    @Expose
+    public String version;
     @Expose
     public String description;
+    @Expose
+    public String summary;
     @Expose
     public List<Module> modules = new ArrayList<>();
 

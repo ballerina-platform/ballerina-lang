@@ -54,7 +54,6 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
-import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Annotation;
 import org.ballerinalang.docgen.generator.model.BAbstractObject;
 import org.ballerinalang.docgen.generator.model.BClass;
@@ -518,7 +517,7 @@ public class Generator {
                     break;
                 }
             }
-            return BallerinaDocUtils.mdToHtml(doc, false);
+            return doc;
         } else {
             return "";
         }
@@ -548,7 +547,7 @@ public class Generator {
                     parameterDoc.append(getDocString(((MarkdownDocumentationLineNode) docLine).documentElements()));
                 }
             }
-            return BallerinaDocUtils.mdToHtml(parameterDoc.toString(), false);
+            return parameterDoc.toString();
         } else {
             return "";
         }
@@ -561,6 +560,9 @@ public class Generator {
         StringBuilder doc = new StringBuilder();
         for (Node docNode : documentElements) {
             doc.append(docNode.toString());
+        }
+        if (doc.toString().startsWith(" ")) {
+            return doc.substring(1);
         }
         return doc.toString();
     }
