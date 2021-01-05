@@ -87,7 +87,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "typed_binding_patterns_source_07.bal", "annotations_source_09.bal", "annotations_source_08.bal",
                 "annotations_source_06.bal", "resiliency_source_01.bal", "resiliency_source_02.bal",
                 "separated_node_list_modify_all_nodes_assert.bal", "child_node_list_test_01.bal",
-                "intersection_type_source_06.bal", "array_type_assert_04.bal",
+                "intersection_type_source_06.bal", "array_type_source_17.bal",
                 "stream_type_source_05.bal", "func_type_source_05.bal", "func_type_source_07.bal",
                 "func_type_source_08.bal", "table_type_source_08.bal", "table_type_source_09.bal",
                 "singleton_type_source_08.bal", "singleton_type_source_06.bal", "simple_types_source_02.bal",
