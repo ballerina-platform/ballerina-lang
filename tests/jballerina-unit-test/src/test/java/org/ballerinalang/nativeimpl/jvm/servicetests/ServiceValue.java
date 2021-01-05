@@ -151,9 +151,9 @@ public class ServiceValue {
     public static BValue getResourceAnnotation(BString methodName, ArrayValue path, BString annotName) {
         String funcName = generateMethodName(methodName, path);
 
-        for (var r : ((ServiceType) ServiceValue.service.getType()).getResourceMethods()) {
-            if (r.getName().equals(funcName)) {
-                return (BValue) r.getAnnotation(annotName);
+        for (var methodType : ((ServiceType) ServiceValue.service.getType()).getResourceMethods()) {
+            if (methodType.getName().equals(funcName)) {
+                return (BValue) methodType.getAnnotation(annotName);
             }
         }
         return null;
@@ -181,9 +181,9 @@ public class ServiceValue {
                                                       BString annotName) {
         String methodName = generateMethodName(method, resourcePath);
 
-        for (var r : ((ServiceType) service.getType()).getResourceMethods()) {
-            if (r.getName().equals(methodName)) {
-                return (BValue) r.getAnnotation(annotName);
+        for (var methodType : ((ServiceType) service.getType()).getResourceMethods()) {
+            if (methodType.getName().equals(methodName)) {
+                return (BValue) methodType.getAnnotation(annotName);
             }
         }
         return null;

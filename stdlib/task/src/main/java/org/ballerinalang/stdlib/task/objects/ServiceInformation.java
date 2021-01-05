@@ -49,7 +49,7 @@ public class ServiceInformation {
     }
 
     public MethodTypes getOnTriggerFunction() {
-        for (MethodTypes resource : service.getType().setMethodTypes()) {
+        for (MethodTypes resource : service.getType().getAttachedFunctions()) {
             if (RESOURCE_ON_TRIGGER.equals(resource.getName())) {
                 return resource;
             }

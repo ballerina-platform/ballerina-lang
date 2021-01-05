@@ -20,6 +20,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 public class BServiceType extends BObjectType implements ServiceType {
 
     private ResourceMethodType[] resourceFunctions;
-    private volatile MethodType[] remoteFunctions;
+    private volatile RemoteMethodType[] remoteFunctions;
 
     public BServiceType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags);
@@ -49,9 +50,9 @@ public class BServiceType extends BObjectType implements ServiceType {
      * @return array of remote functions
      */
     @Override
-    public MethodType[] getRemoteMethods() {
+    public RemoteMethodType[] getRemoteMethods() {
         if (remoteFunctions == null) {
-            MethodType[] funcs = getRemoteFunctions(getMethods());
+            RemoteMethodType[] funcs = getRemoteFunctions(getMethods());
             synchronized (this) {
                 if (remoteFunctions == null) {
                     remoteFunctions = funcs;
@@ -61,14 +62,14 @@ public class BServiceType extends BObjectType implements ServiceType {
         return remoteFunctions;
     }
 
-    private MethodType[] getRemoteFunctions(MethodType[] attachedFunctions) {
+    private RemoteMethodType[] getRemoteFunctions(MethodType[] attachedFunctions) {
         ArrayList<MethodType> functions = new ArrayList<>();
         for (MethodType funcType : attachedFunctions) {
             if (SymbolFlags.isFlagOn(((BMethodType) funcType).flags, SymbolFlags.REMOTE)) {
                 functions.add(funcType);
             }
         }
-        return functions.toArray(new MethodType[]{});
+        return functions.toArray(new RemoteMethodType[]{});
     }
 
     /**

@@ -550,7 +550,7 @@ public class WebSocketUtil {
                                                                      BMap<BString, Object> clientEndpointConfig) {
         Object clientService = clientEndpointConfig.get(WebSocketConstants.CLIENT_SERVICE_CONFIG);
         if (clientService != null) {
-            Type param = ((BObject) clientService).getType().setMethodTypes()[0].getParameterType()[0];
+            Type param = ((BObject) clientService).getType().getAttachedFunctions()[0].getParameterType()[0];
             if (param == null || !(WebSocketConstants.WEBSOCKET_CLIENT_NAME.equals(param.toString()) ||
                     WEBSOCKET_FAILOVER_CLIENT_NAME.equals(param.toString()))) {
                 throw WebSocketUtil.getWebSocketException("The callback service should be a WebSocket Client Service",

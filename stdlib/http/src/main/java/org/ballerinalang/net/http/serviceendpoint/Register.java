@@ -45,7 +45,7 @@ public class Register extends AbstractHttpNativeFunction {
         httpServicesRegistry.setRuntime(env.getRuntime());
 
         Type param;
-        AttachedFunctionType[] resourceList = service.getType().setMethodTypes();
+        AttachedFunctionType[] resourceList = service.getType().getAttachedFunctions();
         try {
             if (resourceList.length > 0 && (param = resourceList[0].getParameterType()[0]) != null) {
                 String callerType = param.getQualifiedName();

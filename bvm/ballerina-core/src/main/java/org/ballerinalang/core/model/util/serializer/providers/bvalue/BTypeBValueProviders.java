@@ -254,7 +254,7 @@ public class BTypeBValueProviders {
             String typeName = objType.getName();
             var flags = objType.flags;
             BValue fields = serializer.toBValue(objType.getFields(), null);
-            BValue attachedFunctions = serializer.toBValue(objType.getMethodTypes(), null);
+            BValue attachedFunctions = serializer.toBValue(objType.getAttachedFunctions(), null);
             BValue initializer = serializer.toBValue(objType.initializer, null);
             BValue defaultsValuesInitFunc = serializer.toBValue(objType.defaultsValuesInitFunc, null);
 
@@ -290,7 +290,7 @@ public class BTypeBValueProviders {
                     .deserialize(packet.get(DEFAULT_INIT), BAttachedFunction.class);
 
             bObjectType.setFields(fields);
-            bObjectType.setMethodTypes(attachedFunctions);
+            bObjectType.setAttachedFunctions(attachedFunctions);
             bObjectType.initializer = initializer;
             bObjectType.defaultsValuesInitFunc = defaultsValuesInitFunc;
             return bObjectType;

@@ -132,8 +132,8 @@ int i = 0;
 function returnServiceObj() returns service object {} {
     i = i + 1;
     return service object {
-        @RAnnot { val: "anot-val: " + i.toString() }  resource function get processRequest() returns json {
-                return { output: "Hello" };
+        @RAnnot {val: "anot-val: " + i.toString()}  resource function get processRequest() returns json {
+                return {output: "Hello"};
         }
     };
 }
