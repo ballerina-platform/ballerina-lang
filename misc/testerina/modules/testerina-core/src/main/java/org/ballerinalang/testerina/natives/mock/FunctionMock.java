@@ -41,8 +41,8 @@ public class FunctionMock {
                 mockFuncObj.getStringValue(StringUtils.fromString("functionToMock")).toString();
         String originalFunctionPackage =
                 mockFuncObj.getStringValue(StringUtils.fromString("functionToMockPackage")).toString();
-        String mockFunctionClasses =
-                mockFuncObj.getStringValue(StringUtils.fromString("mockFunctionClasses")).toString();
+        String[] mockFunctionClasses =
+                mockFuncObj.getArrayValue(StringUtils.fromString("mockFunctionClasses")).getStringArray();
 
         String[] splitInfo = originalFunctionPackage.split(Pattern.quote("/"));
         String originalOrg = splitInfo[0];
@@ -92,7 +92,7 @@ public class FunctionMock {
     }
 
     private static Object callMockFunction(String originalFunction, String originalClassName,
-                                           String mockFunctionClasses, String returnVal, Object... args) {
+                                           String[] mockFunctionClasses, String returnVal, Object... args) {
         int prefixPos = returnVal.indexOf(MockConstants.FUNCTION_CALL_PLACEHOLDER);
         String mockFunctionName = returnVal.substring(prefixPos + MockConstants.FUNCTION_CALL_PLACEHOLDER.length());
         Strand strand = Scheduler.getStrand();
@@ -127,7 +127,7 @@ public class FunctionMock {
 
     private static String getMockClassName(String orgName, String packageName, String version,
                                        String originalMethodName, String originalPackageName, String mockMethodName,
-                                       String mockFunctionClasses) throws ClassNotFoundException {
+                                       String[] mockFunctionClasses) throws ClassNotFoundException {
 
         Method mockMethod = getMockMethod(orgName, packageName, version, mockMethodName, mockFunctionClasses);
         Method originalMethod = getClassDeclaredMethod(originalPackageName, originalMethodName);
@@ -138,7 +138,7 @@ public class FunctionMock {
 
 
     private static Method getMockMethod(String orgName, String packageName, String version, String mockMethodName,
-                                        String mockFunctionClasses) throws ClassNotFoundException {
+                                        String[] mockFunctionClasses) throws ClassNotFoundException {
         Method mockMethod = null;
         Method classDeclaredMethod = getClassDeclaredMethod(resolveMockClass(mockMethodName, mockFunctionClasses,
                 orgName, packageName, version), mockMethodName);
@@ -150,17 +150,11 @@ public class FunctionMock {
         return mockMethod;
     }
 
-    private static String resolveMockClass(String mockMethodName, String mockFunctionClasses, String orgName,
+    private static String resolveMockClass(String mockMethodName, String[] mockFunctionClasses, String orgName,
                                            String packageName, String version) throws ClassNotFoundException {
         String mockClass = null;
-        List<String> classList = new ArrayList<>();
-
-        String[] splitInfo = mockFunctionClasses.split(Pattern.quote("/"));
-        for (String info : splitInfo) {
-            classList.add(orgName + "." + packageName + "." + version + "." + info);
-        }
-
-        for (String clazz : classList) {
+        for (String clazz : mockFunctionClasses) {
+            clazz = orgName + "." + packageName + "." + version + "." + clazz;
             Class<?> resolvedClass = Class.forName(clazz);
             for (Method method : resolvedClass.getDeclaredMethods()) {
                 if (mockMethodName.equals(method.getName())) {
