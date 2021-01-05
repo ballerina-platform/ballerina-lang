@@ -21,6 +21,7 @@ package org.ballerinalang.test.balo.object;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -35,8 +36,8 @@ public class ReadOnlyObjectBaloTest {
 
     private CompileResult result;
 
-    @Test
-    public void testReadonlyRecordFields() {
+    @BeforeClass
+    public void setup() {
         BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_readonly_obj");
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_readonly_objects.bal");
     }
