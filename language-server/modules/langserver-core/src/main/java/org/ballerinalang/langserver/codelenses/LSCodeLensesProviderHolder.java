@@ -16,9 +16,9 @@
 package org.ballerinalang.langserver.codelenses;
 
 import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
-import org.ballerinalang.langserver.compiler.config.ClientConfigListener;
-import org.ballerinalang.langserver.compiler.config.LSClientConfig;
-import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
+import org.ballerinalang.langserver.config.ClientConfigListener;
+import org.ballerinalang.langserver.config.LSClientConfig;
+import org.ballerinalang.langserver.config.LSClientConfigHolder;
 
 import java.util.ArrayList;
 import java.util.List;

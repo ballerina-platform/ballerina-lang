@@ -6,6 +6,13 @@
   "source": "typedesc_context/source/stream_typedesc3.bal",
   "items": [
     {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
@@ -61,30 +68,23 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Listener",
       "kind": "Interface",
-      "detail": "Object",
+      "detail": "Class",
       "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestClass1",
       "kind": "Interface",
-      "detail": "Object",
+      "detail": "Class",
       "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Client",
       "kind": "Interface",
-      "detail": "Object",
+      "detail": "Class",
       "documentation": {
         "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
       },
@@ -94,7 +94,7 @@
     {
       "label": "Response",
       "kind": "Interface",
-      "detail": "Object",
+      "detail": "Class",
       "documentation": {
         "left": "Represents a response.\n"
       },

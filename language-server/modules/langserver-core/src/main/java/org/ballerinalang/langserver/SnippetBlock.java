@@ -20,7 +20,7 @@ package org.ballerinalang.langserver;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
@@ -70,7 +70,7 @@ public class SnippetBlock {
      * @param ctx LS Context
      * @return modified Completion Item
      */
-    public CompletionItem build(CompletionContext ctx) {
+    public CompletionItem build(BallerinaCompletionContext ctx) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setInsertText(this.snippet);
         List<ImportDeclarationNode> currentDocImports = ctx.currentDocImports();

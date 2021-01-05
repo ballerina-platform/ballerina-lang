@@ -1,6 +1,6 @@
 package io.ballerina.cli.cmd;
 
-import org.ballerinalang.tool.BLauncherException;
+import io.ballerina.cli.launcher.BLauncherException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

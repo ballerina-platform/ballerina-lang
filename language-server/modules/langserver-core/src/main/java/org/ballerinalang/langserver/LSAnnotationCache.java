@@ -22,12 +22,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
-import org.ballerinalang.langserver.compiler.LSPackageCache;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.AttachPoints;
@@ -47,8 +43,6 @@ import java.util.stream.Collectors;
  * @since 0.970.0
  */
 public class LSAnnotationCache {
-
-    private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
 
     private static final Map<ModuleID, List<AnnotationSymbol>> typeAnnotations = new HashMap<>();
     private static final Map<ModuleID, List<AnnotationSymbol>> classAnnotations = new HashMap<>();
@@ -112,7 +106,7 @@ public class LSAnnotationCache {
 //                });
         switch (attachmentPoint) {
             case SERVICE_DECLARATION:
-            //case SERVICE_CONSTRUCTOR_EXPRESSION:
+                //case SERVICE_CONSTRUCTOR_EXPRESSION:
                 return serviceAnnotations;
             case RESOURCE_KEYWORD:
                 return resourceAnnotations;

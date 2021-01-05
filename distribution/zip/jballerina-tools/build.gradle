@@ -44,7 +44,7 @@ configurations {
     debugAdapterLauncher {
         transitive false
     }
-    debugAdapterDistribution {
+    debugAdapterLib {
         transitive false
     }
     docerina
@@ -97,7 +97,6 @@ dependencies {
 
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
-    dist project(':ballerina-tool')
     dist project(':ballerina-tools-api')
     dist project(':ballerina-cli-module')
     dist project(':central-client')
@@ -111,7 +110,6 @@ dependencies {
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')
     dist project(':diagram-util')
-    dist project(':language-server:language-server-compiler')
     dist project(':language-server:language-server-commons')
     dist project(':docerina')
     dist project(':observability-symbol-collector')
@@ -124,8 +122,10 @@ dependencies {
     langserverLib project(':language-server:language-server-stdio-launcher')
     langserverLib project(':language-server:language-server-cli')
     langserverLib project(':language-server:language-server-core')
-    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
-    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
+
+    debugAdapterLib project(path: ':debug-adapter:debug-adapter-core', configuration: 'libs')
+    debugAdapterLib project(':debug-adapter:debug-adapter-cli')
+    debugAdapterLib project(':debug-adapter:debug-adapter-core')
 
     balSource project(path: ':jballerina', configuration: 'source')
 
@@ -312,6 +312,7 @@ def copyLangServerBinSpec = {
         into(path + 'lib/tools/lang-server/launcher')
     }
 }
+
 def copyDebugAdapterLauncher = {
     path -> copySpec {
         from('resources/debug-adapter-launcher.sh')
@@ -320,9 +321,9 @@ def copyDebugAdapterLauncher = {
     }
 }
 
-def copydebugAdapterDistributionSpec = {
+def copyDebugAdapterLibsSpec = {
     path -> copySpec {
-        from configurations.debugAdapterDistribution
+        from configurations.debugAdapterLib
         into(path + 'lib/tools/debug-adapter/lib')
      }
 }
@@ -416,7 +417,7 @@ task createZip(type: Zip) {
     with copyDataMapperLibsSpec(basePath)
     with copyLangServerBinSpec(basePath)
     with copyBallerinaZipSpec(basePath)
-    with copydebugAdapterDistributionSpec(basePath)
+    with copyDebugAdapterLibsSpec(basePath)
     with copyDebugAdapterLauncher(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
@@ -440,7 +441,7 @@ task updateBalHome(type: Copy) {
     with copyDataMapperLibsSpec(installDir)
     with copyLangServerBinSpec(installDir)
     with copyBallerinaZipSpec(installDir)
-    with copydebugAdapterDistributionSpec(installDir)
+    with copyDebugAdapterLibsSpec(installDir)
     with copyDebugAdapterLauncher(installDir)
     with apiDocsSpec(installDir)
     with copyStaticSpec(installDir)
@@ -466,7 +467,7 @@ task createDistribution(type: Copy) {
     with copyDataMapperLibsSpec("")
     with copyLangServerBinSpec("")
     with copyBallerinaZipSpec("")
-    with copydebugAdapterDistributionSpec("")
+    with copyDebugAdapterLibsSpec("")
     with copyDebugAdapterLauncher("")
     with apiDocsSpec("")
     with copyStaticSpec("")

@@ -20,7 +20,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -32,14 +32,14 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ExpressionFunctionBodyNodeContext extends AbstractCompletionProvider<ExpressionFunctionBodyNode> {
     public ExpressionFunctionBodyNodeContext() {
         super(ExpressionFunctionBodyNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext ctx, ExpressionFunctionBodyNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ExpressionFunctionBodyNode node)
             throws LSCompletionException {
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
@@ -50,7 +50,7 @@ public class ExpressionFunctionBodyNodeContext extends AbstractCompletionProvide
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, ExpressionFunctionBodyNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, ExpressionFunctionBodyNode node) {
         if (node.rightDoubleArrow() == null || node.rightDoubleArrow().isMissing()) {
             return false;
         }
