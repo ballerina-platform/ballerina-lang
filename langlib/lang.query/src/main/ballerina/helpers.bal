@@ -126,7 +126,7 @@ function toString(stream<Type, error?> strm) returns string {
 function addToTable(stream<Type, error?> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
-        error? e = trap tbl.add(<map<Type>> v.value);
+        error? e = trap tbl.add(<map<Type>> checkpanic v.value);
         if (e is error) {
             if (err is error) {
                 return err;

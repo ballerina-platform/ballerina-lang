@@ -3619,6 +3619,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         int tag = bType.tag;
         if (tag == TypeTags.ERROR) {
             errorType = bType;
+        } else if (tag == TypeTags.READONLY) {
+            errorType = symTable.errorType;
         } else if (tag == TypeTags.UNION) {
             LinkedHashSet<BType> errTypes = new LinkedHashSet<>();
             Set<BType> memTypes = ((BUnionType) bType).getMemberTypes();
