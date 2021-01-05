@@ -34,6 +34,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -82,22 +83,23 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
 
     private final PackageResolution pkgResolution;
-    private final JdkVersion jdkVersion;
+    private final JvmTarget jdkVersion;
     private final PackageContext packageContext;
     private final PackageCache packageCache;
     private final CompilerContext compilerContext;
     private final CodeGenerator jvmCodeGenerator;
+    private final InteropValidator interopValidator;
     private final JarResolver jarResolver;
     private final CompilerOptions compilerOptions;
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
 
-    public static JBallerinaBackend from(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
+    public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return packageCompilation.getCompilerBackend(jdkVersion,
                 (targetPlatform -> new JBallerinaBackend(packageCompilation, jdkVersion)));
     }
 
-    private JBallerinaBackend(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
+    private JBallerinaBackend(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         this.jdkVersion = jdkVersion;
         this.packageContext = packageCompilation.packageContext();
         this.pkgResolution = packageContext.getResolution();
@@ -106,14 +108,26 @@ public class JBallerinaBackend extends CompilerBackend {
         ProjectEnvironment projectEnvContext = this.packageContext.project().projectEnvironmentContext();
         this.packageCache = projectEnvContext.getService(PackageCache.class);
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
+        this.interopValidator = InteropValidator.getInstance(compilerContext);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
         this.compilerOptions = CompilerOptions.getInstance(compilerContext);
 
         // TODO The following line is a temporary solution to cleanup the TesterinaRegistry
         TesterinaRegistry.reset();
 
+        // TODO: Move to a compiler extension once Compiler revamp is complete
+        if (packageContext.compilationOptions().observabilityIncluded()) {
+            ObservabilitySymbolCollector observabilitySymbolCollector
+                    = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
+            observabilitySymbolCollector.process(packageContext.project());
+        }
+
         // Trigger code generation
         performCodeGen();
+    }
+
+    PackageContext packageContext() {
+        return this.packageContext;
     }
 
     private void performCodeGen() {
@@ -137,28 +151,29 @@ public class JBallerinaBackend extends CompilerBackend {
 
     // TODO EmitResult should not contain compilation diagnostics.
     public EmitResult emit(OutputType outputType, Path filePath) {
+        Path generatedArtifact = null;
+
         if (diagnosticResult.hasErrors()) {
-            return new EmitResult(false, diagnosticResult);
+            return new EmitResult(false, diagnosticResult, generatedArtifact);
         }
 
         switch (outputType) {
             case EXEC:
-                emitExecutable(filePath);
+                generatedArtifact = emitExecutable(filePath);
                 break;
             case BALO:
-                emitBalo(filePath);
+                generatedArtifact = emitBalo(filePath);
                 break;
             default:
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
         // TODO handle the EmitResult properly
-        return new EmitResult(true, diagnosticResult);
+        return new EmitResult(true, diagnosticResult, generatedArtifact);
     }
 
-    private void emitBalo(Path filePath) {
+    private Path emitBalo(Path filePath) {
         JBallerinaBaloWriter writer = new JBallerinaBaloWriter(this);
-        Package pkg = packageCache.getPackageOrThrow(packageContext.packageId());
-        writer.write(pkg, filePath);
+        return writer.write(filePath);
     }
 
     @Override
@@ -227,7 +242,11 @@ public class JBallerinaBackend extends CompilerBackend {
     @Override
     public void performCodeGen(ModuleContext moduleContext, CompilationCache compilationCache) {
         BLangPackage bLangPackage = moduleContext.bLangPackage();
-        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(moduleContext.moduleId(), this, bLangPackage);
+        interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
+        if (bLangPackage.getErrorCount() > 0) {
+            return;
+        }
+        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage);
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile);
@@ -246,8 +265,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
-        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(
-                moduleContext.moduleId(), this, bLangPackage.testablePkgs.get(0));
+        CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
         try {
             ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile);
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
@@ -506,7 +524,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 scope);
     }
 
-    private void emitExecutable(Path executableFilePath) {
+    private Path emitExecutable(Path executableFilePath) {
         Manifest manifest = createManifest();
         Collection<Path> jarLibraryPaths = jarResolver.getJarFilePathsRequiredForExecution();
 
@@ -517,13 +535,13 @@ public class JBallerinaBackend extends CompilerBackend {
             if (packageContext.compilationOptions().observabilityIncluded()) {
                 ObservabilitySymbolCollector observabilitySymbolCollector
                         = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
-                observabilitySymbolCollector.process(packageContext.project());
                 observabilitySymbolCollector.writeToExecutable(executableFilePath);
             }
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package: " +
                     this.packageContext.packageName(), e);
         }
+        return executableFilePath;
     }
 
     private PlatformLibraryScope getPlatformLibraryScope(Map<String, Object> dependency) {
@@ -556,7 +574,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
 
-    JdkVersion jdkVersion() {
+    JvmTarget jdkVersion() {
         return jdkVersion;
     }
 }

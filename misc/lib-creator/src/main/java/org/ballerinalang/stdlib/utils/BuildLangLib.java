@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.utils;
 import io.ballerina.projects.CompilationCache;
 import io.ballerina.projects.CompilerBackend;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
@@ -31,7 +31,6 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
 import java.io.ByteArrayOutputStream;
@@ -85,7 +84,7 @@ public class BuildLangLib {
             Project project = BuildProject.load(environmentBuilder, projectDir);
             Package pkg = project.currentPackage();
             PackageCompilation packageCompilation = pkg.getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
             if (jBallerinaBackend.diagnosticResult().hasErrors()) {
                 out.println("Error building Ballerina package: " + pkg.packageName());
                 jBallerinaBackend.diagnosticResult().diagnostics().forEach(d -> out.println(d.toString()));
@@ -93,7 +92,6 @@ public class BuildLangLib {
             }
 
             PackageManifest pkgDesc = pkg.manifest();
-            String baloName = ProjectUtils.getBaloName(pkgDesc);
             Path baloDirPath = pkgTargetPath.resolve("balo");
 
             // Create balo cache directory
@@ -101,7 +99,7 @@ public class BuildLangLib {
                     .resolve(pkgDesc.name().value())
                     .resolve(pkgDesc.version().toString());
             Files.createDirectories(balrPath);
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath.resolve(baloName));
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath);
 
             // Create zip file
             Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");

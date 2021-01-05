@@ -44,15 +44,17 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
     private final List<Qualifier> qualifiers;
     private final TypeSymbol typeDescriptor;
     private final List<AnnotationAttachPoint> attachPoints;
+    private final List<AnnotationSymbol> annots;
     private final boolean deprecated;
 
     private BallerinaAnnotationSymbol(String name, PackageID moduleID, List<Qualifier> qualifiers,
                                       TypeSymbol typeDescriptor, List<AnnotationAttachPoint> attachPoints,
-                                      BSymbol bSymbol) {
+                                      List<AnnotationSymbol> annots, BSymbol bSymbol) {
         super(name, moduleID, SymbolKind.ANNOTATION, bSymbol);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.attachPoints = Collections.unmodifiableList(attachPoints);
+        this.annots = Collections.unmodifiableList(annots);
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
     }
 
@@ -87,6 +89,11 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
     }
 
     @Override
+    public List<AnnotationSymbol> annotations() {
+        return this.annots;
+    }
+
+    @Override
     public boolean deprecated() {
         return this.deprecated;
     }
@@ -101,15 +108,16 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
         private final List<Qualifier> qualifiers = new ArrayList<>();
         private TypeSymbol typeDescriptor;
         private List<AnnotationAttachPoint> attachPoints;
+        private List<AnnotationSymbol> annots = new ArrayList<>();
 
         public AnnotationSymbolBuilder(String name, PackageID moduleID, BAnnotationSymbol annotationSymbol) {
             super(name, moduleID, SymbolKind.ANNOTATION, annotationSymbol);
-            withAnnotationSymbol(annotationSymbol);
+            withAttachPoints(annotationSymbol);
         }
 
         public BallerinaAnnotationSymbol build() {
             return new BallerinaAnnotationSymbol(this.name, this.moduleID, this.qualifiers, this.typeDescriptor,
-                    this.attachPoints, this.bSymbol);
+                                                 this.attachPoints, this.annots, this.bSymbol);
         }
 
         /**
@@ -117,7 +125,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
          *
          * @param annotationSymbol annotation symbol to evaluate
          */
-        private void withAnnotationSymbol(BAnnotationSymbol annotationSymbol) {
+        private void withAttachPoints(BAnnotationSymbol annotationSymbol) {
             this.attachPoints = getAttachPoints(annotationSymbol.maskedPoints);
         }
 
@@ -128,6 +136,11 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
 
         public AnnotationSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
             this.typeDescriptor = typeDescriptor;
+            return this;
+        }
+
+        public AnnotationSymbolBuilder withAnnotation(AnnotationSymbol annot) {
+            this.annots.add(annot);
             return this;
         }
 

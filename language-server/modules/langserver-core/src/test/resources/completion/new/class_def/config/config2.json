@@ -71,7 +71,7 @@
     {
       "label": "testClass",
       "kind": "Interface",
-      "detail": "Object",
+      "detail": "Class",
       "insertText": "testClass",
       "insertTextFormat": "Snippet"
     },

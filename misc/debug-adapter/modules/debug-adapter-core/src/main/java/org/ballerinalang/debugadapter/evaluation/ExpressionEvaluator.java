@@ -30,13 +30,15 @@ import org.slf4j.LoggerFactory;
  */
 public class ExpressionEvaluator {
 
-    private EvaluatorBuilder evaluatorBuilder;
-    private DebugExpressionCompiler expressionCompiler;
     private final SuspendedContext context;
+    private final EvaluatorBuilder evaluatorBuilder;
+    private final DebugExpressionCompiler expressionCompiler;
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionEvaluator.class);
 
     public ExpressionEvaluator(SuspendedContext context) {
         this.context = context;
+        this.evaluatorBuilder = new EvaluatorBuilder(context);
+        this.expressionCompiler = context.getDebugCompiler();
     }
 
     /**
@@ -44,13 +46,7 @@ public class ExpressionEvaluator {
      */
     public Value evaluate(String expression) {
         try {
-            if (expressionCompiler == null) {
-                expressionCompiler = new DebugExpressionCompiler(context);
-            }
             ExpressionNode compiledExprNode = expressionCompiler.validateAndCompile(expression);
-            if (evaluatorBuilder == null) {
-                evaluatorBuilder = new EvaluatorBuilder(context);
-            }
             Evaluator evaluator = evaluatorBuilder.build(compiledExprNode);
             return evaluator.evaluate().getJdiValue();
         } catch (EvaluationException e) {

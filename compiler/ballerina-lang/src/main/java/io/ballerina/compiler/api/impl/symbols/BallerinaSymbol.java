@@ -27,6 +27,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -96,6 +97,29 @@ public class BallerinaSymbol implements Symbol {
     @Override
     public Location location() {
         return this.position;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof Symbol)) {
+            return false;
+        }
+
+        Symbol symbol = (Symbol) obj;
+
+        return this.name().equals(symbol.name())
+                && this.moduleID().equals(symbol.moduleID())
+                && this.kind().equals(symbol.kind())
+                && this.location().lineRange().equals(symbol.location().lineRange());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.name(), this.moduleID(), this.kind(), this.location().lineRange());
     }
 
     public BSymbol getInternalSymbol() {

@@ -283,6 +283,29 @@ function testImmutableTypeIL() {
     assertEquality(1234, obj.id);
 }
 
+type '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Employee record {|
+    readonly int 'έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324};
+    string 'first\.name;
+|};
+
+type EmployeeTable table<'\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Employee> key('έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324});
+
+function testILInTableType() {
+     EmployeeTable empTable = table [
+        {'έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324}: 1, 'first\.name: "Mary"},
+        {'έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324}: 2, 'first\.name: "James"},
+        {'έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324}: 3, 'first\.name: "Jim"}
+     ];
+     assertEquality(3 ,empTable.length());
+
+     '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Employee result = {'έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324}: 2, 'first\.name: "James"};
+     assertEquality(result ,empTable.get(2));
+
+     '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Employee jack = {'έӎρ_Id_\ \/\:\@\[\`\{\~\u{2324}: 4, 'first\.name: "Jack"};
+     empTable.add(jack);
+     assertEquality(4 ,empTable.length());
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context.util;
 
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -37,10 +37,10 @@ public class ObjectConstructorBodyContextUtil {
     /**
      * Get the snippets to be suggested at the constructor body.
      *
-     * @param context {@link CompletionContext}
+     * @param context {@link BallerinaCompletionContext}
      * @return {@link List} of completion items
      */
-    public static List<LSCompletionItem> getBodyContextSnippets(CompletionContext context) {
+    public static List<LSCompletionItem> getBodyContextSnippets(BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));

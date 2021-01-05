@@ -20,7 +20,7 @@ package org.ballerinalang.debugadapter.terminator;
  * Launcher terminator Interface.
  */
 public interface Terminator {
-    String PROCESS_IDENTIFIER = "org.ballerinalang.tool.Main";
+    String PROCESS_IDENTIFIER = "io.ballerina.cli.launcher.Main";
 
     void terminate();
 }

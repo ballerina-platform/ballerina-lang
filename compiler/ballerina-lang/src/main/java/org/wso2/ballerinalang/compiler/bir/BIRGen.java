@@ -1684,11 +1684,11 @@ public class BIRGen extends BLangNodeVisitor {
 
         BTypeSymbol objectTypeSymbol = getObjectTypeSymbol(connectorInitExpr.type);
         BIRNonTerminator.NewInstance instruction;
-        if (isInSamePackage(objectTypeSymbol, this.env.enclPkg)) {
+        if (isInSamePackage(objectTypeSymbol, env.enclPkg.packageID)) {
             BIRTypeDefinition def = typeDefs.get(objectTypeSymbol);
             instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, def, toVarRef);
         } else {
-            BType objectType = connectorInitExpr.type.tag != TypeTags.UNION ? connectorInitExpr.type  :
+            BType objectType = connectorInitExpr.type.tag != TypeTags.UNION ? connectorInitExpr.type :
                     ((BUnionType) connectorInitExpr.type).getMemberTypes().stream()
                             .filter(bType -> bType.tag != TypeTags.ERROR)
                             .findFirst()
@@ -1702,10 +1702,8 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = toVarRef;
     }
 
-    private boolean isInSamePackage(BSymbol objectTypeSymbol, BIRPackage enclPkg) {
-        return objectTypeSymbol.pkgID.orgName.equals(enclPkg.org) &&
-                objectTypeSymbol.pkgID.name.equals(enclPkg.name) &&
-                objectTypeSymbol.pkgID.version.equals(enclPkg.version);
+    private boolean isInSamePackage(BSymbol objectTypeSymbol, PackageID packageID) {
+        return objectTypeSymbol.pkgID.equals(packageID);
     }
 
     @Override
@@ -1922,7 +1920,7 @@ public class BIRGen extends BLangNodeVisitor {
     private BIRGlobalVariableDcl getVarRef(BLangPackageVarRef astPackageVarRefExpr) {
         BSymbol symbol = astPackageVarRefExpr.symbol;
         if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT ||
-                !isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg)) {
+                !isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID)) {
             return new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
                                             symbol.name, VarScope.GLOBAL, VarKind.CONSTANT, symbol.name.value,
                                             symbol.origin.toBIROrigin());

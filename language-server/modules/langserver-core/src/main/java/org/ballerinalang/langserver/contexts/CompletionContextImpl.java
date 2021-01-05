@@ -17,18 +17,12 @@
  */
 package org.ballerinalang.langserver.contexts;
 
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.Position;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Language server context implementation.
@@ -39,9 +33,6 @@ public class CompletionContextImpl extends AbstractDocumentServiceContext implem
 
     private final CompletionCapabilities capabilities;
     private final Position cursorPosition;
-    private final List<Node> resolverChain = new ArrayList<>();
-    private Token tokenAtCursor;
-    private NonTerminalNode nodeAtCursor;
     private int cursorPosInTree = -1;
 
     CompletionContextImpl(LSOperation operation,
@@ -57,42 +48,6 @@ public class CompletionContextImpl extends AbstractDocumentServiceContext implem
     @Override
     public CompletionCapabilities getCapabilities() {
         return this.capabilities;
-    }
-
-    @Override
-    public void setTokenAtCursor(Token token) {
-        if (this.tokenAtCursor != null) {
-            throw new RuntimeException("Setting the token more than once is not allowed");
-        }
-        this.tokenAtCursor = token;
-    }
-
-    @Override
-    public Token getTokenAtCursor() {
-        return this.tokenAtCursor;
-    }
-
-    @Override
-    public void setNodeAtCursor(NonTerminalNode node) {
-        if (this.nodeAtCursor != null) {
-            throw new RuntimeException("Setting the node more than once is not allowed");
-        }
-        this.nodeAtCursor = node;
-    }
-
-    @Override
-    public NonTerminalNode getNodeAtCursor() {
-        return this.nodeAtCursor;
-    }
-
-    @Override
-    public void addResolver(Node node) {
-        this.resolverChain.add(node);
-    }
-
-    @Override
-    public List<Node> getResolverChain() {
-        return this.resolverChain;
     }
 
     @Override

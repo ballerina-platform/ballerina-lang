@@ -24,11 +24,16 @@ public class ConstructSearchJson {
     private String id;
     private String description;
     private String moduleId;
+    private String moduleOrgName;
+    private String moduleVersion;
 
-    public ConstructSearchJson(String id, String moduleId, String description) {
+    public ConstructSearchJson(String id, String moduleId, String moduleOrgName, String moduleVersion,
+                               String description) {
         this.setId(id);
         this.setDescription(description);
         this.setModuleId(moduleId);
+        this.setModuleOrgName(moduleOrgName);
+        this.setModuleVersion(moduleVersion);
     }
 
     public String getId() {
@@ -53,5 +58,21 @@ public class ConstructSearchJson {
 
     public void setModuleId(String moduleId) {
         this.moduleId = moduleId;
+    }
+
+    public String getModuleOrgName() {
+        return moduleOrgName;
+    }
+
+    public void setModuleOrgName(String moduleOrgName) {
+        this.moduleOrgName = moduleOrgName;
+    }
+
+    public String getModuleVersion() {
+        return moduleVersion;
+    }
+
+    public void setModuleVersion(String moduleVersion) {
+        this.moduleVersion = moduleVersion;
     }
 }

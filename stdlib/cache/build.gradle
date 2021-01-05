@@ -51,7 +51,7 @@ dependencies {
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-core')
-    testCompile project(':ballerina-tool')
+    testCompile project(':ballerina-cli')
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-task')

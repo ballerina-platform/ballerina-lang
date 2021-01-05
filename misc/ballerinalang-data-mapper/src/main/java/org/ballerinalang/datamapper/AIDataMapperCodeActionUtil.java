@@ -21,21 +21,23 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.datamapper.config.LSClientExtendedConfig;
+import io.ballerina.tools.text.TextDocument;
+import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
 import org.ballerinalang.datamapper.utils.HttpClientRequest;
 import org.ballerinalang.datamapper.utils.HttpResponse;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
+import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -68,13 +70,12 @@ class AIDataMapperCodeActionUtil {
     /**
      * Returns the workspace edits for the automatic data mapping code action.
      *
-     * @param context    {@link LSContext}
+     * @param context    {@link CodeActionContext}
      * @param diagnostic {@link Diagnostic}
      * @return edits for the data mapper code action
      * @throws IOException throws if error occurred when getting generatedRecordMappingFunction
      */
-    static List<TextEdit> getAIDataMapperCodeActionEdits(CodeActionContext context,
-                                                         Diagnostic diagnostic)
+    static List<TextEdit> getAIDataMapperCodeActionEdits(CodeActionContext context, Diagnostic diagnostic)
             throws IOException {
         List<TextEdit> fEdits = new ArrayList<>();
         String diagnosticMessage = diagnostic.getMessage();
@@ -87,22 +88,38 @@ class AIDataMapperCodeActionUtil {
         String foundTypeLeft = matcher.group(1);
         String foundTypeRight = matcher.group(2);
 
+        // Get the semantic model
+        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
+
+        // To restrict the code action from appearing for handled cases.
+        List<Symbol> fileContentSymbols = semanticModel.moduleLevelSymbols();
+        boolean foundLeft = fileContentSymbols.stream().anyMatch(p -> p.name().contains(foundTypeLeft));
+        boolean foundRight = fileContentSymbols.stream().anyMatch(p -> p.name().contains(foundTypeRight));
+
+        if (!(foundRight && foundLeft)) {
+            return fEdits;
+        }
+
         // Insert function call in the code where error is found
         Range newTextRange = diagnostic.getRange();
 
-        String symbolAtCursor = context.workspace().semanticModel(context.filePath()).get().
-                symbol(context.filePath().getFileName().toString(), LinePosition.from(context.cursorPosition().
-                        getLine(), context.cursorPosition().getCharacter())).get().name();
+        String filePath = context.filePath().getFileName().toString();
+        LinePosition linePosition = LinePosition.from(context.cursorPosition().getLine(), context.cursorPosition().
+                getCharacter());
+        String symbolAtCursor = semanticModel.symbol(filePath, linePosition).get().name();
 
         String generatedFunctionName =
                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursor);
         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
 
         // Insert function declaration at the bottom of the file
-        String fileContent = context.workspace().syntaxTree(context.filePath()).get().toSourceCode();
-        String functionName = String.format("map%sTo%s (%s", foundTypeRight, foundTypeLeft, foundTypeRight);
-        if (!fileContent.contains(functionName)) {
-            int numberOfLinesInFile = fileContent.split("\n").length;
+        String functionName = String.format("map%sTo%s", foundTypeRight, foundTypeLeft);
+
+        boolean found = fileContentSymbols.stream().anyMatch(p -> p.name().contains(functionName));
+        if (!found) {
+            TextDocument fileContentTextDocument = context.workspace().syntaxTree(context.filePath()).get().
+                    textDocument();
+            int numberOfLinesInFile = fileContentTextDocument.toString().split("\n").length;
             Position startPosOfLastLine = new Position(numberOfLinesInFile + 2, 0);
             Position endPosOfLastLine = new Position(numberOfLinesInFile + 2, 1);
             Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
@@ -117,8 +134,8 @@ class AIDataMapperCodeActionUtil {
     /**
      * Given two record types, this returns a function with mapped schemas.
      *
-     * @param context         {@link LSContext}
      * @param positionDetails {@link PositionDetails}
+     * @param context         {@link CodeActionContext}
      * @param foundTypeLeft   {@link String}
      * @param foundTypeRight  {@link String}
      * @return function string with mapped schemas
@@ -137,7 +154,6 @@ class AIDataMapperCodeActionUtil {
                 semanticModel(context.filePath()).get().symbol(context.filePath().getFileName().toString(),
                 LinePosition.from(context.cursorPosition().getLine(), context.cursorPosition().getCharacter())).
                 get()).fieldDescriptors();
-
         JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
 
         rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
@@ -182,6 +198,12 @@ class AIDataMapperCodeActionUtil {
         }
     }
 
+    /**
+     * Convert record type symbols to json objects.
+     *
+     * @param schemaFields {@link List<FieldSymbol>}
+     * @return Field symbol properties
+     */
     private static JsonElement recordToJSON(List<FieldSymbol> schemaFields) {
         JsonObject properties = new JsonObject();
         for (FieldSymbol attribute : schemaFields) {
@@ -200,12 +222,19 @@ class AIDataMapperCodeActionUtil {
         return properties;
     }
 
+    /**
+     * Get the mapping from the Data Mapper service.
+     *
+     * @param dataToSend - payload to the service
+     * @return - response data from the Data Mapper service
+     * @throws IOException If an error occurs in the Data Mapper service
+     */
     private static String getMappingFromServer(JsonArray dataToSend) throws IOException {
         try {
             Map<String, String> headers = new HashMap<>();
             headers.put("Content-Type", "application/json; utf-8");
             headers.put("Accept", "application/json");
-            String url = LSClientConfigHolder.getInstance().getConfigAs(LSClientExtendedConfig.class).getDataMapper()
+            String url = LSClientConfigHolder.getInstance().getConfigAs(ClientExtendedConfigImpl.class).getDataMapper()
                     .getUrl() + "/map/1.0.0";
             HttpResponse response = HttpClientRequest.doPost(url, dataToSend.toString(), headers);
             int responseCode = response.getResponseCode();
