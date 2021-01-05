@@ -24,7 +24,7 @@ listener http:Listener ep = new (9090, {
     secureSocket: {
         keyStore: {
             path: config:getAsString("b7a.home") +
-                  "/bre/security/ballerinaTruststore.p12",
+                  "/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
