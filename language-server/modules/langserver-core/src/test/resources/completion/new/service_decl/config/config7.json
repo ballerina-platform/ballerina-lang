@@ -232,17 +232,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "DisplayData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes display metadata.\n"
-      },
-      "sortText": "B",
-      "insertText": "DisplayData",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "float",
       "kind": "Unit",
       "detail": "type",
