@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -45,7 +45,6 @@ import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.elements.Flag;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,17 +76,6 @@ public class TestProcessor {
     private static final String TEST_PREFIX = "@test:";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
-    private boolean enabled = true;
-
-    /**
-     * this property is used as a work-around to initialize test suites only once for a package as Compiler
-     * Annotation currently emits package import events too to the process method.
-     */
-    public void init() {
-        if (TesterinaRegistry.getInstance().isTestSuitesCompiled()) {
-            enabled = false;
-        }
-    }
 
     /**
      * Generate and return the testsuite for module tests.
@@ -105,104 +93,57 @@ public class TestProcessor {
         if (project.buildOptions().skipTests()) {
             return Optional.empty();
         }
-        return Optional.of(generateTestSuite(module, project));
+        return Optional.of(generateTestSuite(module));
+    }
+
+    /**
+     * Get the syntax tree for tests.
+     *
+     * @param module Module
+     * @return Map<String, SyntaxTree>
+     */
+    private Map<String, SyntaxTree> getTestSyntaxTreeMap(Module module) {
+        Map<String, SyntaxTree> syntaxTreeMap = new HashMap<>();
+        if (isSingleFileProject(module.project())) {
+            module.documentIds().forEach(documentId -> {
+                Document document = module.document(documentId);
+                syntaxTreeMap.put(document.name(), document.syntaxTree());
+            });
+        } else {
+            module.testDocumentIds().forEach(documentId -> {
+                Document document = module.document(documentId);
+                syntaxTreeMap.put(document.name(), document.syntaxTree());
+            });
+        }
+        return syntaxTreeMap;
     }
 
     /**
      * Generate the testsuite for module using syntax and semantic APIs.
      *
      * @param module  Module
-     * @param project Project
      */
-    private TestSuite generateTestSuite(Module module, Project project) {
+    private TestSuite generateTestSuite(Module module) {
         TestSuite testSuite = new TestSuite(module.descriptor().name().toString(),
                 module.descriptor().packageName().toString(),
                 module.descriptor().org().value(), module.descriptor().version().toString());
         TesterinaRegistry.getInstance().getTestSuites().put(
                 module.descriptor().name().toString(), testSuite);
         testSuite.setPackageName(module.descriptor().packageName().toString());
-        testSuite.setSourceRootPath(project.sourceRoot().toString());
-        //Get syntax tree for source files in the module
-        Map<String, SyntaxTree> sourceSyntaxTreeMap = new HashMap<>();
-        module.documentIds().forEach(documentId -> {
-            Document document = module.document(documentId);
-            sourceSyntaxTreeMap.put(document.name(), document.syntaxTree());
-        });
-        addUtilityFunctions(sourceSyntaxTreeMap, module, project, testSuite);
-        Map<String, SyntaxTree> testSyntaxTreeMap;
-        boolean isSingleFileProject = false;
-        //set test init functions
-        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            isSingleFileProject = true;
-            testSyntaxTreeMap = sourceSyntaxTreeMap;
-        } else {
-            //Get syntax tree for test files in the module
-            testSyntaxTreeMap = new HashMap<>();
-            module.testDocumentIds().forEach(documentId -> {
-                Document document = module.document(documentId);
-                testSyntaxTreeMap.put(document.name(), document.syntaxTree());
-            });
-            addUtilityFunctions(testSyntaxTreeMap, module, project, testSuite);
-        }
-        setInitFunctions(testSuite, isSingleFileProject);
-        // process annotations in test functions
-        init();
-        processAnnotations(module, testSyntaxTreeMap);
+        testSuite.setSourceRootPath(module.project().sourceRoot().toString());
+        addUtilityFunctions(module, testSuite);
+        processAnnotations(module, testSuite);
         return testSuite;
-    }
-
-    /**
-     * Set init functions for the testSuite.
-     * @param testSuite TestSuite
-     * @param isSingleFileProject boolean
-     */
-    private void setInitFunctions(TestSuite testSuite, boolean isSingleFileProject) {
-        testSuite.setInitFunctionName(".<init>");
-        testSuite.setStartFunctionName(".<start>");
-        testSuite.setStopFunctionName(".<stop>");
-        if (isSingleFileProject) {
-            testSuite.setTestInitFunctionName(".<init>");
-            testSuite.setTestStartFunctionName(".<start>");
-            testSuite.setTestStopFunctionName(".<stop>");
-        } else {
-            testSuite.setTestInitFunctionName(".<testinit>");
-            testSuite.setTestStartFunctionName(".<teststart>");
-            testSuite.setTestStopFunctionName(".<teststop>");
-        }
     }
 
     /**
      * Process the annotations for a given module.
      *
      * @param module        Module
-     * @param syntaxTreeMap Map<String, SyntaxTree>
+     * @param suite        TestSuite
      */
-    private void processAnnotations(Module module, Map<String, SyntaxTree> syntaxTreeMap) {
-        if (!enabled) {
-            return;
-        }
-        String packageName = module.descriptor().packageName().toString();
-        TestSuite suite = registry.getTestSuites().get(module.descriptor().name().toString());
-        // Check if the registry contains a test suite for the package
-        boolean isTestable = false;
-        if (suite == null) {
-            //Set testable flag for single bal file execution
-            if ((Names.DOT.getValue()).equals(packageName)) {
-                isTestable = true;
-            } else {
-                isTestable = !module.testDocumentIds().isEmpty();
-            }
-            // Skip adding test suite if no tests are available in the tests path
-            if (isTestable) {
-                // Add a test suite to the registry if it does not contain one pertaining to the package name
-                suite = registry.getTestSuites().computeIfAbsent(packageName, func ->
-                        new TestSuite(module.descriptor().name().toString(),
-                                module.descriptor().packageName().toString(),
-                                module.descriptor().org().value(), module.descriptor().version().toString()));
-            } else {
-                return;
-            }
-        }
+    private void processAnnotations(Module module, TestSuite suite) {
+        Map<String, SyntaxTree> syntaxTreeMap = getTestSyntaxTreeMap(module);
         List<FunctionSymbol> functionSymbolList = getFunctionSymbolList(syntaxTreeMap, module);
         for (FunctionSymbol functionSymbol : functionSymbolList) {
             String functionName = functionSymbol.name();
@@ -290,15 +231,37 @@ public class TestProcessor {
     }
 
     /**
+     * Checks whether given project is a single file project.
+     *
+     * @param project Project
+     * @return boolean
+     */
+    private boolean isSingleFileProject(Project project) {
+        boolean isSingleFileProject = false;
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            isSingleFileProject = true;
+        }
+        return isSingleFileProject;
+    }
+
+    /**
      * Add utility functions for the test suite.
      *
-     * @param syntaxTreeMap Map<String, SyntaxTree>
      * @param module        Module
-     * @param project       Project
      * @param testSuite     TestSuite
      */
-    private void addUtilityFunctions(Map<String, SyntaxTree> syntaxTreeMap, Module module,
-                                     Project project, TestSuite testSuite) {
+    private void addUtilityFunctions(Module module, TestSuite testSuite) {
+        Map<String, SyntaxTree> syntaxTreeMap = new HashMap<>();
+        module.documentIds().forEach(documentId -> {
+            Document document = module.document(documentId);
+            syntaxTreeMap.put(document.name(), document.syntaxTree());
+        });
+        if (!isSingleFileProject(module.project())) {
+            module.testDocumentIds().forEach(documentId -> {
+                Document document = module.document(documentId);
+                syntaxTreeMap.put(document.name(), document.syntaxTree());
+            });
+        }
         List<FunctionSymbol> functionSymbolList = getFunctionSymbolList(syntaxTreeMap, module);
         for (FunctionSymbol functionSymbol : functionSymbolList) {
             String functionName = functionSymbol.name();

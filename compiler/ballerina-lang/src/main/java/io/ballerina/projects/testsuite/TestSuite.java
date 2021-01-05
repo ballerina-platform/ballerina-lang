@@ -41,14 +41,6 @@ public class TestSuite implements Serializable {
     private String packageName;
     private String packageId;
 
-    private String initFunctionName;
-    private String startFunctionName;
-    private String stopFunctionName;
-
-    private String testInitFunctionName;
-    private String testStartFunctionName;
-    private String testStopFunctionName;
-
     private String sourceRootPath;
     private String sourceFileName;
 
@@ -101,54 +93,6 @@ public class TestSuite implements Serializable {
 
     public void setVersion(String version) {
         this.version = version;
-    }
-
-    public String getInitFunctionName() {
-        return initFunctionName;
-    }
-
-    public void setInitFunctionName(String initFunctionName) {
-        this.initFunctionName = initFunctionName;
-    }
-
-    public String getStartFunctionName() {
-        return startFunctionName;
-    }
-
-    public void setStartFunctionName(String startFunctionName) {
-        this.startFunctionName = startFunctionName;
-    }
-
-    public String getStopFunctionName() {
-        return stopFunctionName;
-    }
-
-    public void setStopFunctionName(String stopFunctionName) {
-        this.stopFunctionName = stopFunctionName;
-    }
-
-    public String getTestInitFunctionName() {
-        return testInitFunctionName;
-    }
-
-    public void setTestInitFunctionName(String testInitFunctionName) {
-        this.testInitFunctionName = testInitFunctionName;
-    }
-
-    public String getTestStartFunctionName() {
-        return testStartFunctionName;
-    }
-
-    public void setTestStartFunctionName(String testStartFunctionName) {
-        this.testStartFunctionName = testStartFunctionName;
-    }
-
-    public String getTestStopFunctionName() {
-        return testStopFunctionName;
-    }
-
-    public void setTestStopFunctionName(String testStopFunctionName) {
-        this.testStopFunctionName = testStopFunctionName;
     }
 
     public String getPackageName() {
