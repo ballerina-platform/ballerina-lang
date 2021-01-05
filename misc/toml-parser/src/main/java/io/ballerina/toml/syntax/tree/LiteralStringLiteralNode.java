@@ -27,13 +27,13 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class StringLiteralNode extends ValueNode {
+public class LiteralStringLiteralNode extends ValueNode {
 
-    public StringLiteralNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public LiteralStringLiteralNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token startDoubleQuote() {
+    public Token startSingleQuote() {
         return childInBucket(0);
     }
 
@@ -41,7 +41,7 @@ public class StringLiteralNode extends ValueNode {
         return optionalChildInBucket(1);
     }
 
-    public Token endDoubleQuote() {
+    public Token endSingleQuote() {
         return childInBucket(2);
     }
 
@@ -58,30 +58,30 @@ public class StringLiteralNode extends ValueNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "startDoubleQuote",
+                "startSingleQuote",
                 "content",
-                "endDoubleQuote"};
+                "endSingleQuote"};
     }
 
-    public StringLiteralNode modify(
-            Token startDoubleQuote,
+    public LiteralStringLiteralNode modify(
+            Token startSingleQuote,
             Token content,
-            Token endDoubleQuote) {
+            Token endSingleQuote) {
         if (checkForReferenceEquality(
-                startDoubleQuote,
+                startSingleQuote,
                 content,
-                endDoubleQuote)) {
+                endSingleQuote)) {
             return this;
         }
 
-        return NodeFactory.createStringLiteralNode(
-                startDoubleQuote,
+        return NodeFactory.createLiteralStringLiteralNode(
+                startSingleQuote,
                 content,
-                endDoubleQuote);
+                endSingleQuote);
     }
 
-    public StringLiteralNodeModifier modify() {
-        return new StringLiteralNodeModifier(this);
+    public LiteralStringLiteralNodeModifier modify() {
+        return new LiteralStringLiteralNodeModifier(this);
     }
 
     /**
@@ -89,45 +89,45 @@ public class StringLiteralNode extends ValueNode {
      *
      * @since 2.0.0
      */
-    public static class StringLiteralNodeModifier {
-        private final StringLiteralNode oldNode;
-        private Token startDoubleQuote;
+    public static class LiteralStringLiteralNodeModifier {
+        private final LiteralStringLiteralNode oldNode;
+        private Token startSingleQuote;
         private Token content;
-        private Token endDoubleQuote;
+        private Token endSingleQuote;
 
-        public StringLiteralNodeModifier(StringLiteralNode oldNode) {
+        public LiteralStringLiteralNodeModifier(LiteralStringLiteralNode oldNode) {
             this.oldNode = oldNode;
-            this.startDoubleQuote = oldNode.startDoubleQuote();
+            this.startSingleQuote = oldNode.startSingleQuote();
             this.content = oldNode.content().orElse(null);
-            this.endDoubleQuote = oldNode.endDoubleQuote();
+            this.endSingleQuote = oldNode.endSingleQuote();
         }
 
-        public StringLiteralNodeModifier withStartDoubleQuote(
-                Token startDoubleQuote) {
-            Objects.requireNonNull(startDoubleQuote, "startDoubleQuote must not be null");
-            this.startDoubleQuote = startDoubleQuote;
+        public LiteralStringLiteralNodeModifier withStartSingleQuote(
+                Token startSingleQuote) {
+            Objects.requireNonNull(startSingleQuote, "startSingleQuote must not be null");
+            this.startSingleQuote = startSingleQuote;
             return this;
         }
 
-        public StringLiteralNodeModifier withContent(
+        public LiteralStringLiteralNodeModifier withContent(
                 Token content) {
             Objects.requireNonNull(content, "content must not be null");
             this.content = content;
             return this;
         }
 
-        public StringLiteralNodeModifier withEndDoubleQuote(
-                Token endDoubleQuote) {
-            Objects.requireNonNull(endDoubleQuote, "endDoubleQuote must not be null");
-            this.endDoubleQuote = endDoubleQuote;
+        public LiteralStringLiteralNodeModifier withEndSingleQuote(
+                Token endSingleQuote) {
+            Objects.requireNonNull(endSingleQuote, "endSingleQuote must not be null");
+            this.endSingleQuote = endSingleQuote;
             return this;
         }
 
-        public StringLiteralNode apply() {
+        public LiteralStringLiteralNode apply() {
             return oldNode.modify(
-                    startDoubleQuote,
+                    startSingleQuote,
                     content,
-                    endDoubleQuote);
+                    endSingleQuote);
         }
     }
 }
