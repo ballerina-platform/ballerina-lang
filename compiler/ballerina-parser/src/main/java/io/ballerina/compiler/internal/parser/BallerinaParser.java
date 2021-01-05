@@ -1671,8 +1671,8 @@ public class BallerinaParser extends AbstractParser {
                 case REQUIRED_PARAM:
                     STRequiredParameterNode requiredParam = (STRequiredParameterNode) param;
                     if (isEmpty(requiredParam.paramName)) {
-                        param = STNodeFactory.createRequiredParameterNode(SyntaxKind.REQUIRED_PARAM,
-                                requiredParam.annotations, null, requiredParam.typeName, paramName);
+                        param = STNodeFactory.createRequiredParameterNode(requiredParam.annotations,
+                                requiredParam.typeName, paramName);
                     }
                     break;
                 case DEFAULTABLE_PARAM:
@@ -2065,11 +2065,9 @@ public class BallerinaParser extends AbstractParser {
         // Required parameters
         if (isEndOfParameter(nextToken.kind)) {
             if (inclusionSymbol != null) {
-                return STNodeFactory.createRequiredParameterNode(SyntaxKind.INCLUDED_RECORD_PARAM,
-                        annots, inclusionSymbol, type, paramName);
+                return STNodeFactory.createIncludedRecordParameterNode(annots, inclusionSymbol, type, paramName);
             } else {
-                return STNodeFactory.createRequiredParameterNode(SyntaxKind.REQUIRED_PARAM,
-                        annots, STNodeFactory.createEmptyNode(), type, paramName);
+                return STNodeFactory.createRequiredParameterNode(annots, type, paramName);
             }
         } else if (nextToken.kind == SyntaxKind.EQUAL_TOKEN) {
             // If we were processing required params so far and found a defualtable
