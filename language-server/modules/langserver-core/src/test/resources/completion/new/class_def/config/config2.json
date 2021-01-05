@@ -62,9 +62,16 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "transactional",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testClass",
       "kind": "Interface",
-      "detail": "Object",
+      "detail": "Class",
       "insertText": "testClass",
       "insertTextFormat": "Snippet"
     },

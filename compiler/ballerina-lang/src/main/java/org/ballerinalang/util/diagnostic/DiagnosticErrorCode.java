@@ -148,6 +148,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     HEXADECIMAL_TOO_LARGE("BCE2112", "hexadecimal.too.large"),
     HEXADECIMAL_TOO_SMALL("BCE2113", "hexadecimal.too.small"),
 
+    EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER("BCE2114", "expected.a.record.type.as.an.included.parameter"),
+
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
     COMMIT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2301", "commit.cannot.be.outside.transaction.block"),

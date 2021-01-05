@@ -19,8 +19,6 @@
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
 import com.google.gson.JsonElement;
-import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.commons.LSContext;
 
 import java.util.HashMap;
 
@@ -29,14 +27,14 @@ import java.util.HashMap;
  */
 public class LSConnectorCache {
 
-    private static final LSContext.Key<LSConnectorCache> LS_CONNECTOR_CACHE_KEY =
-            new LSContext.Key<>();
+    private static final ConnectorExtContext.Key<LSConnectorCache> LS_CONNECTOR_CACHE_KEY =
+            new ConnectorExtContext.Key<>();
 
     private static final Object LOCK = new Object();
 
     HashMap<String, JsonElement> connectorConfigs;
 
-    public static LSConnectorCache getInstance(LSGlobalContext context) {
+    public static LSConnectorCache getInstance(ConnectorExtContext context) {
         LSConnectorCache lsConnectorCache = context.get(LS_CONNECTOR_CACHE_KEY);
         if (lsConnectorCache == null) {
             synchronized (LOCK) {

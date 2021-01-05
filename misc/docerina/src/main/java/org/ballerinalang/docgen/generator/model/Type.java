@@ -17,9 +17,9 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
-import io.ballerina.compiler.api.symbols.SimpleTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -70,6 +70,8 @@ public class Type {
     public String orgName;
     @Expose
     public String moduleName;
+    @Expose
+    public String version;
     @Expose
     public String name;
     @Expose
@@ -249,9 +251,17 @@ public class Type {
         if (symbol instanceof TypeReferenceTypeSymbol) {
             TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) symbol;
             type.moduleName = typeSymbol.moduleID().moduleName();
+            type.orgName = typeSymbol.moduleID().orgName();
+            type.version = typeSymbol.moduleID().version();
             if (typeSymbol.typeDescriptor() != null) {
                 type.category = getTypeCategory(typeSymbol.typeDescriptor());
             }
+        } else if (symbol instanceof ConstantSymbol) {
+            ConstantSymbol constantSymbol = (ConstantSymbol) symbol;
+            type.moduleName = constantSymbol.moduleID().moduleName();
+            type.orgName = constantSymbol.moduleID().orgName();
+            type.version = constantSymbol.moduleID().version();
+            type.category = "constants";
         } else if (symbol instanceof VariableSymbol) {
             VariableSymbol variableSymbol = (VariableSymbol) symbol;
             if (variableSymbol.typeDescriptor() != null) {
@@ -283,9 +293,8 @@ public class Type {
             } else {
                 return "classes";
             }
-        } else if (typeDescriptor instanceof SimpleTypeSymbol && typeDescriptor.signature().equals("finite")) {
-            return "types";
         }
+
         return "not_found";
     }
 

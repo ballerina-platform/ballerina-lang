@@ -126,7 +126,8 @@
                 },
                 {
                     "name": "typeDescriptor",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
                 },
                 {
                     "name": "variableName",
@@ -945,12 +946,16 @@
         {
             "name": "RequiredParameterNode",
             "base": "ParameterNode",
-            "kind": "REQUIRED_PARAM",
             "attributes": [
                 {
                     "name": "annotations",
                     "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "asteriskToken",
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "typeName",

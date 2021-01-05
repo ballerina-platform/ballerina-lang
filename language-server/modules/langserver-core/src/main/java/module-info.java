@@ -7,9 +7,9 @@ module io.ballerina.language.server.core {
     exports org.ballerinalang.langserver.codeaction.providers;
     exports org.ballerinalang.langserver.exception;
     exports org.ballerinalang.langserver.extensions;
+    exports org.ballerinalang.langserver.config;
     requires io.ballerina.formatter.core;
     requires org.eclipse.lsp4j;
-    requires io.ballerina.language.server.compiler;
     requires io.ballerina.language.server.commons;
     requires org.apache.commons.lang3;
     requires org.eclipse.lsp4j.jsonrpc;
@@ -31,4 +31,5 @@ module io.ballerina.language.server.core {
     requires org.slf4j;
     requires gson;
     requires com.google.common;
+    requires io.ballerina.diagram.util;
 }

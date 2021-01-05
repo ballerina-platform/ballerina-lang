@@ -15,33 +15,18 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.project;
 
-import com.google.gson.JsonElement;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.LSGlobalContextKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
-import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
-import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.directory.ProjectLoader;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -50,76 +35,47 @@ import java.util.concurrent.CompletableFuture;
  * @since 1.0.0
  */
 public class BallerinaProjectServiceImpl implements BallerinaProjectService {
-    private final WorkspaceDocumentManager documentManager;
-
-    public BallerinaProjectServiceImpl(LSGlobalContext globalContext) {
-        this.documentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
-    }
 
     @Override
-    public CompletableFuture<ModulesResponse> modules (ModulesRequest request) {
+    public CompletableFuture<PackagesResponse> packages(PackagesRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            ModulesResponse reply = new ModulesResponse();
-            String sourceRoot = request.getSourceRoot();
-            if (CommonUtil.isCachedExternalSource(sourceRoot)) {
-                reply.setParseSuccess(false);
-                return reply;
-            }
-            try {
-                LSContext astContext = new ProjectServiceOperationContext
-                        .ProjectServiceContextBuilder(LSContextOperation.PROJ_MODULES)
-                        .withModulesParams(sourceRoot, documentManager)
-                        .build();
-                List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager, false);
-                JsonObject jsonModulesInfo = getJsonReply(astContext, modules);
-                reply.setModules(jsonModulesInfo);
-                reply.setParseSuccess(true);
-            } catch (CompilationFailedException | JSONGenerationException | URISyntaxException e) {
-                reply.setParseSuccess(false);
-            }
-            return reply;
+            PackagesResponse response = new PackagesResponse();
+            response.setPackages(createJSONResponse(request.getSourceRoot()));
+            response.setParseSuccess(true);
+            return response;
         });
     }
 
-    private JsonObject getJsonReply(LSContext astContext, List<BLangPackage> modules)
-            throws JSONGenerationException, URISyntaxException {
-        JsonObject jsonModules = new JsonObject();
-
-        for (BLangPackage module : modules) {
+    /**
+     * Creates a JSON response with packages details.
+     *
+     * @param sourceRoot Project root path
+     * @return {@link JsonArray} Array of packages
+     */
+    private JsonArray createJSONResponse(String sourceRoot) {
+        Package currentPackage = ProjectLoader.loadProject(Paths.get(URI.create(sourceRoot))).currentPackage();
+        JsonObject jsonPackage = new JsonObject();
+        jsonPackage.addProperty(ProjectConstants.NAME, currentPackage.packageName().value());
+        JsonArray jsonModules = new JsonArray();
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
             JsonObject jsonModule = new JsonObject();
-
-            if (module.symbol == null) {
-                continue;
+            if (module.isDefaultModule()) {
+                jsonModule.addProperty(ProjectConstants.DEFAULT, true);
+            } else {
+                jsonModule.addProperty(ProjectConstants.NAME, module.moduleName().moduleNamePart());
             }
-
-            jsonModule.addProperty("name", module.symbol.name.value);
-            CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-
-            VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
-            visibleEndpointVisitor.visit(module);
-            Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
-
-            JsonObject jsonCUnits = new JsonObject();
-            List<BLangCompilationUnit> compilationUnits = module.getCompilationUnits();
-            // add all cunits in testable package as well
-            module.testablePkgs.forEach(bLangTestablePackage ->
-                    compilationUnits.addAll(bLangTestablePackage.getCompilationUnits()));
-            for (BLangCompilationUnit cUnit: compilationUnits) {
-                JsonObject jsonCUnit = new JsonObject();
-                jsonCUnit.addProperty("name", cUnit.name);
-                Path sourceRoot = Paths.get(new URI(astContext.get(DocumentServiceKeys.SOURCE_ROOT_KEY)));
-                String uri = sourceRoot.resolve(
-                        Paths.get("src", module.getPosition().lineRange().filePath(),
-                                cUnit.getPosition().lineRange().filePath())).toUri().toString();
-                jsonCUnit.addProperty("uri", uri);
-                JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);
-                jsonCUnit.add("ast", jsonAST);
-                jsonCUnits.add(cUnit.name, jsonCUnit);
+            ModuleVisitor moduleVisitor = new ModuleVisitor(jsonModule);
+            for (DocumentId documentId : module.documentIds()) {
+                Document document = module.document(documentId);
+                SyntaxTree syntaxTree = document.syntaxTree();
+                moduleVisitor.visitPackage(syntaxTree.rootNode(), syntaxTree.filePath());
             }
-            jsonModule.add("compilationUnits", jsonCUnits);
-            jsonModules.add(module.symbol.name.value, jsonModule);
+            jsonModules.add(jsonModule);
         }
-
-        return jsonModules;
+        jsonPackage.add(ProjectConstants.MODULES, jsonModules);
+        JsonArray jsonPackages = new JsonArray();
+        jsonPackages.add(jsonPackage);
+        return jsonPackages;
     }
 }

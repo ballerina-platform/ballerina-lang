@@ -1,6 +1,6 @@
 package io.ballerina.projects.internal.repositories;
 
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
@@ -112,7 +112,7 @@ public class RemotePackageRepository implements PackageRepository {
         }
 
         try {
-            for (String version : this.client.getPackageVersions(orgName, packageName, JdkVersion.JAVA_11.code())) {
+            for (String version : this.client.getPackageVersions(orgName, packageName, JvmTarget.JAVA_11.code())) {
                 packageVersions.add(PackageVersion.from(version));
             }
         } catch (ConnectionErrorException e) {

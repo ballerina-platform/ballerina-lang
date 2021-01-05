@@ -18,8 +18,9 @@
 
 package io.ballerina.projects.test;
 
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.BallerinaTomlProcessor;
 import io.ballerina.projects.internal.model.BallerinaToml;
 import io.ballerina.projects.internal.model.Package;
@@ -68,7 +69,7 @@ public class TestBallerinaTomlProcessor {
         Assert.assertEquals(dependencyList.get(1).name().value(), "github");
         Assert.assertEquals(dependencyList.get(1).version().toString(), "1.2.3");
 
-        PackageManifest.Platform jvmPlatform = packageManifest.platform(JdkVersion.JAVA_11.code());
+        PackageManifest.Platform jvmPlatform = packageManifest.platform(JvmTarget.JAVA_11.code());
         List<Map<String, Object>> platformDependencies = jvmPlatform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
 
@@ -197,9 +198,10 @@ public class TestBallerinaTomlProcessor {
         try {
             BallerinaTomlProcessor.validateBallerinaTomlPackage(ballerinaToml);
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof TomlException);
+            Assert.assertTrue(e instanceof ProjectException);
             Assert.assertEquals(e.getMessage(),
-                    "invalid Ballerina.toml file: 'version' under [package] is not semver");
+                    "invalid package version in Ballerina.toml. Invalid version: 'v1.0.0'. " +
+                            "Unexpected character 'LETTER(v)' at position '0', expecting '[DIGIT]'");
         }
     }
 }

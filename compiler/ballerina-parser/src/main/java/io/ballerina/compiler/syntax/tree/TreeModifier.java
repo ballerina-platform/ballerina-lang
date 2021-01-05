@@ -104,8 +104,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(listenerDeclarationNode.visibilityQualifier().orElse(null));
         Token listenerKeyword =
                 modifyToken(listenerDeclarationNode.listenerKeyword());
-        Node typeDescriptor =
-                modifyNode(listenerDeclarationNode.typeDescriptor());
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(listenerDeclarationNode.typeDescriptor().orElse(null));
         Token variableName =
                 modifyToken(listenerDeclarationNode.variableName());
         Token equalsToken =
@@ -725,12 +725,16 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             RequiredParameterNode requiredParameterNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(requiredParameterNode.annotations());
+        Token asteriskToken =
+                modifyToken(requiredParameterNode.asteriskToken().orElse(null));
         Node typeName =
                 modifyNode(requiredParameterNode.typeName());
         Token paramName =
                 modifyToken(requiredParameterNode.paramName().orElse(null));
         return requiredParameterNode.modify(
+                requiredParameterNode.kind(),
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName);
     }

@@ -27,13 +27,13 @@ public class ProjectDirConstants {
 
         private ProjectDirConstants() {
     }
-    
-   
+
+
     public static final String BLANG_SOURCE_EXT = ".bal";
     public static final String BLANG_COMPILED_PROG_EXT = ".balx";
     public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".balo";
     public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
-    public static final String BLANG_COMPILED_PKG_EXT = ".zip";
+    public static final String BLANG_COMPILED_PKG_EXT = ".balo";
     public static final String BLANG_COMPILED_JAR_EXT = ".jar";
 
     public static final String MANIFEST_FILE_NAME = "Ballerina.toml";

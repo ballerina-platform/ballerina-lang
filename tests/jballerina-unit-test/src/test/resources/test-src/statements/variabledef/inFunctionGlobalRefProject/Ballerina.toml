@@ -1,0 +1,4 @@
+[package]
+org = "test_fwd_reference"
+name = "inFunctionGlobalRefProject"
+version = "1.0.0"

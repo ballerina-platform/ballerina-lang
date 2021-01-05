@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPipelineNode> {
 
     public QueryPipelineNodeContext() {
@@ -40,7 +40,7 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, QueryPipelineNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, QueryPipelineNode node) {
         if (node.fromClause().isMissing() || node.fromClause().fromKeyword().isMissing()) {
             /*
             Covers the following

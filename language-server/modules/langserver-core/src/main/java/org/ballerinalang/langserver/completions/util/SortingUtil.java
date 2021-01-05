@@ -30,7 +30,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -89,7 +89,7 @@ public class SortingUtil {
      * @param item    completion item to evaluate
      * @return {@link String} rank assigned to the completion item
      */
-    public static String genSortTextForModule(CompletionContext context, LSCompletionItem item) {
+    public static String genSortTextForModule(BallerinaCompletionContext context, LSCompletionItem item) {
         /*
         Sorting order is defined as follows,
         (1) Current project's modules
@@ -203,11 +203,11 @@ public class SortingUtil {
      * @param owner   Owner node to extract the assignable type
      * @return {@link Optional} assignable type
      */
-    public static Optional<TypeSymbol> getAssignableType(CompletionContext context, Node owner) {
+    public static Optional<TypeSymbol> getAssignableType(BallerinaCompletionContext context, Node owner) {
         Optional<Node> typeDesc;
         switch (owner.kind()) {
             case LISTENER_DECLARATION:
-                typeDesc = Optional.ofNullable(((ListenerDeclarationNode) owner).typeDescriptor());
+                typeDesc = Optional.ofNullable(((ListenerDeclarationNode) owner).typeDescriptor().orElse(null));
                 break;
             case LOCAL_VAR_DECL:
                 typeDesc = Optional.ofNullable(((VariableDeclarationNode) owner).typedBindingPattern()

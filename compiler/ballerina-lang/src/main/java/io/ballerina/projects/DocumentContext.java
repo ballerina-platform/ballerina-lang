@@ -28,6 +28,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.SourceKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
@@ -97,7 +98,7 @@ class DocumentContext {
         return this.textDocument;
     }
 
-    BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID) {
+    BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID, SourceKind sourceKind) {
         nodeCloner = NodeCloner.getInstance(compilerContext);
         if (compilationUnit != null) {
             return nodeCloner.clone(compilationUnit);
@@ -108,6 +109,7 @@ class DocumentContext {
         reportSyntaxDiagnostics(pkgID, syntaxTree, dlog);
         BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(compilerContext, pkgID, this.name);
         compilationUnit = (BLangCompilationUnit) bLangNodeTransformer.accept(syntaxTree.rootNode()).get(0);
+        compilationUnit.setSourceKind(sourceKind);
         return nodeCloner.clone(compilationUnit);
     }
 

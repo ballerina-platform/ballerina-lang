@@ -24,7 +24,7 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -38,7 +38,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderByClauseNode> {
 
     public OrderByClauseNodeContext() {
@@ -46,7 +46,7 @@ public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderBy
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, OrderByClauseNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, OrderByClauseNode node) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (onSuggestDirectionKeywords(context, node)) {
@@ -69,11 +69,11 @@ public class OrderByClauseNodeContext extends AbstractCompletionProvider<OrderBy
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, OrderByClauseNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, OrderByClauseNode node) {
         return !node.orderKeyword().isMissing();
     }
 
-    private boolean onSuggestDirectionKeywords(CompletionContext context, OrderByClauseNode node) {
+    private boolean onSuggestDirectionKeywords(BallerinaCompletionContext context, OrderByClauseNode node) {
         SeparatedNodeList<OrderKeyNode> orderKeyNodes = node.orderKey();
         int cursor = context.getCursorPositionInTree();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
