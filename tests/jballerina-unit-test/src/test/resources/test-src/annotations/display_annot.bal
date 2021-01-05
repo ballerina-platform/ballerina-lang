@@ -33,7 +33,7 @@ type Rec record {|
     int i;
 |};
 
-@display {iconPath: "service.icon", label: "service"}
+@display {iconPath: "service.icon", label: "service", misc: "Other info"}
 service on new L() {
     @display {iconPath: "k-func.icon", label: "k method"}
     function k() {

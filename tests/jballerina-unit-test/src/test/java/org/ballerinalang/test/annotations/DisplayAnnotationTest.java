@@ -65,7 +65,7 @@ public class DisplayAnnotationTest {
         BLangService service = (BLangService) result.getAST().getServices().get(0);
         BLangAnnotationAttachment attachment = service.getAnnotationAttachments().get(0);
         Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(attachment.expr).toString(),
-                " {iconPath: service.icon,label: service}");
+                " {iconPath: service.icon,label: service,misc: Other info}");
     }
 
     @Test (enabled = false)

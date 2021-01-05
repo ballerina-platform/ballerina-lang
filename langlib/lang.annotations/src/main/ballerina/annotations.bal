@@ -73,16 +73,12 @@ public type StrandData record {|
 # Denotes new Strand execution semantics.
 public const annotation StrandData strand on source worker;
 
-# Describes display metadata.
-#
-# + label - label to be dispaled for a Ballerina construct
-# + iconPath  - icon path relative to module's resouce directory
-public type DisplayData record {
-    string label;
-    string iconPath;
-};
-
 # Denotes general-purpose metadata to customize how Ballerina symbols are displayed in a UI environment.
-public const annotation DisplayData display on source type, source class,
+public const annotation record {
+    # label for the Ballerina construct
+    string label;
+    # icon path relative to module's resouce directory
+    string iconPath;
+} display on source type, source class,
       source function, source return, source parameter, source field, source listener,
       source var, source const, source annotation;
