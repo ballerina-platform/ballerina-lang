@@ -89,6 +89,7 @@ function testXMLWithNeverType() {
     string testString6 = l;
     xml<never> & readonly m =  xml ``;
     string|'xml:Text n = a;
+    int|string t = a;
 
     string|'xml:Text p = d;
     string q = p;

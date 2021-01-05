@@ -139,7 +139,7 @@ public class PredefinedTypes {
                                                          TypeTags.XML_TEXT_TAG, true);
 
     public static final Type TYPE_XML_NEVER = new BXmlType(TypeConstants.XML_TNAME, new BNeverType(EMPTY_MODULE),
-                                                EMPTY_MODULE, true);
+                                              EMPTY_MODULE, true);
 
     public static final Type TYPE_XML = new BXmlType(TypeConstants.XML_TNAME,
                                                      new BUnionType(Arrays.asList(TYPE_ELEMENT, TYPE_COMMENT,

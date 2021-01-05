@@ -152,4 +152,6 @@ function testNeverAssignment() {
      string e = d;
      xml|'xml:Text f = xml ``;
      string g = f;
+     xml<never> h = xml ``;
+     int|float i = h;
 }

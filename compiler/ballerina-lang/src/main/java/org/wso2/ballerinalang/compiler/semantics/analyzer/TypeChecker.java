@@ -4039,9 +4039,8 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BLangExpression> literalValues = bLangXMLTextLiteral.textFragments;
         checkStringTemplateExprs(literalValues, false);
         BLangExpression xmlExpression = literalValues.get(0);
-        if (xmlExpression.getKind() == NodeKind.LITERAL &&
-                ((String) ((BLangLiteral) xmlExpression).value).isEmpty() &&
-                literalValues.size() == 1) {
+        if (literalValues.size() == 1 && xmlExpression.getKind() == NodeKind.LITERAL &&
+                ((String) ((BLangLiteral) xmlExpression).value).isEmpty()) {
             resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlNeverType, expType);
             return;
         }

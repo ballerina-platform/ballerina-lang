@@ -384,6 +384,11 @@ public class TypeTestExprTest {
     }
 
     @Test
+    public void testXMLTextType() {
+        BRunUtil.invoke(result, "testXMLTextType");
+    }
+
+    @Test
     public void testRestType() {
         BRunUtil.invoke(result, "testRestType");
     }

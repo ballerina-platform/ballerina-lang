@@ -648,12 +648,19 @@ public class TypeChecker {
             case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
-            case TypeTags.XML_TEXT_TAG:
             case TypeTags.CHAR_STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
                 if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
+                }
+                return sourceTypeTag == targetTypeTag;
+            case TypeTags.XML_TEXT_TAG:
+                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
+                    return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
+                }
+                if (sourceTypeTag == TypeTags.XML_TAG) {
+                    return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
                 }
                 return sourceTypeTag == targetTypeTag;
             case TypeTags.STRING_TAG:
@@ -663,7 +670,7 @@ public class TypeChecker {
                 if (sourceTypeTag == TypeTags.XML_TAG) {
                     return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
                 }
-                return sourceTypeTag == targetTypeTag;
+                return sourceTypeTag == targetTypeTag || sourceTypeTag == TypeTags.XML_TEXT_TAG;
             case TypeTags.INT_TAG:
                 if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
@@ -917,10 +924,7 @@ public class TypeChecker {
             BXmlType source = (BXmlType) sourceType;
             if (source.constraint.getTag() == TypeTags.NEVER_TAG) {
                 if (targetConstraint.getTag() == TypeTags.UNION_TAG) {
-                    List<Type> constraintTypes = ((BUnionType) targetConstraint).getMemberTypes();
-                    List<Type> builtinXMLConstraintTypes = ((BUnionType) ((BXmlType)
-                            TYPE_XML).constraint).getMemberTypes();
-                    return builtinXMLConstraintTypes.equals(constraintTypes);
+                    return checkIsType(source, targetConstraint, unresolvedTypes);
                 }
                 return targetConstraint.getTag() == TypeTags.XML_TEXT_TAG ||
                         targetConstraint.getTag() == TypeTags.NEVER_TAG;

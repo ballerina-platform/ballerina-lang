@@ -1078,11 +1078,12 @@ public function testXMLNeverType() {
     assertEquality(z is 'xml:Comment, false);
 
     xml<never> d = xml ``;
-    any w = c;
+    any w = d;
     assertEquality(w is xml<never>, true);
     assertEquality(w is xml, true);
     assertEquality(w is 'xml:Text, true);
     assertEquality(w is 'xml:Element, false);
+    assertEquality(w is xml<'xml:Text|'xml:Comment>, true);
 
     xml e = xml ``;
     assertEquality(<any> e is byte, false);
@@ -1092,6 +1093,11 @@ public function testXMLNeverType() {
     assertEquality(<any> e is 'xml:Text, true);
     assertEquality(<any> e is 'xml:Element, false);
     assertEquality(<any> e is xml<'xml:Element|'xml:Comment>, false);
+}
+
+function testXMLTextType(){
+    'xml:Text t = xml `foo`;
+    assertEquality(<any> t is string, true);
 }
 
 function assertTrue(anydata actual) {

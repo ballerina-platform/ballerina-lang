@@ -626,10 +626,6 @@ public class Types {
             return true;
         }
 
-        if (sourceTag == TypeTags.STRING && targetTag == TypeTags.XML_TEXT) {
-            return true;
-        }
-
         if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.CHAR_STRING) {
             return true;
         }
@@ -933,6 +929,7 @@ public class Types {
                 if (source.constraint != null) {
                     return source.constraint.tag == TypeTags.NEVER;
                 }
+                return false;
             }
             if (targetTag == TypeTags.STRING) {
                 if (source.constraint.tag == TypeTags.NEVER) {
@@ -940,14 +937,13 @@ public class Types {
                 }
                 return isAssignable(source.constraint, targetType, unresolvedTypes);
             }
-        }
-        if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.STRING) {
+        } else if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.STRING) {
             return true;
         }
         return sourceTag == targetTag;
     }
 
-    public boolean isXMLExprCastableToString(BType target, BType source) {
+    public boolean isXMLExprCastableToString(BType source, BType target) {
         if (target.tag == TypeTags.STRING && isXMLSourceCastableToString(source)) {
             return true;
         }
@@ -957,30 +953,27 @@ public class Types {
         return false;
     }
 
-    public boolean isXMLSourceCastableToString(BType conversionExprType) {
-        int exprTag = conversionExprType.tag;
+    public boolean isXMLSourceCastableToString(BType source) {
+        int exprTag = source.tag;
         if (exprTag == TypeTags.XML_TEXT) {
             return true;
         }
         if (exprTag == TypeTags.XML) {
-            BXMLType conversionExpressionType = (BXMLType) conversionExprType;
+            BXMLType conversionExpressionType = (BXMLType) source;
             // Revisit and check xml<xml<constraint>>> on chained iteration.
             while (conversionExpressionType.constraint.tag == TypeTags.XML) {
                 conversionExpressionType = (BXMLType) conversionExpressionType.constraint;
             }
-            if (conversionExpressionType.constraint.tag == TypeTags.NEVER ||
-                    conversionExpressionType.constraint.tag == TypeTags.XML_TEXT) {
-                return true;
-            }
-            return false;
+            return conversionExpressionType.constraint.tag == TypeTags.NEVER ||
+                    conversionExpressionType.constraint.tag == TypeTags.XML_TEXT;
         }
         if (exprTag == TypeTags.UNION) {
-            for (BType member : ((BUnionType) conversionExprType).getMemberTypes()) {
-                if (!TypeTags.isXMLTypeTag(member.tag)) {
+            for (BType member : ((BUnionType) source).getMemberTypes()) {
+                if (!TypeTags.isXMLTypeTag(member.tag) && !(member.tag == TypeTags.STRING)) {
                     return false;
                 }
             }
-            return isAssignable(conversionExprType, symTable.xmlTextType);
+            return isAssignable(source, symTable.stringType);
         }
         return false;
     }
@@ -1967,7 +1960,7 @@ public class Types {
                 return isXMLTypeAssignable(actualType, targetType, new HashSet<>());
             }
             if (actualType.tag == TypeTags.UNION) {
-                return isAssignable(actualType, symTable.xmlTextType);
+                return isAssignable(actualType, symTable.stringType);
             }
             return actualType.tag == TypeTags.XML_TEXT;
         }
