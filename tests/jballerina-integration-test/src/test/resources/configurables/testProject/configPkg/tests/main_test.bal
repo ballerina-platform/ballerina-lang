@@ -28,15 +28,15 @@ configurable boolean testBoolean = ?;
  }
  
 @test:Config {}
- function testString() {
+ function testStringValue() {
     string res = getString();
     test:assertEquals(res, "abc");
  }
 
 @test:Config {}
- function testBoolean() {
+ function testBooleanValue() {
     boolean res = getBoolean();
-    test:assertEquals(res, true);
+    test:assertEquals(res, false);
  }
 
 @test:Config {}
@@ -44,5 +44,5 @@ configurable boolean testBoolean = ?;
     test:assertEquals(testInt, 24);
     test:assertEquals(testFloat, 77.2);
     test:assertEquals(testString, "configurable variable test");
-    test:assertEquals(testBoolean, false);
+    test:assertEquals(testBoolean, true);
  }

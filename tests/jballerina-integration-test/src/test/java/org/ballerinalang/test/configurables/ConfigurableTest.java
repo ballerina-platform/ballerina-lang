@@ -68,7 +68,7 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testBallerinaTestAPIWithConfigurableVariables() throws BallerinaTestException {
         Path projectPath = Paths.get(testFileLocation, "testProject").toAbsolutePath();
-        LogLeecher runLeecher = new LogLeecher("Tests passed");
+        LogLeecher runLeecher = new LogLeecher("4 passing");
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
                 new LogLeecher[]{runLeecher}, projectPath.toString());
         runLeecher.waitForText(5000);

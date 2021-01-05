@@ -21,26 +21,28 @@ configurable float testFloat = 9.5;
 configurable string testString = "hello";
 configurable boolean testBoolean = ?;
 
+@test:Config {}
+function testAverage() {
+    float res = getAverage();
+    test:assertEquals(res, 22.3);
+}
 
 @test:Config {}
- function testAverage() {
-    float res = getAverage();
+function testStringValue() {
+    string res = getString();
+    test:assertEquals(res, "test string");
+}
+
+@test:Config {}
+function testBooleanValue() {
+    boolean res = getBoolean();
+    test:assertEquals(res, true);
+}
+
+@test:Config {}
+function testInternalVariables() {
     test:assertEquals(testInt, 22);
     test:assertEquals(testFloat, 12.4);
-    test:assertEquals(res, 22.3);
- }
- 
-@test:Config {}
- function testString() {
-    string res = getString();
     test:assertEquals(testString, "configurable variable inside test source");
-    test:assertEquals(res, "test string");
- }
-
-@test:Config {}
- function testBoolean() {
-    boolean res = getBoolean();
     test:assertEquals(testBoolean, true);
-    test:assertEquals(res, true);
- }
-
+}
