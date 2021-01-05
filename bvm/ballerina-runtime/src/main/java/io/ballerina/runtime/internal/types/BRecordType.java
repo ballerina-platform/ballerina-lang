@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
@@ -30,7 +31,9 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -75,11 +78,32 @@ public class BRecordType extends BStructureType implements RecordType {
      */
     public BRecordType(String typeName, Module pkg, long flags, Map<String, Field> fields, Type restFieldType,
                        boolean sealed, int typeFlags) {
-        super(typeName, pkg, flags, MapValueImpl.class, fields);
-        this.restFieldType = restFieldType;
+        super(typeName, pkg, flags, MapValueImpl.class);
         this.sealed = sealed;
         this.typeFlags = typeFlags;
         this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
+        if (readonly) {
+            this.fields = getReadOnlyFields(fields);
+            if (restFieldType != null) {
+                this.restFieldType = ReadOnlyUtils.getReadOnlyType(restFieldType);
+            }
+        } else {
+            this.restFieldType = restFieldType;
+            this.fields = fields;
+        }
+    }
+
+    private Map<String, Field> getReadOnlyFields(Map<String, Field> fields) {
+        Map<String, Field> fieldMap = new HashMap<>(fields.size());
+        for (Map.Entry<String, Field> fieldEntry : fields.entrySet()) {
+            Field field = fieldEntry.getValue();
+            if (!field.getFieldType().isReadOnly()) {
+                field = new BField(ReadOnlyUtils.getReadOnlyType(field.getFieldType()), field.getFieldName(),
+                                   field.getFlags());
+            }
+            fieldMap.put(fieldEntry.getKey(), field);
+        }
+        return fieldMap;
     }
 
     @Override
