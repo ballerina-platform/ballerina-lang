@@ -132,6 +132,20 @@ public class BUnionType extends BType implements UnionType {
     /**
      * Constructor used when defining union type defs where cyclic reference is possible.
      *
+     * @param unionType flags associated with the type
+     * @param typeName typename associated with the type
+     */
+    public BUnionType(BUnionType unionType, String typeName) {
+        super(typeName, unionType.pkg, unionType.valueClass);
+        this.typeFlags = unionType.typeFlags;
+        this.readonly = unionType.readonly;
+        this.memberTypes = new ArrayList<>(unionType.memberTypes.size());
+        this.mergeUnionType(unionType);
+    }
+
+    /**
+     * Constructor used when defining union type defs where cyclic reference is possible.
+     *
      * @param name typename
      * @param typeFlags flags associated with the type
      * @param readonly boolean represents if the type is readonly
@@ -269,11 +283,11 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String toString() {
-        if (isCyclic && resolving) {
+        if (isCyclic) {
             // show name when visited repeatedly
             if (this.typeName != null) {
                 return this.typeName;
-            } else {
+            } else if (resolving) {
                 return "...";
             }
         }
@@ -364,5 +378,49 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public boolean isCyclic() {
         return isCyclic;
+    }
+
+    public void mergeUnionType(BUnionType unionType) {
+        if (!unionType.isCyclic) {
+            for (Type member : unionType.getMemberTypes()) {
+                this.addMember(member);
+            }
+            return;
+        }
+        this.isCyclic = true;
+        for (Type member : unionType.getMemberTypes()) {
+            if (member instanceof BArrayType) {
+                BArrayType arrayType = (BArrayType) member;
+                if (arrayType.getElementType() == unionType) {
+                    BArrayType newArrayType = new BArrayType(this);
+                    this.addMember(newArrayType);
+                    continue;
+                }
+            } else if (member instanceof BMapType) {
+                BMapType mapType = (BMapType) member;
+                if (mapType.getConstrainedType() == unionType) {
+                    BMapType newMapType = new BMapType(this);
+                    this.addMember(newMapType);
+                    continue;
+                }
+            } else if (member instanceof BTableType) {
+                BTableType tableType = (BTableType) member;
+                if (tableType.getConstrainedType() == unionType) {
+                    BTableType newTableType = new BTableType(this, tableType.isReadOnly());
+                    this.addMember(newTableType);
+                    continue;
+                } else if (tableType.getConstrainedType() instanceof BMapType) {
+                    BMapType mapType = (BMapType) tableType.getConstrainedType();
+                    if (mapType.getConstrainedType() == unionType) {
+                        BMapType newMapType = new BMapType(this);
+                        BTableType newTableType = new BTableType(newMapType,
+                                tableType.getConstrainedType().isReadOnly());
+                        this.addMember(newTableType);
+                        continue;
+                    }
+                }
+            }
+            this.addMember(member);
+        }
     }
 }

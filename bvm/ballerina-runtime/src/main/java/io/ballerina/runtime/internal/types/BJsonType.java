@@ -61,13 +61,15 @@ public class BJsonType extends BUnionType implements JsonType {
                                                                     TypeFlags.PURETYPE), true);
     }
 
-    public BJsonType(BUnionType unionType) {
-        super(unionType);
-        BJsonType immutableJsonType = new BJsonType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
-        this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
-                immutableJsonType,
-                TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
-                        TypeFlags.PURETYPE), true);
+    public BJsonType(BUnionType unionType, String typeName, boolean readonly) {
+        super(unionType, typeName);
+        if (!readonly) {
+            BJsonType immutableJsonType = new BJsonType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
+            this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
+                    immutableJsonType,
+                    TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
+                            TypeFlags.PURETYPE), true);
+        }
 
     }
 

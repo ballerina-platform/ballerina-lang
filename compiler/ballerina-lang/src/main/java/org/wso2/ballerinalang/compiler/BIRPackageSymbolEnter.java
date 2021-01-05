@@ -1156,7 +1156,7 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.UNION:
                     boolean isCyclic = inputStream.readByte() == 1;
                     boolean hasName = inputStream.readByte() == 1;
-                    PackageID unionsPkgId = null;
+                    PackageID unionsPkgId = env.pkgSymbol.pkgID;
                     Name unionName = Names.EMPTY;
                     if (hasName) {
                         pkgCpIndex = inputStream.readInt();
@@ -1165,7 +1165,7 @@ public class BIRPackageSymbolEnter {
                         unionName = names.fromString(unionNameStr);
                     }
                     BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE,
-                            Flags.asMask(EnumSet.of(Flag.PUBLIC)), unionName, env.pkgSymbol.pkgID,
+                            Flags.asMask(EnumSet.of(Flag.PUBLIC)), unionName, unionsPkgId,
                             null, env.pkgSymbol.owner, symTable.builtinPos, COMPILED_SOURCE);
 
                     int unionMemberCount = inputStream.readInt();
@@ -1184,7 +1184,7 @@ public class BIRPackageSymbolEnter {
                     var poppedUnionType = compositeStack.pop();
                     assert poppedUnionType == unionType;
 
-                    if (hasName && (unionsPkgId != null)) {
+                    if (hasName) {
                         if (unionsPkgId.equals(env.pkgSymbol.pkgID)) {
                             return unionType;
                         } else {
@@ -1198,7 +1198,6 @@ public class BIRPackageSymbolEnter {
                             }
                         }
                     }
-
                     return unionType;
                 case TypeTags.INTERSECTION:
                     BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,

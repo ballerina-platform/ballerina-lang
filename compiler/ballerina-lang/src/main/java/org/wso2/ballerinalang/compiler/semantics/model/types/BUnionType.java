@@ -326,7 +326,6 @@ public class BUnionType extends BType implements UnionType {
                 if (arrayType.eType == unionType) {
                     BArrayType newArrayType = new BArrayType(this, arrayType.tsymbol, arrayType.size,
                             arrayType.state, arrayType.flags);
-                    this.isCyclic = true;
                     this.add(newArrayType);
                     continue;
                 }
@@ -334,7 +333,6 @@ public class BUnionType extends BType implements UnionType {
                 BMapType mapType = (BMapType) member;
                 if (mapType.constraint == unionType) {
                     BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
-                    isCyclic = true;
                     this.add(newMapType);
                     continue;
                 }
@@ -343,7 +341,6 @@ public class BUnionType extends BType implements UnionType {
                 if (tableType.constraint == unionType) {
                     BTableType newTableType = new BTableType(tableType.tag, this, tableType.tsymbol,
                             tableType.flags);
-                    isCyclic = true;
                     this.add(newTableType);
                     continue;
                 } else if (tableType.constraint instanceof BMapType) {
@@ -352,7 +349,6 @@ public class BUnionType extends BType implements UnionType {
                         BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                         BTableType newTableType = new BTableType(tableType.tag, newMapType, tableType.tsymbol,
                                 tableType.flags);
-                        isCyclic = true;
                         this.add(newTableType);
                         continue;
                     }
