@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
+import static org.ballerinalang.langserver.LSClientLogger.logError;
 
 /**
  * Ballerina example service.

@@ -21,10 +21,12 @@ import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -43,33 +45,33 @@ import java.util.StringJoiner;
  */
 public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements ObjectTypeSymbol {
 
-    private List<TypeQualifier> typeQualifiers;
+    private List<Qualifier> qualifiers;
     private List<FieldSymbol> objectFields;
     private List<MethodSymbol> methods;
     private List<TypeSymbol> typeInclusions;
 
     public BallerinaObjectTypeSymbol(CompilerContext context, ModuleID moduleID, BObjectType objectType) {
         super(context, TypeDescKind.OBJECT, moduleID, objectType);
-        // TODO: Fix this
-        // objectTypeReference = null;
     }
 
     @Override
-    public List<TypeQualifier> typeQualifiers() {
-        if (this.typeQualifiers != null) {
-            return this.typeQualifiers;
+    public List<Qualifier> qualifiers() {
+        if (this.qualifiers != null) {
+            return this.qualifiers;
         }
 
-        this.typeQualifiers = new ArrayList<>();
+        List<Qualifier> qualifiers = new ArrayList<>();
         BObjectType objectType = (BObjectType) getBType();
+        final long mask = objectType.tsymbol.flags;
 
-        if ((objectType.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT) {
-            this.typeQualifiers.add(TypeQualifier.CLIENT);
-        }
+        // distinct has to come first because we are modeling the distinct-type-descriptor here.
+        addIfFlagSet(qualifiers, mask, Flags.DISTINCT, Qualifier.DISTINCT);
+        addIfFlagSet(qualifiers, mask, Flags.ISOLATED, Qualifier.ISOLATED);
+        addIfFlagSet(qualifiers, mask, Flags.CLIENT, Qualifier.CLIENT);
+        addIfFlagSet(qualifiers, mask, Flags.SERVICE, Qualifier.SERVICE);
 
-        // TODO: Check whether we can identify the listeners as well
-
-        return this.typeQualifiers;
+        this.qualifiers = Collections.unmodifiableList(qualifiers);
+        return this.qualifiers;
     }
 
     @Override
@@ -88,7 +90,6 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
      *
      * @return {@link List} of object methods
      */
-    // TODO: Rename to method declarations
     public List<MethodSymbol> methods() {
         if (this.methods == null) {
             SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
@@ -134,7 +135,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         StringJoiner fieldJoiner = new StringJoiner(";");
         StringJoiner methodJoiner = new StringJoiner(" ");
 
-        for (TypeQualifier typeQualifier : this.typeQualifiers()) {
+        for (Qualifier typeQualifier : this.qualifiers()) {
             String value = typeQualifier.getValue();
             qualifierJoiner.add(value);
         }
@@ -150,5 +151,11 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
                 .append(methodJoiner.toString())
                 .append("}")
                 .toString();
+    }
+
+    private void addIfFlagSet(List<Qualifier> quals, final long mask, final long flag, Qualifier qualifier) {
+        if (Symbols.isFlagOn(mask, flag)) {
+            quals.add(qualifier);
+        }
     }
 }

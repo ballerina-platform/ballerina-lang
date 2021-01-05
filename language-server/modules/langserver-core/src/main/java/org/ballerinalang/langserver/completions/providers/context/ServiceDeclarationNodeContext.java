@@ -27,7 +27,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<ServiceDeclarationNode> {
 
     public ServiceDeclarationNodeContext() {
@@ -57,12 +57,12 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ServiceDeclarationNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ServiceDeclarationNode node)
             throws LSCompletionException {
         if (this.onMemberContext(context, node)) {
             return this.getMemberContextCompletions(context, node);
         }
-        
+
         Token onKeyword = node.onKeyword();
         Position cursor = context.getCursorPosition();
         if (this.onTypeDescContext(context, node)) {
@@ -125,7 +125,7 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
         return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
     }
 
-    private boolean onTypeDescContext(CompletionContext context, ServiceDeclarationNode node) {
+    private boolean onTypeDescContext(BallerinaCompletionContext context, ServiceDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         Token onKeyword = node.onKeyword();
         Token serviceKeyword = node.serviceKeyword();
@@ -138,30 +138,31 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
 
         return cursor > serviceKeyword.textRange().endOffset() && beforeOnKw && afterTypeDesc && afterResourcePath;
     }
-    
-    private boolean onMemberContext(CompletionContext context, ServiceDeclarationNode node) {
+
+    private boolean onMemberContext(BallerinaCompletionContext context, ServiceDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         Token openBrace = node.openBraceToken();
         Token closeBrace = node.closeBraceToken();
-        
+
         if (openBrace.isMissing() || closeBrace.isMissing()) {
             return false;
         }
-        
+
         return cursor > openBrace.textRange().startOffset() && cursor < closeBrace.textRange().endOffset();
     }
-    
-    private List<LSCompletionItem> getMemberContextCompletions(CompletionContext context, ServiceDeclarationNode node) {
+
+    private List<LSCompletionItem> getMemberContextCompletions(BallerinaCompletionContext context,
+                                                               ServiceDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
         completionItems.addAll(ObjectConstructorBodyContextUtil.getBodyContextSnippets(context));
-        
+
         return completionItems;
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, ServiceDeclarationNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, ServiceDeclarationNode node) {
         /*
         Avoid picking the service declaration context in the following scenario
         p<cursor>

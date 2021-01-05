@@ -24,7 +24,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -41,7 +41,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode> {
 
     public OnClauseNodeContext() {
@@ -49,7 +49,7 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, OnClauseNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, OnClauseNode node) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onSuggestEqualsKeyword(context, node)) {
@@ -77,11 +77,11 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, OnClauseNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, OnClauseNode node) {
         return !node.onKeyword().isMissing();
     }
 
-    private boolean onSuggestEqualsKeyword(CompletionContext context, OnClauseNode node) {
+    private boolean onSuggestEqualsKeyword(BallerinaCompletionContext context, OnClauseNode node) {
         int cursor = context.getCursorPositionInTree();
         ExpressionNode lhs = node.lhsExpression();
         ExpressionNode rhs = node.rhsExpression();
