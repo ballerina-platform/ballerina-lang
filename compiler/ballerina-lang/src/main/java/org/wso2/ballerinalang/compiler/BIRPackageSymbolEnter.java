@@ -71,7 +71,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -371,6 +370,7 @@ public class BIRPackageSymbolEnter {
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
+                // todo: Define resource function from BIR
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
                                               symTable.builtinPos);
@@ -719,7 +719,7 @@ public class BIRPackageSymbolEnter {
             Map<Name, BVarSymbol> paramsMap = new HashMap<>();
             for (BVarSymbol param : invokableSymbol.params) {
                 if (paramsMap.put(param.getName(), param) != null) {
-                    throw new IllegalStateException("Duplicate key: " + param.getName());
+                    throw new IllegalStateException("duplicate key: " + param.getName());
                 }
             }
             populateParameterizedType(invokableSymbol.retType, paramsMap, invokableSymbol);
@@ -1040,6 +1040,7 @@ public class BIRPackageSymbolEnter {
                                                              env.pkgSymbol, isNative, symTable.builtinPos,
                                                              COMPILED_SOURCE);
                         recordInitFuncSymbol.retType = recordInitFuncType.retType;
+                        // Define resource function
                         recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
                                                                              recordInitFuncType, symTable.builtinPos);
                         recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
@@ -1272,7 +1273,7 @@ public class BIRPackageSymbolEnter {
                     if (Symbols.isFlagOn(objFlags, Flags.CLASS)) {
                         objectSymbol = Symbols.createClassSymbol(objFlags, names.fromString(objName),
                                                                  env.pkgSymbol.pkgID, null, env.pkgSymbol,
-                                                                 symTable.builtinPos, COMPILED_SOURCE);
+                                                                 symTable.builtinPos, COMPILED_SOURCE, false);
                     } else {
                         objectSymbol = Symbols.createObjectSymbol(objFlags, names.fromString(objName),
                                                                   env.pkgSymbol.pkgID, null, env.pkgSymbol,
@@ -1282,14 +1283,14 @@ public class BIRPackageSymbolEnter {
                     objectSymbol.scope = new Scope(objectSymbol);
                     BObjectType objectType;
                     // Below is a temporary fix, need to fix this properly by using the type tag
-                    if (service) {
-                        objectType = new BServiceType(objectSymbol);
-                    } else {
-                        objectType = new BObjectType(objectSymbol);
+                    objectType = new BObjectType(objectSymbol);
 
-                        if (isImmutable(flags)) {
-                            objectSymbol.flags |= Flags.READONLY;
-                        }
+                    if (service) {
+                        objectType.flags |= Flags.SERVICE;
+                        objectSymbol.flags |= Flags.SERVICE;
+                    }
+                    if (isImmutable(flags)) {
+                        objectSymbol.flags |= Flags.READONLY;
                     }
                     objectType.flags = flags;
                     objectSymbol.type = objectType;
@@ -1346,7 +1347,7 @@ public class BIRPackageSymbolEnter {
                     // TODO fix
                     break;
                 case SERVICE_TYPE_TAG:
-                    return symTable.anyServiceType;
+                    throw new AssertionError();
                 case TypeTags.SIGNED32_INT:
                     return symTable.signed32IntType;
                 case TypeTags.SIGNED16_INT:
@@ -1422,7 +1423,7 @@ public class BIRPackageSymbolEnter {
         byte[] docBytes = new byte[docLength];
         int noOfBytesRead = inputStream.read(docBytes);
         if (docLength != noOfBytesRead) {
-            throw new RuntimeException("Failed to read Markdown Documenation");
+            throw new RuntimeException("failed to read Markdown Documentation");
         }
         return docBytes;
     }

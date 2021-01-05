@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * @since 1.3.0
@@ -30,8 +31,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 public class BLangTransaction extends BLangStatement implements TransactionNode {
 
     public BLangBlockStmt transactionBody;
-    public boolean statementBlockReturns;
     public BLangOnFailClause onFailClause;
+    public BLangExpression prevAttemptInfo;
 
     public BLangTransaction() {
     }

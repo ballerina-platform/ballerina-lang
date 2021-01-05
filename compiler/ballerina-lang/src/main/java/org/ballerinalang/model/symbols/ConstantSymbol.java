@@ -21,6 +21,6 @@ package org.ballerinalang.model.symbols;
 /**
  * @since 0.985.0
  */
-public interface ConstantSymbol extends Symbol {
+public interface ConstantSymbol extends Annotatable {
 
 }

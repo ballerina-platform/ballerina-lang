@@ -41,6 +41,9 @@ public class BallerinaLogFormatter extends Formatter {
         if (record.getLoggerName().length() > BLogManager.LOGGER_PREFIX_LENGTH) {
             source = record.getLoggerName().substring(BLogManager.LOGGER_PREFIX_LENGTH);
         }
+        if (source.equals("")) {
+            source = "\"\"";
+        }
         return String.format(format,
                              new Date(record.getMillis()),
                              BLogLevelMapper.getBallerinaLogLevel(record.getLevel()),

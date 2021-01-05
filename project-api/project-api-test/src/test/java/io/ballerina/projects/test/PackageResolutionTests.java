@@ -27,10 +27,12 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
@@ -43,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Contains cases to test package resolution logic.
@@ -63,6 +66,11 @@ public class PackageResolutionTests {
         BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_c");
         BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_b");
         BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_e");
+
+        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_unstable_k_alpha");
+        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_unstable_k_beta");
+        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_unstable_k_GA");
+        BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_l_with_unstable_dep");
     }
 
     @Test(description = "tests resolution with zero direct dependencies")
@@ -234,5 +242,51 @@ public class PackageResolutionTests {
                     throw new IllegalStateException("Unexpected dependency");
             }
         }
+    }
+
+    @Test(description = "tests projects with pre-release versions")
+    public void testProjectWithPreReleaseVersion() {
+        // package_c --> {}
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_unstable_k_alpha");
+        BuildProject buildProject = BuildProject.load(projectDirPath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(out::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+
+        // Check direct package dependencies
+        Assert.assertEquals(buildProject.currentPackage().packageDependencies().size(), 0,
+                "Unexpected number of dependencies");
+    }
+
+    @Test(description = "tests projects with pre-release versions", expectedExceptions = ProjectException.class,
+            expectedExceptionsMessageRegExp = "Two incompatible versions exist in the dependency graph: " +
+                    "samjs/package_k versions: 1.1.0-alpha, 1.1.0-beta")
+    public void testProjectWithPreReleaseVersionAsDependency() {
+        // package_c --> {}
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_m_with_unstable_dep");
+        BuildProject buildProject = BuildProject.load(projectDirPath);
+        buildProject.currentPackage().getResolution();
+    }
+
+    @Test(description = "tests loading a valid balo project")
+    public void testBaloProjectDependencyResolution() {
+        Path baloPath = getBaloPath("samjs", "package_b", "0.1.0");
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
+        PackageResolution resolution = baloProject.currentPackage().getResolution();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = resolution.dependencyGraph();
+        List<ResolvedPackageDependency> nodeInGraph = dependencyGraph.toTopologicallySortedList();
+        Assert.assertEquals(nodeInGraph.size(), 2);
+    }
+
+    private Path getBaloPath(String org, String pkgName, String version) {
+        String ballerinaHome = System.getProperty("ballerina.home");
+        Path baloRepoPath = Paths.get(ballerinaHome).resolve("repo").resolve("balo");
+        String baloName = org + "-" + pkgName + "-any-" + version + ".balo";
+        return baloRepoPath.resolve(org).resolve(pkgName).resolve(version).resolve(baloName);
     }
 }

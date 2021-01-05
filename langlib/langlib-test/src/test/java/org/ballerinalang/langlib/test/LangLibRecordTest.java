@@ -173,4 +173,9 @@ public class LangLibRecordTest {
                 {new BString("invalid"), false}
         };
     }
+
+    @Test
+    public void testReadOnlyRecordFilter() {
+        BRunUtil.invoke(compileResult, "testReadOnlyRecordFilter");
+    }
 }

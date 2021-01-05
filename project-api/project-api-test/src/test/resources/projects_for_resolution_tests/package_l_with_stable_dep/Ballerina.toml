@@ -1,0 +1,10 @@
+[package]
+org = "samjs"
+name = "package_l"
+version = "2.1.0"
+
+[[dependency]]
+org = "samjs"
+name = "package_k"
+version = "1.0.0"
+

@@ -3,7 +3,7 @@
     "character": 10,
     "expected": [
         {
-            "title": "Change Return Type to 'int'",
+            "title": "Change return type to 'int'",
             "edits": [
                 {
                     "range": {

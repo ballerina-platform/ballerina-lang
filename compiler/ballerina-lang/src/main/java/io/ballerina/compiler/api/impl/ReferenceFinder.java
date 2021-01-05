@@ -35,11 +35,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -212,8 +214,16 @@ public class ReferenceFinder extends BaseVisitor {
         find(pkgNode.services);
         find(pkgNode.annotations);
         find(pkgNode.typeDefinitions);
-        find(pkgNode.classDefinitions);
-        find(pkgNode.functions.stream().filter(f -> !f.flagSet.contains(Flag.LAMBDA)).collect(Collectors.toList()));
+        find(pkgNode.classDefinitions.stream()
+                     .filter(c -> !isGeneratedClassDefForService(c))
+                     .collect(Collectors.toList()));
+        find(pkgNode.functions.stream()
+                     .filter(f -> !f.flagSet.contains(Flag.LAMBDA))
+                     .collect(Collectors.toList()));
+
+        if (!(pkgNode instanceof BLangTestablePackage)) {
+            find(pkgNode.getTestablePkg());
+        }
     }
 
     @Override
@@ -242,6 +252,11 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangResourceFunction resourceFunction) {
+        visit((BLangFunction) resourceFunction);
+    }
+
+    @Override
     public void visit(BLangBlockFunctionBody blockFuncBody) {
         for (BLangStatement stmt : blockFuncBody.stmts) {
             find(stmt);
@@ -261,8 +276,8 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         find(serviceNode.annAttachments);
-        find(serviceNode.resourceFunctions);
-        addIfSameSymbol(serviceNode.symbol, serviceNode.pos);
+        find(serviceNode.serviceClass);
+        find(serviceNode.attachedExprs);
     }
 
     @Override
@@ -1131,6 +1146,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(classDefinition.fields);
         find(classDefinition.initFunction);
         find(classDefinition.functions);
+        find(classDefinition.typeRefs);
         addIfSameSymbol(classDefinition.symbol, classDefinition.name.pos);
     }
 
@@ -1156,5 +1172,9 @@ public class ReferenceFinder extends BaseVisitor {
                 && this.targetSymbol.pos.equals(symbol.pos)) {
             this.referenceLocations.add(location);
         }
+    }
+
+    private boolean isGeneratedClassDefForService(BLangClassDefinition clazz) {
+        return clazz.flagSet.contains(Flag.ANONYMOUS) && clazz.flagSet.contains(Flag.SERVICE);
     }
 }

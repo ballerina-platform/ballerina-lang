@@ -13,34 +13,24 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.'error as errors;
 
-# Represents the shape expected from all listeners.
-public type Listener object {
-    # Handle service attachment to the listener.
-    #d
-    # + s - the service to attach
-    # + name - optionally a name associated with the service
-    # + return - `()` if no error occurred, and an error otherwise
-    public function __attach(service s, string? name = ()) returns error?;
-
-    # Handle service detachment from the listener.
-    #
-    # + s - the service to detach
-    # + return - `()` if no error occurred, and an error otherwise
-
-    public function __detach(service s) returns error?;
-    # Handle listener start.
-    #
-    # + return - `()` if no error occurred, and an error otherwise
-    public function __start() returns error?;
-
-    # Handle listener graceful stop.
-    #
-    # + return - `()` if no error occurred, and an error otherwise
-    public function __gracefulStop() returns error?;
-
-    # Handle listener immediate stop.
-    #
-    # + return - `()` if no error occurred, and an error otherwise
-    public function __immediateStop() returns error?;
+public type RetryManager object {
+ public function shouldRetry(error? e) returns boolean;
 };
+
+# Default retry manager to be used with retry statement.
+public class DefaultRetryManager {
+    private int count;
+    public function init(int count = 3) {
+        self.count = count;
+    }
+    public function shouldRetry(error? e) returns boolean {
+        if e is errors:Retriable && self.count >  0 {
+          self.count -= 1;
+          return true;
+        } else {
+           return false;
+        }
+    }
+}

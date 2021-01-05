@@ -32,10 +32,6 @@ public annotation AnnotationType objectFunctionAnnotation1 on object function;
 
 public annotation objectFunctionAnnotation2 on object function;
 
-public annotation AnnotationType resourceFunctionAnnotation1 on resource function;
-
-public annotation resourceFunctionAnnotation2 on resource function;
-
 public annotation AnnotationType parameterAnnotation1 on parameter;
 
 public annotation parameterAnnotation2 on parameter;

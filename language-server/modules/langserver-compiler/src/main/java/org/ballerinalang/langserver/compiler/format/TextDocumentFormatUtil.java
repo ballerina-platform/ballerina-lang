@@ -434,7 +434,7 @@ public class TextDocumentFormatUtil {
         BType type = ((BLangNode) node).type;
         if (node instanceof BLangInvocation) {
             return null;
-        } else if (type != null &&  type.tsymbol != null &&  type.tsymbol.pkgID != null) {
+        } else if (type != null && type.tsymbol != null && type.tsymbol.pkgID != null) {
             PackageID pkgID = type.tsymbol.pkgID;
             JsonObject typeObj = new JsonObject();
             typeObj.addProperty("orgName", pkgID.getOrgName().value);

@@ -3,7 +3,7 @@
     "character": 4,
     "expected": [
         {
-            "title": "Create Variable with 'record {| string firstName; string lastName; string deptAccess; |}[]'",
+            "title": "Create variable with 'record {| string firstName; string lastName; string deptAccess; |}[]'",
             "edits": [
                 {
                     "range": {
