@@ -583,6 +583,12 @@ function testJsonArrayToJsonCasting () returns (json) {
     return j2;
 }
 
+function testGetFromNull() returns (string) {
+    json j2 = {age:43, name:null};
+    string value = <string> checkpanic j2.name.fname;
+    return value;
+}
+
 function testAddToNull () returns (json) {
     json jjj = {name:"Supun", address:null};
     map<json> jj = <map<json>>jjj;

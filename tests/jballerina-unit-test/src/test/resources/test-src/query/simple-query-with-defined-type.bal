@@ -422,7 +422,7 @@ function testQueryExprWithTypeConversion() returns Person1[]{
 			firstName: person.firstName,
 			lastName: person.lastName,
 			deptAccess: person.deptAccess,
-			address: <Address> checkpanic m.cloneWithType(Address)
+			address: checkpanic m.cloneWithType(Address)
 		};
 
     return  outputPersonList;

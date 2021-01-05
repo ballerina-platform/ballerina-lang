@@ -278,13 +278,13 @@ function testMappingJsonNoIntersectionMergeSuccess() returns boolean {
     json j1 = { one: "hello", two: "world", three: 1 };
     map<json> j2 = { x: 12.0, y: "test value" };
 
-    json mje = checkpanic j1.mergeJson(j2);
+    json|error mje = j1.mergeJson(j2);
 
     if (!(mje is map<json>) || mje.length() != 5) {
         return false;
     }
 
-    json mj = <json> mje;
+    json mj = <json> checkpanic mje;
     return mj.one == "hello" && mj.two == "world" && mj.three == 1 && mj.x == 12.0 && mj.y == "test value";
 }
 
@@ -499,9 +499,7 @@ function testCloneWithTypeJsonRec1() {
     json|error ss = p.cloneWithType(json);
     assert(ss is json, true);
 
-    if (ss is json) {
-        assert(ss.toJsonString(), "{\"name\":\"N\", \"age\":3}");
-    }
+    assert((checkpanic ss).toJsonString(), "{\"name\":\"N\", \"age\":3}");
 }
 
 function testCloneWithTypeJsonRec2() {
@@ -513,10 +511,7 @@ function testCloneWithTypeJsonRec2() {
    Person2 s = { name : "bob", age: 4};
    json|error ss = s.cloneWithType(json);
    assert(ss is json, true);
-
-   if (ss is json) {
-       assert(ss.toJsonString(), "{\"name\":\"bob\", \"age\":4}");
-   }
+   assert((checkpanic ss).toJsonString(), "{\"name\":\"bob\", \"age\":4}");
 }
 
 type BRec record {
@@ -595,10 +590,7 @@ function testCloneWithTypeNumeric2() {
     anydata a = 1234.6;
     int|error b = a.cloneWithType(int);
     assert(b is int, true);
-
-    if (b is int) {
-        assert(b, 1235);
-    }
+    assert(checkpanic b, 1235);
 }
 
 type X record {
@@ -618,11 +610,10 @@ function testCloneWithTypeNumeric3() {
     Y|error ye = x.cloneWithType(Y);
     assert(ye is Y, true);
 
-    if (ye is Y) {
-        assert(ye.a, 21.0);
-        assert(ye.b, "Alice");
-        assert(ye["c"], <decimal> 1000.5);
-    }
+    Y y = checkpanic ye;
+    assert(y.a, 21.0);
+    assert(y.b, "Alice");
+    assert(y["c"], <decimal> 1000.5);
 }
 
 function testCloneWithTypeNumeric4() {
@@ -630,57 +621,53 @@ function testCloneWithTypeNumeric4() {
     X|error xe = j.cloneWithType(X);
     assert(xe is X, true);
 
-    if (xe is X) {
-        assert(xe.a, 21);
-        assert(xe.b, "Alice");
-        assert(xe.c, 1000.0);
-    }
+    X x = checkpanic xe;
+    assert(x.a, 21);
+    assert(x.b, "Alice");
+    assert(x.c, 1000.0);
 }
 
 type FloatArray float[];
 type FloatOrBooleanArray (float|boolean)[];
 function testCloneWithTypeNumeric5() {
     int[] i = [1, 2];
-    float[]|error j = i.cloneWithType(FloatArray);
+    float[]|error je = i.cloneWithType(FloatArray);
     (float|boolean)[] j2 = checkpanic i.cloneWithType(FloatOrBooleanArray);
-    assert(j is float[], true);
+    assert(je is float[], true);
 
-    if (j is float[]) {
-        assert(j.length(), i.length());
-        assert(j[0], 1.0);
-        assert(j[1], 2.0);
-        assert(j, <(float|boolean)[]> j2);
-    }
+    float[] j = checkpanic je;
+    assert(j.length(), i.length());
+    assert(j[0], 1.0);
+    assert(j[1], 2.0);
+    assert(j, <(float|boolean)[]> j2);
 }
 
 type IntMap map<int>;
 type IntOrStringMap map<string|int>;
 function testCloneWithTypeNumeric6() {
     map<float> m = { a: 1.2, b: 2.7 };
-    map<int>|error m2 = m.cloneWithType(IntMap);
+    map<int>|error m1e = m.cloneWithType(IntMap);
     map<string|int> m3 = checkpanic m.cloneWithType(IntOrStringMap);
-    assert(m2 is map<int>, true);
+    assert(m1e is map<int>, true);
 
-    if (m2 is map<int>) {
-        assert(m2.length(), m.length());
-        assert(m2["a"], 1);
-        assert(m2["b"], 3);
-        assert(m2, <map<string|int>> m3);
-    }
+    map<int> m1 = checkpanic m1e;
+    assert(m1.length(), m.length());
+    assert(m1["a"], 1);
+    assert(m1["b"], 3);
+    assert(m1, <map<string|int>> m3);
 }
 
 type DecimalArray decimal[];
 function testCloneWithTypeNumeric7() {
     int[] a1 = [1, 2, 3];
-    decimal[]|error a2 = a1.cloneWithType(DecimalArray);
-    assert(a2 is decimal[], true);
+    decimal[]|error a2e = a1.cloneWithType(DecimalArray);
+    assert(a2e is decimal[], true);
 
-    if (a2 is decimal[]) {
-        assert(a2.length(), a1.length());
-        assert(a2[0], <decimal> 1);
-        assert(a2[1], <decimal> 2);
-        assert(a2[2], <decimal> 3);
-    }
+    decimal[] a2 = checkpanic a2e;
+    assert(a2.length(), a1.length());
+    assert(a2[0], <decimal> 1);
+    assert(a2[1], <decimal> 2);
+    assert(a2[2], <decimal> 3);
 }
 
 type StringArray string[];
@@ -689,10 +676,10 @@ function testCloneWithTypeStringArray() {
    json j = <json> checkpanic anArray.fromJsonString();
     string[]|error cloned = j.cloneWithType(StringArray);
     assert(cloned is string[], true);
-    if (cloned is string[]) {
-        assert(cloned[0], "hello");
-        assert(cloned[1], "world");
-    }
+
+    string[] s = checkpanic cloned;
+    assert(s[0], "hello");
+    assert(s[1], "world");
 }
 
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
@@ -713,9 +700,7 @@ function testFromJsonWithTypeRecord1() {
     Student2|error p = j.fromJsonWithType(Student2);
 
     assert(p is Student2, true);
-    if (p is Student2) {
-        assert(p.toString(), "{\"name\":\"Name\",\"age\":35}");
-    }
+    assert((checkpanic p).toString(), "{\"name\":\"Name\",\"age\":35}");
 }
 
 type Student3 record {
@@ -753,9 +738,7 @@ function testFromJsonWithTypeRecord2() {
     Student3|error p = j.fromJsonWithType(Student3);
 
     assert(p is Student3, true);
-    if (p is Student3) {
-        assert(p.toString(), "{\"name\":\"Name\",\"age\":35}");
-    }
+    assert((checkpanic p).toString(), "{\"name\":\"Name\",\"age\":35}");
 }
 
 function testFromJsonWithTypeRecord3() {
@@ -785,12 +768,12 @@ function testFromJsonWithTypeAmbiguousTargetType() {
 
 function testFromJsonWithTypeXML() {
     string s1 = "<test>name</test>";
-    xml|error x1 = s1.fromJsonWithType(xml);
-    assert(x1 is xml, true);
-    if (x1 is xml) {
-        json j = x1.toJson();
-        assert(j, s1);
-    }
+    xml|error xe = s1.fromJsonWithType(xml);
+    assert(xe is xml, true);
+
+    xml x = checkpanic xe;
+    json j = x.toJson();
+    assert(j, s1);
 }
 
 type Student4 record {
@@ -813,9 +796,8 @@ function testFromJsonWithTypeMap() {
         year: 2010
     };
     map<anydata> movieMap = checkpanic movie.fromJsonWithType(MapOfAnyData);
-    map<anydata> movieMap2 = <map<anydata>> movieMap;
-    assert(movieMap2["title"], "Some");
-    assert(movieMap2["year"], 2010);
+    assert(movieMap["title"], "Some");
+    assert(movieMap["year"], 2010);
 }
 
 function testFromJsonWithTypeStringArray() {
@@ -921,10 +903,9 @@ function testFromJsonStringWithTypeRecord() {
     string str = "{\"name\":\"Name\",\"age\":35}";
     Student3|error studentOrError = str.fromJsonStringWithType(Student3);
 
-    if (studentOrError is Student3) {
-        Student3 student = <Student3> studentOrError;
-        assert(student.name, "Name");
-    }
+    assert(studentOrError is Student3, true);
+    Student3 student = checkpanic studentOrError;
+    assert(student.name, "Name");
 }
 
 function testFromJsonStringWithAmbiguousType() {

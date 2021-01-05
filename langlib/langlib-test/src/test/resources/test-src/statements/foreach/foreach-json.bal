@@ -73,6 +73,15 @@ function testJSONBoolean () returns string|error {
     return output;
 }
 
+function testJSONNull() returns string|error {
+    output = "";
+    json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
+    foreach var j in <map<json>> checkpanic j1.city {
+        concatString(j.toJsonString());
+    }
+    return output;
+}
+
 type Protocols record {
     string data;
     Protocol[] plist;

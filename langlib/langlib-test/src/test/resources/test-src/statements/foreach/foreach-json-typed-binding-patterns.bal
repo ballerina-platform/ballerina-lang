@@ -117,7 +117,7 @@ function testJsonArrayWithType() returns string {
 function testDirectAccessInvalidElementWithoutType() returns string|error {
     output = "";
 
-    json j = checkpanic jNulldata.name;
+    json j = checkpanic jdata.random;
 
     int i = 0;
     foreach var v in <map<json>>j {
@@ -130,14 +130,12 @@ function testDirectAccessInvalidElementWithoutType() returns string|error {
 function testDirectAccessInvalidElementWithType() returns string|error {
     output = "";
 
-    json|error j = jNulldata.name;
+    json j = checkpanic jdata.random;
 
-    if (j is json) {
-        int i = 0;
-        foreach json v in <map<json>>j {
-            concatIntStringAny(i, v.toJsonString());
-            i += 1;
-        }
+    int i = 0;
+    foreach json v in <map<json>>j {
+        concatIntStringAny(i, v.toJsonString());
+        i += 1;
     }
     return output;
 }
