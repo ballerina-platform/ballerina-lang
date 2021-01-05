@@ -63,6 +63,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARSE_TOML_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATHS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
@@ -176,7 +177,7 @@ public class MainMethodGen {
         mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
         mv.visitMethodInsn(INVOKESTATIC, PATHS, "get",
                 String.format("(L%s;[L%s;)L%s;", STRING_VALUE, STRING_VALUE, PATH), false);
-        mv.visitMethodInsn(INVOKESTATIC, configClass, "$parseConfigTOML", "(L" + PATH + ";)V", false);
+        mv.visitMethodInsn(INVOKESTATIC, configClass, PARSE_TOML_METHOD, "(L" + PATH + ";)V", false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {

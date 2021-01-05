@@ -57,7 +57,6 @@ import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.S
  */
 public class ConfigTomlParser {
 
-
     private ConfigTomlParser() {
     }
 
