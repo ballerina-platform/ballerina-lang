@@ -84,6 +84,7 @@ public class ItemResolverConstants {
     public static final String LET_CLAUSE = "let clause";
     public static final String JOIN_CLAUSE = "join clause";
     public static final String ON_FAIL_CLAUSE = "on fail clause";
+    public static final String ON_CONFLICT_CLAUSE = "on conflict";
 
     // End of Basic Constructs
 
