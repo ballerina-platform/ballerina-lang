@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlType;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlValue;
 
@@ -56,12 +57,13 @@ public class BXmlType extends BType implements XmlType {
         super(typeName, pkg, XmlValue.class);
         this.tag = tag;
         this.readonly = readonly;
+        this.constraint = null;
     }
 
     public BXmlType(Type constraint, boolean readonly) {
         super(TypeConstants.XML_TNAME, null, XmlValue.class);
         this.tag = TypeTags.XML_TAG;
-        this.constraint = constraint;
+        this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
     }
 

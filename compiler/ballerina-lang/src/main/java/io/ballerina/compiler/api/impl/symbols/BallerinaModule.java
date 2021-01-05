@@ -197,6 +197,25 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
         return this.allSymbols;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof ModuleSymbol)) {
+            return false;
+        }
+
+        ModuleSymbol symbol = (ModuleSymbol) obj;
+        return this.moduleID().equals(symbol.moduleID());
+    }
+
+    @Override
+    public int hashCode() {
+        return this.moduleID().hashCode();
+    }
+
     /**
      * Represents Ballerina Module Symbol Builder.
      *
