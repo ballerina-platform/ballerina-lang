@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
@@ -41,7 +41,7 @@ public class ModuleDoc {
     public final String description;
     public final String summary;
     public final Map<String, SyntaxTree> syntaxTreeMap;
-    public final BallerinaSemanticModel semanticModel;
+    public final SemanticModel semanticModel;
     public final List<Path> resources;
 
     /**
@@ -54,7 +54,7 @@ public class ModuleDoc {
      * @throws IOException on error.
      */
     public ModuleDoc(Path descriptionPath, List<Path> resources, Map<String, SyntaxTree> syntaxTreeMap,
-                     BallerinaSemanticModel semanticModel) throws IOException {
+                     SemanticModel semanticModel) throws IOException {
         this.description = getDescription(descriptionPath);
         this.summary = getSummary(descriptionPath);
         this.resources = resources;
