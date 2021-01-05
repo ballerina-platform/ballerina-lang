@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.test.javainterop.basic;
 
 import org.ballerinalang.core.model.values.BDecimal;
@@ -160,6 +161,20 @@ public class StaticMethodTest {
         Assert.assertEquals(returns[0].stringValue(), "199.7");
     }
 
+    @Test(expectedExceptions = org.ballerinalang.core.util.exceptions.BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Invalid update of record field: modification not allowed on readonly " +
+                  "value.*")
+    public void testCreateRawDetails() {
+        BRunUtil.invoke(result, "testCreateRawDetails");
+    }
+
+    @Test(expectedExceptions = org.ballerinalang.core.util.exceptions.BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Invalid update of record field: modification not allowed on readonly " +
+                  "value.*")
+    public void testCreateDetails() {
+        BRunUtil.invoke(result, "testCreateDetails");
+    }
+
     @Test(dataProvider = "functionNamesProvider")
     public void testBalEnvSlowAsync(String funcName) {
         BRunUtil.invoke(result, funcName);
@@ -169,6 +184,6 @@ public class StaticMethodTest {
     public Object[] getFunctionNames() {
         return new String[]{"testBalEnvSlowAsyncVoidSig", "testBalEnvFastAsyncVoidSig", "testBalEnvSlowAsync",
                 "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve",
-                "testStringCast", "testGetCurrentModule"};
+                "testStringCast", "testGetCurrentModule", "testCreateStudentUsingType", "testCreateStudent"};
     }
 }
