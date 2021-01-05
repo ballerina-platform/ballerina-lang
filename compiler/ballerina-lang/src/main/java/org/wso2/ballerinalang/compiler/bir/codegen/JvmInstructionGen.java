@@ -173,6 +173,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypedescFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
@@ -1900,7 +1901,7 @@ public class JvmInstructionGen {
         if (type.tag == TypeTags.RECORD && closureVars.size() == 0 && type.tsymbol != null) {
             PackageID packageID = type.tsymbol.pkgID;
             String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
-            String fieldName = String.format("typedesc$type$%s", toNameString(type));
+            String fieldName = getTypedescFieldName(toNameString(type));
             mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", TYPEDESC_VALUE));
         } else {
             generateNewTypedescCreate(type, closureVars);
