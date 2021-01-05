@@ -42,6 +42,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.FieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -397,7 +398,7 @@ public class CommonUtil {
      * @param alias   alias value
      * @return {@link Optional} scope entry for the module symbol
      */
-    public static Optional<ModuleSymbol> searchModuleForAlias(BallerinaCompletionContext context, String alias) {
+    public static Optional<ModuleSymbol> searchModuleForAlias(PositionedOperationContext context, String alias) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         for (Symbol symbol : visibleSymbols) {
             if (symbol.kind() == MODULE && symbol.name().equals(alias)) {

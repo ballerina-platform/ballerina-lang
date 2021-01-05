@@ -3412,16 +3412,11 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
             case DOCUMENTATION_STRING:
             case AT_TOKEN:
-                startContext(ParserRuleContext.RECORD_FIELD);
-                STNode metadata = parseMetaData();
-                nextToken = peek();
-                return parseRecordField(nextToken, isInclusive, metadata);
+                return parseRecordField(isInclusive);
             default:
                 if (isTypeStartingToken(nextToken.kind)) {
                     // individual-field-descriptor
-                    startContext(ParserRuleContext.RECORD_FIELD);
-                    metadata = STNodeFactory.createEmptyNode();
-                    return parseRecordField(nextToken, isInclusive, metadata);
+                    return parseRecordField(isInclusive);
                 }
 
                 recover(peek(), ParserRuleContext.RECORD_FIELD_OR_RECORD_END, isInclusive);
@@ -3429,12 +3424,18 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    private STNode parseRecordField(boolean isInclusive) {
+        startContext(ParserRuleContext.RECORD_FIELD);
+        STNode metadata = parseMetaData();
+        STNode fieldOrRestDesc = parseRecordField(peek(), isInclusive, metadata);
+        endContext();
+        return fieldOrRestDesc;
+    }
+
     private STNode parseRecordField(STToken nextToken, boolean isInclusive, STNode metadata) {
         if (nextToken.kind != SyntaxKind.READONLY_KEYWORD) {
             STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
-            STNode fieldOrRestDesc = parseFieldDescriptor(isInclusive, metadata, type);
-            endContext();
-            return fieldOrRestDesc;
+            return parseFieldDescriptor(isInclusive, metadata, type);
         }
 
         // If the readonly-keyword is present, check whether its qualifier
@@ -3472,9 +3473,7 @@ public class BallerinaParser extends AbstractParser {
         } else if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
             // readonly ...
             type = createBuiltinSimpleNameReference(readOnlyQualifier);
-            fieldOrRestDesc = parseFieldDescriptor(isInclusive, metadata, type);
-            endContext();
-            return fieldOrRestDesc;
+            return parseFieldDescriptor(isInclusive, metadata, type);
         } else if (isTypeStartingToken(nextToken.kind)) {
             type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
         } else {
@@ -3483,9 +3482,7 @@ public class BallerinaParser extends AbstractParser {
             readOnlyQualifier = STNodeFactory.createEmptyNode();
         }
 
-        fieldOrRestDesc = parseIndividualRecordField(metadata, readOnlyQualifier, type);
-        endContext();
-        return fieldOrRestDesc;
+        return parseIndividualRecordField(metadata, readOnlyQualifier, type);
     }
 
     private STNode parseFieldDescriptor(boolean isInclusive, STNode metadata, STNode type) {
