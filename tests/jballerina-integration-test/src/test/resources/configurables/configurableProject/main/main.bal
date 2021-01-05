@@ -21,12 +21,31 @@ configurable int intVar = 5;
 configurable float floatVar = 9.5;
 configurable string stringVar = ?;
 configurable boolean booleanVar = ?;
+configurable decimal decimalVar = 10.1;
+
+configurable int[] & readonly intArr = ?;
+configurable float[] & readonly floatArr = [9.0, 5.3, 5.6];
+configurable string[] & readonly stringArr = ["apple", "orange", "banana"];
+configurable boolean[] & readonly booleanArr = [true, true];
+configurable decimal[] & readonly decimalArr = ?;
 
 public function main() {
     test:assertEquals(42, intVar);
     test:assertEquals(3.5, floatVar);
     test:assertEquals("abc", stringVar);
     test:assertEquals(true, booleanVar);
+
+    decimal result = 24.87;
+    test:assertEquals(result, decimalVar);
+
+    test:assertEquals([1,2,3], intArr);
+    test:assertEquals([9.0, 5.6], floatArr);
+    test:assertEquals(["red", "yellow", "green" ], stringArr);
+    test:assertEquals([true, false, false, true], booleanArr);
+
+    decimal[] & readonly resultArr = [8.9, 4.5, 6.2];
+    test:assertEquals(resultArr, decimalArr);
+
     print("Tests passed");
 }
 
