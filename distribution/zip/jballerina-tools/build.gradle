@@ -114,6 +114,7 @@ dependencies {
     dist project(':docerina')
     dist project(':observability-symbol-collector')
     dist project(':testerina:testerina-runtime')
+    dist project(':toml-parser')
     docerina project(':docerina-gradle-plugin')
 
     datamapperLib project(':ballerinalang-data-mapper')

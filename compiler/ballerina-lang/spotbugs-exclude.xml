@@ -88,7 +88,7 @@
     </Match>
     <Match>
         <Package name="io.ballerina.compiler.api.impl.symbols" />
-        <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
+        <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE, EQ_DOESNT_OVERRIDE_EQUALS" />
     </Match>
     <Match>
         <Class name = "org.ballerinalang.toml.model.Library"/>
