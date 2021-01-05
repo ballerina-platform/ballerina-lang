@@ -73,16 +73,18 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
             return this.getAnnotationsInModule(context, qNameRef.modulePrefix().text(), attachedNode);
         }
 
-        LSAnnotationCache.getInstance().getAnnotationMapForSyntaxKind(attachedNode, context)
-                .forEach((key, value) -> value.forEach(annotation -> {
-                    LSCompletionItem cItem;
-                    if (this.addAlias(context, node, key)) {
-                        cItem = AnnotationUtil.getModuleQualifiedAnnotationItem(key, annotation, context);
-                    } else {
-                        cItem = AnnotationUtil.getAnnotationItem(annotation, context);
-                    }
-                    completionItems.add(cItem);
-                }));
+        // Fixme Temporarily disabled the caching usage
+//        LSAnnotationCache.getInstance().getAnnotationMapForSyntaxKind(attachedNode, context)
+//                .forEach((key, value) -> value.forEach(annotation -> {
+//                    LSCompletionItem cItem;
+//                    if (this.addAlias(context, node, key)) {
+//                        cItem = AnnotationUtil.getModuleQualifiedAnnotationItem(key, annotation, context);
+//                    } else {
+//                        cItem = AnnotationUtil.getAnnotationItem(annotation, context);
+//                    }
+//                    completionItems.add(cItem);
+//                }));
+        completionItems.addAll(this.getModuleCompletionItems(context));
         completionItems.addAll(this.getCurrentModuleAnnotations(context, attachedNode));
 
         return completionItems;

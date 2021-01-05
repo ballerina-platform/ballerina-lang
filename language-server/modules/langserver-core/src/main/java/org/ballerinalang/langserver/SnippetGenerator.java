@@ -1367,6 +1367,18 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get on conflict clause Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getOnConflictClauseSnippet() {
+        String snippet = "on conflict ";
+
+        return new SnippetBlock(ItemResolverConstants.ON_CONFLICT_CLAUSE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
      * Get Worker Declaration Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
