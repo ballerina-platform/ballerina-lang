@@ -19,7 +19,7 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -34,7 +34,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ObjectTypeDescriptorNodeContext
         extends AbstractCompletionProvider<ObjectTypeDescriptorNode> {
 
@@ -43,7 +43,7 @@ public class ObjectTypeDescriptorNodeContext
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ObjectTypeDescriptorNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectTypeDescriptorNode node) {
         if (this.onSuggestionsAfterQualifier(context, node)) {
             return Arrays.asList(
                     new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()),
@@ -57,7 +57,7 @@ public class ObjectTypeDescriptorNodeContext
         return new ArrayList<>();
     }
 
-    private boolean onSuggestionsAfterQualifier(CompletionContext context, ObjectTypeDescriptorNode node) {
+    private boolean onSuggestionsAfterQualifier(BallerinaCompletionContext context, ObjectTypeDescriptorNode node) {
         int cursor = context.getCursorPositionInTree();
         NodeList<Token> qualifiers = node.objectTypeQualifiers();
 
@@ -72,7 +72,7 @@ public class ObjectTypeDescriptorNodeContext
                 && (objectKeyword.isMissing() || cursor < objectKeyword.textRange().startOffset());
     }
 
-    private boolean onSuggestionsWithinObjectBody(CompletionContext context, ObjectTypeDescriptorNode node) {
+    private boolean onSuggestionsWithinObjectBody(BallerinaCompletionContext context, ObjectTypeDescriptorNode node) {
         int cursor = context.getCursorPositionInTree();
         Token openBrace = node.openBrace();
         Token closeBrace = node.closeBrace();
@@ -84,7 +84,7 @@ public class ObjectTypeDescriptorNodeContext
         return cursor > openBrace.textRange().startOffset() && cursor < closeBrace.textRange().endOffset();
     }
 
-    private List<LSCompletionItem> getObjectBodyCompletions(CompletionContext context) {
+    private List<LSCompletionItem> getObjectBodyCompletions(BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));

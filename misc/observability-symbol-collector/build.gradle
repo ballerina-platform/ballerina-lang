@@ -23,7 +23,6 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':language-server:language-server-core')
-    implementation project(':language-server:language-server-compiler')
     implementation project(':diagram-util')
 
     implementation 'com.google.code.gson:gson'

@@ -38,6 +38,8 @@ import java.util.function.Supplier;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_MODULE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_POSITION;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_CLIENT_REMOTE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_MAIN_FUNCTION;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_SERVICE_REMOTE;
@@ -139,6 +141,15 @@ public class ObserveUtils {
 
         observerContext.addTag(TAG_KEY_SRC_MODULE, module.getValue());
         observerContext.addTag(TAG_KEY_SRC_POSITION, position.getValue());
+
+        if (observerContext.getEntrypointFunctionModule() != null) {
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE,
+                    observerContext.getEntrypointFunctionModule());
+        }
+        if (observerContext.getEntrypointFunctionPosition() != null) {
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION,
+                    observerContext.getEntrypointFunctionPosition());
+        }
 
         observerContext.setServer();
         observerContext.setStarted();
@@ -246,6 +257,13 @@ public class ObserveUtils {
         newObContext.addTag(TAG_KEY_SRC_FUNCTION_NAME, functionName.getValue());
         newObContext.addTag(TAG_KEY_SRC_MODULE, module.getValue());
         newObContext.addTag(TAG_KEY_SRC_POSITION, position.getValue());
+
+        if (newObContext.getEntrypointFunctionModule() != null) {
+            newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, newObContext.getEntrypointFunctionModule());
+        }
+        if (newObContext.getEntrypointFunctionPosition() != null) {
+            newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION, newObContext.getEntrypointFunctionPosition());
+        }
 
         newObContext.setStarted();
         for (BallerinaObserver observer : observers) {

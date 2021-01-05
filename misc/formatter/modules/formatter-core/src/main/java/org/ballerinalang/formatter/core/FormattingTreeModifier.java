@@ -1091,7 +1091,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public FunctionTypeDescriptorNode transform(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
         NodeList<Token> qualifierList = formatNodeList(functionTypeDescriptorNode.qualifierList(), 1, 0, 1, 0);
-        Token functionKeyword = formatToken(functionTypeDescriptorNode.functionKeyword(), 0, 0);
+        Token functionKeyword = formatToken(functionTypeDescriptorNode.functionKeyword(), 1, 0);
         FunctionSignatureNode functionSignature = formatNode(functionTypeDescriptorNode.functionSignature(),
                 env.trailingWS, env.trailingNL);
         return functionTypeDescriptorNode.modify()
@@ -2839,8 +2839,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ReceiveActionNode transform(ReceiveActionNode receiveActionNode) {
         Token leftArrow = formatToken(receiveActionNode.leftArrow(), 1, 0);
-        SimpleNameReferenceNode receiveWorkers = formatNode(receiveActionNode.receiveWorkers(),
-                env.trailingWS, env.trailingNL);
+        Node receiveWorkers = formatNode(receiveActionNode.receiveWorkers(), env.trailingWS, env.trailingNL);
         return receiveActionNode.modify()
                 .withLeftArrow(leftArrow)
                 .withReceiveWorkers(receiveWorkers)

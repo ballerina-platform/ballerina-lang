@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * The interface with the APIs to implement the match-clause.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public interface MatchClauseNode extends Node {
 
@@ -43,10 +43,6 @@ public interface MatchClauseNode extends Node {
     List<? extends MatchPatternNode> getMatchPatterns();
 
     void addMatchPattern(MatchPatternNode matchPattern);
-
-    boolean isLastClause();
-
-    void setLastClause();
 
     ExpressionNode getExpression();
 

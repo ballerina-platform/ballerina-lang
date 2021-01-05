@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ConfigMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.FrameClassGen;
@@ -384,7 +383,7 @@ public class JvmPackageGen {
         return userMainFunc;
     }
 
-    CompiledJarFile generate(BIRNode.BIRPackage module, InteropValidator interopValidator, boolean isEntry) {
+    CompiledJarFile generate(BIRNode.BIRPackage module, boolean isEntry) {
 
 
         Set<PackageID> moduleImports = new LinkedHashSet<>();
@@ -392,17 +391,17 @@ public class JvmPackageGen {
         addBuiltinImports(module.packageID, moduleImports);
 
         for (BIRNode.BIRImportModule importModule : module.importModules) {
+
             BPackageSymbol pkgSymbol = packageCache.getSymbol(
                     getBvmAlias(importModule.packageID.orgName.value, importModule.packageID.name.value));
-            generateDependencyList(pkgSymbol, interopValidator);
+            generateDependencyList(pkgSymbol);
             if (dlog.errorCount() > 0) {
                 return new CompiledJarFile(Collections.emptyMap());
             }
         }
-        String moduleInitClass = JvmCodeGenUtil
-                .getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME);
-        Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass,
-                                                                          interopValidator, isEntry);
+        String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME);
+        Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, isEntry);
+
         if (!isEntry || dlog.errorCount() > 0) {
             return new CompiledJarFile(Collections.emptyMap());
         }
@@ -546,13 +545,10 @@ public class JvmPackageGen {
      *
      * @param module           bir module
      * @param initClass        module init class name
-     * @param interopValidator interop validator instance
      * @param isEntry          is entry module flag
      * @return The map of javaClass records on given source file name
      */
-    private Map<String, JavaClass> generateClassNameLinking(BIRPackage module, String initClass,
-                                                            InteropValidator interopValidator,
-                                                            boolean isEntry) {
+    private Map<String, JavaClass> generateClassNameLinking(BIRPackage module, String initClass, boolean isEntry) {
 
         Map<String, JavaClass> jvmClassMap = new HashMap<>();
 
@@ -560,7 +556,9 @@ public class JvmPackageGen {
         linkGlobalVars(module, initClass, isEntry);
 
         // link module functions with class names
-        linkModuleFunctions(module, initClass, interopValidator, isEntry, jvmClassMap);
+
+        linkModuleFunctions(module, initClass, isEntry, jvmClassMap);
+
 
         // link module init function that will be generated
         linkModuleFunction(module.packageID, initClass, CURRENT_MODULE_INIT);
@@ -569,7 +567,7 @@ public class JvmPackageGen {
         linkModuleFunction(module.packageID, initClass, MODULE_STOP);
 
         // link typedef - object attached native functions
-        linkTypeDefinitions(module, interopValidator, isEntry);
+        linkTypeDefinitions(module, isEntry);
 
         return jvmClassMap;
     }
@@ -593,7 +591,8 @@ public class JvmPackageGen {
         globalVarClassMap.put(pkgName + LOCK_STORE_VAR_NAME, initClass);
     }
 
-    private void linkTypeDefinitions(BIRPackage module, InteropValidator interopValidator, boolean isEntry) {
+
+    private void linkTypeDefinitions(BIRPackage module, boolean isEntry) {
         List<BIRTypeDefinition> typeDefs = module.typeDefs;
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
@@ -614,8 +613,7 @@ public class JvmPackageGen {
                 String className = JvmValueGen.getTypeValueClassName(pkgName, typeName);
                 try {
                     BIRFunctionWrapper birFuncWrapperOrError =
-                            getBirFunctionWrapper(interopValidator, isEntry, module.packageID, func, className,
-                                                  lookupKey);
+                            getBirFunctionWrapper(isEntry, module.packageID, func, className, lookupKey);
                     birFunctionMap.put(pkgName + lookupKey, birFuncWrapperOrError);
                 } catch (JInteropException e) {
                     dlog.error(func.pos, e.getCode(), e.getMessage());
@@ -632,8 +630,8 @@ public class JvmPackageGen {
                            getFunctionWrapper(moduleStopFunction, packageID, initClass));
     }
 
-    private void linkModuleFunctions(BIRPackage birPackage, String initClass, InteropValidator interopValidator,
-                                     boolean isEntry, Map<String, JavaClass> jvmClassMap) {
+    private void linkModuleFunctions(BIRPackage birPackage, String initClass, boolean isEntry,
+                                     Map<String, JavaClass> jvmClassMap) {
         // filter out functions.
         List<BIRFunction> functions = birPackage.functions;
         if (functions.size() <= 0) {
@@ -696,13 +694,10 @@ public class JvmPackageGen {
                     jvmClassMap.put(birModuleClassName, klass);
                 }
             }
-
-            interopValidator.setEntryModuleValidation(isEntry);
-
             try {
-                BIRFunctionWrapper birFuncWrapperOrError =
-                        getBirFunctionWrapper(interopValidator, isEntry, packageID, birFunc, birModuleClassName,
-                                              birFuncName);
+                BIRFunctionWrapper birFuncWrapperOrError = getBirFunctionWrapper(isEntry, packageID, birFunc,
+                                                                                 birModuleClassName,
+                                                                                 birFuncName);
                 birFunctionMap.put(pkgName + birFuncName, birFuncWrapperOrError);
             } catch (JInteropException e) {
                 dlog.error(birFunc.pos, e.getCode(), e.getMessage());
@@ -710,15 +705,12 @@ public class JvmPackageGen {
         }
     }
 
-    private BIRFunctionWrapper getBirFunctionWrapper(InteropValidator interopValidator, boolean isEntry,
-                                                     PackageID packageID,
-                                                     BIRFunction birFunc, String birModuleClassName,
-                                                     String lookupKey) {
+    private BIRFunctionWrapper getBirFunctionWrapper(boolean isEntry, PackageID packageID,
+                                                     BIRFunction birFunc, String birModuleClassName, String lookupKey) {
         BIRFunctionWrapper birFuncWrapperOrError;
         if (isExternFunc(birFunc) && isEntry) {
-            birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, packageID,
-                                                                  birModuleClassName,
-                                                                  lookupKey, this);
+            birFuncWrapperOrError = createExternalFunctionWrapper(isEntry, birFunc, packageID,
+                                                                  birModuleClassName, lookupKey, this);
         } else {
             if (isEntry && birFunc.receiver == null) {
                 addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
@@ -802,16 +794,16 @@ public class JvmPackageGen {
         }
     }
 
-    private void generateDependencyList(BPackageSymbol packageSymbol, InteropValidator interopValidator) {
+    private void generateDependencyList(BPackageSymbol packageSymbol) {
 
         if (packageSymbol.bir != null) {
-            generate(packageSymbol.bir, interopValidator, false);
+            generate(packageSymbol.bir, false);
         } else {
             for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
                 if (importPkgSymbol == null) {
                     continue;
                 }
-                generateDependencyList(importPkgSymbol, interopValidator);
+                generateDependencyList(importPkgSymbol);
             }
         }
 

@@ -51,7 +51,7 @@ public class SignatureContextImpl extends AbstractDocumentServiceContext impleme
     }
 
     @Override
-    public Position getPosition() {
+    public Position getCursorPosition() {
         return this.cursorPos;
     }
 

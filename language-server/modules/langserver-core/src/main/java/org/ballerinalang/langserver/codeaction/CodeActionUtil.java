@@ -56,7 +56,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
-import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -311,7 +310,7 @@ public class CodeActionUtil {
                                                          CodeActionContext context) {
         // Find Cursor node
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
-        String relPath = context.filePath().getFileName().toString();
+        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
 
         Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode, range,
@@ -398,9 +397,10 @@ public class CodeActionUtil {
 
         List<TextEdit> edits = new ArrayList<>();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Optional<Symbol> optEnclosedFuncSymbol = semanticModel.symbol(context.filePath().getFileName().toString(),
-                                                                      enclosedFunc.get().functionName().lineRange()
-                                                                              .startLine());
+        String relativePath = context.workspace().relativePath(context.filePath()).orElseThrow();
+        Optional<Symbol> optEnclosedFuncSymbol = semanticModel.symbol(relativePath,
+                enclosedFunc.get().functionName().lineRange()
+                        .startLine());
         String returnText = "";
         Range returnRange = null;
         if (optEnclosedFuncSymbol.isPresent() && optEnclosedFuncSymbol.get().kind() == SymbolKind.FUNCTION) {
@@ -534,6 +534,7 @@ public class CodeActionUtil {
                     }
                     return Optional.of(member);
                 }
+                return Optional.empty();
             } else if (member.kind() == SyntaxKind.CLASS_DEFINITION) {
                 if (isWithinStartSegment) {
                     // Cursor on the class
@@ -578,40 +579,40 @@ public class CodeActionUtil {
             case OBJECT_METHOD_DEFINITION:
                 TextRange functionBodyTextRange = ((FunctionDefinitionNode) node).functionBody().textRange();
                 return isWithinRange(positionOffset, functionBodyTextRange.startOffset(),
-                                     functionBodyTextRange.endOffset());
+                        functionBodyTextRange.endOffset());
             case SERVICE_DECLARATION:
                 ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) node;
                 return isWithinRange(positionOffset, serviceDeclarationNode.openBraceToken().textRange().startOffset(),
-                                     serviceDeclarationNode.closeBraceToken().textRange().endOffset());
+                        serviceDeclarationNode.closeBraceToken().textRange().endOffset());
             case CLASS_DEFINITION:
                 ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
                 return isWithinRange(positionOffset, classDefinitionNode.openBrace().textRange().startOffset(),
-                                     classDefinitionNode.closeBrace().textRange().endOffset());
+                        classDefinitionNode.closeBrace().textRange().endOffset());
             case TYPE_DEFINITION:
                 TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node;
                 return isWithinRange(positionOffset,
-                                     typeDefinitionNode.typeDescriptor().textRange().startOffset(),
-                                     typeDefinitionNode.semicolonToken().textRange().startOffset());
+                        typeDefinitionNode.typeDescriptor().textRange().startOffset(),
+                        typeDefinitionNode.semicolonToken().textRange().startOffset());
             case IMPORT_DECLARATION:
                 ImportDeclarationNode importDeclarationNode = (ImportDeclarationNode) node;
                 return isWithinRange(positionOffset,
-                                     importDeclarationNode.textRange().startOffset(),
-                                     importDeclarationNode.semicolon().textRange().startOffset());
+                        importDeclarationNode.textRange().startOffset(),
+                        importDeclarationNode.semicolon().textRange().startOffset());
             case LOCAL_VAR_DECL:
                 VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
                 return isWithinRange(positionOffset,
-                                     variableDeclarationNode.textRange().startOffset(),
-                                     variableDeclarationNode.semicolonToken().textRange().startOffset());
+                        variableDeclarationNode.textRange().startOffset(),
+                        variableDeclarationNode.semicolonToken().textRange().startOffset());
             case MODULE_VAR_DECL:
                 ModuleVariableDeclarationNode moduleVariableDeclarationNode = (ModuleVariableDeclarationNode) node;
                 return isWithinRange(positionOffset,
-                                     moduleVariableDeclarationNode.textRange().startOffset(),
-                                     moduleVariableDeclarationNode.semicolonToken().textRange().startOffset());
+                        moduleVariableDeclarationNode.textRange().startOffset(),
+                        moduleVariableDeclarationNode.semicolonToken().textRange().startOffset());
             case ASSIGNMENT_STATEMENT:
                 AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
                 return isWithinRange(positionOffset,
-                                     assignmentStatementNode.textRange().startOffset(),
-                                     assignmentStatementNode.semicolonToken().textRange().startOffset());
+                        assignmentStatementNode.textRange().startOffset(),
+                        assignmentStatementNode.semicolonToken().textRange().startOffset());
             default:
                 return false;
         }
@@ -637,35 +638,35 @@ public class CodeActionUtil {
                 int functionStartOffset = functionMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
                         .orElseGet(() -> functionDefinitionNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, functionStartOffset,
-                                     functionDefinitionNode.functionBody().textRange().startOffset());
+                        functionDefinitionNode.functionBody().textRange().startOffset());
             case SERVICE_DECLARATION:
                 ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) node;
                 Optional<MetadataNode> serviceMetadata = serviceDeclarationNode.metadata();
                 int serviceStartOffset = serviceMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
                         .orElseGet(() -> serviceDeclarationNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, serviceStartOffset,
-                                     serviceDeclarationNode.openBraceToken().textRange().startOffset());
+                        serviceDeclarationNode.openBraceToken().textRange().startOffset());
             case METHOD_DECLARATION:
                 MethodDeclarationNode methodDeclarationNode = (MethodDeclarationNode) node;
                 Optional<MetadataNode> methodMetadata = methodDeclarationNode.metadata();
                 int methodStartOffset = methodMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
                         .orElseGet(() -> methodDeclarationNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, methodStartOffset,
-                                     methodDeclarationNode.semicolon().textRange().endOffset());
+                        methodDeclarationNode.semicolon().textRange().endOffset());
             case CLASS_DEFINITION:
                 ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
                 Optional<MetadataNode> classMetadata = classDefinitionNode.metadata();
                 int classStartOffset = classMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
                         .orElseGet(() -> classDefinitionNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, classStartOffset,
-                                     classDefinitionNode.openBrace().textRange().endOffset());
+                        classDefinitionNode.openBrace().textRange().endOffset());
             case TYPE_DEFINITION:
                 TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node;
                 Optional<MetadataNode> typeMetadata = typeDefinitionNode.metadata();
                 int typeStartOffset = typeMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
                         .orElseGet(() -> typeDefinitionNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, typeStartOffset,
-                                     typeDefinitionNode.typeDescriptor().textRange().startOffset());
+                        typeDefinitionNode.typeDescriptor().textRange().startOffset());
             case IMPORT_DECLARATION:
             case LOCAL_VAR_DECL:
             case MODULE_VAR_DECL:

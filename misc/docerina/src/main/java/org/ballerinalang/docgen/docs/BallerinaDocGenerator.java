@@ -467,6 +467,7 @@ public class BallerinaDocGenerator {
                 moduleDocs.add(module);
             }
         }
+        moduleDocs.sort((module1, module2) -> module1.id.compareToIgnoreCase(module2.id));
         project.modules = moduleDocs;
         return project;
     }

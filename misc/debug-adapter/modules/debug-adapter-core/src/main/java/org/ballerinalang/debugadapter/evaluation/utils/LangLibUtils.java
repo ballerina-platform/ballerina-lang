@@ -16,6 +16,10 @@
 
 package org.ballerinalang.debugadapter.evaluation.utils;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -23,9 +27,12 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 
+import java.util.Optional;
 import java.util.StringJoiner;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
+import static org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator.modifyName;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getGeneratedMethod;
 import static org.ballerinalang.debugadapter.variable.BVariableType.ARRAY;
 import static org.ballerinalang.debugadapter.variable.BVariableType.INT;
@@ -40,30 +47,21 @@ public class LangLibUtils {
 
     public static final String LANG_LIB_ORG = "ballerina";
     public static final String LANG_LIB_PACKAGE_PREFIX = "lang.";
-    private static final String LANG_VALUE = "value";
+    public static final String LANG_LIB_VALUE = "value";
 
     private LangLibUtils() {
     }
 
     public static GeneratedStaticMethod loadLangLibMethod(SuspendedContext context, BExpressionValue result,
-                                                          String methodName) throws EvaluationException {
+                                                          String langLibCls, String methodName)
+            throws EvaluationException {
+
         GeneratedStaticMethod generatedMethod = null;
-        // Search within the specific lang lib related to the value type.
-        String langLibName = getAssociatedLangLibName(result.getType());
-        String langLibCls = getQualifiedClassName(context, langLibName);
         try {
             generatedMethod = getGeneratedMethod(context, langLibCls, methodName);
         } catch (EvaluationException ignored) {
         }
 
-        // If no matches found, falls back to the `value` lang lib.
-        if (generatedMethod == null) {
-            langLibCls = getQualifiedClassName(context, LANG_VALUE);
-            try {
-                generatedMethod = getGeneratedMethod(context, langLibCls, methodName);
-            } catch (EvaluationException ignored) {
-            }
-        }
         if (generatedMethod == null) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_METHOD_NOT_FOUND.getString(),
                     methodName, result.getType().getString()));
@@ -72,13 +70,13 @@ public class LangLibUtils {
         return generatedMethod;
     }
 
-    private static String getQualifiedClassName(SuspendedContext context, String langLibName)
+    public static String getQualifiedLangLibClassName(ModuleSymbol moduleSymbol, String langLibName)
             throws EvaluationException {
         try {
             return new StringJoiner(".")
                     .add(LANG_LIB_ORG)
                     .add(encodeModuleName(LANG_LIB_PACKAGE_PREFIX + langLibName))
-                    .add(context.getLoadedLangLibVersions().get(langLibName))
+                    .add(moduleSymbol.moduleID().version().replaceAll("\\.", "_"))
                     .add(langLibName)
                     .toString();
         } catch (Exception ignored) {
@@ -87,7 +85,29 @@ public class LangLibUtils {
         }
     }
 
-    private static String getAssociatedLangLibName(BVariableType bVarType) {
+    public static Optional<ModuleSymbol> getLangLibDefinition(SuspendedContext context, String langLibName) {
+        SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
+        LinePosition position = LinePosition.from(context.getLineNumber(), 0);
+
+        return semanticContext.visibleSymbols(context.getFileNameWithExt().get(), position)
+                .stream()
+                .filter(symbol -> symbol.kind() == MODULE
+                        && symbol.moduleID().orgName().equals(LANG_LIB_ORG)
+                        && symbol.moduleID().moduleName().startsWith(LANG_LIB_PACKAGE_PREFIX)
+                        && symbol.moduleID().moduleName().endsWith(langLibName))
+                .findFirst()
+                .map(symbol -> (ModuleSymbol) symbol);
+    }
+
+    public static Optional<FunctionSymbol> getLangLibFunctionDefinition(SuspendedContext context,
+                                                                        ModuleSymbol langLibDef, String functionName) {
+        return langLibDef.functions()
+                .stream()
+                .filter(functionSymbol -> modifyName(functionSymbol.name()).equals(functionName))
+                .findFirst();
+    }
+
+    public static String getAssociatedLangLibName(BVariableType bVarType) {
         switch (bVarType) {
             case INT:
             case BYTE:
@@ -111,7 +131,7 @@ public class LangLibUtils {
             case TABLE:
                 return bVarType.getString();
             default:
-                return LANG_VALUE;
+                return LANG_LIB_VALUE;
         }
     }
 }
