@@ -1956,13 +1956,13 @@ public class BallerinaParser extends AbstractParser {
             case AT_TOKEN:
                 annots = parseOptionalAnnotations();
                 if (peek().kind == SyntaxKind.ASTERISK_TOKEN) {
-                    inclusionSymbol = parseAsteriskToken();
+                    inclusionSymbol = consume();
                 } else {
                     inclusionSymbol = STNodeFactory.createEmptyNode();
                 }
                 break;
             case ASTERISK_TOKEN:
-                inclusionSymbol = parseAsteriskToken();
+                inclusionSymbol = consume();
                 annots = STNodeFactory.createEmptyNodeList();
                 break;
             case IDENTIFIER_TOKEN:
@@ -7623,21 +7623,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             recover(nextToken, ParserRuleContext.AT);
             return parseAtToken();
-        }
-    }
-
-    /**
-     * Parse '*' token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseAsteriskToken() {
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
-            return consume();
-        } else {
-            recover(nextToken, ParserRuleContext.ASTERISK);
-            return parseAsteriskToken();
         }
     }
 
