@@ -38,6 +38,6 @@ public class QuerySemanticNegativeTests {
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         validateError(compileResult, 0, "type stream not allowed here; to use from on a " +
                         "type stream, it should be the first from clause in the query.",
-                24, 36);
+                40, 36);
     }
 }

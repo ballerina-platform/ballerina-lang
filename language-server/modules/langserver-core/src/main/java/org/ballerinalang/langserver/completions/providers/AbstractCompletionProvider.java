@@ -36,11 +36,11 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Package;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
+import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -72,7 +72,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
  * @param <T> Provider's node type
  * @since 0.995.0
  */
-public abstract class AbstractCompletionProvider<T extends Node> implements CompletionProvider<T> {
+public abstract class AbstractCompletionProvider<T extends Node> implements BallerinaCompletionProvider<T> {
 
     private final List<Class<T>> attachmentPoints;
 
@@ -103,12 +103,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, T node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, T node) {
         return true;
     }
 
     @Override
-    public void sort(CompletionContext context, T node, List<LSCompletionItem> completionItems) {
+    public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
         for (LSCompletionItem item : completionItems) {
             CompletionItem cItem = item.getCompletionItem();
             int rank;
@@ -127,7 +127,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * {@inheritDoc}
      */
     @Override
-    public void sort(CompletionContext context, T node, List<LSCompletionItem> completionItems, Object... metaData) {
+    public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems,
+                     Object... metaData) {
         this.sort(context, node, completionItems);
     }
 
@@ -138,7 +139,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param ctx          Language server operation context
      * @return {@link List}     list of completion items
      */
-    protected List<LSCompletionItem> getCompletionItemList(List<? extends Symbol> scopeEntries, CompletionContext ctx) {
+    protected List<LSCompletionItem> getCompletionItemList(List<? extends Symbol> scopeEntries,
+                                                           BallerinaCompletionContext ctx) {
         List<Symbol> processedSymbols = new ArrayList<>();
         List<LSCompletionItem> completionItems = new ArrayList<>();
         scopeEntries.forEach(symbol -> {
@@ -175,7 +177,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param context LS Operation Context
      * @return {@link List}     List of completion items
      */
-    protected List<LSCompletionItem> getTypeItems(CompletionContext context) {
+    protected List<LSCompletionItem> getTypeItems(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(bSymbol -> {
@@ -221,7 +223,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param ctx LS Operation context
      * @return {@link List}     List of packages completion items
      */
-    protected List<LSCompletionItem> getModuleCompletionItems(CompletionContext ctx) {
+    protected List<LSCompletionItem> getModuleCompletionItems(BallerinaCompletionContext ctx) {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
         List<ImportDeclarationNode> currentModuleImports = ctx.currentDocImports();
@@ -304,7 +306,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return completionItems;
     }
 
-    protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
+    protected boolean onQualifiedNameIdentifier(BallerinaCompletionContext context, Node node) {
         if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;
         }
@@ -314,10 +316,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return colonPos < cursor;
     }
 
-    protected LSCompletionItem getExplicitNewCompletionItem(ClassSymbol classSymbol, CompletionContext context) {
-        CompletionItem cItem = FunctionCompletionItemBuilder.build(classSymbol,
+    protected LSCompletionItem getExplicitNewCompletionItem(ClassSymbol clsSymbol, BallerinaCompletionContext context) {
+        CompletionItem cItem = FunctionCompletionItemBuilder.build(clsSymbol,
                 FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
-        MethodSymbol initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
+        MethodSymbol initMethod = clsSymbol.initMethod().isPresent() ? clsSymbol.initMethod().get() : null;
 
         return new SymbolCompletionItem(context, initMethod, cItem);
     }
@@ -329,7 +331,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param context     Language server operation context
      * @return {@link LSCompletionItem} generated
      */
-    protected LSCompletionItem getImplicitNewCompletionItem(ClassSymbol classSymbol, CompletionContext context) {
+    protected LSCompletionItem getImplicitNewCompletionItem(ClassSymbol classSymbol,
+                                                            BallerinaCompletionContext context) {
         CompletionItem cItem = FunctionCompletionItemBuilder.build(classSymbol,
                 FunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
         MethodSymbol initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
@@ -345,7 +348,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @param symbol symbol Entry
      * @return completion item
      */
-    private LSCompletionItem populateBallerinaFunctionCompletionItem(Symbol symbol, CompletionContext context) {
+    private LSCompletionItem populateBallerinaFunctionCompletionItem(Symbol symbol,
+                                                                     BallerinaCompletionContext context) {
         if (symbol.kind() != SymbolKind.FUNCTION && symbol.kind() != SymbolKind.METHOD) {
             return null;
         }
@@ -370,7 +374,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 || tokenAtCursor.text().equals(SyntaxKind.COLON_TOKEN.stringValue());
     }
 
-    protected List<LSCompletionItem> actionKWCompletions(CompletionContext context) {
+    protected List<LSCompletionItem> actionKWCompletions(BallerinaCompletionContext context) {
         /*
         Add the start keywords of the following actions.
         start, wait, flush, check, check panic, trap, query action (query pipeline starts with from keyword)
@@ -385,7 +389,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         );
     }
 
-    protected List<LSCompletionItem> expressionCompletions(CompletionContext context) {
+    protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         /*
         check and check panic expression starts with check and check panic keywords, Which has been added with actions.
@@ -424,7 +428,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkg.packageName().value());
     }
 
-    private List<LSCompletionItem> getBasicAndOtherTypeCompletions(CompletionContext context) {
+    private List<LSCompletionItem> getBasicAndOtherTypeCompletions(BallerinaCompletionContext context) {
         List<String> types = Arrays.asList("float", "xml", "readonly", "handle", "never", "decimal", "string", "stream",
                 "json", "table", "anydata", "any", "int", "boolean", "future", "service", "typedesc", "byte");
         List<LSCompletionItem> completionItems = new ArrayList<>();
@@ -437,13 +441,13 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return completionItems;
     }
 
-    private boolean appendSingleQuoteForPackageInsertText(CompletionContext context) {
+    private boolean appendSingleQuoteForPackageInsertText(BallerinaCompletionContext context) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         return !(nodeAtCursor != null && nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                 ((SimpleNameReferenceNode) nodeAtCursor).name().text().startsWith("'"));
     }
 
-    private LSCompletionItem getLangLibCompletionItem(ModuleID moduleID, CompletionContext context) {
+    private LSCompletionItem getLangLibCompletionItem(ModuleID moduleID, BallerinaCompletionContext context) {
         CompletionItem item = new CompletionItem();
         item.setLabel(moduleID.orgName() + "/" + moduleID.moduleName());
         String insertText = "'" + moduleID.modulePrefix();

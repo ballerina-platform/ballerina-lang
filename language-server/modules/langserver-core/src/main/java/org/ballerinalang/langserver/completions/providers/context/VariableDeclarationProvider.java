@@ -29,7 +29,7 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -53,7 +53,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         super(attachmentPoint);
     }
 
-    protected List<LSCompletionItem> initializerContextCompletions(CompletionContext context,
+    protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context,
                                                                    TypeDescriptorNode typeDsc) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
@@ -83,7 +83,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         return completionItems;
     }
 
-    private List<LSCompletionItem> getNewExprCompletionItems(CompletionContext context,
+    private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context,
                                                              TypeDescriptorNode typeDescriptorNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());

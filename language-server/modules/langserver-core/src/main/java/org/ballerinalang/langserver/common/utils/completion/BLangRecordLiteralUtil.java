@@ -28,7 +28,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
@@ -51,7 +51,8 @@ public class BLangRecordLiteralUtil {
     private BLangRecordLiteralUtil() {
     }
 
-    public static List<LSCompletionItem> getSpreadCompletionItems(CompletionContext context, TypeSymbol evalType) {
+    public static List<LSCompletionItem> getSpreadCompletionItems(BallerinaCompletionContext context,
+                                                                  TypeSymbol evalType) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<TypeSymbol> typeList = getTypeListForMapAndRecords(evalType);
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
@@ -63,8 +64,8 @@ public class BLangRecordLiteralUtil {
         return completionItems;
     }
 
-    private static Optional<LSCompletionItem> getSpreadableCompletionItem(CompletionContext context, Symbol symbol,
-                                                                          List<TypeSymbol> refTypeList) {
+    private static Optional<LSCompletionItem> getSpreadableCompletionItem(BallerinaCompletionContext context,
+                                                                          Symbol symbol, List<TypeSymbol> refTypeList) {
         Optional<TypeSymbol> typeDescriptor = Optional.empty();
         if (symbol.kind() == SymbolKind.FUNCTION) {
             FunctionTypeSymbol fTypeDesc = ((FunctionSymbol) symbol).typeDescriptor();
@@ -116,7 +117,7 @@ public class BLangRecordLiteralUtil {
         return new ArrayList<>();
     }
 
-    private static void modifySpreadCompletionItem(CompletionContext context, CompletionItem cItem) {
+    private static void modifySpreadCompletionItem(BallerinaCompletionContext context, CompletionItem cItem) {
         // TODO: Fix 
 //        List<CommonToken> commonTokens = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
 //        String lastToken = (commonTokens.isEmpty()) ? "" : commonTokens.get(commonTokens.size() - 1).getText();

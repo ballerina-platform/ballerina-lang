@@ -20,17 +20,19 @@ package io.ballerina.projects.test;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
@@ -43,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Contains cases to test package resolution logic.
@@ -167,7 +170,7 @@ public class PackageResolutionTests {
                 compilation.getResolution().dependencyGraph();
         Assert.assertEquals(depGraphOfSrcProject.getNodes().size(), 2);
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
@@ -178,7 +181,7 @@ public class PackageResolutionTests {
         Path balrDir = testBuildDirectory.resolve("test_gen_balrs");
         Path balrPath = balrDir.resolve(balrName);
         Files.createDirectories(balrDir);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrDir);
 
         // Load the balr file now.
         BaloProject baloProject = BaloProject.loadProject(BCompileUtil.getTestProjectEnvironmentBuilder(), balrPath);
@@ -206,7 +209,7 @@ public class PackageResolutionTests {
                 "projects_for_resolution_tests/ultimate_package_resolution/package_http");
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
         diagnosticResult.errors().forEach(out::println);
@@ -266,5 +269,24 @@ public class PackageResolutionTests {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_m_with_unstable_dep");
         BuildProject buildProject = BuildProject.load(projectDirPath);
         buildProject.currentPackage().getResolution();
+    }
+
+    @Test(description = "tests loading a valid balo project")
+    public void testBaloProjectDependencyResolution() {
+        Path baloPath = getBaloPath("samjs", "package_b", "0.1.0");
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
+        PackageResolution resolution = baloProject.currentPackage().getResolution();
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = resolution.dependencyGraph();
+        List<ResolvedPackageDependency> nodeInGraph = dependencyGraph.toTopologicallySortedList();
+        Assert.assertEquals(nodeInGraph.size(), 2);
+    }
+
+    private Path getBaloPath(String org, String pkgName, String version) {
+        String ballerinaHome = System.getProperty("ballerina.home");
+        Path baloRepoPath = Paths.get(ballerinaHome).resolve("repo").resolve("balo");
+        String baloName = org + "-" + pkgName + "-any-" + version + ".balo";
+        return baloRepoPath.resolve(org).resolve(pkgName).resolve(version).resolve(baloName);
     }
 }
