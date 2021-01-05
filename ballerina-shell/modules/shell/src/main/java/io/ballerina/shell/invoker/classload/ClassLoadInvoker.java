@@ -48,6 +48,8 @@ import io.ballerina.shell.invoker.Invoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.invoker.classload.context.StatementContext;
 import io.ballerina.shell.invoker.classload.context.VariableContext;
+import io.ballerina.shell.invoker.classload.visitors.TypeElevatorVisitor;
+import io.ballerina.shell.invoker.classload.visitors.TypeSignatureTransformer;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.types.ExecutableSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
@@ -55,7 +57,6 @@ import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -88,6 +89,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     // Context related information
     public static final String CONTEXT_EXPR_VAR_NAME = "expr";
     // Main class and method names to invoke
+    public static final String MODULE_NOT_FOUND_CODE = "BCE2003";
     protected static final String MODULE_INIT_CLASS_NAME = "$_init";
     protected static final String MODULE_MAIN_METHOD_NAME = "main";
     protected static final String DOLLAR = "$";
@@ -338,11 +340,22 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 TypeSymbol typeSymbol = (symbol instanceof VariableSymbol)
                         ? ((VariableSymbol) symbol).typeDescriptor()
                         : ((FunctionSymbol) symbol).typeDescriptor();
+                TypeElevatorVisitor elevatorVisitor = new TypeElevatorVisitor();
+                elevatorVisitor.visitType(typeSymbol);
 
-                TypeSignatureParser typeSignatureParser = new TypeSignatureParser(this);
-                typeSignatureParser.process(typeSymbol);
-                foundVariables.put(symbol.name(), typeSignatureParser.getExportedType());
-                this.newImplicitImports.addAll(typeSignatureParser.getImplicitImportPrefixes());
+                if (elevatorVisitor.isVisible()) {
+                    TypeSignatureTransformer signatureTransformer = new TypeSignatureTransformer(this);
+                    String variableType = signatureTransformer.transformType(typeSymbol);
+                    foundVariables.put(symbol.name(), variableType);
+                    this.newImplicitImports.addAll(signatureTransformer.getImplicitImportPrefixes());
+                } else {
+                    String elevatedType = elevatorVisitor.getElevatedType().toString();
+                    addDiagnostic(Diagnostic.warn("" +
+                            "Export types " + elevatorVisitor.getInvisibleTypes() + " are not visible for the REPL.\n" +
+                            "Warning. Exported type not visible. Using '" + elevatedType + "' instead."));
+                    foundVariables.put(variableName, elevatedType);
+                }
+
                 this.newSymbols.add(hashedSymbol);
             }
         }
@@ -566,7 +579,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
         // Detect if import is valid.
         for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
-            if (diagnostic.diagnosticInfo().code().equals(DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId())) {
+            if (diagnostic.diagnosticInfo().code().equals(MODULE_NOT_FOUND_CODE)) {
                 addDiagnostic(Diagnostic.error("Import resolution failed. Module not found."));
                 return false;
             }
