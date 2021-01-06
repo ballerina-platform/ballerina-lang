@@ -39,20 +39,29 @@ public class MultilineDocsTest {
     private Function multilineDocsFunction;
     private Function multilineDocsDeprecatedFunction;
 
-    private final String lines = "<p>Returns a formatted string using the specified format string and arguments. "
-            + "Following format specifiers are allowed.</p>\n"
-            + "<p>b - boolean</p>\n"
-            + "<p>B - boolean (ALL_CAPS)</p>\n"
-            + "<p>d - int</p>\n"
-            + "<p>f - float</p>\n"
-            + "<p>x - hex</p>\n"
-            + "<p>X - HEX (ALL_CAPS)</p>\n"
-            + "<p>s - string (This specifier is applicable for any of the supported types in Ballerina.\n"
-            + "These values will be converted to their string representation.)</p>\n"
-            + "<pre><code class=\"language-ballerina\">"
-            + "string s8 = io:sprintf(&quot;%s scored %d for %s and has an average of %.2f.&quot;, name, marks, "
-            + "subjects[0], average);\n"
-            + "</code></pre>\n";
+    private final String lines = "Returns a formatted string using the specified format string and arguments. " +
+            "Following format specifiers are allowed.\n" +
+            "\n" +
+            "b - boolean\n" +
+            "\n" +
+            "B - boolean (ALL_CAPS)\n" +
+            "\n" +
+            "d - int\n" +
+            "\n" +
+            "f - float\n" +
+            "\n" +
+            "x - hex\n" +
+            "\n" +
+            "X - HEX (ALL_CAPS)\n" +
+            "\n" +
+            "s - string (This specifier is applicable for any of the supported types in Ballerina.\n" +
+            "            These values will be converted to their string representation.)\n" +
+            "\n" +
+            "```ballerina\n" +
+            "# string s8 = io:sprintf(\"%s scored %d for %s and has an average of %.2f.\", name, marks, " +
+            "subjects[0], average);\n" +
+            "# ```\n" +
+            "\n";
 
     @BeforeClass
     public void setup() throws IOException {
