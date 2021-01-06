@@ -4694,18 +4694,23 @@ public class BallerinaParser extends AbstractParser {
                 return parseImplicitNewRhs(newKeyword);
             case SEMICOLON_TOKEN:
                 break;
+            default:
+                if (isClassDescriptorStartToken(kind)) {
+                    return parseTypeDescriptorInNewExpr(newKeyword);
+                }
+        }
+        return STNodeFactory.createImplicitNewExpressionNode(newKeyword, STNodeFactory.createEmptyNode());
+    }
+
+    private boolean isClassDescriptorStartToken(SyntaxKind tokenKind) {
+        switch (tokenKind) {
             case IDENTIFIER_TOKEN:
             case OBJECT_KEYWORD:
             case STREAM_KEYWORD:
-                return parseTypeDescriptorInNewExpr(newKeyword);
+                return true;
             default:
-                if (isQualifiedIdentifierPredeclaredPrefix(kind)) {
-                    return parseTypeDescriptorInNewExpr(newKeyword);
-                }
-                break;
+                return isQualifiedIdentifierPredeclaredPrefix(tokenKind);
         }
-
-        return STNodeFactory.createImplicitNewExpressionNode(newKeyword, STNodeFactory.createEmptyNode());
     }
 
     /**
@@ -5465,12 +5470,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseErrorTypeReference() {
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            case IDENTIFIER_TOKEN:
-                return parseTypeReference();
             case OPEN_PAREN_TOKEN:
                 return STNodeFactory.createEmptyNode();
             default:
-                if (isQualifiedIdentifierPredeclaredPrefix(nextToken.kind)) {
+                if (isTypeReferenceStartToken(nextToken.kind)) {
                     return parseTypeReference();
                 }
                 recover(nextToken, ParserRuleContext.ERROR_CONSTRUCTOR_RHS);
@@ -5752,17 +5755,19 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseObjectConstructorTypeReference() {
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            case IDENTIFIER_TOKEN:
-                return parseTypeReference();
             case OPEN_BRACE_TOKEN:
                 return STNodeFactory.createEmptyNode();
             default:
-                if (isQualifiedIdentifierPredeclaredPrefix(nextToken.kind)) {
+                if (isTypeReferenceStartToken(nextToken.kind)) {
                     return parseTypeReference();
                 }
                 recover(nextToken, ParserRuleContext.OBJECT_CONSTRUCTOR_TYPE_REF);
                 return parseObjectConstructorTypeReference();
         }
+    }
+
+    private boolean isTypeReferenceStartToken(SyntaxKind tokenKind) {
+        return tokenKind == SyntaxKind.IDENTIFIER_TOKEN || isQualifiedIdentifierPredeclaredPrefix(tokenKind);
     }
 
     /**
@@ -7736,11 +7741,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseAnnotation() {
         STNode atToken = parseAtToken();
         STNode annotReference;
-        SyntaxKind nextTokenKind = peek().kind;
-        if (nextTokenKind != SyntaxKind.IDENTIFIER_TOKEN && !isQualifiedIdentifierPredeclaredPrefix(nextTokenKind)) {
-            annotReference = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
-        } else {
+        if (isAnnotTagReferenceToken()) {
             annotReference = parseQualifiedIdentifier(ParserRuleContext.ANNOT_REFERENCE);
+        } else {
+            annotReference = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
         }
 
         STNode annotValue;
@@ -7750,6 +7754,11 @@ public class BallerinaParser extends AbstractParser {
             annotValue = STNodeFactory.createEmptyNode();
         }
         return STNodeFactory.createAnnotationNode(atToken, annotReference, annotValue);
+    }
+
+    private boolean isAnnotTagReferenceToken() {
+        SyntaxKind nextTokenKind = peek().kind;
+        return nextTokenKind == SyntaxKind.IDENTIFIER_TOKEN || isQualifiedIdentifierPredeclaredPrefix(nextTokenKind);
     }
 
     /**
@@ -13568,14 +13577,11 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         STNode typeRef;
         switch (nextToken.kind) {
-            case IDENTIFIER_TOKEN:
-                typeRef = parseTypeReference();
-                break;
             case OPEN_PAREN_TOKEN:
                 typeRef = STNodeFactory.createEmptyNode();
                 break;
             default:
-                if (isQualifiedIdentifierPredeclaredPrefix(nextToken.kind)) {
+                if (isTypeReferenceStartToken(nextToken.kind)) {
                     typeRef = parseTypeReference();
                     break;
                 }
@@ -14875,14 +14881,11 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         STNode typeRef;
         switch (nextToken.kind) {
-            case IDENTIFIER_TOKEN:
-                typeRef = parseTypeReference();
-                break;
             case OPEN_PAREN_TOKEN:
                 typeRef = STNodeFactory.createEmptyNode();
                 break;
             default:
-                if (isQualifiedIdentifierPredeclaredPrefix(nextToken.kind)) {
+                if (isTypeReferenceStartToken(nextToken.kind)) {
                     typeRef = parseTypeReference();
                     break;
                 }
