@@ -2650,7 +2650,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         analyzeExprs(errorConstructorExpr.positionalArgs);
-        if (errorConstructorExpr.namedArgs.size() > 0) {
+        if (!errorConstructorExpr.namedArgs.isEmpty()) {
             analyzeExprs(errorConstructorExpr.namedArgs);
         }
     }

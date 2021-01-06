@@ -216,7 +216,7 @@ function testToStringMethod() {
     var d = c.toString();
     error err1 = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
                val3 = {"x":"AA","y":(1.0/0.0)});
-    FirstError err2 = FirstError(REASON_1, message = "Test passing error union to a function");
+    FirstError err2 = error FirstError(REASON_1, message = "Test passing error union to a function");
 
     assertEquality("4", a.toString());
     assertEquality("4", b.toString());

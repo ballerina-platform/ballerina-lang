@@ -5035,61 +5035,6 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangInvocation rewriteErrorConstructor(BLangInvocation iExpr) {
-        BLangExpression message = iExpr.requiredArgs.get(0);
-        if (message.impConversionExpr != null &&
-                message.impConversionExpr.targetType.tag != TypeTags.STRING) {
-            // Override casts to constants/finite types.
-            // For reason expressions of any form, the cast has to be to string.
-            message.impConversionExpr = null;
-        }
-        message = addConversionExprIfRequired(message, symTable.stringType);
-        message = rewriteExpr(message);
-        iExpr.requiredArgs.set(0, message);
-
-        // If error cause is provided rewrite it, else inject nil.
-        if (iExpr.requiredArgs.size() > 1) {
-            BLangExpression errorCause = iExpr.requiredArgs.get(1);
-            if (errorCause.getKind() != NodeKind.NAMED_ARGS_EXPR) {
-                errorCause = rewriteExpr(addConversionExprIfRequired(errorCause, symTable.errorType));
-                iExpr.requiredArgs.set(1, errorCause);
-            } else {
-                BLangLiteral literal = createNilLiteral();
-                iExpr.requiredArgs.add(1, rewriteExpr(addConversionExprIfRequired(literal, symTable.errorType)));
-            }
-        } else {
-            iExpr.requiredArgs.add(rewriteExpr(addConversionExprIfRequired(createNilLiteral(), symTable.errorType)));
-        }
-
-        BLangExpression errorDetail;
-        BLangRecordLiteral recordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(iExpr.pos,
-                ((BErrorType) iExpr.symbol.type).detailType);
-        List<BLangExpression> namedArgs = iExpr.requiredArgs.stream()
-                .filter(a -> a.getKind() == NodeKind.NAMED_ARGS_EXPR)
-                .collect(Collectors.toList());
-        if (namedArgs.isEmpty()) {
-            errorDetail = visitCloneReadonly(rewriteExpr(recordLiteral), recordLiteral.type);
-        } else {
-            for (BLangExpression arg : namedArgs) {
-                BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) arg;
-                BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
-                member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(namedArg.name.pos,
-                        symTable.stringType, namedArg.name.value));
-
-                if (recordLiteral.type.tag == TypeTags.RECORD) {
-                    member.valueExpr = addConversionExprIfRequired(namedArg.expr, symTable.anyType);
-                } else {
-                    member.valueExpr = addConversionExprIfRequired(namedArg.expr, namedArg.expr.type);
-                }
-                recordLiteral.fields.add(member);
-                iExpr.requiredArgs.remove(arg);
-            }
-            errorDetail = visitCloneReadonly(rewriteExpr(recordLiteral), ((BErrorType) iExpr.symbol.type).detailType);
-        }
-        iExpr.requiredArgs.add(errorDetail);
-        return iExpr;
-    }
-
     private BLangLiteral createNilLiteral() {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = null;
@@ -8122,8 +8067,7 @@ public class Desugar extends BLangNodeVisitor {
                 errorConstructorExpr.type = symbol.type;
                 errorConstructorExpr.pos = expr.pos;
                 List<BLangExpression> positionalArgs = new ArrayList<>();
-                positionalArgs.add(createStringLiteral(errorConstructorExpr.pos,
-                        "{" + RuntimeConstants.MAP_LANG_LIB + "}InvalidKey"));
+                positionalArgs.add(literal);
                 errorConstructorExpr.positionalArgs = positionalArgs;
 
                 BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();

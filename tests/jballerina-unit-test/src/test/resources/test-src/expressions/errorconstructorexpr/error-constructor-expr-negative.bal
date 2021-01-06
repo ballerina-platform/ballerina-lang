@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type Error error<*>;
+
 function testMissingParamsNegative() {
     error e1 = error(); // missing arg within parenthesis
     error e2 = error(2); // expected 'string', found 'int'
@@ -21,11 +23,17 @@ function testMissingParamsNegative() {
     error e4 = error("M1", "M2"); // expected 'error?', found 'string'
     error e5 = error("M", error("M1"), "c = 2000"); // additional positional arg in error constructor
 
+    error e6 = error Error(); // missing arg within parenthesis
+    error e7 = error Error(2); // expected 'string', found 'int'
+    error e8 = error Error(error("Message")); // expected 'string', found 'error'
+    error e9 = error Error("M1", "M2"); // expected 'error?', found 'string'
+    error e10 = error Error("M", error("M1"), "c = 2000"); // additional positional arg in error constructor
 }
 
 type MyError1 error <*>;
 type MyError2 error <map<string>>;
 function testErrorTypeRefNegative() {
-    MyError1 me1 = error MyError("Message");
-    MyError2 me2 = error MyError2("Message", c = 2);
+    MyError1 me1 = error MyError("Message"); // undefined error type descriptor 'MyError'
+    MyError2 me2 = error MyError2("Message", c = 2); // invalid arg type in error detail field 'c', expected "
+                                                     //                   "'string', found 'int'
 }

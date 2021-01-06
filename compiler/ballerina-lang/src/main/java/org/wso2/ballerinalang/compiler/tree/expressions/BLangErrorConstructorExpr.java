@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ErrorConstructorExpressionNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
@@ -33,7 +35,7 @@ public class BLangErrorConstructorExpr extends BLangExpression implements ErrorC
     public BLangUserDefinedType errorTypeRef;
     public List<BLangExpression> positionalArgs;
     public List<BLangNamedArgsExpression> namedArgs;
-    // This is added to store namedArgs.
+    // This is added to store the detail mapping created from the named args and it is used only at desugar.
     public BLangExpression errorDetail;
 
     @Override
@@ -44,5 +46,15 @@ public class BLangErrorConstructorExpr extends BLangExpression implements ErrorC
     @Override
     public NodeKind getKind() {
         return NodeKind.ERROR_CONSTRUCTOR_EXPRESSION;
+    }
+
+    @Override
+    public List<? extends ExpressionNode> getPositionalArgs() {
+        return positionalArgs;
+    }
+
+    @Override
+    public List<? extends NamedArgNode> getNamedArgs() {
+        return namedArgs;
     }
 }

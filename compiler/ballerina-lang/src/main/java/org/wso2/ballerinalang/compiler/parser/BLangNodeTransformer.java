@@ -2012,6 +2012,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 namedArgs.add((BLangNamedArgsExpression) transform((NamedArgumentNode) argNode));
             }
         }
+
         errorConstructorExpr.positionalArgs = positionalArgs;
         errorConstructorExpr.namedArgs = namedArgs;
         return errorConstructorExpr;

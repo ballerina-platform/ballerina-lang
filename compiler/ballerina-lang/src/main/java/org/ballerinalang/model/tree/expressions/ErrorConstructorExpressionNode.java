@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.model.tree.expressions;
 
+import java.util.List;
+
 /**
  * Represent error-constructor-expr.
  *
@@ -24,4 +26,7 @@ package org.ballerinalang.model.tree.expressions;
  */
 public interface ErrorConstructorExpressionNode extends ExpressionNode {
 
+    List<? extends ExpressionNode> getPositionalArgs();
+
+    List<? extends NamedArgNode> getNamedArgs();
 }

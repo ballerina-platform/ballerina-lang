@@ -1618,6 +1618,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         BInvokableSymbol symbol = (BInvokableSymbol) invocationExpr.symbol;
+        if (symbol == null) {
+            analyzeArgs(requiredArgs, restArgs);
+            return;
+        }
 
         boolean inIsolatedFunction = isInIsolatedFunction(env.enclInvokable);
         boolean recordFieldDefaultValue = isRecordFieldDefaultValue(env.enclType);

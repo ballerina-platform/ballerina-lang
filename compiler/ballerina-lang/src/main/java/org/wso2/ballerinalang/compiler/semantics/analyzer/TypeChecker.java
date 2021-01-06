@@ -2741,6 +2741,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else {
             resultType = symTable.semanticError;
+            return;
         }
 
         resultType = errorConstructorExpr.type = errorConstructorType;

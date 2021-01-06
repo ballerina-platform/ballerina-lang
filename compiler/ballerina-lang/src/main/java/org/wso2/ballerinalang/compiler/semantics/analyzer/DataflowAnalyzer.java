@@ -1030,7 +1030,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-
+        for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
+            analyzeNode(positionalArg, env);
+        }
+        for (BLangNamedArgsExpression namedArg : errorConstructorExpr.namedArgs) {
+            analyzeNode(namedArg, env);
+        }
     }
 
     @Override

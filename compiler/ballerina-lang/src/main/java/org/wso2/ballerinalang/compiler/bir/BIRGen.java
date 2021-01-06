@@ -1348,10 +1348,11 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand lhsOp = new BIROperand(tempVarError);
 
         this.env.targetOperand = lhsOp;
-        errorConstructorExpr.positionalArgs.get(0).accept(this);
+        List<BLangExpression> positionalArgs = errorConstructorExpr.positionalArgs;
+        positionalArgs.get(0).accept(this);
         BIROperand messageOp = this.env.targetOperand;
 
-        errorConstructorExpr.positionalArgs.get(1).accept(this);
+        positionalArgs.get(1).accept(this);
         BIROperand causeOp = this.env.targetOperand;
 
         errorConstructorExpr.errorDetail.accept(this);
