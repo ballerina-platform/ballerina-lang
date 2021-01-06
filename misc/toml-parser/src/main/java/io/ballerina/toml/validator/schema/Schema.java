@@ -76,4 +76,9 @@ public class Schema extends ObjectSchema {
         rootSchema.setType(Type.OBJECT);
         return rootSchema;
     }
+
+    @Override
+    public void accept(SchemaVisitor visitor) {
+        visitor.visit(this);
+    }
 }

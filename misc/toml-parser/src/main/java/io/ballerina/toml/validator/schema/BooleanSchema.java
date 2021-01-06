@@ -28,4 +28,9 @@ public class BooleanSchema extends AbstractSchema {
     public BooleanSchema(Type type) {
         super(type);
     }
+
+    @Override
+    public void accept(SchemaVisitor visitor) {
+        visitor.visit(this);
+    }
 }
