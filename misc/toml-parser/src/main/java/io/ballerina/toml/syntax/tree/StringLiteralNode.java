@@ -20,6 +20,7 @@ package io.ballerina.toml.syntax.tree;
 import io.ballerina.toml.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -36,8 +37,8 @@ public class StringLiteralNode extends ValueNode {
         return childInBucket(0);
     }
 
-    public Token content() {
-        return childInBucket(1);
+    public Optional<Token> content() {
+        return optionalChildInBucket(1);
     }
 
     public Token endDoubleQuote() {
@@ -97,7 +98,7 @@ public class StringLiteralNode extends ValueNode {
         public StringLiteralNodeModifier(StringLiteralNode oldNode) {
             this.oldNode = oldNode;
             this.startDoubleQuote = oldNode.startDoubleQuote();
-            this.content = oldNode.content();
+            this.content = oldNode.content().orElse(null);
             this.endDoubleQuote = oldNode.endDoubleQuote();
         }
 

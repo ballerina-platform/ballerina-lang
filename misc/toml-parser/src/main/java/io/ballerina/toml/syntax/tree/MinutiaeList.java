@@ -69,8 +69,7 @@ public final class MinutiaeList implements Iterable<Minutiae> {
 
     // Modification Operations
 
-    public MinutiaeList add(
-            Minutiae minutiae) {
+    public MinutiaeList add(Minutiae minutiae) {
         Objects.requireNonNull(minutiae, "minutiae should not be null");
         return new MinutiaeList(token, internalListNode.add(minutiae.internalNode()), position);
     }
@@ -109,8 +108,7 @@ public final class MinutiaeList implements Iterable<Minutiae> {
         return new MinutiaeList(token, internalListNode.remove(index), position);
     }
 
-    public MinutiaeList remove(
-            Minutiae minutiae) {
+    public MinutiaeList remove(Minutiae minutiae) {
         Objects.requireNonNull(minutiae, "minutiae should not be null");
         for (int i = 0; i < minutiaeNodes.length; i++) {
             if (minutiae == minutiaeNodes[i]) {

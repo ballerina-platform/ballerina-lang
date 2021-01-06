@@ -17,7 +17,7 @@
  */
 package io.ballerina.toml.internal.parser.tree;
 
-import io.ballerina.toml.internal.diagnostics.DiagnosticCode;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 
 /**
  * Internal representation of diagnostic that is related to an internal syntax node.

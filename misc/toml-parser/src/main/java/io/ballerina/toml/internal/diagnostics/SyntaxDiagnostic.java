@@ -20,6 +20,7 @@ package io.ballerina.toml.internal.diagnostics;
 import io.ballerina.toml.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.toml.syntax.tree.NodeLocation;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 
 /**

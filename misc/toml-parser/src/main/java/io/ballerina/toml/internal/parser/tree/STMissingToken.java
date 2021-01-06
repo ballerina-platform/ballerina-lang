@@ -83,3 +83,4 @@ public class STMissingToken extends STToken {
         trailingMinutiae.writeTo(builder);
     }
 }
+
