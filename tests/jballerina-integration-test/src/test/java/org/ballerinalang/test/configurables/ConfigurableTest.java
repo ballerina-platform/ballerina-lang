@@ -40,7 +40,7 @@ public class ConfigurableTest extends BaseTest {
     private static final String negativeTestFileLocation =
             Paths.get(testFileLocation, "NegativeTests").toAbsolutePath().toString();
     private BMainInstance bMainInstance;
-    private final String errorMsg = "error: Invalid `configuration.toml` file : ";
+    private final String errorMsg = "error: Invalid `Config.toml` file : ";
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
@@ -87,7 +87,7 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testNoConfigFile() throws BallerinaTestException {
         Path filePath = Paths.get(negativeTestFileLocation, "noConfig.bal").toAbsolutePath();
-        LogLeecher errorLeecher = new LogLeecher("error: Configuration toml file `configuration.toml` is not found",
+        LogLeecher errorLeecher = new LogLeecher("error: Configuration toml file `Config.toml` is not found",
                 ERROR);
         bMainInstance.runMain("run", new String[]{filePath.toString()}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, testFileLocation + "/NegativeTests");
@@ -97,9 +97,9 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testInvalidTomlFile() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "InvalidTomlFile").toAbsolutePath();
-        String tomlError1 = "missing identifier [configuration.toml:(0:9,0:9)]";
-        String tomlError2 = "missing identifier [configuration.toml:(0:20,0:20)]";
-        String tomlError3 = "missing identifier [configuration.toml:(0:21,0:21)]";
+        String tomlError1 = "missing identifier [Config.toml:(0:9,0:9)]";
+        String tomlError2 = "missing identifier [Config.toml:(0:20,0:20)]";
+        String tomlError3 = "missing identifier [Config.toml:(0:21,0:21)]";
         LogLeecher errorLeecher1 = new LogLeecher(errorMsg, ERROR);
         LogLeecher errorLeecher2 = new LogLeecher(tomlError1, ERROR);
         LogLeecher errorLeecher3 = new LogLeecher(tomlError2, ERROR);
