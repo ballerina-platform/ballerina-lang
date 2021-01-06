@@ -84,7 +84,7 @@ public class DisplayAnnotationTest {
         Assert.assertEquals(annotAsString, " {iconPath: kMemberFuncIconPath.icon,label: k method}");
     }
 
-    @Test void testIconAnnotationNegative() {
+    @Test void testDisplayAnnotationNegative() {
         BAssertUtil.validateError(negative, 0,
                 "cannot specify more than one annotation value for annotation 'display'", 17, 1);
         Assert.assertEquals(negative.getErrorCount(), 1);

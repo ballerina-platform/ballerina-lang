@@ -77,7 +77,7 @@ public const annotation StrandData strand on source worker;
 public const annotation record {
     # label for the Ballerina construct
     string label;
-    # icon path relative to module's resouce directory
+    # icon path relative to module's resource directory
     string iconPath;
 } display on source type, source class,
       source function, source return, source parameter, source field, source listener,
