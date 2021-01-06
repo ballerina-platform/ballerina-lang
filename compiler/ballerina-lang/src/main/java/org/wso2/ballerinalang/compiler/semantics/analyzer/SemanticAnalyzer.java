@@ -480,6 +480,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         validateAnnotationAttachmentCount(classDefinition.annAttachments);
 
         analyzeClassDefinition(classDefinition);
+
+        validateInclusions(classDefinition.flagSet, classDefinition.typeRefs, false,
+                           Symbols.isFlagOn(classDefinition.type.tsymbol.flags, Flags.ANONYMOUS));
     }
 
     @Override
@@ -584,6 +587,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Validate the referenced functions that don't have implementations within the function.
         ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions
                 .forEach(func -> validateReferencedFunction(objectTypeNode.pos, func, env));
+
+        validateInclusions(objectTypeNode.flagSet, objectTypeNode.typeRefs, true, false);
 
         if (objectTypeNode.initFunction == null) {
             return;
@@ -728,8 +733,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             } else if (!(types.isAssignable(lhsType, symTable.intType) ||
                     types.isAssignable(lhsType, symTable.floatType) ||
                     types.isAssignable(lhsType, symTable.stringType) ||
-                    types.isAssignable(lhsType, symTable.booleanType))) {
-                // TODO: remove this check onece runtime support all configurable types
+                    types.isAssignable(lhsType, symTable.booleanType) ||
+                    types.isAssignable(lhsType, symTable.decimalType) ||
+                    types.isAssignable(lhsType, symTable.arrayType))) {
+                // TODO: remove this check once runtime support all configurable types
                 dlog.error(varNode.typeNode.pos,
                         DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
             }
@@ -3457,6 +3464,64 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (funcNode.interfaceFunction && !env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
             dlog.error(funcNode.pos, DiagnosticErrorCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, funcNode.name,
                     funcNode.receiver.type);
+        }
+    }
+
+    private void validateInclusions(Set<Flag> referencingTypeFlags, List<BLangType> typeRefs, boolean objectTypeDesc,
+                                    boolean objectConstructorExpr) {
+        boolean nonIsolated = !referencingTypeFlags.contains(Flag.ISOLATED);
+        boolean nonService = !referencingTypeFlags.contains(Flag.SERVICE);
+        boolean nonClient = !referencingTypeFlags.contains(Flag.CLIENT);
+        boolean nonReadOnly = !referencingTypeFlags.contains(Flag.READONLY);
+
+        for (BLangType typeRef : typeRefs) {
+            BType type = typeRef.type;
+            long flags = type.flags;
+
+            List<Flag> mismatchedFlags = new ArrayList<>();
+
+            if (nonIsolated && Symbols.isFlagOn(flags, Flags.ISOLATED)) {
+                mismatchedFlags.add(Flag.ISOLATED);
+            }
+
+            if (nonService && Symbols.isFlagOn(flags, Flags.SERVICE)) {
+                mismatchedFlags.add(Flag.SERVICE);
+            }
+
+            if (nonClient && Symbols.isFlagOn(flags, Flags.CLIENT)) {
+                mismatchedFlags.add(Flag.CLIENT);
+            }
+
+            if (!mismatchedFlags.isEmpty()) {
+                StringBuilder qualifierString = new StringBuilder(mismatchedFlags.get(0).toString().toLowerCase());
+
+                for (int i = 1; i < mismatchedFlags.size(); i++) {
+                    qualifierString.append(" ").append(mismatchedFlags.get(i).toString().toLowerCase());
+                }
+
+                dlog.error(typeRef.pos,
+                           objectConstructorExpr ?
+                                   DiagnosticErrorCode.INVALID_REFERENCE_WITH_MISMATCHED_QUALIFIERS :
+                                   DiagnosticErrorCode.INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS,
+                           qualifierString.toString());
+            }
+
+            BTypeSymbol tsymbol = type.tsymbol;
+            if (tsymbol == null ||
+                    !Symbols.isFlagOn(tsymbol.flags, Flags.CLASS) ||
+                    !Symbols.isFlagOn(flags, Flags.READONLY)) {
+                continue;
+            }
+
+            if (objectTypeDesc) {
+                dlog.error(typeRef.pos,
+                           DiagnosticErrorCode.INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPE_DESCRIPTOR);
+                continue;
+            }
+
+            if (nonReadOnly && !objectConstructorExpr) {
+                dlog.error(typeRef.pos, DiagnosticErrorCode.INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS);
+            }
         }
     }
 

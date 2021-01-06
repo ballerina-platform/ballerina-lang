@@ -960,7 +960,7 @@ public class TypeChecker {
             List<Type> fieldTypes = new ArrayList<>();
             Arrays.stream(srcTableType.getFieldNames()).forEach(field -> fieldTypes
                     .add(Objects.requireNonNull(getTableConstraintField(srcTableType.getConstrainedType(), field))
-                    .type));
+                    .getFieldType()));
 
             if (fieldTypes.size() == 1) {
                 return checkConstraints(fieldTypes.get(0), targetType.getKeyType(), unresolvedTypes);
@@ -990,7 +990,7 @@ public class TypeChecker {
                     return null;
                 }
 
-                if (fields.stream().allMatch(field -> isSameType(field.type, fields.get(0).type))) {
+                if (fields.stream().allMatch(field -> isSameType(field.getFieldType(), fields.get(0).getFieldType()))) {
                     return fields.get(0);
                 }
         }

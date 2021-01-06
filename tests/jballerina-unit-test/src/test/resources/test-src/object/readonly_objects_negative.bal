@@ -63,3 +63,15 @@ readonly class InvalidReadOnlyObject {
         self.f = g;
     }
 }
+
+service readonly class InvalidReadOnlyServiceClass {
+    int[] y;
+
+    function init(int[] y) {
+        self.y = y;
+    }
+
+    resource function get bar() {
+
+    }
+}

@@ -268,7 +268,7 @@ function testObjectConstructorExprWithReadOnlyCET() {
 
     error err = <error> res;
     assertValueEquality("{ballerina/lang.object}InherentTypeViolation", err.message());
-    assertValueEquality("modification not allowed on readonly value", <string> err.detail()["message"]);
+    assertValueEquality("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
 
     assertTrue(<any> v5 is readonly);
 }
@@ -288,7 +288,7 @@ function validateInvalidUpdateErrorForFieldA(Object ob) {
 
     error err = <error> res;
     assertValueEquality("{ballerina/lang.object}InherentTypeViolation", err.message());
-    assertValueEquality("modification not allowed on readonly value", <string> err.detail()["message"]);
+    assertValueEquality("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
 }
 
 function validateInvalidUpdateErrorForFieldB(Object ob) {
@@ -301,7 +301,7 @@ function validateInvalidUpdateErrorForFieldB(Object ob) {
 
     error err1 = <error> res1;
     assertValueEquality("{ballerina/lang.array}InvalidUpdate", err1.message());
-    assertValueEquality("modification not allowed on readonly value", <string> err1.detail()["message"]);
+    assertValueEquality("modification not allowed on readonly value", <string> checkpanic err1.detail()["message"]);
 
     var fn2 = function () {
         ob.b = [];
@@ -312,7 +312,7 @@ function validateInvalidUpdateErrorForFieldB(Object ob) {
 
     error err2 = <error> res2;
     assertValueEquality("{ballerina/lang.object}InherentTypeViolation", err2.message());
-    assertValueEquality("modification not allowed on readonly value", <string> err2.detail()["message"]);
+    assertValueEquality("modification not allowed on readonly value", <string> checkpanic err2.detail()["message"]);
 }
 
 // assertion helpers
@@ -324,8 +324,15 @@ function assertTrue(any|error actual) {
         return;
     }
 
+    string actualValAsString = "";
+    if (actual is error) {
+        actualValAsString = actual.toString();
+    } else {
+        actualValAsString = actual.toString();
+    }
+
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'true', found '" + actual.toString () + "'");
+                message = "expected 'true', found '" + actualValAsString + "'");
 }
 
 function assertFalse(any|error actual) {
@@ -333,8 +340,15 @@ function assertFalse(any|error actual) {
         return;
     }
 
+    string actualValAsString = "";
+    if (actual is error) {
+        actualValAsString = actual.toString();
+    } else {
+        actualValAsString = actual.toString();
+    }
+
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'false', found '" + actual.toString () + "'");
+                message = "expected 'false', found '" + actualValAsString + "'");
 }
 
 function assertValueEquality(anydata|error expected, anydata|error actual) {
@@ -342,6 +356,8 @@ function assertValueEquality(anydata|error expected, anydata|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
