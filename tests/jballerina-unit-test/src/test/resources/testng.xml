@@ -234,11 +234,6 @@
 
             <!-- Disabled tests related to ProjectAPI change -->
             <!-- ########################## START ############################# -->
-            <class name="org.ballerinalang.test.execution.ModuleExecutionFlowTests">
-                <methods>
-                    <exclude name="testModuleStartAndStopPanic"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.taintchecking.TaintedStatusPropagationTest">
                 <methods>
                     <exclude name="testParameterStatusWithNativeInvocations"/>
