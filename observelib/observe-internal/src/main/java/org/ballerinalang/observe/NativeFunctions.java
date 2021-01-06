@@ -140,6 +140,6 @@ public class NativeFunctions {
     }
 
     public static void printError(BString message) {
-        errStream.println(message.getValue());
+        errStream.println("error: " + message.getValue());
     }
 }
