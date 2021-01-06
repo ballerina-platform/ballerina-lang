@@ -65,7 +65,7 @@ public class HubSubscriber extends Consumer {
         Object[] args = {getCallback(), getSubscriptionDetails(), content};
         try {
             Executor.executeFunction(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB, "hub_service",
-                                     "distributeContent", args);
+                          "distributeContent", args);
         } catch (BallerinaException e) {
             throw new BallerinaException("send failed: " + e.getMessage());
         }

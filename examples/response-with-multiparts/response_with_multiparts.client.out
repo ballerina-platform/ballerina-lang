@@ -1,5 +1,5 @@
 #To encode the outbound response with multiparts.
-$ curl -X GET http://localhost:9092/multiparts/encode_out_response
+curl -X GET http://localhost:9092/multiparts/encode_out_response
 --5afd3d91ee639af3
 content-type: multipart/mixed;boundary=de5520ef3bc703d7
 

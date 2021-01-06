@@ -24,6 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,6 +40,7 @@ public class TomlFileToManifestTest {
     public void testTomlFile() throws URISyntaxException {
         URI ballerinaTomlURI = getClass().getClassLoader().getResource("Ballerina.toml").toURI();
         Path ballerinTomlPath = Paths.get(ballerinaTomlURI);
+        String pathToGitHub = "path" + File.separator + "to" + File.separator + "github.balo";
         
         Manifest manifest = TomlParserUtils.getManifest(ballerinTomlPath.getParent());
         Assert.assertEquals(manifest.getProject().getOrgName(), "foo");
@@ -59,7 +61,7 @@ public class TomlFileToManifestTest {
         Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "wso2/github");
         Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "1.2.3");
         Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getPath().toString(),
-                "path/to/github.balo");
+                pathToGitHub);
         
     }
     

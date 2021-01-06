@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run kafka_authentication_sasl_plain_consumer.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run kafka_authentication_sasl_plain_consumer.bal
 
 # The following lines will be printed in the Console when consumer starts.
 # If the consumer connected successfully, it will start to receive messages

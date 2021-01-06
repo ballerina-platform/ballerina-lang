@@ -28,10 +28,13 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -161,12 +164,20 @@ public class Executor {
             return ObjectValue.class;
         } else if (paramValue instanceof Boolean) {
             return boolean.class;
+        } else if (paramValue instanceof BString) {
+            return BString.class;
         } else if (paramValue instanceof String) {
             return String.class;
         } else if (paramValue instanceof Integer) {
             return int.class;
+        } else if (paramValue instanceof Long) {
+            return long.class;
+        } else if (paramValue instanceof Double) {
+            return double.class;
         } else if (paramValue instanceof Float) {
             return double.class;
+        } else  if (paramValue instanceof ArrayValueImpl) {
+            return ArrayValue.class;
         } else {
             // This is done temporarily, until blocks are added here for all possible cases.
             throw new RuntimeException("unknown param type: " + paramValue.getClass());

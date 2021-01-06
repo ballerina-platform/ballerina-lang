@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run equality.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run equality.bal
 1 == 1 is true
 1 != 2 is true
 1 1.0 false == 1 1.0 false is true

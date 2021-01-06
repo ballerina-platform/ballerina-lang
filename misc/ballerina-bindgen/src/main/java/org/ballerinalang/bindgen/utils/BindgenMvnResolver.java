@@ -89,8 +89,7 @@ public class BindgenMvnResolver {
         for (Dependency transitive : dependency.getDepedencies()) {
             handleDependency(transitive.getGroupId(), transitive.getArtifactId(), transitive.getVersion(),
                     mvnRepository, projectRoot, parent);
-            dependencyTraversal(resolveDependency(transitive.getGroupId(), transitive.getArtifactId(),
-                    transitive.getVersion(), mvnRepository), mvnRepository, projectRoot);
+            dependencyTraversal(transitive, mvnRepository, projectRoot);
         }
     }
 

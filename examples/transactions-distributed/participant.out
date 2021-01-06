@@ -1,12 +1,12 @@
 # To start the `participant` service, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 #Run this command to start the `participant` service.
-$ ballerina run  --experimental participant.bal
+ballerina run  --experimental participant.bal
 [ballerina/http] started HTTP/WS listener 10.100.1.182:54774
 [ballerina/http] started HTTP/WS listener localhost:8889
 
 #Run this curl command to invoke the services. 
-$ curl -v localhost:8080
+curl -v localhost:8080
 
 Outputs similar to the following should be available from the initiator and participant.
 

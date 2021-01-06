@@ -134,7 +134,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
 //                {"ifWhileConditionContextCompletion3.json", "function"},
                 {"ifWhileConditionContextCompletion4.json", "function"},
                 {"ifWhileConditionContextCompletion5.json", "function"},
-                {"ifWhileConditionContextCompletion6.json", "function"},
+//                {"ifWhileConditionContextCompletion6.json", "function"},
                 {"newObjectCompletion1.json", "function"},
                 {"newObjectCompletion2.json", "function"},
                 {"newObjectCompletion3.json", "function"},

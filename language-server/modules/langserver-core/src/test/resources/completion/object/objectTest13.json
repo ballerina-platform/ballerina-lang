@@ -1,10 +1,10 @@
 {
     "position": {
-        "line": 3,
-        "character": 9
+        "line":3,
+        "character":9
     },
     "source": "object/source/objectTest13.bal",
-    "items": [
+    "items":[
         {
             "label": "HttpServiceConfig",
             "kind": "Struct",
@@ -266,6 +266,17 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "ResponseLimitConfigs",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides inbound response status line, total header and entity body size threshold configurations.\n"
+            },
+            "sortText": "180",
+            "insertText": "ResponseLimitConfigs",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "ClientHttp2Settings",
             "kind": "Struct",
             "detail": "Record",
@@ -303,7 +314,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
+                "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\nThe response status codes of 301, 302, and 303 are redirected using a GET request while 300, 305, 307, and 308\nstatus codes use the original request HTTP method during redirection.\n"
             },
             "sortText": "180",
             "insertText": "FollowRedirects",
@@ -399,7 +410,7 @@
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+                "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
             },
             "sortText": "190",
             "insertText": "HttpFuture",
@@ -495,6 +506,16 @@
             },
             "sortText": "110",
             "insertText": "HttpOperation",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "safeHttpOperation",
+            "detail": "Union",
+            "documentation": {
+                "left": "Defines the safe HTTP operations which do not modify resource representation."
+            },
+            "sortText": "110",
+            "insertText": "safeHttpOperation",
             "insertTextFormat": "Snippet"
         },
         {
@@ -828,7 +849,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides a set of HTTP related configurations and failover related configurations.\nFollowing fields are inherited from the other configuration records in addition to the failover client specific\nconfigs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n"
+                "left": "Provides a set of HTTP related configurations and failover related configurations.\nFollowing fields are inherited from the other configuration records in addition to the failover client specific\nconfigs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n| responseLimits - Copied from CommonClientConfiguration  |\n"
             },
             "sortText": "180",
             "insertText": "FailoverClientConfiguration",
@@ -981,7 +1002,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "The configurations related to the load balance client endpoint. Following fields are inherited from the other\nconfiguration records in addition to the load balance client specific configs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n"
+                "left": "The configurations related to the load balance client endpoint. Following fields are inherited from the other\nconfiguration records in addition to the load balance client specific configs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n| responseLimits - Copied from CommonClientConfiguration  |\n"
             },
             "sortText": "180",
             "insertText": "LoadBalanceClientConfiguration",
@@ -1040,6 +1061,17 @@
             },
             "sortText": "180",
             "insertText": "ListenerHttp1Settings",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RequestLimitConfigs",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides inbound request URI, total header and entity body size threshold configurations.\n"
+            },
+            "sortText": "180",
+            "insertText": "RequestLimitConfigs",
             "insertTextFormat": "Snippet"
         },
         {

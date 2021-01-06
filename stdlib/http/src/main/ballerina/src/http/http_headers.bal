@@ -72,6 +72,9 @@ public const string LOCATION = "location";
 # HTTP header key `pragma`. Used in dealing with HTTP 1.0 caches which do not understand the `cache-control` header.
 public const string PRAGMA = "pragma";
 
+# HTTP header key `proxy-authorization`. Contains the credentials to authenticate a user agent to a proxy serve.
+public const string PROXY_AUTHORIZATION = "proxy-authorization";
+
 # HTTP header key `server`. Specifies the details of the origin server.
 public const string SERVER = "server";
 

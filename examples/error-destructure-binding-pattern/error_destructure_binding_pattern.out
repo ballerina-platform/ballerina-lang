@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run error_destructure_binding_pattern.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run error_destructure_binding_pattern.bal
 Reason String: Sample Error
 Info: Detail Info
 Fatal: true

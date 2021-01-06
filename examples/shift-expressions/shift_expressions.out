@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run shift_expressions.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run shift_expressions.bal
 `int` 1 << 2: 4
 `int:Unsigned8` 128 << 3: 1024
 `int:Signed16` -32700 >> 2: -8175

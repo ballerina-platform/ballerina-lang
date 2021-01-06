@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class Manifest {
     private Project project = new Project();
     private Map<String, Object> dependencies = new LinkedHashMap<>();
-    private Platform platform = new Platform();
+    public Platform platform = new Platform();
 
     public Project getProject() {
         return project;

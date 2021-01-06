@@ -307,7 +307,7 @@ public class DelimitedRecordChannel implements IOChannel {
         for (int i = 0; i < split.length; i++) {
             String field = split[i];
             if (field.isEmpty()) {
-                split[i] = null;
+                split[i] = "";
                 continue;
             }
             if (field.matches(DOUBLE_QUOTE_REGEX)) {

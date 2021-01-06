@@ -5,8 +5,8 @@
 // When the `age` of the `person` reaches the `maxAge`, the while loop is returned.
 // Hence the task is stopped.
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run task_scheduler_timer.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run task_scheduler_timer.bal
 Hi Sam you are 1 years old now.
 Hi Sam you are 2 years old now.
 Hi Sam you are 3 years old now.

@@ -1,6 +1,6 @@
 # To invoke the autoCompress Service, use the following curl command.
 # Here the `Accept-Encoding` header is specified as `deflate`.
-$ curl -v --output - http://localhost:9090/autoCompress -H "Accept-Encoding:deflate"
+curl -v --output - http://localhost:9090/autoCompress -H "Accept-Encoding:deflate"
 > GET /autoCompress HTTP/1.1
 > Host: localhost:9090
 > User-Agent: curl/7.58.0
@@ -18,7 +18,7 @@ x��V
 
 # To invoke the alwaysCompress Service to get the JSON payload, use the following curl command.
 # Here the `Accept-Encoding` header is not specified.
-$ curl -v --output - http://localhost:9090/alwaysCompress/getJson
+curl -v --output - http://localhost:9090/alwaysCompress/getJson
 > GET /alwaysCompress/getJson HTTP/1.1
 > Host: localhost:9090
 > User-Agent: curl/7.58.0
@@ -33,7 +33,7 @@ $ curl -v --output - http://localhost:9090/alwaysCompress/getJson
 
 # To invoke the alwaysCompress Service to get the String payload, use the following curl command.
 # Here the `Accept-Encoding` header is not specified.
-$ curl -v --output - http://localhost:9090/alwaysCompress/getString
+curl -v --output - http://localhost:9090/alwaysCompress/getString
 > GET /alwaysCompress/getString HTTP/1.1
 > Host: localhost:9090
 > User-Agent: curl/7.58.0
@@ -49,7 +49,7 @@ $ curl -v --output - http://localhost:9090/alwaysCompress/getString
 �,HU���,V�D�⒢̼t��ʴ��
 
 # To invoke the passthrough Service, use the following curl command.
-$ curl -v --output - http://localhost:9092/passthrough/
+curl -v --output - http://localhost:9092/passthrough/
 > GET /passthrough/ HTTP/1.1
 > Host: localhost:9092
 > User-Agent: curl/7.58.0

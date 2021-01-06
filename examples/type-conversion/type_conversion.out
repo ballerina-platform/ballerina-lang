@@ -1,6 +1,6 @@
 # To run the program, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run type_conversion.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run type_conversion.bal
 Employee to Person, name: Jack Sparrow
 map<anydata> to Person, name: Hector Barbossa
 Error occurred on conversion: message='map<anydata>' value cannot be converted to 'Person'

@@ -1,7 +1,7 @@
 # Sensitive data such as passwords can be encrypted and accessed securely in code. To encrypt a value, the
 # `ballerina encrypt` command is used. It prompts the user to enter the value and a secret. In this example,
 # `ballerina` is the value and `12345` is the secret.
-$ ballerina encrypt
+ballerina encrypt
 Enter value:
 
 Enter secret:
@@ -9,36 +9,35 @@ Enter secret:
 Re-enter secret to verify:
 
 Add the following to the configuration file:
-<key>="@encrypted:{69P5VGO+hOomLWhoY28gJiGPmBzWvzlmGGWA9X3uWZM=}"
+<key>="@encrypted:{njjb2H9u7Bax2FZX/X+UPZ50lR6+ckKmkesE87Yuw/x9wE1yvhcww1ehOc+mjgCc}"}"
 
 Or provide it as a command line argument:
---<key>=@encrypted:{69P5VGO+hOomLWhoY28gJiGPmBzWvzlmGGWA9X3uWZM=}
+--<key>=@encrypted:{njjb2H9u7Bax2FZX/X+UPZ50lR6+ckKmkesE87Yuw/x9wE1yvhcww1ehOc+mjgCc}"}
 
 # The secret needs to be provided if a configuration contains an encrypted value. The secret can be provided
-# via a `secret.txt` file or via the CLI. In this example, the CLI is used.
-$ ballerina run config_api.bal
+# via a `secret.txt` file (which gets deleted immediately after its contents are read) or via the CLI. In this example, the CLI is used.
+ballerina run config_api.bal
 ballerina: enter secret for config value decryption:
-
 
 # To specify a configuration file explicitly, use the `--b7a.config.file=<path_to_configuration_file>` property.
 # If this property is not set, Ballerina looks for a `ballerina.conf` file in the current directory. The path
 # to the configuration file can be either an absolute or a relative path.
 # To run this example, place the following configurations in a file and provide its path.
 # ```
-# [hello.http]
-#  port=8085
-# [hello.keystore]
-#  password="@encrypted:{69P5VGO+hOomLWhoY28gJiGPmBzWvzlmGGWA9X3uWZM=}"
+# [app.auth]
+#  username=jack
+# [app.auth]
+#  password="@encrypted:{njjb2H9u7Bax2FZX/X+UPZ50lR6+ckKmkesE87Yuw/x9wE1yvhcww1ehOc+mjgCc}"}"
 #
 # ```
-$ ballerina run config_api.bal --b7a.config.file=path/to/conf/file/custom-config-file-name.conf
+ballerina run config_api.bal --b7a.config.file=path/to/conf/file/custom-config-file-name.conf
 ballerina: enter secret for config value decryption:
 
-ballerina: started HTTPS/WSS listener 0.0.0.0:8085
+Authenticating user 'jack'
 
 # The same configurations given via a configuration file can also be given via CLI parameters. <br>
-# e.g., hello.http.port
-$ ballerina run config_api.bal --hello.http.port=8085 --hello.keystore.password=@encrypted:{69P5VGO+hOomLWhoY28gJiGPmBzWvzlmGGWA9X3uWZM=}
+# e.g., app.auth.username
+ballerina run config_api.bal --app.auth.username=jack --hello.keystore.password=@encrypted:{njjb2H9u7Bax2FZX/X+UPZ50lR6+ckKmkesE87Yuw/x9wE1yvhcww1ehOc+mjgCc}"}
 ballerina: enter secret for config value decryption:
 
-ballerina: started HTTPS/WSS listener 0.0.0.0:8085
+Authenticating user 'jack'

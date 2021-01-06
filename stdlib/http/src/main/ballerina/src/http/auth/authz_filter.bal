@@ -59,25 +59,27 @@ public type AuthzFilter object {
                 }
             }
         }
-        return isAuthzSuccessful(caller, authorized);
+        if (authorized is boolean && authorized) {
+            return true;
+        }
+        send403(caller, context);
+        return false;
     }
 };
 
-# Verifies if the authorization is successful. If not responds to the user.
-#
-# + caller - Caller for outbound HTTP response
-# + authorized - Authorization status for the request or else an `http:AuthorizationError` if an error occurred
-# + return - Authorization result to indicate if the filter can proceed(true) or not(false)
-function isAuthzSuccessful(Caller caller, boolean|AuthorizationError authorized) returns boolean {
-    Response response = new;
-    response.statusCode = 403;
-    if (authorized is boolean && authorized) {
-        return authorized;
+function send403(Caller caller, FilterContext context) {
+    if (isWebSocketUpgradeRequest(context)) {
+        error? err = caller->cancelWebSocketUpgrade(403, "Authorization failure.");
+        if (err is error) {
+            panic <error> err;
+        }
+    } else {
+        Response response = new;
+        response.statusCode = 403;
+        response.setTextPayload("Authorization failure.");
+        error? err = caller->respond(response);
+        if (err is error) {
+            panic <error> err;
+        }
     }
-    response.setTextPayload("Authorization failure.");
-    error? err = caller->respond(response);
-    if (err is error) {
-        panic <error> err;
-    }
-    return false;
 }

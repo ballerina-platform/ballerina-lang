@@ -1,5 +1,5 @@
 // Ballerina program files have the `.bal` extension and the file names do not have semantics.
 // These source files can be grouped into modules. The code within a module can refer to any module-level symbol (name) declared
 // in the same module. Module names can only contain alphanumerics, underscores, and periods and the maximum length is 256 characters.
-// By default, the last element of the module name becomes an alias that is used to refer to the symbols of the imported module.
-// If the module name has periods, then the word after the last period becomes the alias.
+// By default, the last element of the module name becomes a prefix that is used to refer to the symbols of the imported module.
+// If the module name has periods, then the word after the last period becomes the prefix.

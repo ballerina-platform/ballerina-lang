@@ -301,6 +301,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangNode result;
     private NodeCloner nodeCloner;
     private SemanticAnalyzer semanticAnalyzer;
+    private MockDesugar mockDesugar;
 
     private BLangStatementLink currentLink;
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
@@ -349,6 +350,7 @@ public class Desugar extends BLangNodeVisitor {
         this.serviceDesugar = ServiceDesugar.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
+        this.mockDesugar = MockDesugar.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -601,6 +603,10 @@ public class Desugar extends BLangNodeVisitor {
         createPackageInitFunctions(pkgNode, env);
         // Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode, env);
+
+        if (!pkgNode.testablePkgs.isEmpty() && pkgNode.getTestablePkg().getMockFunctionNamesMap() != null) {
+            mockDesugar.generateMockFunctions(pkgNode);
+        }
 
         pkgNode.constants.stream()
                 .filter(constant -> constant.expr.getKind() == NodeKind.LITERAL ||
@@ -6313,7 +6319,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangFunction splitInitFunction(BLangPackage packageNode, SymbolEnv env) {
         int methodSize = INIT_METHOD_SPLIT_SIZE;
         BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) packageNode.initFunction.body;
-        if (funcBody.stmts.size() < methodSize || !isJvmTarget) {
+        if (!isJvmTarget) {
             return packageNode.initFunction;
         }
         BLangFunction initFunction = packageNode.initFunction;
@@ -6327,11 +6333,12 @@ public class Desugar extends BLangNodeVisitor {
         // until we get to a varDef, stmts are independent, divide it based on methodSize
         int varDefIndex = 0;
         for (int i = 0; i < stmts.size(); i++) {
-            if (stmts.get(i).getKind() == NodeKind.VARIABLE_DEF) {
+            BLangStatement statement = stmts.get(i);
+            if (statement.getKind() == NodeKind.VARIABLE_DEF) {
                 break;
             }
             varDefIndex++;
-            if (i > 0 && i % methodSize == 0) {
+            if (i > 0 && (i % methodSize == 0 || isAssignmentWithInitOrRecordLiteralExpr(statement))) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env);
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
@@ -6414,6 +6421,14 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         return generatedFunctions.get(0);
+    }
+
+    private boolean isAssignmentWithInitOrRecordLiteralExpr(BLangStatement statement) {
+        if (statement.getKind() == NodeKind.ASSIGNMENT) {
+            NodeKind exprKind = ((BLangAssignment) statement).getExpression().getKind();
+            return exprKind == NodeKind.TYPE_INIT_EXPR || exprKind == NodeKind.RECORD_LITERAL_EXPR;
+        }
+        return false;
     }
 
     /**

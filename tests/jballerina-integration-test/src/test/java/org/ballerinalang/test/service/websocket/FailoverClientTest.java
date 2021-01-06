@@ -57,6 +57,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
         CountDownLatch latch = new CountDownLatch(1);
         latch.await(TIME, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
+        client.sendText("close");
         closeConnection(client, secondRemoteServer);
     }
 
@@ -68,6 +69,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
         CountDownLatch latch = new CountDownLatch(1);
         latch.await(WAITING_TIME, TimeUnit.SECONDS);
         sendBinaryDataAndAssert(client);
+        client.sendText("close");
         closeConnection(client, firstRemoteServer);
     }
 
@@ -79,6 +81,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
         CountDownLatch latch = new CountDownLatch(1);
         latch.await(TIME, TimeUnit.SECONDS);
         sendBinaryDataAndAssert(client);
+        client.sendText("close");
         closeConnection(client, thirdRemoteServer);
     }
 
@@ -102,6 +105,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
+        client.sendText("close");
         closeConnection(client, firstRemoteServer);
     }
 
@@ -119,6 +123,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
         countDownLatch.await(INTERVAL, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
         sendBinaryDataAndAssert(client);
+        client.sendText("close");
         closeConnection(client, secondRemoteServer);
     }
 
@@ -135,6 +140,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         countDownLatch.await(TIME, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
+        client.sendText("close");
         closeConnection(client, firstRemoteServer);
     }
 
@@ -160,6 +166,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
         CountDownLatch foruthAttemptsLatch = new CountDownLatch(1);
         foruthAttemptsLatch.await(TIME, TimeUnit.SECONDS);
         sendBinaryDataAndAssert(client);
+        client.sendText("close");
         closeConnection(client, secondRemoteServer);
     }
 

@@ -61,51 +61,51 @@ The following is the summary of performance test results collected for the measu
 
 |  Scenario Name | Concurrent Users | Message Size (Bytes) | Back-end Service Delay (ms) | Error % | Throughput (Requests/sec) | Average Response Time (ms) | Standard Deviation of Response Time (ms) | 99th Percentile of Response Time (ms) | Ballerina GC Throughput (%) | Average Ballerina Memory Footprint After Full GC (M) |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-|  Passthrough HTTP service (h1c -> h1c) | 100 | 50 | 0 | 0 | 22117 | 4.48 | 11.99 | 12 | 99.54 |  |
-|  Passthrough HTTP service (h1c -> h1c) | 100 | 1024 | 0 | 0 | 20573.67 | 4.82 | 2.93 | 12 | 99.58 |  |
-|  Passthrough HTTP service (h1c -> h1c) | 300 | 50 | 0 | 0 | 22477.51 | 13.29 | 6.26 | 30 | 99.03 |  |
-|  Passthrough HTTP service (h1c -> h1c) | 300 | 1024 | 0 | 0 | 21051.12 | 14.19 | 6.48 | 32 | 99.08 |  |
-|  Passthrough HTTP service (h1c -> h1c) | 1000 | 50 | 0 | 0 | 20592.32 | 48.49 | 16.02 | 95 | 97.27 |  |
-|  Passthrough HTTP service (h1c -> h1c) | 1000 | 1024 | 0 | 0 | 19900.23 | 50.18 | 16.4 | 97 | 97.3 |  |
-|  JSON to XML transformation HTTP service | 100 | 50 | 0 | 0 | 15050 | 6.61 | 10.99 | 21 | 98.98 |  |
-|  JSON to XML transformation HTTP service | 100 | 1024 | 0 | 0 | 10447.96 | 9.45 | 36.33 | 30 | 98.1 | 17.079 |
-|  JSON to XML transformation HTTP service | 300 | 50 | 0 | 0 | 16056.68 | 18.19 | 16.02 | 44 | 97.02 | 19.851 |
-|  JSON to XML transformation HTTP service | 300 | 1024 | 0 | 0 | 10932.14 | 27.38 | 32.75 | 61 | 94.99 | 21.052 |
-|  JSON to XML transformation HTTP service | 1000 | 50 | 0 | 0 | 15289.32 | 65.35 | 21.44 | 125 | 93.8 | 13.294 |
-|  JSON to XML transformation HTTP service | 1000 | 1024 | 0 | 0 | 9333.86 | 107.06 | 43.59 | 168 | 82.88 | 21.902 |
-|  Passthrough HTTPS service (h1 -> h1) | 100 | 50 | 0 | 0 | 17798.14 | 5.57 | 2.87 | 13 | 99.54 | 15.124 |
-|  Passthrough HTTPS service (h1 -> h1) | 100 | 1024 | 0 | 0 | 12429.94 | 8 | 3.49 | 18 | 99.52 | 15.136 |
-|  Passthrough HTTPS service (h1 -> h1) | 300 | 50 | 0 | 0 | 18314.11 | 16.32 | 6.9 | 35 | 99.01 | 16.531 |
-|  Passthrough HTTPS service (h1 -> h1) | 300 | 1024 | 0 | 0 | 12798.1 | 23.38 | 8.56 | 48 | 99.18 | 16.566 |
-|  Passthrough HTTPS service (h1 -> h1) | 1000 | 50 | 0 | 0 | 16489.54 | 60.57 | 19.22 | 115 | 97.3 | 18.813 |
-|  Passthrough HTTPS service (h1 -> h1) | 1000 | 1024 | 0 | 0 | 12044.85 | 82.94 | 24.2 | 150 | 97.59 | 21.531 |
-|  JSON to XML transformation HTTPS service | 100 | 50 | 0 | 0 | 13090.33 | 7.59 | 21.96 | 23 | 98.97 | 15.189 |
-|  JSON to XML transformation HTTPS service | 100 | 1024 | 0 | 0 | 7357.57 | 13.54 | 21.31 | 35 | 98.5 | 15.29 |
-|  JSON to XML transformation HTTPS service | 300 | 50 | 0 | 0 | 13635.14 | 21.94 | 9.96 | 51 | 97.97 | 16.972 |
-|  JSON to XML transformation HTTPS service | 300 | 1024 | 0 | 0 | 7433.32 | 40.3 | 21.69 | 88 | 96.27 | 16.699 |
-|  JSON to XML transformation HTTPS service | 1000 | 50 | 0 | 0 | 12525.52 | 79.75 | 26.59 | 153 | 94.42 | 20.617 |
-|  JSON to XML transformation HTTPS service | 1000 | 1024 | 0 | 0 | 6536.64 | 152.88 | 47.09 | 271 | 88 | 20.92 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 100 | 50 | 0 | 0 | 16541.24 | 5.81 | 2.96 | 14 | 99.56 | 15.531 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 100 | 1024 | 0 | 0 | 15408.49 | 6.12 | 2.92 | 14 | 99.6 | 15.535 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 300 | 50 | 0 | 0 | 16952.58 | 17.17 | 7.28 | 37 | 99.05 | 16.308 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 300 | 1024 | 0 | 0 | 16177.13 | 17.55 | 7.4 | 38 | 99.1 | 16.055 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 1000 | 50 | 0 | 0 | 15679.02 | 63.03 | 20.75 | 124 | 97.23 | 17.05 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 1000 | 1024 | 0 | 0 | 15105.08 | 63.75 | 21.94 | 129 | 97.36 | 17.11 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h1) | 100 | 50 | 0 | 0 | 14816.74 | 6.53 | 3.1 | 15 | 99.55 | 15.436 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h1) | 100 | 1024 | 0 | 0 | 12092.29 | 7.97 | 3.43 | 18 | 99.6 | 15.385 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h1) | 300 | 50 | 0 | 0 | 15269.63 | 19.19 | 7.69 | 40 | 99.01 | 17.726 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h1) | 300 | 1024 | 0 | 0 | 12526.86 | 23.23 | 8.67 | 48 | 99.08 | 17.22 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h1) | 1000 | 50 | 0 | 0 | 13820.74 | 71.47 | 22.76 | 137 | 97.18 | 21.394 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h1) | 1000 | 1024 | 0 | 0 | 11582.96 | 85.14 | 26.25 | 160 | 97.34 | 20.877 |
-|  HTTP/2 client and server downgrade service (h2 -> h2) | 100 | 50 | 0 | 0 | 18678.14 | 5.31 | 2.93 | 13 | 99.58 | 15.77 |
-|  HTTP/2 client and server downgrade service (h2 -> h2) | 100 | 1024 | 0 | 0 | 16181.73 | 6.13 | 10.1 | 14 | 99.63 | 15.819 |
-|  HTTP/2 client and server downgrade service (h2 -> h2) | 300 | 50 | 0 | 0 | 19103.73 | 15.64 | 6.84 | 34 | 99.11 | 17.122 |
-|  HTTP/2 client and server downgrade service (h2 -> h2) | 300 | 1024 | 0 | 0 | 16971.12 | 17.61 | 7.33 | 38 | 99.21 | 17.441 |
-|  HTTP/2 client and server downgrade service (h2 -> h2) | 1000 | 50 | 0 | 0 | 17236.91 | 57.95 | 18.36 | 110 | 97.59 | 20.146 |
-|  HTTP/2 client and server downgrade service (h2 -> h2) | 1000 | 1024 | 0 | 0 | 15692.94 | 63.64 | 19.31 | 118 | 97.76 | 21.122 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h2) | 100 | 50 | 0 | 0 | 16528.5 | 5.84 | 3.01 | 14 | 99.62 | 15.603 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h2) | 100 | 1024 | 0 | 0 | 15417.6 | 6.17 | 2.98 | 14 | 99.65 | 15.608 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h2) | 300 | 50 | 0 | 0 | 17803.59 | 16.38 | 6.97 | 35 | 99.22 | 17.503 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h2) | 300 | 1024 | 0 | 0 | 16609.46 | 17.17 | 7.22 | 37 | 99.27 | 16.76 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h2) | 1000 | 50 | 0 | 0 | 17063.85 | 57.82 | 19.58 | 113 | 97.79 | 21.006 |
-|  Passthrough HTTP/2(over TLS) service (h2 -> h2) | 1000 | 1024 | 0 | 0 | 16338.27 | 58.72 | 20.92 | 121 | 97.89 | 19.678 |
+|  Passthrough HTTP service (h1c -> h1c) | 100 | 50 | 0 | 0 | 23914.69 | 4.14 | 2.8 | 11 | 99.55 |  |
+|  Passthrough HTTP service (h1c -> h1c) | 100 | 1024 | 0 | 0 | 22460.73 | 4.41 | 11.94 | 12 | 99.53 |  |
+|  Passthrough HTTP service (h1c -> h1c) | 300 | 50 | 0 | 0 | 24631.83 | 12.12 | 6.08 | 28 | 99 |  |
+|  Passthrough HTTP service (h1c -> h1c) | 300 | 1024 | 0 | 0 | 22345.54 | 13.36 | 6.27 | 30 | 99.1 |  |
+|  Passthrough HTTP service (h1c -> h1c) | 1000 | 50 | 0 | 0 | 22125.82 | 45.11 | 15.15 | 88 | 97.28 |  |
+|  Passthrough HTTP service (h1c -> h1c) | 1000 | 1024 | 0 | 0 | 21506.65 | 46.41 | 15.86 | 93 | 97.25 |  |
+|  JSON to XML transformation HTTP service | 100 | 50 | 0 | 0 | 15844.64 | 6.27 | 14.49 | 21 | 99.12 | 9483 |
+|  JSON to XML transformation HTTP service | 100 | 1024 | 0 | 0 | 10733.48 | 9.27 | 68.17 | 29 | 98.35 | 11.356 |
+|  JSON to XML transformation HTTP service | 300 | 50 | 0 | 0 | 17372.76 | 17.22 | 20.2 | 40 | 97.8 | 13.183 |
+|  JSON to XML transformation HTTP service | 300 | 1024 | 0 | 0 | 11403.5 | 25.88 | 54.26 | 57 | 95 | 18.805 |
+|  JSON to XML transformation HTTP service | 1000 | 50 | 0 | 0 | 16084.87 | 62.1 | 19.31 | 116 | 93.99 | 10.957 |
+|  JSON to XML transformation HTTP service | 1000 | 1024 | 0 | 0 | 9942.23 | 100.49 | 50 | 159 | 83.06 | 15.043 |
+|  Passthrough HTTPS service (h1 -> h1) | 100 | 50 | 0 | 0 | 20219.47 | 4.9 | 9.07 | 12 | 99.34 | 48.129 |
+|  Passthrough HTTPS service (h1 -> h1) | 100 | 1024 | 0 | 0 | 16192.91 | 6.12 | 3.05 | 14 | 99.43 | 48.133 |
+|  Passthrough HTTPS service (h1 -> h1) | 300 | 50 | 0 | 0 | 20844.17 | 14.33 | 6.53 | 32 | 98.71 | 114.34 |
+|  Passthrough HTTPS service (h1 -> h1) | 300 | 1024 | 0 | 0 | 16707.93 | 17.89 | 7.37 | 38 | 98.84 | 81.473 |
+|  Passthrough HTTPS service (h1 -> h1) | 1000 | 50 | 0 | 0 | 18614.58 | 53.62 | 18.33 | 108 | 96.2 | 150.152 |
+|  Passthrough HTTPS service (h1 -> h1) | 1000 | 1024 | 0 | 0 | 15291.76 | 65.31 | 20.36 | 124 | 96.6 | 149.646 |
+|  JSON to XML transformation HTTPS service | 100 | 50 | 0 | 0 | 14072.79 | 7.06 | 15.34 | 22 | 99 | 47.404 |
+|  JSON to XML transformation HTTPS service | 100 | 1024 | 0 | 0 | 8879.9 | 11.21 | 26.88 | 33 | 98.29 | 48.154 |
+|  JSON to XML transformation HTTPS service | 300 | 50 | 0 | 0 | 15169.94 | 19.72 | 19.67 | 47 | 97.71 | 80.609 |
+|  JSON to XML transformation HTTPS service | 300 | 1024 | 0 | 0 | 9306.64 | 31.39 | 31.22 | 72 | 95.47 | 80.654 |
+|  JSON to XML transformation HTTPS service | 1000 | 50 | 0 | 0 | 13966.35 | 71.52 | 23.96 | 138 | 93.38 | 150.172 |
+|  JSON to XML transformation HTTPS service | 1000 | 1024 | 0 | 0 | 7825.36 | 127.7 | 37.82 | 215 | 84.62 | 149.614 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 100 | 50 | 0 | 0 | 18202.05 | 5.22 | 2.84 | 12 | 99.57 | 15.75 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 100 | 1024 | 0 | 0 | 17178.53 | 5.36 | 2.76 | 13 | 99.59 | 15.723 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 300 | 50 | 0 | 0 | 19022.6 | 14.99 | 6.92 | 33 | 99.01 | 16.221 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 300 | 1024 | 0 | 0 | 17807.41 | 15.39 | 7.06 | 35 | 99.08 | 16.223 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 1000 | 50 | 0 | 0 | 17581.33 | 55.62 | 20.27 | 116 | 97.1 | 17.299 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h1c) | 1000 | 1024 | 0 | 0 | 16778.28 | 56.4 | 21.86 | 124 | 97.24 | 17.278 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h1) | 100 | 50 | 0 | 0 | 16910.36 | 5.65 | 2.93 | 13 | 99.29 | 47.761 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h1) | 100 | 1024 | 0 | 0 | 15646.71 | 5.99 | 2.93 | 14 | 99.37 | 47.567 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h1) | 300 | 50 | 0 | 0 | 17049.35 | 16.94 | 7.41 | 37 | 98.74 | 50.009 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h1) | 300 | 1024 | 0 | 0 | 16053.85 | 17.48 | 7.52 | 39 | 98.72 | 49.665 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h1) | 1000 | 50 | 0 | 0 | 15981.14 | 61.32 | 21.48 | 125 | 96.33 | 52.85 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h1) | 1000 | 1024 | 0 | 0 | 14785.51 | 64.15 | 23.49 | 135 | 96.39 | 84.831 |
+|  HTTP/2 client and server downgrade service (h2 -> h2) | 100 | 50 | 0 | 0 | 20523.51 | 4.82 | 2.83 | 12 | 99.57 | 16.22 |
+|  HTTP/2 client and server downgrade service (h2 -> h2) | 100 | 1024 | 0 | 0 | 17766.94 | 5.57 | 2.97 | 13 | 99.62 | 16.055 |
+|  HTTP/2 client and server downgrade service (h2 -> h2) | 300 | 50 | 0 | 0 | 20830.81 | 14.33 | 6.55 | 31 | 99.09 | 16.745 |
+|  HTTP/2 client and server downgrade service (h2 -> h2) | 300 | 1024 | 0 | 0 | 18434 | 16.2 | 6.96 | 35 | 99.19 | 17.878 |
+|  HTTP/2 client and server downgrade service (h2 -> h2) | 1000 | 50 | 0 | 0 | 18797.78 | 53.12 | 17.46 | 103 | 97.5 | 19.47 |
+|  HTTP/2 client and server downgrade service (h2 -> h2) | 1000 | 1024 | 0 | 0 | 17162.7 | 58.16 | 18.81 | 112 | 97.68 | 21.704 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h2) | 100 | 50 | 0 | 0 | 18679.15 | 5.08 | 2.95 | 13 | 99.61 | 15.913 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h2) | 100 | 1024 | 0 | 0 | 17127.65 | 5.41 | 3.1 | 15 | 99.64 | 15.932 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h2) | 300 | 50 | 0 | 0 | 20145.06 | 14.17 | 6.76 | 32 | 99.17 | 18.463 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h2) | 300 | 1024 | 0 | 0 | 18167.56 | 15.21 | 6.95 | 34 | 99.25 | 17.469 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h2) | 1000 | 50 | 0 | 0 | 19023.99 | 50.83 | 18.53 | 103 | 97.78 | 18.28 |
+|  Passthrough HTTP/2(over TLS) service (h2 -> h2) | 1000 | 1024 | 0 | 0 | 17908.6 | 52.86 | 21.02 | 123 | 97.9 | 21.55 |

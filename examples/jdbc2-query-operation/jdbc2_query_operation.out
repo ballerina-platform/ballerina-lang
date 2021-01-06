@@ -1,6 +1,6 @@
 #  To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run jdbc2_query_operation.bal
+# `.bal` file and execute the `ballerina run` command below.
+ballerina run jdbc2_query_operation.bal
 
 ------ Start Simple Query -------
 Full Customer details: CUSTOMERID=1 FIRSTNAME=Peter LASTNAME=Stuart REGISTRATIONID=1 CREDITLIMIT=5000.75 COUNTRY=USA

@@ -16,7 +16,6 @@
 
 import ballerina/http;
 
-
 const string DEFAULT_HOST = "0.0.0.0";
 const int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
 const string DEFAULT_SIGNATURE_METHOD = "SHA256";
@@ -36,6 +35,11 @@ RemotePublishConfig remotePublishConfig = {};
 boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
 http:ClientConfiguration? hubClientConfig = ();
+
+function (WebSubContent content)? tapOnMessageFunction = ();
+function (string callback, string topic, WebSubContent content)? tapOnDeliveryFunction = ();
+function (string callback, string topic, WebSubContent content, http:Response|error response, FailureReason reason)?
+                  tapOnDeliveryFailureFunction = ();
 
 HubPersistenceStore? hubPersistenceStoreImpl = ();
 boolean hubPersistenceEnabled = false;

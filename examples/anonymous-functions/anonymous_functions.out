@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run anonymous_functions.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run anonymous_functions.bal
 Output: Hello World.!!!
 Output: Ballerina is an open source programming language.
 Output: Hello World.!!!

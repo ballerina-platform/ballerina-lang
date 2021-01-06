@@ -1,1 +1,19 @@
-//The `ballerina/config` module provides an API to read configurations from various sources such as files, environment variables and CLI parameters.
+// The Ballerina Config API allows you to look up values from configuration
+// files, CLI parameters, and environment variables. The precedence order for
+// configuration resolution is as follows: <br/>
+//
+// * CLI parameters
+// * Environment variables
+// * Configuration files
+//
+// If a specific configuration defined in the file is also defined as an
+// environment variable, the environment variable takes precedence. Similarly,
+// if the same is set as a CLI parameter, it replaces the environment
+// variable value.
+//
+// If a mapping does not exist for the specified key, the default value
+// is returned as the configuration value. The default values of these
+// optional configurations are the default values of the return types of
+// the functions. <br/><br/>
+// For more information on the underlying module, 
+// see the [Config module](https://ballerina.io/learn/api-docs/ballerina/config/index.html).

@@ -193,5 +193,5 @@ function weakValidatorEquals(string etag1, string etag2) returns boolean {
 }
 
 function getCacheKey(string httpMethod, string url) returns string {
-    return httpMethod + " " + url;
+    return string `${httpMethod} ${url}`;
 }

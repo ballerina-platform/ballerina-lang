@@ -746,4 +746,16 @@ public class RequestNativeFunctionSuccessTest {
                            "No cookie objects in the Return Values");
         Assert.assertTrue(returnVals.length == 1);
     }
+
+    @Test
+    public void testGetCookiesWithEmptyValue() {
+        ObjectValue inRequest = createRequestObject();
+        ObjectValue entity = createEntityObject();
+        inRequest.set(REQUEST_ENTITY_FIELD, entity);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetCookiesWithEmptyValue",
+                new Object[]{inRequest});
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null,
+                "No cookie objects in the Return Values");
+        Assert.assertEquals(returnVals.length, 1);
+    }
 }

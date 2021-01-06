@@ -44,6 +44,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_STAGE_CENTRAL;
 
 /**
  * Test case for building and pushing a native module and then using it in a module.
@@ -165,7 +166,7 @@ public class NativePackagingTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
-        envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
+        envVariables.put(BALLERINA_STAGE_CENTRAL, "true");
         return envVariables;
     }
     

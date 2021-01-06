@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run functions_with_rest_parameter.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run functions_with_rest_parameter.bal
 Name: Alice, Age: 18
 Name: Bob, Age: 20
 Name: Corey, Age: 19, Module(s): Math

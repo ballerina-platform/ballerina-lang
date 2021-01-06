@@ -1,5 +1,5 @@
-To use the client, execute the below cURL command. 
-$ curl http://localhost:9092/chunkingSample
+To use the client, execute the cURL command below. 
+curl http://localhost:9092/chunkingSample
 {"Outbound request content":"Length-20"}
 
 To enable chunking, change the chunking option of the `clientEndpoint` in the `.bal` file to `http:CHUNKING_ALWAYS`.

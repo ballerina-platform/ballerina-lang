@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command with the --experimental option.
-$ ballerina run --experimental local_transactions_with_participants.bal
+# `.bal` file, and execute the `ballerina run` command  below with the --experimental option.
+ballerina run --experimental local_transactions_with_participants.bal
 
 2020-03-18 11:57:09,328 INFO  [ballerina/transactions] - Created transaction: bf592603-4639-4c16-9daf-605b8e131470 
 2020-03-18 11:57:09,343 INFO  [ballerina/transactions] - Registered local participant: 5ca42804-876c-4a69-9b34-8bc537c8d87a:$anon$.$1 for transaction:bf592603-4639-4c16-9daf-605b8e131470 

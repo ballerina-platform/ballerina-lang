@@ -38,14 +38,14 @@ type TwoPhaseCommitTransaction object {
 
     // This function will be called by the initiator
     function twoPhaseCommit() returns string|error {
-        log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:%s", self.transactionId,
+        log:printDebug(io:sprintf("Running 2-phase commit for transaction: %s:%s", self.transactionId,
                 self.transactionBlockId));
         string|error ret = "";
 
         // Prepare local resource managers
         boolean localPrepareSuccessful = prepareResourceManagers(self.transactionId, self.transactionBlockId);
         if (!localPrepareSuccessful) {
-            log:printInfo("Local prepare failed, aborting..");
+            log:printDebug("Local prepare failed, aborting..");
             var result = self.notifyParticipants(COMMAND_ABORT, ());
             if (result is error) {
                 return "hazard";
@@ -137,13 +137,14 @@ type TwoPhaseCommitTransaction object {
     function markForAbortion() returns error? {
         if (self.isInitiated) {
             self.state = TXN_STATE_ABORTED;
-            log:printInfo("Marked initiated transaction for abortion");
+            log:printDebug("Marked initiated transaction for abortion");
         } else { // participant
             boolean successful = abortResourceManagers(self.transactionId, self.transactionBlockId);
             string participatedTxnId = getParticipatedTransactionId(self.transactionId, self.transactionBlockId);
             if (successful) {
                 self.state = TXN_STATE_ABORTED;
-                log:printInfo("Marked participated transaction for abort. Transaction:" + participatedTxnId);
+                log:printDebug(() => io:sprintf("Marked participated transaction for abort. Transaction: %s",
+                        participatedTxnId));
             } else {
                 string msg = "Aborting local resource managers failed for participated transaction:" +
                     participatedTxnId;
@@ -240,7 +241,7 @@ type TwoPhaseCommitTransaction object {
 
     // This function will be called by the initiator
     function abortInitiatorTransaction() returns string|error {
-        log:printInfo(io:sprintf("Aborting initiated transaction: %s:%s", self.transactionId, self.transactionBlockId));
+        log:printDebug(io:sprintf("Aborting initiated transaction: %s:%s", self.transactionId, self.transactionBlockId));
         string|error ret = "";
         // return response to the initiator. ( Aborted | Mixed )
         var result = self.notifyParticipants(COMMAND_ABORT, ());
@@ -275,7 +276,7 @@ type TwoPhaseCommitTransaction object {
         string participatedTxnId = getParticipatedTransactionId(self.transactionId, self.transactionBlockId);
         if (successful) {
             self.state = TXN_STATE_ABORTED;
-            log:printInfo("Local participant aborted transaction: " + participatedTxnId);
+            log:printDebug(() => io:sprintf("Local participant aborted transaction: %s", participatedTxnId));
         } else {
             string msg = "Aborting local resource managers failed for transaction:" + participatedTxnId;
             log:printError(msg);

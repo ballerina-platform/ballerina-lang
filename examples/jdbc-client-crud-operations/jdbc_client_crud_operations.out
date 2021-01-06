@@ -1,6 +1,6 @@
 # At the command line, navigate to the directory that contains the
-# `.bal` file and run the `ballerina run` command.
-$ ballerina run jdbc_client_crud_operations.bal
+# `.bal` file and run the `ballerina run` command below.
+ballerina run jdbc_client_crud_operations.bal
 The update operation - Creating a table
 Create student table status: 0
 

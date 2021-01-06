@@ -266,6 +266,19 @@ public type ClientHttp1Settings record {|
     ProxyConfig? proxy = ();
 |};
 
+# Provides inbound response status line, total header and entity body size threshold configurations.
+#
+# + maxStatusLineLength - Maximum allowed length for response status line(`HTTP/1.1 200 OK`). Exceeding this limit will
+#                         result in a `ClientError`
+# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a `ClientError`
+# + maxEntityBodySize - Maximum allowed size for the entity body. By default it is set to -1 which means there is no
+#                       restriction `maxEntityBodySize`, On the Exceeding this limit will result in a `ClientError`
+public type ResponseLimitConfigs record {|
+    int maxStatusLineLength = 4096;
+    int maxHeaderSize = 8192;
+    int maxEntityBodySize = -1;
+|};
+
 function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolConfig) = @java:Method {
    class: "org.ballerinalang.net.http.clientendpoint.CreateSimpleHttpClient",
    name: "createSimpleHttpClient"
@@ -330,12 +343,17 @@ public type ClientSecureSocket record {|
 |};
 
 # Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.
+# The response status codes of 301, 302, and 303 are redirected using a GET request while 300, 305, 307, and 308
+# status codes use the original request HTTP method during redirection.
 #
 # + enabled - Enable/disable redirection
 # + maxCount - Maximum number of redirects to follow
+# + allowAuthHeaders - By default Authorization and Proxy-Authorization headers are removed from the redirect requests.
+#                      Set it to true if Auth headers are needed to be sent during the redirection
 public type FollowRedirects record {|
     boolean enabled = false;
     int maxCount = 5;
+    boolean allowAuthHeaders = false;
 |};
 
 # Proxy server configurations to be used with the HTTP client endpoint.

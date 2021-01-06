@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run match.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run match.bal
 value is: 0
 value is: 1
 value is: 2

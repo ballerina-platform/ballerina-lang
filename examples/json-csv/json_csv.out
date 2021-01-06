@@ -1,4 +1,4 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run json_csv.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run json_csv.bal
 json record successfully transformed to a csv, file could be found in ./files/sample.csv

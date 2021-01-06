@@ -2,8 +2,8 @@
 // 0th second of a minute. The sample will print logs once every two seconds.
 //
 # To start the service, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run task_service_appointment.bal
+# `.bal` file and execute the `ballerina run` command below.
+ballerina run task_service_appointment.bal
 2019-09-06 13:35:28,259 INFO  [ballerina/log] - Cleaning up...
 2019-09-06 13:35:28,260 INFO  [ballerina/log] - 0
 2019-09-06 13:35:29,004 INFO  [ballerina/log] - Cleaning up...

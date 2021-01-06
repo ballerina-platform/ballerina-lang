@@ -177,7 +177,7 @@ public class TestDAPClientConnector {
             requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
             requestArgs.put(CONFIG_BAL_HOME, balHome);
             if (launchKind == DebugUtils.DebuggeeExecutionKind.TEST) {
-                requestArgs.put(CONFIG_IS_TEST_CMD, Boolean.toString(true));
+                requestArgs.put(CONFIG_IS_TEST_CMD, true);
             }
             requestManager.launch(requestArgs);
         } catch (Exception e) {

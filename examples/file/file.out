@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run file.bal
+# `.bal` file and execute the `ballerina run` command below.
+ballerina run file.bal
 Current directory: /A/B
 Created directory path: /A/B/foo
 Created nested directory path: /A/B/foo/bar

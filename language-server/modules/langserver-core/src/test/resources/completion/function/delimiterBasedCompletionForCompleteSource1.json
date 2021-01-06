@@ -1,10 +1,10 @@
 {
     "position": {
-        "line": 2,
-        "character": 47
+        "line":2,
+        "character":47
     },
     "source": "function/source/delimiterBasedCompletionForCompleteSource1.bal",
-    "items": [
+    "items":[
         {
             "label": "AUTH_HEADER",
             "kind": "Variable",
@@ -152,7 +152,7 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                    "value": "Indicates that the client is only accepting responses whose freshness lifetime \u003e\u003d current age + min-fresh."
+                    "value": "Indicates that the client is only accepting responses whose freshness lifetime >= current age + min-fresh."
                 }
             },
             "sortText": "130",
@@ -1305,6 +1305,20 @@
             },
             "sortText": "130",
             "insertText": "PRAGMA",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "PROXY_AUTHORIZATION",
+            "kind": "Variable",
+            "detail": "string",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "HTTP header key `proxy-authorization`. Contains the credentials to authenticate a user agent to a proxy serve."
+                }
+            },
+            "sortText": "130",
+            "insertText": "PROXY_AUTHORIZATION",
             "insertTextFormat": "Snippet"
         },
         {
@@ -2481,6 +2495,17 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "ResponseLimitConfigs",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides inbound response status line, total header and entity body size threshold configurations.\n"
+            },
+            "sortText": "180",
+            "insertText": "ResponseLimitConfigs",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "ClientHttp2Settings",
             "kind": "Struct",
             "detail": "Record",
@@ -2518,7 +2543,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
+                "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\nThe response status codes of 301, 302, and 303 are redirected using a GET request while 300, 305, 307, and 308\nstatus codes use the original request HTTP method during redirection.\n"
             },
             "sortText": "180",
             "insertText": "FollowRedirects",
@@ -2606,7 +2631,7 @@
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+                "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
             },
             "sortText": "190",
             "insertText": "HttpFuture",
@@ -3349,7 +3374,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides a set of HTTP related configurations and failover related configurations.\nFollowing fields are inherited from the other configuration records in addition to the failover client specific\nconfigs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n"
+                "left": "Provides a set of HTTP related configurations and failover related configurations.\nFollowing fields are inherited from the other configuration records in addition to the failover client specific\nconfigs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n| responseLimits - Copied from CommonClientConfiguration  |\n"
             },
             "sortText": "180",
             "insertText": "FailoverClientConfiguration",
@@ -3510,7 +3535,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "The configurations related to the load balance client endpoint. Following fields are inherited from the other\nconfiguration records in addition to the load balance client specific configs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n"
+                "left": "The configurations related to the load balance client endpoint. Following fields are inherited from the other\nconfiguration records in addition to the load balance client specific configs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n| responseLimits - Copied from CommonClientConfiguration  |\n"
             },
             "sortText": "180",
             "insertText": "LoadBalanceClientConfiguration",
@@ -3569,6 +3594,17 @@
             },
             "sortText": "180",
             "insertText": "ListenerHttp1Settings",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RequestLimitConfigs",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides inbound request URI, total header and entity body size threshold configurations.\n"
+            },
+            "sortText": "180",
+            "insertText": "RequestLimitConfigs",
             "insertTextFormat": "Snippet"
         },
         {
@@ -3900,13 +3936,13 @@
             }
         },
         {
-            "label": "parseHeader(string headerValue)(([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
+            "label": "parseHeader(string headerValue)(([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                    "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails  \n  \n"
+                    "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails  \n  \n"
                 }
             },
             "sortText": "120",

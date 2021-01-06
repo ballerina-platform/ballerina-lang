@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run type_cast.bal
+# `.bal` file and execute the `ballerina run` command below.
+ballerina run type_cast.bal
 Person Name: Jane Doe
 Person Age: 25
 Employee Name: Jane Doe

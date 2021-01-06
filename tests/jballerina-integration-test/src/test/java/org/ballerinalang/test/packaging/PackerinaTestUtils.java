@@ -32,8 +32,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_DEV_STAGE_CENTRAL;
-
 /**
  * Util methods needed for Packaging test cases.
  *
@@ -98,13 +96,8 @@ public class PackerinaTestUtils {
      * @return token required to push the module.
      */
     public static String getToken() {
-        if (BALLERINA_DEV_STAGE_CENTRAL) {
-            // staging
-            return new String(Base64.getDecoder().decode("MTAzNDcwNDUtOTViOS0zOGVkLTgwNGUtYWYwMmZhMDllNjdi"));
-        } else {
-            // preprod
-            return new String(Base64.getDecoder().decode("ZjBkMTY5OTctYmFiNi0zOWY1LWJjZGQtNzEzNDAwNmMxYzI2"));
-        }
+        // staging and dev both has the same access token
+        return new String(Base64.getDecoder().decode("YWYwMjkyODgtNjhkZC0zOTVmLTk5MzQtYTgyYWRjM2NlYzZi"));
     }
 
     /**

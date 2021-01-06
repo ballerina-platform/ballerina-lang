@@ -1,6 +1,6 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run response_with_multiparts.bal
+# `.bal` file and use the `ballerina run` command below.
+ballerina run response_with_multiparts.bal
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9090
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9092
 2018-11-30 08:43:53,163 INFO  [ballerina/log] - Nested Parts Detected!

@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run any_type.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run any_type.bal
 Full name: John Doe
 First name: John
 1 3 5 6

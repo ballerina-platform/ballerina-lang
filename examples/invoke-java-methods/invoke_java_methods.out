@@ -1,4 +1,4 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run invoke-java-methods.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run invoke-java-methods.bal
 John

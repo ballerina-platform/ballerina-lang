@@ -2,6 +2,6 @@
 // resource path and invoke the service using cURL. Note that it is required
 // to provide the correct bearer authentication header with the cURL command.
 // It will get validated against the introspection server.
-$ curl -k -H "Authorization: Bearer YWRtaW46MTIz" \
+curl -k -H "Authorization: Bearer YWRtaW46MTIz" \
 https://localhost:9090/hello/sayHello
 Hello, World!!!

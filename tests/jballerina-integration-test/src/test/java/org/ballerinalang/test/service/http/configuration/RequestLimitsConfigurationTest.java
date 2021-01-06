@@ -81,10 +81,22 @@ public class RequestLimitsConfigurationTest extends HttpBaseTest {
 
     @Test(description = "Tests the behaviour when header size is greater than the configured threshold")
     public void testInvalidHeaderLength() {
-        String expectedMessage = "413 Request Entity Too Large";
+        String expectedMessage = "431 Request Header Fields Too Large";
         HttpClient httpClient = new HttpClient(TEST_HOST, 9236);
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
                                             "/lowRequestHeaderLimit/invalidHeaderSize");
+        httpRequest.headers().set("X-Test", getLargeHeader());
+        FullHttpResponse httpResponse = httpClient.sendRequest(httpRequest);
+        Assert.assertNotNull(httpResponse, "Response is empty.");
+        Assert.assertEquals(httpResponse.status().toString(), expectedMessage, "Response status does not match.");
+    }
+
+    @Test(description = "Tests the fallback behaviour when header size is greater than the configured http2 service")
+    public void testHttp2ServiceInvalidHeaderLength() {
+        String expectedMessage = "431 Request Header Fields Too Large";
+        HttpClient httpClient = new HttpClient(TEST_HOST, 9265);
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
+                                            "/http2service/invalidHeaderSize");
         httpRequest.headers().set("X-Test", getLargeHeader());
         FullHttpResponse httpResponse = httpClient.sendRequest(httpRequest);
         Assert.assertNotNull(httpResponse, "Response is empty.");

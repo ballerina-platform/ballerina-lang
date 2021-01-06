@@ -70,7 +70,7 @@ public type ReadableCSVChannel object {
 
 # Gets the next record from the CSV file.
 # ```ballerina
-# string[]|io:Error record = readableCSVChannel.getNext();
+# string[]|io:Error? record = readableCSVChannel.getNext();
 # ```
 #
 # + return - List of fields in the CSV or else an `io:Error`

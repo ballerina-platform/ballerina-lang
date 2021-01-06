@@ -19,55 +19,54 @@
 public type LruEvictionPolicy object {
 
     *AbstractEvictionPolicy;
+    LinkedList linkedList;
+
+    # Called when a new `cache:LruEvictionPolicy` object is created.
+    public function __init() {
+        self.linkedList = new LinkedList();
+    }
 
     # Updates the linked list based on the get operation related to the LRU eviction algorithm.
     #
-    # + list - Linked list data structure, which is used to govern the eviction policy
     # + node - Node of the linked list, which is retrieved
-    public function get(LinkedList list, Node node) {
-        remove(list, node);
-        addFirst(list, node);
+    public function get(Node node) {
+        self.linkedList.remove(node);
+        self.linkedList.addFirst(node);
     }
 
     # Updates the linked list based on the put operation related to the LRU eviction algorithm.
     #
-    # + list - Linked list data structure, which is used to govern the eviction policy
     # + node - Node of the linked list, which is added newly
-    public function put(LinkedList list, Node node) {
-        addFirst(list, node);
+    public function put(Node node) {
+        self.linkedList.addFirst(node);
     }
 
     # Updates the linked list based on the remove operation related to the LRU eviction algorithm.
     #
-    # + list - Linked list data structure, which is used to govern the eviction policy
     # + node - Node of the linked list, which is deleted
-    public function remove(LinkedList list, Node node) {
-        remove(list, node);
+    public function remove(Node node) {
+        self.linkedList.remove(node);
     }
 
     # Updates the linked list based on the replace operation related to the LRU eviction algorithm.
     #
-    # + list - Linked list data structure, which is used to govern the eviction policy
     # + newNode - Node of the linked list, which will be replacing the `oldNode`
     # + oldNode - Node of the linked list, which will be replaced by the `newNode`
-    public function replace(LinkedList list, Node newNode, Node oldNode) {
-        remove(list, oldNode);
-        addFirst(list, newNode);
+    public function replace(Node newNode, Node oldNode) {
+        self.linkedList.remove(oldNode);
+        self.linkedList.addFirst(newNode);
     }
 
     # Updates the linked list based on the clear operation related to the LRU eviction algorithm.
-    #
-    # + list - Linked list data structure, which is used to govern the eviction policy
-    public function clear(LinkedList list) {
-        clear(list);
+    public function clear() {
+        self.linkedList.clear();
     }
 
     # Updates the linked list based on the evict operation.
     #
-    # + list - Linked list data structure, which is used to govern the eviction policy
     # + return - The Node, which is evicted from the linked list or `()` if nothing to be evicted
-    public function evict(LinkedList list) returns Node? {
-        return removeLast(list);
+    public function evict() returns Node? {
+        return self.linkedList.removeLast();
     }
 
 };

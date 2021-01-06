@@ -37,6 +37,7 @@
             <class name="org.ballerinalang.test.service.http.HttpBaseTest"/>
             <class name="org.ballerinalang.test.service.http.configuration.AcceptEncodingHeaderTestCase"/>
             <class name="org.ballerinalang.test.service.http.configuration.RequestLimitsConfigurationTest"/>
+            <class name="org.ballerinalang.test.service.http.configuration.ResponseLimitsConfigurationTest"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpHeaderTestCases"/>
             <class name="org.ballerinalang.test.service.http.sample.RedirectTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.RoutingServiceSampleTestCase"/>
@@ -190,7 +191,8 @@
             <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
             <class name="org.ballerinalang.test.service.websocket.RetryClientTest"/>
-<!--            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>-->
+            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>
+            <class name="org.ballerinalang.test.service.websocket.AuthenticationTest"/>
         </classes>
     </test>
 
@@ -302,26 +304,26 @@
         </classes>
     </test>
 
-<!--    <test name="ballerina-packerina-tests" parallel="false">-->
-<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
-<!--        <groups>-->
-<!--            <run>-->
-<!--                <exclude name="brokenOnJBallerina"/>-->
-<!--            </run>-->
-<!--        </groups>-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>-->
-<!--            &lt;!&ndash;            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>&ndash;&gt;-->
-<!--            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.CustomHomeCacheTest"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="ballerina-packerina-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
+            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
+            <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
+            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
+            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>
+            <class name="org.ballerinalang.test.packaging.CustomHomeCacheTest"/>
+        </classes>
+    </test>
 
     <test name="ballerina-task-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>

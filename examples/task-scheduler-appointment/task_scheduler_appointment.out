@@ -2,8 +2,8 @@
 // every 2 seconds up to 5 reminders. When the reminder count reaches 5,
 // the task scheduler will stop running.
 # To start the service, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run task_scheduler_appointment.bal
+# `.bal` file and execute the `ballerina run` command below.
+ballerina run task_scheduler_appointment.bal
 Schedule is due - Reminder: 1
 Schedule is due - Reminder: 2
 Schedule is due - Reminder: 3

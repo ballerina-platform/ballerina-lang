@@ -26,7 +26,7 @@ target = "java8"
     modules = ["samplemodule"]
 ``` 
 
-Or, if you're trying to run a single bal file, you can copy the JDBC driver into `${BALLERINA_HOME}/bre/lib` and 
+Or, if you're trying to run a single bal file, you can copy the JDBC driver into `<BALLERINA_HOME>/bre/lib/distributions/jballerina-<VERSION>/bre/lib` and 
 run the bal file with `ballerina run` command.
 
 ### Client

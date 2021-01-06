@@ -28,10 +28,8 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
-import org.ballerinalang.docgen.generator.model.Construct;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.PageContext;
-import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.Variable;
 
@@ -109,23 +107,6 @@ public class Writer {
                 newDescription = newDescription.replaceAll("\\.(.|\\n)*", ".");
                 return newDescription;
             });
-            // used to check if all constructs in the list are anonymous
-            handlebars.registerHelper("areAllAnonymous", (Helper<List<Construct>>) (consList, options) -> {
-                if (consList.get(0) instanceof Record) {
-                    for (Construct construct: consList) {
-                        if (!((Record) construct).isAnonymous) {
-                            return false;
-                        }
-                    }
-                } else if (consList.get(0) instanceof org.ballerinalang.docgen.generator.model.Object) {
-                    for (Construct construct: consList) {
-                        if (!((org.ballerinalang.docgen.generator.model.Object) construct).isAnonymous) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            });
 
             handlebars.registerHelper("setStyles", (Helper<String>) (description, options) -> {
                 //set css for table tags
@@ -134,11 +115,10 @@ public class Writer {
                 return newDescription;
             });
 
-            handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
-                //remove paragraph tags
+            handlebars.registerHelper("removeTags", (Helper<String>) (string, options) -> {
+                //remove html tags
                 if (string != null) {
-                    String newString = string.replaceAll("<\\/?p>", "");
-                    return newString;
+                    return string.replaceAll("<\\/?[^>]*>", "");
                 } else {
                     return "";
                 }
@@ -202,6 +182,13 @@ public class Writer {
         } else if (type.isArrayType) {
             label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
                     + "</span>";
+        } else if (type.isRestParam) {
+            label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
+                    + "</span>";
+        } else if ("map".equals(type.category) && type.constraint != null) {
+            // set map constraint
+            label = "<span class=\"builtin-type\">" + type.name + "</span><" +
+                    getTypeLabel(type.constraint, context) + ">";
         } else if ("stream".equals(type.category)) {
             label = "<span class=\"builtin-type\">" + type.name + "<";
             label += type.memberTypes.stream()
@@ -240,7 +227,12 @@ public class Writer {
     }
 
     private static String getSuffixes(Type type) {
-        String suffix = type.isArrayType ? StringUtils.repeat("[]", type.arrayDimensions) : "";
+        String suffix = "";
+        if (type.isArrayType) {
+            suffix = StringUtils.repeat("[]", type.arrayDimensions);
+        } else if (type.isRestParam) {
+            suffix = "...";
+        }
         suffix += type.isNullable ? "?" : "";
         return suffix;
     }

@@ -1,5 +1,5 @@
 // Invoke the service using "curl".
-$ curl -v http://localhost:9090/timeout
+curl -v http://localhost:9090/timeout
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)

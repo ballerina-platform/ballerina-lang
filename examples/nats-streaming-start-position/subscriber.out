@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
+# `.bal` file, and execute the `ballerina run` command below.
 # When you start the subscriber after publishing several messages,
 # You'll notice that,
 # 1. `receiveSinceTimeDelta` service receives the messages if
@@ -14,7 +14,7 @@
 # 5. `receiveNewOnly` service receives only the messages, which are
 #    published after the subscriber starts.
 
-$ ballerina run subscriber.bal
+ballerina run subscriber.bal
 
 [ballerina/nats] Connection established with server nats://localhost:4222
 Message Received to service receiveSinceTimeDelta: Third Message

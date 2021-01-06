@@ -190,7 +190,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         updateProjectRoot(balFile);
         try {
             launchedProcess = launcher.start();
-        } catch (IOException e) {
+        } catch (Exception e) {
             sendOutput("Unable to launch debug adapter: " + e.toString(), STDERR);
             return CompletableFuture.completedFuture(null);
         }

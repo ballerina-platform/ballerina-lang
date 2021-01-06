@@ -1,6 +1,6 @@
 # To run the client, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run udp_socket_client.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run udp_socket_client.bal
 
 # This will print the below output upon a successful write.
 Number of bytes written: 21

@@ -17,26 +17,33 @@
 import ballerina/http;
 
 http:ListenerConfiguration urlLimitConfig = {
-    http1Settings: {
+    requestLimits: {
         maxUriLength: 1024
     }
 };
 
 http:ListenerConfiguration lowUrlLimitConfig = {
-    http1Settings: {
+    requestLimits: {
         maxUriLength: 2
     }
 };
 
 http:ListenerConfiguration lowHeaderConfig = {
-    http1Settings: {
+    requestLimits: {
         maxHeaderSize: 30
     }
 };
 
 http:ListenerConfiguration midSizeHeaderConfig = {
-    http1Settings: {
+    requestLimits: {
         maxHeaderSize: 100
+    }
+};
+
+http:ListenerConfiguration http2lowHeaderConfig = {
+    httpVersion: "2.0",
+    requestLimits: {
+        maxHeaderSize: 30
     }
 };
 
@@ -44,6 +51,7 @@ listener http:Listener normalRequestLimitEP = new(9234, urlLimitConfig);
 listener http:Listener lowRequestLimitEP = new(9235, lowUrlLimitConfig);
 listener http:Listener lowHeaderLimitEP = new(9236, lowHeaderConfig);
 listener http:Listener midHeaderLimitEP = new(9237, midSizeHeaderConfig);
+listener http:Listener http2HeaderLimitEP = new(9265, http2lowHeaderConfig);
 
 @http:ServiceConfig {basePath:"/requestUriLimit"}
 service urlLimitService on normalRequestLimitEP {
@@ -89,6 +97,18 @@ service headerLimitService on midHeaderLimitEP {
         path:"/validHeaderSize"
     }
     resource function validHeader(http:Caller caller, http:Request req) {
+        checkpanic caller->respond("Hello World!!!");
+    }
+}
+
+@http:ServiceConfig {basePath:"/http2service"}
+service http2HeaderLimitService on http2HeaderLimitEP {
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/invalidHeaderSize"
+    }
+    resource function invalidHeader(http:Caller caller, http:Request req) {
         checkpanic caller->respond("Hello World!!!");
     }
 }

@@ -37,6 +37,7 @@ import java.util.Map;
 
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_STAGE_CENTRAL;
 
 /**
  * Testing negative scenarios for pushing, pulling, searching a package from central to
@@ -120,7 +121,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         moduleBuildLeecher.waitForText(5000);
     }
 
-    @Test(description = "Test pushing a module to central without any content in Module.md", enabled = false)
+    @Test(description = "Test pushing a module to central without any content in Module.md")
     public void testPushWithoutModuleMDContent() throws Exception {
         Path projectPath = Files.createDirectories(tempProjectDirectory).resolve("projectWithoutModuleMDContent");
         createProjectStructureAndGetProjectPath(projectPath, moduleName);
@@ -328,7 +329,7 @@ public class PackagingNegativeTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
-        envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
+        envVariables.put(BALLERINA_STAGE_CENTRAL, "true");
         envVariables.put("BALLERINA_CENTRAL_ACCESS_TOKEN", PackerinaTestUtils.getToken());
         return envVariables;
     }

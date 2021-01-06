@@ -160,7 +160,9 @@ public class TransactionResourceManager {
             // resource participant reported failure.
             status = false;
         }
-        log.info(String.format("Transaction prepare (participants): %s", status ? "success" : "failed"));
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Transaction prepare (participants): %s", status ? "success" : "failed"));
+        }
         return status;
     }
 

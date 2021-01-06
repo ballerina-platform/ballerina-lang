@@ -29,7 +29,7 @@
 
 # ---------------------- Override JAVA_HOME for Installers -------------------
 DIR="$(cd "$(dirname "$0")" && pwd)"
-JAVA_PATH="$DIR/../../../../../../dependencies/jdk8u202-b08-jre"
+JAVA_PATH="$DIR/../../../../../../dependencies/jdk8u265-b01-jre"
 if test -d "$JAVA_PATH"; then
   JAVA_HOME=$JAVA_PATH
 fi

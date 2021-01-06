@@ -348,7 +348,17 @@ function getResponseForIntrospectRequest(http:Request req, string authorizationH
                 }
             }
             if (tokenAvailable) {
-                json responsePayload = { "active": true };
+                json responsePayload = { "active": true,
+                                         "client_id": "l238j323ds-23ij4",
+                                         "username": "jdoe",
+                                         "scope": "read write dolphin",
+                                         "sub": "Z5O3upPC88QrAjx00dis",
+                                         "aud": "https://protected.example.net/resource",
+                                         "iss": "https://server.example.com/",
+                                         "exp": 1419356238,
+                                         "iat": 1419350238,
+                                         "extension_field": "twenty-seven"
+                                       };
                 res.setPayload(responsePayload);
             } else {
                 json responsePayload = { "active": false };

@@ -253,12 +253,15 @@ public class EventBus {
             Optional<Location> firstLocation =
                     allLineLocations.stream().min(Comparator.comparingInt(Location::lineNumber));
             // We are going to add breakpoints for each and every line and continue the debugger.
-
             if (!firstLocation.isPresent()) {
                 return;
             }
-            int nextStepPoint = firstLocation.get().lineNumber();
+            if (currentLocation.lineNumber() == lastLocation.get().lineNumber()) {
+                createStepRequest(threadId, StepRequest.STEP_OUT);
+                return;
+            }
 
+            int nextStepPoint = currentLocation.lineNumber();
             while (true) {
                 List<Location> locations = referenceType.locationsOfLine(nextStepPoint);
                 if (locations.size() > 0) {
@@ -339,5 +342,4 @@ public class EventBus {
             return relativePath.toString();
         }
     }
-
 }

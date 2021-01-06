@@ -69,7 +69,7 @@ public class ClientErrorsTest extends WebSocketTestCommons {
         sendTextAndAssertResponse(
                 "ssl",
                 "error {ballerina/http}WsGenericError message=SSL/TLS Error cause=error {ballerina/http}SslError " +
-                        "message=handshake timed out");
+                        "message=handshake timed out after 10000ms");
     }
 
     @Test(description = "The frame exceeds the max frame length")

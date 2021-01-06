@@ -1,6 +1,6 @@
 # At the command line, navigate to the directory that contains the
-# `.bal` file and run the `ballerina run` command.
-$ ballerina run jdbc_client_batch_update.bal
+# `.bal` file and run the `ballerina run` command below.
+ballerina run jdbc_client_batch_update.bal
 The update operation - Creating a table:
 Create student table status: 0
 Batch 1 update counts: 1

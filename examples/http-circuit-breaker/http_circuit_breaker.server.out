@@ -1,6 +1,6 @@
 # To start the services, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run http_circuit_breaker.bal
+# `.bal` file and use the `ballerina run` command below.
+ballerina run http_circuit_breaker.bal
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9090
 [ballerina/http] started HTTP/WS listener 0.0.0.0:8080
 2019-09-04 17:08:02,595 INFO  [ballerina/http/resiliency] - CircuitBreaker failure threshold exceeded. Circuit tripped from CLOSE to OPEN state.
