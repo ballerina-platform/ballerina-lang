@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.MatchStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class MatchStatementNodeContext extends AbstractCompletionProvider<MatchStatementNode> {
 
     public MatchStatementNodeContext() {
@@ -37,7 +37,7 @@ public class MatchStatementNodeContext extends AbstractCompletionProvider<MatchS
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, MatchStatementNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, MatchStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.actionKWCompletions(context));
         completionItems.addAll(this.expressionCompletions(context));

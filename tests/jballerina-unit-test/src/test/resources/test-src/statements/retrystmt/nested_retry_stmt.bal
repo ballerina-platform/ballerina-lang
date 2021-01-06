@@ -41,7 +41,7 @@ function retryError() returns string |error {
         count1 = count1 + 1;
         if (count1 < 3) {
             str += (" -> attempt " + count1.toString() + ":error");
-            return trxError();
+            fail trxError();
         }
         str += (" -> attempt "+ count1.toString() + ":execution completed.");
         int count2 = 0;
@@ -50,7 +50,7 @@ function retryError() returns string |error {
             count2 = count2 + 1;
             if (count2 < 3) {
                 str += (" -> attempt " + count2.toString() + ":error");
-                return trxError();
+                fail trxError();
             }
             str += (" -> attempt "+ count2.toString() + ":execution completed.");
             return str;

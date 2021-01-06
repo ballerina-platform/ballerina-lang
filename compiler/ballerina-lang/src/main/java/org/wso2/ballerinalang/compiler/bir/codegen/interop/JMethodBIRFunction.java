@@ -18,18 +18,16 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 /**
- * Wrapper class of Java methods.
+ * A wrapper @BIRFunction to keep java function with bir function data.
  *
  * @since 1.2.0
  */
-public class JMethodFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
+public class JMethodBIRFunction extends JBIRFunction {
 
     JMethod jMethod;
 
-    JMethodFunctionWrapper(BIRFunctionWrapper functionWrapper, JMethod jMethod) {
-
-        super(functionWrapper.packageID, functionWrapper.func, functionWrapper.fullQualifiedClassName,
-              functionWrapper.jvmMethodDescription);
+    public JMethodBIRFunction(BIRFunction birFunction, JMethod jMethod) {
+        super(birFunction);
         this.jMethod = jMethod;
     }
 }
