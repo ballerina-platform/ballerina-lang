@@ -52,13 +52,13 @@ import static io.ballerina.shell.cli.PropertiesLoader.REPL_PROMPT;
 public class BallerinaShell {
     private static final int INIT_WARNING_THRESH_S = 2;
 
-    protected final Configuration configuration;
+    protected final BShellConfiguration configuration;
     protected final TerminalAdapter terminal;
     protected final Evaluator evaluator;
     protected final CommandHandler commandHandler;
     protected boolean isRunning;
 
-    public BallerinaShell(Configuration configuration, TerminalAdapter terminal) {
+    public BallerinaShell(BShellConfiguration configuration, TerminalAdapter terminal) {
         this.configuration = configuration;
         this.terminal = terminal;
         this.isRunning = true;

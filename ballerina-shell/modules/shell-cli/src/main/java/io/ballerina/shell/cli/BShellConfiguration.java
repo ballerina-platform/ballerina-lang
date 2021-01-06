@@ -26,16 +26,20 @@ import java.util.Objects;
 /**
  * Configuration that uses command utils to provide options.
  */
-public class Configuration {
+public class BShellConfiguration {
     protected boolean isDebug;
     protected Evaluator evaluator;
     private boolean isDumb;
 
-    public Configuration(boolean isDebug, boolean isDumb, EvaluatorMode mode) {
+    public BShellConfiguration(boolean isDebug, boolean isDumb, EvaluatorMode mode) {
         Objects.requireNonNull(mode, "Mode is a required parameter.");
         this.isDumb = isDumb;
         this.isDebug = isDebug;
         this.evaluator = createEvaluator(mode);
+    }
+
+    public BShellConfiguration(boolean isDebug, boolean isDumb) {
+        this(isDebug, isDumb, EvaluatorMode.DEFAULT);
     }
 
     /**

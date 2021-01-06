@@ -42,7 +42,7 @@ public class ReplShellApplication {
      * @param configuration Configuration to use.
      * @throws Exception If the execution failed with an unexpected error.
      */
-    public static void execute(Configuration configuration) throws Exception {
+    public static void execute(BShellConfiguration configuration) throws Exception {
         TerminalAdapter terminalAdapter;
         Terminal terminal;
 
@@ -88,8 +88,7 @@ public class ReplShellApplication {
     }
 
     public static void main(String... args) throws Exception {
-        Configuration configuration = new Configuration(false, false,
-                Configuration.EvaluatorMode.DEFAULT);
+        BShellConfiguration configuration = new BShellConfiguration(false, false);
         ReplShellApplication.execute(configuration);
     }
 }
