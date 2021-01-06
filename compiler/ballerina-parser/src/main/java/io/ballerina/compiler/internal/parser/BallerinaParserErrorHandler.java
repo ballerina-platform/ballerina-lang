@@ -2514,7 +2514,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case REQUIRED_PARAM:
                         return ParserRuleContext.TYPE_DESC_IN_PARAM;
                     default:
-                        return ParserRuleContext.TYPE_REFERENCE_IN_TYPE_INCLUSION;                }
+                        return ParserRuleContext.TYPE_REFERENCE_IN_TYPE_INCLUSION;
+                }
             case TYPE_NAME:
                 return ParserRuleContext.TYPE_DESC_IN_TYPE_DEF;
             case OBJECT_TYPE_DESCRIPTOR:

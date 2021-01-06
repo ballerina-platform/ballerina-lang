@@ -1996,7 +1996,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case AT_TOKEN:
                 annots = parseOptionalAnnotations();
-                return parseParameter(annots, prevParamKind, isParamNameOptional);
+                break;
             case ASTERISK_TOKEN:
             case IDENTIFIER_TOKEN:
                 annots = STNodeFactory.createEmptyNodeList();
