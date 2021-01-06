@@ -1911,7 +1911,10 @@ public class Types {
     }
 
     public boolean isTypeCastable(BLangExpression expr, BType sourceType, BType targetType) {
-
+        if (getTypeIntersection(sourceType, symTable.errorType) != symTable.semanticError
+                && getTypeIntersection(targetType, symTable.errorType) == symTable.semanticError) {
+            return false;
+        }
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
             return true;

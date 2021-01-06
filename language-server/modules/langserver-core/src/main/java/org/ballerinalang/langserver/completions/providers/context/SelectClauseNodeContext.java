@@ -24,7 +24,9 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.List;
 
@@ -53,7 +55,10 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
             return this.getCompletionItemList(exprEntries, context);
         }
 
-        return this.expressionCompletions(context);
+        List<LSCompletionItem> completionItems = this.expressionCompletions(context);
+        completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_CONFLICT.get()));
+        
+        return completionItems;
     }
 
     @Override

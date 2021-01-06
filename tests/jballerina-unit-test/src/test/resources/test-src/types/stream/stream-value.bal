@@ -101,7 +101,7 @@ function testStreamConstructWithFilter() returns boolean {
         return intVal % 2 == 1;
     });
 
-    ResultValue? oddNumber = <ResultValue?> oddNumberStream.next();
+    ResultValue? oddNumber = <ResultValue?> checkpanic oddNumberStream.next();
     testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
 
     oddNumber = getRecordValue(oddNumberStream.next());

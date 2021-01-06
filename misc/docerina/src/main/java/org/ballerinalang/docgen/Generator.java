@@ -18,7 +18,7 @@
 
 package org.ballerinalang.docgen;
 
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
@@ -94,12 +94,12 @@ public class Generator {
      * @return whether the module has any public constructs.
      */
     public static boolean setModuleFromSyntaxTree(Module module, SyntaxTree syntaxTree,
-                                                  BallerinaSemanticModel semanticModel, String fileName) {
+                                                  SemanticModel semanticModel, String fileName) {
 
         boolean hasPublicConstructs = false;
         if (syntaxTree.containsModulePart()) {
             ModulePartNode modulePartNode = syntaxTree.rootNode();
-            for (Node node: modulePartNode.members()) {
+            for (Node node : modulePartNode.members()) {
                 if (node.kind().equals(SyntaxKind.TYPE_DEFINITION)) {
                     TypeDefinitionNode typeDefinition = (TypeDefinitionNode) node;
                     if (typeDefinition.visibilityQualifier().isPresent() && typeDefinition.visibilityQualifier().get()
@@ -192,7 +192,7 @@ public class Generator {
     }
 
     public static Annotation getAnnotationModel(AnnotationDeclarationNode annotationDeclaration,
-                                                BallerinaSemanticModel semanticModel, String fileName) {
+                                                SemanticModel semanticModel, String fileName) {
         String annotationName = annotationDeclaration.annotationTag().text();
         StringJoiner attachPointJoiner = new StringJoiner(", ");
         for (int i = 0; i < annotationDeclaration.attachPoints().size(); i++) {
@@ -208,7 +208,7 @@ public class Generator {
     }
 
     public static Constant getConstantTypeModel(ConstantDeclarationNode constantNode,
-                                                BallerinaSemanticModel semanticModel, String fileName) {
+                                                SemanticModel semanticModel, String fileName) {
         String constantName = constantNode.variableName().text();
         String value = constantNode.initializer().toString();
         String desc = getDocFromMetadata(constantNode.metadata());
@@ -236,7 +236,7 @@ public class Generator {
     }
 
     private static BType getIntersectionTypeModel(TypeDefinitionNode typeDefinition,
-                                                  BallerinaSemanticModel semanticModel, String fileName) {
+                                                  SemanticModel semanticModel, String fileName) {
         List<Type> memberTypes = new ArrayList<>();
         IntersectionTypeDescriptorNode typeDescriptor = (IntersectionTypeDescriptorNode) typeDefinition
                 .typeDescriptor();
@@ -249,7 +249,7 @@ public class Generator {
     }
 
     private static BType getTupleTypeModel(TypeDefinitionNode typeDefinition,
-                                           BallerinaSemanticModel semanticModel, String fileName) {
+                                           SemanticModel semanticModel, String fileName) {
         List<Type> memberTypes = new ArrayList<>();
         TupleTypeDescriptorNode typeDescriptor = (TupleTypeDescriptorNode) typeDefinition.typeDescriptor();
         memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(type ->
@@ -261,7 +261,7 @@ public class Generator {
     }
 
     private static BType getUnionTypeModel(TypeDefinitionNode typeDefinition,
-                                           BallerinaSemanticModel semanticModel, String fileName) {
+                                           SemanticModel semanticModel, String fileName) {
         List<Type> memberTypes = new ArrayList<>();
         Node typeDescriptor = typeDefinition.typeDescriptor();
         while (typeDescriptor.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
@@ -271,12 +271,12 @@ public class Generator {
         }
         memberTypes.add(Type.fromNode(typeDescriptor, semanticModel, fileName));
         BType bType = new BType(typeDefinition.typeName().text(), getDocFromMetadata(typeDefinition.metadata()),
-                isDeprecated(typeDefinition.metadata()), memberTypes);
+                                isDeprecated(typeDefinition.metadata()), memberTypes);
         bType.isAnonymousUnionType = true;
         return bType;
     }
 
-    private static BClass getClassModel(ClassDefinitionNode classDefinitionNode, BallerinaSemanticModel semanticModel,
+    private static BClass getClassModel(ClassDefinitionNode classDefinitionNode, SemanticModel semanticModel,
                                         String fileName) {
         List<Function> functions = new ArrayList<>();
         String name = classDefinitionNode.className().text();
@@ -286,7 +286,7 @@ public class Generator {
         List<DefaultableVariable> fields = getDefaultableVariableList(classDefinitionNode.members(),
                 classDefinitionNode.metadata(), semanticModel, fileName);
 
-        for (Node member: classDefinitionNode.members()) {
+        for (Node member : classDefinitionNode.members()) {
             if (member instanceof FunctionDefinitionNode && containsToken(((FunctionDefinitionNode) member)
                     .qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
                 functions.add(getFunctionModel((FunctionDefinitionNode) member, semanticModel, fileName));
@@ -304,7 +304,7 @@ public class Generator {
     }
 
     private static BAbstractObject getAbstractObjectModel(TypeDefinitionNode typeDefinition,
-                                                          BallerinaSemanticModel semanticModel, String fileName) {
+                                                          SemanticModel semanticModel, String fileName) {
         List<Function> functions = new ArrayList<>();
         String name = typeDefinition.typeName().text();
         String description = getDocFromMetadata(typeDefinition.metadata());
@@ -314,7 +314,7 @@ public class Generator {
         List<DefaultableVariable> fields = getDefaultableVariableList(typeDescriptorNode.members(),
                 typeDefinition.metadata(), semanticModel, fileName);
 
-        for (Node member: typeDescriptorNode.members()) {
+        for (Node member : typeDescriptorNode.members()) {
             if (member instanceof MethodDeclarationNode) {
                 MethodDeclarationNode methodNode = (MethodDeclarationNode) member;
                 if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
@@ -348,7 +348,7 @@ public class Generator {
     }
 
     private static Function getFunctionModel(FunctionDefinitionNode functionDefinitionNode,
-                                             BallerinaSemanticModel semanticModel, String fileName) {
+                                             SemanticModel semanticModel, String fileName) {
         String functionName = functionDefinitionNode.functionName().text();
 
         List<DefaultableVariable> parameters = new ArrayList<>();
@@ -357,7 +357,7 @@ public class Generator {
 
         // Iterate through the parameters
         parameters.addAll(getDefaultableVariableList(functionSignature.parameters(),
-                functionDefinitionNode.metadata(), semanticModel, fileName));
+                                                     functionDefinitionNode.metadata(), semanticModel, fileName));
 
         // return params
         if (functionSignature.returnTypeDesc().isPresent()) {
@@ -377,19 +377,19 @@ public class Generator {
     }
 
     private static Record getRecordTypeModel(TypeDefinitionNode recordTypeDefinition,
-                                             BallerinaSemanticModel semanticModel, String fileName) {
+                                             SemanticModel semanticModel, String fileName) {
         String recordName = recordTypeDefinition.typeName().text();
         List<DefaultableVariable> fields = getDefaultableVariableList(((RecordTypeDescriptorNode) recordTypeDefinition
                 .typeDescriptor()).fields(), recordTypeDefinition.metadata(), semanticModel, fileName);
         boolean isClosed = ((((RecordTypeDescriptorNode) recordTypeDefinition.typeDescriptor()).bodyStartDelimiter()))
                 .kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
         return new Record(recordName, getDocFromMetadata(recordTypeDefinition.metadata()),
-                isDeprecated(recordTypeDefinition.metadata()), isClosed, fields);
+                          isDeprecated(recordTypeDefinition.metadata()), isClosed, fields);
     }
 
     public static List<DefaultableVariable> getDefaultableVariableList(NodeList nodeList,
                                                                        Optional<MetadataNode> optionalMetadataNode,
-                                                                       BallerinaSemanticModel semanticModel,
+                                                                       SemanticModel semanticModel,
                                                                        String fileName) {
         List<DefaultableVariable> variables = new ArrayList<>();
         for (int i = 0; i < nodeList.size(); i++) {

@@ -500,7 +500,7 @@ function testReadOnlyAsParamAndReturnTypes() {
     ReadOnlyIntProvider ob = new;
     readonly objectAsReadOnly = acceptAndReturnReadOnly(ob);
     assertTrue(objectAsReadOnly is readonly & object { int i; function getInt() returns int; });
-    var cObj = <object { int i; function getInt() returns int; } & readonly> objectAsReadOnly;
+    var cObj = <object { int i; function getInt() returns int; } & readonly> checkpanic objectAsReadOnly;
     assertEquality(21, cObj.getInt());
     assertEquality(ob, objectAsReadOnly);
 
@@ -529,7 +529,7 @@ function testNarrowerTypesAsReadOnlyReturnTypes() {
 
     readonly booleanAsReadOnly = getBooleanAsReadOnly();
     assertTrue(booleanAsReadOnly is boolean);
-    assertTrue(<boolean> booleanAsReadOnly);
+    assertTrue(<boolean> checkpanic booleanAsReadOnly);
 
     readonly intAsReadOnly = getIntAsReadOnly();
     assertTrue(intAsReadOnly is int);
@@ -543,7 +543,7 @@ function testNarrowerTypesAsReadOnlyReturnTypes() {
     decimal d = 120.5;
     readonly decimalAsReadOnly = getDecimalAsReadOnly(d);
     assertTrue(decimalAsReadOnly is decimal);
-    assertEquality(d, <decimal> decimalAsReadOnly);
+    assertEquality(d, <decimal> checkpanic decimalAsReadOnly);
 
     string s1 = "hello";
     string s2 = "world";
@@ -692,5 +692,7 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

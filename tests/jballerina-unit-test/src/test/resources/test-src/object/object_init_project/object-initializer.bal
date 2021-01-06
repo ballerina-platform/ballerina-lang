@@ -313,7 +313,7 @@ function testObjInitWithCheck(int id) returns ([Student3|error, int, int]) {
         return [student, marksBeforeChange, marksAfterChange];
     }
 
-    Student3 s = <Student3> student;
+    Student3 s = <Student3> checkpanic student;
     marksBeforeChange = s.getMarks();
     s.marks = 95;
     marksAfterChange = s.getMarks();
@@ -380,7 +380,7 @@ function testInitInvocationWithCheckAndRestParams(int id, string... modules) ret
         return [student, marksBeforeChange, marksAfterChange];
     }
 
-    Student5 s = <Student5> student;
+    Student5 s = <Student5> checkpanic student;
     marksBeforeChange = s.getMarks();
     s.marks = 95;
     marksAfterChange = s.getMarks();

@@ -670,7 +670,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS(
             "BCE3980", "invalid.read.only.class.inclusion.in.non.read.only.class"),
     INVALID_FIELD_IN_OBJECT_CONSTUCTOR_EXPR_WITH_READONLY_REFERENCE(
-            "BCE3981", "invalid.field.in.object.constructor.expr.with.readonly.reference")
+            "BCE3981", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
+
+    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3982", "multiple.receive.action.not.yet.supported")
     ;
 
     private String diagnosticId;
