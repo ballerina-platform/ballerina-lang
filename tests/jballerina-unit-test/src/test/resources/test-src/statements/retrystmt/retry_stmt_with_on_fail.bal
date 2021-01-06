@@ -185,7 +185,7 @@ function testRetryReturnVal() returns string {
 function testAppendOnFailError () returns string {
    string str = "";
    retry(3) {
-     error err = errors:Retriable("custom error", message = "error value");
+     error err = error errors:Retriable("custom error", message = "error value");
      str += "-> Before failure throw";
      fail err;
    }
@@ -248,8 +248,6 @@ function testNestedRetryOnFailJump2() returns string {
     return str;
 }
 
-type AssertionError error;
-
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
@@ -263,6 +261,6 @@ function assertEquality(any|error expected, any|error actual) {
 
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic AssertionError(ASSERTION_ERROR_REASON,
+    panic error(ASSERTION_ERROR_REASON,
                                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

@@ -21,7 +21,6 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -95,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -1198,10 +1198,6 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
-            createErrorConstructorInvocation(invocationExpr);
-            return;
-        }
         createCall(invocationExpr, false);
     }
 
@@ -1343,27 +1339,27 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = thenBB;
     }
 
-    private void createErrorConstructorInvocation(BLangInvocation invocationExpr) {
-        // Create a temporary variable to store the error.
-        BIRVariableDcl tempVarError = new BIRVariableDcl(invocationExpr.type,
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        BIRVariableDcl tempVarError = new BIRVariableDcl(errorConstructorExpr.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
 
         this.env.enclFunc.localVars.add(tempVarError);
         BIROperand lhsOp = new BIROperand(tempVarError);
 
-        // visit message, cause and detail expressions
         this.env.targetOperand = lhsOp;
-        invocationExpr.requiredArgs.get(0).accept(this);
+        List<BLangExpression> positionalArgs = errorConstructorExpr.positionalArgs;
+        positionalArgs.get(0).accept(this);
         BIROperand messageOp = this.env.targetOperand;
 
-        invocationExpr.requiredArgs.get(1).accept(this);
+        positionalArgs.get(1).accept(this);
         BIROperand causeOp = this.env.targetOperand;
 
-        invocationExpr.requiredArgs.get(2).accept(this);
+        errorConstructorExpr.errorDetail.accept(this);
         BIROperand detailsOp = this.env.targetOperand;
 
-        BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(invocationExpr.pos, invocationExpr.type,
-                lhsOp, messageOp, causeOp, detailsOp);
+        BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(errorConstructorExpr.pos,
+                errorConstructorExpr.type, lhsOp, messageOp, causeOp, detailsOp);
         setScopeAndEmit(newError);
         this.env.targetOperand = lhsOp;
     }
