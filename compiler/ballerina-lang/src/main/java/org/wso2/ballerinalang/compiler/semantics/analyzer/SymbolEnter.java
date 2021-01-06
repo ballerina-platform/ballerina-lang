@@ -1628,10 +1628,14 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangTupleVariable varNode) {
         if (varNode.isDeclaredWithVar) {
             // Symbol enter with type other
-            varNode.memberVariables.forEach(member -> {
-                member.isDeclaredWithVar = true;
-                defineNode(member, env);
-            });
+            for (BLangVariable memberVar : varNode.memberVariables) {
+                memberVar.isDeclaredWithVar = true;
+                if (memberVar.getKind() == NodeKind.VARIABLE &&
+                        names.fromIdNode(((BLangSimpleVariable) memberVar).name) == Names.IGNORE) {
+                    continue;
+                }
+                defineNode(memberVar, env);
+            }
             return;
         }
         if (varNode.type == null) {
