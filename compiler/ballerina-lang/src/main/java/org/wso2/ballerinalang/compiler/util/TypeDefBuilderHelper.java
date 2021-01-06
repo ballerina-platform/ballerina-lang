@@ -58,6 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createIdentifier;
 
 /**
  * Helper class with util methods to create type definitions.
@@ -161,7 +162,7 @@ public class TypeDefBuilderHelper {
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
-        initFunction.name = ASTBuilderUtil.createIdentifier(location, funcSymbolName.value);
+        initFunction.name = createIdentifier(location, funcSymbolName.value);
 
         // Create the function type symbol
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
@@ -229,18 +230,5 @@ public class TypeDefBuilderHelper {
         errorType.detailType = userDefinedTypeNode;
 
         return errorType;
-    }
-
-    private static BLangIdentifier createIdentifier(Location pos, String value) {
-        BLangIdentifier bLIdentifer = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        if (value == null) {
-            return bLIdentifer;
-        }
-
-        bLIdentifer.setValue(value);
-        bLIdentifer.setLiteral(false);
-        bLIdentifer.pos = pos;
-
-        return bLIdentifer;
     }
 }

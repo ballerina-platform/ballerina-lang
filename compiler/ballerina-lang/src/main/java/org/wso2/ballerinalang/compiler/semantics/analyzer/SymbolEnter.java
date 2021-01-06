@@ -2058,9 +2058,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineErrorDetails(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangTypeDefinition typeDef : typeDefNodes) {
-            if (typeDef.symbol == null) {
-                continue;
-            }
             BLangType typeNode = typeDef.typeNode;
             if (typeNode.getKind() == NodeKind.ERROR_TYPE) {
                 SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
