@@ -61,7 +61,7 @@ public class ImportDeclarationSnippet extends Snippet {
                 .map(StringUtils::quoted)
                 .collect(Collectors.joining("."));
         if (importNode.orgName().isPresent()) {
-            String orgName = StringUtils.quoted(importNode.orgName().get().orgName().text());
+            String orgName = importNode.orgName().get().orgName().text();
             return String.format("%s/%s", orgName, moduleName);
         }
         return moduleName;

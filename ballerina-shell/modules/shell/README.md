@@ -2,27 +2,27 @@
 
 ## Invoker Implementation
 
-The main logic of the ballerina shell lies in the invoker component. Invoker is the component responsible for executing a snippet. Snippets are the code segments given by the user to evaluate. 
+The main logic of the ballerina shell lies in the invoker component. Invoker is the component responsible for executing a snippet. Snippets are the code segments given by the user to evaluate.
 
 ```java
 public abstract class Invoker extends DiagnosticReporter {
-    /**
-     * Executes a snippet and returns the output lines.
-     * Snippets parameter should only include newly added snippets.
-     * Old snippets should be managed as necessary by the implementation.
-     *
-     * @param newSnippet New snippet to execute.
-     * @return Execution output result.
-     */
-    public abstract Optional<Object> execute(Snippet newSnippet) throws InvokerException;
-    
-    // ..
+  /**
+   * Executes a snippet and returns the output lines.
+   * Snippets parameter should only include newly added snippets.
+   * Old snippets should be managed as necessary by the implementation.
+   *
+   * @param newSnippet New snippet to execute.
+   * @return Execution output result.
+   */
+  public abstract Optional<Object> execute(Snippet newSnippet) throws InvokerException;
+
+  // ..
 }
 ```
 
 The main logic of the currently implemented invoker (`ClassLoadInvoker`) can be depicted as below. Before the invoker, the application front-end will take user input and categorize it into the correct type of snippet. The snippet type refers to mainly the location that the code segment will end up in the generated wrapper(template). For example, `ImportSnippets` will go to the topmost section in the generated wrapper. The snippet will then undergo the following operations to be invoked.
 
-- Some **information required for execution will be derived** from the snippet. The used information will be used in the next stage to generate a syntactically correct source. 
+- Some **information required for execution will be derived** from the snippet. The used information will be used in the next stage to generate a syntactically correct source.
 
 - The invoker will then **generate the `.bal` file** using the snippet data, the previously defined module-level declarations, and variable details. Information gathered in the previous step is used to create the wrapper required. For example, variable-type information is required for casting statements. Also, to enable imports, only the used imports are selectively included.
 
@@ -35,12 +35,12 @@ The main logic of the currently implemented invoker (`ClassLoadInvoker`) can be 
     persistent storage for the ballerina global variables)
   - At the start of each execution, all variables are loaded from the Java memory class and cast into the required type. Then the snippet
     is executed and all the variables are saved back in the memory class.
-  
+
 - Additionally, a context id is used to allow several invoker sessions to run. If there are any errors, they are reported as necessary. If the snippet was an expression evaluation, and the result was not-null, the **result will be returned**.
 
-The overview sequence diagram is shown below as well. 
+The overview sequence diagram is shown below as well.
 
-![Invoker Seq](../../docs/sequence.png)
+![Invoker Seq](../docs/sequence.png)
 
 ### Information Gathered from Snippets
 
@@ -63,7 +63,7 @@ If the import is valid, it will then be included in every future import usage. T
 abc:pqr() + xyz:ABC + mn
 ```
 
-The validity of import will be determined by compiling the snippet. After compilation, `MODULE_NOT_FOUND` compilation errors suggest that the import is invalid. The import prefix will only be remembered if the import is valid. 
+The validity of import will be determined by compiling the snippet. After compilation, `MODULE_NOT_FOUND` compilation errors suggest that the import is invalid. The import prefix will only be remembered if the import is valid.
 
 #### Module Level Declarations
 
@@ -84,7 +84,7 @@ function f(int x) returns int{
 
 Variable declarations undergo two stages of compilation. The initial compilation is done to find the variable symbol information. The latter compilation is done to execute and save the after-state.
 
-The initial compilation is done similar to module-level declarations. However, the snippets are placed inside a method to enable complex expressions as initializers that would be illegal in a top-level variable declaration and to enable list/array/record binding patterns. The symbols in the method are extracted via `visibleSymbols` API in the `SemanticModel`. The location for symbol finding is taken using `SyntaxTree`. The type will be taken for any `VariableSymbol` or `FunctionSymbol` using their `symbol.typeDescriptor()` method. However, the type is returned as a string from this method and thus some regex parsing is done to find any required imports to include the type. The main reason for this is the `var` type variables.
+The initial compilation is done similar to module-level declarations. However, the snippets are placed inside a method to enable complex expressions as initializers that would be illegal in a top-level variable declaration and to enable list/array/record binding patterns. The symbols in the method are extracted via `visibleSymbols` API in the `SemanticModel`. The location for symbol finding is taken using `SyntaxTree`. The type will be taken for any `VariableSymbol` or `FunctionSymbol` using their `symbol.typeDescriptor()` method. The type is then traversed and transformed into a string and implicit imports are found that are required to include the type. The main reason for this is the `var` type variables.
 
 ```ballerina
 var x = abc:X()
@@ -94,7 +94,7 @@ import pqr
 pqr:Y x = abc:X()
 ```
 
-However, there can be some edge cases unhanded by the current implementation.
+However, there can be some edge cases unhanded by the current implementation. Also, private types with `var` is not supported since there is currently no implementation to find if a type is not public.
 
 > TODO: Fix bugs of edge cases related to type.
 
@@ -132,7 +132,7 @@ public function main() returns error? {
 
 ## Front-End
 
-![Overview](../../docs/overview.png)
+![Overview](../docs/overview.png)
 
 
 ### Preprocessor
@@ -141,15 +141,15 @@ The preprocessor is the first transformational phase of the program. Any input i
 
 ```java
 public abstract class Preprocessor extends DiagnosticReporter {
-    /**
-     * Preprocesses the string and output the list of
-     * processed outputs.
-     *
-     * @param input Input string
-     * @return Processed resultant strings
-     * @throws PreprocessorException If the preprocessing failed.
-     */
-    public abstract Collection<String> process(String input) throws PreprocessorException;
+  /**
+   * Preprocesses the string and output the list of
+   * processed outputs.
+   *
+   * @param input Input string
+   * @return Processed resultant strings
+   * @throws PreprocessorException If the preprocessing failed.
+   */
+  public abstract Collection<String> process(String input) throws PreprocessorException;
 }
 ```
 
@@ -168,14 +168,14 @@ In this stage, the correct syntax tree is identified. The root node of the synta
 
 ```java
 public abstract class TreeParser extends DiagnosticReporter {
-    /**
-     * Parses a source code string into a Node.
-     * Input source code is expected to be a single statement/expression.
-     *
-     * @param statement Input source code statement.
-     * @return Syntax tree for the source code.
-     */
-    public abstract Node parse(String statement) throws TreeParserException;
+  /**
+   * Parses a source code string into a Node.
+   * Input source code is expected to be a single statement/expression.
+   *
+   * @param statement Input source code statement.
+   * @return Syntax tree for the source code.
+   */
+  public abstract Node parse(String statement) throws TreeParserException;
 }
 ```
 
@@ -197,13 +197,13 @@ Snippets are individual statements.
 
 Every snippet must have a **kind** (which dictates where the snippet should go). Each snippet must refer to a single statement. That means if the same input line contained several statements, it would be parsed into several snippets. (This separation is done in the preprocessor.)
 
-In processing the snippets, if a snippet contained an error and failed to run, the execution of the snippet would be stopped. If the snippet was contained in a line with more snippets, (if the input contained multiple snippets) all the snippets would be ditched. This also means that an error snippet is taken as if it were never given. 
+In processing the snippets, if a snippet contained an error and failed to run, the execution of the snippet would be stopped. If the snippet was contained in a line with more snippets, (if the input contained multiple snippets) all the snippets would be ditched. This also means that an error snippet is taken as if it were never given.
 
 Also, names given to the REPL may never be overridden. (If x variable is defined, you cannot redefine variable x even with the same type. The same goes for functions, classes, etc..) However, any valid redeclaration in a different scope may be possible.
 
 #### Snippet Base Type
 
-Snippets are defined in terms of the source code it contains. Snippets would be of mainly 5 categories. Erroneous snippets are rejected as soon as they are detected. So, there isn't a category for them. 
+Snippets are defined in terms of the source code it contains. Snippets would be of mainly 5 categories. Erroneous snippets are rejected as soon as they are detected. So, there isn't a category for them.
 
 #### Import Declaration Snippets
 
@@ -241,7 +241,7 @@ These are not executable. They do not execute to return a value. Documentations 
 
 #### Statement Kind
 
-These are normal statements that should be evaluated from top to bottom inside a function. Fail Statement Sub Kind is not accepted. 
+These are normal statements that should be evaluated from top to bottom inside a function. Fail Statement Sub Kind is not accepted.
 
 | Sub Kind Name                       | State  | Notes                                                        |
 | ----------------------------------- | ------ | ------------------------------------------------------------ |

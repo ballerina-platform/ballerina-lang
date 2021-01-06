@@ -64,13 +64,19 @@ import java.util.stream.Collectors;
  * the object or record is exported outright instead of specifying sub-types.
  */
 public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
-    public static final String ANON_MODULE = "$anon";
+    private static final String ANON_MODULE = "$anon";
+
     private final ImportProcessor importProcessor;
     private final Set<String> implicitImportPrefixes;
 
     public TypeSignatureTransformer(ImportProcessor importProcessor) {
         this.implicitImportPrefixes = new HashSet<>();
         this.importProcessor = importProcessor;
+    }
+
+    @Override
+    protected void resetState() {
+        this.setState("");
     }
 
     @Override
@@ -192,14 +198,17 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
     @Override
     protected void visit(RecordTypeSymbol symbol) {
         // Record type symbol.
+
         StringJoiner joiner;
-        if (symbol.inclusive()) {
+        // TODO: Find a better way to decide if a symbol is sealed or not.
+        boolean isRecordInclusive = !symbol.signature().endsWith("|}");
+        if (isRecordInclusive) {
             joiner = new StringJoiner(" ", "{ ", " }");
             symbol.fieldDescriptors().stream().map(fd -> transformField(fd) + ";").forEach(joiner::add);
         } else {
             joiner = new StringJoiner(" ", "{| ", " |}");
             symbol.fieldDescriptors().stream().map(fd -> transformField(fd) + ";").forEach(joiner::add);
-            symbol.restTypeDescriptor().ifPresent(typeDescriptor -> joiner.add(typeDescriptor.signature() + "...;"));
+            symbol.restTypeDescriptor().ifPresent(typeDescriptor -> joiner.add(transformType(typeDescriptor) + "...;"));
         }
         this.setState("record " + joiner.toString());
     }
@@ -248,8 +257,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
     protected void visit(TypeDescTypeSymbol symbol) {
         // A general type desc with/without parameters. TYPE<PARAMS>
         String paramRepr = symbol.typeParameter().map(param -> "<" + transformType(param) + ">").orElse("");
-        String stringRepr = symbol.typeKind().name() + paramRepr;
-        this.setState(stringRepr);
+        this.setState("typedesc" + paramRepr);
     }
 
     @Override
@@ -273,6 +281,7 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
         // XML. If signature is `xml` it is kept as is.
         // Otherwise, signature is recalculated. This signature is at least 'never'.
         String stringRepr = "xml";
+        // TODO: Find better way to check if xml type is empty. (BType is xmlType)
         if (!symbol.signature().equals("xml")) {
             String typeRepr = symbol.typeParameter().map(this::transformType).orElse("never");
             stringRepr = "xml<" + typeRepr + ">";
@@ -302,36 +311,39 @@ public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
     private String transformExternalRefType(TypeSymbol typeSymbol) {
         // If the module is not anon, imports module.
 
+        String typeName = typeSymbol.name();
+        if (typeName.isBlank()) {
+            String typeSignature = typeSymbol.signature();
+            typeName = typeSignature.substring(typeSignature.lastIndexOf(':') + 1);
+        }
+
         if (typeSymbol.moduleID().orgName().equals(ANON_MODULE)
                 || (typeSymbol.moduleID().moduleName().equals("lang.annotations")
                 && typeSymbol.moduleID().orgName().equals("ballerina"))) {
-            // No import required. If the name is not found, signature can be used without module parts.
-            if (typeSymbol.name().isBlank()) {
-                String typeSignature = typeSymbol.signature();
-                return typeSignature.substring(typeSignature.lastIndexOf(':') + 1);
-            }
-            return typeSymbol.name();
+            // No import required. If the name is not found,
+            // signature can be used without module parts.
+            return typeName;
 
         } else {
             String moduleName = Arrays.stream(typeSymbol.moduleID().moduleName().split("\\."))
                     .map(StringUtils::quoted).collect(Collectors.joining("."));
-            String fullModuleName = StringUtils.quoted(typeSymbol.moduleID().orgName()) + "/" + moduleName;
+            String fullModuleName = typeSymbol.moduleID().orgName() + "/" + moduleName;
             String defaultPrefix = StringUtils.quoted(typeSymbol.moduleID().modulePrefix());
             try {
                 String importPrefix = importProcessor.processImplicitImport(fullModuleName, defaultPrefix);
                 implicitImportPrefixes.add(importPrefix);
-                return String.format("%s:%s", importPrefix, typeSymbol.name());
+                return String.format("%s:%s", importPrefix, typeName);
             } catch (InvokerException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    @Override
-    protected void resetState() {
-        this.setState("");
-    }
-
+    /**
+     * Get all the implicitly imported import prefixes.
+     *
+     * @return Set of implicit prefixes.
+     */
     public Collection<String> getImplicitImportPrefixes() {
         return implicitImportPrefixes;
     }

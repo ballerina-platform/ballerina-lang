@@ -185,7 +185,12 @@ public class BallerinaShell {
     }
 
     public void reset() {
-        this.evaluator.reset();
+        try {
+            this.evaluator.reset();
+            this.evaluator.initialize();
+        } catch (BallerinaShellException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void exit() {
