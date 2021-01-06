@@ -106,13 +106,6 @@ dependencies {
     // observability extensions
     //// metrics
     dist project(':metrics-extensions:ballerina-metrics-extension')
-    //// tracing
-    dist project(':tracing-extensions:ballerina-jaeger-extension')
-    dist 'io.jaegertracing:jaeger-core:0.31.0'
-    dist 'io.jaegertracing:jaeger-thrift:0.31.0'
-    dist 'org.apache.thrift:libthrift:0.12.0'
-    dist 'com.squareup.okhttp3:okhttp:3.14.0'
-    dist 'com.squareup.okio:okio:2.2.2'
 
     // Temporary adding . Need to Remove once fix #17878
     dist 'com.google.code.gson:gson:2.7'
