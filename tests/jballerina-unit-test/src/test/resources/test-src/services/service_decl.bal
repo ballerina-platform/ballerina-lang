@@ -171,8 +171,9 @@ function testServiceDecl() {
     assertEquality(rAnnot2["val"], "anot-val: 3");
 
     // Test service within a service
-    service object {} inner = <service object {}> (wait callMethod(<service object {}> getService(), "$get$foo"));
-    string str = <string> (wait callMethod(inner, "$get$foo"));
+    service object {} inner = <service object {}>
+        (checkpanic(wait callMethod(<service object {}> getService(), "$get$foo")));
+    string str = <string> (checkpanic (wait callMethod(inner, "$get$foo")));
     assertEquality(str, "foo/foo");
 
     reset();
