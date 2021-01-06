@@ -16,7 +16,7 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -115,7 +115,7 @@ public class Type {
     private Type() {
     }
 
-    public static Type fromNode(Node node, BallerinaSemanticModel semanticModel, String fileName) {
+    public static Type fromNode(Node node, SemanticModel semanticModel, String fileName) {
         Type type = new Type();
         if (node instanceof SimpleNameReferenceNode) {
             SimpleNameReferenceNode simpleNameReferenceNode = (SimpleNameReferenceNode) node;

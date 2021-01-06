@@ -66,16 +66,6 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
         return this.fieldSymbols;
     }
 
-    /**
-     * Whether inclusive record ot not.
-     *
-     * @return {@link Boolean} inclusive or not
-     */
-    @Override
-    public boolean inclusive() {
-        return isInclusive;
-    }
-
     @Override
     public Optional<TypeSymbol> restTypeDescriptor() {
         if (this.restTypeDesc == null) {
