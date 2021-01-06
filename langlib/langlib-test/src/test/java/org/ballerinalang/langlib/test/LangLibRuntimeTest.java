@@ -43,7 +43,7 @@ public class LangLibRuntimeTest {
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getCallStackTest");
         assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
-                "moduleName:\"ballerina.runtime.errors\"," +
+                "moduleName:\"ballerina.lang.runtime.0_0_1.errors\"," +
                 " fileName:\"errors.bal\", lineNumber:38}");
     }
 }

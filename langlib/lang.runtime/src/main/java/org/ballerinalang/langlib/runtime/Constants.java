@@ -20,6 +20,9 @@ package org.ballerinalang.langlib.runtime;
 
 import io.ballerina.runtime.api.Module;
 
+/**
+ * Runtime related constants.
+ */
 public class Constants {
 
     private static final String PACKAGE_NAME = "lang.runtime";
