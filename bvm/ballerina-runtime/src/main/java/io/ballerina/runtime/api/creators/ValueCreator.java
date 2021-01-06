@@ -608,8 +608,7 @@ public class ValueCreator {
      * @param keyValues initial map values to be populated.
      * @return map value
      */
-    public static BMap<BString, Object> createMapValue(MapType mapType,
-                                                       BMapInitialValueEntry[] keyValues) {
+    public static BMap<BString, Object> createMapValue(MapType mapType, BMapInitialValueEntry[] keyValues) {
         return new MapValueImpl<>(mapType, keyValues);
     }
 

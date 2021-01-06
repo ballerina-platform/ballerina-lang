@@ -30,6 +30,10 @@ import io.ballerina.tools.text.LineRange;
 class PositionUtil {
 
     static boolean withinBlock(LinePosition cursorPos, Location symbolPosition) {
+        if (symbolPosition == null) {
+            return false;
+        }
+
         int startLine = symbolPosition.lineRange().startLine().line();
         int endLine = symbolPosition.lineRange().endLine().line();
         int startColumn = symbolPosition.lineRange().startLine().offset();
