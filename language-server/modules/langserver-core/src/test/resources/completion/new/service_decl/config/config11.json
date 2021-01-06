@@ -41,17 +41,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "resource",
       "kind": "Snippet",
       "detail": "Snippet",
       "insertText": "resource function ${1:name} ${2:.} (${3}) {\n\t${4}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
       "insertTextFormat": "Snippet"
     },
     {

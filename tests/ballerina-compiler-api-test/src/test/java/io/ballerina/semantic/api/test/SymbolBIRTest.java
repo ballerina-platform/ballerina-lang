@@ -75,9 +75,8 @@ public class SymbolBIRTest {
         BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
         BPackageSymbol fooPkgSymbol = pkg.imports.get(0).symbol;
 
-        List<String> annotationModuleSymbols = asList("deprecated", "untainted", "tainted", "icon", "strand",
-                "StrandData", "typeParam", "Thread", "builtinSubtype",
-                "isolatedParam");
+        List<String> annotationModuleSymbols = asList("deprecated", "untainted", "tainted", "display",
+                "strand", "StrandData", "typeParam", "Thread", "builtinSubtype", "isolatedParam");
         List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes");
         List<String> moduleSymbols = asList("xml", "testproject", "object", "error", "boolean", "decimal", "typedesc",
                 "float", "future", "int", "map", "stream", "string", "table");
