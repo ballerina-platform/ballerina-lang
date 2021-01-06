@@ -2057,7 +2057,16 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariable varNode) {
         if (varNode.isDeclaredWithVar) {
-            // Will be handled in semantic analyzer.
+            // Symbol enter each member with type other.
+            for (BLangRecordVariable.BLangRecordVariableKeyValue variable : varNode.variableList) {
+                BLangVariable value = variable.getValue();
+                value.isDeclaredWithVar = true;
+                if (value.getKind() == NodeKind.VARIABLE &&
+                        names.fromIdNode(((BLangSimpleVariable) value).name) == Names.IGNORE) {
+                    continue;
+                }
+                defineNode(value, env);
+            }
             return;
         }
         if (varNode.type == null) {
@@ -2169,6 +2178,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         boolean validRecord = true;
         int ignoredCount = 0;
+        boolean isModuleRecordDeclaredWithVar = false;
+        if ((env.scope.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE && recordVar.isDeclaredWithVar) {
+            isModuleRecordDeclaredWithVar = true;
+        }
         for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
@@ -2208,12 +2221,20 @@ public class SymbolEnter extends BLangNodeVisitor {
                         restType = BUnionType.create(null, recordVarType.restFieldType, symTable.nilType);
                     }
                     value.type = restType;
+                    if (isModuleRecordDeclaredWithVar) {
+                        recordVar.symbol.type = restType;
+                        continue;
+                    }
                     defineNode(value, env);
                 }
                 continue;
             }
-
             value.type = recordVarTypeFields.get((variable.getKey().getValue())).type;
+
+            if (isModuleRecordDeclaredWithVar) {
+                recordVar.symbol.type = value.type;
+                continue;
+            }
             defineNode(value, env);
         }
 
