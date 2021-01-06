@@ -204,6 +204,7 @@ public class JvmConstants {
     public static final String HASH_MAP = "java/util/HashMap";
     public static final String PATH = "java/nio/file/Path";
     public static final String PATHS = "java/nio/file/Paths";
+    public static final String SYSTEM = "java/lang/System";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
@@ -285,6 +286,7 @@ public class JvmConstants {
     public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$populateConfigurationData";
     public static final String CONFIG_DATA = "$configurationData";
+    public static final String CONFIG_ENV_VARIABLE = "BAL_CONFIG_FILE";
 
 
     // scheduler related constants
