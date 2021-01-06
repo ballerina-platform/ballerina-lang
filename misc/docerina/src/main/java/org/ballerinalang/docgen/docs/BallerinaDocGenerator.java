@@ -20,7 +20,7 @@ package org.ballerinalang.docgen.docs;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.util.ProjectConstants;
@@ -414,7 +414,7 @@ public class BallerinaDocGenerator {
                 syntaxTreeMap.put(document.name(), document.syntaxTree());
             });
             ModuleDoc moduleDoc = new ModuleDoc(moduleMd == null ? null : moduleMd.toAbsolutePath(), resources,
-                    syntaxTreeMap, (BallerinaSemanticModel) module.getCompilation().getSemanticModel());
+                    syntaxTreeMap, module.getCompilation().getSemanticModel());
             moduleDocMap.put(moduleName, moduleDoc);
         }
         return moduleDocMap;
@@ -439,7 +439,7 @@ public class BallerinaDocGenerator {
 
         List<Module> moduleDocs = new ArrayList<>();
         for (Map.Entry<String, ModuleDoc> moduleDoc : docsMap.entrySet()) {
-            BallerinaSemanticModel model = moduleDoc.getValue().semanticModel;
+            SemanticModel model = moduleDoc.getValue().semanticModel;
             Module module = new Module();
             module.id = moduleDoc.getKey();
             module.orgName = orgName;

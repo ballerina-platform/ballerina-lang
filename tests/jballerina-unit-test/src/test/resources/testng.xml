@@ -217,6 +217,7 @@
             </class>
             <!-- <class name="org.ballerinalang.test.types.TypeUnificationTest"/> -->
             <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->
+            <class name="org.ballerinalang.test.types.DeepReadOnlyTest"/>
             <class name="org.ballerinalang.test.expressions.async.BasicAsyncOperationsTest">
                 <methods>
                     <exclude name="testAsyncNonNativeBasic6" />

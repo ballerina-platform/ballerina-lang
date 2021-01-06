@@ -660,6 +660,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER("BCE3973", "service.absolute.path.is.not.supported.by.listener"),
     SERVICE_LITERAL_REQUIRED_BY_LISTENER("BCE3974", "service.path.literal.required.by.listener"),
     SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER("BCE3975", "service.absolute.path.required.by.listener"),
+    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3976", "multiple.receive.action.not.yet.supported"),
     ;
 
     private String diagnosticId;
