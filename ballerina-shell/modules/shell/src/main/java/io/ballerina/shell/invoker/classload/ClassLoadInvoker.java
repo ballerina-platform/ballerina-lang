@@ -541,12 +541,13 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         try {
             Module executableModule = project.currentPackage().getDefaultModule();
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
+            ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
+
             String initClassName = JarResolver.getQualifiedClassName(
                     executableModule.packageInstance().packageOrg().toString(),
                     executableModule.packageInstance().packageName().toString(),
                     executableModule.packageInstance().packageVersion().toString(),
                     MODULE_INIT_CLASS_NAME);
-            ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
             Class<?> clazz = classLoader.loadClass(initClassName);
 
             Method method = clazz.getDeclaredMethod(MODULE_MAIN_METHOD_NAME, String[].class);

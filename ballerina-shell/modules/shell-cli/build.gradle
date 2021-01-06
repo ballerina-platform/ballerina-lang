@@ -26,7 +26,7 @@ version = '0.0.1-SNAPSHOT'
 
 dependencies {
     implementation project(":ballerina-shell:shell")
-    implementation(group: 'org.jline', name: 'jline', version: '3.17.1')
+    implementation('org.jline:jline:3.11.0')
 
     testImplementation('org.testng:testng')
     testImplementation('com.google.code.gson:gson')

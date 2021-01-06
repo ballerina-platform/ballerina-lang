@@ -74,7 +74,6 @@ public class ReplShellApplication {
             LineReader lineReader = LineReaderBuilder.builder()
                     .variable(LineReader.SECONDARY_PROMPT_PATTERN, "%P > ")
                     .appName(PropertiesLoader.getProperty(APP_NAME))
-                    .variable(LineReader.INDENTATION, 2)
                     .highlighter(highlighter)
                     .completer(completer)
                     .terminal(terminal)
