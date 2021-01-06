@@ -22,19 +22,15 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_UTILS_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CHECK_IS_TYPE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VALUE_FROM_STRING_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
@@ -64,17 +60,16 @@ public class TypeTestExpressionEvaluator extends Evaluator {
             // implementations first.
             Value valueAsObject = getValueAsObject(context, result.getJdiValue());
 
-            List<String> methodArgTypeNames = new ArrayList<>();
-            methodArgTypeNames.add(JAVA_OBJECT_CLASS);
-            methodArgTypeNames.add(B_TYPE_CLASS);
-            RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, CHECK_IS_TYPE_METHOD,
-                    methodArgTypeNames);
-
-            List<Value> methodArgs = new ArrayList<>();
-            methodArgs.add(valueAsObject);
-            methodArgs.add(getTypeFromTypeName(syntaxNode.typeDescriptor().toSourceCode().trim()));
-            method.setArgValues(methodArgs);
-            return new BExpressionValue(context, method.invoke());
+            // Resolves runtime type(s) using type descriptor nodes.
+            // resolvedTypes.size() > 1 for union types.
+            List<Value> resolvedTypes = BallerinaTypeResolver.resolve(context, syntaxNode.typeDescriptor());
+            for (Value type : resolvedTypes) {
+                boolean typeMatched = checkIsType(valueAsObject, type);
+                if (typeMatched) {
+                    return VMUtils.make(context, true);
+                }
+            }
+            return VMUtils.make(context, false);
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
@@ -83,28 +78,17 @@ public class TypeTestExpressionEvaluator extends Evaluator {
         }
     }
 
-    private Value getTypeFromTypeName(String typeName) throws EvaluationException {
-        // checks if the type is a predefined type.
-        Optional<Value> typeValue = getPredefinedTypeFromTypeName(typeName);
-        if (typeValue.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    "failed to resolve type: " + typeName));
-        }
-        return typeValue.get();
-    }
+    private boolean checkIsType(Value lhsExpressionResult, Value type) throws EvaluationException {
+        List<String> methodArgTypeNames = new ArrayList<>();
+        methodArgTypeNames.add(JAVA_OBJECT_CLASS);
+        methodArgTypeNames.add(B_TYPE_CLASS);
+        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, CHECK_IS_TYPE_METHOD,
+                methodArgTypeNames);
 
-    private Optional<Value> getPredefinedTypeFromTypeName(String typeName) throws EvaluationException {
-        try {
-            List<String> methodArgTypeNames = Collections.singletonList(JAVA_STRING_CLASS);
-            RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_UTILS_CLASS, VALUE_FROM_STRING_METHOD,
-                    methodArgTypeNames);
-            method.setArgValues(Collections.singletonList(context.getAttachedVm().mirrorOf(typeName)));
-            return Optional.of(new BExpressionValue(context, method.invoke()).getJdiValue());
-        } catch (EvaluationException e) {
-            if (!e.getMessage().startsWith(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString())) {
-                throw e;
-            }
-            return Optional.empty();
-        }
+        List<Value> methodArgs = new ArrayList<>();
+        methodArgs.add(lhsExpressionResult);
+        methodArgs.add(type);
+        method.setArgValues(methodArgs);
+        return Boolean.parseBoolean(new BExpressionValue(context, method.invoke()).getStringValue());
     }
 }
