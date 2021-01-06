@@ -18,14 +18,13 @@
 package org.ballerinalang.langserver.commons;
 
 import org.eclipse.lsp4j.CompletionCapabilities;
-import org.eclipse.lsp4j.Position;
 
 /**
  * Represents the Completion operation context.
  *
  * @since 2.0.0
  */
-public interface CompletionContext extends DocumentServiceContext {
+public interface CompletionContext extends PositionedOperationContext {
 
     /**
      * Get the client capabilities.
@@ -33,25 +32,4 @@ public interface CompletionContext extends DocumentServiceContext {
      * @return {@link CompletionCapabilities} client's completion capabilities
      */
     CompletionCapabilities getCapabilities();
-
-    /**
-     * Set the cursor position as an offset value according to the syntax tree.
-     *
-     * @param offset of the cursor
-     */
-    void setCursorPositionInTree(int offset);
-
-    /**
-     * Get the cursor position as an offset value according to the syntax tree.
-     *
-     * @return {@link Integer} offset of the cursor
-     */
-    int getCursorPositionInTree();
-
-    /**
-     * Get the cursor position where the auto completion request triggered.
-     *
-     * @return {@link Position} cursor position
-     */
-    Position getCursorPosition();
 }

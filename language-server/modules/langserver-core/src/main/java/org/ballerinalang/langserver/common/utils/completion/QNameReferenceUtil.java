@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +79,7 @@ public class QNameReferenceUtil {
      * @param predicate predicate to filer
      * @return {@link List} of filtered module entries
      */
-    public static List<Symbol> getModuleContent(BallerinaCompletionContext context,
+    public static List<Symbol> getModuleContent(PositionedOperationContext context,
                                                 QualifiedNameReferenceNode qNameRef,
                                                 Predicate<Symbol> predicate) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));

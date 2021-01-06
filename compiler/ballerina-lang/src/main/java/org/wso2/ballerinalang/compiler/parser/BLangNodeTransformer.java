@@ -2205,7 +2205,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ReceiveActionNode receiveActionNode) {
         BLangWorkerReceive workerReceiveExpr = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
-        workerReceiveExpr.setWorkerName(createIdentifier(receiveActionNode.receiveWorkers().name()));
+        Node receiveWorkers = receiveActionNode.receiveWorkers();
+        Token workerName;
+        if (receiveWorkers.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            workerName = ((SimpleNameReferenceNode) receiveWorkers).name();
+        } else {
+            // TODO: implement multiple-receive-action support
+            Location receiveFieldsPos = getPosition(receiveWorkers);
+            dlog.error(receiveFieldsPos, DiagnosticErrorCode.MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED);
+            workerName = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
+                    NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
+        }
+        workerReceiveExpr.setWorkerName(createIdentifier(workerName));
         workerReceiveExpr.pos = getPosition(receiveActionNode);
         return workerReceiveExpr;
     }

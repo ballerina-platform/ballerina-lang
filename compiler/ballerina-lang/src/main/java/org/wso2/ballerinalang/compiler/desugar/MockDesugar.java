@@ -22,10 +22,11 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -44,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -302,11 +305,11 @@ public class MockDesugar {
                 this.importFunction.name.toString() : this.originalFunction.name.toString();
         BLangAssignment bLangAssignment1 = ASTBuilderUtil.createAssignmentStmt(
                 bLangPackage.pos,
-                generateFieldBasedAccess("functionToMock"),
+                generateFieldBasedAccess("functionToMock", symTable.stringType),
                 generateRHSExpr(functionToMockVal));
 
         // The following synthesizes the equivalent of :
-        // `<MockFunctionObj>.functionToMockPackage = `(functionToMockPackage);`
+        // `<MockFunctionObj>.functionToMockPackage = (functionToMockPackage);`
         String functionToMockPackageVal = (this.originalFunction == null) ?
                 this.importFunction.pkgID.toString()
                         + "/" + getFunctionSource(this.importFunction.source) :
@@ -314,8 +317,14 @@ public class MockDesugar {
                         + "/" + getFunctionSource(this.originalFunction.symbol.source);
         BLangAssignment bLangAssignment2 = ASTBuilderUtil.createAssignmentStmt(
                 bLangPackage.pos,
-                generateFieldBasedAccess("functionToMockPackage"),
+                generateFieldBasedAccess("functionToMockPackage", symTable.stringType),
                 generateRHSExpr(functionToMockPackageVal));
+
+        // The following synthesizes the equivalent of :
+        // `<MockFunctionObj>.mockFunctionClasses = [(class1), (class2) ... ]`
+        BLangAssignment bLangAssignment3 = ASTBuilderUtil.createAssignmentStmt(bLangPackage.pos,
+                generateFieldBasedAccess("mockFunctionClasses", symTable.arrayType),
+                generateClassListConstructorExpr());
 
         // The following synthesizes the equivalent of :
         // `BLangReturn Statement <retType> test:MockHandler(<MockFunctionObj>, [<args?>])`
@@ -326,6 +335,7 @@ public class MockDesugar {
 
         statements.add(bLangAssignment1);
         statements.add(bLangAssignment2);
+        statements.add(bLangAssignment3);
         statements.add(blangReturn);
 
         return statements;
@@ -336,17 +346,17 @@ public class MockDesugar {
     }
 
     // This function synthesizes the Ballerina equivalent of : `<mockobj>.functionToMock =`
-    private BLangFieldBasedAccess generateFieldBasedAccess(String fieldName) {
+    private BLangFieldBasedAccess generateFieldBasedAccess(String fieldName, BType fieldType) {
         BLangVariableReference expr = getMockFunctionReference();
         BLangIdentifier field = ASTBuilderUtil.createIdentifier(bLangPackage.pos, fieldName);
 
         BLangFieldBasedAccess bLangFieldBasedAccess = ASTBuilderUtil.createFieldAccessExpr(expr, field);
 
         bLangFieldBasedAccess.fieldKind = FieldKind.SINGLE;
-        bLangFieldBasedAccess.originalType = symTable.stringType;
+        bLangFieldBasedAccess.originalType = fieldType;
         bLangFieldBasedAccess.lhsVar = true;
-        bLangFieldBasedAccess.expectedType = symTable.stringType;
-        bLangFieldBasedAccess.type = symTable.stringType;
+        bLangFieldBasedAccess.expectedType = fieldType;
+        bLangFieldBasedAccess.type = fieldType;
 
         return bLangFieldBasedAccess;
     }
@@ -358,6 +368,26 @@ public class MockDesugar {
         bLangLiteral.expectedType = type;
 
         return bLangLiteral;
+    }
+
+    // This function synthesizes the Ballerina equivalent of : `= [(class1), (class2)]`
+    private BLangListConstructorExpr generateClassListConstructorExpr() {
+        List<BLangCompilationUnit> compUnitList = this.bLangPackage.getTestablePkg().getCompilationUnits();
+        BArrayType bArrayType = new BArrayType(symTable.stringType, null, -1, BArrayState.OPEN);
+
+        BLangListConstructorExpr bLangListConstructorExpr =
+                ASTBuilderUtil.createListConstructorExpr(bLangPackage.pos, bArrayType);
+
+        for (BLangCompilationUnit compUnit : compUnitList) {
+            String sourceName = compUnit.getName();
+            sourceName = sourceName.replace("/", ".");
+            sourceName = sourceName.replace(".bal", "");
+
+            BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(bLangPackage.pos, symTable.stringType, sourceName);
+            bLangListConstructorExpr.exprs.add(bLangLiteral);
+        }
+
+        return bLangListConstructorExpr;
     }
 
     // This function synthesizes the Ballerina equivalent of : `Return: <type> MockHandler(<mockFnObj>, args)`
@@ -393,12 +423,15 @@ public class MockDesugar {
 
     // This function synthesizes the Ballerina equivalent of : `MockHandler()`
     private BInvokableSymbol getMockHandlerInvokableSymbol() {
-        BSymbol testPkg = bLangPackage.getTestablePkg().symbol.scope.lookup(new Name("test")).symbol;
-
-        BInvokableSymbol mockHandlerSymbol =
-                (BInvokableSymbol) testPkg.scope.lookup(new Name("mockHandler")).symbol;
-
-        return mockHandlerSymbol;
+        List<BLangImportPackage> packageList = bLangPackage.getTestablePkg().getImports();
+        for (BLangImportPackage importPackage : packageList) {
+            if (importPackage.alias.getValue().equals("test")) {
+                BInvokableSymbol mockHandlerSymbol =
+                        (BInvokableSymbol) importPackage.symbol.scope.lookup(new Name("mockHandler")).symbol;
+                return mockHandlerSymbol;
+            }
+        }
+        return null;
     }
 
     // This function synthesizes the Ballerina equivalent of : `(<mockFnObj>, args)`
