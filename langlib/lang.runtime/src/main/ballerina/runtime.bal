@@ -23,6 +23,19 @@ public type DynamicListener object {
     public function immediateStop() returns error?;
 };
 
+# Represents a data holder of the current call stack element.
+#
+# + callableName - Callable name
+# + moduleName - Module name
+# + fileName - File name
+# + lineNumber - Line number
+public type CallStackElement record {|
+    string callableName;
+    string moduleName;
+    string fileName;
+    int lineNumber;
+|};
+
 # Register a listener object with a module.
 # + listener - the listener object to be registered. The listener becomes a module listener of the module from which
 #       this function is called.
@@ -35,4 +48,18 @@ public function registerListener(DynamicListener 'listener) = @java:Method {
 # which this function is called.
 public function deregisterListener(DynamicListener 'listener) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
+} external;
+
+# Halts the current strand for a predefined amount of time.
+#
+# + seconds - An amount of time to sleep in seconds
+public isolated function sleep(decimal seconds) = @java:Method {
+    'class: "org.ballerinalang.langlib.runtime.Sleep"
+} external;
+
+# Retrieves the array of `CallStackElement`.
+#
+# + return - An array of `CallStackElement`
+public isolated function getCallStack() returns CallStackElement[] = @java:Method {
+    'class: "org.ballerinalang.langlib.runtime.GetCallStack"
 } external;
