@@ -33,15 +33,15 @@ import java.util.ArrayList;
  */
 public class BServiceType extends BObjectType implements ServiceType {
 
-    private ResourceMethodType[] resourceFunctions;
-    private volatile RemoteMethodType[] remoteFunctions;
+    private ResourceMethodType[] resourceMethods;
+    private volatile RemoteMethodType[] remoteMethods;
 
     public BServiceType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags);
     }
 
-    public void setResourceFunctions(ResourceMethodType[] resourceFunctions) {
-        this.resourceFunctions = resourceFunctions;
+    public void setResourceMethods(ResourceMethodType[] resourceMethods) {
+        this.resourceMethods = resourceMethods;
     }
 
     /**
@@ -51,15 +51,15 @@ public class BServiceType extends BObjectType implements ServiceType {
      */
     @Override
     public RemoteMethodType[] getRemoteMethods() {
-        if (remoteFunctions == null) {
+        if (remoteMethods == null) {
             RemoteMethodType[] funcs = getRemoteFunctions(getMethods());
             synchronized (this) {
-                if (remoteFunctions == null) {
-                    remoteFunctions = funcs;
+                if (remoteMethods == null) {
+                    remoteMethods = funcs;
                 }
             }
         }
-        return remoteFunctions;
+        return remoteMethods;
     }
 
     private RemoteMethodType[] getRemoteFunctions(MethodType[] attachedFunctions) {
@@ -79,7 +79,7 @@ public class BServiceType extends BObjectType implements ServiceType {
      */
     @Override
     public ResourceMethodType[] getResourceMethods() {
-        return resourceFunctions;
+        return resourceMethods;
     }
 
     @Override
@@ -94,7 +94,7 @@ public class BServiceType extends BObjectType implements ServiceType {
         type.setMethods(duplicateArray(getMethods()));
         type.immutableType = this.immutableType;
         type.typeIdSet = this.typeIdSet;
-        type.setResourceFunctions(duplicateArray(resourceFunctions));
+        type.setResourceMethods(duplicateArray(resourceMethods));
         return type;
     }
 }

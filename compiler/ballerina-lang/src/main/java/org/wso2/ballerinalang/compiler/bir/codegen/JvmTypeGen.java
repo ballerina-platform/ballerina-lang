@@ -961,7 +961,7 @@ public class JvmTypeGen {
         }
 
         // Set the fields of the object
-        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE_IMPL, "setResourceFunctions",
+        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE_IMPL, "setResourceMethods",
                 String.format("([L%s;)V", RESOURCE_METHOD_TYPE), false);
     }
 

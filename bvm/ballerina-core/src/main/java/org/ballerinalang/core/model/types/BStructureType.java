@@ -68,8 +68,8 @@ public abstract class BStructureType extends BType {
         return attachedFunctions;
     }
 
-    public void setAttachedFunctions(BAttachedFunction[] methodTypes) {
-        this.attachedFunctions = methodTypes;
+    public void setAttachedFunctions(BAttachedFunction[] attachedFunctions) {
+        this.attachedFunctions = attachedFunctions;
     }
 
 }

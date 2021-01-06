@@ -19,7 +19,7 @@ package org.ballerinalang.stdlib.task.utils;
 
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.StrandMetadata;
-import io.ballerina.runtime.api.types.MethodTypes;
+import io.ballerina.runtime.api.types.MethodType;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
