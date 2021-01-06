@@ -19,6 +19,3 @@
 function foo(int i, string k) returns int {
     return i;
 }
-
-@display {iconPath: "fooIconPath.icon", label: "k"}
-int GLOBAL = 3;
