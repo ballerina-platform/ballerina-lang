@@ -70,6 +70,16 @@ public class ReadOnlyUtils {
                                        BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE).getValue());
     }
 
+    public static Type getReadOnlyType(Type type) {
+        if (type.isReadOnly()) {
+            return type;
+        }
+        if (!TypeChecker.isSelectivelyImmutableType(type, new HashSet<>())) {
+            throw new IllegalArgumentException(type.getName() + " cannot be a readonly type.");
+        }
+        return setImmutableTypeAndGetEffectiveType(type);
+    }
+
     public static Type setImmutableTypeAndGetEffectiveType(Type type) {
         if (TypeChecker.isInherentlyImmutableType(type)) {
             return type;
@@ -160,6 +170,13 @@ public class ReadOnlyUtils {
 
                 Map<String, Field> originalFields = origRecordType.getFields();
                 Map<String, Field> fields = new HashMap<>(originalFields.size());
+                for (Map.Entry<String, Field> entry : originalFields.entrySet()) {
+                    Field originalField = entry.getValue();
+                    fields.put(entry.getKey(),
+                               new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
+                                          originalField.getFieldName(), originalField.getFlags()));
+                }
+
                 BRecordType immutableRecordType = new BRecordType(origRecordType.getName().concat(" & readonly"),
                                                                   origRecordType.getPackage(),
                                                                   origRecordType.flags |= SymbolFlags.READONLY, fields,
@@ -167,13 +184,6 @@ public class ReadOnlyUtils {
                                                                   origRecordType.typeFlags);
                 BIntersectionType intersectionType = createAndSetImmutableIntersectionType(origRecordType,
                                                                                            immutableRecordType);
-
-                for (Map.Entry<String, Field> entry : originalFields.entrySet()) {
-                    Field originalField = entry.getValue();
-                    fields.put(entry.getKey(),
-                               new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
-                                                          originalField.getFieldName(), originalField.getFlags()));
-                }
 
                 Type origRecordRestFieldType = origRecordType.restFieldType;
                 if (origRecordRestFieldType != null) {
@@ -276,10 +286,13 @@ public class ReadOnlyUtils {
 
         BIntersectionType intersectionType = new BIntersectionType(pkg, // TODO: 6/3/20 Fix to use current package
                                                                    // for records and objects
-                                                                   new Type []{ originalType,
+                                                                   new Type[]{originalType,
                                                                            PredefinedTypes.TYPE_READONLY},
                                                                    effectiveType, typeFlags, true);
         originalType.setImmutableType(intersectionType);
         return intersectionType;
+    }
+
+    private ReadOnlyUtils() {
     }
 }

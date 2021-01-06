@@ -134,4 +134,9 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
     public void testIncompleteQualifiedIdentifier() {
         test("record-type-def/record_type_def_source_24.bal", "record-type-def/record_type_def_assert_24.json");
     }
+
+    @Test
+    public void testInvalidComplexTypeInTypeInclusion() {
+        test("record-type-def/record_type_def_source_26.bal", "record-type-def/record_type_def_assert_26.json");
+    }
 }

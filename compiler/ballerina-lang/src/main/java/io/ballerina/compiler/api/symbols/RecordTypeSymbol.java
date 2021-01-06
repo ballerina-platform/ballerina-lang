@@ -34,13 +34,6 @@ public interface RecordTypeSymbol extends TypeSymbol {
     List<FieldSymbol> fieldDescriptors();
 
     /**
-     * Whether inclusive record ot not.
-     *
-     * @return {@link Boolean} inclusive or not
-     */
-    boolean inclusive();
-
-    /**
      * Get the rest type descriptor.
      *
      * @return {@link Optional} rest type descriptor

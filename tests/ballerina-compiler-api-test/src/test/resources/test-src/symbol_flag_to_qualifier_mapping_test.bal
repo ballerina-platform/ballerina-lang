@@ -74,3 +74,6 @@ service /echo on listen {
 }
 
 const PI = 3.14;
+
+configurable float floatVar = 12.34;
+configurable string stringVar = ?;

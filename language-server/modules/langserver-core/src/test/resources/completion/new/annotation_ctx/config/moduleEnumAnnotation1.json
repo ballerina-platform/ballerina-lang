@@ -6,76 +6,256 @@
   "source": "annotation_ctx/source/moduleEnumAnnotation1.bal",
   "items": [
     {
-      "label": "module1:typeAnnotation1",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "module1:typeAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
+      "label": "module1",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "module1:typeAnnotation2",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "module1:typeAnnotation2",
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'test",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'test;\n"
+        }
+      ]
     },
     {
-      "label": "module1:typeAnnotation3",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "module1:typeAnnotation3",
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'array",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'array;\n"
+        }
+      ]
     },
     {
-      "label": "tainted",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "tainted",
+      "label": "ballerina/lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'transaction",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'transaction;\n"
+        }
+      ]
     },
     {
-      "label": "untainted",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "untainted",
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
     },
     {
-      "label": "typeParam",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "typeParam",
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'value",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'value;\n"
+        }
+      ]
     },
     {
-      "label": "builtinSubtype",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "builtinSubtype",
+      "label": "ballerina/lang.query",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'query",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'query;\n"
+        }
+      ]
     },
     {
-      "label": "deprecated",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "deprecated",
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'runtime",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'runtime;\n"
+        }
+      ]
     },
     {
-      "label": "icon",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "icon {\n\tpath: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
+      "label": "ballerina/lang.float",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.xml",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.decimal",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.object",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'object",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.string",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.error",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.stream",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.map",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'map",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.table",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'table",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.int",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.boolean",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'boolean",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.future",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'future",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.typedesc",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "'typedesc",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "typeAnnotation1",
