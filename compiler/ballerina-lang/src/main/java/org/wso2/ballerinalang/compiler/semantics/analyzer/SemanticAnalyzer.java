@@ -625,23 +625,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             if (field.flagSet.contains(Flag.READONLY)) {
-                BType fieldType = field.type;
-
-                if (fieldType == symTable.semanticError) {
-                    continue;
-                }
-
-                BType readOnlyFieldType = getReadOnlyFieldType(field.pos, fieldType);
-
-                if (readOnlyFieldType == symTable.semanticError) {
-                    dlog.error(field.pos, DiagnosticErrorCode.INVALID_READONLY_FIELD_TYPE, fieldType);
-                } else {
-                    if (isRecordType) {
-                        fields.get(field.name.value).type = readOnlyFieldType;
-                    }
-
-                    field.type = field.symbol.type = readOnlyFieldType;
-                }
+                handleReadOnlyField(isRecordType, fields, field);
             } else {
                 allReadOnlyFields = false;
             }
@@ -3625,6 +3609,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return true;
         }
         return false;
+    }
+
+    private void handleReadOnlyField(boolean isRecordType, LinkedHashMap<String, BField> fields,
+                                     BLangSimpleVariable field) {
+        BType fieldType = field.type;
+
+        if (fieldType == symTable.semanticError) {
+            return;
+        }
+
+        BType readOnlyFieldType = getReadOnlyFieldType(field.pos, fieldType);
+
+        if (readOnlyFieldType == symTable.semanticError) {
+            dlog.error(field.pos, DiagnosticErrorCode.INVALID_READONLY_FIELD_TYPE, fieldType);
+            return;
+        }
+
+        if (isRecordType) {
+            fields.get(field.name.value).type = readOnlyFieldType;
+        }
+
+        field.type = field.symbol.type = readOnlyFieldType;
     }
 
     private BType getReadOnlyFieldType(Location pos, BType fieldType) {
