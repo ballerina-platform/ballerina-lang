@@ -106,4 +106,9 @@ public class FunctionParamsTest extends AbstractDeclarationTest {
     public void testIncludedRecordParamWithExtraKeyWord() {
         test("func-definition/func_params_source_16.bal", "func-definition/func_params_assert_16.json");
     }
+
+    @Test
+    public void testIncludedRecordParamWithAnnotationAndExtraKeyWord() {
+        test("func-definition/func_params_source_17.bal", "func-definition/func_params_assert_17.json");
+    }
 }
