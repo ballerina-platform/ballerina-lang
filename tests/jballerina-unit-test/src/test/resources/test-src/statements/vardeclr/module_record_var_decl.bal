@@ -81,7 +81,7 @@ public function testRecordVariableWithRestBP() {
     assertEquality(15, studentAge);
     assertEquality(10, studentGrade);
     assertEquality(50, marks[0]);
-    assertEquality(85", marks[1]);
+    assertEquality(85, marks[1]);
     assertEquality(90, marks[2]);
 }
 

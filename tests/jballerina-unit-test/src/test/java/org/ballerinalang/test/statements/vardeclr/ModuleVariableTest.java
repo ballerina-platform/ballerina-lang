@@ -113,7 +113,8 @@ public class ModuleVariableTest {
 
     @Test
     public void testUninitializedModuleLevelRecordVar() {
-        // TODO: disallow uninitialized record variables from parser and update this test
+        // TODO: disallow uninitialized record variables from parser and update this test. Add similar test case for
+        // error variable as well.
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_record_var_decl.bal");
         int index = 0;
