@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.runtime.util;
 
-import io.ballerina.projects.testsuite.Test;
-import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
+import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
 
 import java.io.File;

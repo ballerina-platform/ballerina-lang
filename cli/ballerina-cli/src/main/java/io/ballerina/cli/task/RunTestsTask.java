@@ -30,12 +30,12 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.runtime.entity.CoverageReport;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
+import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
@@ -169,7 +169,7 @@ public class RunTestsTask implements Task {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
 
-            TestSuite suite = testProcessor.testSuite(module, project).orElse(null);
+            TestSuite suite = testProcessor.testSuite(module).orElse(null);
             Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
 
             if (suite == null) {

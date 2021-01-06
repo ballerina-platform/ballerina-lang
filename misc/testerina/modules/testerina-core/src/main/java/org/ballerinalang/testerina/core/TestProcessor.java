@@ -40,11 +40,12 @@ import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.testsuite.Test;
-import io.ballerina.projects.testsuite.TestSuite;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestSuite;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,16 +82,15 @@ public class TestProcessor {
      * Generate and return the testsuite for module tests.
      *
      * @param module  Module
-     * @param project Project
      * @return Optional<TestSuite>
      */
-    public Optional<TestSuite> testSuite(Module module, Project project) {
-        if (project.kind() != ProjectKind.SINGLE_FILE_PROJECT
+    public Optional<TestSuite> testSuite(Module module) {
+        if (module.project().kind() != ProjectKind.SINGLE_FILE_PROJECT
                 && module.testDocumentIds().isEmpty()) {
             return Optional.empty();
         }
         // skip generation of the testsuite if --skip-tests option is set to true
-        if (project.buildOptions().skipTests()) {
+        if (module.project().buildOptions().skipTests()) {
             return Optional.empty();
         }
         return Optional.of(generateTestSuite(module));
@@ -121,7 +121,8 @@ public class TestProcessor {
     /**
      * Generate the testsuite for module using syntax and semantic APIs.
      *
-     * @param module  Module
+     * @param module Module
+     * @return TestSuite
      */
     private TestSuite generateTestSuite(Module module) {
         TestSuite testSuite = new TestSuite(module.descriptor().name().toString(),
@@ -175,6 +176,14 @@ public class TestProcessor {
         }
     }
 
+    /**
+     * Returns the relevant AnnotationNode from Syntax Tree for a AnnotationSymbol.
+     *
+     * @param annotationSymbol AnnotationSymbol
+     * @param syntaxTreeMap Map<String, SyntaxTree>
+     * @param function String
+     * @return AnnotationNode
+     */
     private AnnotationNode getAnnotationNode(AnnotationSymbol annotationSymbol, Map<String, SyntaxTree> syntaxTreeMap,
                                              String function) {
         for (Map.Entry<String, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
@@ -277,8 +286,8 @@ public class TestProcessor {
             }
             if (pos != null && isUtility) {
                 // Remove the duplicated annotations.
-                String className = pos.lineRange().filePath().replace(".bal", "")
-                        .replace("/", ".");
+                String className = pos.lineRange().filePath().replace(ProjectConstants.BLANG_SOURCE_EXT, "")
+                        .replace("/", ProjectConstants.DOT);
                 String functionClassName = JarResolver.getQualifiedClassName(
                         module.descriptor().org().value(),
                         module.descriptor().name().toString(),

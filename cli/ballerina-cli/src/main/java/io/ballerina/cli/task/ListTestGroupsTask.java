@@ -21,8 +21,8 @@ package io.ballerina.cli.task;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.testsuite.Test;
-import io.ballerina.projects.testsuite.TestSuite;
+import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.testerina.core.TestProcessor;
 
 import java.io.PrintStream;
@@ -49,7 +49,7 @@ public class ListTestGroupsTask implements Task {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             TestProcessor testProcessor = new TestProcessor();
-            Optional<TestSuite> suite = testProcessor.testSuite(module, project);
+            Optional<TestSuite> suite = testProcessor.testSuite(module);
             if (!project.currentPackage().packageOrg().anonymous()) {
                 out.println();
                 out.println("\t" + module.moduleName().toString());
