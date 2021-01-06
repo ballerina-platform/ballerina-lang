@@ -280,8 +280,7 @@ class JvmObservabilityGen {
             scopeFunctionsList = attachedTypeDef.attachedFuncs;
         }
         for (BIRBasicBlock currentBB : func.basicBlocks) {
-            if (currentBB.terminator.kind != InstructionKind.ASYNC_CALL
-                    || !isObservable((AsyncCall) currentBB.terminator)) {
+            if (currentBB.terminator.kind != InstructionKind.ASYNC_CALL) {
                 continue;
             }
 
