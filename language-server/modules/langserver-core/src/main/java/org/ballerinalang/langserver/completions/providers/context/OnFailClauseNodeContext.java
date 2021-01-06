@@ -26,7 +26,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailClauseNode> {
 
     public OnFailClauseNodeContext() {
@@ -48,7 +48,7 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, OnFailClauseNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, OnFailClauseNode node) {
         if (this.onSuggestTypeDescriptors(context, node)) {
             NonTerminalNode symbolAtCursor = context.getNodeAtCursor();
             Predicate<Symbol> errorPredicate = SymbolUtil::isError;
@@ -73,11 +73,11 @@ public class OnFailClauseNodeContext extends AbstractCompletionProvider<OnFailCl
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, OnFailClauseNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, OnFailClauseNode node) {
         return !node.onKeyword().isMissing();
     }
 
-    private boolean onSuggestTypeDescriptors(CompletionContext context, OnFailClauseNode node) {
+    private boolean onSuggestTypeDescriptors(BallerinaCompletionContext context, OnFailClauseNode node) {
         int cursor = context.getCursorPositionInTree();
         BlockStatementNode blockStatement = node.blockStatement();
         Token failKeyword = node.failKeyword();

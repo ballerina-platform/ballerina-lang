@@ -151,7 +151,7 @@ set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024
 set jar=%2
 if "%1" == "run" if not "%2" == "" if "%jar:~-4%" == ".jar" goto runJarFile
 :runJava
-"%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.ballerinalang.tool.Main %CMD%
+"%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% io.ballerina.cli.launcher.Main %CMD%
 goto end
 
 :runJarFile

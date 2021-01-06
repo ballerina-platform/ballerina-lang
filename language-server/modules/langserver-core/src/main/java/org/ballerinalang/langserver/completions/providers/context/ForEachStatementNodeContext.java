@@ -21,7 +21,7 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -37,14 +37,14 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForEachStatementNode> {
     public ForEachStatementNodeContext() {
         super(ForEachStatementNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ForEachStatementNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ForEachStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -62,7 +62,7 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
         return completionItems;
     }
 
-    private boolean withinTypeDescContext(CompletionContext context, ForEachStatementNode node) {
+    private boolean withinTypeDescContext(BallerinaCompletionContext context, ForEachStatementNode node) {
         /*
         Check whether the following is satisfied
         (1) foreach <cursor>typedesc ...
@@ -80,7 +80,7 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
                 || (cursor.getLine() == typeDescEnd.line() && cursor.getCharacter() <= typeDescEnd.offset());
     }
 
-    private boolean withinActionOrExpressionContext(CompletionContext context, ForEachStatementNode node) {
+    private boolean withinActionOrExpressionContext(BallerinaCompletionContext context, ForEachStatementNode node) {
         /*
         Check whether the following is satisfied
         (1) foreach typedesc name in <cursor> ...

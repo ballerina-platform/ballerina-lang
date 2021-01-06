@@ -21,7 +21,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -38,14 +38,14 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<FunctionDefinitionNode> {
     public FunctionDefinitionNodeContext() {
         super(FunctionDefinitionNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, FunctionDefinitionNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FunctionDefinitionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -65,7 +65,7 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
         return completionItems;
     }
 
-    private boolean canCheckWithinFunctionSignature(CompletionContext context, FunctionDefinitionNode node) {
+    private boolean canCheckWithinFunctionSignature(BallerinaCompletionContext context, FunctionDefinitionNode node) {
         FunctionSignatureNode functionSignatureNode = node.functionSignature();
         if (functionSignatureNode.isMissing()) {
             return false;
@@ -78,7 +78,7 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, FunctionDefinitionNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, FunctionDefinitionNode node) {
         int textPosition = context.getCursorPositionInTree();
         Token functionKeyword = node.functionKeyword();
         if (functionKeyword.isMissing()) {

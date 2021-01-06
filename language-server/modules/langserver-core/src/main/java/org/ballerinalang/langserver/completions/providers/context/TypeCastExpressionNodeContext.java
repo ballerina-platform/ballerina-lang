@@ -20,7 +20,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -33,14 +33,14 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class TypeCastExpressionNodeContext extends AbstractCompletionProvider<TypeCastExpressionNode> {
     public TypeCastExpressionNodeContext() {
         super(TypeCastExpressionNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, TypeCastExpressionNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TypeCastExpressionNode node)
             throws LSCompletionException {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
@@ -54,7 +54,7 @@ public class TypeCastExpressionNodeContext extends AbstractCompletionProvider<Ty
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, TypeCastExpressionNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, TypeCastExpressionNode node) {
         /*
         Resolves the completions within the type cast expression only if the cursor is within the <>. Otherwise will be
         handled by the parent context. Because the expressions are to be suggested at the expression context.

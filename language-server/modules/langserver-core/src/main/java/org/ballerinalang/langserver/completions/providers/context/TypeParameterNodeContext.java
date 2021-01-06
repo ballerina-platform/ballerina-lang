@@ -25,7 +25,7 @@ import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class TypeParameterNodeContext extends AbstractCompletionProvider<TypeParameterNode> {
 
     public TypeParameterNodeContext() {
@@ -49,7 +49,7 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, TypeParameterNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TypeParameterNode node)
             throws LSCompletionException {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
@@ -116,7 +116,7 @@ public class TypeParameterNodeContext extends AbstractCompletionProvider<TypePar
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, TypeParameterNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, TypeParameterNode node) {
         int cursor = context.getCursorPositionInTree();
         int gtToken = node.gtToken().textRange().endOffset();
         int ltToken = node.ltToken().textRange().startOffset();

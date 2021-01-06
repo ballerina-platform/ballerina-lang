@@ -171,13 +171,7 @@
                       "kind": "MAPPING_BINDING_PATTERN",
                       "children": [
                         {
-                          "kind": "OPEN_BRACE_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -263,13 +257,7 @@
                                           "kind": "MAPPING_BINDING_PATTERN",
                                           "children": [
                                             {
-                                              "kind": "OPEN_BRACE_TOKEN",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
+                                              "kind": "OPEN_BRACE_TOKEN"
                                             },
                                             {
                                               "kind": "LIST",
@@ -294,13 +282,7 @@
                                                       "children": [
                                                         {
                                                           "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "m",
-                                                          "trailingMinutiae": [
-                                                            {
-                                                              "kind": "WHITESPACE_MINUTIAE",
-                                                              "value": " "
-                                                            }
-                                                          ]
+                                                          "value": "m"
                                                         }
                                                       ]
                                                     }
@@ -365,13 +347,7 @@
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "h",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "value": "h"
                                     }
                                   ]
                                 }
