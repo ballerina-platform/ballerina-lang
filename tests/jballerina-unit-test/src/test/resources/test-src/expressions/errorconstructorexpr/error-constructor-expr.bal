@@ -41,12 +41,11 @@ function errorConstructorExpr3() returns error {
 function testErrorConstructorExpr3() {
     error e = errorConstructorExpr3();
     assertEquals("Message1", e.message());
-    if (e.cause() is error) {
-        assertEquals("Message2", (<error> e.cause()).message());
-    } else if (e.cause() is ()) {
-        assertEquals((), <()> e.cause());
+    error? eCause = e.cause();
+    if (eCause is error) {
+        assertEquals("Message2", eCause.message());
     } else {
-        panic error("Error cause should be error?");
+        assertEquals((), eCause);
     }
 }
 
@@ -56,19 +55,16 @@ function errorConstructorExpr4() returns error {
 
 function testErrorConstructorExpr4() {
     error e = errorConstructorExpr4();
-    if (e.cause() is error) {
-        e = <error> e.cause();
-        if (e.cause() is error) {
-            assertEquals("Message3", (<error> e.cause()).message());
-        } else if (e.cause() is ()) {
-            assertEquals((), <()> e.cause());
+    error? eCause = e.cause();
+    if (eCause is error) {
+        error? erCause = <error> eCause.cause();
+        if (erCause is error) {
+            assertEquals("Message3", erCause.message());
         } else {
-            panic error("Error cause should be error?");
+            assertEquals((), erCause);
         }
-    } else if (e.cause() is ()) {
-        assertEquals((), <()> e.cause());
     } else {
-        panic error("Error cause should be error?");
+        assertEquals((), eCause);
     }
 }
 
@@ -79,10 +75,8 @@ function errorConstructorExpr5() returns error {
 function testErrorConstructorExpr5() {
     error e = errorConstructorExpr5();
     map<anydata|readonly> m = e.detail();
-    int i1 = <int> m["c"];
-    int i2 = <int> m["d"];
-    assertEquals(i1, 200);
-    assertEquals(i2, 300);
+    assertEquals(<int> checkpanic m["c"], 200);
+    assertEquals(<int> checkpanic m["d"], 300);
 }
 
 function errorConstructorExpr6() returns error {
@@ -93,12 +87,9 @@ function testErrorConstructorExpr6() {
     error e = errorConstructorExpr6();
     e = <error> e.cause();
     map<anydata|readonly> m = e.detail();
-    int i1 = <int> m["a"];
-    string i2 = <string> m["b"];
-    int? i3 = <int?> m["c"];
-    assertEquals(100, i1);
-    assertEquals("400", i2);
-    assertEquals((), i3);
+    assertEquals(100, <int> checkpanic m["a"]);
+    assertEquals("400", <string> checkpanic m["b"]);
+    assertEquals((), <int?> checkpanic m["c"]);
 }
 
 type MyError1 error <*>;
