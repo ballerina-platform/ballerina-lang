@@ -286,8 +286,9 @@ public class Generator {
                 classDefinitionNode.metadata(), semanticModel, fileName);
 
         for (Node member : classDefinitionNode.members()) {
-            if (member instanceof FunctionDefinitionNode && containsToken(((FunctionDefinitionNode) member)
-                    .qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
+            if (member instanceof FunctionDefinitionNode && (containsToken(((FunctionDefinitionNode) member)
+                    .qualifierList(), SyntaxKind.PUBLIC_KEYWORD) || containsToken(((FunctionDefinitionNode) member)
+                    .qualifierList(), SyntaxKind.REMOTE_KEYWORD))) {
                 functions.add(getFunctionModel((FunctionDefinitionNode) member, semanticModel, fileName));
             }
         }
