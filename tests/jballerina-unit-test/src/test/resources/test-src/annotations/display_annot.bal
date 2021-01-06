@@ -21,7 +21,7 @@ function foo(int i, string k) returns int {
 
 @display {iconPath: "barIconPath.icon", label: "Bar class"}
 class Bar {
-    @display {iconPath: "kMemberFuncIconPath.icon", label: "k method"}
+    @display {label: "k method"}
     function k() {
 
     }

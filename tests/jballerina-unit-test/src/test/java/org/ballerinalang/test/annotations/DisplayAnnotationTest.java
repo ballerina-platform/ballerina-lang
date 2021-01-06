@@ -68,20 +68,20 @@ public class DisplayAnnotationTest {
                 " {iconPath: service.icon,label: service,misc: Other info}");
     }
 
-    @Test (enabled = false)
-    public void testIconOnObjectAndMemberFunction() {
+    @Test
+    public void testDisplayAnnotOnObjectAndMemberFunction() {
         ClassDefinition clz = result.getAST().getClassDefinitions().get(0);
         List<? extends AnnotationAttachmentNode> objAnnot = clz.getAnnotationAttachments();
         Assert.assertEquals(objAnnot.size(), 1);
         Assert.assertEquals(objAnnot.get(0).getExpression().toString(),
-                " {iconPath: barIconPath.icon,label: Bar class}.cloneReadOnly()");
+                " {iconPath: barIconPath.icon,label: Bar class}");
 
         List<BLangAnnotationAttachment> attachedFuncAttachments =
                 ((BLangClassDefinition) clz).functions.get(0).annAttachments;
         String annotAsString =
                 getActualExpressionFromAnnotationAttachmentExpr(attachedFuncAttachments.get(0).getExpression())
                         .toString();
-        Assert.assertEquals(annotAsString, " {iconPath: kMemberFuncIconPath.icon,label: k method}");
+        Assert.assertEquals(annotAsString, " {label: k method}");
     }
 
     @Test void testDisplayAnnotationNegative() {
