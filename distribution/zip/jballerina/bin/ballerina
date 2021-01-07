@@ -279,5 +279,5 @@ else
         -Dfile.encoding=UTF8 \
         -Dballerina.target=jvm \
         -Djava.command=$JAVACMD \
-        org.ballerinalang.tool.Main "$@"
+        io.ballerina.cli.launcher.Main "$@"
 fi

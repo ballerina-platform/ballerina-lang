@@ -351,7 +351,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangSimpleVariableDef onFailCallFuncDef;
     private BLangOnFailClause onFailClause;
     private BType forceCastReturnType = null;
-    private boolean addCheckExpression;
     private boolean shouldReturnErrors;
     private int transactionBlockCount;
     private BLangLiteral trxBlockId;
@@ -536,7 +535,8 @@ public class Desugar extends BLangNodeVisitor {
                     ASTBuilderUtil.createVariable(initFunction.pos,
                                                   requiredParameter.name.getValue(), requiredParameter.type,
                                                   createRequiredParamExpr(requiredParameter.expr),
-                                                  new BVarSymbol(0, names.fromString(requiredParameter.name.getValue()),
+                                                  new BVarSymbol(Flags.asMask(requiredParameter.flagSet),
+                                                                 names.fromString(requiredParameter.name.getValue()),
                                                                  requiredParameter.symbol.pkgID,
                                                                  requiredParameter.type, requiredParameter.symbol.owner,
                                                                  initFunction.pos, VIRTUAL));
@@ -2647,8 +2647,6 @@ public class Desugar extends BLangNodeVisitor {
             BLangDo doStmt = wrapStatementWithinDo(retryNode.pos, retryNode, onFailClause);
             result = rewrite(doStmt, env);
         } else {
-            boolean currentAddCheckExpr = this.addCheckExpression;
-            this.addCheckExpression = true;
             Location pos = retryNode.retryBody.pos;
             BLangBlockStmt retryBlockStmt = ASTBuilderUtil.createBlockStmt(retryNode.pos);
             retryBlockStmt.parent = env.enclInvokable;
@@ -2760,7 +2758,6 @@ public class Desugar extends BLangNodeVisitor {
             // }
             result = rewrite(retryBlockStmt, env);
             enclosingShouldContinue.remove(enclosingShouldContinue.size() - 1);
-            this.addCheckExpression = currentAddCheckExpr;
         }
     }
 
@@ -3021,35 +3018,8 @@ public class Desugar extends BLangNodeVisitor {
         // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
         // to distinguish between returning nil value specifically and not returning any value.
         if (returnNode.expr != null) {
-            if (returnNode.expr.type != null) {
-                if (addCheckExpression && returnNode.expr.getKind() != NodeKind.CHECK_EXPR &&
-                        returnNode.expr.getKind() != NodeKind.CHECK_PANIC_EXPR &&
-                        types.containsErrorType(returnNode.expr.type)) {
-                    if (types.isSameType(returnNode.expr.type, symTable.errorType)) {
-                        BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
-                        failStmt.pos = returnNode.pos;
-                        failStmt.expr = returnNode.expr;
-                        if (this.shouldReturnErrors) {
-                            BLangReturn returnStmt =
-                                    ASTBuilderUtil.createReturnStmt(returnNode.pos, rewrite(returnNode.expr, env));
-                            returnStmt.desugared = true;
-                            failStmt.exprStmt = returnStmt;
-                        }
-                        result = rewrite(failStmt, env);
-                        return;
-                    } else {
-                        BType checkType = returnNode.expr.type.tag == symTable.errorType.tag ? symTable.nilType :
-                                types.getSafeType(returnNode.expr.type, true, true);
-                        BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(returnNode.pos, returnNode.expr,
-                                checkType);
-                        checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
-                        types.setImplicitCastExpr(checkedExpr, checkType, env.enclInvokable.returnTypeNode.type);
-                        returnNode.expr = checkedExpr;
-                    }
-
-                } else if (forceCastReturnType != null) {
-                    returnNode.expr = addConversionExprIfRequired(returnNode.expr, forceCastReturnType);
-                }
+            if (forceCastReturnType != null) {
+                returnNode.expr = addConversionExprIfRequired(returnNode.expr, forceCastReturnType);
             }
             returnNode.expr = rewriteExpr(returnNode.expr);
         }
@@ -3377,7 +3347,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression createConditionForWildCardMatchPattern(BLangWildCardMatchPattern wildCardMatchPattern) {
         return ASTBuilderUtil.createLiteral(wildCardMatchPattern.pos, symTable.booleanType,
-                wildCardMatchPattern.matchesAll);
+                wildCardMatchPattern.isLastPattern);
     }
 
     private BLangExpression createConditionForConstMatchPattern(BLangConstPattern constPattern,
@@ -4088,9 +4058,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangLiteral currentTrxBlockId = this.trxBlockId;
             String uniqueId = String.valueOf(++transactionBlockCount);
             this.trxBlockId = ASTBuilderUtil.createLiteral(transactionNode.pos, symTable.stringType, uniqueId);
-            boolean currentAddCheckExpr = this.addCheckExpression;
             boolean currShouldReturnErrors = this.shouldReturnErrors;
-            this.addCheckExpression = true;
             this.shouldReturnErrors = true;
 
             BLangOnFailClause currOnFailClause = this.onFailClause;
@@ -4165,7 +4133,6 @@ public class Desugar extends BLangNodeVisitor {
             // }
             result = rewrite(transactionStmtBlock, this.env);
 
-            this.addCheckExpression = currentAddCheckExpr;
             this.shouldReturnErrors = currShouldReturnErrors;
             this.trxBlockId = currentTrxBlockId;
             swapAndResetEnclosingOnFail(currOnFailClause, currOnFailCallDef);
@@ -5573,8 +5540,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        boolean currentTrxVisit = this.addCheckExpression;
-        this.addCheckExpression = false;
         BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         bLangFunction.setName(bLangArrowFunction.functionName);
 
@@ -5627,7 +5592,6 @@ public class Desugar extends BLangNodeVisitor {
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
         result = rewriteExpr(lambdaFunction);
-        this.addCheckExpression = currentTrxVisit;
     }
 
     private void defineInvokableSymbol(BLangInvokableNode invokableNode, BInvokableSymbol funcSymbol,
@@ -7768,9 +7732,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // If the parent of current expr is the root, terminate
         NodeKind kind = accessExpr.expr.getKind();
-        if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR ||
-                kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
-                kind == NodeKind.INVOCATION) {
+        if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR || kind == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             handleSafeNavigation((BLangAccessExpression) accessExpr.expr, type, tempResultVar);
         }
 

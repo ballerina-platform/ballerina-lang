@@ -728,8 +728,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             } else if (!(types.isAssignable(lhsType, symTable.intType) ||
                     types.isAssignable(lhsType, symTable.floatType) ||
                     types.isAssignable(lhsType, symTable.stringType) ||
-                    types.isAssignable(lhsType, symTable.booleanType))) {
-                // TODO: remove this check onece runtime support all configurable types
+                    types.isAssignable(lhsType, symTable.booleanType) ||
+                    types.isAssignable(lhsType, symTable.decimalType) ||
+                    types.isAssignable(lhsType, symTable.arrayType))) {
+                // TODO: remove this check once runtime support all configurable types
                 dlog.error(varNode.typeNode.pos,
                         DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
             }
@@ -2614,7 +2616,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         BType matchExprType = wildCardMatchPattern.matchExpr.type;
         if (types.isAssignable(matchExprType, symTable.anyType)) {
-            wildCardMatchPattern.matchesAll = true;
             wildCardMatchPattern.type = symTable.anyType;
             return;
         }

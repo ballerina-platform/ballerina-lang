@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -41,6 +42,7 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.ParameterInformation;
@@ -55,6 +57,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
@@ -309,8 +313,7 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
         TextDocument textDocument = document.get().textDocument();
-
-        Position position = context.getPosition();
+        Position position = context.getCursorPosition();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         context.setCursorPositionInTree(txtPos);
         TextRange range = TextRange.from(txtPos, 0);
@@ -344,12 +347,24 @@ public class SignatureHelpUtil {
         }
 
         if (tokenAtCursor.get().kind() == SyntaxKind.FUNCTION_CALL) {
-            String funcName = ((SimpleNameReferenceNode) ((FunctionCallExpressionNode) tokenAtCursor.get())
-                    .functionName()).name().text();
-            List<Symbol> visibleSymbols = context.visibleSymbols(context.getPosition());
-            return visibleSymbols.stream().filter(symbol -> symbol.kind() == FUNCTION && symbol.name().equals(funcName))
-                    .map(symbol -> (FunctionSymbol) symbol)
-                    .findAny();
+            NameReferenceNode nameReferenceNode = ((FunctionCallExpressionNode) tokenAtCursor.get()).functionName();
+            String funcName;
+            Predicate<Symbol> symbolPredicate = symbol -> symbol.kind() == FUNCTION;
+            List<Symbol> filteredContent;
+            if (nameReferenceNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                funcName = ((QualifiedNameReferenceNode) nameReferenceNode).identifier().text();
+                filteredContent = QNameReferenceUtil.getModuleContent(context,
+                        (QualifiedNameReferenceNode) nameReferenceNode,
+                        symbolPredicate.and(symbol -> symbol.name().equals(funcName)));
+            } else {
+                funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
+                List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+                filteredContent = visibleSymbols.stream()
+                        .filter(symbolPredicate.and(symbol -> symbol.name().equals(funcName)))
+                        .collect(Collectors.toList());
+            }
+
+            return filteredContent.stream().map(symbol -> (FunctionSymbol) symbol).findAny();
         }
         Optional<? extends TypeSymbol> typeDesc;
         String methodName;
@@ -440,7 +455,7 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
         String name = ((SimpleNameReferenceNode) referenceNode).name().text();
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<Symbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(name))
                 .findFirst();
@@ -454,7 +469,7 @@ public class SignatureHelpUtil {
     private static Optional<? extends TypeSymbol> getTypeDescForFunctionCall(
             SignatureContext context, FunctionCallExpressionNode expr) {
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getPosition());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
                 .map(symbol -> (FunctionSymbol) symbol)

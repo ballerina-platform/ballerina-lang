@@ -17,20 +17,14 @@
  */
 package org.ballerinalang.langserver.commons;
 
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.Token;
 import org.eclipse.lsp4j.CompletionCapabilities;
-import org.eclipse.lsp4j.Position;
-
-import java.util.List;
 
 /**
  * Represents the Completion operation context.
  *
  * @since 2.0.0
  */
-public interface CompletionContext extends DocumentServiceContext {
+public interface CompletionContext extends PositionedOperationContext {
 
     /**
      * Get the client capabilities.
@@ -38,67 +32,4 @@ public interface CompletionContext extends DocumentServiceContext {
      * @return {@link CompletionCapabilities} client's completion capabilities
      */
     CompletionCapabilities getCapabilities();
-
-    /**
-     * Set the token at the completion's cursor position.
-     *
-     * @param token {@link Token} at the cursor
-     */
-    void setTokenAtCursor(Token token);
-
-    /**
-     * Get the token at the cursor.
-     *
-     * @return {@link Token}
-     */
-    Token getTokenAtCursor();
-
-    /**
-     * Set the node at cursor.
-     *
-     * @param node {@link NonTerminalNode} at the cursor position
-     */
-    void setNodeAtCursor(NonTerminalNode node);
-
-    /**
-     * Get the node at the completion request triggered cursor position.
-     *
-     * @return {@link NonTerminalNode} at the cursor position
-     */
-    NonTerminalNode getNodeAtCursor();
-
-    /**
-     * Add a resolver to the resolver chain.
-     *
-     * @param node {@link Node} to be added to the chain
-     */
-    void addResolver(Node node);
-
-    /**
-     * Get the resolver chain which is the list of node evaluated against the completion item resolving.
-     *
-     * @return {@link List} of nodes
-     */
-    List<Node> getResolverChain();
-
-    /**
-     * Set the cursor position as an offset value according to the syntax tree.
-     *
-     * @param offset of the cursor
-     */
-    void setCursorPositionInTree(int offset);
-
-    /**
-     * Get the cursor position as an offset value according to the syntax tree.
-     *
-     * @return {@link Integer} offset of the cursor
-     */
-    int getCursorPositionInTree();
-
-    /**
-     * Get the cursor position where the auto completion request triggered.
-     *
-     * @return {@link Position} cursor position
-     */
-    Position getCursorPosition();
 }

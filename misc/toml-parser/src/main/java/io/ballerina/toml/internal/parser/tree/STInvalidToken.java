@@ -27,10 +27,11 @@ import java.util.Collection;
  * @since 2.0.0
  */
 public class STInvalidToken extends STToken {
-    private String tokenText;
+    private final String tokenText;
 
     STInvalidToken(String tokenText) {
-        super(SyntaxKind.INVALID_TOKEN, STNodeFactory.createEmptyNodeList(), STNodeFactory.createEmptyNodeList());
+        super(SyntaxKind.INVALID_TOKEN, tokenText.length(), STNodeFactory.createEmptyNodeList(),
+                STNodeFactory.createEmptyNodeList());
         this.tokenText = tokenText;
     }
 
@@ -52,6 +53,11 @@ public class STInvalidToken extends STToken {
 
     public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
         return new STInvalidToken(this.tokenText, leadingMinutiae, trailingMinutiae, this.diagnostics);
+    }
+
+    @Override
+    public String toString() {
+        return leadingMinutiae + tokenText + trailingMinutiae;
     }
 
     @Override

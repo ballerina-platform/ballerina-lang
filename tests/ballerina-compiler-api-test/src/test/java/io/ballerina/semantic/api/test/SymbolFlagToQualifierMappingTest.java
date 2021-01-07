@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.CLIENT;
+import static io.ballerina.compiler.api.symbols.Qualifier.CONFIGURABLE;
 import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
 import static io.ballerina.compiler.api.symbols.Qualifier.ISOLATED;
 import static io.ballerina.compiler.api.symbols.Qualifier.LISTENER;
@@ -79,7 +80,9 @@ public class SymbolFlagToQualifierMappingTest {
                 {56, 16, Set.of(CLIENT)},
                 {57, 22, Set.of(REMOTE)},
                 {65, 17, Set.of(LISTENER, FINAL)},
-                {66, 24, Set.of(RESOURCE)}
+                {66, 24, Set.of(RESOURCE)},
+                {77, 19, Set.of(CONFIGURABLE)},
+                {78, 20, Set.of(CONFIGURABLE)}
         };
     }
 

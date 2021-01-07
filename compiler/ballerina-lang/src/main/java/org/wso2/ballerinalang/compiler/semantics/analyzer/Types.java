@@ -1029,7 +1029,7 @@ public class Types {
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
                                              Set<TypePair> unresolvedTypes) {
-        if (hasIncompatibleIsolatedFlags(source, target)) {
+        if (hasIncompatibleIsolatedFlags(source, target) || hasIncompatibleTransactionalFlags(source, target)) {
             return false;
         }
 
@@ -1235,7 +1235,7 @@ public class Types {
 
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
                                               Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
-        if (hasIncompatibleIsolatedFlags(source, target)) {
+        if (hasIncompatibleIsolatedFlags(source, target) || hasIncompatibleTransactionalFlags(source, target)) {
             return false;
         }
 
@@ -1268,6 +1268,11 @@ public class Types {
 
     private boolean hasIncompatibleIsolatedFlags(BInvokableType source, BInvokableType target) {
         return Symbols.isFlagOn(target.flags, Flags.ISOLATED) && !Symbols.isFlagOn(source.flags, Flags.ISOLATED);
+    }
+
+    private boolean hasIncompatibleTransactionalFlags(BInvokableType source, BInvokableType target) {
+        return Symbols.isFlagOn(source.flags, Flags.TRANSACTIONAL) &&
+                !Symbols.isFlagOn(target.flags, Flags.TRANSACTIONAL);
     }
 
     public boolean isSameArrayType(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -1645,11 +1650,11 @@ public class Types {
 
         List<BType> types = new ArrayList<>(((BUnionType) returnType).getMemberTypes());
 
-        if (!types.removeIf(type -> type.tag == TypeTags.NIL)) {
+        boolean containsCompletionType = types.removeIf(type -> type.tag == TypeTags.NIL);
+        containsCompletionType = types.removeIf(type -> type.tag == TypeTags.ERROR) || containsCompletionType;
+        if (!containsCompletionType) {
             return false;
         }
-
-        types.removeIf(type -> type.tag == TypeTags.ERROR);
 
         if (types.size() != 1) {
             //TODO: print error

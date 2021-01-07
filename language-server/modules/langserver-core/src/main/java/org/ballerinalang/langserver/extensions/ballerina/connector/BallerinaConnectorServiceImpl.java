@@ -23,14 +23,20 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.moandjiezana.toml.Toml;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -137,7 +143,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
                 BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
-                ModuleId moduleId = baloProject.currentPackage().moduleIds().stream().findFirst().get();
+                ModuleId moduleId = baloProject.currentPackage().moduleIds().stream()
+                        .filter(modId -> modId.moduleName().equals(request.getModule())).findFirst().get();
                 Module module = baloProject.currentPackage().module(moduleId);
                 SemanticModel semanticModel = module.getCompilation().getSemanticModel();
 
@@ -168,7 +175,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     }
 
                     JsonElement jsonST = DiagramUtil.getClassDefinitionSyntaxJson(connector, semanticModel);
-                    if (jsonST instanceof JsonObject) {
+                    if (jsonST instanceof JsonObject && ((JsonObject) jsonST).has("typeData")) {
                         JsonElement recordsJson = gson.toJsonTree(connectorRecords);
                         ((JsonObject) ((JsonObject) jsonST).get("typeData")).add("records", recordsJson);
                     }
@@ -197,11 +204,46 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 .type(parameterNode.syntaxTree().filePath(), parameterNode.lineRange());
         if (paramType.isPresent()) {
             if (paramType.get().typeKind() == TypeDescKind.UNION) {
+                String parameterTypeName = "";
+                if (parameterNode instanceof RequiredParameterNode) {
+                    Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode.syntaxTree().filePath(),
+                            ((RequiredParameterNode) parameterNode).paramName().get().lineRange().startLine());
+                    if (paramSymbol.isPresent()) {
+                        parameterTypeName = String.format("%s:%s", paramSymbol.get().moduleID(),
+                                ((RequiredParameterNode) parameterNode).typeName());
+                    }
+                } else if (parameterNode instanceof DefaultableParameterNode) {
+                    Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode.syntaxTree().filePath(),
+                            ((DefaultableParameterNode) parameterNode).paramName().get().lineRange().startLine());
+                    if (paramSymbol.isPresent()) {
+                        parameterTypeName = String.format("%s:%s", paramSymbol.get().moduleID(),
+                                ((DefaultableParameterNode) parameterNode).typeName());
+                    }
+                } else if (parameterNode instanceof RestParameterNode) {
+                    Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode.syntaxTree().filePath(),
+                            ((RestParameterNode) parameterNode).paramName().get().lineRange().startLine());
+                    if (paramSymbol.isPresent()) {
+                        parameterTypeName = String.format("%s:%s", paramSymbol.get().moduleID(),
+                                ((RestParameterNode) parameterNode).typeName());
+                    }
+
+                }
+
+                if (jsonRecords.get(parameterTypeName) != null) {
+                    connectorRecords.put(parameterTypeName,
+                            DiagramUtil.getTypeDefinitionSyntaxJson(jsonRecords.get(parameterTypeName), semanticModel));
+                }
                 Arrays.stream(paramType.get().signature().split("\\|")).forEach(type -> {
-                    TypeDefinitionNode record = jsonRecords.get(type);
+                    String refinedType = type.replace("?", "");
+                    TypeDefinitionNode record = jsonRecords.get(refinedType);
                     if (record != null) {
-                        connectorRecords.put(type, DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
-                        populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
+                        connectorRecords.put(refinedType, DiagramUtil
+                                .getTypeDefinitionSyntaxJson(record, semanticModel));
+
+                        if (record.typeDescriptor() instanceof RecordTypeDescriptorNode) {
+                            populateConnectorTypeDef((RecordTypeDescriptorNode) record.typeDescriptor(),
+                                    semanticModel, jsonRecords, connectorRecords, record.typeName().text());
+                        }
                     }
                 });
             } else if (paramType.get().typeKind() == TypeDescKind.ARRAY) {
@@ -209,34 +251,51 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 if (record != null) {
                     connectorRecords.put(paramType.get().signature(),
                             DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
-                    populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
+
+                    if (record.typeDescriptor() instanceof RecordTypeDescriptorNode) {
+                        populateConnectorTypeDef((RecordTypeDescriptorNode) record.typeDescriptor(),
+                                semanticModel, jsonRecords, connectorRecords, record.typeName().text());
+                    }
                 }
             } else if (paramType.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
                 TypeDefinitionNode record = jsonRecords.get(paramType.get().signature());
                 if (record != null) {
                     connectorRecords.put(paramType.get().signature(),
                             DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
-                    populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
+                    if (record.typeDescriptor() instanceof RecordTypeDescriptorNode) {
+                        populateConnectorTypeDef((RecordTypeDescriptorNode) record.typeDescriptor(), semanticModel,
+                                jsonRecords, connectorRecords, record.typeName().text());
+                    }
                 }
             }
         }
     }
 
-    private void populateConnectorRecords(TypeDefinitionNode recordTypeDefinition, SemanticModel semanticModel,
+    private void populateConnectorTypeDef(RecordTypeDescriptorNode recordTypeDescriptorNode,
+                                          SemanticModel semanticModel,
                                           Map<String, TypeDefinitionNode> jsonRecords,
-                                          Map<String, JsonElement> connectorRecords) {
-        RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) recordTypeDefinition
-                .typeDescriptor();
+                                          Map<String, JsonElement> connectorRecords, String fieldTypeName) {
 
         recordTypeDescriptorNode.fields().forEach(field -> {
-            Optional<TypeSymbol> fieldType = semanticModel.type(field.syntaxTree().filePath(), field.lineRange());
 
-            if (fieldType.isPresent() && fieldType.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
-                String typeName = fieldType.get().signature();
+            Optional<Symbol> fieldType;
+            if (field instanceof TypeReferenceNode) {
+                fieldType = semanticModel.symbol(field.syntaxTree().filePath(),
+                        ((TypeReferenceNode) field).typeName().lineRange().startLine());
+            } else {
+                fieldType = semanticModel.symbol(field.syntaxTree().filePath(), field.lineRange().startLine());
+            }
+
+            if (fieldType.isPresent() && fieldType.get() instanceof TypeReferenceTypeSymbol) {
+                TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) fieldType.get();
+                String typeName = typeReferenceTypeSymbol.signature();
                 TypeDefinitionNode record = jsonRecords.get(typeName);
-                if (record != null && !recordTypeDefinition.typeName().text().equals(typeName)) {
-                    connectorRecords.put(typeName, DiagramUtil.getSyntaxTreeJSON(record.syntaxTree(), semanticModel));
-                    populateConnectorRecords(record, semanticModel, jsonRecords, connectorRecords);
+                if (record != null && !fieldType.equals(typeName)) {
+                    connectorRecords.put(typeName, DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
+                    if (record.typeDescriptor() instanceof RecordTypeDescriptorNode) {
+                        populateConnectorTypeDef((RecordTypeDescriptorNode) record.typeDescriptor(),
+                                semanticModel, jsonRecords, connectorRecords, typeName);
+                    }
                 }
             }
         });
