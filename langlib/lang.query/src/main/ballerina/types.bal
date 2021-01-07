@@ -525,7 +525,7 @@ class _OrderByFunction {
             // consume all events for ordering.
             while (f is _Frame) {
                 orderKeyFunc(f);
-                oTree.add(f, <any[]>f["$orderDirection$"], <any[]>f["$orderKey$"]);
+                oTree.add(f, <any[]>(checkpanic f["$orderDirection$"]), <any[]>(checkpanic f["$orderKey$"]));
                 f = pf.process();
             }
             if (f is error) {

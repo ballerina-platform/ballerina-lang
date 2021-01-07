@@ -22,6 +22,7 @@ function testReadonlyObjects() {
     testInvalidReadOnlyObjectUpdateAtRuntime();
     testReadOnlyObjectsForImmutableIntersections1();
     testReadOnlyObjectsForImmutableIntersections2();
+    testReadOnlyServiceClass();
 }
 
 type Details record {|
@@ -201,6 +202,42 @@ function testReadOnlyObjectsForImmutableIntersections2() {
     assertEquality("other immutable", v3.id);
 }
 
+service readonly class ReadOnlyServiceClass {
+    int[] y;
+
+    function init(int[] & readonly y) {
+        self.y = y;
+    }
+
+    resource function get bar() {
+
+    }
+}
+
+function testReadOnlyServiceClass() {
+    ReadOnlyServiceClass readonlyService = new ReadOnlyServiceClass([1, 2, 3]);
+    assertTrue(<any> readonlyService is readonly & service object {int[] y;});
+
+    object {int[] y;} ob = readonlyService;
+    var fn = function () {
+        ob.y[0] = 1;
+    };
+    error? res = trap fn();
+    assertTrue(res is error);
+    error err = <error> res;
+    assertEquality("{ballerina/lang.array}InvalidUpdate", err.message());
+    assertEquality("modification not allowed on readonly value", err.detail()["message"]);
+
+    fn = function () {
+        ob.y = [1, 2];
+    };
+    res = trap fn();
+    assertTrue(res is error);
+    err = <error> res;
+    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality("modification not allowed on readonly value", err.detail()["message"]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
@@ -220,6 +257,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

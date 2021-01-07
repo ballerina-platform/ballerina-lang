@@ -322,7 +322,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         visit((BLangFunction) funcNode);
         for (BLangSimpleVariable pathParam : funcNode.pathParams) {
             pathParam.accept(this);
-            if (!types.isAssignable(pathParam.type, symTable.intStringFloatOrBoolean)) {
+            if (!types.isAssignable(pathParam.type, symTable.pathParamAllowedType)) {
                 dlog.error(pathParam.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE, pathParam.type);
             }
         }
@@ -331,7 +331,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             funcNode.restPathParam.accept(this);
             BArrayType arrayType = (BArrayType) funcNode.restPathParam.type;
             BType elemType = arrayType.getElementType();
-            if (!types.isAssignable(elemType, symTable.intStringFloatOrBoolean)) {
+            if (!types.isAssignable(elemType, symTable.pathParamAllowedType)) {
                 dlog.error(funcNode.restPathParam.getPosition(),
                         DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE, elemType);
             }
@@ -485,6 +485,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         validateAnnotationAttachmentCount(classDefinition.annAttachments);
 
         analyzeClassDefinition(classDefinition);
+
+        validateInclusions(classDefinition.flagSet, classDefinition.typeRefs, false,
+                           Symbols.isFlagOn(classDefinition.type.tsymbol.flags, Flags.ANONYMOUS));
     }
 
     @Override
@@ -564,10 +567,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (field.flagSet.contains(Flag.PRIVATE)) {
                 this.dlog.error(field.pos, DiagnosticErrorCode.PRIVATE_FIELD_ABSTRACT_OBJECT, field.symbol.name);
             }
-
-//            if (field.expr != null) {
-//                this.dlog.error(field.expr.pos, DiagnosticErrorCode.FIELD_WITH_DEFAULT_VALUE_ABSTRACT_OBJECT);
-//            }
         });
 
         // Visit functions as they are not in the same scope/env as the object fields
@@ -589,6 +588,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Validate the referenced functions that don't have implementations within the function.
         ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions
                 .forEach(func -> validateReferencedFunction(objectTypeNode.pos, func, env));
+
+        validateInclusions(objectTypeNode.flagSet, objectTypeNode.typeRefs, true, false);
 
         if (objectTypeNode.initFunction == null) {
             return;
@@ -3497,12 +3498,75 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void validateInclusions(Set<Flag> referencingTypeFlags, List<BLangType> typeRefs, boolean objectTypeDesc,
+                                    boolean objectConstructorExpr) {
+        boolean nonIsolated = !referencingTypeFlags.contains(Flag.ISOLATED);
+        boolean nonService = !referencingTypeFlags.contains(Flag.SERVICE);
+        boolean nonClient = !referencingTypeFlags.contains(Flag.CLIENT);
+        boolean nonReadOnly = !referencingTypeFlags.contains(Flag.READONLY);
+
+        for (BLangType typeRef : typeRefs) {
+            BType type = typeRef.type;
+            long flags = type.flags;
+
+            List<Flag> mismatchedFlags = new ArrayList<>();
+
+            if (nonIsolated && Symbols.isFlagOn(flags, Flags.ISOLATED)) {
+                mismatchedFlags.add(Flag.ISOLATED);
+            }
+
+            if (nonService && Symbols.isFlagOn(flags, Flags.SERVICE)) {
+                mismatchedFlags.add(Flag.SERVICE);
+            }
+
+            if (nonClient && Symbols.isFlagOn(flags, Flags.CLIENT)) {
+                mismatchedFlags.add(Flag.CLIENT);
+            }
+
+            if (!mismatchedFlags.isEmpty()) {
+                StringBuilder qualifierString = new StringBuilder(mismatchedFlags.get(0).toString().toLowerCase());
+
+                for (int i = 1; i < mismatchedFlags.size(); i++) {
+                    qualifierString.append(" ").append(mismatchedFlags.get(i).toString().toLowerCase());
+                }
+
+                dlog.error(typeRef.pos,
+                           objectConstructorExpr ?
+                                   DiagnosticErrorCode.INVALID_REFERENCE_WITH_MISMATCHED_QUALIFIERS :
+                                   DiagnosticErrorCode.INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS,
+                           qualifierString.toString());
+            }
+
+            BTypeSymbol tsymbol = type.tsymbol;
+            if (tsymbol == null ||
+                    !Symbols.isFlagOn(tsymbol.flags, Flags.CLASS) ||
+                    !Symbols.isFlagOn(flags, Flags.READONLY)) {
+                continue;
+            }
+
+            if (objectTypeDesc) {
+                dlog.error(typeRef.pos,
+                           DiagnosticErrorCode.INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPE_DESCRIPTOR);
+                continue;
+            }
+
+            if (nonReadOnly && !objectConstructorExpr) {
+                dlog.error(typeRef.pos, DiagnosticErrorCode.INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS);
+            }
+        }
+    }
+
     private void validateReferencedFunction(Location pos, BAttachedFunction func, SymbolEnv env) {
         if (!Symbols.isFlagOn(func.symbol.receiverSymbol.type.tsymbol.flags, Flags.CLASS)) {
             return;
         }
 
         if (!Symbols.isFunctionDeclaration(func.symbol)) {
+            return;
+        }
+
+        // Service typing does not consider resource methods when type checking.
+        if (Symbols.isResource(func.symbol)) {
             return;
         }
 

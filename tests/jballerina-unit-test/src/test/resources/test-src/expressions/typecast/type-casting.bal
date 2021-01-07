@@ -493,7 +493,7 @@ function testJSONValueCasting() returns [string|error, int|error, float|error, b
     return [s, i, f, b];
 }
 
-function testAnyToTable(){
+function testAnyToTable() {
     table<Employee> tb = table [
                     {id:1, name:"Jane"},
                     {id:2, name:"Anne"}
@@ -501,7 +501,7 @@ function testAnyToTable(){
 
     any anyValue = tb;
     var casted = <table<Employee>> anyValue;
-    table<Employee>|error  castedValue = casted;
+    table<Employee>  castedValue = casted;
     assertEquality("[{\"id\":1,\"name\":\"Jane\"},{\"id\":2,\"name\":\"Anne\"}]", castedValue.toString());
 }
 
@@ -515,8 +515,6 @@ function testAnonRecordInCast() returns record {| string name; |} {
     return <record {| string name; |}>{ name: "Pubudu" };
 }
 
-type AssertionError distinct error;
-
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
@@ -528,5 +526,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                        message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
