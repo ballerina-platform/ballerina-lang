@@ -42,25 +42,27 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(BObject m) {
         BIterator xmlIterator = (BIterator) m.getNativeData("&iterator&");
-        BXml bXML = (BXml) m.get(StringUtils.fromString("m"));
 
         if (xmlIterator == null) {
-            xmlIterator = bXML.getIterator();
+            xmlIterator = ((BXml)m.get(StringUtils.fromString("m"))).getIterator();
             m.addNativeData("&iterator&", xmlIterator);
         }
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            switch (bXML.getType().getTag()) {
+            switch (((BXml)xmlValue).getType().getTag()) {
                 case TypeTags.XML_ELEMENT_TAG:
                     return ValueCreator.createRecordValue(ValueCreator.createMapValue
                                     (PredefinedTypes.XML_ITR_NEXT_RETURN_ELEMENT_TYPE), xmlValue);
                 case TypeTags.XML_TEXT_TAG:
                     return ValueCreator.createRecordValue(ValueCreator.createMapValue
                             (PredefinedTypes.XML_ITR_NEXT_RETURN_TEXT_TYPE), xmlValue);
-                case TypeTags.XML_TAG:
+                case TypeTags.XML_COMMENT_TAG:
                     return ValueCreator.createRecordValue(ValueCreator.createMapValue
-                            (PredefinedTypes.XML_ITR_NEXT_RETURN_XML_TYPE), xmlValue);
+                            (PredefinedTypes.XML_ITR_NEXT_RETURN_COMMENT_TYPE), xmlValue);
+                case TypeTags.XML_PI_TAG:
+                    return ValueCreator.createRecordValue(ValueCreator.createMapValue
+                            (PredefinedTypes.XML_ITR_NEXT_RETURN_PI_TYPE), xmlValue);
             }
         }
         return null;

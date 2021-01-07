@@ -195,10 +195,10 @@ function testXmlCommentSequenceIteration() {
      foreach 'xml:Comment elem in comment1 {
          concatString(elem.toString());
      }
-     assert(output, "");
+     assert(output, "<!--I am a comment-->\n");
 
      record {| 'xml:Comment value; |}? nextComment1 = comment1.iterator().next();
-     assert(nextComment1.toString(), "");
+     assert(nextComment1.toString(), "{\"value\":`<!--I am a comment-->`}");
 }
 
 function testXmlPISequenceIteration() {
@@ -208,10 +208,10 @@ function testXmlPISequenceIteration() {
      foreach 'xml:ProcessingInstruction elem in pi1 {
          concatString(elem.toString());
      }
-     assert(output, "");
+     assert(output, "<?target data?>\n");
 
      record {| 'xml:ProcessingInstruction value; |}? nextPI1 = pi1.iterator().next();
-     assert(nextPI1.toString(), "");
+     assert(nextPI1.toString(), "{\"value\":`<?target data?>`}");
 }
 
 function testXmlUnionSequenceIteration() {
