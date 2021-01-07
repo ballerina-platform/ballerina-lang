@@ -51,7 +51,7 @@ readonly class Controller {
     }
 }
 
-function testInvalidReadOnlyIntersection() {
+function testReadOnlyIntersectionInvalidInitialization() {
     Controller & readonly x = new;
 }
 
@@ -61,5 +61,17 @@ readonly class InvalidReadOnlyObject {
 
     function init(future<int> g) {
         self.f = g;
+    }
+}
+
+service readonly class InvalidReadOnlyServiceClass {
+    int[] y;
+
+    function init(int[] y) {
+        self.y = y;
+    }
+
+    resource function get bar() {
+
     }
 }

@@ -17,24 +17,25 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.api.types.ResourceFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 
 import java.util.StringJoiner;
 
 /**d
- * {@code ResourceFunction} represents a resource function in Ballerina.
+ * {@code ResourceMethodType} represents a resource function in Ballerina.
  *
  * @since 2.0
  */
-public class BResourceFunctionType extends BMemberFunctionType implements ResourceFunctionType {
+public class BResourceMethodType extends BMethodType implements ResourceMethodType {
 
     public final String accessor;
     public final String[] resourcePath;
     public final String[] paramNames;
 
-    public BResourceFunctionType(String funcName, BObjectType parent, BFunctionType type, long flags,
-                                 String accessor, String[] resourcePath, String[] paramNames) {
+    public BResourceMethodType(String funcName, BObjectType parent, BFunctionType type, long flags,
+                               String accessor, String[] resourcePath, String[] paramNames) {
         super(funcName, parent, type, flags);
         this.type = type;
         this.flags = flags;
@@ -72,5 +73,10 @@ public class BResourceFunctionType extends BMemberFunctionType implements Resour
     @Override
     public String[] getResourcePath() {
         return resourcePath;
+    }
+
+    @Override
+    public <T extends MethodType> MethodType duplicate() {
+        return new BResourceMethodType(funcName, parentObjectType, type, flags, accessor, resourcePath, paramNames);
     }
 }

@@ -23,13 +23,11 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
-import io.ballerina.runtime.api.types.MemberFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.AnnotationUtils;
-import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.values.MapValue;
 
+import java.lang.reflect.Array;
 import java.util.Map.Entry;
 import java.util.StringJoiner;
 
@@ -40,12 +38,12 @@ import java.util.StringJoiner;
  */
 public class BObjectType extends BStructureType implements ObjectType {
 
-    private MemberFunctionType[] attachedFunctions;
-    public MemberFunctionType initializer;
-    public MemberFunctionType generatedInitializer;
+    private MethodType[] methodTypes;
+    public MethodType initializer;
+    public MethodType generatedInitializer;
 
     private final boolean readonly;
-    private IntersectionType immutableType;
+    protected IntersectionType immutableType;
     public BTypeIdSet typeIdSet;
 
     /**
@@ -80,19 +78,19 @@ public class BObjectType extends BStructureType implements ObjectType {
         return TypeTags.OBJECT_TYPE_TAG;
     }
 
-    public MemberFunctionType[] getAttachedFunctions() {
-        return attachedFunctions;
+    public MethodType[] getMethods() {
+        return methodTypes;
     }
 
-    public void setAttachedFunctions(MemberFunctionType[] attachedFunctions) {
-        this.attachedFunctions = attachedFunctions;
+    public void setMethods(MethodType[] methodTypes) {
+        this.methodTypes = methodTypes;
     }
 
-    public void setInitializer(BMemberFunctionType initializer) {
+    public void setInitializer(BMethodType initializer) {
         this.initializer = initializer;
     }
 
-    public void setGeneratedInitializer(BMemberFunctionType generatedInitializer) {
+    public void setGeneratedInitializer(BMethodType generatedInitializer) {
         this.generatedInitializer = generatedInitializer;
     }
 
@@ -110,7 +108,7 @@ public class BObjectType extends BStructureType implements ObjectType {
             sj.add(field.getKey() + " : " + field.getValue().getFieldType());
         }
 
-        for (MemberFunctionType func : attachedFunctions) {
+        for (MethodType func : methodTypes) {
             sj.add(func.toString());
         }
 
@@ -136,8 +134,24 @@ public class BObjectType extends BStructureType implements ObjectType {
         this.typeIdSet = typeIdSet;
     }
 
-    public void processObjectCtorAnnots(MapValue globalAnnotationMap, Strand strand) {
-        AnnotationUtils.processObjectCtorAnnotations(globalAnnotationMap, this, strand);
+    public BObjectType duplicate() {
+        BObjectType type = new BObjectType(this.typeName, this.pkg, this.flags);
+        type.setFields(fields);
+        type.setMethods(duplicateArray(methodTypes));
+        type.immutableType = this.immutableType;
+        type.typeIdSet = this.typeIdSet;
+        return type;
+    }
+
+    protected  <T extends MethodType> T[] duplicateArray(T[] methodTypes) {
+        Class<?> elemType = methodTypes.getClass().getComponentType();
+        T[] array = (T[]) Array.newInstance(elemType, methodTypes.length);
+        for (int i = 0; i < methodTypes.length; i++) {
+            BMethodType functionType = (BMethodType) methodTypes[i];
+            array[i] = (T) functionType.duplicate();
+        }
+
+        return array;
     }
 
     public boolean hasAnnotations() {

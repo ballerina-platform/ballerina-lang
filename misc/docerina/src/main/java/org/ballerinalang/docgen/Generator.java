@@ -27,6 +27,8 @@ import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.DistinctTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.EnumMemberNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -54,14 +56,15 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
-import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Annotation;
 import org.ballerinalang.docgen.generator.model.BAbstractObject;
 import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.Constant;
+import org.ballerinalang.docgen.generator.model.Construct;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
+import org.ballerinalang.docgen.generator.model.Enum;
 import org.ballerinalang.docgen.generator.model.Error;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Listener;
@@ -176,6 +179,10 @@ public class Generator {
                     hasPublicConstructs = true;
                     module.annotations.add(getAnnotationModel((AnnotationDeclarationNode) node, semanticModel,
                             fileName));
+                } else if (node.kind() == SyntaxKind.ENUM_DECLARATION &&
+                        ((EnumDeclarationNode) node).qualifier().isPresent() &&
+                        ((EnumDeclarationNode) node).qualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
+                    module.enums.add(getEnumModel((EnumDeclarationNode) node));
                 }
             }
         }
@@ -189,6 +196,24 @@ public class Generator {
             }
         }
         return false;
+    }
+
+    public static Enum getEnumModel(EnumDeclarationNode enumDeclaration) {
+        String enumName = enumDeclaration.identifier().text();
+        List<Construct> members = new ArrayList<>();
+        enumDeclaration.enumMemberList().forEach(node -> {
+            if (node.kind().equals(SyntaxKind.ENUM_MEMBER)) {
+                EnumMemberNode enumMemberNode = (EnumMemberNode) node;
+                String memberName = enumMemberNode.identifier().text();
+                String doc = getDocFromMetadata(enumMemberNode.metadata());
+                if (doc.equals("")) {
+                    doc = getParameterDocFromMetadataList(memberName, enumDeclaration.metadata());
+                }
+                members.add(new Construct(memberName, doc, false));
+            }
+        });
+        return new Enum(enumName, getDocFromMetadata(enumDeclaration.metadata()),
+                isDeprecated(enumDeclaration.metadata()), members);
     }
 
     public static Annotation getAnnotationModel(AnnotationDeclarationNode annotationDeclaration,
@@ -287,8 +312,9 @@ public class Generator {
                 classDefinitionNode.metadata(), semanticModel, fileName);
 
         for (Node member : classDefinitionNode.members()) {
-            if (member instanceof FunctionDefinitionNode && containsToken(((FunctionDefinitionNode) member)
-                    .qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
+            if (member instanceof FunctionDefinitionNode && (containsToken(((FunctionDefinitionNode) member)
+                    .qualifierList(), SyntaxKind.PUBLIC_KEYWORD) || containsToken(((FunctionDefinitionNode) member)
+                    .qualifierList(), SyntaxKind.REMOTE_KEYWORD))) {
                 functions.add(getFunctionModel((FunctionDefinitionNode) member, semanticModel, fileName));
             }
         }
@@ -518,7 +544,7 @@ public class Generator {
                     break;
                 }
             }
-            return BallerinaDocUtils.mdToHtml(doc, false);
+            return doc;
         } else {
             return "";
         }
@@ -548,7 +574,7 @@ public class Generator {
                     parameterDoc.append(getDocString(((MarkdownDocumentationLineNode) docLine).documentElements()));
                 }
             }
-            return BallerinaDocUtils.mdToHtml(parameterDoc.toString(), false);
+            return parameterDoc.toString();
         } else {
             return "";
         }
@@ -561,6 +587,9 @@ public class Generator {
         StringBuilder doc = new StringBuilder();
         for (Node docNode : documentElements) {
             doc.append(docNode.toString());
+        }
+        if (doc.toString().startsWith(" ")) {
+            return doc.substring(1);
         }
         return doc.toString();
     }
