@@ -136,7 +136,6 @@ public class ObjectTypeReferenceTest {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions",
                 18, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Bar'", 19, 6);
         BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions", 20, 6);
         BAssertUtil.validateError(negativeResult, i, "unknown type 'YYY'", 29, 6);
     }
