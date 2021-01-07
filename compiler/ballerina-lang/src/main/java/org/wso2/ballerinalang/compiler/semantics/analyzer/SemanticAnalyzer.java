@@ -32,9 +32,11 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -161,6 +163,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -209,6 +212,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private TypeNarrower typeNarrower;
     private ConstantAnalyzer constantAnalyzer;
     private ConstantValueResolver constantValueResolver;
+    private BLangAnonymousModelHelper anonModelHelper;
 
     private SymbolEnv env;
     private BType expType;
@@ -244,6 +248,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.constantAnalyzer = ConstantAnalyzer.getInstance(context);
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
+        this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -602,7 +607,37 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
-        recordTypeNode.fields.forEach(field -> analyzeDef(field, recordEnv));
+
+        BType type = recordTypeNode.type;
+
+        boolean isRecordType = false;
+        LinkedHashMap<String, BField> fields = null;
+
+        boolean allReadOnlyFields = false;
+
+        if (type.tag == TypeTags.RECORD) {
+            isRecordType = true;
+
+            BRecordType recordType = (BRecordType) type;
+            fields = recordType.fields;
+            allReadOnlyFields = recordType.sealed;
+        }
+
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            if (field.flagSet.contains(Flag.READONLY)) {
+                handleReadOnlyField(isRecordType, fields, field);
+            } else {
+                allReadOnlyFields = false;
+            }
+
+            analyzeDef(field, recordEnv);
+        }
+
+        if (isRecordType && allReadOnlyFields) {
+            type.tsymbol.flags |= Flags.READONLY;
+            type.flags |= Flags.READONLY;
+        }
+
         validateOptionalNeverTypedField(recordTypeNode);
         validateDefaultable(recordTypeNode);
         recordTypeNode.analyzed = true;
@@ -3575,5 +3610,41 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return true;
         }
         return false;
+    }
+
+    private void handleReadOnlyField(boolean isRecordType, LinkedHashMap<String, BField> fields,
+                                     BLangSimpleVariable field) {
+        BType fieldType = field.type;
+
+        if (fieldType == symTable.semanticError) {
+            return;
+        }
+
+        BType readOnlyFieldType = getReadOnlyFieldType(field.pos, fieldType);
+
+        if (readOnlyFieldType == symTable.semanticError) {
+            dlog.error(field.pos, DiagnosticErrorCode.INVALID_READONLY_FIELD_TYPE, fieldType);
+            return;
+        }
+
+        if (isRecordType) {
+            fields.get(field.name.value).type = readOnlyFieldType;
+        }
+
+        field.type = field.symbol.type = readOnlyFieldType;
+    }
+
+    private BType getReadOnlyFieldType(Location pos, BType fieldType) {
+        if (types.isInherentlyImmutableType(fieldType) || Symbols.isFlagOn(fieldType.flags, Flags.READONLY)) {
+            return fieldType;
+        }
+
+        if (!types.isSelectivelyImmutableType(fieldType)) {
+            return symTable.semanticError;
+        }
+
+        return ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
+                                                                (SelectivelyImmutableReferenceType) fieldType, env,
+                                                                symTable, anonModelHelper, names, new HashSet<>());
     }
 }
