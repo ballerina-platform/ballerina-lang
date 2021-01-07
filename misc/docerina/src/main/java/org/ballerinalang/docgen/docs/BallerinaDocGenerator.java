@@ -171,6 +171,9 @@ public class BallerinaDocGenerator {
     }
 
     public static void writeAPIDocs(PackageLibrary packageLib, String output, boolean isMerge) {
+        if (packageLib.packages.size() == 0) {
+            return;
+        }
         if (packageLib.packages.get(0).modules.size() != 0) {
             if (!isMerge) {
                 output = packageLib.packages.get(0).name.equals("") ? output + File.separator +
