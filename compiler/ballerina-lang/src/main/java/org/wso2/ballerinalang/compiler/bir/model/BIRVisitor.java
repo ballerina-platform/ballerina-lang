@@ -230,7 +230,7 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
-    public void visit(Argument birArgument) {
+    public void visit(BIRArgument birArgument) {
         throw new AssertionError();
     }
 }

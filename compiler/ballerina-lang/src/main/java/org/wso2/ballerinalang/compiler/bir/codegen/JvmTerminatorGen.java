@@ -33,7 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JavaMethodCall;
-import org.wso2.ballerinalang.compiler.bir.model.Argument;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -704,7 +704,7 @@ public class JvmTerminatorGen {
         int argsCount = callIns.args.size();
         int i = 0;
         while (i < argsCount) {
-            Argument arg = (Argument) callIns.args.get(i);
+            BIRArgument arg = (BIRArgument) callIns.args.get(i);
             this.loadArgument(arg);
             this.loadStateOfArgument(arg, JvmCodeGenUtil.isBallerinaBuiltinModule(packageID.orgName.getValue(),
                                     packageID.name.getValue()));
@@ -772,7 +772,7 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(L2I);
             j += 1;
             // i + 1 is used since we skip the first argument (self)
-            Argument arg = (Argument) callIns.args.get(i + 1);
+            BIRArgument arg = (BIRArgument) callIns.args.get(i + 1);
             this.loadArgument(arg);
 
             // Add the to the rest params array
@@ -798,7 +798,7 @@ public class JvmTerminatorGen {
         JvmCastGen.addUnboxInsn(this.mv, returnType);
     }
 
-    private void loadStateOfArgument(Argument arg, boolean isBuiltInModule) {
+    private void loadStateOfArgument(BIRArgument arg, boolean isBuiltInModule) {
         if (isBuiltInModule) {
             return;
         }
@@ -817,7 +817,7 @@ public class JvmTerminatorGen {
         }
     }
 
-    private void loadArgument(Argument arg) {
+    private void loadArgument(BIRArgument arg) {
         BIRNode.BIRVariableDcl varDcl = arg.variableDcl;
         switch (arg.argState) {
             case PROVIDED:
@@ -864,7 +864,7 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn((long) paramIndex);
             this.mv.visitInsn(L2I);
 
-            this.loadArgument((Argument) arg);
+            this.loadArgument((BIRArgument) arg);
             // Add the to the rest params array
             JvmCastGen.addBoxInsn(this.mv, arg.variableDcl.type);
             this.mv.visitInsn(AASTORE);
@@ -874,7 +874,7 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn((long) paramIndex);
             this.mv.visitInsn(L2I);
 
-            this.loadStateOfArgument((Argument) arg, JvmCodeGenUtil.isBallerinaBuiltinModule(orgName, moduleName));
+            this.loadStateOfArgument((BIRArgument) arg, JvmCodeGenUtil.isBallerinaBuiltinModule(orgName, moduleName));
             JvmCastGen.addBoxInsn(this.mv, symbolTable.booleanType);
             this.mv.visitInsn(AASTORE);
             paramIndex += 1;

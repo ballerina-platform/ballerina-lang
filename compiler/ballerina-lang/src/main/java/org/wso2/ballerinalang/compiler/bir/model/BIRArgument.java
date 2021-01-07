@@ -18,25 +18,21 @@
 package org.wso2.ballerinalang.compiler.bir.model;
 
 /**
- * {@code Argument} represents an argument in an instruction.
+ * {@code BIRArgument} represents an argument in an instruction.
  *
  * @since 2.0.0
  */
-public class Argument extends BIROperand {
+public class BIRArgument extends BIROperand {
 
     public ArgumentState argState;
     public BIROperand userProvidedCondition;
 
-    public Argument(BIROperand argVar) {
-        super(argVar.variableDcl);
-    }
-
-    public Argument(ArgumentState argState, BIROperand argVar) {
+    public BIRArgument(ArgumentState argState, BIROperand argVar) {
         super(argVar.variableDcl);
         this.argState = argState;
     }
 
-    public Argument(ArgumentState argState, BIROperand argVar, BIROperand userProvidedCondition) {
+    public BIRArgument(ArgumentState argState, BIROperand argVar, BIROperand userProvidedCondition) {
         super(argVar.variableDcl);
         this.argState = argState;
         this.userProvidedCondition = userProvidedCondition;
@@ -46,13 +42,9 @@ public class Argument extends BIROperand {
     public boolean equals(Object other) {
         if (this == other) {
             return true;
-        }
-
-        if (!(other instanceof BIROperand)) {
+        } else {
             return false;
         }
-
-        return this.variableDcl.equals(((BIROperand) other).variableDcl);
     }
 
     @Override

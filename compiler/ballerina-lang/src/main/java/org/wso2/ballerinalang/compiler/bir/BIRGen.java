@@ -28,8 +28,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.wso2.ballerinalang.compiler.bir.model.Argument;
 import org.wso2.ballerinalang.compiler.bir.model.ArgumentState;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -1383,15 +1383,15 @@ public class BIRGen extends BLangNodeVisitor {
                 BIROperand conditionalArg = this.env.targetOperand;
                 ((BLangDynamicParamExpr) requiredArg).condition.accept(this);
                 BIROperand condition = this.env.targetOperand;
-                args.add(new Argument(ArgumentState.CONDITIONALLY_PROVIDED, conditionalArg, condition));
+                args.add(new BIRArgument(ArgumentState.CONDITIONALLY_PROVIDED, conditionalArg, condition));
             } else if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
                 requiredArg.accept(this);
-                args.add(new Argument(ArgumentState.PROVIDED, this.env.targetOperand));
+                args.add(new BIRArgument(ArgumentState.PROVIDED, this.env.targetOperand));
             } else {
                 BIRVariableDcl birVariableDcl =
                         new BIRVariableDcl(requiredArg.type, new Name("_"), VarScope.FUNCTION, VarKind.ARG);
                 birVariableDcl.ignoreVariable = true;
-                args.add(new Argument(ArgumentState.NOT_PROVIDED, new BIROperand(birVariableDcl)));
+                args.add(new BIRArgument(ArgumentState.NOT_PROVIDED, new BIROperand(birVariableDcl)));
             }
         }
 
@@ -1399,12 +1399,12 @@ public class BIRGen extends BLangNodeVisitor {
         for (BLangExpression arg : restArgs) {
             if (arg.getKind() != NodeKind.IGNORE_EXPR) {
                 arg.accept(this);
-                args.add(new Argument(ArgumentState.PROVIDED, this.env.targetOperand));
+                args.add(new BIRArgument(ArgumentState.PROVIDED, this.env.targetOperand));
             } else {
                 BIRVariableDcl birVariableDcl =
                         new BIRVariableDcl(arg.type, new Name("_"), VarScope.FUNCTION, VarKind.ARG);
                 birVariableDcl.ignoreVariable = true;
-                args.add(new Argument(ArgumentState.NOT_PROVIDED, new BIROperand(birVariableDcl)));
+                args.add(new BIRArgument(ArgumentState.NOT_PROVIDED, new BIROperand(birVariableDcl)));
             }
         }
 

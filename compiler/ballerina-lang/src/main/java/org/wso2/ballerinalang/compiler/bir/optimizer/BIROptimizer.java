@@ -18,8 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
-import org.wso2.ballerinalang.compiler.bir.model.Argument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
@@ -537,7 +537,7 @@ public class BIROptimizer {
         }
 
         @Override
-        public void visit(Argument birArgument) {
+        public void visit(BIRArgument birArgument) {
             BIRVariableDcl realVar = this.env.tempVars.get(birArgument.variableDcl);
             if (realVar != null) {
                 birArgument.variableDcl = realVar;
