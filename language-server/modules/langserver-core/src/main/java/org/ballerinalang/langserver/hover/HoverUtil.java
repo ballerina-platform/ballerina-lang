@@ -19,6 +19,8 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -66,23 +68,27 @@ public class HoverUtil {
         }
 
         switch (symbolAtCursor.get().kind()) {
-            // Handle Listener and Enum
             case FUNCTION:
                 return getFunctionHoverMarkupContent((FunctionSymbol) symbolAtCursor.get());
+            case METHOD:
+                return getFunctionHoverMarkupContent((MethodSymbol) symbolAtCursor.get());
             case TYPE_DEFINITION:
                 return getTypeDefHoverMarkupContent(((TypeDefinitionSymbol) symbolAtCursor.get()).typeDescriptor());
             case TYPE:
                 return getTypeDefHoverMarkupContent(CommonUtil.getRawType((TypeSymbol) symbolAtCursor.get()));
             case CLASS:
-                return getClassHoverMarkupContent((ClassSymbol) symbolAtCursor.get());
+                return getObjectHoverMarkupContent((ClassSymbol) symbolAtCursor.get());
             case CONSTANT:
             case ANNOTATION:
+            case ENUM:
+            case VARIABLE:
+                return getDescriptionOnlyHoverObject(symbolAtCursor.get());
             default:
                 return HoverUtil.getDefaultHoverObject();
         }
     }
 
-    private static Hover getClassHoverMarkupContent(ClassSymbol classSymbol) {
+    private static Hover getObjectHoverMarkupContent(ObjectTypeSymbol classSymbol) {
         Optional<Documentation> documentation = classSymbol.docAttachment();
         if (documentation.isEmpty()) {
             return getDefaultHoverObject();
@@ -140,7 +146,10 @@ public class HoverUtil {
         if (rawType.typeKind() == TypeDescKind.RECORD) {
             return getRecordTypeHoverContent((RecordTypeSymbol) rawType);
         }
-        return getDefaultHoverObject();
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+            return getObjectHoverMarkupContent((ObjectTypeSymbol) rawType);
+        }
+        return getDescriptionOnlyHoverObject(symbol);
     }
 
     private static Hover getRecordTypeHoverContent(RecordTypeSymbol recordType) {
@@ -191,6 +200,24 @@ public class HoverUtil {
         MarkupContent hoverMarkupContent = new MarkupContent();
         hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
         hoverMarkupContent.setValue("");
+        hover.setContents(hoverMarkupContent);
+
+        return hover;
+    }
+
+    /**
+     * Get the description only hover object.
+     *
+     * @return {@link Hover}
+     */
+    public static Hover getDescriptionOnlyHoverObject(Symbol symbol) {
+        Optional<Documentation> documentation = symbol.docAttachment();
+        String description = documentation.isEmpty() || documentation.get().description().isEmpty()
+                ? "" : documentation.get().description().get();
+        Hover hover = new Hover();
+        MarkupContent hoverMarkupContent = new MarkupContent();
+        hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
+        hoverMarkupContent.setValue(description);
         hover.setContents(hoverMarkupContent);
 
         return hover;
