@@ -249,10 +249,10 @@ class JvmObservabilityGen {
             }
 
             // Creating and adding function parameters
-            List<BIROperand> funcParamOperands = new ArrayList<>();
+            List<BIRArgument> funcParamOperands = new ArrayList<>();
             Name selfArgName = new Name("%self");
             for (int i = 0; i < asyncCallIns.args.size(); i++) {
-                BIROperand arg = asyncCallIns.args.get(i);
+                BIRArgument arg = asyncCallIns.args.get(i);
                 BIRFunctionParameter funcParam;
                 if (arg.variableDcl.kind == VarKind.SELF) {
                     funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,

@@ -704,7 +704,7 @@ public class JvmTerminatorGen {
         int argsCount = callIns.args.size();
         int i = 0;
         while (i < argsCount) {
-            BIRArgument arg = (BIRArgument) callIns.args.get(i);
+            BIRArgument arg = callIns.args.get(i);
             this.loadArgument(arg);
             this.loadStateOfArgument(arg, JvmCodeGenUtil.isBallerinaBuiltinModule(packageID.orgName.getValue(),
                                     packageID.name.getValue()));
@@ -772,7 +772,7 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(L2I);
             j += 1;
             // i + 1 is used since we skip the first argument (self)
-            BIRArgument arg = (BIRArgument) callIns.args.get(i + 1);
+            BIRArgument arg = callIns.args.get(i + 1);
             this.loadArgument(arg);
 
             // Add the to the rest params array
@@ -859,12 +859,12 @@ public class JvmTerminatorGen {
         this.mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
         int paramIndex = 1;
-        for (BIROperand arg : callIns.args) {
+        for (BIRArgument arg : callIns.args) {
             this.mv.visitInsn(DUP);
             this.mv.visitLdcInsn((long) paramIndex);
             this.mv.visitInsn(L2I);
 
-            this.loadArgument((BIRArgument) arg);
+            this.loadArgument(arg);
             // Add the to the rest params array
             JvmCastGen.addBoxInsn(this.mv, arg.variableDcl.type);
             this.mv.visitInsn(AASTORE);
@@ -874,7 +874,7 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn((long) paramIndex);
             this.mv.visitInsn(L2I);
 
-            this.loadStateOfArgument((BIRArgument) arg, JvmCodeGenUtil.isBallerinaBuiltinModule(orgName, moduleName));
+            this.loadStateOfArgument(arg, JvmCodeGenUtil.isBallerinaBuiltinModule(orgName, moduleName));
             JvmCastGen.addBoxInsn(this.mv, symbolTable.booleanType);
             this.mv.visitInsn(AASTORE);
             paramIndex += 1;
@@ -1052,7 +1052,7 @@ public class JvmTerminatorGen {
 
         // load args
         int paramIndex = 1;
-        for (BIROperand arg : fpCall.args) {
+        for (BIRArgument arg : fpCall.args) {
             this.mv.visitInsn(DUP);
             this.mv.visitIntInsn(BIPUSH, paramIndex);
             this.loadVar(arg.variableDcl);

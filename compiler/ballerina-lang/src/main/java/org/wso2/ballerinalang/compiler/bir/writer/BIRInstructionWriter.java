@@ -268,7 +268,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birCall.name.getValue()));
         buf.writeInt(birCall.args.size());
-        for (BIROperand arg : birCall.args) {
+        for (BIRArgument arg : birCall.args) {
             arg.accept(this);
         }
         if (birCall.lhsOp != null) {
@@ -282,7 +282,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRTerminator.FPCall fpCall) {
         fpCall.fp.accept(this);
         buf.writeInt(fpCall.args.size());
-        for (BIROperand arg : fpCall.args) {
+        for (BIRArgument arg : fpCall.args) {
             arg.accept(this);
         }
         if (fpCall.lhsOp != null) {

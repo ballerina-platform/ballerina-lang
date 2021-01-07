@@ -1375,7 +1375,7 @@ public class BIRGen extends BLangNodeVisitor {
     private void createCall(BLangInvocation invocationExpr, boolean isVirtual) {
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         List<BLangExpression> restArgs = invocationExpr.restArgs;
-        List<BIROperand> args = new ArrayList<>();
+        List<BIRArgument> args = new ArrayList<>();
 
         for (BLangExpression requiredArg : requiredArgs) {
             if (requiredArg.getKind() == NodeKind.DYNAMIC_PARAM_EXPR) {
