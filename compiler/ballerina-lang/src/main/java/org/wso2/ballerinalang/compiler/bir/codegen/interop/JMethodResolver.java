@@ -45,6 +45,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -475,6 +476,13 @@ class JMethodResolver {
 
     private boolean isValidReturnBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest) {
 
+        LinkedHashSet<Class<?>> visitedSet = new LinkedHashSet<>();
+        return isValidReturnBType(jType, bType, jMethodRequest, visitedSet);
+    }
+
+    private boolean isValidReturnBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest,
+                                       LinkedHashSet<Class<?>> visitedSet) {
+
         try {
             String jTypeName = jType.getTypeName();
             switch (bType.tag) {
@@ -547,7 +555,11 @@ class JMethodResolver {
                         return true;
                     }
 
-                    if (isValidReturnBType(jType, symbolTable.jsonType, jMethodRequest)) {
+                    if (!visitedSet.add(jType)) {
+                        return true;
+                    }
+
+                    if (isValidReturnBType(jType, symbolTable.jsonType, jMethodRequest, visitedSet)) {
                         return true;
                     }
 
@@ -570,10 +582,14 @@ class JMethodResolver {
                         return true;
                     }
 
+                    if (!visitedSet.add(jType)) {
+                        return true;
+                    }
+
                     Set<BType> members = ((BUnionType) bType).getMemberTypes();
                     // for method return, java-type should be matched to at-least one of the ballerina member types.
                     for (BType member : members) {
-                        if (isValidReturnBType(jType, member, jMethodRequest)) {
+                        if (isValidReturnBType(jType, member, jMethodRequest, visitedSet)) {
                             return true;
                         }
                     }
@@ -581,7 +597,8 @@ class JMethodResolver {
                 case TypeTags.READONLY:
                     return isReadOnlyCompatibleReturnType(jType, jMethodRequest);
                 case TypeTags.INTERSECTION:
-                    return isValidReturnBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest);
+                    return isValidReturnBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest,
+                            visitedSet);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -589,7 +606,7 @@ class JMethodResolver {
 
                     Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
                     for (BLangExpression value : valueSpace) {
-                        if (isValidReturnBType(jType, value.type, jMethodRequest)) {
+                        if (isValidReturnBType(jType, value.type, jMethodRequest, visitedSet)) {
                             return true;
                         }
                     }
