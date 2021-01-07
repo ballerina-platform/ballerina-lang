@@ -85,7 +85,6 @@ public class Bootstrap {
         symResolver.bootstrapJsonType();
         symResolver.bootstrapAnydataType();
         symResolver.boostrapErrorType();
-        symResolver.bootstrapCloneableType();
         symResolver.defineOperators();
 
         if (langLib.equals(JAVA)) {
@@ -111,7 +110,6 @@ public class Bootstrap {
             symbolTable.langTableModuleSymbol = loadLangLibFromBalr(TABLE, compilerContext);
             symbolTable.langStreamModuleSymbol = loadLangLibFromBalr(STREAM, compilerContext);
             symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
-            symResolver.bootstrapCloneableType();
         }
 
         if (langLib.equals(TRANSACTION)) {
@@ -121,12 +119,10 @@ public class Bootstrap {
             symbolTable.langStringModuleSymbol = loadLangLibFromBalr(STRING, compilerContext);
             symbolTable.langErrorModuleSymbol = loadLangLibFromBalr(ERROR, compilerContext);
             symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
-            symResolver.bootstrapCloneableType();
         }
 
         if (langLib.equals(ERROR)) {
             symbolTable.langValueModuleSymbol = loadLangLibFromBalr(VALUE, compilerContext);
-            symResolver.bootstrapCloneableType();
         }
 
         symResolver.bootstrapCloneableType();

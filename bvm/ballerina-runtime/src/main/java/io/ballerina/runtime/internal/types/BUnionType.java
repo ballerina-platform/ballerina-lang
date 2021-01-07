@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * {@code BUnionType} represents a union type in Ballerina.
@@ -45,6 +46,10 @@ public class BUnionType extends BType implements UnionType {
     private final boolean readonly;
     protected IntersectionType immutableType;
     private boolean resolving = false;
+
+    private static final String INT_CLONEABLE = "__Cloneable";
+    private static final String CLONEABLE = "Cloneable";
+    private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE + "([12])?");
 
     /**
      * Create a {@code BUnionType} which represents the union type.
@@ -286,6 +291,9 @@ public class BUnionType extends BType implements UnionType {
         if (isCyclic) {
             // show name when visited repeatedly
             if (this.typeName != null) {
+                if (pCloneable.matcher(this.typeName).matches()) {
+                    return CLONEABLE;
+                }
                 return this.typeName;
             } else if (resolving) {
                 return "...";

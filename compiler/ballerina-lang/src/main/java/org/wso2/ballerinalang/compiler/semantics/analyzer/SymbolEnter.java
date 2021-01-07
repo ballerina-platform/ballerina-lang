@@ -961,11 +961,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                     TypeDefinition def = (TypeDefinition) unresolvedType;
                     // We need to keep track of all visited types to print cyclic dependency.
                     references.push(def.getName().getValue());
-                    checkErrors(unresolvedType, (BLangNode) def.getTypeNode(), references, false);
+                    checkErrors(env, unresolvedType, (BLangNode) def.getTypeNode(), references, false);
                 } else if (unresolvedType.getKind() == NodeKind.CLASS_DEFN) {
                     BLangClassDefinition classDefinition = (BLangClassDefinition) unresolvedType;
                     references.push(classDefinition.getName().getValue());
-                    checkErrors(unresolvedType, classDefinition, references, true);
+                    checkErrors(env, unresolvedType, classDefinition, references, true);
                 }
             }
 
@@ -975,20 +975,22 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineTypeNodes(unresolvedTypes, env);
     }
 
-    private void checkErrors(BLangNode unresolvedType, BLangNode currentTypeOrClassNode, Stack<String> visitedNodes,
+    private void checkErrors(SymbolEnv env, BLangNode unresolvedType, BLangNode currentTypeOrClassNode,
+                             Stack<String> visitedNodes,
                              boolean fromStructuredType) {
         // Check errors in the type definition.
         List<BLangType> memberTypeNodes;
         switch (currentTypeOrClassNode.getKind()) {
             case ARRAY_TYPE:
-                checkErrors(unresolvedType, ((BLangArrayType) currentTypeOrClassNode).elemtype, visitedNodes, true);
+                checkErrors(env, unresolvedType, ((BLangArrayType) currentTypeOrClassNode).elemtype, visitedNodes,
+                        true);
                 break;
             case UNION_TYPE_NODE:
                 // If the current type node is a union type node, we need to check all member nodes.
                 memberTypeNodes = ((BLangUnionTypeNode) currentTypeOrClassNode).memberTypeNodes;
                 // Recursively check all members.
                 for (BLangType memberTypeNode : memberTypeNodes) {
-                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, fromStructuredType);
+                    checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, fromStructuredType);
                     if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
                         break;
                     }
@@ -997,25 +999,26 @@ public class SymbolEnter extends BLangNodeVisitor {
             case INTERSECTION_TYPE_NODE:
                 memberTypeNodes = ((BLangIntersectionTypeNode) currentTypeOrClassNode).constituentTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
-                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, fromStructuredType);
+                    checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, fromStructuredType);
                 }
                 break;
             case TUPLE_TYPE_NODE:
                 memberTypeNodes = ((BLangTupleTypeNode) currentTypeOrClassNode).memberTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
-                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, true);
+                    checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, true);
                 }
                 break;
             case CONSTRAINED_TYPE:
-                checkErrors(unresolvedType, ((BLangConstrainedType) currentTypeOrClassNode).constraint, visitedNodes,
+                checkErrors(env, unresolvedType, ((BLangConstrainedType) currentTypeOrClassNode).constraint,
+                        visitedNodes,
                         true);
                 break;
             case TABLE_TYPE:
-                checkErrors(unresolvedType, ((BLangTableTypeNode) currentTypeOrClassNode).constraint, visitedNodes,
+                checkErrors(env, unresolvedType, ((BLangTableTypeNode) currentTypeOrClassNode).constraint, visitedNodes,
                         true);
                 break;
             case USER_DEFINED_TYPE:
-                checkErrorsOfUserDefinedType(unresolvedType, (BLangUserDefinedType) currentTypeOrClassNode,
+                checkErrorsOfUserDefinedType(env, unresolvedType, (BLangUserDefinedType) currentTypeOrClassNode,
                         visitedNodes, fromStructuredType);
                 break;
             case BUILT_IN_REF_TYPE:
@@ -1027,28 +1030,29 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case FUNCTION_TYPE:
                 BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) currentTypeOrClassNode;
-                functionTypeNode.params.forEach(p -> checkErrors(unresolvedType, p.typeNode, visitedNodes,
+                functionTypeNode.params.forEach(p -> checkErrors(env, unresolvedType, p.typeNode, visitedNodes,
                         fromStructuredType));
                 if (functionTypeNode.restParam != null) {
-                    checkErrors(unresolvedType, functionTypeNode.restParam.typeNode, visitedNodes, fromStructuredType);
+                    checkErrors(env, unresolvedType, functionTypeNode.restParam.typeNode, visitedNodes,
+                            fromStructuredType);
                 }
                 if (functionTypeNode.returnTypeNode != null) {
-                    checkErrors(unresolvedType, functionTypeNode.returnTypeNode, visitedNodes, fromStructuredType);
+                    checkErrors(env, unresolvedType, functionTypeNode.returnTypeNode, visitedNodes, fromStructuredType);
                 }
                 break;
             case RECORD_TYPE:
                 for (TypeNode typeNode : ((BLangRecordTypeNode) currentTypeOrClassNode).getTypeReferences()) {
-                    checkErrors(unresolvedType, (BLangType) typeNode, visitedNodes, true);
+                    checkErrors(env, unresolvedType, (BLangType) typeNode, visitedNodes, true);
                 }
                 break;
             case OBJECT_TYPE:
                 for (TypeNode typeNode : ((BLangObjectTypeNode) currentTypeOrClassNode).getTypeReferences()) {
-                    checkErrors(unresolvedType, (BLangType) typeNode, visitedNodes, true);
+                    checkErrors(env, unresolvedType, (BLangType) typeNode, visitedNodes, true);
                 }
                 break;
             case CLASS_DEFN:
                 for (TypeNode typeNode : ((BLangClassDefinition) currentTypeOrClassNode).typeRefs) {
-                    checkErrors(unresolvedType, (BLangType) typeNode, visitedNodes, true);
+                    checkErrors(env, unresolvedType, (BLangType) typeNode, visitedNodes, true);
                 }
                 break;
             default:
@@ -1056,7 +1060,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void checkErrorsOfUserDefinedType(BLangNode unresolvedType, BLangUserDefinedType currentTypeOrClassNode,
+    private void checkErrorsOfUserDefinedType(SymbolEnv env, BLangNode unresolvedType,
+                                              BLangUserDefinedType currentTypeOrClassNode,
                                               Stack<String> visitedNodes, boolean fromStructuredType) {
         String currentTypeNodeName = currentTypeOrClassNode.typeName.value;
         // Skip all types defined as anonymous types.
@@ -1112,6 +1117,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                     .filter(node -> getTypeOrClassName(node).equals(currentTypeNodeName)).collect(Collectors.toList());
 
             if (typeDefinitions.isEmpty()) {
+                BType referredType = symResolver.resolveTypeNode(currentTypeOrClassNode, env);
+                if (referredType.tag == TypeTags.RECORD || referredType.tag == TypeTags.OBJECT) {
+                    // we are referring an fully or partially defined type from another cyclic type eg: record, class
+                    return;
+                }
+
                 // If a type is declared, it should either get defined successfully or added to the unresolved
                 // types list. If a type is not in either one of them, that means it is an undefined type.
                 LocationData locationData = new LocationData(
@@ -1128,13 +1139,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                         // Add the node name to the list.
                         visitedNodes.push(typeName);
                         // Recursively check for errors.
-                        checkErrors(unresolvedType, langTypeDefinition.getTypeNode(), visitedNodes, fromStructuredType);
+                        checkErrors(env, unresolvedType, langTypeDefinition.getTypeNode(), visitedNodes,
+                                fromStructuredType);
                         // We need to remove the added type node here since we have finished checking errors.
                         visitedNodes.pop();
                     } else {
                         BLangClassDefinition classDefinition = (BLangClassDefinition) typeDefinition;
                         visitedNodes.push(classDefinition.getName().getValue());
-                        checkErrors(unresolvedType, classDefinition, visitedNodes, fromStructuredType);
+                        checkErrors(env, unresolvedType, classDefinition, visitedNodes, fromStructuredType);
                         visitedNodes.pop();
                     }
                 }
@@ -1177,6 +1189,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             return;
         }
+
 
         // Check for any circular type references
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE ||

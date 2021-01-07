@@ -1607,7 +1607,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!recordType.sealed) {
             if (recordType.restFieldType.tag == TypeTags.UNION) {
                 BUnionType restFieldUnion = (BUnionType) recordType.restFieldType;
-                restUnionType.mergeUnionType(restFieldUnion);
                 // This is to update type name for users to read easily the cyclic unions
                 if (restFieldUnion.isCyclic && errorDetailFields.entrySet().isEmpty()) {
                     restUnionType.isCyclic = true;

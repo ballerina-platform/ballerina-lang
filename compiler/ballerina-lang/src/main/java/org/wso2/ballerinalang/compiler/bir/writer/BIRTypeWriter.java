@@ -284,13 +284,9 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BUnionType bUnionType) {
         buff.writeBoolean(bUnionType.isCyclic);
         BTypeSymbol tsymbol = bUnionType.tsymbol;
-        if (bUnionType.isCyclic || (tsymbol != null && !tsymbol.name.getValue().isEmpty())) {
+        if (bUnionType.isCyclic && (tsymbol != null && !tsymbol.name.getValue().isEmpty())) {
             buff.writeBoolean(true);
-            int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
-            int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
-            int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
-            int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
-            buff.writeInt(pkgIndex);
+            writePackageIndex(tsymbol);
             buff.writeInt(addStringCPEntry(bUnionType.tsymbol.name.value));
         } else {
             buff.writeBoolean(false);
@@ -299,6 +295,15 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BType memberType : bUnionType.getMemberTypes()) {
             writeTypeCpIndex(memberType);
         }
+    }
+
+    private void writePackageIndex(BTypeSymbol tsymbol) {
+
+        int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
+        int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
+        int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
     }
 
     @Override
@@ -316,11 +321,7 @@ public class BIRTypeWriter implements TypeVisitor {
         BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) bRecordType.tsymbol;
 
         // Write the package details in the form of constant pool entry TODO find a better approach
-        int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
-        int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
-        int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
-        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
-        buff.writeInt(pkgIndex);
+        writePackageIndex(tsymbol);
 
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeBoolean(bRecordType.sealed);
@@ -367,11 +368,7 @@ public class BIRTypeWriter implements TypeVisitor {
         BTypeSymbol tSymbol = bObjectType.tsymbol;
 
         // Write the package details in the form of constant pool entry TODO find a better approach
-        int orgCPIndex = addStringCPEntry(tSymbol.pkgID.orgName.value);
-        int nameCPIndex = addStringCPEntry(tSymbol.pkgID.name.value);
-        int versionCPIndex = addStringCPEntry(tSymbol.pkgID.version.value);
-        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
-        buff.writeInt(pkgIndex);
+        writePackageIndex(tSymbol);
 
         buff.writeInt(addStringCPEntry(tSymbol.name.value));
         //TODO below two line are a temp solution, introduce a generic concept

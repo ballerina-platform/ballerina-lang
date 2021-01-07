@@ -986,7 +986,7 @@ public class BIRPackageSymbolEnter {
                     PackageID pkgId = getPackageId(pkgCpIndex);
 
                     String recordName = getStringCPEntryValue(inputStream);
-                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                                                                                 names.fromString(recordName),
                                                                                 env.pkgSymbol.pkgID, null,
                                                                                 env.pkgSymbol, symTable.builtinPos,
@@ -1113,19 +1113,18 @@ public class BIRPackageSymbolEnter {
                     bMapType.constraint = readTypeFromCp();
                     return bMapType;
                 case TypeTags.INVOKABLE:
-
+                    BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
+                    bInvokableType.flags = flags;
                     int paramCount = inputStream.readInt();
                     List<BType> paramTypes = new ArrayList<>();
                     for (int i = 0; i < paramCount; i++) {
                         paramTypes.add(readTypeFromCp());
                     }
-                    BType restType = null;
+                    bInvokableType.paramTypes = paramTypes;
                     if (inputStream.readBoolean()) { //if rest param exist
-                        restType = readTypeFromCp();
+                        bInvokableType.restType = readTypeFromCp();
                     }
-                    BType retType = readTypeFromCp();
-                    BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
-                    bInvokableType.flags = flags;
+                    bInvokableType.retType = readTypeFromCp();
                     return bInvokableType;
                 // All the above types are branded types
                 case TypeTags.ANY:

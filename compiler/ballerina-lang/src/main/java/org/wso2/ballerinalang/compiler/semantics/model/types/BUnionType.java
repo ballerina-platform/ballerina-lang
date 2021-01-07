@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,6 +50,10 @@ public class BUnionType extends BType implements UnionType {
     public Boolean isAnyData = null;
     public Boolean isPureType = null;
     public boolean isCyclic = false;
+
+    private static final String INT_CLONEABLE = "__Cloneable";
+    private static final String CLONEABLE = "Cloneable";
+    private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE + "([12])?");
 
     protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
         super(TypeTags.UNION, tsymbol);
@@ -108,10 +113,13 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public String toString() {
 
-        if (this.resolvingToString) {
+        if (resolvingToString) {
+            if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
+                return this.tsymbol.getName().getValue();
+            }
             return "...";
         }
-        this.resolvingToString = true;
+        resolvingToString = true;
 
         StringJoiner joiner = new StringJoiner(getKind().typeName());
 
@@ -128,6 +136,9 @@ public class BUnionType extends BType implements UnionType {
         // improve readability of cyclic union types
         if (isCyclic && (tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
             typeStr = this.tsymbol.getName().getValue();
+            if (pCloneable.matcher(typeStr).matches()) {
+                typeStr = CLONEABLE;
+            }
         } else {
             typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
         }

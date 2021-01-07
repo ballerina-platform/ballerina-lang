@@ -730,17 +730,10 @@ public class SymbolTable {
 
     private void defineCloneableCyclicTypeAndDependentTypes() {
         cloneableType = BUnionType.create(null, readonlyType, xmlType);
-        cloneableType.isCyclic = true;
-        BArrayType arrayCloneableType = new BArrayType(cloneableType);
-        BMapType mapCloneableType = new BMapType(TypeTags.MAP, cloneableType, null);
-        BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
+        addCyclicArrayMapTableOfMapMembers(cloneableType);
 
-        cloneableType.add(arrayCloneableType);
-        cloneableType.add(mapCloneableType);
-        cloneableType.add(tableMapCloneableType);
-
-        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
-                cloneableType, langValueModuleSymbol, builtinPos, BUILTIN);
+        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, rootPkgSymbol.pkgID,
+                cloneableType, rootPkgSymbol, builtinPos, BUILTIN);
 
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);
         errorType = new BErrorType(null, detailType);
@@ -763,19 +756,28 @@ public class SymbolTable {
         initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
     }
 
+    private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {
+        BArrayType arrayCloneableType = new BArrayType(unionType);
+        BMapType mapCloneableType = new BMapType(TypeTags.MAP, unionType, null);
+        BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
+        unionType.add(arrayCloneableType);
+        unionType.add(mapCloneableType);
+        unionType.add(tableMapCloneableType);
+        unionType.isCyclic = true;
+    }
+
     private void defineJsonCyclicTypeAndDependentTypes() {
         BUnionType jsonInternal = BUnionType.create(null, nilType, booleanType, intType, floatType, decimalType,
                 stringType);
         BArrayType arrayJsonTypeInternal = new BArrayType(jsonInternal);
         BMapType mapJsonTypeInternal = new BMapType(TypeTags.MAP, jsonInternal, null);
-        jsonInternal.isCyclic = true;
         jsonInternal.add(arrayJsonTypeInternal);
         jsonInternal.add(mapJsonTypeInternal);
         jsonInternal.isCyclic = true;
 
         jsonType = new BJSONType(jsonInternal);
-        jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, PackageID.ANNOTATIONS, jsonType,
-                langAnnotationModuleSymbol, builtinPos, BUILTIN);
+        jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, rootPkgSymbol.pkgID, jsonType,
+                rootPkgSymbol, builtinPos, BUILTIN);
 
         arrayJsonType = new BArrayType(jsonType);
         mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
@@ -784,17 +786,11 @@ public class SymbolTable {
     private void defineAnydataCyclicTypeAndDependentTypes() {
         BUnionType anyDataInternal = BUnionType.create(null, nilType, booleanType, intType, floatType, decimalType,
                 stringType, xmlType);
-        BArrayType arrayAnydataTypeInternal = new BArrayType(anyDataInternal);
-        BMapType mapAnydataTypeInternal = new BMapType(TypeTags.MAP, anyDataInternal, null);
-        BType tableMapAnydataType = new BTableType(TypeTags.TABLE, mapAnydataTypeInternal, null);
-        anyDataInternal.add(arrayAnydataTypeInternal);
-        anyDataInternal.add(mapAnydataTypeInternal);
-        anyDataInternal.add(tableMapAnydataType);
-        anyDataInternal.isCyclic = true;
+        addCyclicArrayMapTableOfMapMembers(anyDataInternal);
 
         anydataType = new BAnydataType(anyDataInternal);
-        anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, PackageID.ANNOTATIONS,
-                anydataType, langAnnotationModuleSymbol, builtinPos, BUILTIN);
+        anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, rootPkgSymbol.pkgID,
+                anydataType, rootPkgSymbol, builtinPos, BUILTIN);
         arrayAnydataType = new BArrayType(anydataType);
         mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
         anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
