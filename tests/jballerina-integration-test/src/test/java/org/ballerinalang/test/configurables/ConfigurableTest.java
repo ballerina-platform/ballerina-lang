@@ -22,11 +22,14 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.packaging.PackerinaTestUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
 
@@ -71,6 +74,16 @@ public class ConfigurableTest extends BaseTest {
         LogLeecher runLeecher = new LogLeecher("4 passing");
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
                 new LogLeecher[]{runLeecher}, projectPath.toString());
+        runLeecher.waitForText(5000);
+    }
+
+    @Test
+    public void testEnvironmentVariableBasedConfigFile() throws BallerinaTestException {
+        String configFilePath = Paths.get(testFileLocation, "ConfigFiles").toString();
+        Path projectPath = Paths.get(testFileLocation).toAbsolutePath();
+        LogLeecher runLeecher = new LogLeecher("Tests passed");
+        bMainInstance.runMain("run", new String[]{"envVarPkg"}, addEnvVariables(configFilePath),
+                new String[]{}, new LogLeecher[]{runLeecher}, projectPath.toString());
         runLeecher.waitForText(5000);
     }
 
@@ -140,6 +153,17 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
+    }
+
+    /**
+     * Get environment variables and add config file path as an env variable.
+     *
+     * @return env directory variable array
+     */
+    private Map<String, String> addEnvVariables(String configFilePath) {
+        Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
+        envVariables.put(JvmConstants.CONFIG_ENV_VARIABLE, configFilePath);
+        return envVariables;
     }
 
 }
