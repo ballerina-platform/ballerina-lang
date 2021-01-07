@@ -98,6 +98,85 @@ public class BUnionType extends BType implements UnionType {
         this.readonly = false;
     }
 
+    public BUnionType(List<Type> memberTypes, boolean readonly) {
+        this(memberTypes, 0, readonly, false);
+    }
+
+    public BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
+        super(typeName, pkg, valueClass);
+        this.readonly = readonly;
+    }
+
+    public BUnionType(Type[] memberTypes, int typeFlags, boolean readonly, boolean isCyclic) {
+        this(Arrays.asList(memberTypes), typeFlags, readonly, isCyclic);
+    }
+
+    public BUnionType(Type[] memberTypes, int typeFlags) {
+        this(memberTypes, typeFlags, false, false);
+    }
+
+    /**
+     * Constructor used when defining union type defs where cyclic reference is possible.
+     *
+     * @param typeFlags flags associated with the type
+     * @param readonly boolean represents if the type is readonly
+     * @param isCyclic boolean represents if the type is cyclic
+     */
+    public BUnionType(int typeFlags, boolean readonly, boolean isCyclic) {
+        super(null, null, Object.class);
+        this.typeFlags = typeFlags;
+        this.readonly = readonly;
+        this.memberTypes = new ArrayList<>();
+        this.isCyclic = isCyclic;
+    }
+
+    /**
+     * Constructor used when defining union type defs where cyclic reference is possible.
+     *
+     * @param unionType flags associated with the type
+     */
+    public BUnionType(BUnionType unionType) {
+        super(unionType.typeName, unionType.pkg, unionType.valueClass);
+        this.typeFlags = unionType.typeFlags;
+        this.readonly = unionType.readonly;
+        this.memberTypes = unionType.memberTypes;
+        this.isCyclic = unionType.isCyclic;
+    }
+
+    /**
+     * Constructor used when defining union type defs where cyclic reference is possible.
+     *
+     * @param unionType flags associated with the type
+     * @param typeName typename associated with the type
+     */
+    public BUnionType(BUnionType unionType, String typeName) {
+        super(typeName, unionType.pkg, unionType.valueClass);
+        this.typeFlags = unionType.typeFlags;
+        this.readonly = unionType.readonly;
+        this.memberTypes = new ArrayList<>(unionType.memberTypes.size());
+        this.mergeUnionType(unionType);
+    }
+
+    /**
+     * Constructor used when defining union type defs where cyclic reference is possible.
+     *
+     * @param name typename
+     * @param typeFlags flags associated with the type
+     * @param readonly boolean represents if the type is readonly
+     * @param isCyclic boolean represents if the type is cyclic
+     */
+    public BUnionType(String name, int typeFlags, boolean readonly, boolean isCyclic) {
+        super(name, null, Object.class);
+        this.typeFlags = typeFlags;
+        this.readonly = readonly;
+        this.memberTypes = new ArrayList<>();
+        this.isCyclic = isCyclic;
+    }
+
+    public BUnionType(Type[] memberTypes, String name, int typeFlags, boolean readonly, boolean isCyclic) {
+        this(Arrays.asList(memberTypes), name, typeFlags, readonly, isCyclic);
+    }
+
     private void setMemberTypes(List<Type> memberTypes) {
         this.memberTypes = readonly ? getReadOnlyTypes(memberTypes) : memberTypes;
         setFlagsBasedOnMembers();
@@ -105,6 +184,22 @@ public class BUnionType extends BType implements UnionType {
 
     public void setCyclic(boolean isCyclic) {
         this.isCyclic = isCyclic;
+    }
+
+    public boolean isNilable() {
+        if (memberTypes == null || memberTypes.isEmpty()) {
+            return true;
+        }
+
+        if (this.resolving) {
+            return false;
+        }
+
+        // TODO: use the flag
+        if (nullable == null) {
+            nullable = checkNillable(memberTypes);
+        }
+        return nullable;
     }
 
     private boolean checkNillable(List<Type> memberTypes) {
@@ -153,23 +248,6 @@ public class BUnionType extends BType implements UnionType {
         if (isPureType) {
             this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
         }
-    }
-
-    public BUnionType(List<Type> memberTypes, boolean readonly) {
-        this(memberTypes, 0, readonly, false);
-    }
-
-    public BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
-        super(typeName, pkg, valueClass);
-        this.readonly = readonly;
-    }
-
-    public BUnionType(Type[] memberTypes, int typeFlags, boolean readonly, boolean isCyclic) {
-        this(Arrays.asList(memberTypes), typeFlags, readonly, isCyclic);
-    }
-
-    public BUnionType(Type[] memberTypes, int typeFlags) {
-        this(memberTypes, typeFlags, false, false);
     }
 
     public List<Type> getMemberTypes() {
