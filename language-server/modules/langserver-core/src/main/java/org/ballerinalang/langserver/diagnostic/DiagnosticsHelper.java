@@ -77,7 +77,7 @@ public class DiagnosticsHelper {
             return;
         }
 
-        // Replace old entries with an empty list
+        // Clear old entries with an empty list
         lastDiagnosticMap.forEach((key, value) -> {
             if (!diagnosticMap.containsKey(key)) {
                 client.publishDiagnostics(new PublishDiagnosticsParams(key, EMPTY_DIAGNOSTIC_LIST));
