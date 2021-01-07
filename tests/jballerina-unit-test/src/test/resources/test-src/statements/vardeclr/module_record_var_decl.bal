@@ -81,25 +81,25 @@ public function testVariableDeclaredWithVar() {
 Student {name:studentName, age:studentAge, grade:studentGrade, ...marks} = getStudentDetails();
 var {name:studentName2, age:studentAge2, grade:studentGrade2, ...marks2} = getStudentDetails2();
 function getStudentDetails() returns Student {
-    return {name:"Flash", age:15, grade:10, mark1:50, mark2:85, mark3:90};
+    return {name:"Flash", age:15, grade:10, "mark1":50, "mark2":85, "mark3":90};
 }
 function getStudentDetails2() returns Student {
-    return {name:"Arrow", age:25, grade:20, mark1:60, mark2:95, mark3:95};
+    return {name:"Arrow", age:25, grade:20, "mark1":60, "mark2":95, "mark3":95};
 }
 public function testRecordVariableWithRestBP() {
     assertEquality("Flash", studentName);
     assertEquality(15, studentAge);
     assertEquality(10, studentGrade);
-    assertEquality(50, marks[0]);
-    assertEquality(85, marks[1]);
-    assertEquality(90, marks[2]);
+    assertEquality(50, marks["mark1"]);
+    assertEquality(85, marks["mark2"]);
+    assertEquality(90, marks["mark3"]);
 
-   assertEquality("Arrow", studentName2);
-   assertEquality(25, studentAge2);
-   assertEquality(20, studentGrade2);
-   assertEquality(60, marks2[0]);
-   assertEquality(95, marks2[1]);
-   assertEquality(95, marks2[2]);
+    assertEquality("Arrow", studentName2);
+    assertEquality(25, studentAge2);
+    assertEquality(20, studentGrade2);
+    assertEquality(60, marks2["mark1"]);
+    assertEquality(95, marks2["mark2"]);
+    assertEquality(95, marks2["mark3"]);
 }
 
 // Support codes

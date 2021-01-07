@@ -90,14 +90,22 @@ public class ModuleVariableTest {
         assertEquals(compileResult.getErrorCount(), index);
     }
 
-    @Test
-    public void testModuleLevelRecordVarDecl() {
-        BRunUtil.invoke(recordVarCompileResult, "testBasic");
-        BRunUtil.invoke(recordVarCompileResult, "recordVarInRecordVar");
-        BRunUtil.invoke(recordVarCompileResult, "tupleVarInRecordVar");
-        BRunUtil.invoke(recordVarCompileResult, "testRecordVarWithAnnotations");
-        BRunUtil.invoke(recordVarCompileResult, "testVariableForwardReferencing");
-//        BRunUtil.invoke(recordVarCompileResult, "testRecordVariableWithRestBP");
+    @Test(dataProvider = "testModuleLevelRecordVarDeclData")
+    public void testModuleLevelRecordVarDecl(String functionName) {
+        BRunUtil.invoke(recordVarCompileResult, functionName);
+    }
+
+    @DataProvider
+    public Object[] testModuleLevelRecordVarDeclData() {
+        return new Object[]{
+                "testBasic",
+                "recordVarInRecordVar",
+                "tupleVarInRecordVar",
+                "testRecordVarWithAnnotations",
+                "testVariableForwardReferencing",
+                "testVariableDeclaredWithVar",
+                "testRecordVariableWithRestBP"
+        };
     }
 
     @Test

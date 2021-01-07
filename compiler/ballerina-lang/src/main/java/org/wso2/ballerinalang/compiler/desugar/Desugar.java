@@ -910,10 +910,26 @@ public class Desugar extends BLangNodeVisitor {
                             initFnBody.stmts.add(bLangStatement);
                             continue;
                         }
-                        BLangSimpleVariableDef simpleVarDef = (BLangSimpleVariableDef) bLangStatement;
-                        simpleVarDef.var.annAttachments = globalVar.getAnnotationAttachments();
-                        addToInitFunction(simpleVarDef.var, initFnBody);
-                        desugaredGlobalVarList.add(simpleVarDef.var);
+                        BLangSimpleVariable simpleVar = ((BLangSimpleVariableDef) bLangStatement).var;
+                        simpleVar.annAttachments = globalVar.getAnnotationAttachments();
+                        addToInitFunction(simpleVar, initFnBody);
+                        desugaredGlobalVarList.add(simpleVar);
+                    }
+                    break;
+                case RECORD_VARIABLE:
+                    blockStatementNode = rewrite(globalVar, initFunctionEnv);
+                    statements = ((BLangBlockStmt) blockStatementNode).stmts;
+                    for (int i = 0; i < statements.size(); i++) {
+                        BLangStatement bLangStatement = statements.get(i);
+                        // First statement is the virtual array created for the init expression.
+                        if (bLangStatement.getKind() == NodeKind.BLOCK || i == 0) {
+                            initFnBody.stmts.add(bLangStatement);
+                            continue;
+                        }
+                        BLangSimpleVariable simpleVar = ((BLangSimpleVariableDef) bLangStatement).var;
+                        simpleVar.annAttachments = globalVar.getAnnotationAttachments();
+                        addToInitFunction(simpleVar, initFnBody);
+                        desugaredGlobalVarList.add(simpleVar);
                     }
                     break;
                 default:
@@ -1405,12 +1421,7 @@ public class Desugar extends BLangNodeVisitor {
 
         createVarDefStmts(varNode, blockStmt, mapVariable.symbol, null);
 
-        if (((this.env.scope.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE)) {
-            // If it is a global variable don't rewrite now, will be rewritten later
-            result = blockStmt;
-        } else {
-            result = rewrite(blockStmt, env);
-        }
+        result = rewrite(blockStmt, env);
     }
 
     @Override
@@ -1681,8 +1692,10 @@ public class Desugar extends BLangNodeVisitor {
                     .map(var -> var.getKey().getValue())
                     .collect(Collectors.toList());
 
+            final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(parentRecordVariable.pos);
             BLangSimpleVariable filteredDetail = generateRestFilter(variableReference, pos,
-                    keysToRemove, restParamType, parentBlockStmt);
+                    keysToRemove, restParamType, blockStmt);
+            parentBlockStmt.addStatement(blockStmt);
 
             BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol);
 
@@ -2174,6 +2187,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaFunction.function = function;
         lambdaFunction.type = functionSymbol.type;
+        lambdaFunction.capturedClosureEnv = env;
         return lambdaFunction;
     }
 

@@ -2055,10 +2055,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordVariable varNode) {
-        if (varNode.isDeclaredWithVar) {
+    public void visit(BLangRecordVariable recordVar) {
+        if (recordVar.isDeclaredWithVar) {
             // Symbol enter each member with type other.
-            for (BLangRecordVariable.BLangRecordVariableKeyValue variable : varNode.variableList) {
+            for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
                 BLangVariable value = variable.getValue();
                 value.isDeclaredWithVar = true;
                 if (value.getKind() == NodeKind.VARIABLE &&
@@ -2067,14 +2067,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
                 defineNode(value, env);
             }
+            if (recordVar.restParam != null) {
+                defineNode((BLangNode) recordVar.restParam, env);
+            }
             return;
         }
-        if (varNode.type == null) {
-            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        if (recordVar.type == null) {
+            recordVar.type = symResolver.resolveTypeNode(recordVar.typeNode, env);
         }
 
-        if (!(symbolEnterAndValidateRecordVariable(varNode, env))) {
-            varNode.type = symTable.semanticError;
+        if (!(symbolEnterAndValidateRecordVariable(recordVar, env))) {
+            recordVar.type = symTable.semanticError;
             return;
         }
     }
@@ -2245,7 +2248,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (recordVar.restParam != null) {
-            ((BLangVariable) recordVar.restParam).type = getRestParamType(recordVarType);
+            BMapType restType = getRestParamType(recordVarType);
+            ((BLangVariable) recordVar.restParam).type = restType;
+            if (isModuleRecordDeclaredWithVar) {
+                ((BLangSimpleVariable) recordVar.restParam).symbol.type = restType;
+                return validRecord;
+            }
             defineNode((BLangNode) recordVar.restParam, env);
         }
 
