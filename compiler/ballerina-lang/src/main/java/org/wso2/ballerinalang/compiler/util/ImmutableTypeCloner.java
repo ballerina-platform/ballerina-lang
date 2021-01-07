@@ -653,10 +653,14 @@ public class ImmutableTypeCloner {
                                                                Set<Flag> flagSet, Set<BType> unresolvedTypes) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BObjectTypeSymbol origObjectTSymbol = (BObjectTypeSymbol) origObjectType.tsymbol;
-        BObjectTypeSymbol objectSymbol =
-                Symbols.createObjectSymbol(origObjectTSymbol.flags | Flags.READONLY,
-                        getImmutableTypeName(names, origObjectTSymbol.toString()),
-                        pkgID, null, env.scope.owner, pos, SOURCE);
+
+        long flags = origObjectTSymbol.flags | Flags.READONLY;
+        flags &= ~Flags.CLASS;
+
+        BObjectTypeSymbol objectSymbol = Symbols.createObjectSymbol(flags,
+                                                                    getImmutableTypeName(names,
+                                                                                         origObjectTSymbol.toString()),
+                                                                    pkgID, null, env.scope.owner, pos, SOURCE);
 
         objectSymbol.scope = new Scope(objectSymbol);
 

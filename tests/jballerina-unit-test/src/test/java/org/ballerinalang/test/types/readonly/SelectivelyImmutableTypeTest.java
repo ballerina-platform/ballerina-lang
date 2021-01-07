@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -41,9 +42,36 @@ public class SelectivelyImmutableTypeTest {
         result = BCompileUtil.compile("test-src/types/readonly/test_selectively_immutable_type.bal");
     }
 
-    @Test
-    public void testImmutableTypes() {
-        BRunUtil.invoke(result, "testImmutableTypes");
+    @Test(dataProvider = "immutableTypesTestFunctions")
+    public void testImmutableTypes(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "immutableTypesTestFunctions")
+    public Object[][] immutableTypesTestFunctions() {
+        return new Object[][]{
+                {"testSimpleInitializationForSelectivelyImmutableXmlTypes"},
+                {"testSimpleInitializationForSelectivelyImmutableListTypes"},
+                {"testSimpleInitializationForSelectivelyImmutableMappingTypes"},
+                {"testSimpleInitializationForSelectivelyImmutableTableTypes"},
+                {"testRuntimeIsTypeForSelectivelyImmutableBasicTypes"},
+                {"testRuntimeIsTypeNegativeForSelectivelyImmutableTypes"},
+                {"testImmutabilityOfNestedXmlWithAttributes"},
+                {"testImmutableTypedRecordFields"},
+                {"testImmutabilityForSelfReferencingType"},
+                {"testImmutableRecordWithDefaultValues"},
+                {"testImmutableObjects"},
+                {"testImmutableJson"},
+                {"testImmutableAnydata"},
+                {"testImmutableAny"},
+                {"testImmutableUnion"},
+                {"testDefaultValuesOfFields"},
+                {"testUnionReadOnlyFields"},
+                {"testReadOnlyCastConstructingReadOnlyValues"},
+                {"testReadOnlyCastConstructingReadOnlyValuesPropagation"},
+                {"testValidInitializationOfReadOnlyClassIntersectionWithReadOnly"},
+                {"testValidInitializationOfNonReadOnlyClassIntersectionWithReadOnly"}
+        };
     }
 
     @Test
@@ -64,8 +92,8 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "incompatible types: expected '(A|B|(any & readonly))', found 'Obj'", 78, 26);
         validateError(result, index++, "incompatible types: expected 'anydata & readonly', found 'string[]'", 81, 28);
         validateError(result, index++, "incompatible types: expected 'any & readonly', found 'future'", 83, 24);
-        validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'string[]'",
-                      85, 32);
+        validateError(result, index++, "incompatible types: expected '((Obj & readonly)|(int[] & readonly))', found " +
+                "'string[]'", 85, 44);
         validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 112, 18);
         validateError(result, index++, "incompatible types: expected '(Department & readonly)' for field 'dept', " +
@@ -105,6 +133,16 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "cannot update 'readonly' value of type 'object { final int j; } & readonly'",
                       262, 5);
 
+        validateError(result, index++, "invalid intersection type with 'readonly', 'NeverReadOnlyClass' can never be " +
+                "'readonly'", 276, 5);
+        validateError(result, index++, "cannot initialize abstract object '(ReadOnlyClass & readonly)'", 279, 32);
+        validateError(result, index++, "cannot initialize abstract object '(ReadOnlyClass & readonly)'", 282, 36);
+        validateError(result, index++, "cannot initialize abstract object '(NonReadOnlyClass & readonly)'", 289, 35);
+        validateError(result, index++, "cannot initialize abstract object '(NonReadOnlyClass & readonly)'", 292, 39);
+        validateError(result, index++, "incompatible types: expected '(ReadOnlyClass & readonly)', found " +
+                "'NonReadOnlyClass'", 298, 35);
+        validateError(result, index++, "incompatible types: expected '(NonReadOnlyClass & readonly)', found " +
+                "'NonReadOnlyClass'", 299, 38);
         assertEquals(result.getErrorCount(), index);
     }
 
