@@ -27,6 +27,8 @@ import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.DistinctTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.EnumMemberNode;
 import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -60,7 +62,9 @@ import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.Constant;
+import org.ballerinalang.docgen.generator.model.Construct;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
+import org.ballerinalang.docgen.generator.model.Enum;
 import org.ballerinalang.docgen.generator.model.Error;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Listener;
@@ -175,6 +179,10 @@ public class Generator {
                     hasPublicConstructs = true;
                     module.annotations.add(getAnnotationModel((AnnotationDeclarationNode) node, semanticModel,
                             fileName));
+                } else if (node.kind() == SyntaxKind.ENUM_DECLARATION &&
+                        ((EnumDeclarationNode) node).qualifier().isPresent() &&
+                        ((EnumDeclarationNode) node).qualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
+                    module.enums.add(getEnumModel((EnumDeclarationNode) node));
                 }
             }
         }
@@ -188,6 +196,24 @@ public class Generator {
             }
         }
         return false;
+    }
+
+    public static Enum getEnumModel(EnumDeclarationNode enumDeclaration) {
+        String enumName = enumDeclaration.identifier().text();
+        List<Construct> members = new ArrayList<>();
+        enumDeclaration.enumMemberList().forEach(node -> {
+            if (node.kind().equals(SyntaxKind.ENUM_MEMBER)) {
+                EnumMemberNode enumMemberNode = (EnumMemberNode) node;
+                String memberName = enumMemberNode.identifier().text();
+                String doc = getDocFromMetadata(enumMemberNode.metadata());
+                if (doc.equals("")) {
+                    doc = getParameterDocFromMetadataList(memberName, enumDeclaration.metadata());
+                }
+                members.add(new Construct(memberName, doc, false));
+            }
+        });
+        return new Enum(enumName, getDocFromMetadata(enumDeclaration.metadata()),
+                isDeprecated(enumDeclaration.metadata()), members);
     }
 
     public static Annotation getAnnotationModel(AnnotationDeclarationNode annotationDeclaration,

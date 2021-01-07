@@ -307,6 +307,7 @@ public class BallerinaDocGenerator {
         List<ConstructSearchJson> searchListeners = new ArrayList<>();
         List<ConstructSearchJson> searchAnnotations = new ArrayList<>();
         List<ConstructSearchJson> searchAbstractObjects = new ArrayList<>();
+        List<ConstructSearchJson> searchEnums = new ArrayList<>();
 
         for (DocPackage docPackage: packageLib.packages) {
             for (Module module : docPackage.modules) {
@@ -353,12 +354,16 @@ public class BallerinaDocGenerator {
                 module.annotations.forEach((annotation) ->
                         searchAnnotations.add(new ConstructSearchJson(annotation.name, module.id, module.orgName,
                                 module.version, getFirstLine(annotation.description))));
+
+                module.enums.forEach((benum) ->
+                        searchEnums.add(new ConstructSearchJson(benum.name, module.id, module.orgName,
+                                module.version, getFirstLine(benum.description))));
             }
         }
 
         SearchJson searchJson = new SearchJson(searchModules, searchClasses, searchFunctions, searchRecords,
                 searchConstants, searchErrors, searchTypes, searchClients, searchListeners, searchAnnotations,
-                searchAbstractObjects);
+                searchAbstractObjects, searchEnums);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         File jsonFile = new File(searchDir + File.separator + "search-data.json");
         File jsFile = new File(searchDir + File.separator + "search-data.js");
