@@ -251,6 +251,12 @@ types:
         type: object_attached_function
         repeat: expr
         repeat-expr: object_attached_functions_count
+      - id: type_inclusions_count
+        type: s4
+      - id: type_inclusions_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: type_inclusions_count
       - id: type_ids
         type: type_id
   object_field:
@@ -349,6 +355,12 @@ types:
       - id: record_init_function
         type: record_init_function
         if: has_init_function == 1
+      - id: type_inclusions_count
+        type: s4
+      - id: type_inclusions_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: type_inclusions_count
   record_field:
     seq:
       - id: name_cp_index
