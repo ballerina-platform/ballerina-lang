@@ -177,6 +177,11 @@ public class BUnionType extends BType implements UnionType {
         this(Arrays.asList(memberTypes), name, typeFlags, readonly, isCyclic);
     }
 
+    public void setMemberTypes(Type[] memberTypes) {
+        this.memberTypes = readonly ? getReadOnlyTypes(memberTypes) : Arrays.asList(memberTypes);
+        setFlagsBasedOnMembers();
+    }
+
     private void setMemberTypes(List<Type> memberTypes) {
         this.memberTypes = readonly ? getReadOnlyTypes(memberTypes) : memberTypes;
         setFlagsBasedOnMembers();
@@ -259,6 +264,14 @@ public class BUnionType extends BType implements UnionType {
     }
 
     private List<Type> getReadOnlyTypes(List<Type> memberTypes) {
+        List<Type> readOnlyTypes = new ArrayList<>();
+        for (Type type : memberTypes) {
+            readOnlyTypes.add(ReadOnlyUtils.getReadOnlyType(type));
+        }
+        return readOnlyTypes;
+    }
+
+    private List<Type> getReadOnlyTypes(Type[] memberTypes) {
         List<Type> readOnlyTypes = new ArrayList<>();
         for (Type type : memberTypes) {
             readOnlyTypes.add(ReadOnlyUtils.getReadOnlyType(type));
