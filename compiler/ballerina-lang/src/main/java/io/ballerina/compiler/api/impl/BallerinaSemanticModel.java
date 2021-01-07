@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -137,6 +138,22 @@ public class BallerinaSemanticModel implements SemanticModel {
 
         return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor, symbolAtCursor.name.value));
 
+    }
+
+    @Override
+    public Optional<Symbol> symbol(Node node) {
+        if (node == null) {
+            return Optional.empty();
+        }
+
+        Optional<Location> nodeIdentifierLocation = node.apply(new SyntaxNodeLocationMapper());
+
+        if (nodeIdentifierLocation.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return symbol(nodeIdentifierLocation.get().lineRange().filePath(),
+                      nodeIdentifierLocation.get().lineRange().startLine());
     }
 
     /**
