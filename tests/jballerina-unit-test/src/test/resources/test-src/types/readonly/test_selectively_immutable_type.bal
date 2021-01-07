@@ -41,32 +41,6 @@ import ballerina/lang.'xml;
 // - mapping
 // - table
 
-function testImmutableTypes() {
-    testSimpleInitializationForSelectivelyImmutableTypes();
-    testRuntimeIsTypeForSelectivelyImmutableBasicTypes();
-    testRuntimeIsTypeNegativeForSelectivelyImmutableTypes();
-    testImmutabilityOfNestedXmlWithAttributes();
-    testImmutableTypedRecordFields();
-    testImmutabilityForSelfReferencingType();
-    testImmutableRecordWithDefaultValues();
-    testImmutableObjects();
-    testImmutableJson();
-    testImmutableAnydata();
-    testImmutableAny();
-    testImmutableUnion();
-    testDefaultValuesOfFields();
-    testUnionReadOnlyFields();
-    testReadOnlyCastConstructingReadOnlyValues();
-    testReadOnlyCastConstructingReadOnlyValuesPropagation();
-}
-
-function testSimpleInitializationForSelectivelyImmutableTypes() {
-    testSimpleInitializationForSelectivelyImmutableXmlTypes();
-    testSimpleInitializationForSelectivelyImmutableListTypes();
-    testSimpleInitializationForSelectivelyImmutableMappingTypes();
-    testSimpleInitializationForSelectivelyImmutableTableTypes();
-}
-
 function testSimpleInitializationForSelectivelyImmutableXmlTypes() {
     'xml:Comment & readonly a = xml `<!--I'm a comment-->`;
     readonly r1 = a;
@@ -1000,6 +974,52 @@ function testReadOnlyCastConstructingReadOnlyValuesPropagation() {
 
     assertTrue(val.c is anydata[] & readonly);
     assertEquality(<anydata[]> [1, 2], val.c);
+}
+
+readonly class ReadOnlyClass {
+    int i = 1;
+}
+
+ReadOnlyClass & readonly rc1 = new ReadOnlyClass();
+
+function testValidInitializationOfReadOnlyClassIntersectionWithReadOnly() {
+    assertTrue(<any> rc1 is ReadOnlyClass);    
+    ReadOnlyClass v1 = <ReadOnlyClass> rc1;
+    assertEquality(1, v1.i);    
+    
+    ReadOnlyClass & readonly rc2 = object {
+        int i = 123;
+        int j;
+        
+        function init() {
+            self.j = 234;
+        }
+    };
+    assertTrue(<any> rc2 is object { int i; int j; } & readonly);    
+    object { int i; int j; } v2 = <object { int i; int j; } & readonly> rc2;
+    assertEquality(123, v2.i);       
+    assertEquality(234, v2.j);       
+}
+
+class NonReadOnlyClass {
+    int i = 2;
+}
+
+NonReadOnlyClass & readonly nrc1 = object {
+                                      int i = 1234;
+                                      int j = 2345;
+                                   };
+
+function testValidInitializationOfNonReadOnlyClassIntersectionWithReadOnly() {
+    assertTrue(<any> nrc1 is object { int i; int j; } & readonly);
+    object { int i; int j; } v1 = <object { int i; int j; }> <any> nrc1;
+    assertEquality(1234, v1.i);
+    assertEquality(2345, v1.j);
+
+    NonReadOnlyClass & readonly nrc2 = new ReadOnlyClass();
+    assertTrue(<any> nrc2 is ReadOnlyClass);
+    ReadOnlyClass v2 = <ReadOnlyClass> nrc2;
+    assertEquality(1, v2.i);
 }
 
 type AssertionError error;

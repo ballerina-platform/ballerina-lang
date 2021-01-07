@@ -3029,6 +3029,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (!cIExpr.initInvocation.argExprs.isEmpty()) {
                     BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
                     BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
+                    if (constructType.tag != TypeTags.OBJECT) {
+                        resultType = symTable.semanticError;
+                        return;
+                    }
                     BUnionType expectedNextReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
                     BAttachedFunction closeFunc = types.getAttachedFuncFromObject((BObjectType) constructType,
                             BLangCompilerConstants.CLOSE_FUNC);
@@ -3053,8 +3057,13 @@ public class TypeChecker extends BLangNodeVisitor {
                         }
                     }
                     BUnionType nextReturnType = types.getVarTypeFromIteratorFuncReturnType(constructType);
-                    types.checkType(iteratorExpr.pos, nextReturnType, expectedNextReturnType,
-                            DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                    if (nextReturnType != null) {
+                        types.checkType(iteratorExpr.pos, nextReturnType, expectedNextReturnType,
+                                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                    } else {
+                        dlog.error(constructType.tsymbol.getPosition(),
+                                DiagnosticErrorCode.INVALID_NEXT_METHOD_RETURN_TYPE, expectedNextReturnType);
+                    }
                 }
                 resultType = actualType;
                 return;
@@ -7566,8 +7575,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                                       BLangClassDefinition classDefForConstructor, SymbolEnv env) {
         for (BField field : actualObjectType.fields.values()) {
             BType fieldType = field.type;
-            if (!types.isInherentlyImmutableType(fieldType) &&
-                    !types.isSelectivelyImmutableType(fieldType, false, false)) {
+            if (!types.isInherentlyImmutableType(fieldType) && !types.isSelectivelyImmutableType(fieldType, false)) {
                 semanticAnalyzer.analyzeNode(classDefForConstructor, env);
                 return;
             }

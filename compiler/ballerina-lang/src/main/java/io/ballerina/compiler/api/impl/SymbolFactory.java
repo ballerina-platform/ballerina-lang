@@ -249,6 +249,9 @@ public class SymbolFactory {
         if (isFlagOn(symbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
+        if (isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+            symbolBuilder.withQualifier(Qualifier.CONFIGURABLE);
+        }
 
         for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
             symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));

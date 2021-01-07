@@ -73,7 +73,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private BString[] bStringValues;
     // ------------------------ Constructors -------------------------------------------------------------------
 
-    @Deprecated
     public ArrayValueImpl(Object[] values, ArrayType type) {
         this.refValues = values;
         this.arrayType = type;
@@ -83,35 +82,30 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    @Deprecated
     public ArrayValueImpl(long[] values) {
         this.intValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_INT);
     }
 
-    @Deprecated
     public ArrayValueImpl(boolean[] values) {
         this.booleanValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_BOOLEAN);
     }
 
-    @Deprecated
     public ArrayValueImpl(byte[] values) {
         this.byteValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_BYTE);
     }
 
-    @Deprecated
     public ArrayValueImpl(double[] values) {
         this.floatValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_FLOAT);
     }
 
-    @Deprecated
     public ArrayValueImpl(String[] values) {
         this.size = values.length;
         bStringValues = new BString[size];
@@ -121,14 +115,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
         setArrayType(PredefinedTypes.TYPE_STRING);
     }
 
-    @Deprecated
     public ArrayValueImpl(BString[] values) {
         this.bStringValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_STRING);
     }
 
-    @Deprecated
     public ArrayValueImpl(ArrayType type) {
         this.arrayType = type;
         ArrayType arrayType = type;
@@ -228,7 +220,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    @Deprecated
     public ArrayValueImpl(ArrayType type, long size) {
         this.arrayType = type;
         this.elementType = type.getElementType();
@@ -238,7 +229,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    @Deprecated
     public ArrayValueImpl(ArrayType type, long size, ListInitialValueEntry[] initialValues) {
         this.arrayType = type;
         this.elementType = type.getElementType();
