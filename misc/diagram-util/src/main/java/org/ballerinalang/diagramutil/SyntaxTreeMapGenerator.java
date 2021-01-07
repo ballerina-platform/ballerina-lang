@@ -41,6 +41,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.text.LinePosition;
@@ -64,11 +65,18 @@ import java.util.stream.Collectors;
 public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private SemanticModel semanticModel;
     private String fileName;
+    private Document srcFile;
     private List<JsonObject> visibleEpsForEachBlock;
 
-    public SyntaxTreeMapGenerator(String fileName, SemanticModel semanticModel) {
+    public SyntaxTreeMapGenerator(String fileName, SemanticModel semanticModel, Document srcFile) {
         this.semanticModel = semanticModel;
         this.fileName = fileName;
+        this.visibleEpsForEachBlock = new ArrayList<>();
+    }
+
+    public SyntaxTreeMapGenerator(Document srcFile, SemanticModel semanticModel) {
+        this.semanticModel = semanticModel;
+        this.srcFile = srcFile;
         this.visibleEpsForEachBlock = new ArrayList<>();
     }
 
@@ -104,7 +112,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             // TODO: Check and remove the Type() API usage and replace with symbol() API;
             JsonObject symbolJson = new JsonObject();
             try {
-                Optional<TypeSymbol> typeSymbol = this.semanticModel.type(this.fileName, lineRange);
+                Optional<TypeSymbol> typeSymbol = this.semanticModel.type(lineRange);
                 if (typeSymbol.isPresent()) {
                     TypeSymbol rawType = getRawType(typeSymbol.get());
                     if (rawType.typeKind() == TypeDescKind.OBJECT) {
@@ -127,14 +135,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             }
 
             try {
-                Optional<Symbol> symbol = this.semanticModel.symbol(this.fileName, startLine);
+                Optional<Symbol> symbol = this.semanticModel.symbol(this.srcFile, startLine);
 
                 // Check if required params contains endpoints.
                 if (node instanceof RequiredParameterNode) {
                     RequiredParameterNode requiredParameterNode = (RequiredParameterNode) node;
                     if (requiredParameterNode.paramName().isPresent()) {
                         Optional<Symbol> paramNameSymbol = this.semanticModel
-                                .symbol(this.fileName, requiredParameterNode.paramName().get()
+                                .symbol(this.srcFile, requiredParameterNode.paramName().get()
                                         .lineRange().startLine());
                         if (paramNameSymbol.isPresent() && (paramNameSymbol.get() instanceof VariableSymbol)) {
                             VariableSymbol variableSymbol = (VariableSymbol) paramNameSymbol.get();
@@ -145,8 +153,10 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
                     if (variableDeclarationNode.typedBindingPattern() != null
                             && variableDeclarationNode.typedBindingPattern().bindingPattern() != null) {
-                        Optional<Symbol> typeBindingSymbol = this.semanticModel.symbol(this.fileName,
-                                variableDeclarationNode.typedBindingPattern().bindingPattern().lineRange().startLine());
+                        Optional<Symbol> typeBindingSymbol =
+                                this.semanticModel.symbol(this.srcFile,
+                                                          variableDeclarationNode.typedBindingPattern().bindingPattern()
+                                                                  .lineRange().startLine());
                         if (typeBindingSymbol.isPresent() && (typeBindingSymbol.get() instanceof VariableSymbol)) {
                             VariableSymbol variableSymbol = (VariableSymbol) typeBindingSymbol.get();
                             markVisibleEp(variableSymbol, symbolJson, node);
@@ -155,7 +165,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 } else if (node instanceof AssignmentStatementNode) {
                     AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
                     Optional<Symbol> assignmentSymbol = this.semanticModel
-                            .symbol(this.fileName, assignmentStatementNode.lineRange().startLine());
+                            .symbol(this.srcFile, assignmentStatementNode.lineRange().startLine());
                     if (assignmentSymbol.isPresent() && (assignmentSymbol.get() instanceof VariableSymbol)) {
                         VariableSymbol variableSymbol = (VariableSymbol) assignmentSymbol.get();
                         markVisibleEp(variableSymbol, symbolJson, node);

@@ -243,17 +243,17 @@ public class BallerinaTreeModifyUtil {
         newSyntaxTree = Formatter.format(newSyntaxTree);
 
         SemanticModel newSemanticModel = updateWorkspaceDocument(compilationPath, newSyntaxTree.toSourceCode(),
-                workspaceManager);
+                                                                 workspaceManager);
 
-        Optional<SyntaxTree> formattedSyntaxTree = workspaceManager.syntaxTree(compilationPath);
-        if (formattedSyntaxTree.isEmpty()) {
+        Optional<Document> formattedSrcFile = workspaceManager.document(compilationPath);
+        if (formattedSrcFile.isEmpty()) {
             throw new JSONGenerationException("Modification error");
         }
 
-        JsonElement syntaxTreeJson = DiagramUtil.getSyntaxTreeJSON(formattedSyntaxTree.get(), newSemanticModel);
+        JsonElement syntaxTreeJson = DiagramUtil.getSyntaxTreeJSON(formattedSrcFile.get(), newSemanticModel);
         JsonObject jsonTreeWithSource = new JsonObject();
         jsonTreeWithSource.add("tree", syntaxTreeJson);
-        jsonTreeWithSource.addProperty("source", formattedSyntaxTree.get().toSourceCode());
+        jsonTreeWithSource.addProperty("source", formattedSrcFile.get().syntaxTree().toSourceCode());
 
         return jsonTreeWithSource;
     }
