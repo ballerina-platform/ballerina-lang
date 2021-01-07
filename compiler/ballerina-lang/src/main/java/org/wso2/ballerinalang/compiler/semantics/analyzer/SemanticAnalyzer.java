@@ -1146,9 +1146,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
                 recordVariable.type = rhsType;
 
-                if (!this.symbolEnter.validateRecordVariable(recordVariable, env)) {
+                if (!this.symbolEnter.symbolEnterAndValidateRecordVariable(recordVariable, env)) {
                     recordVariable.type = symTable.semanticError;
                 }
+
+                recordVariable.annAttachments.forEach(annotationAttachment -> {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+                    annotationAttachment.accept(this);
+                });
+
+                validateAnnotationAttachmentCount(recordVariable.annAttachments);
                 break;
             case ERROR_VARIABLE:
                 if (varRefExpr == null) {

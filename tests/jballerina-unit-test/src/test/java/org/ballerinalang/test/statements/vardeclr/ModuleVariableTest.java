@@ -96,7 +96,7 @@ public class ModuleVariableTest {
         BRunUtil.invoke(recordVarCompileResult, "recordVarInRecordVar");
         BRunUtil.invoke(recordVarCompileResult, "tupleVarInRecordVar");
         BRunUtil.invoke(recordVarCompileResult, "testRecordVarWithAnnotations");
-        BRunUtil.invoke(recordVarCompileResult, "testVariableForwardReferencingAndDeclaredWithVar");
+        BRunUtil.invoke(recordVarCompileResult, "testVariableForwardReferencing");
 //        BRunUtil.invoke(recordVarCompileResult, "testRecordVariableWithRestBP");
     }
 

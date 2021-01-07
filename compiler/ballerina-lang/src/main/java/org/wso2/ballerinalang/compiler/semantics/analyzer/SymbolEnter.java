@@ -2073,13 +2073,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
 
-        if (!(validateRecordVariable(varNode))) {
+        if (!(symbolEnterAndValidateRecordVariable(varNode, env))) {
             varNode.type = symTable.semanticError;
             return;
         }
     }
 
-    private boolean validateRecordVariable(BLangRecordVariable recordVar) {
+    boolean symbolEnterAndValidateRecordVariable(BLangRecordVariable recordVar, SymbolEnv env) {
         Name varName = names.fromString(anonymousModelHelper.getNextRecordVarKey(env.enclPkg.packageID));
         recordVar.symbol =
                 defineVarSymbol(recordVar.pos, recordVar.flagSet, recordVar.type, varName, env, recordVar.internal);
@@ -2222,7 +2222,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     }
                     value.type = restType;
                     if (isModuleRecordDeclaredWithVar) {
-                        recordVar.symbol.type = restType;
+                        value.symbol.type = restType;
                         continue;
                     }
                     defineNode(value, env);
@@ -2232,7 +2232,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             value.type = recordVarTypeFields.get((variable.getKey().getValue())).type;
 
             if (isModuleRecordDeclaredWithVar) {
-                recordVar.symbol.type = value.type;
+                value.symbol.type = value.type;
                 continue;
             }
             defineNode(value, env);
