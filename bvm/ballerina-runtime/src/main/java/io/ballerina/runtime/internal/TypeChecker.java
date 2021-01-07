@@ -1639,6 +1639,11 @@ public class TypeChecker {
                                                         String targetTypeModule, String sourceTypeModule,
                                                         BObjectType sourceType, BObjectType targetType) {
         for (MethodType lhsFunc : targetFuncs) {
+            // As stage-2 of service typing changes, resource functions are not considered for object subtyping.
+            if (SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.RESOURCE)) {
+                continue;
+            }
+
             MethodType rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
                     !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsFunc.getFlags(),

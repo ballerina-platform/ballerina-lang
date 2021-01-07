@@ -52,7 +52,6 @@ function getServicePath() returns string[] = @java:Method {
 listener Listener lsn = new();
 
 type S service object {
-    resource function get processRequest() returns json;
 };
 
 service S "service-name" on lsn {

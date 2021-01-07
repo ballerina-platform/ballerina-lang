@@ -63,6 +63,19 @@ public class ServiceClassTest {
         Assert.assertEquals(index, 3);
     }
 
+    @Test
+    public void testServiceObjectAndUsingServiceObjectAsATypeInclusionNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/klass/service_class_resource_remote_function_references_neg.bal");
+        int index = 0;
+        validateError(result, index++, "resource method declarations are not allowed in an object type definition",
+                19, 5);
+        validateError(result, index++, "resource method declarations are not allowed in an object type definition",
+                20, 5);
+        validateError(result, index++, "no implementation found for the method 'onMesage' of class 'SClass'", 23, 1);
+        Assert.assertEquals(result.getErrorCount(), index);
+    }
+
     @AfterClass
     public void reset() {
         ServiceValue.reset();

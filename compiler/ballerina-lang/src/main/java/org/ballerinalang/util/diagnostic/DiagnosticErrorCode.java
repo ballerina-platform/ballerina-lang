@@ -653,23 +653,25 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3967", "remote.function.in.non.network.object"),
     UNSUPPORTED_PATH_PARAM_TYPE("BCE3968", "unsupported.path.param.type"),
     UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3969", "unsupported.rest.path.param.type"),
-    SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER("BCE3970",
+    OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL("BCE3970",
+            "unsupported.resource.function.declaration.in.object.type"),
+    SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER("BCE3972",
             "error.service.absolute.path.or.literal.required.by.listener"),
-    SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER("BCE3971", "service.path.literal.is.not.supported.by.listener"),
-    SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER("BCE3972", "service.absolute.path.is.not.supported.by.listener"),
-    SERVICE_LITERAL_REQUIRED_BY_LISTENER("BCE3973", "service.path.literal.required.by.listener"),
-    SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER("BCE3974", "service.absolute.path.required.by.listener"),
+    SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER("BCE3973", "service.path.literal.is.not.supported.by.listener"),
+    SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER("BCE3974", "service.absolute.path.is.not.supported.by.listener"),
+    SERVICE_LITERAL_REQUIRED_BY_LISTENER("BCE3975", "service.path.literal.required.by.listener"),
+    SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER("BCE3976", "service.absolute.path.required.by.listener"),
 
     INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPE_DESCRIPTOR(
-            "BCE3975", "invalid.read.only.class.inclusion.in.object.type.descriptor"),
-    INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS("BCE3976", "invalid.inclusion.with.mismatched.qualifiers"),
-    INVALID_REFERENCE_WITH_MISMATCHED_QUALIFIERS("BCE3977", "invalid.reference.with.mismatched.qualifiers"),
+            "BCE3977", "invalid.read.only.class.inclusion.in.object.type.descriptor"),
+    INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS("BCE3978", "invalid.inclusion.with.mismatched.qualifiers"),
+    INVALID_REFERENCE_WITH_MISMATCHED_QUALIFIERS("BCE3979", "invalid.reference.with.mismatched.qualifiers"),
     INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS(
-            "BCE3978", "invalid.read.only.class.inclusion.in.non.read.only.class"),
+            "BCE3980", "invalid.read.only.class.inclusion.in.non.read.only.class"),
     INVALID_FIELD_IN_OBJECT_CONSTUCTOR_EXPR_WITH_READONLY_REFERENCE(
-            "BCE3979", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
+            "BCE3981", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
 
-    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3980", "multiple.receive.action.not.yet.supported")
+    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3982", "multiple.receive.action.not.yet.supported")
     ;
 
     private String diagnosticId;

@@ -96,7 +96,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
-import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
@@ -1331,7 +1330,8 @@ public class Types {
         int rhsAttachedFuncCount = getObjectFuncCount(rhsStructSymbol);
 
         // If LHS is a service obj, then RHS must be a service object in order to assignable
-        if (isServiceObject(lhsStructSymbol) && !isServiceObject(rhsStructSymbol)) {
+        boolean isLhsAService = Symbols.isService(lhsStructSymbol);
+        if (isLhsAService && !Symbols.isService(rhsStructSymbol)) {
             return false;
         }
 
@@ -1360,15 +1360,15 @@ public class Types {
                     !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
-
-            // If LHS field is a resource field, RHS field must be a resource field
-            if (Symbols.isResource(lhsField.symbol) && !Symbols.isResource(rhsField.symbol)) {
-                return false;
-            }
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
             if (lhsFunc == lhsStructSymbol.initializerFunc) {
+                continue;
+            }
+
+            // Service resource methods are not considered as part of service objects type.
+            if (isLhsAService && Symbols.isResource(lhsFunc.symbol)) {
                 continue;
             }
 
@@ -1382,10 +1382,6 @@ public class Types {
         }
 
         return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet);
-    }
-
-    private boolean isServiceObject(BObjectTypeSymbol rhsStructSymbol) {
-        return (rhsStructSymbol.flags & Flags.SERVICE) == Flags.SERVICE;
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
@@ -3682,7 +3678,6 @@ public class Types {
     private static class ListenerValidationModel {
         private final Types types;
         private final SymbolTable symtable;
-        private final BObjectType emptyServiceType;
         private final BType serviceNameType;
         boolean attachFound;
         boolean detachFound;
@@ -3693,13 +3688,6 @@ public class Types {
         public ListenerValidationModel(Types types, SymbolTable symTable) {
             this.types = types;
             this.symtable = symTable;
-            this.emptyServiceType = new BObjectType(
-                    new BObjectTypeSymbol(SymTag.OBJECT,
-                            Flags.SERVICE & Flags.PUBLIC,
-                            new org.wso2.ballerinalang.compiler.util.Name(""),
-                            null, null, null, null, BUILTIN));
-            this.emptyServiceType.tsymbol.type = this.emptyServiceType;
-
             this.serviceNameType =
                     BUnionType.create(null, symtable.stringType, symtable.arrayStringType, symtable.nilType);
         }
@@ -3790,7 +3778,9 @@ public class Types {
             }
 
             BType firstParamType = func.type.paramTypes.get(0);
-            return detachFound = isServiceObject(firstParamType);
+            boolean isMatchingSignature = firstParamType.tag == TypeTags.OBJECT
+                    && Symbols.isService(firstParamType.tsymbol);
+            return detachFound = isMatchingSignature;
         }
 
         private boolean checkAttachMethod(BAttachedFunction func) {
@@ -3804,7 +3794,11 @@ public class Types {
 
             // todo: change is unions are allowed as service type.
             BType firstParamType = func.type.paramTypes.get(0);
-            if (!isServiceObject(firstParamType)) {
+            if (firstParamType.tag != TypeTags.OBJECT) {
+                return false;
+            }
+
+            if (!Symbols.isService(firstParamType.tsymbol)) {
                 return false;
             }
 
@@ -3819,7 +3813,7 @@ public class Types {
                 return false;
             }
 
-            return types.isServiceObject((BObjectTypeSymbol) type.tsymbol);
+            return Symbols.isService(type.tsymbol);
         }
     }
 }
