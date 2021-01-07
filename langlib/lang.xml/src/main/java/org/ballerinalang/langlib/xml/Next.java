@@ -44,13 +44,13 @@ public class Next {
         BIterator xmlIterator = (BIterator) m.getNativeData("&iterator&");
 
         if (xmlIterator == null) {
-            xmlIterator = ((BXml)m.get(StringUtils.fromString("m"))).getIterator();
+            xmlIterator = ((BXml) m.get(StringUtils.fromString("m"))).getIterator();
             m.addNativeData("&iterator&", xmlIterator);
         }
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            switch (((BXml)xmlValue).getType().getTag()) {
+            switch (((BXml) xmlValue).getType().getTag()) {
                 case TypeTags.XML_ELEMENT_TAG:
                     return ValueCreator.createRecordValue(ValueCreator.createMapValue
                                     (PredefinedTypes.XML_ITR_NEXT_RETURN_ELEMENT_TYPE), xmlValue);
