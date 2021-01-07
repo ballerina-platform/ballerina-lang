@@ -20,6 +20,7 @@ package io.ballerina.compiler.api;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -47,11 +48,12 @@ public interface SemanticModel {
     /**
      * Lookup the symbol at the given location.
      *
-     * @param fileName path for the file in which we need to look up symbols, relative to the source root path
+     *
+     * @param sourceFile The source file document in which to look up the position
      * @param position text position in the source
      * @return {@link Symbol} in the given location
      */
-    Optional<Symbol> symbol(String fileName, LinePosition position);
+    Optional<Symbol> symbol(Document sourceFile, LinePosition position);
 
     /**
      * Looks up the symbol for the specified syntax tree node. This will only return a symbol if the provided node is a
@@ -99,7 +101,7 @@ public interface SemanticModel {
      * @param range    the text range of the expression
      * @return the type of the expression
      */
-    Optional<TypeSymbol> type(String fileName, LineRange range);
+    Optional<TypeSymbol> type(LineRange range);
 
     /**
      * Get the diagnostics within the given text Span.

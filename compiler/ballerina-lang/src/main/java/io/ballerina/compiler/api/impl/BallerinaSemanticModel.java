@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -123,8 +124,8 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public Optional<Symbol> symbol(String fileName, LinePosition position) {
-        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+    public Optional<Symbol> symbol(Document sourceFile, LinePosition position) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(sourceFile);
         SymbolFinder symbolFinder = new SymbolFinder();
         BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
 
@@ -286,6 +287,10 @@ public class BallerinaSemanticModel implements SemanticModel {
     private boolean isImportedSymbol(BSymbol symbol) {
         return symbol.origin == COMPILED_SOURCE &&
                 (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC) || symbol.getKind() == SymbolKind.PACKAGE);
+    }
+
+    private BLangCompilationUnit getCompilationUnit(Document srcFile) {
+        return getCompilationUnit(srcFile.name());
     }
 
     private BLangCompilationUnit getCompilationUnit(String srcFile) {
