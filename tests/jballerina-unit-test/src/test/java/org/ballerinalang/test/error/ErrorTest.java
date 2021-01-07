@@ -151,8 +151,8 @@ public class ErrorTest {
 
         Assert.assertEquals(message,
                 "error: largeNumber {\"message\":\"large number\"}\n" +
-                        "\tat error_test:errorPanicCallee(error_test.bal:37)\n" +
-                        "\t   error_test:errorPanicTest(error_test.bal:31)");
+                        "\tat error_test:errorPanicCallee(error_test.bal:38)\n" +
+                        "\t   error_test:errorPanicTest(error_test.bal:32)");
     }
 
     @Test
@@ -394,9 +394,9 @@ public class ErrorTest {
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:340}";
+                "lineNumber:341}";
         String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:344}";
+                "lineNumber:345}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);
