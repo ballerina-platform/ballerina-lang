@@ -354,7 +354,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     if (recordJson instanceof JsonObject && ((JsonObject) recordJson).has("typeData")) {
                         JsonElement recordsJson = gson.toJsonTree(recordDefJsonMap);
 //                        ((JsonObject) recordJson).add("records", recordsJson);
-                        ((JsonObject)((JsonObject) recordJson).get("typeData")).add("records",recordsJson);
+                        ((JsonObject) ((JsonObject) recordJson).get("typeData")).add("records", recordsJson);
                     }
                     recordCache.addRecordAST(request.getOrg(), request.getModule(),
                             request.getVersion(), request.getName(), recordJson);
