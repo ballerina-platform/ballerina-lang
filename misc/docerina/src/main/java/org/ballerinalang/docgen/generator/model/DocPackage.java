@@ -17,46 +17,31 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a Ballerina Module.
+ * Represents a Ballerina Package.
  */
-public class Module {
+public class DocPackage {
     @Expose
-    public String id = "";
+    public boolean isSingleFile;
     @Expose
-    public String summary;
+    public String sourceFileName;
     @Expose
-    public String description;
+    public String name = "";
     @Expose
     public String orgName;
     @Expose
     public String version;
+    @Expose
+    public String description;
+    @Expose
+    public String summary;
+    @Expose
+    public List<Module> modules = new ArrayList<>();
 
-    // constructs
-    @Expose
-    public List<Record> records = new ArrayList<>();
-    @Expose
-    public List<BClass> classes = new ArrayList<>();
-    @Expose
-    public List<BAbstractObject> abstractObjects = new ArrayList<>();
-    @Expose
-    public List<Client> clients = new ArrayList<>();
-    @Expose
-    public List<Listener> listeners = new ArrayList<>();
-    @Expose
-    public List<Function> functions = new ArrayList<>();
-    @Expose
-    public List<Constant> constants = new ArrayList<>();
-    @Expose
-    public List<Annotation> annotations = new ArrayList<>();
-    @Expose
-    public List<Error> errors = new ArrayList<>();
-    @Expose
-    public List<BType> types = new ArrayList<>();
-    @Expose
-    public List<Enum> enums = new ArrayList<>();
+    public List<Path> resources = new ArrayList<>();
 
 }
