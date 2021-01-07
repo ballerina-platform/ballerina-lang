@@ -1,5 +1,5 @@
 import ballerina/lang.'value;
-type Error0 distinct; error;
+type Error0 distinct error;
 type Error1 distinct error<map<value:Cloneable>>;
 type Error2 distinct Error0|Error1;
 
