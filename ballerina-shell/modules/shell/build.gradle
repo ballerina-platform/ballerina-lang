@@ -37,7 +37,6 @@ dependencies {
 }
 
 test {
-    dependsOn ':ballerina-lang:build'
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

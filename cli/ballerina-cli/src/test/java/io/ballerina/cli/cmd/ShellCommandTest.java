@@ -18,12 +18,23 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.shell.cli.BShellConfiguration;
+import io.ballerina.shell.cli.ReplShellApplication;
+import org.jline.reader.EndOfFileException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Shell command tests.
@@ -52,7 +63,6 @@ public class ShellCommandTest extends BaseCommandTest {
                 "org.jline.utils.ClosedException");
     }
 
-
     @Test(description = "Test shell command fail if ballerina.home is wrongly set.")
     public void testShellCommandFail() throws IOException {
         PrintStream outStreamOrig = System.out;
@@ -76,5 +86,63 @@ public class ShellCommandTest extends BaseCommandTest {
                 "Something went wrong while executing REPL: " +
                 "io.ballerina.projects.ProjectException: Ballerina distribution directory does not exists in `" +
                 "not/existing/dir/abc'");
+    }
+
+    @Test
+    public void testShellExecution() throws Exception {
+        List<String[]> testCases = new ArrayList<>();
+        testCases.add(new String[]{"int i = 35", "i"});
+        testCases.add(new String[]{"i*2 + 10", "80"});
+
+        PipedOutputStream testOut = new PipedOutputStream();
+        PipedInputStream shellIn = new PipedInputStream(testOut);
+        PipedOutputStream shellOut = new PipedOutputStream();
+        PipedInputStream testIn = new PipedInputStream(shellOut);
+
+        Thread testIntegratorThread = new Thread(() -> {
+            try {
+                String shellPrompt = "=$ ";
+                PrintStream testPrint = new PrintStream(testOut, true, Charset.defaultCharset());
+                InputStreamReader inStreamReader = new InputStreamReader(testIn, Charset.defaultCharset());
+                BufferedReader testReader = new BufferedReader(inStreamReader);
+
+                for (String[] testCase : testCases) {
+                    testPrint.println(testCase[0] + System.lineSeparator());
+                    StringBuilder recordedInput = new StringBuilder();
+                    while (true) {
+                        String line = Objects.requireNonNull(testReader.readLine());
+                        recordedInput.append(line).append(System.lineSeparator());
+                        if (line.endsWith(shellPrompt)) {
+                            break;
+                        }
+                    }
+
+                    String recordedContent = filteredString(recordedInput.toString());
+                    recordedContent = recordedContent.substring(recordedContent.indexOf(shellPrompt));
+                    recordedContent = recordedContent.substring(shellPrompt.length(),
+                            recordedContent.length() - shellPrompt.length() - System.lineSeparator().length());
+                    String recordedContentInput = recordedContent.substring(0, testCase[0].length());
+                    Assert.assertEquals(recordedContentInput, testCase[0]);
+                    String shellOutput = recordedContent.substring(testCase[0].length()).trim();
+                    String expectedOutput = Objects.requireNonNullElse(testCase[1], "");
+                    Assert.assertEquals(shellOutput, expectedOutput);
+                }
+            } catch (IOException ignored) {
+            }
+        });
+        testIntegratorThread.start();
+
+        try {
+            BShellConfiguration configuration = new BShellConfiguration(false,
+                    BShellConfiguration.EvaluatorMode.DEFAULT, shellIn, shellOut);
+            ReplShellApplication.execute(configuration);
+        } catch (EndOfFileException ignored) {
+        }
+
+        testIntegratorThread.interrupt();
+    }
+
+    private String filteredString(String rawString) {
+        return rawString.replaceAll("(\\x9B|\\x1B\\[)[0-?]*[ -/]*[@-~]", "");
     }
 }
