@@ -25,6 +25,8 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
+import org.wso2.ballerinalang.compiler.bir.model.Argument;
+import org.wso2.ballerinalang.compiler.bir.model.ArgumentState;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
@@ -264,7 +266,7 @@ class JvmObservabilityGen {
                     desugaredFunc.requiredParams.add(new BIRParameter(asyncCallIns.pos, argName, 0));
                     desugaredFunc.argsCount++;
                 }
-                funcParamOperands.add(new BIROperand(funcParam));
+                funcParamOperands.add(new Argument(ArgumentState.PROVIDED, new BIROperand(funcParam)));
             }
 
             // Generating function body
@@ -280,8 +282,8 @@ class JvmObservabilityGen {
             asyncCallIns.calleePkg = currentPkgId;
             asyncCallIns.isVirtual = attachedTypeDef != null;
             if (attachedTypeDef != null) {
-                asyncCallIns.args.add(0, new BIROperand(new BIRVariableDcl(attachedTypeDef.type,
-                        selfArgName, VarScope.FUNCTION, VarKind.SELF)));
+                asyncCallIns.args.add(0, new Argument(ArgumentState.PROVIDED, new BIROperand(new BIRVariableDcl(
+                                      attachedTypeDef.type, selfArgName, VarScope.FUNCTION, VarKind.SELF))));
             }
         }
     }
