@@ -19,8 +19,6 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
-import io.ballerina.projects.testsuite.Test;
-import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.BooleanType;
 import io.ballerina.runtime.api.types.ByteType;
@@ -44,6 +42,8 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.XmlValue;
+import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
 import org.ballerinalang.test.runtime.entity.TesterinaReport;
 import org.ballerinalang.test.runtime.entity.TesterinaResult;
@@ -75,6 +75,12 @@ public class BTestRunner {
 
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
+    private static final String INIT_FUNCTION_NAME = ".<init>";
+    private static final String START_FUNCTION_NAME = ".<start>";
+    private static final String STOP_FUNCTION_NAME = ".<stop>";
+    private static final String TEST_INIT_FUNCTION_NAME = ".<testinit>";
+    private static final String TEST_START_FUNCTION_NAME = ".<teststart>";
+    private static final String TEST_STOP_FUNCTION_NAME = ".<teststop>";
 
     private PrintStream errStream;
     private PrintStream outStream;
@@ -548,8 +554,8 @@ public class BTestRunner {
 
     private void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz, Class<?> testInitClazz,
                             boolean hasTestablePackage) {
-        TesterinaFunction init = new TesterinaFunction(initClazz, suite.getInitFunctionName(), initScheduler);
-        TesterinaFunction start = new TesterinaFunction(initClazz, suite.getStartFunctionName(), initScheduler);
+        TesterinaFunction init = new TesterinaFunction(initClazz, INIT_FUNCTION_NAME, initScheduler);
+        TesterinaFunction start = new TesterinaFunction(initClazz, START_FUNCTION_NAME, initScheduler);
         // As the init function we need to use $moduleInit to initialize all the dependent modules
         // properly.
         init.setName("$moduleInit");
@@ -561,7 +567,7 @@ public class BTestRunner {
         // Now we initialize the init of testable module.
         if (hasTestablePackage) {
             TesterinaFunction testInit =
-                    new TesterinaFunction(testInitClazz, suite.getTestInitFunctionName(), initScheduler);
+                    new TesterinaFunction(testInitClazz, TEST_INIT_FUNCTION_NAME, initScheduler);
             response = testInit.invoke();
             if (response instanceof Throwable) {
                 throw new BallerinaTestException("Test module initialization for test suite failed due to " +
@@ -575,7 +581,7 @@ public class BTestRunner {
         // Invoke start function of the testable module
         if (hasTestablePackage) {
             TesterinaFunction testStart =
-                    new TesterinaFunction(testInitClazz, suite.getTestStartFunctionName(), initScheduler);
+                    new TesterinaFunction(testInitClazz, TEST_START_FUNCTION_NAME, initScheduler);
             testStart.invoke();
         }
         // Once the start function finish we will re start the scheduler with immortal true
@@ -587,11 +593,11 @@ public class BTestRunner {
 
     private void stopSuite(TestSuite suite, Scheduler scheduler, Class<?> initClazz, Class<?> testInitClazz,
                            boolean hasTestablePackage) {
-        TesterinaFunction stop = new TesterinaFunction(initClazz, suite.getStopFunctionName(), scheduler);
+        TesterinaFunction stop = new TesterinaFunction(initClazz, STOP_FUNCTION_NAME, scheduler);
         // Invoke stop function of the testable module.
         if (hasTestablePackage) {
             TesterinaFunction testStop =
-                    new TesterinaFunction(testInitClazz, suite.getTestStopFunctionName(), scheduler);
+                    new TesterinaFunction(testInitClazz, TEST_STOP_FUNCTION_NAME, scheduler);
             testStop.scheduler = scheduler;
             testStop.invoke();
         }
