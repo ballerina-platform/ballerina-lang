@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -36,50 +37,57 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import java.util.List;
 
 /**
- * Class to test icon annotation.
+ * Class to test display annotation.
  *
  * @since 2.0
  */
-public class IconAnnotationTest {
+public class DisplayAnnotationTest {
 
     private CompileResult result;
     private CompileResult negative;
 
     @BeforeClass
     public void setup() {
-        negative = BCompileUtil.compile("test-src/annotations/icon_annot_negative.bal");
-        result = BCompileUtil.compile("test-src/annotations/icon_annot.bal");
+        negative = BCompileUtil.compile("test-src/annotations/display_annot_negative.bal");
+        result = BCompileUtil.compile("test-src/annotations/display_annot.bal");
     }
 
     @Test
-    public void testIconOnFunction() {
+    public void testDisplayAnnotOnFunction() {
         BLangFunction fooFunction = (BLangFunction) ((List) ((BLangPackage) result.getAST()).functions).get(0);
         BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List) fooFunction.annAttachments).get(0);
-        Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(annot.expr).toString(), " {path: " +
-                "/fooIconPath.icon}");
+        Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(annot.expr).toString(),
+                " {iconPath: fooIconPath.icon,label: Foo function}");
     }
 
-    @Test (enabled = false)
-    public void testIconOnObjectAndMemberFunction() {
+    @Test
+    public void testDisplayAnnotOnServiceDecl() {
+        BLangService service = (BLangService) result.getAST().getServices().get(0);
+        BLangAnnotationAttachment attachment = service.getAnnotationAttachments().get(0);
+        Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(attachment.expr).toString(),
+                " {iconPath: service.icon,label: service,misc: Other info}");
+    }
+
+    @Test
+    public void testDisplayAnnotOnObjectAndMemberFunction() {
         ClassDefinition clz = result.getAST().getClassDefinitions().get(0);
         List<? extends AnnotationAttachmentNode> objAnnot = clz.getAnnotationAttachments();
         Assert.assertEquals(objAnnot.size(), 1);
-        Assert.assertEquals(objAnnot.get(0).getExpression().toString(), " {path: /barIconPath.icon}.cloneReadOnly()");
+        Assert.assertEquals(objAnnot.get(0).getExpression().toString(),
+                " {iconPath: barIconPath.icon,label: Bar class}");
 
         List<BLangAnnotationAttachment> attachedFuncAttachments =
                 ((BLangClassDefinition) clz).functions.get(0).annAttachments;
         String annotAsString =
                 getActualExpressionFromAnnotationAttachmentExpr(attachedFuncAttachments.get(0).getExpression())
                         .toString();
-        Assert.assertEquals(annotAsString, " {path: /kMemberFuncIconPath.icon}");
+        Assert.assertEquals(annotAsString, " {label: k method}");
     }
 
-    @Test void testIconAnnotationNegative() {
+    @Test void testDisplayAnnotationNegative() {
         BAssertUtil.validateError(negative, 0,
-                "cannot specify more than one annotation value for annotation 'icon'", 17, 1);
-        BAssertUtil.validateError(negative, 1,
-                "annotation 'ballerina/lang.annotations:1.0.0:icon' is not allowed on var", 23, 1);
-        Assert.assertEquals(negative.getErrorCount(), 2);
+                "cannot specify more than one annotation value for annotation 'display'", 17, 1);
+        Assert.assertEquals(negative.getErrorCount(), 1);
     }
 
     private BLangExpression getActualExpressionFromAnnotationAttachmentExpr(BLangExpression expression) {
