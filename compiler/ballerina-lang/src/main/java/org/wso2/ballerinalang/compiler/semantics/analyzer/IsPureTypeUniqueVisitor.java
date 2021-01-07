@@ -75,6 +75,7 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.UNSIGNED8_INT:
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED32_INT:
+            case TypeTags.CHAR_STRING:
                 return true;
             default:
                 return false;

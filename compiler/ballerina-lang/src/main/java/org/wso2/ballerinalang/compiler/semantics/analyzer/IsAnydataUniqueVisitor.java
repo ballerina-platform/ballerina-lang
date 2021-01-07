@@ -65,6 +65,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
             case TypeTags.BOOLEAN:
             case TypeTags.JSON:
             case TypeTags.XML:
