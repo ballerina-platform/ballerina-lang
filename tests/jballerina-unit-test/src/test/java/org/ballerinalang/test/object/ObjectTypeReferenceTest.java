@@ -132,7 +132,7 @@ public class ObjectTypeReferenceTest {
     public void testSimpleObjectTypeReferenceSemanticsNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-semantics" +
                 "-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions",
                 18, 6);
