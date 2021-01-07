@@ -1650,11 +1650,11 @@ public class Types {
 
         List<BType> types = new ArrayList<>(((BUnionType) returnType).getMemberTypes());
 
-        if (!types.removeIf(type -> type.tag == TypeTags.NIL)) {
+        boolean containsCompletionType = types.removeIf(type -> type.tag == TypeTags.NIL);
+        containsCompletionType = types.removeIf(type -> type.tag == TypeTags.ERROR) || containsCompletionType;
+        if (!containsCompletionType) {
             return false;
         }
-
-        types.removeIf(type -> type.tag == TypeTags.ERROR);
 
         if (types.size() != 1) {
             //TODO: print error
