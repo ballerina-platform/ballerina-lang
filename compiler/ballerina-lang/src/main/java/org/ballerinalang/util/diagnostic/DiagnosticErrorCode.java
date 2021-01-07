@@ -456,6 +456,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_TYPE_EXPECTED("BCE3205", "error.type.expected"),
     MISSING_REQUIRED_METHOD_NEXT("BCE3206", "missing.required.method.next"),
     ORDER_BY_NOT_SUPPORTED("BCE3207", "order.by.not.supported"),
+    INVALID_NEXT_METHOD_RETURN_TYPE("BCE3208", "invalid.next.method.return.type"),
 
     // Table related codes
     TABLE_CONSTRAINT_INVALID_SUBTYPE("BCE3300", "invalid.table.constraint.subtype"),
@@ -671,7 +672,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_FIELD_IN_OBJECT_CONSTUCTOR_EXPR_WITH_READONLY_REFERENCE(
             "BCE3981", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
 
-    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3982", "multiple.receive.action.not.yet.supported")
+    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3982", "multiple.receive.action.not.yet.supported"),
+
+    INVALID_READONLY_FIELD_TYPE("BCE3983", "invalid.readonly.field.type")
     ;
 
     private String diagnosticId;

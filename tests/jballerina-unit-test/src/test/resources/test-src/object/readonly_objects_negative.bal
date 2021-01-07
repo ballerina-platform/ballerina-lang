@@ -51,7 +51,7 @@ readonly class Controller {
     }
 }
 
-function testInvalidReadOnlyIntersection() {
+function testReadOnlyIntersectionInvalidInitialization() {
     Controller & readonly x = new;
 }
 
