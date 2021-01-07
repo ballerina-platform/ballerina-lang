@@ -18,11 +18,11 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code {@link MemberFunctionType }} represents a function type in ballerina.
+ * {@code {@link MethodType }} represents a function type in ballerina.
  *
  * @since 2.0.0
  */
-public interface MemberFunctionType extends FunctionType {
+public interface MethodType extends FunctionType {
 
     ObjectType getParentObjectType();
 

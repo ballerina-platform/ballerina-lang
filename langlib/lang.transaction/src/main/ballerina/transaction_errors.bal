@@ -25,9 +25,9 @@ public type Error distinct error;
 public function prepareError(string message, error? err = ()) returns Error {
     Error trxError;
     if (err is error) {
-        trxError = Error(message, err);
+        trxError = error Error(message, err);
     } else {
-        trxError = Error(message);
+        trxError = error Error(message);
     }
     return trxError;
 }

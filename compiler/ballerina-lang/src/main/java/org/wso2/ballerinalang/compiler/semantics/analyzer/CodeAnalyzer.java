@@ -106,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -2647,6 +2648,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        analyzeExprs(errorConstructorExpr.positionalArgs);
+        if (!errorConstructorExpr.namedArgs.isEmpty()) {
+            analyzeExprs(errorConstructorExpr.namedArgs);
+        }
+    }
+
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
         if (!actionInvocation.async && !this.withinTransactionScope &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
@@ -3622,6 +3630,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         int tag = bType.tag;
         if (tag == TypeTags.ERROR) {
             errorType = bType;
+        } else if (tag == TypeTags.READONLY) {
+            errorType = symTable.errorType;
         } else if (tag == TypeTags.UNION) {
             LinkedHashSet<BType> errTypes = new LinkedHashSet<>();
             Set<BType> memTypes = ((BUnionType) bType).getMemberTypes();

@@ -105,7 +105,7 @@ public function testUnionReturn() returns string {
     ResourceDefinition resourceDef = {path:"path", method:"method"};
     ResourceDefinition[] resources = [resourceDef];
     ApiDefinition apiDef = {resources:resources};
-    return value:toString(getMapOrError("swagger", apiDef));
+    return value:toString(checkpanic getMapOrError("swagger", apiDef));
 }
 
 public function testBalEnvFastAsyncVoidSig() {

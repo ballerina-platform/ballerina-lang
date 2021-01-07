@@ -21,7 +21,7 @@ function testBasicUsage() {
     ob:RawTemplate rt = `Hello ${name}!`;
 
     assert(<string[]>["Hello ", "!"], rt.strings);
-    assert("Pubudu", <string>rt.insertions[0]);
+    assert("Pubudu", <string> checkpanic rt.insertions[0]);
 }
 
 function testEmptyLiteral() {
@@ -46,9 +46,9 @@ function testLiteralWithNoStrings() {
     ob:RawTemplate rt = `${hello}${n}${world}`;
 
     assert(<string[]>["", "", "", ""], rt.strings);
-    assert("Hello", <string>rt.insertions[0]);
-    assert(10, <int>rt.insertions[1]);
-    assert("World", <string>rt.insertions[2]);
+    assert("Hello", <string> checkpanic rt.insertions[0]);
+    assert(10, <int> checkpanic rt.insertions[1]);
+    assert("World", <string> checkpanic rt.insertions[2]);
 }
 
 class Person {
@@ -71,19 +71,19 @@ function testComplexExpressions() {
 
     ob:RawTemplate rt1 = `x + y = ${x + y}`;
     assert(<string[]>["x + y = ", ""], rt1.strings);
-    assert(30, <int>rt1.insertions[0]);
+    assert(30, <int> checkpanic rt1.insertions[0]);
 
     var fn = function () returns string { return "Pubudu"; };
 
     ob:RawTemplate rt2 = `Hello ${fn()}!`;
     assert(<string[]>["Hello ", "!"], rt2.strings);
-    assert("Pubudu", <string>rt2.insertions[0]);
+    assert("Pubudu", <string> checkpanic rt2.insertions[0]);
 
     Person p = new("John Doe", 20);
 
     ob:RawTemplate rt3 = `${p} is a person`;
     assert(<string[]>["", " is a person"], rt3.strings);
-    assert("name: John Doe, age: 20", rt3.insertions[0].toString());
+    assert("name: John Doe, age: 20", (checkpanic rt3.insertions[0]).toString());
 }
 
 type Template1 object {
@@ -242,7 +242,7 @@ function testIndirectAssignmentToConcreteType() {
     error err = <error>trap rt2.insertions.push(12.34);
 
     assert("{ballerina/lang.array}InherentTypeViolation", err.message());
-    assert("incompatible types: expected 'int', found 'float'", <string>err.detail().get("message"));
+    assert("incompatible types: expected 'int', found 'float'", <string> checkpanic err.detail().get("message"));
 }
 
 class CompatibleObj {
@@ -256,16 +256,16 @@ function testModifyStringsField() {
     error err = <error>trap rt2.strings.push("Invalid");
 
     assert("{ballerina/lang.array}InvalidUpdate", err.message());
-    assert("modification not allowed on readonly value", <string>err.detail().get("message"));
+    assert("modification not allowed on readonly value", <string> checkpanic err.detail().get("message"));
 }
 
 function testAnyInUnion() {
     any|error ae = `INSERT INTO Details VALUES (${"Foo"}, ${20})`;
-    ob:RawTemplate rt = <ob:RawTemplate>ae;
+    ob:RawTemplate rt = <ob:RawTemplate> checkpanic ae;
 
     assert(<string[]>["INSERT INTO Details VALUES (", ", ", ")"], rt.strings);
-    assert("Foo", <string>rt.insertions[0]);
-    assert(20, <int>rt.insertions[1]);
+    assert("Foo", <string> checkpanic rt.insertions[0]);
+    assert(20, <int> checkpanic rt.insertions[1]);
 }
 
 function testAssignmentToUnion() {

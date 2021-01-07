@@ -842,7 +842,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             symTable.errorType = (BErrorType) entry.symbol.type;
             symTable.detailType = (BMapType) symTable.errorType.detailType;
-            symTable.errorConstructor = ((BErrorTypeSymbol) symTable.errorType.tsymbol).ctorSymbol;
             return;
         }
         throw new IllegalStateException("built-in error not found ?");

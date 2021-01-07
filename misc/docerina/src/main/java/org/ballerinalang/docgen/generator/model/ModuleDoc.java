@@ -26,7 +26,7 @@ import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
 import org.commonmark.node.Paragraph;
 import org.commonmark.node.Text;
-import org.commonmark.renderer.html.HtmlRenderer;
+import org.commonmark.renderer.text.TextContentRenderer;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -64,8 +64,7 @@ public class ModuleDoc {
 
     private String getDescription(Path descriptionPath) throws IOException {
         if (descriptionPath != null) {
-            String mdContent = new String(Files.readAllBytes(descriptionPath), "UTF-8");
-            return BallerinaDocUtils.mdToHtml(mdContent, true);
+            return new String(Files.readAllBytes(descriptionPath), "UTF-8");
         }
         return null;
     }
@@ -81,7 +80,10 @@ public class ModuleDoc {
         return null;
     }
 
-    static class SummaryVisitor extends AbstractVisitor {
+    /**
+     * Used to get a summary of a module or a package.
+     */
+    public static class SummaryVisitor extends AbstractVisitor {
         protected Node summary;
         @Override
         public void visit(Heading heading) {
@@ -96,7 +98,7 @@ public class ModuleDoc {
 
         public String getSummary() {
             if (summary != null) {
-                return HtmlRenderer.builder().build().render(summary);
+                return TextContentRenderer.builder().build().render(summary);
             }
             return "";
         }

@@ -25,8 +25,8 @@ const ERROR2 = "Some Error Two";
 
 function testBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string|error>, string?, string?,
                                                             string?, map<any|error>, any, any, any] {
-    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
-    SMA err2 = SMA("Error Two", message = "Msg Two", fatal = true);
+    SMS err1 = error SMS("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = error SMA("Error Two", message = "Msg Two", fatal = true);
     SMS error (reason11, message = m1, ... detail11) = err1;
     SMS error (reason12, message = message12, detail = detail12, extra = extra12) = err1;
     SMA error (reason21, ...detail21) = err2;
@@ -38,8 +38,8 @@ function testBasicErrorVariableWithMapDetails() returns [string, string, string,
 
 function testBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string|error>, string?, string?,
                                                              string?, map<any|error>, any, any, any] {
-    CMS err3 = CMS(ERROR1, message = "Msg Three", detail = "Detail Msg");
-    CMA err4 = CMA(ERROR2, message = "Msg Four", fatal = true);
+    CMS err3 = error CMS(ERROR1, message = "Msg Three", detail = "Detail Msg");
+    CMA err4 = error CMA(ERROR2, message = "Msg Four", fatal = true);
     CMS error (reason31, ... detail31) = err3;
     CMS error (reason32, message = message32, detail = detail32, extra = extra32) = err3;
     CMA error (reason41, ... detail41) = err4;
@@ -51,8 +51,8 @@ function testBasicErrorVariableWithConstAndMap() returns [string, string, string
 
 function testVarBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string|error>, string?,
                                                                string?, string?, map<any|error>, any, any, any] {
-    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
-    SMA err2 = SMA("Error Two", message = "Msg Two", fatal = true);
+    SMS err1 = error SMS("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = error SMA("Error Two", message = "Msg Two", fatal = true);
     var error (reason11, ... detail11) = err1;
     var error (reason12, message = message12, detail = detail12, extra = extra12) = err1;
     var error (reason21, ... detail21) = err2;
@@ -64,8 +64,8 @@ function testVarBasicErrorVariableWithMapDetails() returns [string, string, stri
 
 function testVarBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string|error>, string?,
                                                                 string?, string?, map<any|error>, any, any, any] {
-    CMS err3 = CMS(ERROR1, message = "Msg Three", detail = "Detail Msg");
-    CMA err4 = CMA(ERROR2, message = "Msg Four", fatal = true);
+    CMS err3 = error CMS(ERROR1, message = "Msg Three", detail = "Detail Msg");
+    CMA err4 = error CMA(ERROR2, message = "Msg Four", fatal = true);
     var error (reason31, ... detail31) = err3;
     var error (reason32, message = message32, detail = detail32, extra = extra32) = err3;
     var error (reason41, ... detail41) = err4;
@@ -84,9 +84,9 @@ type Foo record {
 type FooError error <Foo>;
 
 function testBasicErrorVariableWithRecordDetails() returns [string, string, string, boolean, map<anydata|readonly>] {
-    FooError err1 = FooError("Error One", message = "Something Wrong", fatal = true);
+    FooError err1 = error FooError("Error One", message = "Something Wrong", fatal = true);
     FooError error (res1, ... rec) = err1;
-    FooError error (res2, message = message, fatal = fatal) = FooError("Error One", message = "Something Wrong", fatal = true);
+    FooError error (res2, message = message, fatal = fatal) = error FooError("Error One", message = "Something Wrong", fatal = true);
     return [res1, res2, message, fatal, rec];
 }
 
@@ -142,12 +142,12 @@ function testErrorWithUnderscore() returns [string, string, string, string, stri
     error error (reason, ... _) = err;
     error error (reason2) = err;
 
-    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
+    SMS err1 = error SMS("Error One", message = "Msg One", detail = "Detail Msg");
     SMS error (reason3, ... _) = err1;
     SMS error (reason4) = err1;
     SMS error (_, ... detail) = err1;
 
-    FooError err2 = FooError("Error Two", message = "Something Wrong", fatal = true);
+    FooError err2 = error FooError("Error Two", message = "Something Wrong", fatal = true);
     FooError error (reason5, ... _) = err2;
     FooError error (reason6) = err2;
     FooError error (_, ... detail2) = err2;
@@ -171,7 +171,7 @@ const R = "r";
 type BeeError distinct error<Bee>;
 
 function testIndirectErrorDestructuring() returns [string?, boolean, map<anydata|error>] {
-    BeeError e = BeeError(R, message="Msg", fatal=false, other="k");
+    BeeError e = error BeeError(R, message="Msg", fatal=false, other="k");
     var error(_, message=m, fatal=f, ...rest) = e;
     return [m, f, rest];
 }
@@ -184,7 +184,7 @@ type SealedErrorDetail record {
 type SealedError error<SealedErrorDetail>;
 
 function testSealedDetailDestructuring() returns [string, map<anydata|readonly>] {
-    SealedError e = SealedError("sealed", message="Msg");
+    SealedError e = error SealedError("sealed", message="Msg");
     var error(reason, ...rest) = e;
     return [reason, rest];
 }

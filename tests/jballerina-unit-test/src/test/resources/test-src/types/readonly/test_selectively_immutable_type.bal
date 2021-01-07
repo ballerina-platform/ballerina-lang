@@ -93,7 +93,7 @@ function testSimpleInitializationForSelectivelyImmutableListTypes() {
     assertTrue(r2 is [Employee, Employee] & readonly);
     assertTrue(r2 is Employee[2] & readonly);
 
-    [Employee, Employee] & readonly empTup = <[Employee, Employee] & readonly> r2;
+    [Employee, Employee] & readonly empTup = <[Employee, Employee] & readonly> checkpanic r2;
 
     assertEquality(emp, empTup[0]);
     record {} rec = empTup[0];
@@ -119,7 +119,7 @@ function testSimpleInitializationForSelectivelyImmutableListTypes() {
     assertTrue(r3 is [Details[], Employee...] & readonly);
     assertTrue(r3 is [[Details, Details], Employee] & readonly);
 
-    [[Details, Details], Employee] & readonly vals = <[[Details, Details], Employee] & readonly> r3;
+    [[Details, Details], Employee] & readonly vals = <[[Details, Details], Employee] & readonly> checkpanic r3;
     assertTrue(vals[0].isReadOnly());
 
     Details d1 = vals[0][0];
@@ -220,7 +220,7 @@ function testSimpleInitializationForSelectivelyImmutableTableTypes() {
     readonly r1 = a;
     assertTrue(r1 is table<map<string>> & readonly);
 
-    table<map<string>> tbString = <table<map<string>>> <any> r1;
+    table<map<string>> tbString = <table<map<string>>> <any> checkpanic r1;
     assertEquality(2, tbString.length());
 
     map<string>[] mapArr = tbString.toArray();
@@ -238,7 +238,7 @@ function testSimpleInitializationForSelectivelyImmutableTableTypes() {
     assertTrue(r2 is table<Identifier> key(name) & readonly);
     assertTrue(r2 is table<Identifier> & readonly);
 
-    table<Identifier> tbDetails = <table<Identifier>> <any> r2;
+    table<Identifier> tbDetails = <table<Identifier>> <any> checkpanic r2;
     assertEquality(3, tbDetails.length());
 
     Identifier[] detailsArr = tbDetails.toArray();
@@ -983,22 +983,22 @@ readonly class ReadOnlyClass {
 ReadOnlyClass & readonly rc1 = new ReadOnlyClass();
 
 function testValidInitializationOfReadOnlyClassIntersectionWithReadOnly() {
-    assertTrue(<any> rc1 is ReadOnlyClass);    
+    assertTrue(<any> rc1 is ReadOnlyClass);
     ReadOnlyClass v1 = <ReadOnlyClass> rc1;
-    assertEquality(1, v1.i);    
-    
+    assertEquality(1, v1.i);
+
     ReadOnlyClass & readonly rc2 = object {
         int i = 123;
         int j;
-        
+
         function init() {
             self.j = 234;
         }
     };
-    assertTrue(<any> rc2 is object { int i; int j; } & readonly);    
+    assertTrue(<any> rc2 is object { int i; int j; } & readonly);
     object { int i; int j; } v2 = <object { int i; int j; } & readonly> rc2;
-    assertEquality(123, v2.i);       
-    assertEquality(234, v2.j);       
+    assertEquality(123, v2.i);
+    assertEquality(234, v2.j);
 }
 
 class NonReadOnlyClass {
@@ -1022,8 +1022,6 @@ function testValidInitializationOfNonReadOnlyClassIntersectionWithReadOnly() {
     assertEquality(1, v2.i);
 }
 
-type AssertionError error;
-
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
@@ -1043,5 +1041,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
