@@ -48,8 +48,8 @@ public class ReplShellApplication {
 
         if (configuration.isDumb()) {
             terminal = TerminalBuilder.builder()
-                    .streams(System.in, System.out)
-                    .dumb(true).build();
+                    .streams(configuration.getInputStream(), configuration.getOutputStream())
+                    .jna(false).jansi(false).dumb(true).build();
         } else {
             terminal = TerminalBuilder.terminal();
             configuration.setDumb(terminal.getType().equals(Terminal.TYPE_DUMB));
@@ -87,7 +87,8 @@ public class ReplShellApplication {
     }
 
     public static void main(String... args) throws Exception {
-        BShellConfiguration configuration = new BShellConfiguration(false, false);
+        BShellConfiguration configuration = new BShellConfiguration(false, false,
+                BShellConfiguration.EvaluatorMode.DEFAULT);
         ReplShellApplication.execute(configuration);
     }
 }

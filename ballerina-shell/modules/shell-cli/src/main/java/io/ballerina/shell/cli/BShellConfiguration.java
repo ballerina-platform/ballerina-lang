@@ -21,25 +21,39 @@ package io.ballerina.shell.cli;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.EvaluatorBuilder;
 
-import java.util.Objects;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Configuration that uses command utils to provide options.
  */
 public class BShellConfiguration {
-    protected boolean isDebug;
-    protected Evaluator evaluator;
+    private final Evaluator evaluator;
+    private final InputStream inputStream;
+    private final OutputStream outputStream;
+    private boolean isDebug;
     private boolean isDumb;
-
-    public BShellConfiguration(boolean isDebug, boolean isDumb, EvaluatorMode mode) {
-        Objects.requireNonNull(mode, "Mode is a required parameter.");
-        this.isDumb = isDumb;
-        this.isDebug = isDebug;
-        this.evaluator = createEvaluator(mode);
-    }
 
     public BShellConfiguration(boolean isDebug, boolean isDumb) {
         this(isDebug, isDumb, EvaluatorMode.DEFAULT);
+    }
+
+    public BShellConfiguration(boolean isDebug, boolean isDumb, EvaluatorMode mode) {
+        this(isDebug, isDumb, mode, System.in, System.out);
+    }
+
+    public BShellConfiguration(boolean isDebug, EvaluatorMode mode,
+                               InputStream inputStream, OutputStream outputStream) {
+        this(isDebug, true, mode, inputStream, outputStream);
+    }
+
+    private BShellConfiguration(boolean isDebug, boolean isDumb, EvaluatorMode mode,
+                                InputStream inputStream, OutputStream outputStream) {
+        this.isDebug = isDebug;
+        this.isDumb = isDumb;
+        this.evaluator = createEvaluator(mode);
+        this.inputStream = inputStream;
+        this.outputStream = outputStream;
     }
 
     /**
@@ -56,15 +70,6 @@ public class BShellConfiguration {
     }
 
     /**
-     * Whether the configuration is in debug mode.
-     *
-     * @return Whether in debug mode.
-     */
-    public boolean isDebug() {
-        return isDebug;
-    }
-
-    /**
      * Get the evaluator set by the user.
      *
      * @return Evaluator.
@@ -74,8 +79,14 @@ public class BShellConfiguration {
     }
 
     /**
-     * Toggles debug mode.
+     * Whether the configuration is in debug mode.
+     *
+     * @return Whether in debug mode.
      */
+    public boolean isDebug() {
+        return isDebug;
+    }
+
     public void toggleDebug() {
         isDebug = !isDebug;
     }
@@ -93,6 +104,14 @@ public class BShellConfiguration {
 
     public void setDumb(boolean dumb) {
         isDumb = dumb;
+    }
+
+    public InputStream getInputStream() {
+        return inputStream;
+    }
+
+    public OutputStream getOutputStream() {
+        return outputStream;
     }
 
     /**
