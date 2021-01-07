@@ -1045,7 +1045,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
                 objectTypeNode.addFunction(bLangFunction);
-                dlog.error(getPosition(node), DiagnosticErrorCode.OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC);
+                dlog.error(getPosition(node), DiagnosticErrorCode.OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL);
             } else if (bLangNode.getKind() == NodeKind.VARIABLE) {
                 objectTypeNode.addField((BLangSimpleVariable) bLangNode);
             } else if (bLangNode.getKind() == NodeKind.USER_DEFINED_TYPE) {

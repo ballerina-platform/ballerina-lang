@@ -494,9 +494,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         for (BAttachedFunction func : ((BObjectTypeSymbol) classDefinition.symbol).referencedFunctions) {
             BInvokableSymbol funcSymbol = func.symbol;
-            if (Symbols.isService(classDefinition.symbol)
-                    && Symbols.isResource(funcSymbol)
-                    && Symbols.isFunctionDeclaration(funcSymbol)) {
+            if (Symbols.isResource(funcSymbol) && Symbols.isFunctionDeclaration(funcSymbol)) {
                 // Service classes are not required to implement reference resource functions.
                 continue;
             }

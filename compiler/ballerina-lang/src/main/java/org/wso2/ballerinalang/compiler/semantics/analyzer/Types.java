@@ -1317,7 +1317,7 @@ public class Types {
         return false;
     }
 
-    public boolean  checkObjectEquivalency(BObjectType rhsType, BObjectType lhsType, Set<TypePair> unresolvedTypes) {
+    public boolean checkObjectEquivalency(BObjectType rhsType, BObjectType lhsType, Set<TypePair> unresolvedTypes) {
         if (Symbols.isFlagOn(lhsType.flags, Flags.ISOLATED) && !Symbols.isFlagOn(rhsType.flags, Flags.ISOLATED)) {
             return false;
         }
