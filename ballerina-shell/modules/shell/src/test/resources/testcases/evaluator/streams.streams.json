@@ -21,7 +21,7 @@
   },
   {
     "description": "Get the value from the stream result.",
-    "code": "var oddNumberRv = <ResultValue> oddNumber; println(oddNumberRv.value)",
+    "code": "var oddNumberRv = <ResultValue> checkpanic oddNumber; println(oddNumberRv.value)",
     "stdout": "3\n"
   },
   {
@@ -42,7 +42,7 @@
   },
   {
     "description": "Check the stream result student.",
-    "code": "var studentSr = <StudentValue> student; studentSr.value",
+    "code": "var studentSr = <StudentValue> checkpanic student; studentSr.value",
     "expr": "{\"firstName\":\"Alex\",\"lastName\":\"George\",\"score\":1.5}"
   },
   {
@@ -55,7 +55,7 @@
   },
   {
     "description": "Check the iterator result student.",
-    "code": "StudentValue  nextStudentV = <StudentValue> nextStudent; nextStudentV.value;",
+    "code": "StudentValue  nextStudentV = <StudentValue> checkpanic nextStudent; nextStudentV.value;",
     "expr": "{\"firstName\":\"Alex\",\"lastName\":\"George\",\"score\":1.5}"
   }
 ]

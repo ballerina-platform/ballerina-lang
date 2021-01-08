@@ -9,7 +9,7 @@
   },
   {
     "description": "Define getTypeId.",
-    "code": "function getTypeId(string accountType) returns int|InvalidAccountTypeError { match accountType { \"checking\" => { return 1; } \"savings\" => { return 2; } } return InvalidAccountTypeError(\"Invalid account type\", accountType = accountType); }"
+    "code": "function getTypeId(string accountType) returns int|InvalidAccountTypeError { match accountType { \"checking\" => { return 1; } \"savings\" => { return 2; } } return error InvalidAccountTypeError(\"Invalid account type\", accountType = accountType); }"
   },
   {
     "description": "Define AccountErrorData.",
@@ -33,7 +33,7 @@
   },
   {
     "description": "Define getAccountBalance.",
-    "code": "function getAccountBalance(int accountID) returns int|AccountError { if (accountID < 0) { return InvalidAccountIdError(\"Invalid account Id\", accountID = accountID); } else if (accountID > 100) { return AccountNotFoundError(\"Account not found\", accountID = accountID); } return 600; }"
+    "code": "function getAccountBalance(int accountID) returns int|AccountError { if (accountID < 0) { return error InvalidAccountIdError(\"Invalid account Id\", accountID = accountID); } else if (accountID > 100) { return error AccountNotFoundError(\"Account not found\", accountID = accountID); } return 600; }"
   },
   {
     "description": "Define AccountTransferError.",
@@ -41,7 +41,7 @@
   },
   {
     "description": "Define transferToAccount.",
-    "code": "function transferToAccount(int fromAccountId, int toAccountId, int amount) returns AccountTransferError? { var result = getAccountBalance(fromAccountId); if (result is error) { return AccountTransferError(\"Account transfer failed\", result, fromAccountId = fromAccountId, toAccountId = toAccountId); } else { } }"
+    "code": "function transferToAccount(int fromAccountId, int toAccountId, int amount) returns AccountTransferError? { var result = getAccountBalance(fromAccountId); if (result is error) { return error AccountTransferError(\"Account transfer failed\", result, fromAccountId = fromAccountId, toAccountId = toAccountId); } else { } }"
   },
   {
     "description": "Use getTypeId method.",

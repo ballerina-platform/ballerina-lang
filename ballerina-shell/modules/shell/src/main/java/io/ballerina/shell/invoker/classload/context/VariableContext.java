@@ -19,9 +19,8 @@
 package io.ballerina.shell.invoker.classload.context;
 
 import freemarker.ext.beans.TemplateAccessible;
+import io.ballerina.shell.invoker.classload.GlobalVariable;
 import io.ballerina.shell.utils.StringUtils;
-
-import java.util.Map;
 
 /**
  * A class to denote a variable declaration.
@@ -32,11 +31,13 @@ public class VariableContext {
     private final String name;
     private final String type;
     private final boolean isNew;
+    private final boolean isAny;
 
-    private VariableContext(String name, String type, boolean isNew) {
+    private VariableContext(String name, String type, boolean isNew, boolean isAny) {
         this.name = StringUtils.quoted(name);
         this.type = type;
         this.isNew = isNew;
+        this.isAny = isAny;
     }
 
     /**
@@ -45,19 +46,20 @@ public class VariableContext {
      * @param variableEntry A map entry indicating the variable name and type.
      * @return Context for a new variable.
      */
-    public static VariableContext newVar(Map.Entry<String, String> variableEntry) {
-        return new VariableContext(variableEntry.getKey(), variableEntry.getValue(), true);
+    public static VariableContext newVar(GlobalVariable variableEntry) {
+        return new VariableContext(variableEntry.getVariableName(), variableEntry.getType(), true,
+                variableEntry.getElevatedType().isAssignableToAny());
     }
 
     /**
      * Creates a variable with given type for a existing variable.
      *
-     * @param name Name of the variable.
-     * @param type Type string representation.
+     * @param variableEntry A map entry indicating the variable name and type.
      * @return Context for a old variable.
      */
-    public static VariableContext oldVar(String name, String type) {
-        return new VariableContext(name, type, false);
+    public static VariableContext oldVar(GlobalVariable variableEntry) {
+        return new VariableContext(variableEntry.getVariableName(), variableEntry.getType(), false,
+                variableEntry.getElevatedType().isAssignableToAny());
     }
 
     @TemplateAccessible
@@ -73,6 +75,11 @@ public class VariableContext {
     @TemplateAccessible
     public boolean isNew() {
         return isNew;
+    }
+
+    @TemplateAccessible
+    public boolean isAny() {
+        return isAny;
     }
 }
 

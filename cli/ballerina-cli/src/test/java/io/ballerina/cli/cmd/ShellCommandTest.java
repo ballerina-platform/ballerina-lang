@@ -91,8 +91,9 @@ public class ShellCommandTest extends BaseCommandTest {
     @Test
     public void testShellExecution() throws Exception {
         List<String[]> testCases = new ArrayList<>();
-        testCases.add(new String[]{"int i = 35", "i"});
+        testCases.add(new String[]{"int i = 35", ""});
         testCases.add(new String[]{"i*2 + 10", "80"});
+        testCases.add(new String[]{"/exit", ""});
 
         PipedOutputStream testOut = new PipedOutputStream();
         PipedInputStream shellIn = new PipedInputStream(testOut);
@@ -117,12 +118,14 @@ public class ShellCommandTest extends BaseCommandTest {
                         }
                     }
 
+                    // recordedContent: [GARBAGE][=$ ][INPUT][OUTPUT][=$ ]\n
                     String recordedContent = filteredString(recordedInput.toString());
+                    // recordedContent: [=$ ][INPUT][OUTPUT][=$ ]\n
                     recordedContent = recordedContent.substring(recordedContent.indexOf(shellPrompt));
+                    // recordedContent: [INPUT][OUTPUT]
                     recordedContent = recordedContent.substring(shellPrompt.length(),
                             recordedContent.length() - shellPrompt.length() - System.lineSeparator().length());
-                    String recordedContentInput = recordedContent.substring(0, testCase[0].length());
-                    Assert.assertEquals(recordedContentInput, testCase[0]);
+                    // shellOutput: [OUTPUT]
                     String shellOutput = recordedContent.substring(testCase[0].length()).trim();
                     String expectedOutput = Objects.requireNonNullElse(testCase[1], "");
                     Assert.assertEquals(shellOutput, expectedOutput);

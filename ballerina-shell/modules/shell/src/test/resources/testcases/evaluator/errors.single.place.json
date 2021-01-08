@@ -21,7 +21,7 @@
   },
   {
     "description": "Define getAccountBalance.",
-    "code": "function getAccountBalance(int accountID) returns int { do { if (accountID < 0) { InvalidAccountIDError invalidAccoundIdError = InvalidAccountIDError(INVALID_ACCOUNT_ID, accountID = accountID); fail invalidAccoundIdError; } else if (accountID > 100) { AccountNotFoundError accountNotFoundError = AccountNotFoundError(ACCOUNT_NOT_FOUND, accountID = accountID); fail accountNotFoundError; } } on fail InvalidAccountIDError|AccountNotFoundError e { println(\"Error caught: \", e.message(),\", Account ID: \", e.detail()[\"accountID\"]); } return 600; }"
+    "code": "function getAccountBalance(int accountID) returns int { do { if (accountID < 0) { InvalidAccountIDError invalidAccoundIdError = error InvalidAccountIDError(INVALID_ACCOUNT_ID, accountID = accountID); fail invalidAccoundIdError; } else if (accountID > 100) { AccountNotFoundError accountNotFoundError = error AccountNotFoundError(ACCOUNT_NOT_FOUND, accountID = accountID); fail accountNotFoundError; } } on fail InvalidAccountIDError|AccountNotFoundError e { println(\"Error caught: \", e.message(),\", Account ID: \", e.detail()[\"accountID\"]); } return 600; }"
   },
   {
     "description": "Use methods.",

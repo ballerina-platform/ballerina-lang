@@ -47,7 +47,11 @@ ${dcln}
 <#if varDcln.new>
 (${varDcln.type})? ${varDcln.name} = (); // There is an issue with the name or type
 <#else>
+<#if varDcln.isAny()>
+${varDcln.type} ${varDcln.name} = <${varDcln.type}> checkpanic recall_h("${varDcln.name?j_string}");
+<#else>
 ${varDcln.type} ${varDcln.name} = <${varDcln.type}> recall_h("${varDcln.name?j_string}");
+</#if>
 </#if>
 </#list>
 

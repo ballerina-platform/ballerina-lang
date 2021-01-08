@@ -14,7 +14,7 @@
   },
   {
     "description": "Verify object I.",
-    "code": "Person p1_p = <Person> p1; p1_p.name",
+    "code": "Person p1_p = <Person> checkpanic p1; p1_p.name",
     "expr": "John"
   },
   {

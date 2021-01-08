@@ -42,17 +42,11 @@ import java.util.List;
  * Visits all the nodes and informs whether the type needs
  * elevating due to some types not being visible to the REPL.
  */
-public class TypeElevatorVisitor extends TypeSymbolVisitor {
+public class TypeVisibilityVisitor extends TypeSymbolVisitor {
     private final List<TypeSymbol> invisibleTypes;
-    private ElevatedType elevatedType;
 
-    public TypeElevatorVisitor() {
+    public TypeVisibilityVisitor() {
         this.invisibleTypes = new ArrayList<>();
-        this.elevatedType = ElevatedType.NONE;
-    }
-
-    public ElevatedType getElevatedType() {
-        return elevatedType;
     }
 
     public List<TypeSymbol> getInvisibleTypes() {
@@ -138,10 +132,6 @@ public class TypeElevatorVisitor extends TypeSymbolVisitor {
 
     @Override
     protected void visit(ErrorTypeSymbol symbol) {
-        if (elevatedType != ElevatedType.ANY_ERROR) {
-            elevatedType = elevatedType == ElevatedType.ANY
-                    ? ElevatedType.ANY_ERROR : ElevatedType.ERROR;
-        }
         setVisibility(symbol, true);
     }
 
@@ -153,10 +143,6 @@ public class TypeElevatorVisitor extends TypeSymbolVisitor {
 
     @Override
     protected void visit(TypeSymbol symbol) {
-        if (elevatedType != ElevatedType.ANY_ERROR) {
-            elevatedType = elevatedType == ElevatedType.ERROR
-                    ? ElevatedType.ANY_ERROR : ElevatedType.ANY;
-        }
     }
 
     /**
@@ -178,28 +164,5 @@ public class TypeElevatorVisitor extends TypeSymbolVisitor {
             return;
         }
         this.invisibleTypes.add(typeSymbol);
-    }
-
-    /**
-     * Type after elevating the type of the visited node.
-     * If not required, the type is fully visible.
-     * Otherwise it would be one of any, error, any|error
-     */
-    public enum ElevatedType {
-        NONE("()"),
-        ANY("any"),
-        ERROR("error"),
-        ANY_ERROR("(any|error)");
-
-        private final String repr;
-
-        ElevatedType(String repr) {
-            this.repr = repr;
-        }
-
-        @Override
-        public String toString() {
-            return repr;
-        }
     }
 }

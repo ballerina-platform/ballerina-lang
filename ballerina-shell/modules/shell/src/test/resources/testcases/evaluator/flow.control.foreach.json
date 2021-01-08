@@ -29,7 +29,7 @@
   },
   {
     "description": "Iterating a JSON array.",
-    "code": "json[] colors = <json[]> apple.colors; foreach var color in colors { println(\"Color: \", color); }",
+    "code": "json[] colors = <json[]> checkpanic apple.colors; foreach var color in colors { println(\"Color: \", color); }",
     "stdout": "Color: red\nColor: green\n"
   },
   {
