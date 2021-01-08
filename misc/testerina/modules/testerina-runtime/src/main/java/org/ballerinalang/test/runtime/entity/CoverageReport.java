@@ -19,16 +19,14 @@ package org.ballerinalang.test.runtime.entity;
 
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
-import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
@@ -39,12 +37,8 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
@@ -87,24 +81,15 @@ public class CoverageReport {
      *
      * @throws IOException when file operations are failed
      */
-    public ModuleCoverage generateReport() throws IOException {
+    public ModuleCoverage generateReport(JarResolver jarResolver) throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
         String version = this.module.packageInstance().packageVersion().toString();
 
         Path moduleJarPath = target.cachesPath().resolve(orgName)
-                .resolve(packageName)
-                .resolve(version).resolve(JvmTarget.JAVA_11.code());
-        // Obtain a path list of all the .jar files generated
-        List<Path> pathList;
-        try (Stream<Path> walk = Files.walk(moduleJarPath, 1)) {
-            pathList = walk.filter(f -> f.toString().endsWith(ProjectConstants.BLANG_COMPILED_JAR_EXT)).collect(
-                    Collectors.toList());
-        } catch (IOException e) {
-            return null;
-        }
+                .resolve(packageName).resolve(version);
 
-        List<Path> filteredPathList = filterPathList(pathList);
+        List<Path> filteredPathList = filterPaths(moduleJarPath, jarResolver);
 
         if (!filteredPathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
@@ -138,22 +123,7 @@ public class CoverageReport {
         final CoverageBuilder coverageBuilder = new CoverageBuilder();
         final Analyzer analyzer = new Analyzer(execFileLoader.getExecutionDataStore(), coverageBuilder);
         analyzer.analyzeAll(classesDirectory.toFile());
-        printNoMatchWarning(coverageBuilder.getNoMatchClasses());
         return coverageBuilder.getBundle(title);
-    }
-
-    private void printNoMatchWarning(final Collection<IClassCoverage> nomatch) {
-        if (!nomatch.isEmpty()) {
-            out.println(
-                    "[WARN] Some classes do not match with execution data.");
-            out.println(
-                    "[WARN] For report generation the same class files must be used as at runtime.");
-            for (final IClassCoverage c : nomatch) {
-                out.printf(
-                        "[WARN] Execution data for class %s does not match.%n",
-                        c.getName());
-            }
-        }
     }
 
     private void createReport(final IBundleCoverage bundleCoverage, ModuleCoverage moduleCoverage) {
@@ -207,21 +177,24 @@ public class CoverageReport {
         }
     }
 
-    private List<Path> filterPathList(List<Path> paths) {
-        List<Path> pathList = new ArrayList<>();
+    private List<Path> filterPaths(Path moduleJarPath, JarResolver jarResolver) {
+        List<Path> filteredPathList = new ArrayList<>();
+        List<Path> pathCollection;
 
-        for (Path path : paths) {
-            if (!path.toString().contains(ProjectConstants.BLANG_COMPILED_TESTABLE_JAR_EXT)) {
-                Path resolvedPath = Paths.get(path.toString().replace(ProjectConstants.BLANG_COMPILED_JAR_EXT,
-                        ProjectConstants.BLANG_COMPILED_TESTABLE_JAR_EXT));
-                if (!resolvedPath.toFile().exists()) {
-                    pathList.add(path);
-                }
-            } else {
-                pathList.add(path);
+        try {
+            pathCollection =
+                    new ArrayList<>(jarResolver.getJarFilePathsRequiredForTestExecution(this.module.moduleName()));
+        } catch (IllegalStateException e) {
+            pathCollection = new ArrayList<>(jarResolver.getJarFilePathsRequiredForExecution());
+        }
+
+        for (Path path : pathCollection) {
+            if (path.toString().contains(moduleJarPath.toString())) {
+                filteredPathList.add(path);
             }
         }
 
-        return pathList;
+        return filteredPathList;
     }
+
 }
