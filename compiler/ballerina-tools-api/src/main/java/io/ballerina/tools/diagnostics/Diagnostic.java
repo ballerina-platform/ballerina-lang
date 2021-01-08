@@ -54,7 +54,7 @@ public abstract class Diagnostic {
     *
     * @return {@link DiagnosticProperty} of the diagnostic.
     * */
-    public abstract List<DiagnosticProperty> properties();
+    public abstract List<DiagnosticProperty<?>> properties();
 
     @Override
     public String toString() {

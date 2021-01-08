@@ -22,8 +22,8 @@ package io.ballerina.tools.diagnostics.properties;
  *
  * @since Swan Lake
  */
-public interface DiagnosticProperty {
+public interface DiagnosticProperty<T> {
     DiagnosticPropertyKind kind();
 
-    <T> T value();
+    T value();
 }

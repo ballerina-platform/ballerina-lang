@@ -18,15 +18,15 @@
 package org.wso2.ballerinalang.compiler.diagnostic.properties;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
-import io.ballerina.tools.diagnostics.properties.SymbolicProperty;
 
 /**
  * Represents symbolic-properties passed when diagnostic logging.
  *
  * @since Swan Lake
  */
-public class BSymbolicProperty implements SymbolicProperty {
+public class BSymbolicProperty implements DiagnosticProperty<Symbol> {
     private final DiagnosticPropertyKind kind;
     private final Symbol value;
 

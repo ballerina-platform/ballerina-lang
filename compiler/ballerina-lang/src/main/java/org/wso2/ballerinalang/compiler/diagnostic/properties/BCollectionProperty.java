@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.diagnostic.properties;
 
-import io.ballerina.tools.diagnostics.properties.ConstantProperty;
 import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
 
@@ -28,11 +27,11 @@ import java.util.Collection;
  *
  * @since Swan Lake
  */
-public class BCollectionProperty implements ConstantProperty {
+public class BCollectionProperty implements DiagnosticProperty {
     private final DiagnosticPropertyKind kind;
-    private final Collection<DiagnosticProperty> values;
+    private final Collection<DiagnosticProperty<?>> values;
 
-    public BCollectionProperty(Collection<DiagnosticProperty> values) {
+    public BCollectionProperty(Collection<DiagnosticProperty<?>> values) {
         this.kind = DiagnosticPropertyKind.COLLECTION;
         this.values = values;
     }
@@ -43,7 +42,7 @@ public class BCollectionProperty implements ConstantProperty {
     }
 
     @Override
-    public Collection<DiagnosticProperty> value() {
+    public Collection<DiagnosticProperty<?>> value() {
         return values;
     }
 }

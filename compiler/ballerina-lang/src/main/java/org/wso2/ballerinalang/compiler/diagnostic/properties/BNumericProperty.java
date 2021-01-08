@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.diagnostic.properties;
 
-import io.ballerina.tools.diagnostics.properties.ConstantProperty;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
 
 /**
@@ -25,7 +25,7 @@ import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
  *
  * @since Swan Lake
  */
-public class BNumericProperty implements ConstantProperty {
+public class BNumericProperty implements DiagnosticProperty<Number> {
     private final DiagnosticPropertyKind kind;
     private final Number value;
 

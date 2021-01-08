@@ -38,7 +38,7 @@ public class BLangDiagnostic extends Diagnostic {
     private String msg;
     private DiagnosticInfo diagnosticInfo;
     private DiagnosticCode diagnosticCode;
-    private List<DiagnosticProperty> properties;
+    private List<DiagnosticProperty<?>> properties;
 
     public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo,
                            DiagnosticCode diagnosticCode) {
@@ -46,7 +46,7 @@ public class BLangDiagnostic extends Diagnostic {
     }
 
     public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo,
-                           DiagnosticCode diagnosticCode, List<DiagnosticProperty> properties) {
+                           DiagnosticCode diagnosticCode, List<DiagnosticProperty<?>> properties) {
         this.location = location;
         this.msg = msg;
         this.diagnosticInfo = diagnosticInfo;
@@ -79,7 +79,7 @@ public class BLangDiagnostic extends Diagnostic {
     }
 
     @Override
-    public List<DiagnosticProperty> properties() {
+    public List<DiagnosticProperty<?>> properties() {
         return properties;
     }
 
