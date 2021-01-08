@@ -66,27 +66,31 @@ public isolated function getStackTrace() returns StackFrame[] {
     StackFrame[] stackFrame = [];
     int i = 0;
     CallStackElement[] callStackElements = externGetStackTrace();
-    lang_array:forEach(callStackElements, isolated function (CallStackElement callStackElement) {
-                        stackFrame[i] = new StackFrameImpl(callStackElement.callableName,
-                        callStackElement.moduleName, callStackElement.fileName, callStackElement.lineNumber);
-                        i += 1;
-                        });
+    lang_array:forEach(callStackElements, function (CallStackElement callStackElement) {
+                                stackFrame[i] = new StackFrameImpl(callStackElement.callableName,
+                                callStackElement.moduleName, callStackElement.fileName, callStackElement.lineNumber);
+                                i += 1;
+                            });
     return stackFrame;
 }
 
-# Type representing a stack frame.
-# A call stack is represented as an array of stack frames.
+# Represents a stack frame.
 // todo use readonly qualifier once #27501 fixed
 # public type StackFrame readonly & object {
 public type StackFrame object {
 
-   # Returns a string representing of the StackFrame.
+   # Returns a string representing the StackFrame.
    #
-   # + return - A StackFrame as string
+   # + return - A StackFrame as a `string`
    public function toString() returns string;
 };
 
 # Implementation for the `StackFrame`.
+#
+# + callableName - Callable name
+# + moduleName - Module name
+# + fileName - File name
+# + lineNumber - Line number
 // todo use readonly qualifier once #27501 fixed
 # public readonly class StackFrameImpl
 public class StackFrameImpl {
@@ -102,7 +106,7 @@ public class StackFrameImpl {
     # + return - A stack frame as string
     public function toString() returns string {
         return "callableName: " + self.callableName + " " + "moduleName: " + self.moduleName +
-        " " + "fileName: " + self.fileName + " " + "lineNumber: " + lang_value:toString(self.lineNumber);
+                " " + "fileName: " + self.fileName + " " + "lineNumber: " + lang_value:toString(self.lineNumber);
     }
 
     public function init(string callableName, string moduleName, string fileName, int lineNumber) {
