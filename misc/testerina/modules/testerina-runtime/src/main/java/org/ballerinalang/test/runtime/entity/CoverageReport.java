@@ -28,16 +28,20 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
+import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.tools.ExecFileLoader;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -61,6 +65,8 @@ public class CoverageReport {
     private Path executionDataFile;
     private Path classesDirectory;
     private ExecFileLoader execFileLoader;
+
+    private PrintStream out = System.out;
 
     private Module module;
     private Target target;
@@ -98,9 +104,11 @@ public class CoverageReport {
             return null;
         }
 
-        if (!pathList.isEmpty()) {
+        List<Path> filteredPathList = filterPathList(pathList);
+
+        if (!filteredPathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
-            for (Path jarPath : pathList) {
+            for (Path jarPath : filteredPathList) {
                 try {
                     // Creates coverage folder with each class per module
                     CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir, orgName, packageName, version);
@@ -130,7 +138,22 @@ public class CoverageReport {
         final CoverageBuilder coverageBuilder = new CoverageBuilder();
         final Analyzer analyzer = new Analyzer(execFileLoader.getExecutionDataStore(), coverageBuilder);
         analyzer.analyzeAll(classesDirectory.toFile());
+        printNoMatchWarning(coverageBuilder.getNoMatchClasses());
         return coverageBuilder.getBundle(title);
+    }
+
+    private void printNoMatchWarning(final Collection<IClassCoverage> nomatch) {
+        if (!nomatch.isEmpty()) {
+            out.println(
+                    "[WARN] Some classes do not match with execution data.");
+            out.println(
+                    "[WARN] For report generation the same class files must be used as at runtime.");
+            for (final IClassCoverage c : nomatch) {
+                out.printf(
+                        "[WARN] Execution data for class %s does not match.%n",
+                        c.getName());
+            }
+        }
     }
 
     private void createReport(final IBundleCoverage bundleCoverage, ModuleCoverage moduleCoverage) {
@@ -182,5 +205,23 @@ public class CoverageReport {
             }
 
         }
+    }
+
+    private List<Path> filterPathList(List<Path> paths) {
+        List<Path> pathList = new ArrayList<>();
+
+        for (Path path : paths) {
+            if (!path.toString().contains(ProjectConstants.BLANG_COMPILED_TESTABLE_JAR_EXT)) {
+                Path resolvedPath = Paths.get(path.toString().replace(ProjectConstants.BLANG_COMPILED_JAR_EXT,
+                        ProjectConstants.BLANG_COMPILED_TESTABLE_JAR_EXT));
+                if (!resolvedPath.toFile().exists()) {
+                    pathList.add(path);
+                }
+            } else {
+                pathList.add(path);
+            }
+        }
+
+        return pathList;
     }
 }

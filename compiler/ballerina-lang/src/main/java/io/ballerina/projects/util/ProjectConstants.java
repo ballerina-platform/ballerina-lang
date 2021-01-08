@@ -65,6 +65,7 @@ public class ProjectConstants {
     public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".balo";
     public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
     public static final String BLANG_COMPILED_JAR_EXT = ".jar";
+    public static final String BLANG_COMPILED_TESTABLE_JAR_EXT = "-testable.jar";
     public static final String RESOURCE_DIR_NAME = "resources";
 
     public static final String BALLERINA_VERSION = "ballerina.version";
