@@ -88,27 +88,28 @@ public class ProjectPathsTest {
 
     @Test
     public void testIsBallerinaSourceFile() {
-        Assert.assertTrue(ProjectPaths.isBallerinaSourceFile(projectPath.resolve("main.bal")));
-        Assert.assertTrue(ProjectPaths.isBallerinaSourceFile(tempDir.resolve("test.bal")));
+        Assert.assertTrue(ProjectPaths.isBalFile(projectPath.resolve("main.bal")));
+        Assert.assertTrue(ProjectPaths.isBalFile(tempDir.resolve("test.bal")));
 
-        Assert.assertFalse(ProjectPaths.isBallerinaSourceFile(projectPath.resolve("Ballerina.toml")));
-        Assert.assertFalse(ProjectPaths.isBallerinaSourceFile(projectPath));
-        Assert.assertFalse(ProjectPaths.isBallerinaSourceFile(Paths.get("/tmp/non-existent-path")));
+        Assert.assertFalse(ProjectPaths.isBalFile(projectPath.resolve("Ballerina.toml")));
+        Assert.assertFalse(ProjectPaths.isBalFile(projectPath));
+        Assert.assertFalse(ProjectPaths.isBalFile(Paths.get("/tmp/non-existent-path")));
     }
 
     @Test
-    public void testIsInAPackageDir() {
-        Assert.assertTrue(ProjectPaths.isInAnyPackageDirectory(projectPath));
-        Assert.assertTrue(ProjectPaths.isInAnyPackageDirectory(projectPath.resolve("main.bal")));
-        Assert.assertTrue(ProjectPaths.isInAnyPackageDirectory(projectPath.resolve("Ballerina.toml")));
-        Assert.assertTrue(ProjectPaths.isInAnyPackageDirectory(
+    public void testIsBallerinaStandaloneFile() {
+        Assert.assertFalse(ProjectPaths.isStandaloneBalFile(projectPath));
+        Assert.assertFalse(ProjectPaths.isStandaloneBalFile(projectPath.resolve("main.bal")));
+        Assert.assertFalse(ProjectPaths.isStandaloneBalFile(projectPath.resolve("Ballerina.toml")));
+        Assert.assertFalse(ProjectPaths.isStandaloneBalFile(
                 projectPath.resolve("modules").resolve("module1").resolve("main.bal")));
-        Assert.assertTrue(ProjectPaths.isInAnyPackageDirectory(
+        Assert.assertFalse(ProjectPaths.isStandaloneBalFile(
                 projectPath.resolve("modules").resolve("module1").resolve("tests").resolve("main_test.bal")));
-        Assert.assertTrue(ProjectPaths.isInAnyPackageDirectory(projectPath.resolve("test-utils").resolve("utils.bal")));
+        Assert.assertFalse(ProjectPaths.isStandaloneBalFile(Paths.get("/tmp/non-existent-path")));
 
-        Assert.assertFalse(ProjectPaths.isInAnyPackageDirectory(tempDir.resolve("test.bal")));
-        Assert.assertFalse(ProjectPaths.isInAnyPackageDirectory(Paths.get("/tmp/non-existent-path")));
+        Assert.assertTrue(ProjectPaths.isStandaloneBalFile(
+                projectPath.resolve("test-utils").resolve("utils.bal")));
+        Assert.assertTrue(ProjectPaths.isStandaloneBalFile(tempDir.resolve("test.bal")));
     }
 
     @AfterClass

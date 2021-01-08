@@ -58,7 +58,7 @@ public class ProjectPaths {
             return filepath.getParent();
         }
 
-        if (!isBallerinaSourceFile(filepath)) {
+        if (!isBalFile(filepath)) {
             throw new ProjectException("provided path is not a valid Ballerina source file");
         }
         Path absFilePath = filepath.toAbsolutePath().normalize();
@@ -93,18 +93,42 @@ public class ProjectPaths {
      * @param filepath Ballerina file path
      * @return true if the path is a Ballerina source file
      */
-    public static boolean isBallerinaSourceFile(Path filepath) {
-        return Files.isRegularFile(filepath) && filepath.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT);
+    public static boolean isBalFile(Path filepath) {
+        return Files.exists(filepath)
+                && Files.isRegularFile(filepath)
+                && filepath.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT);
     }
 
     /**
-     * Checks if the file is in a Ballerina package directory.
+     * Checks if the provided path is a standalone filepath.
      *
-     * @param filepath path to bal file
-     * @return true if the file is a Ballerina package
+     * @param filepath path to bal filepath
+     * @return true if the filepath is a standalone bal filepath
      */
-    public static boolean isInAnyPackageDirectory(Path filepath) {
-        return findProjectRoot(filepath) != null;
+    public static boolean isStandaloneBalFile(Path filepath) {
+        // Check if the filepath is a valid Ballerina source filepath
+        if (!isBalFile(filepath)) {
+            return false;
+        }
+
+        // check if the filepath is a source filepath in the default module
+        if (isDefaultModuleSrcFile(filepath)) {
+            return false;
+        }
+        // check if the filepath is a test filepath in the default module
+        if (isDefaultModuleTestFile(filepath)) {
+            return false;
+        }
+        // check if the filepath is a source filepath in a non-default module
+        if (isNonDefaultModuleSrcFile(filepath)) {
+            return false;
+        }
+        // check if the filepath is a test filepath in a non-default module
+        if (isNonDefaultModuleTestFile(filepath)) {
+            return false;
+        }
+
+        return true;
     }
 
     static boolean isDefaultModuleSrcFile(Path filePath) {
