@@ -29,36 +29,28 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.assertFalse;
 
 /**
- * Class to test module level variable declaration for all binding patterns.
+ * Class to test module level tuple variable declaration.
  *
  * @since 2.0
  */
-public class ModuleVariableTest {
+public class ModuleTupleVariableTest {
 
-    private CompileResult compileResult, compileResultNegative, recordVarCompileResult, recordVarCompileResultNegetive;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl.bal");
-        compileResultNegative = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl_negetive.bal");
-        recordVarCompileResult = BCompileUtil.compile("test-src/statements/vardeclr/module_record_var_decl.bal");
-        recordVarCompileResultNegetive =
-                BCompileUtil.compile("test-src/statements/vardeclr/module_record_var_decl_negetive.bal");
-    }
-
-    @Test
-    public void testBasicModuleLevelTupleVarDecl() {
-        BRunUtil.invoke(compileResult, "testBasic");
     }
     
     @Test(dataProvider = "complexModuleLevelTupleVarDeclData")
-    public void testComplexModuleLevelTupleVarDecl(String functionName) {
+    public void testModuleLevelTupleVarDecl(String functionName) {
         BRunUtil.invoke(compileResult, functionName);
     }
 
     @DataProvider
     public Object[] complexModuleLevelTupleVarDeclData() {
         return new Object[]{
+                "testBasic",
                 "testTupleBindingWithRecordsAndObjects",
                 "testTupleBindingPatternWithRestBindingPattern",
                 "testDeclaredWithVar",
@@ -70,6 +62,7 @@ public class ModuleVariableTest {
 
     @Test
     public void testModuleLevelTupleVarDeclNegetive() {
+        CompileResult compileResultNegative = BCompileUtil.compile("test-src/statements/vardeclr/module_tuple_var_decl_negetive.bal");
         int index = 0;
         validateError(compileResultNegative, index++, "redeclared symbol 'a'", 19, 23);
         validateError(compileResultNegative, index++, "redeclared symbol 'b'", 20, 7);
@@ -87,48 +80,6 @@ public class ModuleVariableTest {
         validateError(compileResult, index++, "uninitialized variable 'a'", 17, 13);
         validateError(compileResult, index++, "uninitialized variable 'b'", 17, 16);
         validateError(compileResult, index++, "variable 'a' is not initialized", 20, 13);
-        assertEquals(compileResult.getErrorCount(), index);
-    }
-
-    @Test(dataProvider = "testModuleLevelRecordVarDeclData")
-    public void testModuleLevelRecordVarDecl(String functionName) {
-        BRunUtil.invoke(recordVarCompileResult, functionName);
-    }
-
-    @DataProvider
-    public Object[] testModuleLevelRecordVarDeclData() {
-        return new Object[]{
-                "testBasic",
-                "recordVarInRecordVar",
-                "tupleVarInRecordVar",
-                "testRecordVarWithAnnotations",
-                "testVariableForwardReferencing",
-                "testVariableDeclaredWithVar",
-                "testRecordVariableWithRestBP"
-        };
-    }
-
-    @Test
-    public void testModuleLevelRecordVarDeclNegetive() {
-        int index = 0;
-        validateError(recordVarCompileResultNegetive, index++, "redeclared symbol 'Fname'", 23, 14);
-        validateError(recordVarCompileResultNegetive, index++, "redeclared symbol 'Married'", 25, 9);
-        validateError(recordVarCompileResultNegetive, index++, "invalid record binding pattern; unknown field 'age' in record type 'Person'", 31, 1);
-        validateError(recordVarCompileResultNegetive, index++, "only a simple variable can be marked as 'isolated'", 34, 1);
-        validateError(recordVarCompileResultNegetive, index++, "only simple variables are allowed to be configurable", 37, 1);
-        assertEquals(recordVarCompileResultNegetive.getErrorCount(), index);
-    }
-
-    @Test
-    public void testUninitializedModuleLevelRecordVar() {
-        // TODO: disallow uninitialized record variables from parser and update this test. Add similar test case for
-        // error variable as well.
-        CompileResult compileResult =
-                BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_record_var_decl.bal");
-        int index = 0;
-        validateError(compileResult, index++, "uninitialized variable 'carId'", 22, 9);
-        validateError(compileResult, index++, "uninitialized variable 'carColor'", 22, 22);
-        validateError(compileResult, index++, "variable 'carColor' is not initialized", 25, 24);
         assertEquals(compileResult.getErrorCount(), index);
     }
 }

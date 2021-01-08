@@ -102,6 +102,16 @@ public function testRecordVariableWithRestBP() {
     assertEquality(95, marks2["mark3"]);
 }
 
+annotation record {int i;} x on function;
+@x {
+    i: studentAge
+}
+public function testVariableDeclaredInRecordAsAnnotationValue() {
+    typedesc<function ()> td = typeof testVariableDeclaredInRecordAsAnnotationValue;
+    record {int i;}? xVal = td.@x;
+    assertEquality(<record {int i;}>{i:15}, xVal);
+}
+
 // Support codes
 type Age record {
     int age;

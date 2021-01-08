@@ -88,6 +88,11 @@ int i = 12;
 }
 [int, string] [intVar, stringVar] = [1, "myString"];
 
+@v11 {
+    val: 3
+}
+record {int a;} {a:myA} = {a:5};
+
 @v12 {
     str: "v12 value"
 }

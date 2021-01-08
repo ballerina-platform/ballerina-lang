@@ -899,29 +899,13 @@ public class Desugar extends BLangNodeVisitor {
             // This will convert complex variables to simple variables.
             switch (globalVar.getKind()) {
                 case TUPLE_VARIABLE:
+                case RECORD_VARIABLE:
                     BLangNode blockStatementNode = rewrite(globalVar, initFunctionEnv);
                     List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
                     for (int i = 0; i < statements.size(); i++) {
                         BLangStatement bLangStatement = statements.get(i);
                         // First statement is the virtual array created for the init expression.
-                        // Rest binding pattern array initialization will be desugared as a block hence add them
-                        // directly to the init function body.
-                        if (bLangStatement.getKind() == NodeKind.BLOCK || i == 0) {
-                            initFnBody.stmts.add(bLangStatement);
-                            continue;
-                        }
-                        BLangSimpleVariable simpleVar = ((BLangSimpleVariableDef) bLangStatement).var;
-                        simpleVar.annAttachments = globalVar.getAnnotationAttachments();
-                        addToInitFunction(simpleVar, initFnBody);
-                        desugaredGlobalVarList.add(simpleVar);
-                    }
-                    break;
-                case RECORD_VARIABLE:
-                    blockStatementNode = rewrite(globalVar, initFunctionEnv);
-                    statements = ((BLangBlockStmt) blockStatementNode).stmts;
-                    for (int i = 0; i < statements.size(); i++) {
-                        BLangStatement bLangStatement = statements.get(i);
-                        // First statement is the virtual array created for the init expression.
+                        // Rest binding pattern will be desugared as a block hence add them only to init function body.
                         if (bLangStatement.getKind() == NodeKind.BLOCK || i == 0) {
                             initFnBody.stmts.add(bLangStatement);
                             continue;

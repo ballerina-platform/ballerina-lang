@@ -27,7 +27,7 @@ public function testBasic() returns [string, boolean] {
     return [Fname, Married];
 }
 
-// Invalid field name age which is not it Person type
+// Invalid field name age which is not in Person type
 Person {name:Fname2, married:Married2, age:Age2} = {name:"Jhone", married:true};
 
 // Only simple variables are allowed to be isolated
@@ -35,3 +35,16 @@ isolated Person {name:name3, married:married3} = {name:"Jhone", married:true};
 
 // Only simple variables are allowed to be configurable
 configurable Person {name:name4, married:married4} = {name:"Jhone", married:true};
+
+const annotation annot on source function;
+
+@annot
+Person {name:name5} = {name:"Mack"};
+
+Person {name:name6, married:married6} = {name:name7, married:n};
+var {name:name7} = getVarValues();
+boolean n = false;
+
+function getVarValues() returns record {string name;} {
+    return {name:"Sam"};
+}

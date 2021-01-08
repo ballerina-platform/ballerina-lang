@@ -910,7 +910,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         int ownerSymTag = env.scope.owner.tag;
         // If this is a module record variable, checkTypeAndVarCountConsistency already done at symbolEnter.
         if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
-                !(this.symbolEnter.validateRecordVariable(varNode, env))) {
+                !(this.symbolEnter.symbolEnterAndValidateRecordVariable(varNode, env))) {
             varNode.type = symTable.semanticError;
             return;
         }
