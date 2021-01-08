@@ -52,7 +52,6 @@ function getServicePath() returns string[] = @java:Method {
 listener Listener lsn = new();
 
 type S service object {
-    resource function get processRequest() returns json;
 };
 
 service S "service-name" on lsn {
@@ -81,6 +80,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error("AssertionError",
-            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

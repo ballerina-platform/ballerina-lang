@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 98,
+    "character": 15
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": ""
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

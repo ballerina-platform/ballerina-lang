@@ -239,8 +239,6 @@ public function testQueryExprInLambdaV3() {
 }
 
 //---------------------------------------------------------------------------------------------------------
-type AssertionError error;
-
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
@@ -260,5 +258,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

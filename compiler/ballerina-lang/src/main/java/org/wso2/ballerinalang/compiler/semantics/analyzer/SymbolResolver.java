@@ -842,7 +842,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             symTable.errorType = (BErrorType) entry.symbol.type;
             symTable.detailType = (BMapType) symTable.errorType.detailType;
-            symTable.errorConstructor = ((BErrorTypeSymbol) symTable.errorType.tsymbol).ctorSymbol;
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
             symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
@@ -1712,7 +1711,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return potentialIntersectionType;
         }
 
-        if (!types.isSelectivelyImmutableType(potentialIntersectionType, true, false)) {
+        if (!types.isSelectivelyImmutableType(potentialIntersectionType, false)) {
             if (types.isSelectivelyImmutableType(potentialIntersectionType)) {
                 // This intersection would have been valid if not for `readonly object`s.
                 dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.INVALID_READONLY_OBJECT_INTERSECTION_TYPE);

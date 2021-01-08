@@ -51,9 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -1246,11 +1244,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
-
-        if (typeDefinition.typeNode.type.tag == TypeTags.ERROR) {
-            // constructors are only defined for named types.
-            defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
-        }
     }
 
     private BEnumSymbol createEnumSymbol(BLangTypeDefinition typeDefinition, BType definedType) {
@@ -1347,10 +1340,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             throw new IllegalStateException("Not supported annotation attachment at:" + attachment.pos);
         }
         defineSymbol(typeDefinition.name.pos, typeDefinition.symbol);
-        if (typeDefinition.typeNode.type.tag == TypeTags.ERROR) {
-            // constructors are only defined for named types.
-            defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefinition.symbol);
-        }
     }
 
     // If this type is defined to a public type or this is a anonymous type, return int with all bits set to 1,
@@ -1365,21 +1354,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             return ~Flags.PUBLIC;
         }
-    }
-
-    private void defineErrorConstructorSymbol(Location pos, BTypeSymbol typeDefSymbol) {
-        BErrorType errorType = (BErrorType) typeDefSymbol.type;
-        BConstructorSymbol symbol = new BConstructorSymbol(typeDefSymbol.flags, typeDefSymbol.name,
-                                                           typeDefSymbol.pkgID, errorType, typeDefSymbol.owner, pos,
-                                                           getOrigin(typeDefSymbol.name));
-        symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
-        symbol.scope = new Scope(symbol);
-        symbol.retType = errorType;
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
-            env.scope.define(symbol.name, symbol);
-        }
-
-        ((BErrorTypeSymbol) typeDefSymbol).ctorSymbol = symbol;
     }
 
     @Override
@@ -2169,7 +2143,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         continue;
                     }
 
-                    if (!types.isSelectivelyImmutableType(constituentType, true, true)) {
+                    if (!types.isSelectivelyImmutableType(constituentType, true)) {
                         hasNonReadOnlyElement = true;
                         break;
                     }
@@ -2208,7 +2182,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (!types.isSelectivelyImmutableType(mutableType, false, true)) {
+            if (!types.isSelectivelyImmutableType(mutableType, true)) {
                 dlog.error(typeDefNode.typeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, immutableType);
                 typeNode.type = symTable.semanticError;
             }
@@ -2333,10 +2307,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             boolean allImmutableFields = true;
 
             Collection<BField> fields = structureType.fields.values();
-
-            if (fields.isEmpty()) {
-                continue;
-            }
 
             for (BField field : fields) {
                 if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {

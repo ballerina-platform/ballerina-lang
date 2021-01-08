@@ -91,7 +91,8 @@ public class SemanticAPITestUtils {
         return Stream.concat(mainList.stream(), Stream.of(args)).collect(Collectors.toList());
     }
 
-    public static List<String> getSymbolNames(List<String>... lists) {
+    @SafeVarargs
+    public static <T> List<T> getSymbolNames(List<T>... lists) {
         return Arrays.stream(lists).flatMap(Collection::stream).collect(Collectors.toList());
     }
 

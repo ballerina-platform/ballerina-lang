@@ -53,8 +53,8 @@ public class ReadOnlyObjectBaloTest {
                 BCompileUtil.compile("test-src/balo/test_balo/object/test_readonly_objects_negative.bal");
         int index = 0;
 
-        validateError(result, index++, "invalid intersection type: cannot have a 'readonly' intersection with a " +
-                "'readonly object'", 20, 5);
+        validateError(result, index++, "cannot initialize abstract object '(testorg/readonly_objects:" +
+                "1.0.0:CustomController & readonly)'", 20, 54);
         assertEquals(result.getErrorCount(), index);
     }
 }
