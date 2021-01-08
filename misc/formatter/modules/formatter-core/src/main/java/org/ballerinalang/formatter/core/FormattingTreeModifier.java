@@ -373,13 +373,12 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withTypeName(typeName)
                     .withParamName(paramName)
                     .apply();
-        } else {
-            typeName = formatNode(requiredParameterNode.typeName(), env.trailingWS, env.trailingNL);
-            return requiredParameterNode.modify()
-                    .withAnnotations(annotations)
-                    .withTypeName(typeName)
-                    .apply();
         }
+        typeName = formatNode(requiredParameterNode.typeName(), env.trailingWS, env.trailingNL);
+        return requiredParameterNode.modify()
+                .withAnnotations(annotations)
+                .withTypeName(typeName)
+                .apply();
     }
 
     @Override
@@ -397,14 +396,13 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withTypeName(typeName)
                     .withParamName(paramName)
                     .apply();
-        } else {
-            typeName = formatNode(includedRecordParameterNode.typeName(), env.trailingWS, env.trailingNL);
-            return includedRecordParameterNode.modify()
-                    .withAsteriskToken(asterisk)
-                    .withAnnotations(annotations)
-                    .withTypeName(typeName)
-                    .apply();
         }
+        typeName = formatNode(includedRecordParameterNode.typeName(), env.trailingWS, env.trailingNL);
+        return includedRecordParameterNode.modify()
+                .withAsteriskToken(asterisk)
+                .withAnnotations(annotations)
+                .withTypeName(typeName)
+                .apply();
     }
 
     @Override

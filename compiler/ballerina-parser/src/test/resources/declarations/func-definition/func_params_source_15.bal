@@ -1,2 +1,2 @@
-function foo(break*) {
+function foo(break* ) {
 }
