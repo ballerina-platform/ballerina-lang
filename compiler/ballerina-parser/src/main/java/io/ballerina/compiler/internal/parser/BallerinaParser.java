@@ -2377,7 +2377,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextNextToken = getNextNextToken();
         if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             reportInvalidQualifierList(qualifiers);
-            return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
+            return parseQualifiedIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
         }
         ParserRuleContext context;
         switch (preDeclaredPrefix.kind) {
@@ -2406,11 +2406,12 @@ public class BallerinaParser extends AbstractParser {
             default:
                 context = ParserRuleContext.TYPEDESC_RHS_OR_TYPE_REF;
         }
+
         Solution solution = recover(peek(), context);
 
         if (solution.action == Action.KEEP) {
             reportInvalidQualifierList(qualifiers);
-            return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
+            return parseQualifiedIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
         }
         return parseTypeDescStartWithPredeclPrefix(preDeclaredPrefix, qualifiers);
     }
@@ -2444,11 +2445,12 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseQualIdentifierWithPredeclPrefix(STToken preDeclaredPrefix, boolean isInConditionalExpr) {
+    private STNode parseQualifiedIdentifierWithPredeclPrefix(STToken preDeclaredPrefix, boolean isInConditionalExpr) {
         STNode identifier = STNodeFactory.createIdentifierToken(preDeclaredPrefix.text(),
                 preDeclaredPrefix.leadingMinutiae(), preDeclaredPrefix.trailingMinutiae());
         return parseQualifiedIdentifier(identifier, isInConditionalExpr);
     }
+
     /**
      * Parse distinct type descriptor.
      * <p>
@@ -4540,7 +4542,7 @@ public class BallerinaParser extends AbstractParser {
         STToken preDeclaredPrefix = consume();
         STToken nextNextToken = getNextNextToken();
         if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN && !isKeyKeyword(nextNextToken)) {
-            return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
+            return parseQualifiedIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
         }
         ParserRuleContext context;
         switch (preDeclaredPrefix.kind) {
@@ -4554,12 +4556,12 @@ public class BallerinaParser extends AbstractParser {
                 context = ParserRuleContext.ERROR_CONS_EXPR_OR_VAR_REF;
                 break;
             default:
-                return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
+                return parseQualifiedIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
         }
 
         Solution solution = recover(peek(), context);
         if (solution.action == Action.KEEP) {
-            return parseQualIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
+            return parseQualifiedIdentifierWithPredeclPrefix(preDeclaredPrefix, isInConditionalExpr);
         }
         if (preDeclaredPrefix.kind == SyntaxKind.ERROR_KEYWORD) {
             return parseErrorConstructorExpr(preDeclaredPrefix);
@@ -5458,6 +5460,7 @@ public class BallerinaParser extends AbstractParser {
         STNode errorKeyword = parseErrorKeyword();
         return parseErrorConstructorExpr(errorKeyword, isAmbiguous);
     }
+
     private STNode parseErrorConstructorExpr(STNode errorKeyword, boolean isAmbiguous) {
         STNode typeReference = parseErrorTypeReference();
         STNode openParen = parseArgListOpenParenthesis();
