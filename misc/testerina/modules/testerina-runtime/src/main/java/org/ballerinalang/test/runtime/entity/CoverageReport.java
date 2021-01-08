@@ -20,7 +20,6 @@ package org.ballerinalang.test.runtime.entity;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarResolver;
-import io.ballerina.projects.JdkVersion;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.internal.model.Target;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
@@ -34,11 +33,11 @@ import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.tools.ExecFileLoader;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
@@ -60,8 +59,6 @@ public class CoverageReport {
     private Path executionDataFile;
     private Path classesDirectory;
     private ExecFileLoader execFileLoader;
-
-    private PrintStream out = System.out;
 
     private Module module;
     private Target target;
@@ -87,11 +84,15 @@ public class CoverageReport {
         String packageName = this.module.packageInstance().packageName().toString();
         String version = this.module.packageInstance().packageVersion().toString();
 
-        Path moduleJarPath = target.cachesPath().resolve(orgName)
-                .resolve(packageName)
-                .resolve(version).resolve(JdkVersion.JAVA_11.code());
+        List<Path> filteredPathList;
 
-        List<Path> filteredPathList = filterPaths(moduleJarPath, jarResolver);
+        if (!module.testDocumentIds().isEmpty()) {
+            filteredPathList =
+                    filterPaths(jarResolver.getJarFilePathsRequiredForTestExecution(this.module.moduleName()));
+        } else {
+            filteredPathList =
+                    filterPaths(jarResolver.getJarFilePathsRequiredForExecution());
+        }
 
         if (!filteredPathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
@@ -179,19 +180,11 @@ public class CoverageReport {
         }
     }
 
-    private List<Path> filterPaths(Path moduleJarPath, JarResolver jarResolver) {
+    private List<Path> filterPaths(Collection<Path> pathCollection) {
         List<Path> filteredPathList = new ArrayList<>();
-        List<Path> pathCollection;
-
-        try {
-            pathCollection =
-                    new ArrayList<>(jarResolver.getJarFilePathsRequiredForTestExecution(this.module.moduleName()));
-        } catch (IllegalStateException e) {
-            pathCollection = new ArrayList<>(jarResolver.getJarFilePathsRequiredForExecution());
-        }
 
         for (Path path : pathCollection) {
-            if (path.toString().contains(moduleJarPath.toString())) {
+            if (path.toString().contains(this.module.project().sourceRoot().toString())) {
                 filteredPathList.add(path);
             }
         }
