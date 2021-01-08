@@ -82,7 +82,7 @@ public class BTestRunner {
     private static final String TEST_INIT_FUNCTION_NAME = ".<testinit>";
     private static final String TEST_START_FUNCTION_NAME = ".<teststart>";
     private static final String TEST_STOP_FUNCTION_NAME = ".<teststop>";
-    public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
+    private static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
 
     private PrintStream errStream;
     private PrintStream outStream;
@@ -565,18 +565,20 @@ public class BTestRunner {
 
     private void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz, Class<?> testInitClazz,
                             Class<?> configClazz, boolean hasTestablePackage) {
-        TesterinaFunction init = new TesterinaFunction(initClazz, suite.getInitFunctionName(), initScheduler);
-        TesterinaFunction start = new TesterinaFunction(initClazz, suite.getStartFunctionName(), initScheduler);
+        TesterinaFunction init = new TesterinaFunction(initClazz, INIT_FUNCTION_NAME, initScheduler);
+        TesterinaFunction start = new TesterinaFunction(initClazz, START_FUNCTION_NAME, initScheduler);
         TesterinaFunction configInit = new TesterinaFunction(configClazz, "$configureInit", initScheduler);
         // As the init function we need to use $moduleInit to initialize all the dependent modules
         // properly.
 
-        invokeConfigFunction(configInit, new Class[]{}, new Object[]{});
-        configInit.setName("$parseConfigTOML");
-        invokeConfigFunction(configInit, new Class[]{Path.class}, new Object[]{getConfigPath(suite)});
+        Object response = configInit.directInvoke(new Class[]{Path.class}, new Object[]{getConfigPath(suite)});
+        if (response instanceof Throwable) {
+            throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
+                    response.toString(), (Throwable) response);
+        }
 
         init.setName("$moduleInit");
-        Object response = init.invoke();
+        response = init.invoke();
         if (response instanceof Throwable) {
             throw new BallerinaTestException("Dependant module initialization for test suite failed due to " +
                     response.toString(), (Throwable) response);
@@ -606,14 +608,6 @@ public class BTestRunner {
         Thread immortalThread = new Thread(initScheduler::start, "module-start");
         immortalThread.setDaemon(true);
         immortalThread.start();
-    }
-
-    private void invokeConfigFunction(TesterinaFunction function, Class[] argClasses, Object[] args) {
-        Object response = function.directInvoke(argClasses, args);
-        if (response instanceof Throwable) {
-            throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
-                    response.toString(), (Throwable) response);
-        }
     }
 
     private Path getConfigPath(TestSuite testSuite) {

@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
@@ -36,7 +35,6 @@ import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AASTORE;
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -55,19 +53,19 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
-import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIG_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_CONFIG_DATA_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
@@ -87,18 +85,6 @@ public class ConfigMethodGen {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);
 
-        FieldVisitor fv = cw.visitField(ACC_PRIVATE | ACC_FINAL | ACC_STATIC, CONFIG_DATA, String.format("L" +
-                        "%s;", MAP), String.format("L%s<L%s;[L%s;>;", MAP, MODULE, VARIABLE_KEY), null);
-        fv.visitEnd();
-
-        generateConfigInit(cw, imprtMods, pkg.packageID);
-        populateConfigDataMethod(cw, moduleInitClass, pkg, new JvmTypeGen(stringConstantsGen));
-        generateStaticInitializer(cw);
-        cw.visitEnd();
-        jarEntries.put(innerClassName + ".class", cw.toByteArray());
-    }
-
-    private void generateConfigInit(ClassWriter cw, List<PackageID> imprtMods, PackageID packageID) {
         MethodVisitor mv = cw.visitMethod(ACC_PRIVATE, JVM_INIT_METHOD, "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
@@ -107,26 +93,30 @@ public class ConfigMethodGen {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT, "()V", null, null);
+        generateConfigInit(cw, imprtMods, pkg.packageID);
+        populateConfigDataMethod(cw, moduleInitClass, pkg, new JvmTypeGen(stringConstantsGen));
+        cw.visitEnd();
+        jarEntries.put(innerClassName + ".class", cw.toByteArray());
+    }
+
+    private void generateConfigInit(ClassWriter cw, List<PackageID> imprtMods, PackageID packageID) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT, "(L" + PATH + ";)V", null, null);
         mv.visitCode();
+
+        mv.visitTypeInsn(NEW, HASH_MAP);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, HASH_MAP, JVM_INIT_METHOD, "()V", false);
+        mv.visitVarInsn(ASTORE, 1);
 
         for (PackageID id : imprtMods) {
             generateInvokeConfiguration(mv, id);
         }
 
         generateInvokeConfiguration(mv, packageID);
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-    }
-
-    private void generateStaticInitializer(ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-        mv.visitCode();
-        mv.visitTypeInsn(NEW, HASH_MAP);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, HASH_MAP, JVM_INIT_METHOD, "()V", false);
-        mv.visitFieldInsn(PUTSTATIC, innerClassName, CONFIG_DATA, String.format("L%s;", MAP));
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables",
+                String.format("(L%s;L%s;)V", PATH, MAP), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -138,15 +128,15 @@ public class ConfigMethodGen {
 
         mv.visitMethodInsn(INVOKESTATIC, moduleClass, POPULATE_CONFIG_DATA_METHOD,
                 String.format("()[L%s;", VARIABLE_KEY), false);
-        mv.visitVarInsn(ASTORE, 0);
+        mv.visitVarInsn(ASTORE, 2);
 
-        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 2);
         mv.visitInsn(ARRAYLENGTH);
         Label elseLabel = new Label();
         mv.visitJumpInsn(IFEQ, elseLabel);
-        mv.visitFieldInsn(GETSTATIC, innerClassName, CONFIG_DATA, String.format("L%s;", MAP));
+        mv.visitVarInsn(ALOAD, 1);
         mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
-        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 2);
 
         mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
         mv.visitInsn(POP);
