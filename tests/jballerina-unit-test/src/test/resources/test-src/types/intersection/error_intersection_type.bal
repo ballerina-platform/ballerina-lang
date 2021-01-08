@@ -51,26 +51,26 @@ type IntersectionErrorThree ErrorOne & ErrorFour;
 type IntersectionErrorFour ErrorOne & ErrorFive;
 
 function testIntersectionForExistingDetail() {
-    var err = IntersectionError("message", x = "x", y = "y");
+    var err = error IntersectionError("message", x = "x", y = "y");
     assertEquality(err.detail().x, "x");
     assertEquality(err.detail().y, "y");
 }
 
 function testIntersectionForExisitingAndNewDetail() {
-    var err = IntersectionErrorTwo("message", x = "x", y = "y", z = 10);
+    var err = error IntersectionErrorTwo("message", x = "x", y = "y", z = 10);
     assertEquality(err.detail().x, "x");
     assertEquality(err.detail().y, "y");
     assertEquality(err.detail().z, 10);
 }
 
 function testIntersectionForAnonymousDetail() {
-    var err = IntersectionErrorThree("message", x = "x", z = "z");
+    var err = error IntersectionErrorThree("message", x = "x", z = "z");
     assertEquality(err.detail().x, "x");
     assertEquality(err.detail().z, "z");
 }
 
 function testIntersectionForDetailRecordAndDetailMap() {
-    var err = IntersectionErrorFour("message", x = "x", z = "z");
+    var err = error IntersectionErrorFour("message", x = "x", z = "z");
     assertEquality(err.detail().x, "x");
     assertEquality(err.detail()["z"], "z");
 }
@@ -87,6 +87,8 @@ function assertEquality(any|error actual, any|error expected) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *   Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,16 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.api.types;
+
+package org.ballerinalang.langlib.error;
+
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
 
 /**
- * {@code {@link RemoteFunctionType }} represents remote function type in ballerina.
+ * Returns a simple, human-readable representation of the given value as a String.
  *
  * @since 2.0.0
  */
-public interface RemoteFunctionType extends MemberFunctionType {
-
-    ObjectType getParentObjectType();
-
-    FunctionType getType();
+public class ToString {
+    public static BString toString(BError value) {
+        return StringUtils.fromString(StringUtils.getStringValue(value, null));
+    }
 }

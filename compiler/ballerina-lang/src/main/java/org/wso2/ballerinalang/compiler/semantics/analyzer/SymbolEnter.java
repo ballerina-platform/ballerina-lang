@@ -441,9 +441,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         SymbolEnv prevEnv = this.env;
         this.env = pkgEnv;
-        defineErrorConstructorSymbol(pos, errorTSymbol);
         this.env = prevEnv;
-
     }
 
     private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
@@ -1297,13 +1295,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (!isErrorIntersection) {
+        if (!isErrorIntersection) { // We have already defined for IntersectionTtypeDef
             defineSymbol(typeDefinition.name.pos, typeDefSymbol);
-        }
-
-        if (typeDefinition.typeNode.type.tag == TypeTags.ERROR) {
-            // constructors are only defined for named types.
-            defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
         }
     }
 
@@ -1436,10 +1429,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             throw new IllegalStateException("Not supported annotation attachment at:" + attachment.pos);
         }
         defineSymbol(typeDefinition.name.pos, typeDefinition.symbol);
-        if (typeDefinition.typeNode.type.tag == TypeTags.ERROR) {
-            // constructors are only defined for named types.
-            defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefinition.symbol);
-        }
     }
 
     // If this type is defined to a public type or this is a anonymous type, return int with all bits set to 1,
@@ -1454,21 +1443,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             return ~Flags.PUBLIC;
         }
-    }
-
-    private void defineErrorConstructorSymbol(Location pos, BTypeSymbol typeDefSymbol) {
-        BErrorType errorType = (BErrorType) typeDefSymbol.type;
-        BConstructorSymbol symbol = new BConstructorSymbol(typeDefSymbol.flags, typeDefSymbol.name,
-                                                           typeDefSymbol.pkgID, errorType, typeDefSymbol.owner, pos,
-                                                           getOrigin(typeDefSymbol.name));
-        symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
-        symbol.scope = new Scope(symbol);
-        symbol.retType = errorType;
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
-            env.scope.define(symbol.name, symbol);
-        }
-
-        ((BErrorTypeSymbol) typeDefSymbol).ctorSymbol = symbol;
     }
 
     @Override

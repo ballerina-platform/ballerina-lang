@@ -35,7 +35,7 @@ public class SearchJson {
     private List<ConstructSearchJson> listeners;
     private List<ConstructSearchJson> annotations;
     private List<ConstructSearchJson> abstractObjects;
-
+    private List<ConstructSearchJson> enums;
 
     public SearchJson(List<ModuleSearchJson> modules,
                       List<ConstructSearchJson> classes,
@@ -47,7 +47,8 @@ public class SearchJson {
                       List<ConstructSearchJson> clients,
                       List<ConstructSearchJson> listeners,
                       List<ConstructSearchJson> annotations,
-                      List<ConstructSearchJson> abstractObjects) {
+                      List<ConstructSearchJson> abstractObjects,
+                      List<ConstructSearchJson> enums) {
         this.modules = modules;
         this.classes = classes;
         this.functions = functions;
@@ -59,6 +60,7 @@ public class SearchJson {
         this.listeners = listeners;
         this.annotations = annotations;
         this.abstractObjects = abstractObjects;
+        this.enums = enums;
     }
 
     public SearchJson() {
@@ -73,6 +75,7 @@ public class SearchJson {
         this.listeners = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.abstractObjects = new ArrayList<>();
+        this.enums = new ArrayList<>();
     }
 
     public List<ModuleSearchJson> getModules() {
@@ -161,5 +164,13 @@ public class SearchJson {
 
     public void setAbstractObjects(List<ConstructSearchJson> abstractObjects) {
         this.abstractObjects = abstractObjects;
+    }
+
+    public List<ConstructSearchJson> getEnums() {
+        return enums;
+    }
+
+    public void setEnums(List<ConstructSearchJson> enums) {
+        this.enums = enums;
     }
 }

@@ -14,15 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@icon { path: "/fooIconPath.icon" }
+@display {iconPath: "fooIconPath.icon", label: "l"}
+@display {iconPath: "fooIconPath.icon", label: "j"}
 function foo(int i, string k) returns int {
     return i;
-}
-
-@icon { path: "/barIconPath.icon" }
-class Bar {
-    @icon { path: "/kMemberFuncIconPath.icon" }
-    function k() {
-
-    }
 }

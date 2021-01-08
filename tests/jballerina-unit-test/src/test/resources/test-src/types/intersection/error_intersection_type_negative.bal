@@ -51,5 +51,5 @@ type IntersectionErrorThree ErrorOne & ErrorFour;
 type IntersectionErrorFour ErrorOne & ErrorFive;
 
 function testRecordAndMapIntersection() {
-    var err = IntersectionErrorFour("message", x = "x", z = 10);
+    var err = error IntersectionErrorFour("message", x = "x", z = 10);
 }
