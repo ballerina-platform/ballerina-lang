@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.values.BDecimal;
 
+import java.math.BigDecimal;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +40,7 @@ public class Sleep {
 
     public static void sleep(Environment env, BDecimal delaySeconds) {
         Future balFuture = env.markAsync();
-        long delayMillis = (long) Math.ceil(delaySeconds.floatValue() * 1000);
+        long delayMillis = (delaySeconds.decimalValue().multiply(new BigDecimal("1000.0"))).longValue();
         executor.schedule(() -> balFuture.complete(null), delayMillis, TimeUnit.MILLISECONDS);
     }
 }

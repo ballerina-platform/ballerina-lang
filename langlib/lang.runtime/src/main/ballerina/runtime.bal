@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/java;
+import ballerina/lang.'array as lang_array;
+import ballerina/lang.'value as lang_value;
 
 # A listener that is dynamically registered with a module.
 public type DynamicListener object {
@@ -57,9 +59,56 @@ public isolated function sleep(decimal seconds) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Sleep"
 } external;
 
-# Retrieves the array of `CallStackElement`.
+# Returns a stack trace for the current call stack.
 #
-# + return - An array of `CallStackElement`
-public isolated function getCallStack() returns CallStackElement[] = @java:Method {
-    'class: "org.ballerinalang.langlib.runtime.GetCallStack"
+# + return - An array representing the current call stack
+public isolated function getStackTrace() returns StackFrame[] {
+    StackFrame[] stackFrame = [];
+    int i = 0;
+    CallStackElement[] callStackElements = externGetStackTrace();
+    lang_array:forEach(callStackElements, isolated function (CallStackElement callStackElement) {
+                        stackFrame[i] = new StackFrameImpl(callStackElement.callableName,
+                        callStackElement.moduleName, callStackElement.fileName, callStackElement.lineNumber);
+                        i += 1;
+                        });
+    return stackFrame;
+}
+
+# Type representing a stack frame.
+# A call stack is represented as an array of stack frames.
+public type StackFrame readonly & object {
+   # Returns a string representing this StackFrame.
+   #
+   # + return - A StackFrame as string
+   public function toString() returns string;
+};
+
+# Represent a stack frame.
+public readonly class StackFrameImpl {
+
+    *StackFrame;
+    public string callableName;
+    public string moduleName;
+    public string fileName;
+    public int lineNumber;
+
+    # Returns a string representing this StackFrame
+    #
+    # + return - A string
+    public function toString() returns string {
+        return "callableName: " + self.callableName + " " + "moduleName: " + self.moduleName +
+        " " + "fileName: " + self.fileName + " " + "lineNumber: " + lang_value:toString(self.lineNumber);
+    }
+
+    public function init(string callableName, string moduleName, string fileName, int lineNumber) {
+        self.callableName = callableName;
+        self.moduleName = moduleName;
+        self.fileName = fileName;
+        self.lineNumber = lineNumber;
+    }
+}
+
+isolated function externGetStackTrace() returns CallStackElement[] = @java:Method {
+    name: "getStackTrace",
+    'class: "org.ballerinalang.langlib.runtime.GetStackTrace"
 } external;

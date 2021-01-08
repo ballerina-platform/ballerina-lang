@@ -34,11 +34,11 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class GetCallStack {
+public class GetStackTrace {
 
     private static final BString EMPTY_ERROR_MESSAGE = StringUtils.fromString("");
 
-    public static BArray getCallStack() {
+    public static BArray getStackTrace() {
         List<StackTraceElement> filteredStack = ErrorCreator.createError(EMPTY_ERROR_MESSAGE).getCallStack();
         Type recordType = ValueCreator.createRecordValue(Constants.BALLERINA_RUNTIME_PKG_ID,
                 Constants.CALL_STACK_ELEMENT).getType();

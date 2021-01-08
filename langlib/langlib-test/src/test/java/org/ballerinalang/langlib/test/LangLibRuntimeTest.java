@@ -40,9 +40,24 @@ public class LangLibRuntimeTest {
     }
 
     @Test
-    public void testGetCallStack() {
+    public void testGetStackTrace() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getCallStackTest");
         assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
+                "moduleName:\"ballerina.lang$0046runtime.0_0_1.runtime\", fileName:\"runtime.bal\", lineNumber:63}");
+        assertEquals(returns[1].stringValue(), "{callableName:\"getCallStack\", " +
+                "moduleName:\"ballerina.lang$0046runtime.0_0_1.runtime\", fileName:\"runtime.bal\", lineNumber:63}");
+        assertEquals(returns[2].stringValue(), "{callableName:\"getCallStack\", " +
+                "moduleName:\"ballerina.lang$0046runtime.0_0_1.runtime\", fileName:\"runtime.bal\", lineNumber:63}");
+    }
+
+    @Test
+    public void testGetStackTraceToString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "getCallStackTest");
+        assertEquals(returns[0], "{callableName:\"getCallStack\", " +
+                "moduleName:\"ballerina.lang$0046runtime.0_0_1.runtime\", fileName:\"runtime.bal\", lineNumber:63}");
+        assertEquals(returns[1], "{callableName:\"getCallStack\", " +
+                "moduleName:\"ballerina.lang$0046runtime.0_0_1.runtime\", fileName:\"runtime.bal\", lineNumber:63}");
+        assertEquals(returns[2], "{callableName:\"getCallStack\", " +
                 "moduleName:\"ballerina.lang$0046runtime.0_0_1.runtime\", fileName:\"runtime.bal\", lineNumber:63}");
     }
 }
