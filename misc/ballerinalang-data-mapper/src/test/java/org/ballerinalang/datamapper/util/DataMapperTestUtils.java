@@ -21,7 +21,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
@@ -44,7 +46,8 @@ public class DataMapperTestUtils {
     private static JsonParser parser = new JsonParser();
     private static Path sourcesPath = new File(DataMapperTestUtils.class.getClassLoader().getResource("codeaction")
             .getFile()).toPath();
-    private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
+    private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
+    private static final WorkspaceManager workspaceManager = BallerinaWorkspaceManager.getInstance(serverContext);
 
 
     /**
@@ -76,8 +79,9 @@ public class DataMapperTestUtils {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
         // Filter diagnostics for the cursor position
-        List<Diagnostic> diags = new ArrayList<>(
-                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager)));
+        List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
+                = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
+        List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
                 configJsonObject.get("character").getAsInt());
         diags = diags.stream().

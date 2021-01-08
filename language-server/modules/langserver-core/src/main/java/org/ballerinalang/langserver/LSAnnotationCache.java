@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -64,23 +65,27 @@ public class LSAnnotationCache {
     private static final Map<ModuleID, List<AnnotationSymbol>> objectFieldAnnotations = new HashMap<>();
     private static final List<PackageID> processedPackages = new ArrayList<>();
 
-    private static LSAnnotationCache lsAnnotationCache = null;
+    private static final LanguageServerContext.Key<LSAnnotationCache> LS_ANNOTATION_CACHE_KEY =
+            new LanguageServerContext.Key<>();
 
-    private LSAnnotationCache() {
+    private LSAnnotationCache(LanguageServerContext context) {
+        context.put(LS_ANNOTATION_CACHE_KEY, this);
     }
 
-    public static LSAnnotationCache getInstance() {
-        return lsAnnotationCache;
+    public static LSAnnotationCache getInstance(LanguageServerContext context) {
+        LSAnnotationCache annotationCache = context.get(LS_ANNOTATION_CACHE_KEY);
+        if (annotationCache == null) {
+            annotationCache = new LSAnnotationCache(context);
+        }
+
+        return annotationCache;
     }
 
-    public static synchronized void initiate() {
-        if (lsAnnotationCache == null) {
-            lsAnnotationCache = new LSAnnotationCache();
+    public synchronized void initiate() {
 //            new Thread(() -> {
 //                Map<String, Package> packages = loadPackagesMap();
 //                loadAnnotations(new ArrayList<>(packages.values()));
 //            }).start();
-        }
     }
 
     /**
@@ -292,7 +297,7 @@ public class LSAnnotationCache {
                 .anyMatch(processedPkgId -> processedPkgId.toString().equals(packageID.toString()));
     }
 
-    private static Map<String, Package> loadPackagesMap() {
+    private static Map<String, Package> loadPackagesMap(LanguageServerContext context) {
         Map<String, Package> staticPackages = new HashMap<>();
 
         // Annotation cache will only load the sk packages initially and the others will load in the runtime
@@ -314,7 +319,7 @@ public class LSAnnotationCache {
 //            }
 //        }
 
-        for (Package repoPackage : LSPackageLoader.getDistributionRepoPackages()) {
+        for (Package repoPackage : LSPackageLoader.getInstance(context).getDistributionRepoPackages()) {
             String pkgKey = repoPackage.packageOrg().value() + "/" + repoPackage.packageName().value();
             staticPackages.put(pkgKey, repoPackage);
         }

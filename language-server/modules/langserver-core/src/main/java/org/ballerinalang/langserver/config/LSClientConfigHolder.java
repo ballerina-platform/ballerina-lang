@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.config;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -26,8 +27,9 @@ import java.util.List;
  * This class is holding the latest client configuration.
  */
 public class LSClientConfigHolder {
-    private static final LSClientConfigHolder INSTANCE = new LSClientConfigHolder();
     private final Gson gson = new Gson();
+    private static final LanguageServerContext.Key<LSClientConfigHolder> CLIENT_CONFIG_HOLDER_KEY =
+            new LanguageServerContext.Key<>();
 
     private final List<ClientConfigListener> listeners = new ArrayList<>();
 
@@ -35,11 +37,17 @@ public class LSClientConfigHolder {
     private LSClientConfig clientConfig = LSClientConfig.getDefault();
     private JsonElement clientConfigJson = gson.toJsonTree(this.clientConfig).getAsJsonObject();
 
-    private LSClientConfigHolder() {
+    private LSClientConfigHolder(LanguageServerContext serverContext) {
+        serverContext.put(CLIENT_CONFIG_HOLDER_KEY, this);
     }
 
-    public static LSClientConfigHolder getInstance() {
-        return INSTANCE;
+    public static LSClientConfigHolder getInstance(LanguageServerContext serverContext) {
+        LSClientConfigHolder lsClientConfigHolder = serverContext.get(CLIENT_CONFIG_HOLDER_KEY);
+        if (lsClientConfigHolder == null) {
+            lsClientConfigHolder = new LSClientConfigHolder(serverContext);
+        }
+
+        return lsClientConfigHolder;
     }
 
     /**

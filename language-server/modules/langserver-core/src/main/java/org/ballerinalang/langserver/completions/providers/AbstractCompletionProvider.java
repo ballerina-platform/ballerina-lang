@@ -259,7 +259,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     return new SymbolCompletionItem(ctx, null, item);
                 }).collect(Collectors.toList());
 
-        List<Package> packages = LSPackageLoader.getDistributionRepoPackages();
+        List<Package> packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages();
         // TODO: Refactor to match the latest project structure
 //        packages.addAll(LSPackageLoader.getCurrentProjectModules(currentPkg, ctx));
         packages.forEach(pkg -> {
