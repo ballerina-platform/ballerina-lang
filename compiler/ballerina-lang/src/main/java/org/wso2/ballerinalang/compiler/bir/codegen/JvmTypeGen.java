@@ -81,6 +81,7 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.DUP_X1;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
@@ -189,6 +190,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createDefaultCase;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 
 /**
@@ -208,16 +210,29 @@ public class JvmTypeGen {
 
         String fieldName;
         // create the type
-        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            fieldName = getTypeFieldName(optionalTypeDef.name.value);
-            BType bType = optionalTypeDef.type;
+        for (BIRTypeDefinition typeDef : typeDefs) {
+            BType bType = typeDef.type;
             if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT) {
-                FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, fieldName, String.format("L%s;", TYPE), null,
-                                                null);
-                fv.visitEnd();
+                String name = typeDef.name.value;
+                generateTypeField(cw, name);
+                generateTypedescField(cw, name);
             }
             // do not generate anything for other types (e.g.: finite type, unions, etc.)
         }
+    }
+
+    private static void generateTypeField(ClassWriter cw, String name) {
+        String fieldName = getTypeFieldName(name);
+        FieldVisitor fv = cw.visitField(ACC_STATIC + ACC_PUBLIC, fieldName, String.format("L%s;", TYPE), null,
+                                        null);
+        fv.visitEnd();
+    }
+
+    private static void generateTypedescField(ClassWriter cw, String name) {
+        String typedescFieldName = getTypedescFieldName(name);
+        FieldVisitor fvTypeDesc = cw.visitField(ACC_STATIC + ACC_PUBLIC, typedescFieldName,
+                                                String.format("L%s;", TYPEDESC_VALUE), null, null);
+        fvTypeDesc.visitEnd();
     }
 
     static void generateCreateTypesMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass,
@@ -248,12 +263,24 @@ public class JvmTypeGen {
         mv.visitCode();
 
         // Create the type
-        String fieldName;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            fieldName = getTypeFieldName(optionalTypeDef.name.value);
+            String name = optionalTypeDef.name.value;
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.RECORD) {
                 createRecordType(mv, (BRecordType) bType);
+
+                mv.visitInsn(DUP);
+                String packageName = JvmCodeGenUtil.getPackageName(bType.tsymbol.pkgID);
+                String className = getTypeDescClassName(packageName, toNameString(bType));
+                mv.visitTypeInsn(NEW, className);
+                mv.visitInsn(DUP_X1);
+                mv.visitInsn(SWAP);
+                mv.visitInsn(ACONST_NULL);
+                String descriptor = String.format("(L%s;[L%s;)V", TYPE, MAP_VALUE);
+                mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, descriptor, false);
+                String fieldType = String.format("L%s;", TYPEDESC_VALUE);
+                mv.visitFieldInsn(PUTSTATIC, typeOwnerClass,  getTypedescFieldName(name), fieldType);
+
             } else if (bType.tag == TypeTags.OBJECT) {
                 createObjectType(mv, (BObjectType) bType);
             } else if (bType.tag == TypeTags.ERROR) {
@@ -263,7 +290,7 @@ public class JvmTypeGen {
                 continue;
             }
 
-            mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
+            mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, getTypeFieldName(name), String.format("L%s;", TYPE));
         }
 
         mv.visitInsn(RETURN);
@@ -1639,6 +1666,10 @@ public class JvmTypeGen {
     private static String getTypeFieldName(String typeName) {
 
         return String.format("$type$%s", typeName);
+    }
+
+    public static String getTypedescFieldName(String name) {
+        return String.format("$typedesce$%s", name);
     }
 
     private static void loadFutureType(MethodVisitor mv, BFutureType bType) {
