@@ -18,14 +18,13 @@ import ballerina/lang.runtime as runtime;
 
 function getCallStackTest() returns runtime:StackFrame[] {
     return runtime:getStackTrace();
-
 }
 
 function getCallStacktoStringTest() returns string[] {
     runtime:StackFrame[] stackFrames = runtime:getStackTrace();
     string[] output = [];
-    foreach StackFrame stackFrame in stackFrames {
-        output.push(stackFrame.toString())
+    foreach runtime:StackFrame stackFrame in stackFrames {
+        output.push(stackFrame.toString());
     }
     return output;
 

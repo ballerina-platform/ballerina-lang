@@ -76,15 +76,20 @@ public isolated function getStackTrace() returns StackFrame[] {
 
 # Type representing a stack frame.
 # A call stack is represented as an array of stack frames.
-public type StackFrame readonly & object {
-   # Returns a string representing this StackFrame.
+// todo use readonly qualifier once #27501 fixed
+# public type StackFrame readonly & object {
+public type StackFrame object {
+
+   # Returns a string representing of the StackFrame.
    #
    # + return - A StackFrame as string
    public function toString() returns string;
 };
 
-# Represent a stack frame.
-public readonly class StackFrameImpl {
+# Implementation for the `StackFrame`.
+// todo use readonly qualifier once #27501 fixed
+# public readonly class StackFrameImpl
+public class StackFrameImpl {
 
     *StackFrame;
     public string callableName;
@@ -92,9 +97,9 @@ public readonly class StackFrameImpl {
     public string fileName;
     public int lineNumber;
 
-    # Returns a string representing this StackFrame
+    # Returns a string representing for the `StackFrame`
     #
-    # + return - A string
+    # + return - A stack frame as string
     public function toString() returns string {
         return "callableName: " + self.callableName + " " + "moduleName: " + self.moduleName +
         " " + "fileName: " + self.fileName + " " + "lineNumber: " + lang_value:toString(self.lineNumber);
