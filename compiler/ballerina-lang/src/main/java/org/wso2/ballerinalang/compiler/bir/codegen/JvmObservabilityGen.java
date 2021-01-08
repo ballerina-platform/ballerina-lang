@@ -207,7 +207,7 @@ class JvmObservabilityGen {
     private void rewriteControlFlowInvocation(BIRFunction func, BIRPackage pkg) {
         int i = 0;
         while (i < func.basicBlocks.size()) {
-            // Basic blocks with JI method calls are added for all kinda of Terminators
+            // Basic blocks with JI method calls are added for all kinds of Terminators
             BIRBasicBlock currentBB = func.basicBlocks.get(i);
             Location desugaredPos;
             // First we give the priority to Instructions,
@@ -280,7 +280,8 @@ class JvmObservabilityGen {
             scopeFunctionsList = attachedTypeDef.attachedFuncs;
         }
         for (BIRBasicBlock currentBB : func.basicBlocks) {
-            if (currentBB.terminator.kind != InstructionKind.ASYNC_CALL) {
+            if (currentBB.terminator.kind != InstructionKind.ASYNC_CALL
+                    || !isObservable((AsyncCall) currentBB.terminator)) {
                 continue;
             }
 
