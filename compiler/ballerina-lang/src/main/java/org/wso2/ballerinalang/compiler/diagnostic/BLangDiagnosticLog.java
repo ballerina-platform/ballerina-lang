@@ -239,7 +239,8 @@ public class BLangDiagnosticLog implements DiagnosticLog {
             } else if (arg instanceof Number) {
                 dArg = new BNumericProperty((Number) arg);
             } else if (arg instanceof Collection) {
-                Collection<DiagnosticProperty<?>> diagProperties = convertDiagArgsToProps(((Collection<?>) arg).toArray());
+                Collection<DiagnosticProperty<?>> diagProperties
+                        = convertDiagArgsToProps(((Collection<?>) arg).toArray());
                 dArg = new BCollectionProperty(diagProperties);
             } else {
                 dArg = new NonCatProperty(arg);

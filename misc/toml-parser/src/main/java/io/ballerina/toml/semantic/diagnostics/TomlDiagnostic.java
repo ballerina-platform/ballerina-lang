@@ -57,7 +57,7 @@ public class TomlDiagnostic extends Diagnostic {
     }
 
     @Override
-    public List<DiagnosticProperty> properties() {
+    public List<DiagnosticProperty<?>> properties() {
         return null;
     }
 }
