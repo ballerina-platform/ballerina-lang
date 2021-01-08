@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 211,
+    "character": 35
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description\n  \n  \n---  \n  \n### Parameters  \n  \n`int` ***param1*** : param1 Parameter Description  \n`int` ***param2*** : param2 Parameter Description  \n`string` ***param3*** : param3 Parameter Description  \n`int[]...` ***restparam*** : restparam Parameter Description  \n  \n---  \n  \n### Returns  \nintReturn Value Description"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

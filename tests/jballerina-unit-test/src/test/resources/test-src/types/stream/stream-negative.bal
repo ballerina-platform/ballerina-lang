@@ -46,7 +46,7 @@ class IteratorWithCustomError {
     public isolated function next() returns record {| int value; |}|CustomError? {
         self.i += 1;
         if (self.i == 2) {
-            CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 1);
+            CustomError e = error CustomError("CustomError", message = "custom error occured", accountID = 1);
             return e;
         } else {
             return { value: self.i };
@@ -321,6 +321,24 @@ class IteratorWithIsolatedNextAndNonIsolatedClose {
     }
 }
 
+class InvalidNumberGenerator {
+    int i = 0;
+    public isolated function next() returns record {| int value; |} {
+        self.i += 1;
+        return {value: self.i};
+    }
+}
+
+class InvalidNumberStreamGenerator {
+    int i = 0;
+    public isolated function next() returns record {| stream<int> value;|} {
+        self.i += 1;
+        InvalidNumberGenerator numGen = new();
+        stream<int> numberStream = new(numGen);
+        return {value: numberStream};
+    }
+}
+
 public function main() returns @tainted error? {
     IteratorWithIsolatedNext itr1 = new;
     IteratorWithIsolatedNextAndIsolatedClose itr2 = new;
@@ -332,4 +350,8 @@ public function main() returns @tainted error? {
     var intStr3 = new stream<int, error>(itr3);
     var intStr4 = new stream<int, error>(itr4);
     var intStr5 = new stream<int, error>(itr5);
+
+    InvalidNumberStreamGenerator n = new ();
+    stream<stream<int>> numberStream = new (n);
+    var x = numberStream.next();
 }

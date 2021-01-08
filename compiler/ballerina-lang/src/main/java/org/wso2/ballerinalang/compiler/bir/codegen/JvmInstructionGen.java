@@ -1628,17 +1628,19 @@ public class JvmInstructionGen {
 
     private void reloadObjectCtorAnnots(BType type, int strandIndex) {
         if ((type.flags & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR) {
-            this.mv.visitInsn(DUP);
             this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
+            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "duplicate",
+                    String.format("()L%s;", OBJECT_TYPE_IMPL), false);
+            this.mv.visitInsn(DUP);
 
             String pkgClassName = currentPackageName.equals(".") || currentPackageName.equals("") ?
                     MODULE_INIT_CLASS_NAME : jvmPackageGen.lookupGlobalVarClassName(currentPackageName,
                     ANNOTATION_MAP_NAME);
 
             this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
-            mv.visitVarInsn(ALOAD, strandIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "processObjectCtorAnnots",
-                    String.format("(L%s;L%s;)V", MAP_VALUE, STRAND_CLASS), false);
+            this.mv.visitVarInsn(ALOAD, strandIndex);
+            this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processObjectCtorAnnotations",
+                    String.format("(L%s;L%s;L%s;)V", OBJECT_TYPE_IMPL, MAP_VALUE, STRAND_CLASS), false);
         }
     }
 

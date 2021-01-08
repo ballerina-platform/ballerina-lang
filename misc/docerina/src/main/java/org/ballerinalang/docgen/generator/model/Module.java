@@ -56,5 +56,7 @@ public class Module {
     public List<Error> errors = new ArrayList<>();
     @Expose
     public List<BType> types = new ArrayList<>();
+    @Expose
+    public List<Enum> enums = new ArrayList<>();
 
 }

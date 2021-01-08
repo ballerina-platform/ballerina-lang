@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 @Test
 public class DataflowAnalysisTest {
 
-    @Test(description = "Test uninitialized variables")
+    @Test(description = "Test uninitialized variables", enabled = false)
     public void testSemanticsOfUninitializedVariables() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/dataflow/analysis/dataflow-analysis-semantics-negative.bal");
@@ -92,6 +92,19 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 718, 13);
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 723, 28);
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 723, 41);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test(description = "Test uninitialized variables in error-constructor-expr")
+    public void testUninitializedVariablesInErrorConstructorExpr() {
+        CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-error-constructor" +
+                "-expr.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "variable 'message' is not initialized", 21, 24);
+        BAssertUtil.validateError(result, i++, "variable 'message' is not initialized", 22, 32);
+        BAssertUtil.validateError(result, i++, "variable 'x' is not initialized", 22, 45);
+        BAssertUtil.validateError(result, i++, "variable 'message' is not initialized", 24, 49);
+        BAssertUtil.validateError(result, i++, "variable 'x' is not initialized", 24, 62);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }
