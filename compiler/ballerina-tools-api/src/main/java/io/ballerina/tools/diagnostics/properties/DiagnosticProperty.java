@@ -19,6 +19,7 @@ package io.ballerina.tools.diagnostics.properties;
 
 /**
  * Represents properties passed when diagnostic logging.
+ * @param <T> Kind of property.
  *
  * @since Swan Lake
  */
