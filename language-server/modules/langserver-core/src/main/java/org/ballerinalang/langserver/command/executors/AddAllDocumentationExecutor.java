@@ -62,8 +62,8 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
         for (CommandArgument arg : context.getArguments()) {
-            if (CommandConstants.ARG_KEY_DOC_URI.equals(arg.getArgumentK())) {
-                documentUri = arg.getArgumentV();
+            if (CommandConstants.ARG_KEY_DOC_URI.equals(arg.key())) {
+                documentUri = arg.valueAs(String.class);
                 textDocumentIdentifier.setUri(documentUri);
             }
         }
@@ -106,6 +106,6 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
      */
     private static TextEdit getTextEdit(DocAttachmentInfo attachmentInfo) {
         Range range = new Range(attachmentInfo.getDocStartPos(), attachmentInfo.getDocStartPos());
-        return new TextEdit(range, attachmentInfo.getDocAttachment());
+        return new TextEdit(range, attachmentInfo.getDocumentationString());
     }
 }

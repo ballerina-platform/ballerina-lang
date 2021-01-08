@@ -65,12 +65,12 @@ public class PullModuleExecutor implements LSCommandExecutor {
             String moduleName = "";
             String documentUri = "";
             for (CommandArgument arg : context.getArguments()) {
-                switch (arg.getArgumentK()) {
+                switch (arg.key()) {
                     case CommandConstants.ARG_KEY_MODULE_NAME:
-                        moduleName = arg.getArgumentV();
+                        moduleName = arg.valueAs(String.class);
                         break;
                     case CommandConstants.ARG_KEY_DOC_URI:
-                        documentUri = arg.getArgumentV();
+                        documentUri = arg.valueAs(String.class);
                         break;
                 }
             }

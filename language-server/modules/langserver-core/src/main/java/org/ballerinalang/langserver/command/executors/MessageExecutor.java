@@ -47,12 +47,12 @@ public class MessageExecutor implements LSCommandExecutor {
         MessageType messageType = null;
         String message = "";
         for (CommandArgument arg : context.getArguments()) {
-            switch (arg.getArgumentK()) {
+            switch (arg.key()) {
                 case CommandConstants.ARG_KEY_MESSAGE_TYPE:
-                    messageType = MessageType.forValue(arg.getArgumentV());
+                    messageType = MessageType.forValue(arg.valueAs(Integer.class));
                     break;
                 case CommandConstants.ARG_KEY_MESSAGE:
-                    message = arg.getArgumentV();
+                    message = arg.valueAs(String.class);
                     break;
                 default:
             }

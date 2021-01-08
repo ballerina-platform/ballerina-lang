@@ -63,12 +63,11 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         String uri = context.fileUri();
-        CommandArgument lineArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_LINE, position.getLine());
-        CommandArgument colArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_COLUMN, position.getCharacter());
+        CommandArgument posArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_POS, position);
         CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
-        List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
+        List<Object> args = Arrays.asList(posArg, uriArg);
         Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
         String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
         Node cursorNode = context.positionDetails().matchedNode();

@@ -61,6 +61,8 @@ public class CommandConstants {
 
     public static final String ARG_KEY_NODE_COLUMN = "node.column";
 
+    public static final String ARG_KEY_NODE_POS = "node.position";
+
     public static final String ARG_KEY_NODE_RANGE = "node.range";
 
     public static final String ARG_KEY_MESSAGE_TYPE = "message.type";

@@ -42,9 +42,9 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -70,6 +70,21 @@ public class DocumentationGenerator {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns range of current documentation.
+     *
+     * @param node documentatable {@link NonTerminalNode}
+     * @return returns {@link Range}
+     */
+    public static Optional<Range> getDocsRange(NonTerminalNode node) {
+        for (Node next : node.children()) {
+            if (next.kind() == SyntaxKind.METADATA && ((MetadataNode) next).documentationString().isPresent()) {
+                return Optional.of(CommonUtil.toRange(next.lineRange()));
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -146,7 +161,9 @@ public class DocumentationGenerator {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         int offset = docStart.getCharacter();
-        return new DocAttachmentInfo(getDocumentationAttachment(null, offset), docStart);
+        String desc = String.format("# Description%n%s",
+                                    String.join("", Collections.nCopies(offset, " ")));
+        return new DocAttachmentInfo(desc, docStart);
     }
 
     /**
@@ -187,7 +204,9 @@ public class DocumentationGenerator {
         }
         int offset = docStart.getCharacter();
         io.ballerina.compiler.syntax.tree.Node typeDesc = typeDefNode.typeDescriptor();
-        List<String> attributes = new ArrayList<>();
+        String desc = String.format("# Description%n%s",
+                                    String.join("", Collections.nCopies(offset, " ")));
+        Map<String, String> parameters = new HashMap<>();
         switch (typeDesc.kind()) {
             case RECORD_TYPE_DESC:
                 RecordTypeDescriptorNode recordTypeDescNode = (RecordTypeDescriptorNode) typeDesc;
@@ -198,7 +217,7 @@ public class DocumentationGenerator {
                     } else if (field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
                         paramName = Optional.of(((RecordFieldWithDefaultValueNode) field).fieldName());
                     }
-                    paramName.ifPresent(param -> attributes.add(getDocumentationAttribute(param.text(), offset)));
+                    paramName.ifPresent(param -> parameters.put(param.text(), "Parameter Description"));
                 });
                 break;
             case OBJECT_TYPE_DESC:
@@ -208,7 +227,7 @@ public class DocumentationGenerator {
                             ((ObjectFieldNode) field).visibilityQualifier().isPresent()) {
                         ObjectFieldNode fieldNode = (ObjectFieldNode) field;
                         if (fieldNode.visibilityQualifier().get().kind() == SyntaxKind.PUBLIC_KEYWORD) {
-                            attributes.add(getDocumentationAttribute(fieldNode.fieldName().text(), offset));
+                            parameters.put(fieldNode.fieldName().text(), "Parameter Description");
                         }
                     }
                 });
@@ -216,7 +235,7 @@ public class DocumentationGenerator {
             default:
                 break;
         }
-        return new DocAttachmentInfo(getDocumentationAttachment(attributes, offset), docStart);
+        return new DocAttachmentInfo(desc, parameters, null, docStart);
     }
 
     /**
@@ -232,23 +251,24 @@ public class DocumentationGenerator {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         int offset = docStart.getCharacter();
-        List<String> attributes = new ArrayList<>();
+        String desc = String.format("# Description%n%s",
+                                    String.join("", Collections.nCopies(offset, " ")));
+        Map<String, String> parameters = new HashMap<>();
         classDefNode.members().forEach(field -> {
             if (field.kind() == SyntaxKind.OBJECT_FIELD &&
                     ((ObjectFieldNode) field).visibilityQualifier().isPresent()) {
                 ObjectFieldNode fieldNode = (ObjectFieldNode) field;
                 if (fieldNode.visibilityQualifier().get().kind() == SyntaxKind.PUBLIC_KEYWORD) {
-                    attributes.add(getDocumentationAttribute(fieldNode.fieldName().text(), offset));
+                    parameters.put(fieldNode.fieldName().text(), "Parameter Description");
                 }
             }
         });
-        return new DocAttachmentInfo(getDocumentationAttachment(attributes, offset), docStart);
+        return new DocAttachmentInfo(desc, parameters, null, docStart);
     }
 
 
     private static DocAttachmentInfo getFunctionNodeDocumentation(FunctionSignatureNode signatureNode,
                                                                   MetadataNode metadata, Range functionRange) {
-        List<String> attributes = new ArrayList<>();
         Position docStart = functionRange.getStart();
         boolean hasDeprecated = false;
         if (metadata != null && !metadata.annotations().isEmpty()) {
@@ -262,7 +282,9 @@ public class DocumentationGenerator {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         int offset = docStart.getCharacter();
-
+        String desc = String.format("# Description%n%s",
+                                    String.join("", Collections.nCopies(offset, " ")));
+        Map<String, String> parameters = new HashMap<>();
         signatureNode.parameters().forEach(param -> {
             Optional<Token> paramName = Optional.empty();
             if (param.kind() == SyntaxKind.REQUIRED_PARAM) {
@@ -272,38 +294,12 @@ public class DocumentationGenerator {
             } else if (param.kind() == SyntaxKind.REST_PARAM) {
                 paramName = ((RestParameterNode) param).paramName();
             }
-            paramName.ifPresent(token -> attributes.add(getDocumentationAttribute(token.text(), offset)));
+            paramName.ifPresent(token -> parameters.put(token.text(), "Parameter Description"));
         });
-        signatureNode.returnTypeDesc().ifPresent(s -> attributes.add(getReturnFieldDescription(offset)));
+        String returnDesc = signatureNode.returnTypeDesc().isPresent() ? "Return Value Description" : null;
         if (hasDeprecated) {
-            attributes.add(getDeprecatedDescription(offset));
+//            attributes.add(getDeprecatedDescription(offset));
         }
-        return new DocAttachmentInfo(getDocumentationAttachment(attributes, functionRange.getStart().getCharacter()),
-                                     docStart);
-    }
-
-    private static String getDocumentationAttribute(String field, int offset) {
-        String offsetStr = String.join("", Collections.nCopies(offset, " "));
-        return String.format("%s# + %s - %s Parameter Description", offsetStr, field, field);
-    }
-
-    private static String getReturnFieldDescription(int offset) {
-        String offsetStr = String.join("", Collections.nCopies(offset, " "));
-        return String.format("%s# + return - Return Value Description", offsetStr);
-    }
-
-    private static String getDeprecatedDescription(int offset) {
-        String offsetStr = String.join("", Collections.nCopies(offset, " "));
-        return String.format("%s# # Deprecated", offsetStr);
-    }
-
-    private static String getDocumentationAttachment(List<String> attributes, int offset) {
-        String offsetStr = String.join("", Collections.nCopies(offset, " "));
-        if (attributes == null || attributes.isEmpty()) {
-            return String.format("# Description%n%s", offsetStr);
-        }
-
-        String joinedList = String.join(" \r\n", attributes);
-        return String.format("# Description%n%s#%n%s%n%s", offsetStr, joinedList, offsetStr);
+        return new DocAttachmentInfo(desc, parameters, returnDesc, docStart);
     }
 }

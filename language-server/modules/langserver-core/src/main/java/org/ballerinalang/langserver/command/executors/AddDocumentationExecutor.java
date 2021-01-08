@@ -57,14 +57,14 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
         Range nodeRange = null;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
         for (CommandArgument arg : ctx.getArguments()) {
-            String argKey = arg.getArgumentK();
+            String argKey = arg.key();
             switch (argKey) {
                 case CommandConstants.ARG_KEY_DOC_URI:
-                    documentUri = arg.getArgumentV();
+                    documentUri = arg.valueAs(String.class);
                     textDocumentIdentifier.setUri(documentUri);
                     break;
                 case CommandConstants.ARG_KEY_NODE_RANGE:
-                    nodeRange = arg.getArgumentV();
+                    nodeRange = arg.valueAs(Range.class);
                     break;
                 default:
                     break;
@@ -83,7 +83,7 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
             DocAttachmentInfo docs = docAttachmentInfo.get();
             Range range = new Range(docs.getDocStartPos(), docs.getDocStartPos());
             LanguageClient languageClient = ctx.getLanguageClient();
-            return applySingleTextEdit(docs.getDocAttachment(), range, textDocumentIdentifier, languageClient);
+            return applySingleTextEdit(docs.getDocumentationString(), range, textDocumentIdentifier, languageClient);
         }
 
         return Collections.emptyList();

@@ -484,7 +484,19 @@ public class CodeActionUtil {
      */
     public static Optional<NonTerminalNode> getTopLevelNode(Position position, SyntaxTree syntaxTree) {
         NonTerminalNode member = CommonUtil.findNode(new Range(position, position), syntaxTree);
-        LinePosition cursorPosition = LinePosition.from(position.getLine(), position.getCharacter());
+        return getTopLevelNode(member, position, syntaxTree);
+    }
+
+    /**
+     * Get the top level node type at the cursor line.
+     *
+     * @param cursorPos  {@link Position}
+     * @param syntaxTree {@link SyntaxTree}
+     * @return {@link String}   Top level node
+     */
+    public static Optional<NonTerminalNode> getTopLevelNode(NonTerminalNode member, Position cursorPos,
+                                                            SyntaxTree syntaxTree) {
+        LinePosition cursorPosition = LinePosition.from(cursorPos.getLine(), cursorPos.getCharacter());
         int cursorPosOffset = syntaxTree.textDocument().textPositionFrom(cursorPosition);
         while (member != null) {
             boolean isWithinStartSegment = isWithinStartCodeSegment(member, cursorPosOffset);

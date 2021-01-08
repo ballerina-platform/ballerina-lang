@@ -68,32 +68,27 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 //        String funcArgs = "";
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
-        int line = -1;
-        int column = -1;
+        Position position = null;
 
         for (CommandArgument arg : context.getArguments()) {
-            switch (arg.getArgumentK()) {
+            switch (arg.key()) {
                 case CommandConstants.ARG_KEY_DOC_URI:
-                    uri = arg.getArgumentV();
+                    uri = arg.valueAs(String.class);
                     textDocumentIdentifier.setUri(uri);
                     break;
-                case CommandConstants.ARG_KEY_NODE_LINE:
-                    line = arg.getArgumentV();
-                    break;
-                case CommandConstants.ARG_KEY_NODE_COLUMN:
-                    column = arg.getArgumentV();
+                case CommandConstants.ARG_KEY_NODE_POS:
+                    position = arg.valueAs(Position.class);
                     break;
                 default:
             }
         }
 
         Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
-        if (line == -1 || column == -1 || filePath.isEmpty()) {
+        if (position == null || filePath.isEmpty()) {
             throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
         SyntaxTree syntaxTree = context.workspace().syntaxTree(filePath.get()).orElseThrow();
-        Position position = new Position(line, column);
         NonTerminalNode matchedNode = CommonUtil.findNode(new Range(position, position), syntaxTree);
         Node identifier = null;
         while (matchedNode != null) {
