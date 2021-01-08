@@ -25,3 +25,82 @@ Violets are blue""" #Multi line strings
 key5 = [1,2,3]
 key6 = false
 key7 = true
+key8 = 0.11
+
+#Integer - Basic
+int1 = +99
+int2 = 42
+int3 = 0
+int4 = -17
+
+#Integer - Underscore
+int5 = 1_000
+int6 = 5_349_221
+int7 = 53_49_221
+int8 = 1_2_3_4_5
+
+# hexadecimal with prefix `0x`
+hex1 = 0xDEADBEEF
+hex2 = 0xdeadbeef
+hex3 = 0xdead_beef
+
+# octal with prefix `0o`
+oct1 = 0o01234567
+oct2 = 0o755
+
+# binary with prefix `0b`
+bin1 = 0b11010110
+
+#Float
+flt1 = +1.0
+flt2 = 3.1415
+flt3 = -0.01
+
+# exponent
+flt4 = 5e+22
+flt5 = 1e06
+flt6 = -2E-2
+
+# both
+flt7 = 6.626e-34
+
+# Underscore with float
+flt8 = 224_617.445_991_228
+
+
+#Strings
+str0 = "I'm a string. \"You can quote me\". Name\tJos\u00E9\nLocation\tSF." #Escaping
+str1 = "The quick brown fox jumps over the lazy dog."
+str2 = """
+The quick brown \
+
+
+  fox jumps over \
+    the lazy dog.""" #Line ending backslash
+str3 = """\
+       The quick brown \
+       fox jumps over \
+       the lazy dog.\
+       """
+str4 = """Here are two quotation marks: "". Simple enough."""
+str5 = """Here are three quotation marks: ""\"."""
+str6 = """Here are fifteen quotation marks: ""\"""\"""\"""\"""\"."""
+str7 = """"This," she said, "is just a pointless statement.""""
+
+#Literal strings
+lit1 = 'C:\Users\nodejs\templates'
+lit2 = '\\ServerX\admin$\system32\'
+lit3   = 'Tom "Dubs" Preston-Werner'
+lit4    = '<\i\c*\s*>'
+
+lit5 = '''I [dw]on't need \d{2} apples'''
+lit6  = '''
+The first newline is
+trimmed in raw strings.
+   All other whitespace
+   is preserved.
+'''
+
+lit7 = '''Here are fifteen quotation marks: """""""""""""""'''
+lit8 = "Here are fifteen apostrophes: '''''''''''''''"
+

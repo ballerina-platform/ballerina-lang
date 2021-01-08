@@ -60,18 +60,18 @@ type TrxErrorData2 record {
 };
 
 public function testCustomErrorDetails() returns error {
-    TrxError err = TrxError("trxErr", data = "test");
+    TrxError err = error TrxError("trxErr", data = "test");
     return err;
 }
 
 public function testCustomErrorDetails2() returns string {
-    TrxError err = TrxError("trxErr", data = "test");
+    TrxError err = error TrxError("trxErr", data = "test");
     TrxErrorData errorData = err.detail();
     return errorData.data;
 }
 
 public function testErrorWithErrorConstructor() returns string {
-    TrxError e = TrxError("trxErr", data = "test");
+    TrxError e = error TrxError("trxErr", data = "test");
     error<TrxErrorData> err = e;
     TrxErrorData errorData = err.detail();
     return errorData.data;
@@ -118,13 +118,13 @@ function testOneLinePanic() returns string[] {
     if error2 is error {
         results[1] = error2.message();
         var detail = error2.detail();
-        results[2] = <string>detail.get("msg");
+        results[2] = <string> checkpanic detail.get("msg");
     }
 
     if error3 is error {
         results[3] = error3.message();
         var detail = error3.detail();
-        results[4] = <string>detail.get("message");
+        results[4] = <string> checkpanic detail.get("message");
         results[5] = detail.get("statusCode").toString();
     }
 
@@ -155,8 +155,8 @@ function testGenericErrorWithDetailRecord() returns boolean {
     error e = error(reason, message = detailMessage, statusCode = detailStatusCode);
     string errReason = e.message();
     map<anydata|readonly> errDetail = e.detail();
-    return errReason == reason && <string> errDetail.get("message") == detailMessage &&
-            <int> errDetail.get("statusCode") == detailStatusCode;
+    return errReason == reason && <string> checkpanic errDetail.get("message") == detailMessage &&
+            <int> checkpanic errDetail.get("statusCode") == detailStatusCode;
 }
 
 type ErrorReasons "reason one"|"reason two";
@@ -178,12 +178,12 @@ function testErrorConstrWithLiteralForUserDefinedReasonType() returns error {
 }
 
 function testErrorConstrWithConstForConstReason() returns error {
-    UserDefErrorTwo e = UserDefErrorTwo(ERROR_REASON_ONE, message = "error detail message");
+    UserDefErrorTwo e = error UserDefErrorTwo(ERROR_REASON_ONE, message = "error detail message");
     return e;
 }
 
 function testErrorConstrWithConstLiteralForConstReason() returns error {
-    UserDefErrorTwo e = UserDefErrorTwo("reason one", message = "error detail message");
+    UserDefErrorTwo e = error UserDefErrorTwo("reason one", message = "error detail message");
     return e;
 }
 
@@ -227,16 +227,16 @@ type UserDefErrorTwoA error<TrxErrorData2>;
 const string reasonB = "ErrorNo-2";
 type UserDefErrorTwoB error<TrxErrorData>;
 public function errorReasonSubType() returns [error, error, error, error] {
-    UserDefErrorTwoB er_rA = UserDefErrorTwoB(reasonA);
-    UserDefErrorTwoB er_rB = UserDefErrorTwoB(reasonB);
-    UserDefErrorTwoB er_aALit = UserDefErrorTwoB("ErrNo-1");
-    UserDefErrorTwoB er_aBLit = UserDefErrorTwoB("ErrorNo-2");
+    UserDefErrorTwoB er_rA = error UserDefErrorTwoB(reasonA);
+    UserDefErrorTwoB er_rB = error UserDefErrorTwoB(reasonB);
+    UserDefErrorTwoB er_aALit = error UserDefErrorTwoB("ErrNo-1");
+    UserDefErrorTwoB er_aBLit = error UserDefErrorTwoB("ErrorNo-2");
     return [er_rA, er_rB, er_aALit, er_aBLit];
 }
 
 function testIndirectErrorConstructor() returns [UserDefErrorTwoA, UserDefErrorTwoA, error, error] {
-    var e0 = UserDefErrorTwoA("arg");
-    UserDefErrorTwoA e1 = UserDefErrorTwoA("arg");
+    var e0 = error UserDefErrorTwoA("arg");
+    UserDefErrorTwoA e1 = error UserDefErrorTwoA("arg");
     return [e0, e1, e0, e1];
 }
 
@@ -251,7 +251,7 @@ const FOO = "foo";
 type FooError error<Detail>;
 
 public function indirectErrorCtor() returns [string, boolean, error] {
-    error e = FooError(FOO, code = 3456);
+    error e = error FooError(FOO, code = 3456);
     return [e.message(), e is FooError, e];
 }
 
@@ -263,7 +263,7 @@ type E2 error<record { string message?; error cause?;}>;
 type E E1|E2;
 
 public function testUnionLhsWithIndirectErrorRhs() returns error {
-    E x = E1(F);
+    E x = error E1(F);
     return x;
 }
 
@@ -295,13 +295,13 @@ function testFunc(int i) returns string|E1|E2 { // fails even if one of the erro
     if (i == 0) {
         return "str";
     } else if (i == 1) {
-        return C1E(C1);
+        return error C1E(C1);
     }
-    return C2E(C2, code=4);
+    return error C2E(C2, code=4);
 }
 
 public function testIndirectErrorReturn() returns E1|E2|string {
-    return E1(F, message = "error msg");
+    return error E1(F, message = "error msg");
 }
 
 const A1 = "a1";
@@ -352,7 +352,7 @@ function testStackOverFlow() returns ['error:CallStackElement[], string]? {
 }
 
 function testErrorTypeDescriptionInferring() {
-    TrxError e = TrxError("IAmAInferedErr");
+    TrxError e = error TrxError("IAmAInferedErr");
     error<*> err = e;
     TrxError errSecondRef = err;
     assertEquality(errSecondRef.detail().toString(), e.detail().toString());
@@ -381,6 +381,8 @@ function assertEquality(any|error actual, any|error expected) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

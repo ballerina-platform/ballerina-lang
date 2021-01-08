@@ -83,3 +83,27 @@ public type CallStackElement record {|
 public class CallStack {
     public CallStackElement[] callStack = [];
 }
+
+# Converts an error to a string.
+#
+# + e - the error to be converted to a string
+# + return - a string resulting from the conversion
+#
+# The details of the conversion are specified by the ToString abstract operation
+# defined in the Ballerina Language Specification, using the direct style.
+public isolated function toString(error e) returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.error.ToString",
+    name: "toString",
+    paramTypes: ["io.ballerina.runtime.api.values.BError"]
+} external;
+
+# Converts an error to a string that describes the value in Ballerina syntax.
+# + e - the error to be converted to a string
+# + return - a string resulting from the conversion
+#
+# The details of the conversion are specified by the ToString abstract operation
+# defined in the Ballerina Language Specification, using the expression style.
+public isolated function toBalString(error e) returns string = @java:Method {
+  'class: "org.ballerinalang.langlib.error.ToBalString",
+  name: "toBalString"
+} external;

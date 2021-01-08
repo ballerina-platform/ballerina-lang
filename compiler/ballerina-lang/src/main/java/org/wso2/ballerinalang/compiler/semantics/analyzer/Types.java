@@ -96,7 +96,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
-import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
@@ -1029,7 +1028,7 @@ public class Types {
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
                                              Set<TypePair> unresolvedTypes) {
-        if (hasIncompatibleIsolatedFlags(source, target)) {
+        if (hasIncompatibleIsolatedFlags(source, target) || hasIncompatibleTransactionalFlags(source, target)) {
             return false;
         }
 
@@ -1092,23 +1091,18 @@ public class Types {
     }
 
     boolean isSelectivelyImmutableType(BType type) {
-        return isSelectivelyImmutableType(type, false, new HashSet<>(), false);
+        return isSelectivelyImmutableType(type, new HashSet<>(), false);
     }
 
-    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, boolean forceCheck) {
-        return isSelectivelyImmutableType(type, disallowReadOnlyObjects, new HashSet<>(), forceCheck);
+    boolean isSelectivelyImmutableType(BType type, boolean forceCheck) {
+        return isSelectivelyImmutableType(type, new HashSet<>(), forceCheck);
     }
 
     public boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
-        return isSelectivelyImmutableType(type, false, unresolvedTypes, false);
+        return isSelectivelyImmutableType(type, unresolvedTypes, false);
     }
 
     private boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes, boolean forceCheck) {
-        return isSelectivelyImmutableType(type, false, unresolvedTypes, forceCheck);
-    }
-
-    private boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes,
-                                               boolean forceCheck) {
         if (isInherentlyImmutableType(type) || !(type instanceof SelectivelyImmutableReferenceType)) {
             // Always immutable.
             return false;
@@ -1175,11 +1169,6 @@ public class Types {
             case TypeTags.OBJECT:
                 BObjectType objectType = (BObjectType) type;
 
-                if (Symbols.isFlagOn(objectType.tsymbol.flags, Flags.CLASS) &&
-                        (disallowReadOnlyObjects || !Symbols.isFlagOn(objectType.flags, Flags.READONLY))) {
-                    return false;
-                }
-
                 for (BField field : objectType.fields.values()) {
                     BType fieldType = field.type;
                     if (!isInherentlyImmutableType(fieldType) &&
@@ -1196,14 +1185,13 @@ public class Types {
                 boolean readonlyIntersectionExists = false;
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                     if (isInherentlyImmutableType(memberType) ||
-                            isSelectivelyImmutableType(memberType, disallowReadOnlyObjects, unresolvedTypes,
-                                                       forceCheck)) {
+                            isSelectivelyImmutableType(memberType, unresolvedTypes, forceCheck)) {
                         readonlyIntersectionExists = true;
                     }
                 }
                 return readonlyIntersectionExists;
             case TypeTags.INTERSECTION:
-                return isSelectivelyImmutableType(((BIntersectionType) type).effectiveType, false, unresolvedTypes,
+                return isSelectivelyImmutableType(((BIntersectionType) type).effectiveType, unresolvedTypes,
                                                   forceCheck);
         }
         return false;
@@ -1235,7 +1223,7 @@ public class Types {
 
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
                                               Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
-        if (hasIncompatibleIsolatedFlags(source, target)) {
+        if (hasIncompatibleIsolatedFlags(source, target) || hasIncompatibleTransactionalFlags(source, target)) {
             return false;
         }
 
@@ -1268,6 +1256,11 @@ public class Types {
 
     private boolean hasIncompatibleIsolatedFlags(BInvokableType source, BInvokableType target) {
         return Symbols.isFlagOn(target.flags, Flags.ISOLATED) && !Symbols.isFlagOn(source.flags, Flags.ISOLATED);
+    }
+
+    private boolean hasIncompatibleTransactionalFlags(BInvokableType source, BInvokableType target) {
+        return Symbols.isFlagOn(source.flags, Flags.TRANSACTIONAL) &&
+                !Symbols.isFlagOn(target.flags, Flags.TRANSACTIONAL);
     }
 
     public boolean isSameArrayType(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -1326,7 +1319,8 @@ public class Types {
         int rhsAttachedFuncCount = getObjectFuncCount(rhsStructSymbol);
 
         // If LHS is a service obj, then RHS must be a service object in order to assignable
-        if (isServiceObject(lhsStructSymbol) && !isServiceObject(rhsStructSymbol)) {
+        boolean isLhsAService = Symbols.isService(lhsStructSymbol);
+        if (isLhsAService && !Symbols.isService(rhsStructSymbol)) {
             return false;
         }
 
@@ -1355,15 +1349,15 @@ public class Types {
                     !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
-
-            // If LHS field is a resource field, RHS field must be a resource field
-            if (Symbols.isResource(lhsField.symbol) && !Symbols.isResource(rhsField.symbol)) {
-                return false;
-            }
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
             if (lhsFunc == lhsStructSymbol.initializerFunc) {
+                continue;
+            }
+
+            // Service resource methods are not considered as part of service objects type.
+            if (isLhsAService && Symbols.isResource(lhsFunc.symbol)) {
                 continue;
             }
 
@@ -1377,10 +1371,6 @@ public class Types {
         }
 
         return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet);
-    }
-
-    private boolean isServiceObject(BObjectTypeSymbol rhsStructSymbol) {
-        return (rhsStructSymbol.flags & Flags.SERVICE) == Flags.SERVICE;
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
@@ -1645,11 +1635,11 @@ public class Types {
 
         List<BType> types = new ArrayList<>(((BUnionType) returnType).getMemberTypes());
 
-        if (!types.removeIf(type -> type.tag == TypeTags.NIL)) {
+        boolean containsCompletionType = types.removeIf(type -> type.tag == TypeTags.NIL);
+        containsCompletionType = types.removeIf(type -> type.tag == TypeTags.ERROR) || containsCompletionType;
+        if (!containsCompletionType) {
             return false;
         }
-
-        types.removeIf(type -> type.tag == TypeTags.ERROR);
 
         if (types.size() != 1) {
             //TODO: print error
@@ -1910,7 +1900,10 @@ public class Types {
     }
 
     public boolean isTypeCastable(BLangExpression expr, BType sourceType, BType targetType) {
-
+        if (getTypeIntersection(sourceType, symTable.errorType) != symTable.semanticError
+                && getTypeIntersection(targetType, symTable.errorType) == symTable.semanticError) {
+            return false;
+        }
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
             return true;
@@ -3674,7 +3667,6 @@ public class Types {
     private static class ListenerValidationModel {
         private final Types types;
         private final SymbolTable symtable;
-        private final BObjectType emptyServiceType;
         private final BType serviceNameType;
         boolean attachFound;
         boolean detachFound;
@@ -3685,13 +3677,6 @@ public class Types {
         public ListenerValidationModel(Types types, SymbolTable symTable) {
             this.types = types;
             this.symtable = symTable;
-            this.emptyServiceType = new BObjectType(
-                    new BObjectTypeSymbol(SymTag.OBJECT,
-                            Flags.SERVICE & Flags.PUBLIC,
-                            new org.wso2.ballerinalang.compiler.util.Name(""),
-                            null, null, null, null, BUILTIN));
-            this.emptyServiceType.tsymbol.type = this.emptyServiceType;
-
             this.serviceNameType =
                     BUnionType.create(null, symtable.stringType, symtable.arrayStringType, symtable.nilType);
         }
@@ -3782,7 +3767,9 @@ public class Types {
             }
 
             BType firstParamType = func.type.paramTypes.get(0);
-            return detachFound = isServiceObject(firstParamType);
+            boolean isMatchingSignature = firstParamType.tag == TypeTags.OBJECT
+                    && Symbols.isService(firstParamType.tsymbol);
+            return detachFound = isMatchingSignature;
         }
 
         private boolean checkAttachMethod(BAttachedFunction func) {
@@ -3796,7 +3783,11 @@ public class Types {
 
             // todo: change is unions are allowed as service type.
             BType firstParamType = func.type.paramTypes.get(0);
-            if (!isServiceObject(firstParamType)) {
+            if (firstParamType.tag != TypeTags.OBJECT) {
+                return false;
+            }
+
+            if (!Symbols.isService(firstParamType.tsymbol)) {
                 return false;
             }
 
@@ -3811,7 +3802,7 @@ public class Types {
                 return false;
             }
 
-            return types.isServiceObject((BObjectTypeSymbol) type.tsymbol);
+            return Symbols.isService(type.tsymbol);
         }
     }
 }

@@ -27,7 +27,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -51,7 +51,7 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
         super(attachmentPoint);
     }
 
-    protected List<LSCompletionItem> getFilteredItems(CompletionContext context, ExpressionNode node) {
+    protected List<LSCompletionItem> getFilteredItems(BallerinaCompletionContext context, ExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Predicate<Symbol> predicate;

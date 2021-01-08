@@ -25,7 +25,7 @@ function testNullAssignment() returns json {
 
 function testNullInField() returns string? {
     json j = {name:"John", age:25, location:null};
-    string? l = j.location == null ? () : <string>j.location;
+    string? l = j.location == null ? () : <string> checkpanic j.location;
     return l;
 }
 

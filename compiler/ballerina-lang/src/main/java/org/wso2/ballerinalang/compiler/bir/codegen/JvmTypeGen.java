@@ -106,7 +106,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
@@ -145,7 +144,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MEMBER_FUNCTION_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.METHOD_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.METHOD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NEVER_TYPE;
@@ -157,9 +157,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PARAMETER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REMOTE_FUNCTION_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_FUNCTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_FUNCTION_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REMOTE_METHOD_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE_IMPL;
@@ -879,7 +879,7 @@ public class JvmTypeGen {
         // Create the attached function array
         mv.visitLdcInsn((long) attachedFunctions.size() - resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, MEMBER_FUNCTION_IMPL);
+        mv.visitTypeInsn(ANEWARRAY, METHOD_TYPE_IMPL);
         int i = 0;
         for (BAttachedFunction attachedFunc : attachedFunctions) {
             if (attachedFunc == null || attachedFunc instanceof BResourceFunction) {
@@ -902,8 +902,8 @@ public class JvmTypeGen {
         }
 
         // Set the fields of the object
-        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setAttachedFunctions",
-                           String.format("([L%s;)V", ATTACHED_FUNCTION), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setMethods",
+                           String.format("([L%s;)V", METHOD_TYPE), false);
     }
 
     private static void addObjectInitFunction(MethodVisitor mv, BAttachedFunction initFunction,
@@ -923,7 +923,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
         mv.visitInsn(POP);
         mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, initializerFuncName,
-                           String.format("(L%s;)V", MEMBER_FUNCTION_IMPL), false);
+                           String.format("(L%s;)V", METHOD_TYPE_IMPL), false);
     }
 
     private static void addResourceMethods(MethodVisitor mv, List<BAttachedFunction> attachedFunctions,
@@ -937,7 +937,7 @@ public class JvmTypeGen {
         // Create the resource function array
         mv.visitLdcInsn(resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, RESOURCE_FUNCTION);
+        mv.visitTypeInsn(ANEWARRAY, RESOURCE_METHOD_TYPE);
         int i = 0;
         for (BAttachedFunction attachedFunc : attachedFunctions) {
             if (!(attachedFunc instanceof BResourceFunction)) {
@@ -961,8 +961,8 @@ public class JvmTypeGen {
         }
 
         // Set the fields of the object
-        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE_IMPL, "setResourceFunctions",
-                String.format("([L%s;)V", RESOURCE_FUNCTION), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE_IMPL, "setResourceMethods",
+                String.format("([L%s;)V", RESOURCE_METHOD_TYPE), false);
     }
 
     private static long resourceFunctionCount(List<BAttachedFunction> attachedFunctions) {
@@ -986,7 +986,7 @@ public class JvmTypeGen {
     private static void createObjectMemberFunction(MethodVisitor mv, BAttachedFunction attachedFunc,
                                                    BObjectType objType) {
 
-        String implClassName = Symbols.isRemote(attachedFunc.symbol) ? REMOTE_FUNCTION_IMPL : MEMBER_FUNCTION_IMPL;
+        String implClassName = Symbols.isRemote(attachedFunc.symbol) ? REMOTE_METHOD_TYPE_IMPL : METHOD_TYPE_IMPL;
         mv.visitTypeInsn(NEW, implClassName);
 
         mv.visitInsn(DUP);
@@ -1012,7 +1012,7 @@ public class JvmTypeGen {
     private static void createResourceFunction(MethodVisitor mv, BResourceFunction resourceFunction,
                                                BObjectType objType) {
 
-        mv.visitTypeInsn(NEW, RESOURCE_FUNCTION_IMPL);
+        mv.visitTypeInsn(NEW, RESOURCE_METHOD_TYPE_IMPL);
         mv.visitInsn(DUP);
 
         // Load function name
@@ -1063,7 +1063,7 @@ public class JvmTypeGen {
             mv.visitInsn(AASTORE);
         }
 
-        mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_FUNCTION_IMPL, JVM_INIT_METHOD,
+        mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_METHOD_TYPE_IMPL, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;L%s;JL%s;[L%s;[L%s;)V",
                         STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL, STRING_VALUE, STRING_VALUE, STRING_VALUE),
                 false);

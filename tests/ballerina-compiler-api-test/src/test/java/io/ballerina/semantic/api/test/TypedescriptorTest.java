@@ -211,7 +211,6 @@ public class TypedescriptorTest {
         Symbol symbol = getSymbol(18, 5);
         RecordTypeSymbol type = (RecordTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), RECORD);
-        assertFalse(type.inclusive());
         assertFalse(type.restTypeDescriptor().isPresent());
 
         List<FieldSymbol> fields = type.fieldDescriptors();

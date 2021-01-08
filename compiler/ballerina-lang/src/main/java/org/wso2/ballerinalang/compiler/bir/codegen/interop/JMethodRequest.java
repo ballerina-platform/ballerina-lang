@@ -53,7 +53,7 @@ class JMethodRequest {
     }
 
     static JMethodRequest build(InteropValidationRequest.MethodValidationRequest methodValidationRequest,
-                                ClassLoader classLoader, boolean isEntryModuleValidation) {
+                                ClassLoader classLoader) {
 
         JMethodRequest jMethodReq = new JMethodRequest();
         jMethodReq.kind = methodValidationRequest.methodKind;
@@ -64,16 +64,7 @@ class JMethodRequest {
                 JInterop.buildParamTypeConstraints(methodValidationRequest.paramTypeConstraints, classLoader);
 
         BInvokableType bFuncType = methodValidationRequest.bFuncType;
-        List<BType> paramTypes = new ArrayList<>();
-        if (!isEntryModuleValidation) {
-            int i = 0;
-            while (i < bFuncType.paramTypes.size()) {
-                paramTypes.add(bFuncType.paramTypes.get(i));
-                i = i + 2;
-            }
-        } else {
-            paramTypes.addAll(bFuncType.paramTypes);
-        }
+        List<BType> paramTypes = new ArrayList<>(bFuncType.paramTypes);
 
         BType restType = bFuncType.restType;
         if (restType != null) {

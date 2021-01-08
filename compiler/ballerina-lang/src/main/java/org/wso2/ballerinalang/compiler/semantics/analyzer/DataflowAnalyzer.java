@@ -88,6 +88,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -1024,6 +1025,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             if (curDependent != null && isGlobalVarSymbol(curDependent)) {
                 addDependency(curDependent, invokableProviderSymbol);
             }
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
+            analyzeNode(positionalArg, env);
+        }
+        for (BLangNamedArgsExpression namedArg : errorConstructorExpr.namedArgs) {
+            analyzeNode(namedArg, env);
         }
     }
 
