@@ -73,8 +73,8 @@ public class BUnionType extends BType implements UnionType {
 
     public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly,  boolean isCyclic) {
         super(null, null, Object.class);
-        setMemberTypes(memberTypes);
         this.typeFlags = typeFlags;
+        setMemberTypes(memberTypes);
         this.readonly = readonly;
         this.isCyclic = isCyclic;
     }
@@ -85,8 +85,8 @@ public class BUnionType extends BType implements UnionType {
 
     public BUnionType(List<Type> memberTypes, String typeName, int typeFlags, boolean readonly, boolean isCyclic) {
         super(typeName, null, Object.class);
-        setMemberTypes(memberTypes);
         this.typeFlags = typeFlags;
+        setMemberTypes(memberTypes);
         this.readonly = readonly;
         this.isCyclic = isCyclic;
         this.typeName = typeName;
@@ -221,15 +221,15 @@ public class BUnionType extends BType implements UnionType {
 
     public void addMember(Type type) {
         this.memberTypes.add(type);
-        if (type.isNilable()) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
-        }
-        if (!type.isAnydata()) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA);
-        }
-        if (!type.isPureType()) {
-            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
-        }
+//        if (type.isNilable()) {
+//            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
+//        }
+//        if (!type.isAnydata()) {
+//            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA);
+//        }
+//        if (!type.isPureType()) {
+//            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
+//        }
     }
 
     private void setFlagsBasedOnMembers() {
@@ -409,6 +409,7 @@ public class BUnionType extends BType implements UnionType {
             for (Type member : unionType.getMemberTypes()) {
                 this.addMember(member);
             }
+            setFlagsBasedOnMembers();
             return;
         }
         this.isCyclic = true;
@@ -446,5 +447,6 @@ public class BUnionType extends BType implements UnionType {
             }
             this.addMember(member);
         }
+        setFlagsBasedOnMembers();
     }
 }
