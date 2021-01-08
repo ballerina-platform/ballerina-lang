@@ -37,7 +37,7 @@
       "label": "remote function",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "public remote function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertText": "remote function ${1:name}(${2}) {\n\t${3}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -73,6 +73,16 @@
       "kind": "Interface",
       "detail": "Class",
       "insertText": "testClass",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to anydata or readonly type."
+      },
+      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {

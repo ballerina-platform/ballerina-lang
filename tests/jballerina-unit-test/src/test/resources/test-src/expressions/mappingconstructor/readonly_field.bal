@@ -47,7 +47,7 @@ function testBasicReadOnlyField1() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertTrue((<string> err.detail()["message"]).startsWith(
+    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
                     "cannot update 'readonly' field 'name' in record of type '$anonType$"));
     assertEquality("May", details.name);
 }
@@ -73,7 +73,7 @@ function testBasicReadOnlyField2() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertTrue((<string> err.detail()["message"]).startsWith(
+    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
                     "cannot update 'readonly' field 'name' in record of type '$anonType$"));
     assertEquality("May", details.name);
 
@@ -84,7 +84,7 @@ function testBasicReadOnlyField2() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertTrue((<string> err.detail()["message"]).startsWith(
+    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
                     "cannot update 'readonly' field 'id' in record of type '$anonType$"));
     assertEquality(1234, details.id);
 }
@@ -114,7 +114,7 @@ function testComplexReadOnlyField() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertTrue((<string> err.detail()["message"]).startsWith(
+    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
                     "cannot update 'readonly' field 'details' in record of type '$anonType$"));
     assertEquality("May", details.name);
 
@@ -233,7 +233,7 @@ function testReadOnlyFieldsWithSimpleMapCET() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertTrue((<string> err.detail()["message"]).startsWith(
+    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
                     "cannot update 'readonly' field 'b' in record of type '$anonType$"));
     assertEquality(2, mp["b"]);
 
@@ -260,7 +260,7 @@ function testReadOnlyFieldsWithSimpleMapCET() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertTrue((<string> err.detail()["message"]).startsWith(
+    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
                     "cannot update 'readonly' field 'b' in record of type '$anonType$"));
     assertEquality(2, mp["b"]);
 }
@@ -345,7 +345,7 @@ function testReadOnlyFieldWithInferredType() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertTrue((<string> err.detail()["message"]).startsWith(
+    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
                     "cannot update 'readonly' field 'd1' in record of type '$anonType$"));
     assertEquality(d1, rec["d1"]);
 }
@@ -472,5 +472,7 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

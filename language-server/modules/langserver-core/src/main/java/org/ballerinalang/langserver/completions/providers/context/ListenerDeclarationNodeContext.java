@@ -124,6 +124,15 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         }
     }
 
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ListenerDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token listenerKeyword = node.listenerKeyword();
+        
+        // Added +1 since the completion is valid after listener <cursor>
+        return !listenerKeyword.isMissing() && listenerKeyword.textRange().endOffset() + 1 <= cursor;
+    }
+
     private List<LSCompletionItem> typeDescriptorContextItems(BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         /*

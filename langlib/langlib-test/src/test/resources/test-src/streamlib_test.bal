@@ -160,7 +160,7 @@ function testFilterAndMapFunc() returns boolean {
 function testReduce() returns float {
     Person[] personList = getPersonList();
     stream<Person> personStream = personList.toStream();
-    float|error? avg = personStream.reduce(function (float accum, Person person) returns float {
+    float? avg = personStream.reduce(function (float accum, Person person) returns float {
         return accum + <float>person.age / personList.length();
     }, 0.0);
     return <float>avg;

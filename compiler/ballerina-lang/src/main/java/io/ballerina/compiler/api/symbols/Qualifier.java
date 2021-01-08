@@ -35,7 +35,8 @@ public enum Qualifier {
     READONLY("readonly"),
     REMOTE("remote"),
     RESOURCE("resource"),
-    LISTENER("listener");
+    LISTENER("listener"),
+    CONFIGURABLE("configurable");
 
     private final String value;
 

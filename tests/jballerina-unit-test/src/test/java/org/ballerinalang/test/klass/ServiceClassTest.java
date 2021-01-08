@@ -52,12 +52,28 @@ public class ServiceClassTest {
         CompileResult result = BCompileUtil.compile("test-src/klass/simple_service_class_neg_path_param.bal");
         int index = 0;
         validateError(result, index++,
-                "only int, string, float, boolean types are supported as path params, found 'json'", 37, 31);
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path params, " +
+                        "found 'json'", 37, 31);
         validateError(result, index++,
-                "only int, string, float, boolean types are supported as path params, found 'anydata'", 37, 40);
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path params, " +
+                        "found 'anydata'", 37, 40);
         validateError(result, index++,
-                "only int, string, float, boolean types are supported as rest path param, found 'anydata'", 37, 64);
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as rest path param, " +
+                        "found 'anydata'", 37, 64);
         Assert.assertEquals(index, 3);
+    }
+
+    @Test
+    public void testServiceObjectAndUsingServiceObjectAsATypeInclusionNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/klass/service_class_resource_remote_function_references_neg.bal");
+        int index = 0;
+        validateError(result, index++, "resource method declarations are not allowed in an object type definition",
+                19, 5);
+        validateError(result, index++, "resource method declarations are not allowed in an object type definition",
+                20, 5);
+        validateError(result, index++, "no implementation found for the method 'onMesage' of class 'SClass'", 23, 1);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 
     @AfterClass

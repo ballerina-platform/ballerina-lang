@@ -36,7 +36,7 @@ public function main(string s, int code) returns error? {
             return;
         }
         "user_def_error" => {
-            USER_DEF_ERROR e = USER_DEF_ERROR(ERR_REASON, message = "error message", statusCode = code);
+            USER_DEF_ERROR e = error USER_DEF_ERROR(ERR_REASON, message = "error message", statusCode = code);
             return e;
         }
     }

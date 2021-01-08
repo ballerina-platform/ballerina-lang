@@ -113,6 +113,12 @@ public class ImmutableTypeCloner {
                                             symTable, anonymousModelHelper, names, origObjFlagSet, new HashSet<>());
     }
 
+    public static BIntersectionType getImmutableIntersectionType(SelectivelyImmutableReferenceType type,
+                                                                 SymbolTable symbolTable, Names names) {
+        return getImmutableIntersectionType(null, null, type, null, null, null, symbolTable, null, names, null,
+                new HashSet<>());
+    }
+
     public static void markFieldsAsImmutable(BLangClassDefinition classDef, SymbolEnv pkgEnv, BObjectType objectType,
                                              Types types, BLangAnonymousModelHelper anonymousModelHelper,
                                              SymbolTable symbolTable, Names names, Location pos) {
@@ -143,7 +149,7 @@ public class ImmutableTypeCloner {
                                           BSymbol owner, SymbolTable symTable,
                                           BLangAnonymousModelHelper anonymousModelHelper, Names names,
                                           Set<BType> unresolvedTypes) {
-        if (types.isInherentlyImmutableType(type)) {
+        if (types.isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             return type;
         }
 
@@ -538,6 +544,10 @@ public class ImmutableTypeCloner {
         }
         immutableStructureType.fields = fields;
 
+        if (origStructureType.tag == TypeTags.OBJECT) {
+            return;
+        }
+
         BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
                 ASTBuilderUtil.createIdentifier(pos, getPackageAlias(env, pos.lineRange().filePath(),
                                                                      origStructureType.tsymbol.pkgID)),
@@ -637,10 +647,14 @@ public class ImmutableTypeCloner {
                                                                Set<Flag> flagSet, Set<BType> unresolvedTypes) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BObjectTypeSymbol origObjectTSymbol = (BObjectTypeSymbol) origObjectType.tsymbol;
-        BObjectTypeSymbol objectSymbol =
-                Symbols.createObjectSymbol(origObjectTSymbol.flags | Flags.READONLY,
-                        getImmutableTypeName(names, origObjectTSymbol.toString()),
-                        pkgID, null, env.scope.owner, pos, SOURCE);
+
+        long flags = origObjectTSymbol.flags | Flags.READONLY;
+        flags &= ~Flags.CLASS;
+
+        BObjectTypeSymbol objectSymbol = Symbols.createObjectSymbol(flags,
+                                                                    getImmutableTypeName(names,
+                                                                                         origObjectTSymbol.toString()),
+                                                                    pkgID, null, env.scope.owner, pos, SOURCE);
 
         objectSymbol.scope = new Scope(objectSymbol);
 

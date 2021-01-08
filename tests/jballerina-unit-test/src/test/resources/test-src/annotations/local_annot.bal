@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/reflect;
+import ballerina/java;
 
 annotation map<int> t1 on service;
-annotation map<string> t2 on resource function;
+annotation map<string> t2 on object function;
 
 int globalInt = 10;
 string globalString = "hello";
@@ -44,7 +44,7 @@ public function testAnnotEvaluation() returns boolean[6] {
     // Annots of the original service returned should not have changed.
     typedesc<any> t = typeof c1;
     map<int>? m1 = t.@t1;
-    map<string>? m2 = <map<string>?> reflect:getResourceAnnotations(c1, "res", "t2");
+    map<string>? m2 = <map<string>?> getResourceAnnot(c1, "get", ["res"], "t2");
 
     boolean v5 = m1 is map<int> && m1["one"] == origGlobalInt && m1["two"] == 22;
     boolean v6 = m2 is map<string> && m2["strOne"] == "one" && m2["two"] == origGlobalString;
@@ -52,23 +52,29 @@ public function testAnnotEvaluation() returns boolean[6] {
     return [v1, v2, v3, v4, v5, v6];
 }
 
-function getAnnotsAndService() returns [map<int>?, map<string>?, service] {
-    service ser = @t1 {
+function getAnnotsAndService() returns [map<int>?, map<string>?, service object {}] {
+    service object {} ser = @t1 {
         one: globalInt,
         two: 22
-    } service {
+    } service object {
 
         @t2 {
             strOne: "one",
             two: globalString
         }
-        resource function res() {
+        resource function get res() {
 
         }
     };
 
     typedesc<any> t = typeof ser;
     map<int>? m1 = t.@t1;
-    map<string>? m2 = <map<string>?> reflect:getResourceAnnotations(ser, "res", "t2");
+    map<string>? m2 = <map<string>?> getResourceAnnot(ser, "get", ["res"], "t2");
     return [m1, m2, ser];
 }
+
+function getResourceAnnot(service object {} obj, string methodName, string[] path, string annotName) returns any =
+@java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "getResourceMethodAnnotations"
+} external;

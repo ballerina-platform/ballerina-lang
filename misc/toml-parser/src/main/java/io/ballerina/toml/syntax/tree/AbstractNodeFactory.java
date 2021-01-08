@@ -25,6 +25,7 @@ import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.toml.internal.syntax.NodeListUtils;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -69,6 +70,23 @@ public abstract class AbstractNodeFactory {
         return createToken(kind, createEmptyMinutiaeList(), createEmptyMinutiaeList());
     }
 
+    public static Token createMissingToken(SyntaxKind kind, MinutiaeList leadingMinutiae,
+                                           MinutiaeList trailingMinutiae) {
+        STNode leadingMinutiaeSTNode = leadingMinutiae.internalNode();
+        if (!NodeListUtils.isSTNodeList(leadingMinutiaeSTNode)) {
+            leadingMinutiaeSTNode = STNodeFactory.createNodeList(leadingMinutiaeSTNode);
+        }
+
+        STNode trailingMinutiaeSTNode = trailingMinutiae.internalNode();
+        if (!NodeListUtils.isSTNodeList(trailingMinutiaeSTNode)) {
+            trailingMinutiaeSTNode = STNodeFactory.createNodeList(trailingMinutiaeSTNode);
+        }
+
+        STToken token = STNodeFactory
+                .createMissingToken(kind, leadingMinutiaeSTNode, trailingMinutiaeSTNode, Collections.EMPTY_LIST);
+        return token.createUnlinkedFacade();
+    }
+
     public static Token createToken(SyntaxKind kind,
                                     MinutiaeList leadingMinutiae,
                                     MinutiaeList trailingMinutiae) {
@@ -84,6 +102,25 @@ public abstract class AbstractNodeFactory {
 
         STToken token = STNodeFactory.createToken(kind, leadingMinutiaeSTNode,
                 trailingMinutiaeSTNode);
+        return token.createUnlinkedFacade();
+    }
+
+    public static IdentifierLiteralNode createLiteralValueToken(SyntaxKind kind,
+                                                            String text,
+                                                            MinutiaeList leadingMinutiae,
+                                                            MinutiaeList trailingMinutiae) {
+        STNode leadingMinutiaeSTNode = leadingMinutiae.internalNode();
+        if (!NodeListUtils.isSTNodeList(leadingMinutiaeSTNode)) {
+            leadingMinutiaeSTNode = STNodeFactory.createNodeList(leadingMinutiaeSTNode);
+        }
+
+        STNode trailingMinutiaeSTNode = trailingMinutiae.internalNode();
+        if (!NodeListUtils.isSTNodeList(trailingMinutiaeSTNode)) {
+            trailingMinutiaeSTNode = STNodeFactory.createNodeList(trailingMinutiaeSTNode);
+        }
+
+        STToken token =
+                STNodeFactory.createLiteralValueToken(kind, text, leadingMinutiaeSTNode, trailingMinutiaeSTNode);
         return token.createUnlinkedFacade();
     }
 
@@ -148,6 +185,24 @@ public abstract class AbstractNodeFactory {
 
     public static <T extends Node> NodeList<T> createNodeList(Collection<T> nodes) {
         return new NodeList<>(STNodeFactory.createNodeList(
+                nodes.stream()
+                        .map(node -> Objects.requireNonNull(node, "node should not be null"))
+                        .map(Node::internalNode)
+                        .collect(Collectors.toList())).createUnlinkedFacade());
+    }
+
+    public static <T extends Node> SeparatedNodeList<T> createSeparatedNodeList(Node... nodes) {
+        STNode[] internalNodes = new STNode[nodes.length];
+        for (int index = 0; index < nodes.length; index++) {
+            Node node = nodes[index];
+            Objects.requireNonNull(node, "node should not be null");
+            internalNodes[index] = node.internalNode();
+        }
+        return new SeparatedNodeList<>(STNodeFactory.createNodeList(internalNodes).createUnlinkedFacade());
+    }
+
+    public static <T extends Node> SeparatedNodeList<T> createSeparatedNodeList(Collection<Node> nodes) {
+        return new SeparatedNodeList<>(STNodeFactory.createNodeList(
                 nodes.stream()
                         .map(node -> Objects.requireNonNull(node, "node should not be null"))
                         .map(Node::internalNode)

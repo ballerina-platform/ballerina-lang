@@ -23,7 +23,7 @@ import ballerina/lang.'int as ints;
 
 @test:Config {}
 function testImportTest1() {
-    int x = <int> 'int:fromString("100");
+    int x = checkpanic 'int:fromString("100");
     test:assertEquals(x, 100);
 }
 
@@ -42,6 +42,6 @@ function testImportTest3() {
 
 @test:Config {}
 function testImportTest4() {
-    int x = <int> 'ints:fromString("100");
+    int x = checkpanic 'ints:fromString("100");
     test:assertEquals(x, 100);
 }
