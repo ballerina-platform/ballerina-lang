@@ -19,7 +19,6 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
-
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.BooleanType;
