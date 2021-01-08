@@ -388,12 +388,10 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         JsonArray minutiaeList = new JsonArray();
 
         for (Minutiae m : minutiae) {
-            if(!m.isInvalidNodeMinutiae()){
                 JsonObject nodeJson = new JsonObject();
                 nodeJson.addProperty("kind", m.kind().toString());
                 nodeJson.addProperty("minutiae", m.text());
                 minutiaeList.add(nodeJson);
-            }
         }
         return minutiaeList;
     }
