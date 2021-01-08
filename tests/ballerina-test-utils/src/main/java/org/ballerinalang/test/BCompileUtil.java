@@ -77,7 +77,7 @@ public class BCompileUtil {
         NullBackend nullBackend = new NullBackend(project.currentPackage().getCompilation());
         nullBackend.compile();
         Package currentPackage = project.currentPackage();
-        if (currentPackage.getCompilation().diagnosticResult().hasErrors()) {
+        if (currentPackage.getCompilation().diagnosticResult().hasErrors() || nullBackend.hasErrors()) {
             return null;
         }
 

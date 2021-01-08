@@ -34,7 +34,7 @@ public class NullBackend extends CompilerBackend {
     private final PackageCompilation compilation;
     private final PackageContext packageContext;
     private final CompilerContext compilerContext;
-    public DefaultDiagnosticResult diagnosticResult;
+    private DefaultDiagnosticResult diagnosticResult;
 
     public NullBackend(PackageCompilation compilation) {
         this.compilation = compilation;
@@ -90,5 +90,12 @@ public class NullBackend extends CompilerBackend {
     @Override
     public String libraryFileExtension() {
         return null;
+    }
+
+    public boolean hasErrors() {
+        if (diagnosticResult != null) {
+            return diagnosticResult.hasErrors();
+        }
+        return true;
     }
 }
