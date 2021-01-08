@@ -80,7 +80,7 @@ public class ShellCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina shell [-d|--debug]\n");
+        out.append("  ballerina shell [-d|--debug] [-f|--force-dumb]\n");
     }
 
     @Override
