@@ -120,7 +120,7 @@ public class DiagnosticsTest {
 
     @DataProvider(name = "completion-data-provider")
     public Object[] dataProvider() {
-        return new Object[]{/*"project_diagnostics1",*/ "single_file_diagnostics1"};
+        return new Object[]{"project_diagnostics1", "single_file_diagnostics1"};
     }
 
     @AfterClass
