@@ -109,7 +109,8 @@ public class CommandExecutionTest {
         JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
         args.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
         args.add(CommandArgument.from(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
-        args.add(CommandArgument.from(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
+        args.add(CommandArgument.from(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString())
+        );
         JsonObject responseJson = getCommandResponse(args, CreateFunctionExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
