@@ -83,18 +83,17 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
-        
+        if (node.parent().kind() == SyntaxKind.CLASS_DEFINITION
+                || node.parent().kind() == SyntaxKind.SERVICE_DECLARATION
+                || node.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+        } else {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_METHOD_DECL.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION_SIGNATURE.get()));
+        }
         if (ClassDefinitionNodeContextUtil.onSuggestResourceSnippet(node.parent())) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
-        }
-        if (node.parent().kind() == SyntaxKind.SERVICE_DECLARATION
-                || node.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR
-                || node.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-        }
-        if (node.parent().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION_SIGNATURE.get()));
         }
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
