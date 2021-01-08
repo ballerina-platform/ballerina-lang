@@ -25,7 +25,6 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
@@ -40,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 
 import java.io.IOException;
