@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -57,7 +58,7 @@ public class BallerinaDocumentation implements Documentation {
      */
     @Override
     public Map<String, String> parameterMap() {
-        HashMap<String, String> paramMap = new HashMap<>();
+        HashMap<String, String> paramMap = new LinkedHashMap<>();
         if (this.markdownDocAttachment != null) {
             this.markdownDocAttachment.parameters
                     .forEach(parameter -> paramMap.put(parameter.name, parameter.description));
