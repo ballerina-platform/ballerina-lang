@@ -50,6 +50,9 @@ type IntersectionErrorThree ErrorOne & ErrorFour;
 
 type IntersectionErrorFour ErrorOne & ErrorFive;
 
+type DistinctErrorIntersection distinct ErrorOne & ErrorFive;
+
 function testRecordAndMapIntersection() {
     var err = error IntersectionErrorFour("message", x = "x", z = 10);
+    DistinctErrorIntersection err2 = error IntersectionErrorFour("message", x = "x");
 }

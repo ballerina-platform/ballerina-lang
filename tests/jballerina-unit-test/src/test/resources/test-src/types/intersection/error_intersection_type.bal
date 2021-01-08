@@ -41,6 +41,10 @@ type ErrorFour error<record { string z;}>;
 
 type ErrorFive error<DetailFour>;
 
+type DistinctErrorOne distinct ErrorOne;
+
+type DistinctErrorThree distinct ErrorThree;
+
 //ErrorIntersections
 type IntersectionError ErrorOne & ErrorTwo;
 
@@ -49,6 +53,10 @@ type IntersectionErrorTwo ErrorOne & ErrorTwo & ErrorThree;
 type IntersectionErrorThree ErrorOne & ErrorFour;
 
 type IntersectionErrorFour ErrorOne & ErrorFive;
+
+type DistinctIntersectionError distinct ErrorOne & ErrorFive;
+
+type IntersectionOfDistinctErrors distinct DistinctErrorOne & DistinctErrorThree;
 
 function testIntersectionForExistingDetail() {
     var err = error IntersectionError("message", x = "x", y = "y");
@@ -75,6 +83,26 @@ function testIntersectionForDetailRecordAndDetailMap() {
     assertEquality(err.detail()["z"], "z");
 }
 
+function testDistinctIntersectionType() {
+    var err = getDistinctError();
+    assertEquality(err.detail().x, "x");
+    assertEquality(err.detail()["z"], "z");
+}
+
+function getDistinctError() returns DistinctIntersectionError {
+    var err = error DistinctIntersectionError("message", x = "x", z = "z");
+    return err;
+}
+
+function testIntersectionOfDistinctErrors() {
+    var err = error IntersectionOfDistinctErrors("message", x = "x", z = 10);
+
+    DistinctErrorOne errOne = err;
+    assertEquality(errOne.detail().x, "x");
+
+    DistinctErrorThree errThree = err;
+    assertEquality(errThree.detail().z, 10);
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

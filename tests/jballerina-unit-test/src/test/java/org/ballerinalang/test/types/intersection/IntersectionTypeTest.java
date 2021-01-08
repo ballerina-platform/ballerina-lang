@@ -80,6 +80,16 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testDistinctErrorIntersection() {
+        BRunUtil.invoke(errorIntersectionResults, "testDistinctIntersectionType");
+    }
+
+    @Test
+    public void testIntersectionOfDistinctErrors() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionOfDistinctErrors");
+    }
+
+    @Test
     public void testErrorIntersectionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/intersection/error_intersection_type_negative.bal");
 
@@ -89,7 +99,10 @@ public class IntersectionTypeTest {
         validateError(result, index++, "invalid intersection type 'ErrorOne & ErrorFour': no intersection", 49, 29);
         validateError(result, index++,
                       "invalid error detail rest arg 'z' passed to open detail record '"
-                              + "record {| string x; string...; |}'", 54, 15);
+                              + "record {| string x; string...; |}'", 56, 15);
+        validateError(result, index++,
+                      "incompatible types: expected 'DistinctErrorIntersection', found 'IntersectionErrorFour'", 57,
+                      38);
 
         assertEquals(result.getErrorCount(), index);
     }
