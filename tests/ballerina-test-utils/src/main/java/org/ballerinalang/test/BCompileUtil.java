@@ -19,6 +19,7 @@ package org.ballerinalang.test;
 
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.NullBackend;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
@@ -28,6 +29,7 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -68,6 +70,18 @@ public class BCompileUtil {
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
         return compileResult;
+    }
+
+    public static BPackageSymbol generateBIR(String sourceFilePath) {
+        Project project = loadProject(sourceFilePath);
+        NullBackend nullBackend = new NullBackend(project.currentPackage().getCompilation());
+        nullBackend.compile();
+        Package currentPackage = project.currentPackage();
+        if (currentPackage.getCompilation().diagnosticResult().hasErrors()) {
+            return null;
+        }
+
+        return currentPackage.getCompilation().defaultModuleBLangPackage().symbol;
     }
 
     public static CompileResult compileWithoutInitInvocation(String sourceFilePath) {
