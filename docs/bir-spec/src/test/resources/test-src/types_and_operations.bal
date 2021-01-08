@@ -195,7 +195,7 @@ function inherentlyImmutableBasicTypes() {
     error err = error("Reason", message = "error message");
     any|error h = err;
 
-    error myError = AssertionError(ASSERTION_ERROR_REASON, message = "second error message");
+    error myError = error AssertionError(ASSERTION_ERROR_REASON, message = "second error message");
     any|error i = myError;
 
     service object {} ser = service object {

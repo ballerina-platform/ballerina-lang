@@ -111,7 +111,7 @@ class BIRTestUtils {
 
     private static BIRCompileResult compile(String testSource) {
         BPackageSymbol packageSymbol = BCompileUtil.generateBIR(testSource);
-        Assert.assertNotNull(packageSymbol, "Compilation contain errors");
+        Assert.assertNotNull(packageSymbol, "Compilation contain errors:");
 
         BIRPackageFile birPackageFile = packageSymbol.birPackageFile;
         Assert.assertNotNull(birPackageFile);
