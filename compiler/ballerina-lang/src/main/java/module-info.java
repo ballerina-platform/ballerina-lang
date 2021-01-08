@@ -17,7 +17,6 @@ module io.ballerina.lang {
     requires java.semver;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
-    exports io.ballerina.compiler.api.impl;
     exports org.wso2.ballerinalang.compiler.util;
     exports org.ballerinalang.toml.model;
     exports org.wso2.ballerinalang.util;
@@ -72,6 +71,5 @@ module io.ballerina.lang {
     exports io.ballerina.projects.balo;
     exports io.ballerina.projects.repos;
     exports io.ballerina.projects.internal.model; // TODO Remove this exports
-    exports io.ballerina.projects.testsuite;
     exports io.ballerina.projects.internal.environment; // TODO Remove these exports
 }

@@ -167,7 +167,7 @@ public function testIteratorInStream() returns int[]|error {
     int[] intArray = [1, 2, 3, 4, 5];
     stream<int> numberStream = intArray.toStream();
     int[]|error integers = from var num in getIterableObject(numberStream.iterator())
-                     select <int>num;
+                     select <int> checkpanic num;
 
     return integers;
 }

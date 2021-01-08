@@ -315,11 +315,11 @@ type AccountNotFoundError error<AccountNotFoundErrorData>;
 
 function test13() returns AccountNotFoundError {
    string errorReason = "Account Not Found";
-   AccountNotFoundError accountNotFoundError = AccountNotFoundError(errorReason, accountID = 111);
+   AccountNotFoundError accountNotFoundError = error AccountNotFoundError(errorReason, accountID = 111);
 
    var addFunc1 = function () returns AccountNotFoundError{
         var addFunc2 = function () returns AccountNotFoundError {
-              accountNotFoundError = AccountNotFoundError(accountNotFoundError.message(), accountID = 222);
+              accountNotFoundError = error AccountNotFoundError(accountNotFoundError.message(), accountID = 222);
               return accountNotFoundError;
         };
         return addFunc2();

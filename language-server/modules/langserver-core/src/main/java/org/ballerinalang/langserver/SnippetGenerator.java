@@ -1367,6 +1367,18 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get on conflict clause Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getOnConflictClauseSnippet() {
+        String snippet = "on conflict ";
+
+        return new SnippetBlock(ItemResolverConstants.ON_CONFLICT_CLAUSE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
      * Get Worker Declaration Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1384,8 +1396,19 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getRemoteFunctionSnippet() {
-        String snippet = "public remote function ${1:name}(${2}) {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+        String snippet = "remote function ${1:name}(${2}) {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
                 + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.REMOTE_FUNCTION_TYPE, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Remote method declaration Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRemoteMethodDeclSnippet() {
+        String snippet = "remote function ${1:name}(${2});";
         return new SnippetBlock(ItemResolverConstants.REMOTE_FUNCTION_TYPE, snippet,
                 ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
