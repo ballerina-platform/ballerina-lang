@@ -18,6 +18,7 @@
 package org.ballerinalang.bindgen.command;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.directory.ProjectLoader;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.utils.BindgenUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -120,13 +121,13 @@ public class BindgenCommand implements BLauncherCmd {
             } else {
                 targetOutputPath = Paths.get(targetOutputPath.toString(), outputPath);
             }
-            setOutputPath(outputPath);
+            setOutputPath(targetOutputPath.toString());
         } else if (modulesFlag) {
             if (ProjectDirs.findProjectRoot(targetOutputPath) == null) {
                 setOutError("Ballerina project not detected to generate Java package to Ballerina module mappings.");
                 return;
             }
-            bindingsGenerator.setModulesFlag(modulesFlag);
+            BindingsGenerator.setModulesFlag(modulesFlag);
             bindingsGenerator.setPublic();
         }
 
@@ -135,14 +136,18 @@ public class BindgenCommand implements BLauncherCmd {
         }
 
         if (!ProjectDirs.isProject(targetOutputPath)) {
-            Path findRoot = ProjectDirs.findProjectRoot(targetOutputPath);
+            Path findRoot = ProjectDirs.findProjectRoot(targetOutputPath).getParent();
             if (findRoot != null) {
                 outStream.println("\nBallerina project detected at: " + findRoot.toString());
                 bindingsGenerator.setProjectRoot(findRoot);
+                BindingsGenerator.setBalPackageName(ProjectLoader.loadProject(findRoot)
+                        .currentPackage().manifest().name().value());
             }
         } else {
             outStream.println("\nBallerina project detected at: " + targetOutputPath.toString());
             bindingsGenerator.setProjectRoot(targetOutputPath);
+            BindingsGenerator.setBalPackageName(ProjectLoader.loadProject(targetOutputPath)
+                    .currentPackage().manifest().name().value());
         }
 
         String splitCommaRegex = "\\s*,\\s*";

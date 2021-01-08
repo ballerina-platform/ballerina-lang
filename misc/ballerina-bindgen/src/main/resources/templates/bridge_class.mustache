@@ -9,6 +9,8 @@
 {{/unless}}
 import ballerina/java;{{#if importJavaArraysModule}}
 import ballerina/jarrays;{{/if}}
+{{#importedPackages}}
+import {{balPackageName}}.{{#escapeReservedWord this ""}}{{/escapeReservedWord}} as {{#replace this "." ""}}{{/replace}};{{/importedPackages}}
 
 # Ballerina object mapping for {{#if isInterface}}Java interface{{else}}{{#if isAbstract}}Java abstract class{{else}}Java class{{/if}}{{/if}} `{{className}}`.
 #

@@ -69,10 +69,11 @@ public class BindingsGenerator {
     private String accessModifier;
     private PrintStream errStream;
     private PrintStream outStream;
-    private boolean modulesFlag = false;
     private Set<String> classNames = new HashSet<>();
 
     private static String outputPath;
+    private static String balPackageName;
+    private static boolean modulesFlag = false;
     private static boolean directJavaClass = true;
     private static Set<String> classPaths = new HashSet<>();
     private static Path userDir = Paths.get(System.getProperty(USER_DIR));
@@ -117,8 +118,6 @@ public class BindingsGenerator {
             while (!classListForLooping.isEmpty()) {
                 Set<String> newSet = new HashSet<>(classListForLooping);
                 newSet.removeAll(classNames);
-                List<String> existingBindings = getExistingBindings(newSet, modulePath.toFile());
-                newSet.removeAll(existingBindings);
                 allJavaClasses.addAll(newSet);
                 classListForLooping.clear();
                 generateBindings(newSet, classLoader, dependenciesPath);
@@ -178,14 +177,14 @@ public class BindingsGenerator {
     private void setDirectoryPaths() throws BindgenException {
         String userPath = userDir.toString();
         if (modulesFlag) {
-            utilsDirPath = dependenciesPath = modulePath = Paths.get(userPath, MODULES_DIR);
+            userPath = Paths.get(userPath, MODULES_DIR).toString();
         } else if (outputPath != null) {
             if (!Paths.get(outputPath).toFile().exists()) {
                 throw new BindgenException("Output path provided [" + outputPath + "] could not be found.");
             }
             userPath = outputPath;
-            utilsDirPath = dependenciesPath = modulePath = Paths.get(userPath);
         }
+        utilsDirPath = dependenciesPath = modulePath = Paths.get(userPath);
     }
 
     private void handleFailedClassGens() {
@@ -260,9 +259,14 @@ public class BindingsGenerator {
                         JClass jClass = new JClass(classInstance);
                         jClass.setAccessModifier(accessModifier);
                         allPackages.add(jClass.getPackageName());
-                        String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
-                        createDirectory(outputFile);
-                        String filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
+                        String filePath;
+                        if (modulesFlag) {
+                            String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
+                            createDirectory(outputFile);
+                            filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
+                        } else {
+                            filePath = Paths.get(modulePath.toString(), jClass.getShortClassName() + BAL_EXTENSION).toString();
+                        }
                         writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
                         outStream.println("\t" + c);
                     }
@@ -325,7 +329,19 @@ public class BindingsGenerator {
         this.accessModifier = "public ";
     }
 
-    public void setModulesFlag(boolean modulesFlag) {
-        this.modulesFlag = modulesFlag;
+    static void setModulesFlag(boolean modulesFlag) {
+        BindingsGenerator.modulesFlag = modulesFlag;
+    }
+
+    public static boolean getModulesFlag() {
+        return modulesFlag;
+    }
+
+    public static void setBalPackageName(String balPackageName) {
+        BindingsGenerator.balPackageName = balPackageName;
+    }
+
+    public static String getBalPackageName() {
+        return balPackageName;
     }
 }
