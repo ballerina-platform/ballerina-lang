@@ -119,31 +119,4 @@ public class ChoreoTraceSpan {
             FOLLOWS_FROM
         }
     }
-
-    /**
-    * Trace Span Event.
-    */
-    public static class SpanEvent {
-        private long time;
-        private String moduleID;
-        private String positionID;
-
-        public SpanEvent(long time, String moduleID, String positionID) {
-            this.time = time;
-            this.moduleID = moduleID;
-            this.positionID = positionID;
-        }
-
-        public long getTime() {
-            return time;
-        }
-
-        public String getModuleID() {
-            return moduleID;
-        }
-
-        public String getPositionID() {
-            return positionID;
-        }
-    }
 }

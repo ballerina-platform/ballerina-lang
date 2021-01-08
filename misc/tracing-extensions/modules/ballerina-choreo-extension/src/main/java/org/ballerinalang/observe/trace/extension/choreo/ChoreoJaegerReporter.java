@@ -30,6 +30,7 @@ import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClien
 import org.ballerinalang.observe.trace.extension.choreo.logging.LogFactory;
 import org.ballerinalang.observe.trace.extension.choreo.logging.Logger;
 import org.ballerinalang.observe.trace.extension.choreo.model.ChoreoTraceSpan;
+import org.ballerinalang.observe.trace.extension.choreo.model.SpanEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,11 +126,11 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                 );
                 references.add(reference);
             }
-            List<ChoreoTraceSpan.SpanEvent> events;
+            List<SpanEvent> events;
             if (jaegerSpan.getLogs() != null) {
                 events = new ArrayList<>(jaegerSpan.getLogs().size());
                 for (LogData eventLog : jaegerSpan.getLogs()) {
-                    ChoreoTraceSpan.SpanEvent event = new ChoreoTraceSpan.SpanEvent(
+                    SpanEvent event = new SpanEvent(
                             eventLog.getTime(),
                             (((Map) eventLog.getFields().get(CHECKPOINT_EVENT_NAME)).
                                     get(TAG_KEY_SRC_MODULE)).toString(),
