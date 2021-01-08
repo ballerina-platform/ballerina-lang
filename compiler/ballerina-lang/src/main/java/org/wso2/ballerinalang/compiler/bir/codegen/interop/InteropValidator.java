@@ -164,8 +164,9 @@ public class InteropValidator {
     }
 
     private ClassLoader makeClassLoader(Set<Path> moduleDependencies) {
+        ClassLoader baseClassLoader = Thread.currentThread().getContextClassLoader();
         if (moduleDependencies == null || moduleDependencies.size() == 0) {
-            return Thread.currentThread().getContextClassLoader();
+            return baseClassLoader;
         }
         List<URL> dependentJars = new ArrayList<>();
         for (Path dependency : moduleDependencies) {
@@ -175,7 +176,7 @@ public class InteropValidator {
                 // ignore
             }
         }
-        return new URLClassLoader(dependentJars.toArray(new URL[]{}), ClassLoader.getPlatformClassLoader());
+        return new URLClassLoader(dependentJars.toArray(new URL[]{}), baseClassLoader);
     }
 
     /**
