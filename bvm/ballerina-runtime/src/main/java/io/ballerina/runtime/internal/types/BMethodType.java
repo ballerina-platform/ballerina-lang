@@ -18,24 +18,24 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.types.FunctionType;
-import io.ballerina.runtime.api.types.MemberFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 
 import java.util.StringJoiner;
 
 /**
- * {@code AttachedFunction} represents a attached function in Ballerina.
+ * {@code BMethodType} represents a attached function in Ballerina.
  *
  * @since 0.995.0
  */
-public class BMemberFunctionType extends BFunctionType implements MemberFunctionType {
+public class BMethodType extends BFunctionType implements MethodType {
 
     public String funcName;
     public BFunctionType type;
     public BObjectType parentObjectType;
 
-    public BMemberFunctionType(String funcName, BObjectType parent, BFunctionType type, long flags) {
+    public BMethodType(String funcName, BObjectType parent, BFunctionType type, long flags) {
         this.funcName = funcName;
         this.type = type;
         this.parentObjectType = parent;
@@ -73,5 +73,9 @@ public class BMemberFunctionType extends BFunctionType implements MemberFunction
 
     public FunctionType getType() {
         return type;
+    }
+
+    public <T extends MethodType> MethodType duplicate() {
+        return new BMethodType(funcName, parentObjectType, type, flags);
     }
 }

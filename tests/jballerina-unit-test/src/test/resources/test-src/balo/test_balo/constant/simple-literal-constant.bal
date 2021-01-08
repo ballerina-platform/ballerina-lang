@@ -213,13 +213,13 @@ function testConstInMapValue() returns string {
 function testConstInJsonKey() returns json {
     string key = foo:KEY;
     json j = { key: "value" };
-    return <json>j.key;
+    return <json> checkpanic j.key;
 }
 
 function testConstInJsonValue() returns json {
     string value = foo:VALUE;
     json j = { "key": value };
-    return <json>j.key;
+    return <json> checkpanic j.key;
 }
 
 // -----------------------------------------------------------

@@ -18,8 +18,8 @@ type SMS error <record {| string message?; error cause?; string...; |}>;
 type SMA error <record {| string message?; error cause?; anydata...; |}>;
 
 function testBasicErrorVariableWithMapDetails() {
-    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
-    SMA err2 = SMA("Error Two", message = "Msg Two", fatal = true);
+    SMS err1 = error SMS("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = error SMA("Error Two", message = "Msg Two", fatal = true);
 
     SMS error (reason11, ... detail11) = err1;
     SMS error (reason12, message = message12, detail = detail12, extra = extra12) = err1;
@@ -32,8 +32,8 @@ function testBasicErrorVariableWithMapDetails() {
 }
 
 function testBasicErrorVariable() {
-    SMS err1 = SMS("Error One", message = "Msg One", detail = "Detail Msg");
-    SMA err2 = SMA("Error Two", message = "Msg Two", fatal = true);
+    SMS err1 = error SMS("Error One", message = "Msg One", detail = "Detail Msg");
+    SMA err2 = error SMA("Error Two", message = "Msg Two", fatal = true);
 
     var error (reason11, ... detail11) = err1;
     var error (reason12, message = message12, detail = detail12, extra = extra12) = err1;

@@ -34,6 +34,11 @@ import org.testng.annotations.Test;
  */
 public class ObjectTypeReferenceTest {
 
+    private static final String ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS =
+            "object type inclusion cannot be used with a 'readonly class' in a 'class' that is not 'readonly'";
+    private static final String ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC =
+            "object type inclusion cannot be used with a 'readonly class' in an object type descriptor";
+
     CompileResult compileResult;
 
     @BeforeClass
@@ -139,6 +144,67 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'Bar'", 19, 6);
         BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions", 20, 6);
         BAssertUtil.validateError(negativeResult, i, "unknown type 'YYY'", 29, 6);
+    }
+
+    @Test
+    public void testInclusionWithQualifiers() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_inclusion_with_qualifiers.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+
+        BRunUtil.invoke(result, "testObjectConstructorWithReadOnlyReference");
+    }
+
+    @Test
+    public void testInvalidInclusionWithQualifiers() {
+        CompileResult negativeResult =
+                BCompileUtil.compile("test-src/object/object_inclusion_with_qualifiers_negative.bal");
+
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS,
+                                  26, 6);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS,
+                                  27, 6);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC,
+                                  33, 6);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC,
+                                  34, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated' qualifier" +
+                "(s) in the referencing object", 58, 6);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS,
+                                  58, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'client' qualifier(s) " +
+                "in the referencing object", 59, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'service' qualifier(s)" +
+                " in the referencing object", 60, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated client' " +
+                "qualifier(s) in the referencing object", 61, 6);
+        BAssertUtil.validateError(negativeResult, i++, "remote qualifier only allowed in client and service objects",
+                                  68, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated' qualifier" +
+                "(s) in the referencing object", 74, 6);
+        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC,
+                                  74, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'client' qualifier(s) " +
+                "in the referencing object", 75, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'service' qualifier(s)" +
+                " in the referencing object", 76, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated client' " +
+                "qualifier(s) in the referencing object", 77, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid type reference: missing 'isolated' qualifier(s) in " +
+                "the referencing object constructor expression", 80, 18);
+        BAssertUtil.validateError(negativeResult, i++, "invalid type reference: missing 'client' qualifier(s) in the " +
+                "referencing object constructor expression", 84, 24);
+        BAssertUtil.validateError(negativeResult, i++, "remote qualifier only allowed in client and service objects",
+                                  87, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid type reference: missing 'isolated client' " +
+                "qualifier(s) in the referencing object constructor expression", 93, 21);
+        BAssertUtil.validateError(negativeResult, i++, "invalid field in an object constructor expression with a " +
+                "'readonly' reference: 'stream<int>' can never be 'readonly'", 106, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid field in an object constructor expression with a " +
+                "'readonly' reference: 'stream<int>' can never be 'readonly'", 119, 9);
+        BAssertUtil.validateError(negativeResult, i++, "invalid field in an object constructor expression with a " +
+                "'readonly' reference: 'future' can never be 'readonly'", 120, 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test

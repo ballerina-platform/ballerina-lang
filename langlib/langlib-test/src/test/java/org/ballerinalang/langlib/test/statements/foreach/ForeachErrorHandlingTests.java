@@ -18,13 +18,10 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -35,7 +32,7 @@ import org.testng.annotations.Test;
  */
 public class ForeachErrorHandlingTests {
 
-    private CompileResult program, negative;
+    private CompileResult program;
 
     @BeforeClass
     public void setup() {
@@ -44,17 +41,16 @@ public class ForeachErrorHandlingTests {
 
     @Test
     public void testArrayForeachAndTrap() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayForeachAndTrap");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 14);
+        BRunUtil.invoke(program, "testArrayForeachAndTrap");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
-            "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'error' cannot be cast to " +
-                    "'int'\"\\}\n" +
-                    "\tat foreach_error_handling:\\$lambda\\$_0\\(foreach_error_handling.bal:41\\)\n" +
+            "error: \\{ballerina/lang.int\\}NumberParsingError \\{\"message\":\"'string' value 'waruna' cannot be " +
+                    "converted to 'int'\"\\}\n" +
+                    "\tat ballerina.lang.int.1_1_0:fromString\\(int.bal:127\\)\n" +
+                    "\t   foreach_error_handling:\\$lambda\\$_0\\(foreach_error_handling.bal:41\\)\n" +
                     "\t   foreach_error_handling:\\$lambda\\$_0\\$lambda0\\$\\(foreach_error_handling.bal:40\\)")
     public void testArrayForeachAndPanic() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayForeachAndPanic");
+        BRunUtil.invoke(program, "testArrayForeachAndPanic");
     }
 }
