@@ -222,7 +222,7 @@ public class RunTestsTask implements Task {
 
         try {
             if (hasTests) {
-                generateCoverage(project);
+                generateCoverage(project, jarResolver);
                 generateHtmlReport(project, this.out, testReport, target);
             }
         } catch (IOException e) {
@@ -234,7 +234,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private void generateCoverage(Project project) throws IOException {
+    private void generateCoverage(Project project, JarResolver jarResolver) throws IOException {
         // Generate code coverage
         if (!coverage) {
             return;
@@ -242,7 +242,7 @@ public class RunTestsTask implements Task {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             CoverageReport coverageReport = new CoverageReport(module);
-            testReport.addCoverage(module.moduleName().toString(), coverageReport.generateReport());
+            testReport.addCoverage(module.moduleName().toString(), coverageReport.generateReport(jarResolver));
         }
     }
 
