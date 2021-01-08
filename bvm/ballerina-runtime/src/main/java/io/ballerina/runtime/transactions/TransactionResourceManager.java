@@ -542,24 +542,24 @@ public class TransactionResourceManager {
 
     private void invokeCommittedFunction(Strand strand, String transactionId, String transactionBlockId) {
         List<BFunctionPointer> fpValueList = committedFuncRegistry.get(transactionId);
-        Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true };
         if (fpValueList != null) {
+            Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true };
             AsyncUtils.invokeAndForgetFunctionPointerAsync(fpValueList, "trxCommit",
                     COMMIT_METADATA, () -> args,
                     result -> {
-                    }, () -> null, Scheduler.getStrand().scheduler);
+                    }, Scheduler.getStrand().scheduler);
         }
     }
 
     private void invokeAbortedFunction(Strand strand, String transactionId, String transactionBlockId, Object error) {
         List<BFunctionPointer> fpValueList = abortedFuncRegistry.get(transactionId);
-        Object[] args = {strand, strand.currentTrxContext.getInfoRecord(), true, error, true, false, true};
         //TODO: Need to pass the retryManager to get the willRetry value.
         if (fpValueList != null) {
-            AsyncUtils.invokeAndForgetFunctionPointerAsync(fpValueList, "trxCommit",
+            Object[] args = {strand, strand.currentTrxContext.getInfoRecord(), true, error, true, false, true};
+            AsyncUtils.invokeAndForgetFunctionPointerAsync(fpValueList, "trxAbort",
                     COMMIT_METADATA, () -> args,
                     result -> {
-                    }, () -> null, Scheduler.getStrand().scheduler);
+                    }, Scheduler.getStrand().scheduler);
         }
     }
 
