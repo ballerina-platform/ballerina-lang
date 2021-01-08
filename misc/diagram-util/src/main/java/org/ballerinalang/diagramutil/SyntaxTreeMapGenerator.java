@@ -330,9 +330,11 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             nodeInfo.addProperty("isToken", true);
             nodeInfo.addProperty("value", ((Token) node).text());
             nodeInfo.addProperty("isMissing", node.isMissing());
-            nodeInfo.add("invalidNodes", detectInvalidNodes(node.leadingMinutiae()));
-            nodeInfo.add("leadingMinutiae", detectMinutiae(node.leadingMinutiae()));
+            JsonArray response = evaluateLeadingMinutiae(node.leadingMinutiae());
+            nodeInfo.add("invalidNodes", response.get(0));
+            nodeInfo.add("leadingMinutiae", response.get(1));
             nodeInfo.add("trailingMinutiae", detectMinutiae(node.trailingMinutiae()));
+
             if (node.lineRange() != null) {
                 LineRange lineRange = node.lineRange();
                 LinePosition startLine = lineRange.startLine();
@@ -360,19 +362,26 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 .collect(Collectors.joining());
     }
 
-    private JsonArray detectInvalidNodes(MinutiaeList minutiae){
+    private JsonArray evaluateLeadingMinutiae(MinutiaeList minutiae){
         JsonArray invalidNodes = new JsonArray();
+        JsonArray leadingMinutiae = new JsonArray();
+        JsonArray response = new JsonArray();
 
         for (Minutiae m : minutiae){
+            JsonObject nodeJson = new JsonObject();
+            nodeJson.addProperty("kind", m.kind().toString());
+
             if(m.isInvalidNodeMinutiae()) {
-                JsonObject nodeJson = new JsonObject();
-                nodeJson.addProperty("kind", m.kind().toString());
                 nodeJson.addProperty("value", m.text());
                 invalidNodes.add(nodeJson);
+            } else {
+                nodeJson.addProperty("minutiae", m.text());
+                leadingMinutiae.add(nodeJson);
             }
         }
-
-        return invalidNodes;
+        response.add(invalidNodes);
+        response.add(leadingMinutiae);
+        return response;
     }
 
     private JsonArray detectMinutiae(MinutiaeList minutiae){
@@ -386,7 +395,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 minutiaeList.add(nodeJson);
             }
         }
-
         return minutiaeList;
     }
 }
