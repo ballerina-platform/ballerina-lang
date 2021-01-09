@@ -48,11 +48,11 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
     private Map<String, JsonRpcMethod> supportedMethods;
     private final Multimap<String, Endpoint> extensionServices = LinkedListMultimap.create();
     protected final WorkspaceManager workspaceManager;
-    protected final LanguageServerContext lsContext;
+    protected final LanguageServerContext serverContext;
 
     public AbstractExtendedLanguageServer(LanguageServerContext serverContext) {
         this.workspaceManager = BallerinaWorkspaceManager.getInstance(serverContext);
-        this.lsContext = serverContext;
+        this.serverContext = serverContext;
         ServiceLoader<ExtendedLanguageServerService> serviceLoader = ServiceLoader.load(
                 ExtendedLanguageServerService.class);
         for (ExtendedLanguageServerService service : serviceLoader) {
@@ -78,7 +78,7 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
                         if (supportedMethods.containsKey(entry.getKey())) {
                             String msg = "The json rpc method '" + entry.getKey()
                                     + "' can not be an extension as it is already defined in the LSP standard.";
-                            LSClientLogger.getInstance(this.lsContext)
+                            LSClientLogger.getInstance(this.serverContext)
                                     .logError(msg, new RuntimeException(msg), null, (Position) null);
                         } else {
                             JsonRpcMethod existing = extensions.put(entry.getKey(), entry.getValue());
@@ -86,7 +86,7 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
                                 String msg = "An incompatible LSP extension '" + entry.getKey()
                                         + "' has already been registered. Using 1 ignoring 2. \n1 : " +
                                         existing + " \n2 : " + entry.getValue();
-                                LSClientLogger.getInstance(this.lsContext)
+                                LSClientLogger.getInstance(this.serverContext)
                                         .logError(msg, new RuntimeException(msg), null, (Position) null);
                                 extensions.put(entry.getKey(), existing);
                             } else {

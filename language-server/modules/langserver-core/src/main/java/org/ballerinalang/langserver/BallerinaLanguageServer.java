@@ -84,17 +84,17 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
     private BallerinaLanguageServer(LanguageServerContext serverContext) {
         super(serverContext);
-        this.textService = new BallerinaTextDocumentService(this, workspaceManager, lsContext);
-        this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager, lsContext);
-        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(workspaceManager, lsContext);
-        this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(lsContext);
+        this.textService = new BallerinaTextDocumentService(this, workspaceManager, this.serverContext);
+        this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager, this.serverContext);
+        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(workspaceManager, this.serverContext);
+        this.ballerinaConnectorService = new BallerinaConnectorServiceImpl(this.serverContext);
         this.ballerinaProjectService = new BallerinaProjectServiceImpl();
-        this.ballerinaExampleService = new BallerinaExampleServiceImpl(lsContext);
+        this.ballerinaExampleService = new BallerinaExampleServiceImpl(this.serverContext);
         this.ballerinaTraceService = new BallerinaTraceServiceImpl(this);
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl();
 
-        LSAnnotationCache.getInstance(lsContext).initiate();
+        LSAnnotationCache.getInstance(this.serverContext).initiate();
     }
 
     public ExtendedLanguageClient getClient() {
@@ -104,7 +104,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
-        final List<String> commandList = LSCommandExecutorProvidersHolder.getInstance(this.lsContext).getCommandsList();
+        final List<String> commandList = LSCommandExecutorProvidersHolder.getInstance(this.serverContext).getCommandsList();
         final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
@@ -209,7 +209,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     @Override
     public void connect(ExtendedLanguageClient languageClient) {
         this.client = languageClient;
-        LSClientLogger.getInstance(this.lsContext).initialize(this.client, this.lsContext);
+        LSClientLogger.getInstance(this.serverContext).initialize(this.client, this.serverContext);
     }
 
     public BallerinaSymbolService getBallerinaSymbolService() {
