@@ -26,6 +26,10 @@ type Counter object {
 Counter counterObj = new;
 
 function process() {
+
+    @strand {
+        thread: "any"
+    }
     worker w1 {
         counterObj.update();
         // Locks the shared `counter` variable and increments the `counter`.
@@ -36,6 +40,10 @@ function process() {
             }
         }
     }
+
+    @strand {
+        thread: "any"
+    }
     worker w2 {
         counterObj.update();
         foreach var i in 1 ... 1000 {
@@ -45,6 +53,10 @@ function process() {
             }
         }
     }
+
+    @strand {
+        thread: "any"
+    }
     worker w3 {
         counterObj.update();
         foreach var i in 1 ... 1000 {
@@ -53,6 +65,10 @@ function process() {
                 counter = counter + 1;
             }
         }
+    }
+
+    @strand {
+        thread: "any"
     }
     worker w4 {
         counterObj.update();
