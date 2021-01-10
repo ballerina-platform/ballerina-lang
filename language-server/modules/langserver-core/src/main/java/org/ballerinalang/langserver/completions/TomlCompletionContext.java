@@ -2,7 +2,6 @@ package org.ballerinalang.langserver.completions;
 
 import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.NonTerminalNode;
-import io.ballerina.toml.syntax.tree.Token;
 import org.ballerinalang.langserver.commons.CompletionContext;
 
 import java.util.List;

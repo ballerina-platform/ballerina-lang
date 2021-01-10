@@ -2,7 +2,6 @@ package org.ballerinalang.langserver.contexts;
 
 import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.NonTerminalNode;
-import io.ballerina.toml.syntax.tree.Token;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.completions.TomlCompletionContext;
 
@@ -17,7 +16,6 @@ import java.util.List;
 public class TomlCompletionContextImpl extends CompletionContextImpl implements TomlCompletionContext {
 
     private final List<Node> resolverChain = new ArrayList<>();
-    private Token tokenAtCursor;
     private NonTerminalNode nodeAtCursor;
 
     public TomlCompletionContextImpl(CompletionContext context) {

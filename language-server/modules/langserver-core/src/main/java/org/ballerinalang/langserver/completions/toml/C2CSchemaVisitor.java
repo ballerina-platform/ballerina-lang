@@ -22,8 +22,9 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class C2CSchemaVisitor extends SchemaVisitor {
-    Map<String, Map<String,CompletionItem>> map = new HashMap<>();
-    Map<String,CompletionItem> parentStore;
+
+    Map<String, Map<String, CompletionItem>> map = new HashMap<>();
+    Map<String, CompletionItem> parentStore;
     String parentKey;
 
     @Override
@@ -39,18 +40,18 @@ public class C2CSchemaVisitor extends SchemaVisitor {
             item.setDetail("Table");
             item.setLabel(this.parentKey);
             AbstractSchema value = entry.getValue();
-            this.parentStore.put(this.parentKey,item);
-            Map<String,CompletionItem> store = new HashMap<>();
+            this.parentStore.put(this.parentKey, item);
+            Map<String, CompletionItem> store = new HashMap<>();
             this.parentStore = store;
             visitNode(value);
-            map.put(this.parentKey,store);
+            map.put(this.parentKey, store);
         }
     }
 
     @Override
     public void visit(ObjectSchema objectSchema) {
         Map<String, AbstractSchema> properties = objectSchema.properties();
-        Map<String,CompletionItem> completionStore = this.parentStore;
+        Map<String, CompletionItem> completionStore = this.parentStore;
         for (Map.Entry<String, AbstractSchema> entry : properties.entrySet()) {
             CompletionItem item = new CompletionItem();
             String key = entry.getKey();
@@ -60,19 +61,17 @@ public class C2CSchemaVisitor extends SchemaVisitor {
                 key = this.parentKey + "." + key;
 //                this.parentKey = key;
                 generateTableSnippet(item, key);
-                completionStore.put(key,item);
+                completionStore.put(key, item);
 
-                Map<String,CompletionItem> store = new HashMap<>();
+                Map<String, CompletionItem> store = new HashMap<>();
 //                this.parentStore = store;
-                visitNode(value,key,store);
-                map.put(key,store);
+                visitNode(value, key, store);
+                map.put(key, store);
 //                this.parentKey = oldParentKey;
-            }
-            else if (value.type() == Type.ARRAY) {
+            } else if (value.type() == Type.ARRAY) {
                 key = this.parentKey + "." + key;
-                visitNode(value, key,completionStore);
-            }
-            else {
+                visitNode(value, key, completionStore);
+            } else {
                 visitNode(value, key, completionStore);
             }
         }
@@ -92,12 +91,12 @@ public class C2CSchemaVisitor extends SchemaVisitor {
         String key = this.parentKey;
         Map<String, CompletionItem> parentStore = this.parentStore;
         CompletionItem item = generateArraySnippet(key);
-        parentStore.put(key,item);
+        parentStore.put(key, item);
 
         AbstractSchema items = arraySchema.items();
-        Map<String,CompletionItem> store = new HashMap<>();
-        visitNode(items,key,store);
-        this.map.put(key,store);
+        Map<String, CompletionItem> store = new HashMap<>();
+        visitNode(items, key, store);
+        this.map.put(key, store);
     }
 
     private CompletionItem generateArraySnippet(String key) {
@@ -115,7 +114,7 @@ public class C2CSchemaVisitor extends SchemaVisitor {
     public void visit(BooleanSchema booleanSchema) {
         String key = this.parentKey;
         CompletionItem item = generateBooleanSnippet(key);
-        this.parentStore.put(key,item);
+        this.parentStore.put(key, item);
     }
 
     private CompletionItem generateBooleanSnippet(String key) {
@@ -133,7 +132,7 @@ public class C2CSchemaVisitor extends SchemaVisitor {
     public void visit(NumericSchema numericSchema) {
         String key = this.parentKey;
         CompletionItem item = generateNumericSnippet(key);
-        this.parentStore.put(key,item);
+        this.parentStore.put(key, item);
     }
 
     private CompletionItem generateNumericSnippet(String key) {
@@ -151,7 +150,7 @@ public class C2CSchemaVisitor extends SchemaVisitor {
     public void visit(StringSchema stringSchema) {
         String key = this.parentKey;
         CompletionItem item = generateStringSnippet(key);
-        this.parentStore.put(key,item);
+        this.parentStore.put(key, item);
     }
 
     private CompletionItem generateStringSnippet(String key) {
@@ -167,15 +166,15 @@ public class C2CSchemaVisitor extends SchemaVisitor {
 
     private void visitNode(AbstractSchema schema) {
         String oldKey = this.parentKey;
-        Map<String,CompletionItem> oldStore = this.parentStore;
+        Map<String, CompletionItem> oldStore = this.parentStore;
         schema.accept(this);
         this.parentKey = oldKey;
         this.parentStore = oldStore;
     }
 
-    private void visitNode(AbstractSchema schema,String newKey, Map<String,CompletionItem> newParentStore) {
+    private void visitNode(AbstractSchema schema, String newKey, Map<String, CompletionItem> newParentStore) {
         String oldKey = this.parentKey;
-        Map<String,CompletionItem> oldStore = this.parentStore;
+        Map<String, CompletionItem> oldStore = this.parentStore;
         this.parentKey = newKey;
         this.parentStore = newParentStore;
         schema.accept(this);
@@ -183,7 +182,7 @@ public class C2CSchemaVisitor extends SchemaVisitor {
         this.parentStore = oldStore;
     }
 
-    public Map<String, Map<String,CompletionItem>> getAllCompletionSnippets() {
+    public Map<String, Map<String, CompletionItem>> getAllCompletionSnippets() {
         return map;
     }
 }

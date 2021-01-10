@@ -1,7 +1,5 @@
 package io.ballerina.toml.validator.schema;
 
-import io.ballerina.toml.semantic.ast.TomlTableNode;
-
 /**
  * Schema Visitor for Toml Schema.
  *

@@ -19,24 +19,19 @@ import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.KeyValueNode;
 import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.NonTerminalNode;
-import io.ballerina.toml.syntax.tree.SeparatedNodeList;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
 import io.ballerina.toml.syntax.tree.TableArrayNode;
 import io.ballerina.toml.syntax.tree.TableNode;
-import io.ballerina.toml.syntax.tree.ValueNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.completions.TomlCompletionContext;
 import org.ballerinalang.langserver.completions.toml.C2CSnippetManager;
-import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
+import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,10 +49,9 @@ public class TomlCompletionUtil {
      * @param ctx Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem> getCompletionItems(TomlCompletionContext ctx)
-            throws TokenOrSymbolNotFoundException {
+    public static List<CompletionItem> getCompletionItems(TomlCompletionContext ctx) {
         fillNodeAtCursor(ctx);
-        return route(ctx);
+        return getCompletionItemsBasedOnParent(ctx);
     }
 
     /**
@@ -65,98 +59,67 @@ public class TomlCompletionUtil {
      *
      * @return completion items for the current context.
      */
-    public static List<CompletionItem> route(TomlCompletionContext ctx) {
+    public static List<CompletionItem> getCompletionItemsBasedOnParent(TomlCompletionContext ctx) {
         Node node = ctx.getNodeAtCursor();
         Map<String, CompletionItem> completions = new HashMap<>();
         if (node == null) {
-            return new ArrayList<>(completions.values());
+            return new ArrayList<>();
         }
         Node reference = node;
-        C2CSnippetManager snippetManager = new C2CSnippetManager();
-        Map<String, Map<String, CompletionItem>> c2cSupportedSnippets = snippetManager.getAllSnippetsFromSchema();
+        Map<String, Map<String, CompletionItem>> c2cSnippets = C2CSnippetManager.getInstance().getCompletions();
         while (reference != null) {
             if (reference.kind() == SyntaxKind.TABLE) {
-                completions = getTableCompletions((TableNode) reference, c2cSupportedSnippets);
+                completions = getTableCompletions((TableNode) reference, c2cSnippets);
                 return new ArrayList<>(completions.values());
             }
             if (reference.kind() == SyntaxKind.TABLE_ARRAY) {
-                completions = getTableArrayCompletions((TableArrayNode) reference, c2cSupportedSnippets);
+                completions = getTableArrayCompletions((TableArrayNode) reference, c2cSnippets);
                 return new ArrayList<>(completions.values());
             }
-
             reference = reference.parent();
         }
         return new ArrayList<>(completions.values());
     }
 
-    private static Map<String, CompletionItem> getTableArrayCompletions(TableArrayNode arrayNode,
-                                                                        Map<String, Map<String, CompletionItem>> snippets) {
-        Map<String, CompletionItem> completions = snippets.get(toDottedString(arrayNode.identifier()));
+    private static Map<String, CompletionItem> getTableArrayCompletions(TableArrayNode arrayNode, Map<String,
+            Map<String, CompletionItem>> snippets) {
+        Map<String, CompletionItem> completions =
+                snippets.get(TomlSyntaxTreeUtil.toDottedString(arrayNode.identifier()));
 
         for (KeyValueNode field : arrayNode.fields()) {
-            String key = toDottedString(field.identifier());
+            String key = TomlSyntaxTreeUtil.toDottedString(field.identifier());
             completions.remove(key);
         }
         return completions;
     }
 
-    private static String toDottedString(SeparatedNodeList<ValueNode> nodeList) {
-        StringBuilder output = new StringBuilder();
-        for (ValueNode valueNode : nodeList) {
-            String valueString = valueNode.toString().trim();
-            output.append(".").append(valueString);
-        }
-        return output.substring(1);
-    }
-
     /**
-     * Find the token at cursor.
+     * Find the node based on the cursor position.
      */
-    public static void fillNodeAtCursor(TomlCompletionContext context) throws TokenOrSymbolNotFoundException {
-        try {
-            //TODO Replace the with the Toml Syntax Tree when supported by context.
-            Path tomlFilePath = context.filePath();
-            if (tomlFilePath != null) {
-                TextDocument textDocument = TextDocuments.from(Files.readString(tomlFilePath));
-                Path filePath = tomlFilePath.getFileName();
-                if (filePath != null) {
-                    String path = filePath.toString();
-                    SyntaxTree st = SyntaxTree.from(textDocument, path);
-
-                    Position position = context.getCursorPosition();
-                    int txtPos =
-                            textDocument
-                                    .textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
-                    context.setCursorPositionInTree(txtPos);
-                    TextRange range = TextRange.from(txtPos, 0);
-                    NonTerminalNode nonTerminalNode = ((DocumentNode) st.rootNode()).findNode(range);
-                    while (nonTerminalNode.parent() != null && !withinTextRange(txtPos, nonTerminalNode)) {
-                        nonTerminalNode = nonTerminalNode.parent();
-                    }
-                    context.setNodeAtCursor(nonTerminalNode);
-                }
-            }
-        } catch (IOException e) {
-            throw new TokenOrSymbolNotFoundException("Couldn't find a valid document!");
+    public static void fillNodeAtCursor(TomlCompletionContext context) {
+        Path tomlFilePath = context.filePath();
+        SyntaxTree st = TomlSyntaxTreeUtil.getTomlSyntaxTree(tomlFilePath).orElseThrow();
+        Position position = context.getCursorPosition();
+        TextDocument textDocument = st.textDocument();
+        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        context.setCursorPositionInTree(txtPos);
+        TextRange range = TextRange.from(txtPos, 0);
+        NonTerminalNode nonTerminalNode = ((DocumentNode) st.rootNode()).findNode(range);
+        while (nonTerminalNode.parent() != null && !TomlSyntaxTreeUtil.withinTextRange(txtPos, nonTerminalNode)) {
+            nonTerminalNode = nonTerminalNode.parent();
         }
+        context.setNodeAtCursor(nonTerminalNode);
     }
 
     private static Map<String, CompletionItem> getTableCompletions(TableNode tableNode,
                                                                    Map<String, Map<String, CompletionItem>> snippets) {
-        Map<String, CompletionItem> completions = snippets.get(toDottedString(tableNode.identifier()));
+        Map<String, CompletionItem> completions =
+                snippets.get(TomlSyntaxTreeUtil.toDottedString(tableNode.identifier()));
 
         for (KeyValueNode field : tableNode.fields()) {
-            String key = toDottedString(field.identifier());
+            String key = TomlSyntaxTreeUtil.toDottedString(field.identifier());
             completions.remove(key);
         }
         return completions;
-    }
-
-    private static boolean withinTextRange(int position, NonTerminalNode node) {
-        TextRange rangeWithMinutiae = node.textRangeWithMinutiae();
-        TextRange textRange = node.textRange();
-        TextRange leadingMinutiaeRange = TextRange.from(rangeWithMinutiae.startOffset(),
-                textRange.startOffset() - rangeWithMinutiae.startOffset());
-        return leadingMinutiaeRange.endOffset() <= position;
     }
 }
