@@ -31,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -173,7 +174,7 @@ public class CodeActionUtil {
      *
      * @param typeDescriptor {@link TypeSymbol}
      * @param edits          a list of {@link TextEdit}
-     * @param context        {@link LSContext}
+     * @param context        {@link CodeActionContext}
      * @return a list of possible type list
      */
     public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, List<TextEdit> edits,
@@ -187,7 +188,7 @@ public class CodeActionUtil {
      *
      * @param typeDescriptor {@link TypeSymbol}
      * @param edits          a list of {@link TextEdit}
-     * @param context        {@link LSContext}
+     * @param context        {@link CodeActionContext}
      * @return a list of possible type list
      */
     public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> edits,
@@ -303,7 +304,7 @@ public class CodeActionUtil {
      *
      * @param range      cursor {@link Range}
      * @param syntaxTree {@link SyntaxTree}
-     * @param context    {@link LSContext}
+     * @param context    {@link CodeActionContext}
      * @return {@link PositionDetails}
      */
     public static PositionDetails computePositionDetails(Range range, SyntaxTree syntaxTree,
@@ -478,24 +479,12 @@ public class CodeActionUtil {
     /**
      * Get the top level node type at the cursor line.
      *
-     * @param position   {@link Position}
-     * @param syntaxTree {@link SyntaxTree}
-     * @return {@link String}   Top level node
-     */
-    public static Optional<NonTerminalNode> getTopLevelNode(Position position, SyntaxTree syntaxTree) {
-        NonTerminalNode member = CommonUtil.findNode(new Range(position, position), syntaxTree);
-        return getTopLevelNode(member, position, syntaxTree);
-    }
-
-    /**
-     * Get the top level node type at the cursor line.
-     *
      * @param cursorPos  {@link Position}
      * @param syntaxTree {@link SyntaxTree}
      * @return {@link String}   Top level node
      */
-    public static Optional<NonTerminalNode> getTopLevelNode(NonTerminalNode member, Position cursorPos,
-                                                            SyntaxTree syntaxTree) {
+    public static Optional<NonTerminalNode> getTopLevelNode(Position cursorPos, SyntaxTree syntaxTree) {
+        NonTerminalNode member = CommonUtil.findNode(new Range(cursorPos, cursorPos), syntaxTree);
         LinePosition cursorPosition = LinePosition.from(cursorPos.getLine(), cursorPos.getCharacter());
         int cursorPosOffset = syntaxTree.textDocument().textPositionFrom(cursorPosition);
         while (member != null) {
@@ -567,6 +556,8 @@ public class CodeActionUtil {
                 return Optional.of(member);
             } else if (isWithinBody && member.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
                 return Optional.of(member);
+            } else if (isWithinBody && member.kind() == SyntaxKind.MARKDOWN_DOCUMENTATION) {
+                return Optional.of(member);
             } else {
                 member = member.parent();
             }
@@ -625,6 +616,11 @@ public class CodeActionUtil {
                 return isWithinRange(positionOffset,
                         assignmentStatementNode.textRange().startOffset(),
                         assignmentStatementNode.semicolonToken().textRange().startOffset());
+            case MARKDOWN_DOCUMENTATION:
+                MarkdownDocumentationNode markdownDocumentationNode = (MarkdownDocumentationNode) node;
+                return isWithinRange(positionOffset,
+                        markdownDocumentationNode.textRange().startOffset(),
+                        markdownDocumentationNode.textRange().endOffset());
             default:
                 return false;
         }

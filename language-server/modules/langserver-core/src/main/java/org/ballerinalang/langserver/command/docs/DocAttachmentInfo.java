@@ -74,12 +74,13 @@ public class DocAttachmentInfo implements Documentation {
 
     public DocAttachmentInfo mergeDocAttachment(Documentation other) {
         String description = other.description().orElse(this.description);
-        // NOTE: we prioritize other markdown attachment's params since it has the correct order and correct positions
+        // NOTE: we prioritize current markdown attachment's params since it has the correct order and correct positions
         Map<String, String> newParamsMap = new LinkedHashMap<>();
         if (!this.parameters.isEmpty()) {
             parameters.forEach((key, value) -> newParamsMap.put(key, other.parameterMap().getOrDefault(key, value)));
         }
-        String returnValueDescription = other.returnDescription().orElse(this.returnDesc);
+        String returnValueDescription = (this.returnDesc != null) ?
+                other.returnDescription().orElse(this.returnDesc) : null;
         return new DocAttachmentInfo(description, newParamsMap, returnValueDescription, docStart);
     }
 

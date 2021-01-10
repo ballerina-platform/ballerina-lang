@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction.providers.docs;
 
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -74,9 +75,14 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
         if (topLevelNode.isEmpty()) {
             return Collections.emptyList();
         }
+        NonTerminalNode node = topLevelNode.get();
+        if (node.kind() == SyntaxKind.MARKDOWN_DOCUMENTATION) {
+            // If diagnostic message positions inside docs, get parent() node
+            node = node.parent().parent();
+        }
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,
-                                                         CommonUtil.toRange(topLevelNode.get().lineRange()));
+                                                         CommonUtil.toRange(node.lineRange()));
         List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
 
         CodeAction action = new CodeAction(CommandConstants.UPDATE_DOCUMENTATION_TITLE);
