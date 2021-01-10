@@ -15,69 +15,21 @@
 // under the License.
 
 import ballerina/java;
-import ballerina/observe;
 
-public class Listener {
-
-    public isolated function init() {   // Do Nothing
-    }
-
-    public isolated function attach(service object {} s, string[]|string? name = ()) {  // Do Nothing
-    }
-
-    public isolated function detach(service object {} s) {  // Do Nothing
-    }
-
-    public function 'start() returns error? {
-        // Start hook to initialize extensions
-        initializeExtensions();
-    }
-
-    public isolated function gracefulStop() {   // Do Nothing
-    }
-
-    public isolated function immediateStop() {  // Do Nothing
-    }
-}
-
-listener Listener initListener = new();
-
-function initializeExtensions() {
+function init() {
     if (externIsMetricsEnabled()) {
-        var metricReporter = initializeMetricReporter();
-        if (metricReporter is observe:MetricReporter) {
-            var err = externEnableMetrics(metricReporter);
-            if (err is error) {
-                externPrintError("failed to enable metrics");
-            }
-        } else {
-            externPrintError("failed to initialize metric reporter");
+        var err = externEnableMetrics();
+        if (err is error) {
+            externPrintError("failed to enable metrics");
         }
     }
 
     if (externIsTracingEnabled()) {
-        var tracerProvider = initializeTracerProvider();
-        if (tracerProvider is observe:TracerProvider) {
-            var err = externEnableTracing(tracerProvider);
-            if (err is error) {
-                externPrintError("failed to enable tracing");
-            }
-        } else {
-            externPrintError("failed to initialize tracer provider");
+        var err = externEnableTracing();
+        if (err is error) {
+            externPrintError("failed to enable tracing");
         }
     }
-}
-
-function initializeMetricReporter() returns observe:MetricReporter|error {
-    var metricReporter = externGetMetricReporter();
-    check metricReporter.initialize();
-    return metricReporter;
-}
-
-function initializeTracerProvider() returns observe:TracerProvider|error {
-    var tracerProvider = externGetTracerProvider();
-    check tracerProvider.initialize();
-    return tracerProvider;
 }
 
 function externIsMetricsEnabled() returns boolean = @java:Method {
@@ -90,22 +42,12 @@ function externIsTracingEnabled() returns boolean = @java:Method {
     name: "isTracingEnabled"
 } external;
 
-function externGetMetricReporter() returns observe:MetricReporter = @java:Method {
-    'class: "org.ballerinalang.observe.NativeFunctions",
-    name: "getMetricReporter"
-} external;
-
-function externGetTracerProvider() returns observe:TracerProvider = @java:Method {
-    'class: "org.ballerinalang.observe.NativeFunctions",
-    name: "getTracerProvider"
-} external;
-
-function externEnableMetrics(observe:MetricReporter metricReporter) returns error? = @java:Method {
+function externEnableMetrics() returns error? = @java:Method {
     'class: "org.ballerinalang.observe.NativeFunctions",
     name: "enableMetrics"
 } external;
 
-function externEnableTracing(observe:TracerProvider tracerProvider) returns error? = @java:Method {
+function externEnableTracing() returns error? = @java:Method {
     'class: "org.ballerinalang.observe.NativeFunctions",
     name: "enableTracing"
 } external;

@@ -17,35 +17,28 @@
  */
 package org.ballerinalang.observe;
 
-import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.metrics.BallerinaMetricsObserver;
 import io.ballerina.runtime.observability.metrics.DefaultMetricRegistry;
 import io.ballerina.runtime.observability.metrics.MetricRegistry;
 import io.ballerina.runtime.observability.metrics.spi.MetricProvider;
-import io.ballerina.runtime.observability.metrics.spi.MetricReporterFactory;
 import io.ballerina.runtime.observability.tracer.BallerinaTracingObserver;
 import io.ballerina.runtime.observability.tracer.TracersStore;
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
-import io.ballerina.runtime.observability.tracer.spi.TracerProviderFactory;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.observe.noop.NoOpMetricProvider;
-import org.ballerinalang.observe.noop.NoOpMetricReporterFactory;
-import org.ballerinalang.observe.noop.NoOpTracerProviderFactory;
+import org.ballerinalang.observe.noop.NoOpTracerProvider;
 
 import java.io.PrintStream;
 import java.util.ServiceLoader;
 
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_PROVIDER;
 import static org.ballerinalang.observe.Constants.DEFAULT_METRIC_PROVIDER_NAME;
-import static org.ballerinalang.observe.Constants.DEFAULT_METRIC_REPORTER_NAME;
 import static org.ballerinalang.observe.Constants.DEFAULT_TRACER_NAME;
 import static org.ballerinalang.observe.Constants.METRIC_PROVIDER_NAME;
-import static org.ballerinalang.observe.Constants.METRIC_PROVIDER_NATIVE_DATA_KEY;
-import static org.ballerinalang.observe.Constants.METRIC_REPORTER_NAME;
 import static org.ballerinalang.observe.Constants.TRACER_NAME;
-import static org.ballerinalang.observe.Constants.TRACER_PROVIDER_NATIVE_DATA_KEY;
 
 /**
  * Java inter-op functions called by the ballerina observability internal module.
@@ -61,25 +54,8 @@ public class NativeFunctions {
         return ObserveUtils.isTracingEnabled();
     }
 
-    public static BObject getMetricReporter() {
+    public static BError enableMetrics() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-
-        // Loading the proper Metrics Reporter
-        String inheritedMetricsReporterName = configRegistry.getConfigOrDefault(CONFIG_OBSERVABILITY_PROVIDER,
-                DEFAULT_METRIC_REPORTER_NAME);
-        String reporterName = configRegistry.getConfigOrDefault(METRIC_REPORTER_NAME, inheritedMetricsReporterName);
-        MetricReporterFactory selectedReporterFactory = null;
-        for (MetricReporterFactory reporterFactory : ServiceLoader.load(MetricReporterFactory.class)) {
-            if (reporterName != null && reporterName.equalsIgnoreCase(reporterFactory.getName())) {
-                selectedReporterFactory = reporterFactory;
-                break;
-            }
-        }
-        if (selectedReporterFactory == null) {
-            errStream.println("error: metrics reporter " + reporterName + " not found");
-            selectedReporterFactory = new NoOpMetricReporterFactory();
-        }
-        BObject reporterBObject = selectedReporterFactory.getReporterBObject();
 
         // Loading the proper Metrics Provider
         String providerName = configRegistry.getConfigOrDefault(METRIC_PROVIDER_NAME, DEFAULT_METRIC_PROVIDER_NAME);
@@ -94,49 +70,42 @@ public class NativeFunctions {
             errStream.println("error: metrics provider " + providerName + " not found");
             selectedProvider = new NoOpMetricProvider();
         }
-        reporterBObject.addNativeData(METRIC_PROVIDER_NATIVE_DATA_KEY, selectedProvider);
 
-        return reporterBObject;
+        try {
+            selectedProvider.init();
+            DefaultMetricRegistry.setInstance(new MetricRegistry(selectedProvider));
+            ObserveUtils.addObserver(new BallerinaMetricsObserver());
+            return null;
+        } catch (BError e) {
+            return e;
+        }
     }
 
-    public static BObject getTracerProvider() {
+    public static BError enableTracing() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         String inheritedTracingProviderName = configRegistry.getConfigOrDefault(CONFIG_OBSERVABILITY_PROVIDER,
                 DEFAULT_TRACER_NAME);
         String tracerName = configRegistry.getConfigOrDefault(TRACER_NAME, inheritedTracingProviderName);
 
-        TracerProviderFactory selectedProviderFactory = null;
-        for (TracerProviderFactory providerFactory : ServiceLoader.load(TracerProviderFactory.class)) {
+        TracerProvider selectedProvider = null;
+        for (TracerProvider providerFactory : ServiceLoader.load(TracerProvider.class)) {
             if (tracerName.equalsIgnoreCase(providerFactory.getName())) {
-                selectedProviderFactory = providerFactory;
+                selectedProvider = providerFactory;
             }
         }
-        if (selectedProviderFactory == null) {
-            errStream.println("error: tracer " + tracerName + " not found");
-            selectedProviderFactory = new NoOpTracerProviderFactory();
+        if (selectedProvider == null) {
+            errStream.println("error: tracer provider " + tracerName + " not found");
+            selectedProvider = new NoOpTracerProvider();
         }
-        BObject providerBObject = selectedProviderFactory.getProviderBObject();
-        providerBObject.addNativeData(TRACER_PROVIDER_NATIVE_DATA_KEY, selectedProviderFactory.getProvider());
-        return providerBObject;
-    }
 
-    public static Object enableMetrics(BObject metricProviderBObject) {
-        MetricProvider metricProvider =
-                (MetricProvider) metricProviderBObject.getNativeData(METRIC_PROVIDER_NATIVE_DATA_KEY);
-        metricProvider.init();
-        DefaultMetricRegistry.setInstance(new MetricRegistry(metricProvider));
-
-        ObserveUtils.addObserver(new BallerinaMetricsObserver());
-        return null;
-    }
-
-    public static Object enableTracing(BObject tracerProviderBObject) {
-        TracerProvider tracerProvider =
-                (TracerProvider) tracerProviderBObject.getNativeData(TRACER_PROVIDER_NATIVE_DATA_KEY);
-        TracersStore.getInstance().setTracerGenerator(tracerProvider);
-
-        ObserveUtils.addObserver(new BallerinaTracingObserver());
-        return null;
+        try {
+            selectedProvider.init();
+            TracersStore.getInstance().setTracerGenerator(selectedProvider);
+            ObserveUtils.addObserver(new BallerinaTracingObserver());
+            return null;
+        } catch (BError e) {
+            return e;
+        }
     }
 
     public static void printError(BString message) {

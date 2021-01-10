@@ -20,10 +20,22 @@ package io.ballerina.runtime.observability.tracer.spi;
 import io.opentracing.Tracer;
 
 /**
- * This is part of the Java SPI Interface {@link TracerProviderFactory} and returns a tracer for a service
+ * This returns a tracer for a service
  * for the Ballerina Observability Runtime.
  */
 public interface TracerProvider {
+
+    /**
+     * Returns the name of the Tracer Provider produced by this factory.
+     *
+     * @return The name of the provider
+     */
+    String getName();
+
+    /**
+     * This will be called when initializing {@link TracerProvider}.
+     */
+    void init();
 
     /**
      * Get a tracer implementing an OpenTracer.

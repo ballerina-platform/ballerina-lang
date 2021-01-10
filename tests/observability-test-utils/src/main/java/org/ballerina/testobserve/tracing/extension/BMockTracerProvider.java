@@ -15,30 +15,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.observe.noop;
+package org.ballerina.testobserve.tracing.extension;
 
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
 import io.opentracing.Tracer;
-import io.opentracing.noop.NoopTracerFactory;
+import io.opentracing.mock.MockTracer;
+
+import java.io.PrintStream;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Implementation of No-Op {@link TracerProvider}.
+ * Tracer provider factory which returns mock tracer provider instance.
  */
-public class NoOpTracerProvider implements TracerProvider {
-    private Tracer instance;
+public class BMockTracerProvider implements TracerProvider {
+    private static final PrintStream out = System.out;
+    private static final Map<String, MockTracer> tracerMap = new ConcurrentHashMap<>();
 
     @Override
     public String getName() {
-        return "noop";
+        return "mock";
     }
 
     @Override
-    public void init() {
-        instance = NoopTracerFactory.create();
+    public void init() {    // Do Nothing
+    }
+
+    public static Map<String, MockTracer> getTracerMap() {
+        return Collections.unmodifiableMap(tracerMap);
     }
 
     @Override
     public Tracer getTracer(String serviceName) {
-        return instance;
+        MockTracer mockTracer = new MockTracer();
+        tracerMap.put(serviceName, mockTracer);
+        out.println("Initialized Mock Tracer for " + serviceName);
+        return mockTracer;
     }
 }

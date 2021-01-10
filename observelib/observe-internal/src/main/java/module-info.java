@@ -6,6 +6,5 @@ module io.ballerina.observability {
     requires io.ballerina.config;
 
     uses io.ballerina.runtime.observability.metrics.spi.MetricProvider;
-    uses io.ballerina.runtime.observability.metrics.spi.MetricReporterFactory;
-    uses io.ballerina.runtime.observability.tracer.spi.TracerProviderFactory;
+    uses io.ballerina.runtime.observability.tracer.spi.TracerProvider;
 }

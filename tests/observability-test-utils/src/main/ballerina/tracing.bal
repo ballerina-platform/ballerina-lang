@@ -33,12 +33,3 @@ isolated function externGetFinishedSpans(handle serviceName) returns json = @jav
     name: "getFinishedSpans",
     'class: "org.ballerina.testobserve.tracing.extension.MockTracerUtils"
 } external;
-
-public class MockTracerProvider {
-    # Handle Tracer Provider initialization.
-    #
-    # + return - `()` if no error occurred, and an error otherwise
-    public isolated function initialize() returns error? {
-        // Do Nothing
-    }
-}
