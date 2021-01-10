@@ -51,6 +51,9 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_M
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_ENABLED;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_METRICS_REPORTER;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_PROVIDER;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_TRACING_PROVIDER;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 
 /**
@@ -126,6 +129,11 @@ public class LaunchUtils {
             if (observeFlag) {
                 ConfigRegistry.getInstance().addConfiguration(CONFIG_METRICS_ENABLED, Boolean.TRUE);
                 ConfigRegistry.getInstance().addConfiguration(CONFIG_TRACING_ENABLED, Boolean.TRUE);
+            }
+            String observeProvider = ConfigRegistry.getInstance().getAsString(CONFIG_OBSERVABILITY_PROVIDER);
+            if (observeProvider != null) {
+                ConfigRegistry.getInstance().addConfiguration(CONFIG_OBSERVABILITY_METRICS_REPORTER, observeProvider);
+                ConfigRegistry.getInstance().addConfiguration(CONFIG_OBSERVABILITY_TRACING_PROVIDER, observeProvider);
             }
 
         } catch (IOException e) {
