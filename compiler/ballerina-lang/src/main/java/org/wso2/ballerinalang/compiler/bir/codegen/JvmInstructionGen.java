@@ -173,6 +173,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypedescFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
@@ -1897,18 +1898,28 @@ public class JvmInstructionGen {
     }
 
     void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
-
+        List<BIROperand> closureVars = newTypeDesc.closureVars;
         BType type = newTypeDesc.type;
+        if (type.tag == TypeTags.RECORD && closureVars.size() == 0 && type.tsymbol != null) {
+            PackageID packageID = type.tsymbol.pkgID;
+            String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
+            String fieldName = getTypedescFieldName(toNameString(type));
+            mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", TYPEDESC_VALUE));
+        } else {
+            generateNewTypedescCreate(type, closureVars);
+        }
+        this.storeToVar(newTypeDesc.lhsOp.variableDcl);
+    }
+
+    private void generateNewTypedescCreate(BType type, List<BIROperand> closureVars) {
         String className = TYPEDESC_VALUE_IMPL;
         if (type.tag == TypeTags.RECORD) {
             className = getTypeDescClassName(JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID), toNameString(type));
         }
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
-        loadType(this.mv, newTypeDesc.type);
+        loadType(this.mv, type);
 
-
-        List<BIROperand> closureVars = newTypeDesc.closureVars;
         mv.visitIntInsn(BIPUSH, closureVars.size());
         mv.visitTypeInsn(ANEWARRAY, MAP_VALUE);
         for (int i = 0; i < closureVars.size(); i++) {
@@ -1921,7 +1932,6 @@ public class JvmInstructionGen {
 
         String descriptor = String.format("(L%s;[L%s;)V", TYPE, MAP_VALUE);
         this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, descriptor, false);
-        this.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
 
     private void loadVar(BIRNode.BIRVariableDcl varDcl) {

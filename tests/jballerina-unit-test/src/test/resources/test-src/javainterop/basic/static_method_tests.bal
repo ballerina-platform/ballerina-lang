@@ -291,3 +291,50 @@ public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Sleep"
 } external;
 
+
+
+type Details record {
+    string name;
+    int id;
+};
+
+public function testCreateRawDetails() {
+    Details val = createRawDetails();
+    val.name = "riyafa";
+}
+
+function createRawDetails() returns Details = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+
+public function testCreateDetails() {
+    Details val = createDetails();
+    val.name = "riyafa";
+}
+
+function createDetails() returns Details = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+type Student record {
+    string name;
+    string birth;
+};
+
+public function testCreateStudent() {
+    (Student & readonly) val = createStudent();
+    test:assertEquals(val.name, "Riyafa");
+}
+
+function createStudent() returns (Student & readonly) = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function testCreateStudentUsingType() {
+    (Student & readonly) val = createStudentUsingType();
+}
+
+function createStudentUsingType() returns (Student & readonly) = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
