@@ -23,11 +23,15 @@ configurable object {int a;} b = object {int a = 5;};
 // Configurable variable type must be a subtype of readonly.
 configurable record {int c;} d = {c:5};
 
+type Person record {
+    string name;
+};
+
 function foo() {
     // Cannot declare configurable variable locally
     configurable int e = 6;
 }
 // TODO: remove this after runtime supports all configurable types
-configurable decimal f = ?;
+configurable Person & readonly person = {name : "Tom"};
 
 // TODO: validate configurable var decl for tuple, record and error var once they are supported.

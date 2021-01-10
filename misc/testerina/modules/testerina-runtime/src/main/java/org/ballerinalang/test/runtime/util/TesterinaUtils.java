@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.runtime.util;
 
-import io.ballerina.projects.testsuite.Test;
-import io.ballerina.projects.testsuite.TestSuite;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
+import org.ballerinalang.test.runtime.entity.Test;
+import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
 
 import java.io.File;
@@ -95,12 +95,18 @@ public class TesterinaUtils {
      */
     public static String formatError(String errorMsg) {
         StringBuilder newErrMsg = new StringBuilder();
-        errorMsg = errorMsg.replaceAll("\n", "\n\t    ");
+        errorMsg = errorMsg.replaceAll("\n", "\n\t");
         List<String> msgParts = Arrays.asList(errorMsg.split("\n"));
+        boolean stackTraceStartFlag = true;
 
         for (String msg : msgParts) {
             if (msgParts.indexOf(msg) != 0 && !msg.equals("\t    ")) {
-                msg = "\t    \t" + msg.trim();
+                String prefix = "\t\t    \t";
+                if (msg.startsWith("\t\t") && stackTraceStartFlag) {
+                    prefix = "\n" + prefix;
+                    stackTraceStartFlag = false;
+                }
+                msg = prefix + msg.trim();
             }
             if (!msg.equals("\t    ")) {
                 newErrMsg.append(msg).append("\n");

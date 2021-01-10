@@ -181,6 +181,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(requiredParameterNode);
     }
 
+    public void visit(STIncludedRecordParameterNode includedRecordParameterNode) {
+        visitSyntaxNode(includedRecordParameterNode);
+    }
+
     public void visit(STRestParameterNode restParameterNode) {
         visitSyntaxNode(restParameterNode);
     }

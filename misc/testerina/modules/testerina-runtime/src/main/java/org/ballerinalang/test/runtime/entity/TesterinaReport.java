@@ -61,13 +61,13 @@ public class TesterinaReport {
         outStream.println();
         if (!testSummary.failedTests.isEmpty()) {
             for (TesterinaResult failedResult : testSummary.failedTests) {
-                outStream.println("\t[fail] " + failedResult.getTestFunctionName() + ":");
-                outStream.println("\t    " + TesterinaUtils.formatError(failedResult.getAssertFailureMessage()));
+                outStream.println("\t\t[fail] " + failedResult.getTestFunctionName() + ":");
+                outStream.println("\n\t\t    " + TesterinaUtils.formatError(failedResult.getAssertFailureMessage()));
             }
         }
         if (!testSummary.passedTests.isEmpty()) {
             for (TesterinaResult passedResult : testSummary.passedTests) {
-                outStream.println("\t[pass] " + passedResult.getTestFunctionName());
+                outStream.println("\t\t[pass] " + passedResult.getTestFunctionName());
             }
         }
 
@@ -77,9 +77,9 @@ public class TesterinaReport {
 
     private void printTestSuiteResult(int passed, int failed, int skipped) {
         outStream.println();
-        outStream.println("\t" + passed + " passing");
-        outStream.println("\t" + failed + " failing");
-        outStream.println("\t" + skipped + " skipped");
+        outStream.println("\t\t" + passed + " passing");
+        outStream.println("\t\t" + failed + " failing");
+        outStream.println("\t\t" + skipped + " skipped");
         outStream.println();
     }
 

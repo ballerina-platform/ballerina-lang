@@ -43,22 +43,34 @@ function testFunction() {
     a += "1";
 }
 
-@test:Config {groups: ["g1"]}
+@test:Config {
+    groups: ["g1"],
+    dependsOn: ["testFunction"]
+}
 function testFunction2() {
     a += "3";
 }
 
-@test:Config {groups : ["g2"]}
+@test:Config {
+    groups : ["g2"],
+    dependsOn: ["testFunction2"]
+}
 function testFunction3() {
     a += "5";
 }
 
-@test:Config {groups : ["g1", "g2"]}
+@test:Config {
+    groups : ["g1", "g2"],
+    dependsOn: ["testFunction3"]
+}
 function testFunction4() {
     a += "6";
 }
 
-@test:Config {groups : ["g2"]}
+@test:Config {
+    groups : ["g2"],
+    dependsOn: ["testFunction4"]
+}
 function testFunction5() {
     a += "8";
 }

@@ -84,6 +84,7 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
@@ -372,13 +373,36 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withTypeName(typeName)
                     .withParamName(paramName)
                     .apply();
-        } else {
-            typeName = formatNode(requiredParameterNode.typeName(), env.trailingWS, env.trailingNL);
-            return requiredParameterNode.modify()
+        }
+        typeName = formatNode(requiredParameterNode.typeName(), env.trailingWS, env.trailingNL);
+        return requiredParameterNode.modify()
+                .withAnnotations(annotations)
+                .withTypeName(typeName)
+                .apply();
+    }
+
+    @Override
+    public IncludedRecordParameterNode transform(IncludedRecordParameterNode includedRecordParameterNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(includedRecordParameterNode.annotations(), 1, 0, 1, 0);
+        Node typeName;
+        Token asterisk = formatToken(includedRecordParameterNode.asteriskToken(), 0, 0);
+        if (includedRecordParameterNode.paramName().isPresent()) {
+            typeName = formatNode(includedRecordParameterNode.typeName(), 1, 0);
+            Token paramName = formatToken(includedRecordParameterNode.paramName().orElse(null),
+                                          env.trailingWS, env.trailingNL);
+            return includedRecordParameterNode.modify()
+                    .withAsteriskToken(asterisk)
                     .withAnnotations(annotations)
                     .withTypeName(typeName)
+                    .withParamName(paramName)
                     .apply();
         }
+        typeName = formatNode(includedRecordParameterNode.typeName(), env.trailingWS, env.trailingNL);
+        return includedRecordParameterNode.modify()
+                .withAsteriskToken(asterisk)
+                .withAnnotations(annotations)
+                .withTypeName(typeName)
+                .apply();
     }
 
     @Override
@@ -2839,8 +2863,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ReceiveActionNode transform(ReceiveActionNode receiveActionNode) {
         Token leftArrow = formatToken(receiveActionNode.leftArrow(), 1, 0);
-        SimpleNameReferenceNode receiveWorkers = formatNode(receiveActionNode.receiveWorkers(),
-                env.trailingWS, env.trailingNL);
+        Node receiveWorkers = formatNode(receiveActionNode.receiveWorkers(), env.trailingWS, env.trailingNL);
         return receiveActionNode.modify()
                 .withLeftArrow(leftArrow)
                 .withReceiveWorkers(receiveWorkers)

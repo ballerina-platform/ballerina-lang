@@ -16,6 +16,6 @@
 
 import testorg/readonly_objects;
 
-function testInvalidReadOnlyIntersection() {
+function testReadOnlyObjectIntersectionInvalidInitialization() {
     readonly_objects:CustomController & readonly x = new;
 }

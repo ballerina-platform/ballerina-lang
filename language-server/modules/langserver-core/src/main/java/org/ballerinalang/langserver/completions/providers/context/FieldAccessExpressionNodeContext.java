@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
@@ -29,14 +29,14 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class FieldAccessExpressionNodeContext extends FieldAccessContext<FieldAccessExpressionNode> {
     public FieldAccessExpressionNodeContext() {
         super(FieldAccessExpressionNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, FieldAccessExpressionNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FieldAccessExpressionNode node)
             throws LSCompletionException {
         ExpressionNode expression = node.expression();
         return getEntries(context, expression);
@@ -48,7 +48,7 @@ public class FieldAccessExpressionNodeContext extends FieldAccessContext<FieldAc
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, FieldAccessExpressionNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, FieldAccessExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
 
         return cursor <= node.textRange().endOffset();

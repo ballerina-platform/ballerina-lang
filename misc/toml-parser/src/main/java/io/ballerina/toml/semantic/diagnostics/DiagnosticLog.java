@@ -17,8 +17,8 @@
  */
 package io.ballerina.toml.semantic.diagnostics;
 
-import io.ballerina.toml.internal.diagnostics.DiagnosticCode;
 import io.ballerina.toml.internal.diagnostics.DiagnosticMessageHelper;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 
 /**

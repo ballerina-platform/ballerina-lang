@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
-import io.ballerina.runtime.api.types.MemberFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -960,7 +960,7 @@ public class TypeChecker {
             List<Type> fieldTypes = new ArrayList<>();
             Arrays.stream(srcTableType.getFieldNames()).forEach(field -> fieldTypes
                     .add(Objects.requireNonNull(getTableConstraintField(srcTableType.getConstrainedType(), field))
-                    .type));
+                    .getFieldType()));
 
             if (fieldTypes.size() == 1) {
                 return checkConstraints(fieldTypes.get(0), targetType.getKeyType(), unresolvedTypes);
@@ -990,7 +990,7 @@ public class TypeChecker {
                     return null;
                 }
 
-                if (fields.stream().allMatch(field -> isSameType(field.type, fields.get(0).type))) {
+                if (fields.stream().allMatch(field -> isSameType(field.getFieldType(), fields.get(0).getFieldType()))) {
                     return fields.get(0);
                 }
         }
@@ -1551,8 +1551,8 @@ public class TypeChecker {
 
         Map<String, Field> targetFields = targetType.getFields();
         Map<String, Field> sourceFields = sourceObjectType.getFields();
-        MemberFunctionType[] targetFuncs = targetType.getAttachedFunctions();
-        MemberFunctionType[] sourceFuncs = sourceObjectType.getAttachedFunctions();
+        MethodType[] targetFuncs = targetType.getMethods();
+        MethodType[] sourceFuncs = sourceObjectType.getMethods();
 
         if (targetType.getFields().values().stream().anyMatch(field -> SymbolFlags
                 .isFlagOn(field.getFlags(), SymbolFlags.PRIVATE))
@@ -1634,12 +1634,17 @@ public class TypeChecker {
     }
 
     private static boolean checkObjectSubTypeForMethods(List<TypePair> unresolvedTypes,
-                                                        MemberFunctionType[] targetFuncs,
-                                                        MemberFunctionType[] sourceFuncs,
+                                                        MethodType[] targetFuncs,
+                                                        MethodType[] sourceFuncs,
                                                         String targetTypeModule, String sourceTypeModule,
                                                         BObjectType sourceType, BObjectType targetType) {
-        for (MemberFunctionType lhsFunc : targetFuncs) {
-            MemberFunctionType rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
+        for (MethodType lhsFunc : targetFuncs) {
+            // As stage-2 of service typing changes, resource functions are not considered for object subtyping.
+            if (SymbolFlags.isFlagOn(lhsFunc.getFlags(), SymbolFlags.RESOURCE)) {
+                continue;
+            }
+
+            MethodType rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
                     !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsFunc.getFlags(),
                                               rhsFunc.getFlags())) {
@@ -1677,9 +1682,9 @@ public class TypeChecker {
                 lhsTypePkg.equals(rhsTypePkg);
     }
 
-    private static MemberFunctionType getMatchingInvokableType(MemberFunctionType[] rhsFuncs,
-                                                               MemberFunctionType lhsFunc,
-                                                               List<TypePair> unresolvedTypes) {
+    private static MethodType getMatchingInvokableType(MethodType[] rhsFuncs,
+                                                       MethodType lhsFunc,
+                                                       List<TypePair> unresolvedTypes) {
         return Arrays.stream(rhsFuncs)
                 .filter(rhsFunc -> lhsFunc.getName().equals(rhsFunc.getName()))
                 .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.getType(), lhsFunc.getType(),
@@ -1719,7 +1724,7 @@ public class TypeChecker {
         }
 
         BFunctionType source = (BFunctionType) sourceType;
-        if (hasIncompatibleIsolatedFlags(targetType, source)) {
+        if (hasIncompatibleIsolatedFlags(targetType, source) || hasIncompatibleTransactionalFlags(targetType, source)) {
             return false;
         }
 
@@ -1739,6 +1744,11 @@ public class TypeChecker {
     private static boolean hasIncompatibleIsolatedFlags(FunctionType target, FunctionType source) {
         return SymbolFlags.isFlagOn(target.getFlags(), SymbolFlags.ISOLATED) && !SymbolFlags
                 .isFlagOn(source.getFlags(), SymbolFlags.ISOLATED);
+    }
+
+    private static boolean hasIncompatibleTransactionalFlags(FunctionType target, FunctionType source) {
+        return SymbolFlags.isFlagOn(source.getFlags(), SymbolFlags.TRANSACTIONAL) && !SymbolFlags
+                .isFlagOn(target.getFlags(), SymbolFlags.TRANSACTIONAL);
     }
 
     private static boolean checkIsServiceType(Type sourceType) {
@@ -2864,7 +2874,7 @@ public class TypeChecker {
         if (type.getTag() == TypeTags.SERVICE_TAG) {
             return false;
         } else {
-            MemberFunctionType generatedInitializer = type.generatedInitializer;
+            MethodType generatedInitializer = type.generatedInitializer;
             if (generatedInitializer == null) {
                 // abstract objects doesn't have a filler value.
                 return false;

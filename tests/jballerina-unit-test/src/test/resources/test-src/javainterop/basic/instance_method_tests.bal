@@ -222,5 +222,7 @@ function assertEquals(anydata|error expected, anydata|error actual) {
         return;
     }
 
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
