@@ -114,7 +114,7 @@ public function testCyclicTypeDefInTuple() {
     assert(y, "hi");
 }
 
-type H int|string|H[]|map<H>|table<map<H>>|record { H a = "rec"; float x = 1.0; }|error;
+type H int|string|H[]|map<H>|table<map<H>>|record { H a = "rec"; float x;};
 
 public function testComplexCyclicUnion() {
      H num = 1;
@@ -124,15 +124,16 @@ public function testComplexCyclicUnion() {
          second: str
      };
      H rec = { a : "rec2", x: 2.0};
-     H err = error("Simple error occurred");
      H array = [
-        1, "hello", mapping, rec, err
+        1, "hello", mapping, rec
      ];
 
      int x = 0;
      string y = "";
      string mapVal = "";
      string objVal = "";
+     record { H a; float x; } re = { a : "r", x: 0};
+
      if (array is H[]) {
         x = <int> array[0];
         y = <string> array[1];
@@ -141,10 +142,16 @@ public function testComplexCyclicUnion() {
         if (m is map<H>) {
             mapVal = <string> m.get("second");
         }
+
+        var n = array[3];
+        if (n is record{}) {
+            re = <record { H a; float x; }> array[3];
+        }
      }
      assert(x, 1);
      assert(y, "hello");
      assert(mapVal, "hello");
+     assert(re.a, "rec2");
 }
 
 type I H;
