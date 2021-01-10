@@ -27,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumMemberNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
@@ -45,6 +46,7 @@ import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
@@ -69,22 +71,22 @@ public class SyntaxNodeLocationMapper extends NodeTransformer<Optional<Location>
 
     @Override
     public Optional<Location> transform(AnnotationDeclarationNode annotationDeclarationNode) {
-        return Optional.of(annotationDeclarationNode.annotationTag().location());
+        return annotationDeclarationNode.annotationTag().apply(this);
     }
 
     @Override
     public Optional<Location> transform(ClassDefinitionNode classDefinitionNode) {
-        return Optional.of(classDefinitionNode.className().location());
+        return classDefinitionNode.className().apply(this);
     }
 
     @Override
     public Optional<Location> transform(ConstantDeclarationNode constantDeclarationNode) {
-        return Optional.of(constantDeclarationNode.variableName().location());
+        return constantDeclarationNode.variableName().apply(this);
     }
 
     @Override
     public Optional<Location> transform(EnumDeclarationNode enumDeclarationNode) {
-        return Optional.of(enumDeclarationNode.identifier().location());
+        return enumDeclarationNode.identifier().apply(this);
     }
 
     @Override
@@ -94,22 +96,22 @@ public class SyntaxNodeLocationMapper extends NodeTransformer<Optional<Location>
 
     @Override
     public Optional<Location> transform(RecordFieldNode recordFieldNode) {
-        return Optional.of(recordFieldNode.fieldName().location());
+        return recordFieldNode.fieldName().apply(this);
     }
 
     @Override
     public Optional<Location> transform(RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
-        return Optional.of(recordFieldWithDefaultValueNode.fieldName().location());
+        return recordFieldWithDefaultValueNode.fieldName().apply(this);
     }
 
     @Override
     public Optional<Location> transform(ObjectFieldNode objectFieldNode) {
-        return Optional.of(objectFieldNode.fieldName().location());
+        return objectFieldNode.fieldName().apply(this);
     }
 
     @Override
     public Optional<Location> transform(FunctionDefinitionNode functionDefinitionNode) {
-        return Optional.of(functionDefinitionNode.functionName().location());
+        return functionDefinitionNode.functionName().apply(this);
     }
 
     @Override
@@ -118,7 +120,7 @@ public class SyntaxNodeLocationMapper extends NodeTransformer<Optional<Location>
             return Optional.empty();
         }
 
-        return Optional.of(defaultableParameterNode.paramName().get().location());
+        return defaultableParameterNode.paramName().get().apply(this);
     }
 
     @Override
@@ -127,7 +129,7 @@ public class SyntaxNodeLocationMapper extends NodeTransformer<Optional<Location>
             return Optional.empty();
         }
 
-        return Optional.of(requiredParameterNode.paramName().get().location());
+        return requiredParameterNode.paramName().get().apply(this);
     }
 
     @Override
@@ -136,37 +138,36 @@ public class SyntaxNodeLocationMapper extends NodeTransformer<Optional<Location>
             return Optional.empty();
         }
 
-        return Optional.of(restParameterNode.paramName().get().location());
+        return restParameterNode.paramName().get().apply(this);
     }
 
     @Override
     public Optional<Location> transform(FunctionCallExpressionNode functionCallExpressionNode) {
-        return Optional.of(functionCallExpressionNode.functionName().location());
+        return functionCallExpressionNode.functionName().apply(this);
     }
 
     @Override
     public Optional<Location> transform(MethodDeclarationNode methodDeclarationNode) {
-        return Optional.of(methodDeclarationNode.methodName().location());
+        return methodDeclarationNode.methodName().apply(this);
     }
 
     @Override
     public Optional<Location> transform(MethodCallExpressionNode methodCallExpressionNode) {
-        return Optional.of(methodCallExpressionNode.methodName().location());
+        return methodCallExpressionNode.methodName().apply(this);
     }
 
     @Override
     public Optional<Location> transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
-        return Optional.of(remoteMethodCallActionNode.methodName().location());
+        return remoteMethodCallActionNode.methodName().apply(this);
     }
 
     @Override
     public Optional<Location> transform(ImportDeclarationNode importDeclarationNode) {
         if (importDeclarationNode.prefix().isPresent()) {
-            return Optional.of(importDeclarationNode.prefix().get().location());
+            return importDeclarationNode.prefix().get().apply(this);
         }
 
-        return Optional.of(
-                importDeclarationNode.moduleName().get(importDeclarationNode.moduleName().size() - 1).location());
+        return importDeclarationNode.moduleName().get(importDeclarationNode.moduleName().size() - 1).apply(this);
     }
 
     @Override
@@ -176,17 +177,17 @@ public class SyntaxNodeLocationMapper extends NodeTransformer<Optional<Location>
 
     @Override
     public Optional<Location> transform(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
-        return Optional.of(qualifiedNameReferenceNode.identifier().location());
+        return qualifiedNameReferenceNode.identifier().apply(this);
     }
 
     @Override
     public Optional<Location> transform(SimpleNameReferenceNode simpleNameReferenceNode) {
-        return Optional.of(simpleNameReferenceNode.name().location());
+        return simpleNameReferenceNode.name().apply(this);
     }
 
     @Override
     public Optional<Location> transform(TypeDefinitionNode typeDefinitionNode) {
-        return Optional.of(typeDefinitionNode.typeName().location());
+        return typeDefinitionNode.typeName().apply(this);
     }
 
     @Override
@@ -211,12 +212,12 @@ public class SyntaxNodeLocationMapper extends NodeTransformer<Optional<Location>
 
     @Override
     public Optional<Location> transform(CaptureBindingPatternNode captureBindingPatternNode) {
-        return Optional.of(captureBindingPatternNode.variableName().location());
+        return captureBindingPatternNode.variableName().apply(this);
     }
 
     @Override
     public Optional<Location> transform(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
-        return Optional.of(namedWorkerDeclarationNode.workerName().location());
+        return namedWorkerDeclarationNode.workerName().apply(this);
     }
 
     @Override
@@ -225,7 +226,7 @@ public class SyntaxNodeLocationMapper extends NodeTransformer<Optional<Location>
             return Optional.empty();
         }
 
-        return Optional.of(xmlNamespaceDeclarationNode.namespacePrefix().get().location());
+        return xmlNamespaceDeclarationNode.namespacePrefix().get().apply(this);
     }
 
     @Override
@@ -234,7 +235,17 @@ public class SyntaxNodeLocationMapper extends NodeTransformer<Optional<Location>
             return Optional.empty();
         }
 
-        return Optional.of(moduleXMLNamespaceDeclarationNode.namespacePrefix().get().location());
+        return moduleXMLNamespaceDeclarationNode.namespacePrefix().get().apply(this);
+    }
+
+    @Override
+    public Optional<Location> transform(Token token) {
+        return Optional.of(token.location());
+    }
+
+    @Override
+    public Optional<Location> transform(IdentifierToken identifier) {
+        return Optional.of(identifier.location());
     }
 
     @Override
