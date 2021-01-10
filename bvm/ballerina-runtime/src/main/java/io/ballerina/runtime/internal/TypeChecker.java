@@ -1878,6 +1878,7 @@ public class TypeChecker {
                     if (isInherentlyImmutableType(memberType) ||
                             isSelectivelyImmutableType(memberType, unresolvedTypes)) {
                         readonlyIntersectionExists = true;
+                        break;
                     }
                 }
                 return readonlyIntersectionExists;

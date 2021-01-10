@@ -245,6 +245,10 @@ public class ReadOnlyUtils {
                 Type resultantImmutableType;
 
                 List<Type> readOnlyMemTypes = new ArrayList<>();
+                resultantImmutableType = new BUnionType(null, true);
+                BUnionType unionImmutableType = (BUnionType) resultantImmutableType;
+                unionImmutableType.setMemberTypes(readOnlyMemTypes);
+                unionImmutableType.isCyclic = origUnionType.isCyclic;
 
                 for (Type memberType : origUnionType.getMemberTypes()) {
                     if (TypeChecker.isInherentlyImmutableType(memberType)) {
@@ -261,8 +265,6 @@ public class ReadOnlyUtils {
 
                 if (readOnlyMemTypes.size() == 1) {
                     resultantImmutableType = readOnlyMemTypes.iterator().next();
-                } else {
-                    resultantImmutableType = new BUnionType(readOnlyMemTypes, true);
                 }
                 return createAndSetImmutableIntersectionType(origUnionType, resultantImmutableType);
         }
