@@ -28,7 +28,7 @@ public type TestConfig record {
     function() returns (any) dataProvider?;
     function() returns (any) before?;
     function() returns (any) after?;
-    string[] dependsOn = [];
+    (function() returns (any))[] dependsOn?;
 };
 
 # Configuration of the function to be mocked.
