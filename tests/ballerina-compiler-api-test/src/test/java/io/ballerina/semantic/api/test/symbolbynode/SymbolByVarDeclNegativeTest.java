@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -51,11 +52,13 @@ public class SymbolByVarDeclNegativeTest extends SymbolByNodeTest {
             @Override
             public void visit(VariableDeclarationNode variableDeclarationNode) {
                 assertEmptySymbol(model, variableDeclarationNode);
+                variableDeclarationNode.typedBindingPattern().accept(this);
             }
 
             @Override
             public void visit(TypedBindingPatternNode typedBindingPatternNode) {
                 assertEmptySymbol(model, typedBindingPatternNode);
+                typedBindingPatternNode.bindingPattern().accept(this);
             }
 
             @Override
@@ -70,8 +73,14 @@ public class SymbolByVarDeclNegativeTest extends SymbolByNodeTest {
         };
     }
 
+    @Override
+    void verifyAssertCount() {
+        assertEquals(getAssertCount(), 6);
+    }
+
     private void assertEmptySymbol(SemanticModel model, Node node) {
         Optional<Symbol> symbol = model.symbol(node);
         assertTrue(symbol.isEmpty());
+        incrementAssertCount();
     }
 }

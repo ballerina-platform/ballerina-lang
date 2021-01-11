@@ -58,6 +58,9 @@ public class SymbolByFunctionTest extends SymbolByNodeTest {
                 assertSymbol(functionDefinitionNode, model, FUNCTION, functionDefinitionNode.functionName().text());
                 assertSymbol(functionDefinitionNode.functionName(), model, FUNCTION,
                              functionDefinitionNode.functionName().text());
+
+                functionDefinitionNode.functionSignature().accept(this);
+                functionDefinitionNode.functionBody().accept(this);
             }
 
             @Override
@@ -81,6 +84,7 @@ public class SymbolByFunctionTest extends SymbolByNodeTest {
             @Override
             public void visit(VariableDeclarationNode variableDeclarationNode) {
                 assertSymbol(variableDeclarationNode.initializer().get(), model, FUNCTION, "foo");
+                variableDeclarationNode.initializer().get().accept(this);
             }
 
             @Override
@@ -91,9 +95,15 @@ public class SymbolByFunctionTest extends SymbolByNodeTest {
         };
     }
 
+    @Override
+    void verifyAssertCount() {
+        assertEquals(getAssertCount(), 13);
+    }
+
     private void assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), kind);
         assertEquals(symbol.get().name(), name);
+        incrementAssertCount();
     }
 }

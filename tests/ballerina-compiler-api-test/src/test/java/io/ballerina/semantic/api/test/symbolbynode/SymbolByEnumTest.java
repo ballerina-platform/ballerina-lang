@@ -53,6 +53,10 @@ public class SymbolByEnumTest extends SymbolByNodeTest {
             public void visit(EnumDeclarationNode enumDeclarationNode) {
                 assertSymbol(enumDeclarationNode, model, ENUM, "Colour");
                 assertSymbol(enumDeclarationNode.identifier(), model, ENUM, "Colour");
+
+                for (Node node : enumDeclarationNode.enumMemberList()) {
+                    node.accept(this);
+                }
             }
 
             @Override
@@ -67,9 +71,15 @@ public class SymbolByEnumTest extends SymbolByNodeTest {
         };
     }
 
+    @Override
+    void verifyAssertCount() {
+        assertEquals(getAssertCount(), 6);
+    }
+
     private void assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), kind);
         assertEquals(symbol.get().name(), name);
+        incrementAssertCount();
     }
 }

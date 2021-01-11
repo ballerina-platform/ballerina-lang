@@ -20,6 +20,7 @@ package io.ballerina.semantic.api.test.symbolbynode;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
@@ -28,6 +29,7 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static org.testng.Assert.assertEquals;
@@ -54,6 +56,8 @@ public class SymbolByObjectTest extends SymbolByNodeTest {
                 assertSymbol(typeDefinitionNode, model, TYPE_DEFINITION, typeDefinitionNode.typeName().text());
                 assertSymbol(typeDefinitionNode.typeName(), model, TYPE_DEFINITION,
                              typeDefinitionNode.typeName().text());
+
+                typeDefinitionNode.typeDescriptor().accept(this);
             }
 
             @Override
@@ -61,12 +65,23 @@ public class SymbolByObjectTest extends SymbolByNodeTest {
                 assertSymbol(objectFieldNode, model, VARIABLE, objectFieldNode.fieldName().text());
                 assertSymbol(objectFieldNode.fieldName(), model, VARIABLE, objectFieldNode.fieldName().text());
             }
+
+            @Override
+            public void visit(MethodDeclarationNode methodDeclarationNode) {
+                assertSymbol(methodDeclarationNode, model, METHOD, methodDeclarationNode.methodName().text());
+            }
         };
+    }
+
+    @Override
+    void verifyAssertCount() {
+        assertEquals(getAssertCount(), 14);
     }
 
     private void assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), kind);
         assertEquals(symbol.get().name(), name);
+        incrementAssertCount();
     }
 }

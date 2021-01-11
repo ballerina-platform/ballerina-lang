@@ -64,18 +64,24 @@ public class SymbolByVarDeclTest extends SymbolByNodeTest {
             public void visit(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
                 Optional<Symbol> symbol = model.symbol(moduleVariableDeclarationNode);
                 assertSymbol(symbol.get(), "x", INT);
+
+                moduleVariableDeclarationNode.typedBindingPattern().accept(this);
             }
 
             @Override
             public void visit(VariableDeclarationNode variableDeclarationNode) {
                 Optional<Symbol> symbol = model.symbol(variableDeclarationNode);
                 assertSymbol(symbol.get(), "y", FLOAT);
+
+                variableDeclarationNode.typedBindingPattern().accept(this);
             }
 
             @Override
             public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
                 Optional<Symbol> symbol = model.symbol(letVariableDeclarationNode);
                 assertSymbol(symbol.get(), "z", INT);
+
+                letVariableDeclarationNode.typedBindingPattern().accept(this);
             }
 
             @Override
@@ -83,6 +89,8 @@ public class SymbolByVarDeclTest extends SymbolByNodeTest {
                 Optional<Symbol> symbol = model.symbol(typedBindingPatternNode);
                 Object[] expVals = expVarDetails.get(symbol.get().name());
                 assertSymbol(symbol.get(), (String) expVals[0], (TypeDescKind) expVals[1]);
+
+                typedBindingPatternNode.bindingPattern().accept(this);
             }
 
             @Override
@@ -94,9 +102,15 @@ public class SymbolByVarDeclTest extends SymbolByNodeTest {
         };
     }
 
+    @Override
+    void verifyAssertCount() {
+        assertEquals(getAssertCount(), 9);
+    }
+
     private void assertSymbol(Symbol symbol, String name, TypeDescKind typeKind) {
         assertEquals(symbol.kind(), VARIABLE);
         assertEquals(symbol.name(), name);
         assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), typeKind);
+        incrementAssertCount();
     }
 }

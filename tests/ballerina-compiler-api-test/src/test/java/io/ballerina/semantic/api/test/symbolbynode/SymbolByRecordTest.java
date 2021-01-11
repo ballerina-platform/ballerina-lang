@@ -73,9 +73,15 @@ public class SymbolByRecordTest extends SymbolByNodeTest {
         };
     }
 
+    @Override
+    void verifyAssertCount() {
+        assertEquals(getAssertCount(), 6);
+    }
+
     private void assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), kind);
         assertEquals(symbol.get().name(), name);
+        incrementAssertCount();
     }
 }

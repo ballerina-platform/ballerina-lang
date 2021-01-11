@@ -34,6 +34,8 @@ import org.testng.annotations.Test;
  */
 public abstract class SymbolByNodeTest {
 
+    private int assertCount = 0;
+
     @Test
     public void testLookup() {
         Project project = BCompileUtil.loadProject(getTestSourcePath());
@@ -43,9 +45,20 @@ public abstract class SymbolByNodeTest {
         SyntaxTree syntaxTree = currentPackage.getDefaultModule().document(docId).syntaxTree();
         SemanticModel model = currentPackage.getCompilation().getSemanticModel(defaultModuleId);
         syntaxTree.rootNode().accept(getNodeVisitor(model));
+        verifyAssertCount();
     }
 
     abstract String getTestSourcePath();
 
     abstract NodeVisitor getNodeVisitor(SemanticModel model);
+
+    abstract void verifyAssertCount();
+
+    void incrementAssertCount() {
+        this.assertCount++;
+    }
+
+    int getAssertCount() {
+        return this.assertCount;
+    }
 }

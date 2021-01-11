@@ -72,7 +72,7 @@ public class SymbolByClassTest extends SymbolByNodeTest {
 
             @Override
             public void visit(FunctionDefinitionNode functionDefinitionNode) {
-                if (functionDefinitionNode.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
+                if (functionDefinitionNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
                     assertSymbol(functionDefinitionNode, model, METHOD, functionDefinitionNode.functionName().text());
                     return;
                 }
@@ -94,9 +94,15 @@ public class SymbolByClassTest extends SymbolByNodeTest {
         };
     }
 
+    @Override
+    void verifyAssertCount() {
+        assertEquals(getAssertCount(), 13);
+    }
+
     private void assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), kind);
         assertEquals(symbol.get().name(), name);
+        incrementAssertCount();
     }
 }

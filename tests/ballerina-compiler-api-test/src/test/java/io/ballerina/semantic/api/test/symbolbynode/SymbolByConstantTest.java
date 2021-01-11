@@ -60,9 +60,15 @@ public class SymbolByConstantTest extends SymbolByNodeTest {
         };
     }
 
+    @Override
+    void verifyAssertCount() {
+        assertEquals(getAssertCount(), 3);
+    }
+
     private void assertSymbol(Node node, SemanticModel model) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), CONSTANT);
         assertEquals(symbol.get().name(), "PI");
+        incrementAssertCount();
     }
 }

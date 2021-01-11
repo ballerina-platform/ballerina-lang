@@ -37,7 +37,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Test cases for looking up a symbol given a record def/record fields.
+ * Test cases for looking up a symbol given a module import/prefix.
  *
  * @since 2.0.0
  */
@@ -78,9 +78,15 @@ public class SymbolByImportTest extends SymbolByNodeTest {
         };
     }
 
+    @Override
+    void verifyAssertCount() {
+        assertEquals(getAssertCount(), 3);
+    }
+
     private void assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), kind);
         assertEquals(symbol.get().name(), name);
+        incrementAssertCount();
     }
 }

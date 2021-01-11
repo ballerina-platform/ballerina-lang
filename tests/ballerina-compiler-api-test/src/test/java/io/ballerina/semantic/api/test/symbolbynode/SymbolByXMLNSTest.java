@@ -62,14 +62,21 @@ public class SymbolByXMLNSTest extends SymbolByNodeTest {
                 } else {
                     Optional<Symbol> symbol = model.symbol(moduleXMLNamespaceDeclarationNode);
                     assertTrue(symbol.isEmpty());
+                    incrementAssertCount();
                 }
             }
         };
+    }
+
+    @Override
+    void verifyAssertCount() {
+        assertEquals(getAssertCount(), 5);
     }
 
     private void assertSymbol(Node node, SemanticModel model, String name) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), SymbolKind.XMLNS);
         assertEquals(symbol.get().name(), name);
+        incrementAssertCount();
     }
 }
