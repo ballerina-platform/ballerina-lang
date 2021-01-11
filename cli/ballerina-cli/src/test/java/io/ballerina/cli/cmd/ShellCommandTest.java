@@ -51,7 +51,7 @@ public class ShellCommandTest extends BaseCommandTest {
         try {
             System.setProperty(BALLERINA_HOME, "not/existing/dir/abc");
             System.setOut(new PrintStream(baos));
-            ShellCommand shellCommand = new ShellCommand(this.printStream, true);
+            ShellCommand shellCommand = new ShellCommand(this.printStream, true, 1000);
             shellCommand.execute();
         } finally {
             System.setOut(outStreamOrig);
@@ -115,8 +115,10 @@ public class ShellCommandTest extends BaseCommandTest {
         testIntegratorThread.start();
 
         try {
-            BShellConfiguration configuration = new BShellConfiguration(false,
-                    BShellConfiguration.EvaluatorMode.DEFAULT, shellIn, shellOut);
+            BShellConfiguration configuration = new BShellConfiguration.Builder()
+                    .setDebug(false).setInputStream(shellIn).setOutputStream(shellOut)
+                    .setEvaluatorMode(BShellConfiguration.EvaluatorMode.DEFAULT)
+                    .setTreeParsingTimeoutMs(10000).build();
             ReplShellApplication.execute(configuration);
         } catch (EndOfFileException ignored) {
         }

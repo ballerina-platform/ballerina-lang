@@ -46,8 +46,9 @@ public class AbstractIntegrationTest {
         testIntegrator.start();
 
         try {
-            BShellConfiguration configuration = new BShellConfiguration(false,
-                    BShellConfiguration.EvaluatorMode.DEFAULT, shellIn, shellOut);
+            BShellConfiguration configuration = new BShellConfiguration.Builder()
+                    .setInputStream(shellIn).setOutputStream(shellOut)
+                    .setDumb(true).setTreeParsingTimeoutMs(10000).build();
             ReplShellApplication.execute(configuration);
         } catch (EndOfFileException ignored) {
         }

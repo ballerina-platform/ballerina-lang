@@ -87,8 +87,7 @@ public class ReplShellApplication {
     }
 
     public static void main(String... args) throws Exception {
-        BShellConfiguration configuration = new BShellConfiguration(false, false,
-                BShellConfiguration.EvaluatorMode.DEFAULT);
+        BShellConfiguration configuration = new BShellConfiguration.Builder().build();
         ReplShellApplication.execute(configuration);
     }
 }

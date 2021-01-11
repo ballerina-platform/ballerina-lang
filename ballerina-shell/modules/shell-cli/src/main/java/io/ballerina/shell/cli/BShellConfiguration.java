@@ -20,6 +20,7 @@ package io.ballerina.shell.cli;
 
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.EvaluatorBuilder;
+import io.ballerina.shell.parser.TrialTreeParser;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,29 +29,18 @@ import java.io.OutputStream;
  * Configuration that uses command utils to provide options.
  */
 public class BShellConfiguration {
+    private final long treeParsingTimeout;
     private final Evaluator evaluator;
     private final InputStream inputStream;
     private final OutputStream outputStream;
     private boolean isDebug;
     private boolean isDumb;
 
-    public BShellConfiguration(boolean isDebug, boolean isDumb) {
-        this(isDebug, isDumb, EvaluatorMode.DEFAULT);
-    }
-
-    public BShellConfiguration(boolean isDebug, boolean isDumb, EvaluatorMode mode) {
-        this(isDebug, isDumb, mode, System.in, System.out);
-    }
-
-    public BShellConfiguration(boolean isDebug, EvaluatorMode mode,
-                               InputStream inputStream, OutputStream outputStream) {
-        this(isDebug, true, mode, inputStream, outputStream);
-    }
-
-    private BShellConfiguration(boolean isDebug, boolean isDumb, EvaluatorMode mode,
-                                InputStream inputStream, OutputStream outputStream) {
+    private BShellConfiguration(boolean isDebug, boolean isDumb, long treeParsingTimeout,
+                                EvaluatorMode mode, InputStream inputStream, OutputStream outputStream) {
         this.isDebug = isDebug;
         this.isDumb = isDumb;
+        this.treeParsingTimeout = treeParsingTimeout;
         this.evaluator = createEvaluator(mode);
         this.inputStream = inputStream;
         this.outputStream = outputStream;
@@ -64,7 +54,9 @@ public class BShellConfiguration {
      */
     private Evaluator createEvaluator(EvaluatorMode mode) {
         if (mode == EvaluatorMode.DEFAULT) {
-            return new EvaluatorBuilder().build();
+            return new EvaluatorBuilder()
+                    .treeParser(TrialTreeParser.defaultParser(treeParsingTimeout))
+                    .build();
         }
         throw new RuntimeException("Unknown mode given.");
     }
@@ -119,5 +111,91 @@ public class BShellConfiguration {
      */
     public enum EvaluatorMode {
         DEFAULT
+    }
+
+    /**
+     * Builder to build the evaluator config.
+     */
+    public static class Builder {
+        private EvaluatorMode evaluatorMode;
+        private InputStream inputStream;
+        private OutputStream outputStream;
+        private long treeParsingTimeoutMs;
+        private boolean isDebug;
+        private boolean isDumb;
+
+        public Builder() {
+            this.evaluatorMode = EvaluatorMode.DEFAULT;
+            this.inputStream = System.in;
+            this.outputStream = System.out;
+            this.treeParsingTimeoutMs = 1000;
+            this.isDebug = false;
+            this.isDumb = false;
+        }
+
+        /**
+         * Evaluator mode to use.
+         * Evaluator will be built according to this setting.
+         */
+        public Builder setEvaluatorMode(EvaluatorMode evaluatorMode) {
+            this.evaluatorMode = evaluatorMode;
+            return this;
+        }
+
+        /**
+         * Main input stream to use.
+         */
+        public Builder setInputStream(InputStream inputStream) {
+            this.inputStream = inputStream;
+            return this;
+        }
+
+        /**
+         * Main output stream to use.
+         */
+        public Builder setOutputStream(OutputStream outputStream) {
+            this.outputStream = outputStream;
+            return this;
+        }
+
+        /**
+         * Tree parsing will be timed out after this.
+         * This value is set so that the syntax tree parsing will not
+         * take a huge amount of time.
+         * Set to a higher value in low spec devices.
+         */
+        public Builder setTreeParsingTimeoutMs(long treeParsingTimeoutMs) {
+            this.treeParsingTimeoutMs = treeParsingTimeoutMs;
+            return this;
+        }
+
+        /**
+         * Debug mode will enable performance and similar stats.
+         * These will also enable debug messages.
+         */
+        public Builder setDebug(boolean debug) {
+            isDebug = debug;
+            return this;
+        }
+
+        /**
+         * Dumb terminals are terminals that do not support ANSI or similar.
+         * These terminals will not support auto completion or similar features.
+         * Colors will also be disabled in dumb terminals.
+         */
+        public Builder setDumb(boolean dumb) {
+            isDumb = dumb;
+            return this;
+        }
+
+        /**
+         * Builds a configuration for ballerina shell.
+         *
+         * @return Created ballerina shell config.
+         */
+        public BShellConfiguration build() {
+            return new BShellConfiguration(isDebug, isDumb, treeParsingTimeoutMs,
+                    evaluatorMode, inputStream, outputStream);
+        }
     }
 }

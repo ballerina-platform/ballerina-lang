@@ -44,13 +44,17 @@ public class ShellCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"-f", "--force-dumb"}, description = "Whether to force use of dumb terminal.")
     private boolean forceDumb = false;
 
+    @CommandLine.Option(names = {"-t", "--time-out"}, description = "Timeout to use for tree parsing.")
+    private long timeOut = 500;
+
     public ShellCommand() {
         errStream = System.err;
     }
 
-    public ShellCommand(PrintStream errStream, boolean forceDumb) {
+    public ShellCommand(PrintStream errStream, boolean forceDumb, long timeOut) {
         this.errStream = errStream;
         this.forceDumb = forceDumb;
+        this.timeOut = timeOut;
     }
 
     @Override
@@ -61,7 +65,8 @@ public class ShellCommand implements BLauncherCmd {
             return;
         }
         try {
-            BShellConfiguration configuration = new BShellConfiguration(isDebug, forceDumb);
+            BShellConfiguration configuration = new BShellConfiguration.Builder()
+                    .setDebug(isDebug).setDumb(forceDumb).setTreeParsingTimeoutMs(timeOut).build();
             ReplShellApplication.execute(configuration);
         } catch (Exception e) {
             errStream.println("Something went wrong while executing REPL: " + e.toString());
@@ -80,7 +85,7 @@ public class ShellCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina shell [-d|--debug] [-f|--force-dumb]\n");
+        out.append("  ballerina shell [-d|--debug] [-f|--force-dumb] [-t|--time-out]\n");
     }
 
     @Override
