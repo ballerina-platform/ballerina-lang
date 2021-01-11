@@ -62,6 +62,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
@@ -181,7 +182,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(bSymbol -> {
-            if (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS) {
+            if (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS
+                    || bSymbol.kind() == ENUM) {
                 CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }

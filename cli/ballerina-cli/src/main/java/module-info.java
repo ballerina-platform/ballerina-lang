@@ -6,6 +6,7 @@ module io.ballerina.cli {
     requires io.ballerina.lang;
     requires io.ballerina.tools.api;
     requires io.ballerina.testerina.runtime;
+    requires io.ballerina.testerina.core;
     requires info.picocli;
     requires org.apache.commons.compress;
     requires gson;

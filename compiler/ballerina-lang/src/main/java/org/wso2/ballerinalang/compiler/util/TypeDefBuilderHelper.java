@@ -42,11 +42,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -55,6 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createIdentifier;
 
 /**
  * Helper class with util methods to create type definitions.
@@ -158,7 +162,7 @@ public class TypeDefBuilderHelper {
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
-        initFunction.name = ASTBuilderUtil.createIdentifier(location, funcSymbolName.value);
+        initFunction.name = createIdentifier(location, funcSymbolName.value);
 
         // Create the function type symbol
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
@@ -214,5 +218,17 @@ public class TypeDefBuilderHelper {
         env.enclPkg.addClassDefinition(classDefNode);
 
         return classDefNode;
+    }
+
+    public static BLangErrorType createBLangErrorType(Location pos, BType detailType, String name) {
+        BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+        BLangUserDefinedType userDefinedTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        userDefinedTypeNode.pos = pos;
+        userDefinedTypeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        userDefinedTypeNode.typeName = createIdentifier(pos, name);
+        userDefinedTypeNode.type = detailType;
+        errorType.detailType = userDefinedTypeNode;
+
+        return errorType;
     }
 }

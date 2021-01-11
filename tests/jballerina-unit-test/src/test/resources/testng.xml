@@ -42,8 +42,7 @@
             <package name="org.ballerinalang.test.closures.*"/>
             <package name="org.ballerinalang.test.bir.*"/>
 
-            <!-- has complex match stmt usages -->
-            <!-- <package name="org.ballerinalang.test.dataflow.analysis.*"/> -->
+             <package name="org.ballerinalang.test.dataflow.analysis.*"/>
             <package name="org.ballerinalang.test.isolation.*"/>
 
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
@@ -109,6 +108,7 @@
             <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
             <package name="org.ballerinalang.test.expressions.checkedexpr.*"/>
             <package name="org.ballerinalang.test.expressions.elvis.*"/>
+            <package name="org.ballerinalang.test.expressions.errorconstructorexpr.*"/>
             <package name="org.ballerinalang.test.expressions.ternary.*"/>
             <package name="org.ballerinalang.test.expressions.typeof.*"/>
             <package name="org.ballerinalang.test.expressions.stamp.*"/>
