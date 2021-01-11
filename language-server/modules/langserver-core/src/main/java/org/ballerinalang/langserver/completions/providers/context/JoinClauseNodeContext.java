@@ -24,7 +24,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -41,7 +41,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClauseNode> {
 
     public JoinClauseNodeContext() {
@@ -49,7 +49,7 @@ public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClause
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, JoinClauseNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, JoinClauseNode node) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onSuggestBindingPattern(context, node)) {
@@ -98,11 +98,11 @@ public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClause
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, JoinClauseNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, JoinClauseNode node) {
         return !node.joinKeyword().isMissing();
     }
 
-    private boolean onSuggestBindingPattern(CompletionContext context, JoinClauseNode node) {
+    private boolean onSuggestBindingPattern(BallerinaCompletionContext context, JoinClauseNode node) {
         int cursor = context.getCursorPositionInTree();
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
         if (typedBindingPattern.isMissing()) {
@@ -113,7 +113,7 @@ public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClause
                 && cursor >= typedBindingPattern.textRange().startOffset();
     }
 
-    private boolean onSuggestInKeyword(CompletionContext context, JoinClauseNode node) {
+    private boolean onSuggestInKeyword(BallerinaCompletionContext context, JoinClauseNode node) {
         int cursor = context.getCursorPositionInTree();
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
         ExpressionNode expression = node.expression();

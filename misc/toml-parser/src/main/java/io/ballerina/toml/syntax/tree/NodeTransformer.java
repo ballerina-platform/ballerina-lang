@@ -64,6 +64,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(stringLiteralNode);
     }
 
+    public T transform(LiteralStringLiteralNode literalStringLiteralNode) {
+        return transformSyntaxNode(literalStringLiteralNode);
+    }
+
     public T transform(NumericLiteralNode numericLiteralNode) {
         return transformSyntaxNode(numericLiteralNode);
     }

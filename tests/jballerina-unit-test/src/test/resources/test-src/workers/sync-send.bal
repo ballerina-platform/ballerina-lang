@@ -556,12 +556,12 @@ public function testNoFailureForReceiveWithError() returns boolean {
     @strand{thread:"any"}
     worker w1 returns boolean|E1|E2? {
         if (getFalse()) {
-            return E1(R1);
+            return error E1(R1);
         }
         100 ->> w2;
 
         if (getFalse()) {
-            return E2(R2);
+            return error E2(R2);
         }
         error? err = "hello" ->> w2;
         return err is ();
@@ -586,12 +586,12 @@ public function testFailureForReceiveWithError() returns boolean {
     @strand{thread:"any"}
     worker w1 returns boolean|E1|E2? {
         if (getFalse()) {
-            return E1(R1);
+            return error E1(R1);
         }
         100 ->> w2;
 
         if (getTrue()) {
-            return E2(R2);
+            return error E2(R2);
         }
         error? err = "hello" ->> w2;
         return err is ();

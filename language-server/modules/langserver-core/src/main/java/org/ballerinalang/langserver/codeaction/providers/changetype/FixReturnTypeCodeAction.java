@@ -27,7 +27,6 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -42,6 +41,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
+
+import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER_KEYWORD;
 
 /**
  * Code Action for incompatible return types.
@@ -89,7 +90,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
                     LinePosition retStart = returnTypeDesc.type().lineRange().startLine();
                     LinePosition retEnd = returnTypeDesc.type().lineRange().endLine();
                     start = new Position(retStart.line(),
-                                         retStart.offset());
+                            retStart.offset());
                     end = new Position(retEnd.line(), retEnd.offset());
                 }
                 edits.add(new TextEdit(new Range(start, end), editText));
@@ -136,7 +137,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
                 if (!pkgAlreadyImported) {
                     edits.addAll(CommonUtil.getAutoImportTextEdits(orgName, moduleName, context));
                 }
-                foundType = moduleName + CommonKeys.PKG_DELIMITER_KEYWORD + typeName;
+                foundType = moduleName + PKG_DELIMITER_KEYWORD + typeName;
             }
         }
         return foundType;
