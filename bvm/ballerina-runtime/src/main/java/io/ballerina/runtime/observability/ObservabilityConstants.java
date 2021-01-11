@@ -86,6 +86,7 @@ public class ObservabilityConstants {
 
     // Metrics Configs
     public static final String CONFIG_METRICS_ENABLED = CONFIG_TABLE_METRICS + ".enabled";
+    public static final String CONFIG_OBSERVABILITY_METRICS_PROVIDER = CONFIG_TABLE_METRICS + ".provider";
     public static final String CONFIG_OBSERVABILITY_METRICS_REPORTER = CONFIG_TABLE_METRICS + ".reporter";
 
     // Tracing Configs

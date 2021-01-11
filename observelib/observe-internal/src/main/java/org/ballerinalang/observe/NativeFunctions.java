@@ -34,11 +34,10 @@ import org.ballerinalang.observe.noop.NoOpTracerProvider;
 import java.io.PrintStream;
 import java.util.ServiceLoader;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_PROVIDER;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_METRICS_PROVIDER;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_TRACING_PROVIDER;
 import static org.ballerinalang.observe.Constants.DEFAULT_METRIC_PROVIDER_NAME;
-import static org.ballerinalang.observe.Constants.DEFAULT_TRACER_NAME;
-import static org.ballerinalang.observe.Constants.METRIC_PROVIDER_NAME;
-import static org.ballerinalang.observe.Constants.TRACER_NAME;
+import static org.ballerinalang.observe.Constants.DEFAULT_TRACING_PROVIDER_NAME;
 
 /**
  * Java inter-op functions called by the ballerina observability internal module.
@@ -58,7 +57,8 @@ public class NativeFunctions {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
 
         // Loading the proper Metrics Provider
-        String providerName = configRegistry.getConfigOrDefault(METRIC_PROVIDER_NAME, DEFAULT_METRIC_PROVIDER_NAME);
+        String providerName = configRegistry.getConfigOrDefault(CONFIG_OBSERVABILITY_METRICS_PROVIDER,
+                DEFAULT_METRIC_PROVIDER_NAME);
         MetricProvider selectedProvider = null;
         for (MetricProvider providerFactory : ServiceLoader.load(MetricProvider.class)) {
             if (providerName.equalsIgnoreCase(providerFactory.getName())) {
@@ -83,10 +83,10 @@ public class NativeFunctions {
 
     public static BError enableTracing() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        String inheritedTracingProviderName = configRegistry.getConfigOrDefault(CONFIG_OBSERVABILITY_PROVIDER,
-                DEFAULT_TRACER_NAME);
-        String tracerName = configRegistry.getConfigOrDefault(TRACER_NAME, inheritedTracingProviderName);
 
+        // Loading the proper tracing Provider
+        String tracerName = configRegistry.getConfigOrDefault(CONFIG_OBSERVABILITY_TRACING_PROVIDER,
+                DEFAULT_TRACING_PROVIDER_NAME);
         TracerProvider selectedProvider = null;
         for (TracerProvider providerFactory : ServiceLoader.load(TracerProvider.class)) {
             if (tracerName.equalsIgnoreCase(providerFactory.getName())) {

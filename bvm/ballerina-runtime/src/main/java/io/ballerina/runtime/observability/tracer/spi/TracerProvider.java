@@ -26,7 +26,7 @@ import io.opentracing.Tracer;
 public interface TracerProvider {
 
     /**
-     * Returns the name of the Tracer Provider produced by this factory.
+     * Returns a unique name for the Tracers provided.
      *
      * @return The name of the provider
      */

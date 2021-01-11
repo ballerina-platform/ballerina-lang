@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 /**
  * This represents the standard Ballerina built-in system package repository provider.
  * 
- * @since 0.94
+ * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
 public class ObservabilityInternalSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {

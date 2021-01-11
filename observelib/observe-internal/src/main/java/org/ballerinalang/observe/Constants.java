@@ -17,16 +17,10 @@
  */
 package org.ballerinalang.observe;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
-
 /**
  * Constants related to Ballerina Observe Module.
  */
 public class Constants {
-    public static final String METRIC_PROVIDER_NAME = CONFIG_TABLE_METRICS + ".provider";
     public static final String DEFAULT_METRIC_PROVIDER_NAME = "default";
-
-    public static final String TRACER_NAME = CONFIG_TABLE_TRACING + ".name";
-    public static final String DEFAULT_TRACER_NAME = "jaeger";
+    public static final String DEFAULT_TRACING_PROVIDER_NAME = "jaeger";
 }
