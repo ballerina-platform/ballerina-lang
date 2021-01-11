@@ -24,9 +24,9 @@ type Detail record {
 type DError error<Detail>;
 
 function testArrayWithErrors() returns [string, string, string] {
-    DError err1 = DError("Error One", message = "msgOne", fatal = true);
-    DError err2 = DError("Error Two", message = "msgTwo", fatal = false);
-    DError err3 = DError("Error Three", message = "msgThree", fatal = true);
+    DError err1 = error DError("Error One", message = "msgOne", fatal = true);
+    DError err2 = error DError("Error Two", message = "msgTwo", fatal = false);
+    DError err3 = error DError("Error Three", message = "msgThree", fatal = true);
     DError[3] errorArray = [err1, err2, err3];
 
     string result1 = "";
@@ -56,9 +56,9 @@ function testArrayWithErrors() returns [string, string, string] {
 
 
 function testMapWithErrors() returns [string, string, string] {
-    DError err1 = DError("Error One", message = "msgOne", fatal = true);
-    DError err2 = DError("Error Two", message = "msgTwo", fatal = false);
-    DError err3 = DError("Error Three", message = "msgThree", fatal = true);
+    DError err1 = error DError("Error One", message = "msgOne", fatal = true);
+    DError err2 = error DError("Error Two", message = "msgTwo", fatal = false);
+    DError err3 = error DError("Error Three", message = "msgThree", fatal = true);
     map<DError> errMap = { a: err1, b: err2, c: err3 };
 
     string result1 = "";

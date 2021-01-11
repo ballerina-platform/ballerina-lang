@@ -78,8 +78,8 @@ function testGroupedTypeDescRef() returns boolean {
         "age": 20,
         "name": "Person Name"
     };
-    PersonRec p1 = <PersonRec> personData.cloneWithType(PersonRec);
-    PersonRec p2 = <PersonRec> (personData).cloneWithType(PersonRec);
+    PersonRec p1 = <PersonRec> checkpanic personData.cloneWithType(PersonRec);
+    PersonRec p2 = <PersonRec> checkpanic (personData).cloneWithType(PersonRec);
     return p1 == p2;
 }
 

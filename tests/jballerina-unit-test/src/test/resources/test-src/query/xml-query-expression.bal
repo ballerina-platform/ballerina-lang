@@ -405,7 +405,7 @@ public function testSimpleQueryExprWithXMLElementLiteral() returns xml {
     xml res = from var x in payload/<data>/<*>
              let var year = <xml> x/<'field>[2]
              let var value = <xml> x/<'field>[3].name
-             select xml `<entry>${<string> value}</entry>`;
+             select xml `<entry>${<string> checkpanic value}</entry>`;
 
     return res;
 }
@@ -425,7 +425,7 @@ public function testSimpleQueryExprWithNestedXMLElements() returns xml {
     xml res = xml `<doc> ${from var x in payload/<data>/<*>
          let var year = <xml> x/<'field>[2]
          let var value = <xml> x/<'field>[3].name
-         select xml `<entry>${<string> value}</entry>`} </doc>`;
+         select xml `<entry>${<string> checkpanic value}</entry>`} </doc>`;
 
     return res;
 }

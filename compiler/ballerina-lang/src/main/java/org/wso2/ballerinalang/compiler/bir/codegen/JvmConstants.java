@@ -101,9 +101,9 @@ public class JvmConstants {
     public static final String FUNCTION_TYPE = "io/ballerina/runtime/api/types/FunctionType";
     public static final String TYPEDESC_TYPE = "io/ballerina/runtime/api/types/TypedescType";
     public static final String FIELD = "io/ballerina/runtime/api/types/Field";
-    public static final String ATTACHED_FUNCTION = "io/ballerina/runtime/api/types/MemberFunctionType";
-    public static final String RESOURCE_FUNCTION = "io/ballerina/runtime/api/types/ResourceFunctionType";
-    public static final String REMOTE_FUNCTION = "io/ballerina/runtime/api/types/RemoteFunctionType";
+    public static final String METHOD_TYPE = "io/ballerina/runtime/api/types/MethodType";
+    public static final String RESOURCE_METHOD_TYPE = "io/ballerina/runtime/api/types/ResourceMethodType";
+    public static final String REMOTE_METHOD_TYPE = "io/ballerina/runtime/api/types/RemoteMethodType";
     public static final String FINITE_TYPE = "io/ballerina/runtime/api/types/FiniteType";
     public static final String FUTURE_TYPE = "io/ballerina/runtime/api/types/FutureType";
     public static final String INTEGER_TYPE = "io/ballerina/runtime/api/types/IntegerType";
@@ -137,9 +137,9 @@ public class JvmConstants {
     public static final String TYPEDESC_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTypedescType";
     public static final String PARAMETERIZED_TYPE_IMPL = "io/ballerina/runtime/internal/types/BParameterizedType";
     public static final String FIELD_IMPL = "io/ballerina/runtime/internal/types/BField";
-    public static final String MEMBER_FUNCTION_IMPL = "io/ballerina/runtime/internal/types/BMemberFunctionType";
-    public static final String RESOURCE_FUNCTION_IMPL = "io/ballerina/runtime/internal/types/BResourceFunctionType";
-    public static final String REMOTE_FUNCTION_IMPL = "io/ballerina/runtime/internal/types/BRemoteFunctionType";
+    public static final String METHOD_TYPE_IMPL = "io/ballerina/runtime/internal/types/BMethodType";
+    public static final String RESOURCE_METHOD_TYPE_IMPL = "io/ballerina/runtime/internal/types/BResourceMethodType";
+    public static final String REMOTE_METHOD_TYPE_IMPL = "io/ballerina/runtime/internal/types/BRemoteMethodType";
     public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFiniteType";
     public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFutureType";
     public static final String MODULE = "io/ballerina/runtime/api/Module";
@@ -301,6 +301,7 @@ public class JvmConstants {
     public static final String REPORT_ERROR_METHOD = "reportError";
     public static final String STOP_OBSERVATION_METHOD = "stopObservation";
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
+    public static final String RECORD_CHECKPOINT_METHOD = "recordCheckpoint";
 
     // visibility flags
     public static final int BAL_PUBLIC = 1;
