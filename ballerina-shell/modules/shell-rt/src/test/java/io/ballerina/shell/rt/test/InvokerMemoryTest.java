@@ -73,7 +73,8 @@ public class InvokerMemoryTest {
         PrintStream out = new PrintStream(baos, true, Charset.defaultCharset());
         System.setOut(out);
         InvokerMemory.printerr(new IllegalStateException("Error Object"));
-        Assert.assertEquals(baos.toString(), "Exception occurred: java.lang.IllegalStateException: Error Object\n");
+        Assert.assertEquals(fixLineEnds(baos.toString()),
+                "Exception occurred: java.lang.IllegalStateException: Error Object\n");
         System.setOut(origOut);
     }
 
@@ -90,7 +91,11 @@ public class InvokerMemoryTest {
         PrintStream out = new PrintStream(baos, true, Charset.defaultCharset());
         System.setOut(out);
         InvokerMemory.println("Hello", 1, "no", false);
-        Assert.assertEquals(baos.toString(), "Hello1nofalse\n");
+        Assert.assertEquals(fixLineEnds(baos.toString()), "Hello1nofalse\n");
         System.setOut(origOut);
+    }
+
+    private String fixLineEnds(String input) {
+        return input.replace("\r\n", "\n");
     }
 }
