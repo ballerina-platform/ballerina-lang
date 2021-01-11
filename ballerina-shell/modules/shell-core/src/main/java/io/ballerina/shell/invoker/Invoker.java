@@ -117,7 +117,7 @@ public abstract class Invoker extends DiagnosticReporter {
      * @throws InvokerException If reading template failed.
      */
     protected Template getTemplate(String templateName) throws InvokerException {
-        Configuration cfg = new Configuration(Configuration.VERSION_2_3_0);
+        Configuration cfg = new Configuration(Configuration.VERSION_2_3_30);
         cfg.setClassForTemplateLoading(getClass(), "/");
         cfg.setDefaultEncoding("UTF-8");
         try {
