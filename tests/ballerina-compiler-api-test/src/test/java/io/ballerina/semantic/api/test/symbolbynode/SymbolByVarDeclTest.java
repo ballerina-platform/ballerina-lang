@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
@@ -62,25 +63,19 @@ public class SymbolByVarDeclTest extends SymbolByNodeTest {
 
             @Override
             public void visit(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
-                Optional<Symbol> symbol = model.symbol(moduleVariableDeclarationNode);
-                assertSymbol(symbol.get(), "x", INT);
-
+                assertSymbol(moduleVariableDeclarationNode, model, "x", INT);
                 moduleVariableDeclarationNode.typedBindingPattern().accept(this);
             }
 
             @Override
             public void visit(VariableDeclarationNode variableDeclarationNode) {
-                Optional<Symbol> symbol = model.symbol(variableDeclarationNode);
-                assertSymbol(symbol.get(), "y", FLOAT);
-
+                assertSymbol(variableDeclarationNode, model, "y", FLOAT);
                 variableDeclarationNode.typedBindingPattern().accept(this);
             }
 
             @Override
             public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
-                Optional<Symbol> symbol = model.symbol(letVariableDeclarationNode);
-                assertSymbol(symbol.get(), "z", INT);
-
+                assertSymbol(letVariableDeclarationNode, model, "z", INT);
                 letVariableDeclarationNode.typedBindingPattern().accept(this);
             }
 
@@ -112,5 +107,10 @@ public class SymbolByVarDeclTest extends SymbolByNodeTest {
         assertEquals(symbol.name(), name);
         assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), typeKind);
         incrementAssertCount();
+    }
+
+    private void assertSymbol(Node node, SemanticModel model, String name, TypeDescKind typeKind) {
+        Optional<Symbol> symbol = model.symbol(node);
+        assertSymbol(symbol.get(), name, typeKind);
     }
 }
