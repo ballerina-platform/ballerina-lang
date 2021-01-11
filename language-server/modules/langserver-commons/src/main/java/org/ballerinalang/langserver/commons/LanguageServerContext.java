@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,33 +17,25 @@
  */
 package org.ballerinalang.langserver.commons;
 
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-
 /**
- * Represents the language server workspace service context.
+ * Language server context holding the common utility instances of an associated language server instance.
  *
  * @since 2.0.0
  */
-public interface WorkspaceServiceContext {
+public interface LanguageServerContext {
+
+    <V> void put(LanguageServerContext.Key<V> key, V value);
+
+    <V> V get(LanguageServerContext.Key<V> key);
+
+    <V> void put(Class<V> clazz, V value);
+
+    <V> V get(Class<V> clazz);
 
     /**
-     * Get the workspace manager instance.
-     *
-     * @return {@link WorkspaceManager} instance for the language server
+     * @param <K> key
+     * @since 2.0.0
      */
-    WorkspaceManager workspace();
-
-    /**
-     * Get the operation.
-     *
-     * @return {@link LSOperation}
-     */
-    LSOperation operation();
-
-    /**
-     * Get the language server context.
-     *
-     * @return {@link LanguageServerContext}
-     */
-    LanguageServerContext languageServercontext();
+    class Key<K> {
+    }
 }

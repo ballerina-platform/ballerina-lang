@@ -228,7 +228,9 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void typeTestEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertEvaluationError(context, String.format("%s is NotDefinedClass", OBJECT_VAR),
+                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                        "failed to resolve type 'NotDefinedClass'."));
     }
 
     @Override

@@ -1,5 +1,9 @@
 module io.ballerina.language.server.core {
     uses org.ballerinalang.langserver.commons.LanguageExtension;
+    uses org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
+    uses org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
+    uses org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+    uses org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
     exports org.ballerinalang.langserver;
     exports org.ballerinalang.langserver.util.references;
     exports org.ballerinalang.langserver.common.utils;

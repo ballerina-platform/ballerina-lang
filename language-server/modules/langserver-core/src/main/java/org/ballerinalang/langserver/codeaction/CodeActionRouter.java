@@ -50,8 +50,10 @@ public class CodeActionRouter {
      * @return list of code actions
      */
     public static List<CodeAction> getAvailableCodeActions(CodeActionContext ctx) {
+        LSClientLogger clientLogger = LSClientLogger.getInstance(ctx.languageServercontext());
         List<CodeAction> codeActions = new ArrayList<>();
-        CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder.getInstance();
+        CodeActionProvidersHolder codeActionProvidersHolder
+                = CodeActionProvidersHolder.getInstance(ctx.languageServercontext());
 
         // Get available node-type based code-actions
         SyntaxTree syntaxTree = ctx.workspace().syntaxTree(ctx.filePath()).orElseThrow();
@@ -66,7 +68,7 @@ public class CodeActionRouter {
 
             PositionDetails posDetails = CodeActionPositionDetails.from(matchedNode.get(), null, matchedTypeSymbol);
             ctx.setPositionDetails(posDetails);
-            codeActionProvidersHolder.getActiveNodeBasedProviders(matchedNodeType).forEach(provider -> {
+            codeActionProvidersHolder.getActiveNodeBasedProviders(matchedNodeType, ctx).forEach(provider -> {
                 try {
                     List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(ctx);
                     if (codeActionsOut != null) {
@@ -74,7 +76,7 @@ public class CodeActionRouter {
                     }
                 } catch (Exception e) {
                     String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
-                    LSClientLogger.logError(msg, e, null, (Position) null);
+                    clientLogger.logError(msg, e, null, (Position) null);
                 }
             });
         }
@@ -85,7 +87,7 @@ public class CodeActionRouter {
             for (Diagnostic diagnostic : cursorDiagnostics) {
                 PositionDetails positionDetails = computePositionDetails(diagnostic.getRange(), syntaxTree, ctx);
                 ctx.setPositionDetails(positionDetails);
-                codeActionProvidersHolder.getActiveDiagnosticsBasedProviders().forEach(provider -> {
+                codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx).forEach(provider -> {
                     try {
                         List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic, ctx);
                         if (codeActionsOut != null) {
@@ -93,7 +95,7 @@ public class CodeActionRouter {
                         }
                     } catch (Exception e) {
                         String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
-                        LSClientLogger.logError(msg, e, null, (Position) null);
+                        clientLogger.logError(msg, e, null, (Position) null);
                     }
                 });
             }

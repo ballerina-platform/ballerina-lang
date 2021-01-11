@@ -23,7 +23,9 @@ import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -59,7 +61,9 @@ public class DiagnosticsTest {
 
     private final Gson gson = new Gson();
 
-    private final BallerinaWorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
+    private final LanguageServerContext serverContext = new LanguageServerContextImpl();
+    
+    private final BallerinaWorkspaceManager workspaceManager = BallerinaWorkspaceManager.getInstance(serverContext);
 
     @BeforeClass
     public void init() {
@@ -96,9 +100,9 @@ public class DiagnosticsTest {
     String getResponse(JsonObject configJsonObject) {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         DocumentServiceContext serviceContext = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
-                this.workspaceManager, LSContextOperation.TXT_DID_OPEN);
+                this.workspaceManager, LSContextOperation.TXT_DID_OPEN, this.serverContext);
         workspaceManager.didOpen(sourcePath, null);
-        Map<String, List<Diagnostic>> diagnostics = DiagnosticsHelper.getInstance()
+        Map<String, List<Diagnostic>> diagnostics = DiagnosticsHelper.getInstance(serverContext)
                 .getBallerinaDiagnostics(serviceContext);
 
         return gson.toJson(diagnostics).replace("\r\n", "\n").replace("\\r\\n", "\\n");

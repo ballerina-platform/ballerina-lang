@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.contexts;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.Position;
@@ -39,8 +40,9 @@ public class CompletionContextImpl extends AbstractDocumentServiceContext implem
                           String fileUri,
                           WorkspaceManager wsManager,
                           CompletionCapabilities capabilities,
-                          Position cursorPosition) {
-        super(operation, fileUri, wsManager);
+                          Position cursorPosition,
+                          LanguageServerContext serverContext) {
+        super(operation, fileUri, wsManager, serverContext);
         this.capabilities = capabilities;
         this.cursorPosition = cursorPosition;
     }
@@ -81,8 +83,8 @@ public class CompletionContextImpl extends AbstractDocumentServiceContext implem
         /**
          * Context Builder constructor.
          */
-        public CompletionContextBuilder() {
-            super(LSContextOperation.TXT_COMPLETION);
+        public CompletionContextBuilder(LanguageServerContext serverContext) {
+            super(LSContextOperation.TXT_COMPLETION, serverContext);
         }
 
         /**
@@ -110,7 +112,8 @@ public class CompletionContextImpl extends AbstractDocumentServiceContext implem
                     this.fileUri,
                     this.wsManager,
                     this.capabilities,
-                    this.cursor);
+                    this.cursor,
+                    this.serverContext);
         }
 
         @Override

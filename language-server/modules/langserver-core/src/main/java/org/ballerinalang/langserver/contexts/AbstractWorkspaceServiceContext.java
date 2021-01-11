@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.contexts;
 
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.WorkspaceServiceContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 
@@ -32,14 +33,24 @@ public class AbstractWorkspaceServiceContext implements WorkspaceServiceContext 
 
     private final WorkspaceManager workspaceManager;
 
-    AbstractWorkspaceServiceContext(LSOperation operation, WorkspaceManager wsManager) {
+    private final LanguageServerContext languageServerContext;
+
+    AbstractWorkspaceServiceContext(LSOperation operation,
+                                    WorkspaceManager wsManager,
+                                    LanguageServerContext serverContext) {
         this.operation = operation;
         this.workspaceManager = wsManager;
+        this.languageServerContext = serverContext;
     }
 
     @Override
     public LSOperation operation() {
         return this.operation;
+    }
+
+    @Override
+    public LanguageServerContext languageServercontext() {
+        return this.languageServerContext;
     }
 
     @Override
@@ -56,14 +67,16 @@ public class AbstractWorkspaceServiceContext implements WorkspaceServiceContext 
     protected abstract static class AbstractContextBuilder<T extends AbstractContextBuilder<T>> {
         protected final LSOperation operation;
         protected WorkspaceManager wsManager;
+        protected LanguageServerContext serverContext;
 
         /**
          * Context Builder constructor.
          *
          * @param lsOperation LS Operation for the particular invocation
          */
-        public AbstractContextBuilder(LSOperation lsOperation) {
+        public AbstractContextBuilder(LSOperation lsOperation, LanguageServerContext serverContext) {
             this.operation = lsOperation;
+            this.serverContext = serverContext;
         }
 
         public T withWorkspaceManager(WorkspaceManager workspaceManager) {
@@ -72,7 +85,7 @@ public class AbstractWorkspaceServiceContext implements WorkspaceServiceContext 
         }
 
         public WorkspaceServiceContext build() {
-            return new AbstractWorkspaceServiceContext(this.operation, this.wsManager);
+            return new AbstractWorkspaceServiceContext(this.operation, this.wsManager, this.serverContext);
         }
 
         public abstract T self();
