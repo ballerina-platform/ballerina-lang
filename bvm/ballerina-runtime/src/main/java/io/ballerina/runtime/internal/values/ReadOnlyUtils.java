@@ -299,8 +299,7 @@ public class ReadOnlyUtils {
                     resultantImmutableType = readOnlyMemTypes.iterator().next();
                 } else if (!unresolvedTypes.add(type)) {
                     resultantImmutableType = origUnionType;
-                }
-                else {
+                } else {
                     resultantImmutableType = new BUnionType(readOnlyMemTypes, true, origUnionType.isCyclic,
                             unresolvedTypes);
                 }
