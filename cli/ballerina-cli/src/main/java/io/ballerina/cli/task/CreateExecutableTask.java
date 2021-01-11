@@ -27,6 +27,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.io.File;
@@ -61,6 +62,12 @@ public class CreateExecutableTask implements Task {
     public void execute(Project project) {
         this.out.println();
         this.out.println("Generating executable");
+
+        try {
+            ProjectUtils.checkWritePermission(project.sourceRoot());
+        } catch (ProjectException e) {
+            throw createLauncherException(e.getMessage());
+        }
 
         Target target;
         Path currentDir = Paths.get(System.getProperty(USER_DIR));
