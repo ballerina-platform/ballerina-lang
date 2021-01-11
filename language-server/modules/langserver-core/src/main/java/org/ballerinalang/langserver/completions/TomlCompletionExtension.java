@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.CompletionExtension;
-import org.ballerinalang.langserver.completions.util.TomlCompletionUtil;
+import org.ballerinalang.langserver.completions.util.TomlCompletionRouter;
 import org.ballerinalang.langserver.contexts.TomlCompletionContextImpl;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionParams;
@@ -28,7 +28,7 @@ import org.eclipse.lsp4j.CompletionParams;
 import java.util.List;
 
 /**
- * Completion extension implementation for ballerina.
+ * Completion extension implementation for toml.
  *
  * @since 2.0.0
  */
@@ -44,7 +44,8 @@ public class TomlCompletionExtension implements CompletionExtension {
     public List<CompletionItem> execute(CompletionParams inputParams, CompletionContext context)
             throws Throwable {
         TomlCompletionContextImpl tomlContext = new TomlCompletionContextImpl(context);
-        return TomlCompletionUtil.getCompletionItems(tomlContext);
+        TomlCompletionRouter tomlCompletionRouter = new TomlCompletionRouter();
+        return tomlCompletionRouter.getCompletionItems(tomlContext);
     }
 }
 

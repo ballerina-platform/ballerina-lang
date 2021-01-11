@@ -31,7 +31,6 @@ public class TableArray implements TomlNode {
         for (TomlNode node : nodes) {
             prettyString.append(getIndentation()).append(node.prettyPrint()).append(System.lineSeparator());
         }
-        prettyString.append(System.lineSeparator());
         return prettyString.toString();
     }
 

@@ -29,6 +29,6 @@ public class KeyValuePair implements TomlNode {
     @Override
     public String prettyPrint() {
         return key + "=" + type.getStartingSeparator() + "${" + id + ":" + defaultValue + "}" +
-                type.getEndingSeparator() + "";
+                type.getEndingSeparator() + "" + System.lineSeparator();
     }
 }

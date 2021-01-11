@@ -17,10 +17,13 @@ package org.ballerinalang.langserver.completions.toml;
 
 import io.ballerina.toml.validator.schema.Schema;
 import org.apache.commons.io.IOUtils;
+import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,11 +40,11 @@ public class C2CSnippetManager {
         Schema c2cRootSchema = Schema.from(getValidationSchema());
         C2CSchemaVisitor visitor = new C2CSchemaVisitor();
         c2cRootSchema.accept(visitor);
-        this.completions = visitor.getAllCompletionSnippets();
+        this.completions = removeRedundantCompletions(visitor.getAllCompletionSnippets());
     }
 
     public Map<String, Map<String, CompletionItem>> getCompletions() {
-        return completions;
+        return Collections.unmodifiableMap(completions);
     }
 
     public static synchronized C2CSnippetManager getInstance() {
@@ -49,6 +52,31 @@ public class C2CSnippetManager {
             snippetManager = new C2CSnippetManager();
         }
         return snippetManager;
+    }
+
+    private Map<String, Map<String, CompletionItem>> removeRedundantCompletions(Map<String, Map<String,
+            CompletionItem>> completions) {
+        Map<String, Map<String, CompletionItem>> optimizedCompletions = new HashMap<>();
+        for (Map.Entry<String, Map<String, CompletionItem>> entry : completions.entrySet()) {
+            String key = entry.getKey();
+            Map<String, CompletionItem> value = entry.getValue();
+            if (!isRedundantCompletion(value)) {
+                optimizedCompletions.put(key, value);
+            }
+        }
+        return optimizedCompletions;
+    }
+
+    private boolean isRedundantCompletion(Map<String, CompletionItem> value) {
+        boolean isRedundant = true;
+        for (Map.Entry<String, CompletionItem> childEntry : value.entrySet()) {
+            CompletionItem completionItem = childEntry.getValue();
+            if (!(completionItem.getDetail().equals(TomlSyntaxTreeUtil.TABLE) ||
+                    completionItem.getDetail().equals(TomlSyntaxTreeUtil.TABLE_ARRAY))) {
+                isRedundant = false;
+            }
+        }
+        return isRedundant;
     }
 
     private String getValidationSchema() {

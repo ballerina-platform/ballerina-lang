@@ -15,9 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.KeyValueNode;
 import io.ballerina.toml.syntax.tree.Node;
+import io.ballerina.toml.syntax.tree.NodeList;
 import io.ballerina.toml.syntax.tree.NonTerminalNode;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
@@ -39,9 +41,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Common utility methods for the completion operation.
+ * Responsible for providing completion items based on the context.
  */
-public class TomlCompletionUtil {
+public class TomlCompletionRouter {
 
     /**
      * Get the completion Items for the context.
@@ -49,9 +51,9 @@ public class TomlCompletionUtil {
      * @param ctx Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem> getCompletionItems(TomlCompletionContext ctx) {
+    public List<CompletionItem> getCompletionItems(TomlCompletionContext ctx) {
         fillNodeAtCursor(ctx);
-        return getCompletionItemsBasedOnParent(ctx);
+        return getCompletionItemsBasedOnCursor(ctx);
     }
 
     /**
@@ -59,12 +61,12 @@ public class TomlCompletionUtil {
      *
      * @return completion items for the current context.
      */
-    public static List<CompletionItem> getCompletionItemsBasedOnParent(TomlCompletionContext ctx) {
+    public List<CompletionItem> getCompletionItemsBasedOnCursor(TomlCompletionContext ctx) {
         Node node = ctx.getNodeAtCursor();
-        Map<String, CompletionItem> completions = new HashMap<>();
         if (node == null) {
             return new ArrayList<>();
         }
+        Map<String, CompletionItem> completions = new HashMap<>();
         Node reference = node;
         Map<String, Map<String, CompletionItem>> c2cSnippets = C2CSnippetManager.getInstance().getCompletions();
         while (reference != null) {
@@ -81,10 +83,10 @@ public class TomlCompletionUtil {
         return new ArrayList<>(completions.values());
     }
 
-    private static Map<String, CompletionItem> getTableArrayCompletions(TableArrayNode arrayNode, Map<String,
+    private Map<String, CompletionItem> getTableArrayCompletions(TableArrayNode arrayNode, Map<String,
             Map<String, CompletionItem>> snippets) {
-        Map<String, CompletionItem> completions =
-                snippets.get(TomlSyntaxTreeUtil.toDottedString(arrayNode.identifier()));
+        String tableArrayName = TomlSyntaxTreeUtil.toDottedString(arrayNode.identifier());
+        Map<String, CompletionItem> completions = new HashMap<>(snippets.get(tableArrayName));
 
         for (KeyValueNode field : arrayNode.fields()) {
             String key = TomlSyntaxTreeUtil.toDottedString(field.identifier());
@@ -96,7 +98,7 @@ public class TomlCompletionUtil {
     /**
      * Find the node based on the cursor position.
      */
-    public static void fillNodeAtCursor(TomlCompletionContext context) {
+    public void fillNodeAtCursor(TomlCompletionContext context) {
         Path tomlFilePath = context.filePath();
         SyntaxTree st = TomlSyntaxTreeUtil.getTomlSyntaxTree(tomlFilePath).orElseThrow();
         Position position = context.getCursorPosition();
@@ -111,13 +113,51 @@ public class TomlCompletionUtil {
         context.setNodeAtCursor(nonTerminalNode);
     }
 
-    private static Map<String, CompletionItem> getTableCompletions(TableNode tableNode,
-                                                                   Map<String, Map<String, CompletionItem>> snippets) {
-        Map<String, CompletionItem> completions =
-                snippets.get(TomlSyntaxTreeUtil.toDottedString(tableNode.identifier()));
+    private Map<String, CompletionItem> getTableCompletions(TableNode tableNode,
+                                                            Map<String, Map<String, CompletionItem>> snippets) {
+
+        String tableKey = TomlSyntaxTreeUtil.toDottedString(tableNode.identifier());
+        Map<String, CompletionItem> completions = new HashMap<>(snippets.get(tableKey));
 
         for (KeyValueNode field : tableNode.fields()) {
             String key = TomlSyntaxTreeUtil.toDottedString(field.identifier());
+            completions.remove(key);
+        }
+
+        List<String> existingChildEntries = findExistingChildEntries(tableNode, completions);
+
+        return removeExistingChildTables(completions, existingChildEntries);
+    }
+
+    private List<String> findExistingChildEntries(TableNode tableNode, Map<String, CompletionItem> completions) {
+        DocumentNode documentNode = (DocumentNode) tableNode.parent();
+        List<String> removal = new ArrayList<>();
+        for (Map.Entry<String, CompletionItem> entry : completions.entrySet()) {
+            String completionKey = entry.getKey();
+            removal.addAll(findEntryInChildTables(documentNode, completionKey));
+        }
+        return removal;
+    }
+
+    private List<String> findEntryInChildTables(DocumentNode documentNode, String completionKey) {
+        List<String> removal = new ArrayList<>();
+        NodeList<DocumentMemberDeclarationNode> members = documentNode.members();
+        for (DocumentMemberDeclarationNode documentMemberNode : members) {
+            if (documentMemberNode.kind() == SyntaxKind.TABLE) {
+                TableNode rootTableNode = (TableNode) documentMemberNode;
+                String rootTableNodeKey = TomlSyntaxTreeUtil.toDottedString(rootTableNode.identifier());
+                if (completionKey.equals(rootTableNodeKey)) {
+                    removal.add(rootTableNodeKey);
+                    break;
+                }
+            }
+        }
+        return removal;
+    }
+
+    private Map<String, CompletionItem> removeExistingChildTables(Map<String, CompletionItem> completions,
+                                                                  List<String> removal) {
+        for (String key : removal) {
             completions.remove(key);
         }
         return completions;

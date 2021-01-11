@@ -40,6 +40,11 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class TomlSyntaxTreeUtil {
+    public static final String NUMBER = "Number";
+    public static final String STRING = "String";
+    public static final String BOOLEAN = "Boolean";
+    public static final String TABLE_ARRAY = "Table Array";
+    public static final String TABLE = "Table";
 
     //TODO Replace the with the Toml Syntax Tree when supported by context.
     public static Optional<SyntaxTree> getTomlSyntaxTree(Path tomlFilePath) {
@@ -49,7 +54,7 @@ public class TomlSyntaxTreeUtil {
                 Path filePath = tomlFilePath.getFileName();
                 if (filePath != null) {
                     String path = filePath.toString();
-                    io.ballerina.toml.syntax.tree.SyntaxTree st = SyntaxTree.from(textDocument, path);
+                    SyntaxTree st = SyntaxTree.from(textDocument, path);
                     return Optional.of(st);
                 }
             } catch (IOException ignored) {

@@ -9,10 +9,12 @@ import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.toml.validator.schema.SchemaVisitor;
 import io.ballerina.toml.validator.schema.StringSchema;
 import io.ballerina.toml.validator.schema.Type;
+import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,9 +25,9 @@ import java.util.Map;
  */
 public class C2CSchemaVisitor extends SchemaVisitor {
 
-    Map<String, Map<String, CompletionItem>> map = new HashMap<>();
-    Map<String, CompletionItem> parentStore;
-    String parentKey;
+    private final Map<String, Map<String, CompletionItem>> completions = new HashMap<>();
+    private Map<String, CompletionItem> parentStore;
+    private String parentKey;
 
     @Override
     public void visit(Schema rootSchema) {
@@ -34,17 +36,13 @@ public class C2CSchemaVisitor extends SchemaVisitor {
             this.parentStore = new HashMap<>();
             String key = entry.getKey();
             this.parentKey = key;
-            Table objectNode = new Table(key);
-            CompletionItem item = new CompletionItem();
-            item.setInsertText(objectNode.prettyPrint());
-            item.setDetail("Table");
-            item.setLabel(this.parentKey);
+            CompletionItem item = generateRootTableCompletionItem(key);
             AbstractSchema value = entry.getValue();
             this.parentStore.put(this.parentKey, item);
             Map<String, CompletionItem> store = new HashMap<>();
             this.parentStore = store;
             visitNode(value);
-            map.put(this.parentKey, store);
+            completions.put(this.parentKey, store);
         }
     }
 
@@ -57,17 +55,12 @@ public class C2CSchemaVisitor extends SchemaVisitor {
             String key = entry.getKey();
             AbstractSchema value = entry.getValue();
             if (value.type() == Type.OBJECT) {
-//                String oldParentKey = this.parentKey;
                 key = this.parentKey + "." + key;
-//                this.parentKey = key;
                 generateTableSnippet(item, key);
                 completionStore.put(key, item);
-
                 Map<String, CompletionItem> store = new HashMap<>();
-//                this.parentStore = store;
                 visitNode(value, key, store);
-                map.put(key, store);
-//                this.parentKey = oldParentKey;
+                completions.put(key, store);
             } else if (value.type() == Type.ARRAY) {
                 key = this.parentKey + "." + key;
                 visitNode(value, key, completionStore);
@@ -75,15 +68,6 @@ public class C2CSchemaVisitor extends SchemaVisitor {
                 visitNode(value, key, completionStore);
             }
         }
-    }
-
-    private void generateTableSnippet(CompletionItem item, String key) {
-        Table objectNode = new Table(key);
-        item.setInsertText(objectNode.prettyPrint());
-        item.setDetail("Table");
-        item.setLabel(key);
-        item.setKind(CompletionItemKind.Snippet);
-        item.setInsertTextFormat(InsertTextFormat.Snippet);
     }
 
     @Override
@@ -96,18 +80,7 @@ public class C2CSchemaVisitor extends SchemaVisitor {
         AbstractSchema items = arraySchema.items();
         Map<String, CompletionItem> store = new HashMap<>();
         visitNode(items, key, store);
-        this.map.put(key, store);
-    }
-
-    private CompletionItem generateArraySnippet(String key) {
-        CompletionItem item = new CompletionItem();
-        TableArray objectNode = new TableArray(key);
-        item.setInsertText(objectNode.prettyPrint());
-        item.setLabel(key);
-        item.setKind(CompletionItemKind.Snippet);
-        item.setInsertTextFormat(InsertTextFormat.Snippet);
-        item.setDetail("Table Array");
-        return item;
+        this.completions.put(key, store);
     }
 
     @Override
@@ -117,17 +90,6 @@ public class C2CSchemaVisitor extends SchemaVisitor {
         this.parentStore.put(key, item);
     }
 
-    private CompletionItem generateBooleanSnippet(String key) {
-        CompletionItem item = new CompletionItem();
-        KeyValuePair objectNode = new KeyValuePair(key, ValueType.NUMBER);
-        item.setInsertText(objectNode.prettyPrint());
-        item.setLabel(key);
-        item.setKind(CompletionItemKind.Snippet);
-        item.setInsertTextFormat(InsertTextFormat.Snippet);
-        item.setDetail("Boolean");
-        return item;
-    }
-
     @Override
     public void visit(NumericSchema numericSchema) {
         String key = this.parentKey;
@@ -135,33 +97,11 @@ public class C2CSchemaVisitor extends SchemaVisitor {
         this.parentStore.put(key, item);
     }
 
-    private CompletionItem generateNumericSnippet(String key) {
-        KeyValuePair objectNode = new KeyValuePair(key, ValueType.NUMBER);
-        CompletionItem item = new CompletionItem();
-        item.setInsertText(objectNode.prettyPrint());
-        item.setLabel(key);
-        item.setKind(CompletionItemKind.Snippet);
-        item.setInsertTextFormat(InsertTextFormat.Snippet);
-        item.setDetail("Number");
-        return item;
-    }
-
     @Override
     public void visit(StringSchema stringSchema) {
         String key = this.parentKey;
         CompletionItem item = generateStringSnippet(key);
         this.parentStore.put(key, item);
-    }
-
-    private CompletionItem generateStringSnippet(String key) {
-        CompletionItem item = new CompletionItem();
-        KeyValuePair objectNode = new KeyValuePair(key, ValueType.STRING);
-        item.setInsertText(objectNode.prettyPrint());
-        item.setLabel(key);
-        item.setKind(CompletionItemKind.Snippet);
-        item.setInsertTextFormat(InsertTextFormat.Snippet);
-        item.setDetail("String");
-        return item;
     }
 
     private void visitNode(AbstractSchema schema) {
@@ -183,6 +123,68 @@ public class C2CSchemaVisitor extends SchemaVisitor {
     }
 
     public Map<String, Map<String, CompletionItem>> getAllCompletionSnippets() {
-        return map;
+        return Collections.unmodifiableMap(completions);
+    }
+
+    private CompletionItem generateRootTableCompletionItem(String key) {
+        Table objectNode = new Table(key);
+        CompletionItem item = new CompletionItem();
+        item.setInsertText(objectNode.prettyPrint());
+        item.setDetail("Table");
+        item.setLabel(this.parentKey);
+        return item;
+    }
+
+    private void generateTableSnippet(CompletionItem item, String key) {
+        Table objectNode = new Table(key);
+        item.setInsertText(objectNode.prettyPrint());
+        item.setDetail(TomlSyntaxTreeUtil.TABLE);
+        item.setLabel(key);
+        item.setKind(CompletionItemKind.Snippet);
+        item.setInsertTextFormat(InsertTextFormat.Snippet);
+    }
+
+    private CompletionItem generateArraySnippet(String key) {
+        CompletionItem item = new CompletionItem();
+        TableArray objectNode = new TableArray(key);
+        item.setInsertText(objectNode.prettyPrint());
+        item.setLabel(key);
+        item.setKind(CompletionItemKind.Snippet);
+        item.setInsertTextFormat(InsertTextFormat.Snippet);
+        item.setDetail(TomlSyntaxTreeUtil.TABLE_ARRAY);
+        return item;
+    }
+
+    private CompletionItem generateBooleanSnippet(String key) {
+        CompletionItem item = new CompletionItem();
+        KeyValuePair objectNode = new KeyValuePair(key, ValueType.NUMBER);
+        item.setInsertText(objectNode.prettyPrint());
+        item.setLabel(key);
+        item.setKind(CompletionItemKind.Snippet);
+        item.setInsertTextFormat(InsertTextFormat.Snippet);
+        item.setDetail(TomlSyntaxTreeUtil.BOOLEAN);
+        return item;
+    }
+
+    private CompletionItem generateNumericSnippet(String key) {
+        KeyValuePair objectNode = new KeyValuePair(key, ValueType.NUMBER);
+        CompletionItem item = new CompletionItem();
+        item.setInsertText(objectNode.prettyPrint());
+        item.setLabel(key);
+        item.setKind(CompletionItemKind.Snippet);
+        item.setInsertTextFormat(InsertTextFormat.Snippet);
+        item.setDetail(TomlSyntaxTreeUtil.NUMBER);
+        return item;
+    }
+
+    private CompletionItem generateStringSnippet(String key) {
+        CompletionItem item = new CompletionItem();
+        KeyValuePair objectNode = new KeyValuePair(key, ValueType.STRING);
+        item.setInsertText(objectNode.prettyPrint());
+        item.setLabel(key);
+        item.setKind(CompletionItemKind.Snippet);
+        item.setInsertTextFormat(InsertTextFormat.Snippet);
+        item.setDetail(TomlSyntaxTreeUtil.STRING);
+        return item;
     }
 }
