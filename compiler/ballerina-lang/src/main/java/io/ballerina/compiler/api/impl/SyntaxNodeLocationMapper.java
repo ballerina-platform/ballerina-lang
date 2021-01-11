@@ -172,7 +172,7 @@ public class SyntaxNodeLocationMapper extends NodeTransformer<Optional<Location>
 
     @Override
     public Optional<Location> transform(ImportPrefixNode importPrefixNode) {
-        return Optional.of(importPrefixNode.location());
+        return importPrefixNode.prefix().apply(this);
     }
 
     @Override

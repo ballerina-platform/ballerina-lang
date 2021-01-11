@@ -53,6 +53,7 @@
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByConstantTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByEnumTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByFunctionTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByImportTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByObjectTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByRecordTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByVarDeclTest" />
