@@ -21,12 +21,14 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_UTILS_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VALUE_FROM_STRING_METHOD;
@@ -61,7 +64,7 @@ public class BallerinaTypeResolver {
         if (typeDescriptor.kind() == SyntaxKind.UNION_TYPE_DESC) {
             String[] unionTypes = typeDescriptor.toSourceCode().split(UNION_TYPE_SEPARATOR_REGEX);
             for (String typeName : unionTypes) {
-                resolvedTypes.add(resolveSingleType(context, typeName));
+                resolvedTypes.add(resolveSingleType(context, typeName.trim()));
             }
         } else {
             resolvedTypes.add(resolveSingleType(context, typeDescriptor.toSourceCode().trim()));
@@ -118,7 +121,9 @@ public class BallerinaTypeResolver {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
         return semanticContext.moduleLevelSymbols()
                 .stream()
-                .filter(symbol -> symbol.name().equals(typeName))
+                .filter(symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS)
+                .filter(symbol -> encodeIdentifier(symbol.name(), IdentifierModifier.IdentifierType.OTHER)
+                        .equals(typeName))
                 .findAny();
     }
 }
