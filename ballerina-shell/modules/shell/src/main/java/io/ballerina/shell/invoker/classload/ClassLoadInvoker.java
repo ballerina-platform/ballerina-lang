@@ -22,6 +22,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -57,6 +58,8 @@ import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
 import io.ballerina.shell.snippet.types.ModuleMemberDeclarationSnippet;
 import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 import io.ballerina.shell.utils.StringUtils;
+import io.ballerina.shell.utils.timeit.InvokerTimeIt;
+import io.ballerina.shell.utils.timeit.TimedOperation;
 import io.ballerina.tools.text.LinePosition;
 
 import java.io.ByteArrayOutputStream;
@@ -173,8 +176,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         PackageCompilation compilation = compile(project);
         Collection<Symbol> symbols = visibleUnknownSymbols(project, compilation);
         symbols.stream().map(HashedSymbol::new).forEach(knownSymbols::add);
-        JBallerinaBackend loadedBackend = JBallerinaBackend.from(compile(project), JvmTarget.JAVA_11);
-        executeProject(project, loadedBackend);
+        JBallerinaBackend.from(compile(project), JvmTarget.JAVA_11);
         this.initialized.set(true);
     }
 
@@ -207,18 +209,24 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 // Only compilation to find import validity and exit.
                 assert newSnippet instanceof ImportDeclarationSnippet;
                 ImportDeclarationSnippet importDcln = (ImportDeclarationSnippet) newSnippet;
-                String importPrefix = processImport(importDcln);
+                String importPrefix = timedOperation("processing import", () -> processImport(importDcln));
                 Objects.requireNonNull(importPrefix, "Import prefix identification failed.");
+                addDiagnostic(Diagnostic.debug("Import prefix identified as: " + importPrefix));
                 return Optional.empty();
 
             case MODULE_MEMBER_DECLARATION:
                 // Only compilation to find dcln validity and exit.
                 assert newSnippet instanceof ModuleMemberDeclarationSnippet;
                 ModuleMemberDeclarationSnippet moduleDcln = (ModuleMemberDeclarationSnippet) newSnippet;
-                Map.Entry<String, String> newModuleDcln = processModuleDcln(moduleDcln);
+                Map.Entry<String, String> newModuleDcln = timedOperation("processing module dcln",
+                        () -> processModuleDcln(moduleDcln));
                 this.knownSymbols.addAll(this.newSymbols);
                 this.newImplicitImports.forEach(imports::storeImplicitPrefix);
                 this.moduleDclns.put(newModuleDcln.getKey(), newModuleDcln.getValue());
+                addDiagnostic(Diagnostic.debug("Module dcln name: " + newModuleDcln.getKey()));
+                addDiagnostic(Diagnostic.debug("Module dcln code: " + newModuleDcln.getValue()));
+                addDiagnostic(Diagnostic.debug("Found new symbols: " + this.newSymbols));
+                addDiagnostic(Diagnostic.debug("Implicit imports added: " + this.newImplicitImports));
                 return Optional.empty();
 
             case VARIABLE_DECLARATION:
@@ -229,15 +237,19 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 if (newSnippet.isVariableDeclaration()) {
                     assert newSnippet instanceof VariableDeclarationSnippet;
                     VariableDeclarationSnippet varDcln = (VariableDeclarationSnippet) newSnippet;
-                    newVariables.addAll(processVarDcln(varDcln));
+                    newVariables = timedOperation("processing var dcln", () -> processVarDcln(varDcln));
                 }
 
                 // Compile and execute the real program.
                 ClassLoadContext context = createExecutionContext((ExecutableSnippet) newSnippet, newVariables);
-                SingleFileProject project = getProject(context, EXECUTION_TEMPLATE_FILE);
-                PackageCompilation compilation = compile(project);
-                JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
-                boolean isExecutionSuccessful = executeProject(project, jBallerinaBackend);
+                SingleFileProject project = timedOperation("building project",
+                        () -> getProject(context, EXECUTION_TEMPLATE_FILE));
+                PackageCompilation compilation = timedOperation("compilation",
+                        () -> compile(project));
+                JBallerinaBackend jBallerinaBackend = timedOperation("backend fetch",
+                        () -> JBallerinaBackend.from(compilation, JvmTarget.JAVA_11));
+                boolean isExecutionSuccessful = timedOperation("project execution",
+                        () -> executeProject(project, jBallerinaBackend));
 
                 if (!isExecutionSuccessful) {
                     addDiagnostic(Diagnostic.error("Unhandled Runtime Error."));
@@ -246,11 +258,14 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
 
                 // Save required data if execution was successful
                 Object executionResult = ClassLoadMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME);
-                this.knownSymbols.addAll(newSymbols);
+                this.knownSymbols.addAll(this.newSymbols);
                 this.newImplicitImports.forEach(imports::storeImplicitPrefix);
                 if (newSnippet.isVariableDeclaration()) {
                     globalVars.addAll(newVariables);
                 }
+                addDiagnostic(Diagnostic.debug("Found new variables: " + newVariables));
+                addDiagnostic(Diagnostic.debug("Found new symbols: " + this.newSymbols));
+                addDiagnostic(Diagnostic.debug("Implicit imports added: " + this.newImplicitImports));
                 return Optional.ofNullable(executionResult);
 
             default:
@@ -395,8 +410,10 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             return Map.entry(enumName.get(), newSnippet.toString());
         } else {
             for (Symbol symbol : symbols) {
-                this.newSymbols.add(new HashedSymbol(symbol));
-                return Map.entry(symbol.name(), newSnippet.toString());
+                if (!symbol.kind().equals(SymbolKind.MODULE)) {
+                    this.newSymbols.add(new HashedSymbol(symbol));
+                    return Map.entry(symbol.name(), newSnippet.toString());
+                }
             }
         }
 
@@ -520,7 +537,6 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
     protected SingleFileProject getProject(String source) throws InvokerException {
         try {
             File mainBal = writeToFile(source);
-            addDiagnostic(Diagnostic.debug("Using ballerina source file: " + mainBal));
             BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
             return SingleFileProject.load(mainBal.toPath(), buildOptions);
         } catch (IOException e) {
@@ -716,5 +732,18 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
             moduleDclnStrings.add(varString);
         }
         return moduleDclnStrings;
+    }
+
+    /**
+     * Time the operation and add diagnostics to {@link ClassLoadInvoker}.
+     *
+     * @param category  Category to add diagnostics. Should be unique per operation.
+     * @param operation Operation to perform.
+     * @param <T>       operation return type.
+     * @return Return value of operation.
+     * @throws InvokerException If operation failed.
+     */
+    private <T> T timedOperation(String category, TimedOperation<T> operation) throws InvokerException {
+        return InvokerTimeIt.timeIt(category, this, operation);
     }
 }

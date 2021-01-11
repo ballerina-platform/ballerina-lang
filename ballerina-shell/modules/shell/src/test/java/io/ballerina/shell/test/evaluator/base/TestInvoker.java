@@ -29,7 +29,7 @@ import java.nio.charset.Charset;
  * Class load invoker made testable.
  */
 public class TestInvoker extends ClassLoadInvoker {
-    private String output;
+    private String output = "";
 
     @Override
     protected int invokeMethod(Method method) throws IllegalAccessException {

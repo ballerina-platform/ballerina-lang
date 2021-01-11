@@ -58,4 +58,9 @@ public class GlobalVariable {
     public int hashCode() {
         return Objects.hash(variableName);
     }
+
+    @Override
+    public String toString() {
+        return String.format("<%s> %s %s", elevatedType, type, variableName);
+    }
 }

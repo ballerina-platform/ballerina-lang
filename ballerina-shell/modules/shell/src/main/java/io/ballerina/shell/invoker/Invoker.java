@@ -50,6 +50,7 @@ import java.util.Optional;
  * Invoker and its context may be tightly coupled.
  */
 public abstract class Invoker extends DiagnosticReporter {
+    private static final String NON_ACCESSIBLE_TYPE_CODE = "BCE2037";
     private static final boolean USE_TEMP_FILE = true;
 
     /**
@@ -145,16 +146,13 @@ public abstract class Invoker extends DiagnosticReporter {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
                     addDiagnostic(Diagnostic.error(highlightedDiagnostic(module, diagnostic)));
+                    addDiagnostic(Diagnostic.error("Compilation aborted because of errors."));
+                    throw new InvokerException();
                 } else if (severity == DiagnosticSeverity.WARNING) {
                     addDiagnostic(Diagnostic.warn(highlightedDiagnostic(module, diagnostic)));
                 } else {
                     addDiagnostic(Diagnostic.debug(diagnostic.message()));
                 }
-            }
-
-            if (diagnosticResult.hasErrors()) {
-                addDiagnostic(Diagnostic.error("Compilation aborted because of errors."));
-                throw new InvokerException();
             }
 
             return packageCompilation;
@@ -181,6 +179,12 @@ public abstract class Invoker extends DiagnosticReporter {
         Optional<DocumentId> documentId = module.documentIds().stream().findFirst();
         assert documentId.isPresent();
         Document document = module.document(documentId.get());
+        if (diagnostic.diagnosticInfo().code().equals(NON_ACCESSIBLE_TYPE_CODE)) {
+            return "Error: " + diagnostic.message() + "\n" +
+                    "The initializer returns a non-accessible symbol. " +
+                    "This is currently not supported in REPL. " +
+                    "Please explicitly state the type.";
+        }
         return Diagnostic.highlightDiagnostic(document.textDocument(), diagnostic);
     }
 
@@ -199,12 +203,19 @@ public abstract class Invoker extends DiagnosticReporter {
         return createdFile;
     }
 
+    /**
+     * Get the file that would be used as the buffer for loading project.
+     *
+     * @return File to use.
+     * @throws IOException If file open failed.
+     */
     private File getBufferFile() throws IOException {
         if (this.bufferFile == null) {
             this.bufferFile = USE_TEMP_FILE
                     ? File.createTempFile("main-", ".bal")
                     : new File("main.bal");
             this.bufferFile.deleteOnExit();
+            addDiagnostic(Diagnostic.debug("Ballerina source file used as buffer: " + this.bufferFile));
         }
         return this.bufferFile;
     }

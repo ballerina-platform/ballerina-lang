@@ -26,6 +26,7 @@ import io.ballerina.shell.preprocessor.Preprocessor;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.factory.SnippetFactory;
 import io.ballerina.shell.utils.timeit.TimeIt;
+import io.ballerina.shell.utils.timeit.TimedOperation;
 
 import java.util.Collection;
 import java.util.List;
@@ -83,11 +84,12 @@ public class Evaluator extends DiagnosticReporter {
     public String evaluate(String source) throws BallerinaShellException {
         String response = null;
         try {
-            Collection<String> statements = TimeIt.timeIt(preprocessor, () -> preprocessor.process(source));
+            Collection<String> statements = timedOperation("preprocessor", () -> preprocessor.process(source));
             for (String statement : statements) {
-                Node rootNode = TimeIt.timeIt(treeParser, () -> treeParser.parse(statement));
-                Snippet snippet = TimeIt.timeIt(snippetFactory, () -> snippetFactory.createSnippet(rootNode));
-                Optional<Object> invokerOut = TimeIt.timeIt(invoker, () -> invoker.execute(snippet));
+                Node rootNode = timedOperation("tree parser", () -> treeParser.parse(statement));
+                Snippet snippet = timedOperation("snippet factory", () -> snippetFactory.createSnippet(rootNode));
+                Optional<Object> invokerOut = timedOperation("invoker", () -> invoker.execute(snippet));
+
                 if (invokerOut.isPresent()) {
                     response = String.valueOf(invokerOut.get());
                 }
@@ -143,5 +145,18 @@ public class Evaluator extends DiagnosticReporter {
 
     public Invoker getInvoker() {
         return invoker;
+    }
+
+    /**
+     * Time the operation and add diagnostics to {@link Evaluator}.
+     *
+     * @param category  Category to add diagnostics. Should be unique per operation.
+     * @param operation Operation to perform.
+     * @param <T>       operation return type.
+     * @return Return value of operation.
+     * @throws BallerinaShellException If operation failed.
+     */
+    private <T> T timedOperation(String category, TimedOperation<T> operation) throws BallerinaShellException {
+        return TimeIt.timeIt(category, this, operation);
     }
 }

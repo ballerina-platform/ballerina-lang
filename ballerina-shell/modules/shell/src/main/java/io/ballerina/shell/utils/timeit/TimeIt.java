@@ -37,24 +37,25 @@ public class TimeIt {
      * Times the operation and sends a debug message.
      * Statistics will also be calculated.
      *
+     * @param category  Category of the entry.
      * @param owner     Diagnostic owner. The time debug data would be emitted to this class.
      * @param operation Operation callback to run.
      * @throws BallerinaShellException If the operation failed.
      */
-    public static <T> T timeIt(DiagnosticReporter owner, TimedOperation<T> operation) throws BallerinaShellException {
-        String name = owner.getClass().getSimpleName();
-
+    public static <T> T timeIt(String category, DiagnosticReporter owner,
+                               TimedOperation<T> operation) throws BallerinaShellException {
         Instant start = Instant.now();
         T result = operation.run();
         Instant end = Instant.now();
         Duration duration = Duration.between(start, end);
 
-        OperationTimeEntry entry = operationTimes.getOrDefault(name, new OperationTimeEntry());
+        OperationTimeEntry entry = operationTimes.getOrDefault(category, new OperationTimeEntry());
         entry.addDuration(duration);
         Duration mean = entry.mean();
-        operationTimes.put(name, entry);
+        operationTimes.put(category, entry);
 
-        String message = String.format("%s took %s ms. Average is %s ms.", name, duration.toMillis(), mean.toMillis());
+        String message = String.format("Task %s took %s ms. Average is %s ms.",
+                category, duration.toMillis(), mean.toMillis());
         owner.addDiagnostic(Diagnostic.debug(message));
 
         return result;
