@@ -31,7 +31,7 @@ public type DynamicListener object {
 # + moduleName - Module name
 # + fileName - File name
 # + lineNumber - Line number
-public type CallStackElement record {|
+type CallStackElement record {|
     string callableName;
     string moduleName;
     string fileName;
