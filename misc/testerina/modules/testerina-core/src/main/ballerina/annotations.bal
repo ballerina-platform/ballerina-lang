@@ -25,9 +25,9 @@
 public type TestConfig record {
     boolean enable = true;
     string[] groups = [];
-    string dataProvider = "";
-    string before = "";
-    string after = "";
+    function() returns (any) dataProvider?;
+    function() returns (any) before?;
+    function() returns (any) after?;
     string[] dependsOn = [];
 };
 
