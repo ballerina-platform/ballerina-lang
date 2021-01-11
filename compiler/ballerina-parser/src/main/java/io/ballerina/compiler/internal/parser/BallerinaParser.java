@@ -1671,8 +1671,8 @@ public class BallerinaParser extends AbstractParser {
                 case REQUIRED_PARAM:
                     STRequiredParameterNode requiredParam = (STRequiredParameterNode) param;
                     if (isEmpty(requiredParam.paramName)) {
-                        param = STNodeFactory.createRequiredParameterNode(SyntaxKind.REQUIRED_PARAM,
-                                requiredParam.annotations, null, requiredParam.typeName, paramName);
+                        param = STNodeFactory.createRequiredParameterNode(requiredParam.annotations,
+                                requiredParam.typeName, paramName);
                     }
                     break;
                 case DEFAULTABLE_PARAM:
@@ -1944,33 +1944,64 @@ public class BallerinaParser extends AbstractParser {
      * Parse a single parameter. Parameter can be a required parameter, a defaultable
      * parameter, or a rest parameter.
      *
+     * @param annots              Annotation that precedes the parameter
+     * @param prevParamKind       Kind of the parameter that precedes current parameter
+     * @param isParamNameOptional Whether the param names in the signature is optional or not
+     * @return Parsed node
+     */
+    private STNode parseParameter(STNode annots, SyntaxKind prevParamKind, boolean isParamNameOptional) {
+        STNode inclusionSymbol;
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case ASTERISK_TOKEN:
+                inclusionSymbol = consume();
+                break;
+            case IDENTIFIER_TOKEN:
+                inclusionSymbol = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                if (isTypeStartingToken(nextToken.kind)) {
+                    inclusionSymbol = STNodeFactory.createEmptyNode();
+                    break;
+                }
+
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.PARAMETER_START_WITHOUT_ANNOTATION, prevParamKind,
+                                            isParamNameOptional);
+                if (solution.action == Action.KEEP) {
+                    // If the solution is {@link Action#KEEP}, that means next immediate token is
+                    // at the correct place, but some token after that is not.
+                    inclusionSymbol = STNodeFactory.createEmptyNodeList();
+                    break;
+                }
+
+                return parseParameter(annots, prevParamKind, isParamNameOptional);
+        }
+
+        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
+        return parseAfterParamType(prevParamKind, annots, inclusionSymbol, type, isParamNameOptional);
+    }
+
+    /**
+     * Parse a single parameter. Parameter can be a required parameter, a defaultable
+     * parameter, or a rest parameter.
+     *
      * @param prevParamKind       Kind of the parameter that precedes current parameter
      * @param isParamNameOptional Whether the param names in the signature is optional or not.
      * @return Parsed node
      */
     private STNode parseParameter(SyntaxKind prevParamKind, boolean isParamNameOptional) {
         STNode annots;
-        STNode inclusionSymbol;
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case AT_TOKEN:
                 annots = parseOptionalAnnotations();
-                if (peek().kind == SyntaxKind.ASTERISK_TOKEN) {
-                    inclusionSymbol = parseAsteriskToken();
-                } else {
-                    inclusionSymbol = STNodeFactory.createEmptyNode();
-                }
                 break;
             case ASTERISK_TOKEN:
-                inclusionSymbol = parseAsteriskToken();
-                annots = STNodeFactory.createEmptyNodeList();
-                break;
             case IDENTIFIER_TOKEN:
-                inclusionSymbol = STNodeFactory.createEmptyNode();
                 annots = STNodeFactory.createEmptyNodeList();
                 break;
             default:
-                inclusionSymbol = STNodeFactory.createEmptyNode();
                 if (isTypeStartingToken(nextToken.kind)) {
                     annots = STNodeFactory.createEmptyNodeList();
                     break;
@@ -1989,9 +2020,7 @@ public class BallerinaParser extends AbstractParser {
 
                 return parseParameter(prevParamKind, isParamNameOptional);
         }
-
-        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
-        return parseAfterParamType(prevParamKind, annots, inclusionSymbol, type, isParamNameOptional);
+        return parseParameter(annots, prevParamKind, isParamNameOptional);
     }
 
     private STNode parseAfterParamType(SyntaxKind prevParamKind, STNode annots, STNode inclusionSymbol, STNode type,
@@ -2065,11 +2094,9 @@ public class BallerinaParser extends AbstractParser {
         // Required parameters
         if (isEndOfParameter(nextToken.kind)) {
             if (inclusionSymbol != null) {
-                return STNodeFactory.createRequiredParameterNode(SyntaxKind.INCLUDED_RECORD_PARAM,
-                        annots, inclusionSymbol, type, paramName);
+                return STNodeFactory.createIncludedRecordParameterNode(annots, inclusionSymbol, type, paramName);
             } else {
-                return STNodeFactory.createRequiredParameterNode(SyntaxKind.REQUIRED_PARAM,
-                        annots, STNodeFactory.createEmptyNode(), type, paramName);
+                return STNodeFactory.createRequiredParameterNode(annots, type, paramName);
             }
         } else if (nextToken.kind == SyntaxKind.EQUAL_TOKEN) {
             // If we were processing required params so far and found a defualtable
@@ -7630,21 +7657,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             recover(nextToken, ParserRuleContext.AT);
             return parseAtToken();
-        }
-    }
-
-    /**
-     * Parse '*' token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseAsteriskToken() {
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
-            return consume();
-        } else {
-            recover(nextToken, ParserRuleContext.ASTERISK);
-            return parseAsteriskToken();
         }
     }
 

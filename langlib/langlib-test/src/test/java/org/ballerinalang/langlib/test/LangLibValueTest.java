@@ -244,7 +244,7 @@ public class LangLibValueTest {
         BRunUtil.invokeFunction(testFile, "testTupleToBalString");
         BRunUtil.invokeFunction(testFile, "testJsonToBalString");
         BRunUtil.invokeFunction(testFile, "testXmlToBalString");
-        BRunUtil.invokeFunction(testFile, "testObjectToString");
+        BRunUtil.invokeFunction(testFile, "testObjectToBalString");
         BRunUtil.invokeFunction(testFile, "testToBalStringOnCycles");
     }
 
