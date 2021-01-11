@@ -17,18 +17,18 @@
 import testorg/errors as er;
 
 function getApplicationError() returns error {
-    er:ApplicationError e = er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
+    er:ApplicationError e = error er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
     return e;
 }
 
 function getApplicationErrorIndirectCtor() returns error {
-    er:ApplicationError e = er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
-    error e1 = er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
+    er:ApplicationError e = error er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
+    error e1 = error er:ApplicationError(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
     return e;
 }
 
 function getDistinctError() returns error {
-    er:OrderCreationError2 k = er:OrderCreationError2("OrderCreationError2-msg", message = "Client has been stopped");
+    er:OrderCreationError2 k = error er:OrderCreationError2("OrderCreationError2-msg", message = "Client has been stopped");
     er:OrderCreationError f = k;
     return f;
 }
@@ -36,7 +36,7 @@ function getDistinctError() returns error {
 type OurError distinct er:OrderCreationError;
 
 function testDistinctTypeFromAnotherPackageInATypeDef() returns error {
-    OurError e = OurError("Our error message", message = "Client has been stopped");
+    OurError e = error OurError("Our error message", message = "Client has been stopped");
     er:OrderCreationError f = e;
     return f;
 }
@@ -44,7 +44,7 @@ function testDistinctTypeFromAnotherPackageInATypeDef() returns error {
 type OurProccessingError distinct er:OrderCreationError2;
 
 function testDistinctTypeFromAnotherPackageInATypeDefWithACast() returns error {
-    OurProccessingError e = OurProccessingError("Our error message", message = "Client has been stopped");
+    OurProccessingError e = error OurProccessingError("Our error message", message = "Client has been stopped");
     error f = e;
 
     er:OrderCreationError k = <er:OrderCreationError> f; // casting to distinct super type
@@ -52,7 +52,7 @@ function testDistinctTypeFromAnotherPackageInATypeDefWithACast() returns error {
 }
 
 function testDistinctTypeFromAnotherPackageInATypeDefWithACastNegative() returns error {
-    OurProccessingError e = OurProccessingError("Our error message", message = "Client has been stopped");
+    OurProccessingError e = error OurProccessingError("Our error message", message = "Client has been stopped");
     error f = e;
     er:OrderProcessingError k = <er:OrderProcessingError> f; // casting to unrelated, yet same shaped type.
     return k;
@@ -64,7 +64,7 @@ function performInvalidCastWithDistinctErrorType() returns error? {
 }
 
 function testErrorDetailDefinedAfterErrorDef() {
-    er:NewPostDefinedError e = er:NewPostDefinedError("New error", code = "ABCD");
+    er:NewPostDefinedError e = error er:NewPostDefinedError("New error", code = "ABCD");
     er:PostDefinedError k = e;
     assertEquality("New error", k.message());
     assertEquality("ABCD", k.detail()["code"]);
@@ -79,8 +79,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError("Assertion Error",
-            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("Assertion Error",
+            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
-
-type AssertionError error;

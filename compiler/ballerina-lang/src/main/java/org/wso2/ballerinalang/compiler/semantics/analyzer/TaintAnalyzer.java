@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -1160,7 +1161,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         // handle error constructor invocation
-        if (isErrorConstructorInvocation(invocationExpr) || isExternalLangLibFunction(invocationExpr)) {
+        if (isExternalLangLibFunction(invocationExpr)) {
             ((BInvokableSymbol) invocationExpr.symbol).taintTable = createIdentityTaintTable(invocationExpr);
         }
 
@@ -1196,12 +1197,28 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
-        this.visit((BLangInvocation) actionInvocation);
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        TaintedStatus isTainted = TaintedStatus.UNTAINTED;
+        for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
+            positionalArg.accept(this);
+            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                isTainted = TaintedStatus.TAINTED;
+            }
+        }
+        getCurrentAnalysisState().taintedStatus = isTainted;
+
+        for (BLangNamedArgsExpression namedArgExpr : errorConstructorExpr.namedArgs) {
+            namedArgExpr.accept(this);
+            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                isTainted = TaintedStatus.TAINTED;
+            }
+        }
+        getCurrentAnalysisState().taintedStatus = isTainted;
     }
 
-    private boolean isErrorConstructorInvocation(BLangInvocation invocationExpr) {
-        return invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR;
+    @Override
+    public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        this.visit((BLangInvocation) actionInvocation);
     }
 
     private void analyzeLangLibFunctionInvocation(BLangInvocation invocationExpr) {

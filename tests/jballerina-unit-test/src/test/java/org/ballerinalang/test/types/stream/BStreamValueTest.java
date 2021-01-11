@@ -212,15 +212,19 @@ public class BStreamValueTest {
                 , 253, 19);
         BAssertUtil.validateError(negativeResult, i++, "'new(itr, itr)' is not a valid constructor for streams type"
                 , 254, 19);
+        BAssertUtil.validateError(negativeResult, i++, "invalid next method return type. expected: 'record {| int " +
+                "value; |}?'", 324, 7);
+        BAssertUtil.validateError(negativeResult, i++, "invalid next method return type. expected: 'record {| " +
+                "stream<int> value; |}?'", 332, 7);
         BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
                 "public isolated function next() returns (record {| int value; |}|error)?; }', but found " +
-                "'IteratorWithNonIsolatedNext'", 332, 42);
+                "'IteratorWithNonIsolatedNext'", 350, 42);
         BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype of 'object { " +
                 "public isolated function next() returns (record {| int value; |}|error)?; public isolated function " +
-                "close() returns error?; }', but found 'IteratorWithNonIsolatedNextAndIsolatedClose'", 333, 42);
+                "close() returns error?; }', but found 'IteratorWithNonIsolatedNextAndIsolatedClose'", 351, 42);
         BAssertUtil.validateError(negativeResult, i, "invalid stream constructor. expected a subtype of 'object { " +
                 "public isolated function next() returns (record {| int value; |}|error)?; public isolated function " +
-                "close() returns error?; }', but found 'IteratorWithIsolatedNextAndNonIsolatedClose'", 334, 42);
+                "close() returns error?; }', but found 'IteratorWithIsolatedNextAndNonIsolatedClose'", 352, 42);
     }
 
 }

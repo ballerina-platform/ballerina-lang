@@ -404,7 +404,7 @@ function testTypeGuardsWithRecords_2() returns string {
 public type CustomError error<record { int status = 500; string message?; error cause?; }>;
 
 function testTypeGuardsWithError() returns string {
-    CustomError err = CustomError("some error");
+    CustomError err = error CustomError("some error");
     any|error e = err;
     if (e is error) {
         if (e is CustomError) {
@@ -908,8 +908,8 @@ type MyErrorTwo distinct error<Details>;
 
 function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
     Details d = { message: "detail message" };
-    MyError e3 = MyError(ERR_REASON, message = d.message);
-    MyErrorTwo e4 = MyErrorTwo(ERR_REASON_TWO, message = "detail message");
+    MyError e3 = error MyError(ERR_REASON, message = d.message);
+    MyErrorTwo e4 = error MyErrorTwo(ERR_REASON_TWO, message = "detail message");
 
     any|error a1 = e3;
     any|error a2 = e4;
@@ -1031,7 +1031,7 @@ type Detail record {
 type ErrorD error<Detail>;
 
 function errorReturningFunc(int? i) returns error<Detail> {
-    return ErrorD("hello", message = "hello", code = i, f = 1.0);
+    return error ErrorD("hello", message = "hello", code = i, f = 1.0);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

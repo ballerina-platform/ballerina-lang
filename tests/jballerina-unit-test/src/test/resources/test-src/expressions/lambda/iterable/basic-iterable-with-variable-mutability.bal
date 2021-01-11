@@ -285,10 +285,10 @@ function testWithComplexJson() returns json[] {
     };
     json[] filteredResults = [];
     string filterFrom = "street_number";
-    json[] addressComp = <json[]>j.address_components;
+    json[] addressComp = <json[]> checkpanic j.address_components;
     int index = 0;
     addressComp.filter(function (json comp) returns boolean {
-            json[] compTypes = <json[]>comp.types;
+            json[] compTypes = <json[]> checkpanic comp.types;
             return compTypes.filter(function (json compType) returns boolean {
                         return compType.toString() == filterFrom;
 

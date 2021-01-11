@@ -244,8 +244,8 @@ public class EvaluationUtils {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                         "occurred when trying to load required methods to execute BString concatenation"));
             }
-            RuntimeInstanceMethod concatMethod = new RuntimeInstanceMethod(context, result, method.get(0), null,
-                    Collections.singletonList(bStrings[i]));
+            RuntimeInstanceMethod concatMethod = new RuntimeInstanceMethod(context, result, method.get(0));
+            concatMethod.setArgValues(Collections.singletonList(bStrings[i]));
             result = concatMethod.invoke();
             method = ((ObjectReference) result).referenceType().methodsByName("concat");
         }

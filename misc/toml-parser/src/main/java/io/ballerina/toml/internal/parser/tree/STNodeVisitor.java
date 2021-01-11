@@ -53,6 +53,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(stringLiteralNode);
     }
 
+    public void visit(STLiteralStringLiteralNode literalStringLiteralNode) {
+        visitSyntaxNode(literalStringLiteralNode);
+    }
+
     public void visit(STNumericLiteralNode numericLiteralNode) {
         visitSyntaxNode(numericLiteralNode);
     }

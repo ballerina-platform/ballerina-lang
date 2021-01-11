@@ -69,6 +69,9 @@ public class TestUtils {
         return new Object[][] {
                 { "1.0.0", true },
                 { "1.1.11", true },
+                { "2.2.2-snapshot", true },
+                { "2.2.2-snapshot-1", true },
+                { "2.2.2-alpha", true },
                 { "200", false },
                 { "2.2.2.2", false }
         };
@@ -123,7 +126,7 @@ public class TestUtils {
                 Utils.validatePackageVersion(version, new LogFormatter());
             } catch (CentralClientException e) {
                 exceptionThrown = true;
-                Assert.assertTrue(e.getMessage().contains("package version could not be detected"));
+                Assert.assertTrue(e.getMessage().contains("Invalid version:"));
             }
 
             if (!exceptionThrown) {

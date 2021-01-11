@@ -1,3 +1,19 @@
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 function testSimpleQueryExprForXML() returns xml {
     xml book1 = xml `<book>
                            <name>Sherlock Holmes</name>
@@ -389,7 +405,7 @@ public function testSimpleQueryExprWithXMLElementLiteral() returns xml {
     xml res = from var x in payload/<data>/<*>
              let var year = <xml> x/<'field>[2]
              let var value = <xml> x/<'field>[3].name
-             select xml `<entry>${<string> value}</entry>`;
+             select xml `<entry>${<string> checkpanic value}</entry>`;
 
     return res;
 }
@@ -409,7 +425,7 @@ public function testSimpleQueryExprWithNestedXMLElements() returns xml {
     xml res = xml `<doc> ${from var x in payload/<data>/<*>
          let var year = <xml> x/<'field>[2]
          let var value = <xml> x/<'field>[3].name
-         select xml `<entry>${<string> value}</entry>`} </doc>`;
+         select xml `<entry>${<string> checkpanic value}</entry>`} </doc>`;
 
     return res;
 }

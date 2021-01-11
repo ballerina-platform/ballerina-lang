@@ -271,14 +271,10 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 22);
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 36);
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e4'", 55, 34);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "missing mandatory error message argument in call to error constructor", 56, 27);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "missing mandatory error message argument in call to error constructor", 57, 19);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "missing mandatory error message argument in call to error constructor", 96, 18);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "missing mandatory error message argument in call to error constructor", 97, 21);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing arg within parenthesis", 56, 48);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing arg within parenthesis", 57, 32);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 96, 32);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 97, 38);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'UserDefErrorTwoA', found 'error'", 110, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,

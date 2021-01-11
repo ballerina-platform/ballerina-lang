@@ -16,11 +16,10 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
-import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
-import io.ballerina.compiler.api.symbols.SimpleTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -116,7 +115,7 @@ public class Type {
     private Type() {
     }
 
-    public static Type fromNode(Node node, BallerinaSemanticModel semanticModel, String fileName) {
+    public static Type fromNode(Node node, SemanticModel semanticModel, String fileName) {
         Type type = new Type();
         if (node instanceof SimpleNameReferenceNode) {
             SimpleNameReferenceNode simpleNameReferenceNode = (SimpleNameReferenceNode) node;
@@ -294,9 +293,8 @@ public class Type {
             } else {
                 return "classes";
             }
-        } else if (typeDescriptor instanceof SimpleTypeSymbol && typeDescriptor.signature().equals("finite")) {
-            return "types";
         }
+
         return "not_found";
     }
 
