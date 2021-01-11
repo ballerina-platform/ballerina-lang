@@ -121,7 +121,7 @@ dependencies {
     dist project(':testerina:testerina-runtime')
     dist project(':toml-parser')
     docerina project(':docerina-gradle-plugin')
-    dist project(':ballerina-shell:shell')
+    dist project(':ballerina-shell:shell-core')
     dist project(':ballerina-shell:shell-cli')
 
     datamapperLib project(':ballerinalang-data-mapper')

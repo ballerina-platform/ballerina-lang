@@ -12,9 +12,9 @@ The Ballerina-shell tool is an interactive tool for learning the Ballerina progr
 
 The project is implemented in two base modules.
 
-- **shell** - Module including all the base evaluation classes. This has all the base components to evaluate and run a
+- **shell-core** - Module including all the base evaluation classes. This has all the base components to evaluate and run a
   string. All other components are built on top of this module. You may find the source code for this
-  module [here](shell).
+  module [here](shell-core).
 - **shell-cli** - A command-line interface built on top of shell. Includes multi-line inputs, color-coded outputs,
   keyword-based auto-completion, etc... You may find the source code for this module [here](shell-cli).
 
@@ -95,7 +95,7 @@ The project is implemented in two base modules.
 
 ## Implementation
 
-For implementation details please refer [this](shell/README.md).
+For implementation details please refer [this](shell-core/README.md).
 
 ## Building
 

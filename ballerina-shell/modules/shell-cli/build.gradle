@@ -25,7 +25,7 @@ group = 'io.ballerina'
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
-    implementation project(":ballerina-shell:shell")
+    implementation project(":ballerina-shell:shell-core")
     implementation('org.jline:jline:3.11.0')
 
     testImplementation('org.testng:testng')
