@@ -51,11 +51,6 @@ public class FindRefsInTestsTest extends FindAllReferencesTest {
     }
 
     @Override
-    public String getFileName() {
-        return "tests/test1.bal";
-    }
-
-    @Override
     public String getTestSourcePath() {
         return "test-src/test-project";
     }

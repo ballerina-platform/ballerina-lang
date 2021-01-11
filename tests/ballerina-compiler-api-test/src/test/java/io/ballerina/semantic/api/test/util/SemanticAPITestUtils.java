@@ -20,6 +20,8 @@ package io.ballerina.semantic.api.test.util;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
@@ -51,6 +53,23 @@ import static org.testng.Assert.assertTrue;
  * @since 2.0.0
  */
 public class SemanticAPITestUtils {
+
+    public static Document getDocumentForSingleSource(Project project) {
+        Package currentPackage = project.currentPackage();
+        return currentPackage.getDefaultModule().documents().iterator().next();
+    }
+
+    public static Module getModule(Project project, String moduleName) {
+        Package currentPackage = project.currentPackage();
+        ModuleName modName = ModuleName.from(currentPackage.packageName(), moduleName);
+        return currentPackage.module(modName);
+    }
+
+    public static SemanticModel getDefaultModulesSemanticModel(Project project) {
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        return currentPackage.getCompilation().getSemanticModel(defaultModuleId);
+    }
 
     public static SemanticModel getDefaultModulesSemanticModel(String sourceFilePath) {
         Project project = BCompileUtil.loadProject(sourceFilePath);

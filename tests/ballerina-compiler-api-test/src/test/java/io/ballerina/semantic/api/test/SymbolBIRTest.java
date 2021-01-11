@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
@@ -49,6 +50,8 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
@@ -110,10 +113,11 @@ public class SymbolBIRTest {
 
     @Test(dataProvider = "ImportSymbolPosProvider")
     public void testImportSymbols(int line, int column, String expSymbolName) {
-        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
-                "test-src/symbol_at_cursor_import_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_import_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
 
-        Optional<Symbol> symbol = model.symbol("symbol_at_cursor_import_test.bal", LinePosition.from(line, column));
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
 
         if (symbol.isEmpty()) {

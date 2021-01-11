@@ -21,8 +21,11 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -34,6 +37,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getModule;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
@@ -47,15 +51,19 @@ import static org.testng.Assert.assertNull;
 public class TestSourcesTest {
 
     private SemanticModel model;
+    private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getSemanticModelOf("test-src/test-project", "baz");
+        Project project = BCompileUtil.loadProject("test-src/test-project");
+        Module baz = getModule(project, "baz");
+        model = baz.getCompilation().getSemanticModel();
+        srcFile = baz.testDocuments().iterator().next();
     }
 
     @Test(dataProvider = "SymbolPosProvider")
     public void testSymbolAtCursor(int sLine, int sCol, String expSymbolName) {
-        Optional<Symbol> symbol = model.symbol("tests/test1.bal", from(sLine, sCol));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(sLine, sCol));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -98,7 +106,7 @@ public class TestSourcesTest {
     @Test(dataProvider = "ExprPosProvider")
     public void testType(int sLine, int sCol, int eLine, int eCol, TypeDescKind expKind) {
         LineRange exprRange = LineRange.from("tests/test1.bal", from(sLine, sCol), from(eLine, eCol));
-        Optional<TypeSymbol> type = model.type("tests/test1.bal", exprRange);
+        Optional<TypeSymbol> type = model.type(exprRange);
 
         assertEquals(type.get().typeKind(), expKind);
     }
