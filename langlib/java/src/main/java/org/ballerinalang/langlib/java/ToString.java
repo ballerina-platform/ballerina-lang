@@ -38,4 +38,8 @@ public class ToString {
         }
         return StringUtils.fromString(referredValue.toString());
     }
+
+    public static BString toString(Object value) {
+        return StringUtils.fromString(StringUtils.getStringValue(value, null));
+    }
 }

@@ -91,6 +91,18 @@ public isolated function getClass(string name) returns handle | error = @Method 
     paramTypes: ["io.ballerina.runtime.api.values.BString"]
 } external;
 
+# Performs a direct conversion of a value to a string.
+# The conversion is direct in the sense that when applied to a value that is already
+# a string it leaves the value unchanged.
+#
+# + v - the value to be converted to a string
+# + return - a string resulting from the conversion
+public isolated function getStringValue((any) v) returns string = @Method {
+    'class: "org.ballerinalang.langlib.java.ToString",
+    name: "toString",
+    paramTypes: ["java.lang.Object"]
+} external;
+
 # Returns an `JObject|error`, which is obtained after casting the provided `JObject` instance
 # to the given `JObject` type depending on assignability.
 # ```ballerina
