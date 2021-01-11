@@ -42,7 +42,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIG_FILE_NAME;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.DEFAULT_MODULE;
@@ -81,11 +80,7 @@ public class ConfigTomlParser {
             return;
         }
         for (Map.Entry<Module, VariableKey[]> moduleEntry : configurationData.entrySet()) {
-            String orgName = moduleEntry.getKey().getOrg();
-            String moduleName = moduleEntry.getKey().getName();
-            TomlTableNode orgNode = orgName.equals(ANON_ORG) ? tomlNode : extractOrganizationNode(tomlNode, orgName);
-            TomlTableNode moduleNode = moduleName.equals(DEFAULT_MODULE) ? orgNode : extractModuleNode(orgNode,
-                    moduleName);
+            TomlTableNode moduleNode = retrieveModuleNode(tomlNode, moduleEntry.getKey());
             if (moduleNode == null) {
                 continue;
             }
@@ -98,6 +93,21 @@ public class ConfigTomlParser {
                 ConfigurableMap.put(key, value);
             }
         }
+    }
+
+    private static TomlTableNode retrieveModuleNode(TomlTableNode tomlNode, Module module) {
+        String orgName = module.getOrg();
+        String moduleName = module.getName();
+        if (tomlNode.entries().containsKey(orgName)) {
+            tomlNode =  (TomlTableNode) tomlNode.entries().get(orgName);
+        }
+        TomlTableNode moduleNode = moduleName.equals(DEFAULT_MODULE) ? tomlNode : extractModuleNode(tomlNode,
+                moduleName);
+        if (moduleNode == null) {
+            throw new TomlException(
+                    INVALID_TOML_FILE + "Module '" + moduleName + "' from organization '" + orgName + "' not found.");
+        }
+        return moduleNode;
     }
 
     private static Object validateNodeAndExtractValue(VariableKey key, Map<String, TopLevelNode> valueMap) {

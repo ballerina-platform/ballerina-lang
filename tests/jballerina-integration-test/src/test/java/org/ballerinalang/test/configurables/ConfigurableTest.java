@@ -129,7 +129,7 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testInvalidOrganizationName() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "InvalidOrgName").toAbsolutePath();
-        LogLeecher errorLeecher = new LogLeecher(errorMsg + "Organization name 'testOrg' not found.", ERROR);
+        LogLeecher errorLeecher = new LogLeecher(errorMsg + "Module 'main' from organization 'testOrg' not found.", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());
         errorLeecher.waitForText(5000);
