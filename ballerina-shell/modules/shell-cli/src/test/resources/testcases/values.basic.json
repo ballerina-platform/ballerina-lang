@@ -30,16 +30,6 @@
     "expr": "Hello 100!!!"
   },
   {
-    "description": "Range expression x...y format.",
-    "code": "foreach int i in 25 ... 28 { println(i); }",
-    "stdout": "25\n26\n27\n28\n"
-  },
-  {
-    "description": "Range expression x..<y format.",
-    "code": "foreach int i in 25 ..< 28 { println(i); }",
-    "stdout": "25\n26\n27\n"
-  },
-  {
     "description": "Constant value declaration.",
     "code": "const SPEED_OF_LIGHT = 299792000; SPEED_OF_LIGHT",
     "expr": "299792000"
