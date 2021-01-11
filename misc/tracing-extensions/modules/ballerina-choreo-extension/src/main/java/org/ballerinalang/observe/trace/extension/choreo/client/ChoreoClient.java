@@ -33,6 +33,7 @@ import org.ballerinalang.observe.trace.extension.choreo.logging.LogFactory;
 import org.ballerinalang.observe.trace.extension.choreo.logging.Logger;
 import org.ballerinalang.observe.trace.extension.choreo.model.ChoreoMetric;
 import org.ballerinalang.observe.trace.extension.choreo.model.ChoreoTraceSpan;
+import org.ballerinalang.observe.trace.extension.choreo.model.SpanEvent;
 
 import java.util.List;
 import java.util.Objects;
@@ -198,6 +199,15 @@ public class ChoreoClient implements AutoCloseable {
                             .setRefType(reference.getRefType() == ChoreoTraceSpan.Reference.Type.CHILD_OF
                                     ? TelemetryOuterClass.TraceReferenceType.CHILD_OF
                                     : TelemetryOuterClass.TraceReferenceType.FOLLOWS_FROM));
+                }
+
+                if (traceSpan.getEvents() != null) {
+                    for (SpanEvent spanEvent: traceSpan.getEvents()) {
+                        traceSpanBuilder.addCheckpoints(TelemetryOuterClass.Checkpoint.newBuilder()
+                                .setTimestamp(spanEvent.getTime())
+                                .setModuleID(spanEvent.getModuleID())
+                                .setPositionID(spanEvent.getPositionID()));
+                    }
                 }
 
                 TelemetryOuterClass.TraceSpan traceSpanMessage = traceSpanBuilder.build();
