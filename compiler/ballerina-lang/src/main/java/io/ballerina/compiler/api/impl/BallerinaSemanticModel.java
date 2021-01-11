@@ -148,7 +148,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        Optional<Location> nodeIdentifierLocation = node.apply(new SyntaxNodeLocationMapper());
+        Optional<Location> nodeIdentifierLocation = node.apply(new SyntaxNodeToLocationMapper());
 
         if (nodeIdentifierLocation.isEmpty()) {
             return Optional.empty();

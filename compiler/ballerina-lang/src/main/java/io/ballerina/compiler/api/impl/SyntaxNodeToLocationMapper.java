@@ -56,11 +56,11 @@ import io.ballerina.tools.diagnostics.Location;
 import java.util.Optional;
 
 /**
- * A util class for mapping a given syntax node to the syntax node associated with its symbol (i.e., the name node)
+ * A util class for mapping a given syntax node to the syntax node associated with its symbol (i.e., the name node).
  *
  * @since 2.0.0
  */
-public class SyntaxNodeLocationMapper extends NodeTransformer<Optional<Location>> {
+public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Location>> {
 
     // Nodes relevant for symbol()
 
