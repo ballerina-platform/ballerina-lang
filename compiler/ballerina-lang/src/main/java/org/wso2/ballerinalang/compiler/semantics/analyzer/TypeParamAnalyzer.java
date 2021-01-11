@@ -511,8 +511,8 @@ public class TypeParamAnalyzer {
                 members.addAll(((BTupleType) type).getTupleTypes());
             }
         }
-        BUnionType unionType = BUnionType.create(null, members);
-        findTypeParam(loc, expType, unionType, env, resolvedTypes, result);
+        BUnionType tupleElementType = BUnionType.create(null, members);
+        findTypeParam(loc, expType, tupleElementType, env, resolvedTypes, result);
     }
 
 

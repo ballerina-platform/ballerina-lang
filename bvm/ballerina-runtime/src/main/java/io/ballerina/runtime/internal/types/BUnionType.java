@@ -27,8 +27,10 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -38,7 +40,7 @@ import java.util.regex.Pattern;
  */
 public class BUnionType extends BType implements UnionType {
 
-    public boolean isCyclic;
+    public boolean isCyclic = false;
     public static final char PIPE = '|';
     private List<Type> memberTypes;
     private Boolean nullable;
@@ -47,6 +49,7 @@ public class BUnionType extends BType implements UnionType {
     private final boolean readonly;
     protected IntersectionType immutableType;
     private boolean resolving = false;
+    public boolean resolvingReadonly = false;
 
     private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
@@ -79,6 +82,15 @@ public class BUnionType extends BType implements UnionType {
         this.isCyclic = isCyclic;
     }
 
+    public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly,  boolean isCyclic,
+                      Set<Type> unresolvedTypes) {
+        super(null, null, Object.class);
+        this.typeFlags = typeFlags;
+        this.readonly = readonly;
+        setMemberTypes(memberTypes);
+        this.isCyclic = isCyclic;
+    }
+
     public BUnionType(List<Type> memberTypes) {
         this(memberTypes, false);
     }
@@ -100,6 +112,10 @@ public class BUnionType extends BType implements UnionType {
 
     public BUnionType(List<Type> memberTypes, boolean readonly) {
         this(memberTypes, 0, readonly, false);
+    }
+
+    public BUnionType(List<Type> memberTypes, boolean readonly, boolean isCyclic, Set<Type> unresolvedTypes) {
+        this(memberTypes, 0, readonly, isCyclic, unresolvedTypes);
     }
 
     public BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
@@ -139,7 +155,7 @@ public class BUnionType extends BType implements UnionType {
         super(unionType.typeName, unionType.pkg, unionType.valueClass);
         this.typeFlags = unionType.typeFlags;
         this.readonly = unionType.readonly;
-//        this.memberTypes = unionType.memberTypes;
+        this.memberTypes = new ArrayList<>(unionType.memberTypes.size());
         this.mergeUnionType(unionType);
     }
 
@@ -151,8 +167,8 @@ public class BUnionType extends BType implements UnionType {
      */
     public BUnionType(BUnionType unionType, String typeName) {
         super(typeName, unionType.pkg, unionType.valueClass);
-        this.typeFlags = unionType.typeFlags;
         this.readonly = unionType.readonly;
+        this.typeFlags = unionType.typeFlags;
         this.memberTypes = new ArrayList<>(unionType.memberTypes.size());
         this.mergeUnionType(unionType);
     }
@@ -193,7 +209,23 @@ public class BUnionType extends BType implements UnionType {
             this.memberTypes = memberTypes;
             return;
         }
-        this.memberTypes = readonly ? getReadOnlyTypes(memberTypes) : memberTypes;
+        this.resolvingReadonly = true;
+        this.memberTypes = readonly ? getReadOnlyTypes(memberTypes, new HashSet<>()) : memberTypes;
+        this.resolvingReadonly = false;
+        setFlagsBasedOnMembers();
+    }
+
+    public void setMemberTypes(List<Type> memberTypes, Set<Type> unresolvedTypes) {
+        if (memberTypes == null) {
+            return;
+        }
+        if (memberTypes.isEmpty()) {
+            this.memberTypes = memberTypes;
+            return;
+        }
+        this.resolvingReadonly = true;
+        this.memberTypes = readonly ? getReadOnlyTypes(memberTypes, unresolvedTypes) : memberTypes;
+        this.resolvingReadonly = false;
         setFlagsBasedOnMembers();
     }
 
@@ -264,10 +296,25 @@ public class BUnionType extends BType implements UnionType {
         return isNilable();
     }
 
-    private List<Type> getReadOnlyTypes(List<Type> memberTypes) {
+    private List<Type> getReadOnlyTypes(List<Type> memberTypes, Set<Type> unresolvedTypes) {
         List<Type> readOnlyTypes = new ArrayList<>();
         for (Type type : memberTypes) {
-            readOnlyTypes.add(ReadOnlyUtils.getReadOnlyType(type));
+//            if (type instanceof BMapType && ((BMapType) type).getConstrainedType() instanceof BUnionType) {
+//                BMapType mapType = (BMapType) type;
+//                BUnionType unionConstrainedType = (BUnionType) mapType.getConstrainedType();
+//                if (unionConstrainedType.resolvingReadonly) {
+//                    readOnlyTypes.add(type);
+//                    continue;
+//                }
+//            } else if (type instanceof BArrayType && ((BArrayType) type).getElementType() instanceof BUnionType) {
+//                BArrayType arrayType = (BArrayType) type;
+//                BUnionType unionConstrainedType = (BUnionType) arrayType.getElementType();
+//                if (unionConstrainedType.resolvingReadonly) {
+//                    readOnlyTypes.add(type);
+//                    continue;
+//                }
+//            }
+            readOnlyTypes.add(ReadOnlyUtils.getReadOnlyType(type, unresolvedTypes));
         }
         return readOnlyTypes;
     }
