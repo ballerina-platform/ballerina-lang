@@ -191,7 +191,7 @@ public class TypeNarrower extends BLangNodeVisitor {
             return;
         }
 
-        BType trueType = types.getTypeIntersection(varSymbol.type, typeTestExpr.typeNode.type);
+        BType trueType = types.getTypeIntersection(varSymbol.type, typeTestExpr.typeNode.type, this.env);
         BType falseType = types.getRemainingType(varSymbol.type, typeTestExpr.typeNode.type);
         typeTestExpr.narrowedTypeInfo.put(getOriginalVarSymbol(varSymbol), new NarrowedTypes(trueType, falseType));
     }
@@ -256,16 +256,15 @@ public class TypeNarrower extends BLangNodeVisitor {
         } else {
             rhsTrueType = rhsFalseType = symbol.type;
         }
-
         BType trueType, falseType;
         if (operator == OperatorKind.AND) {
-            trueType = types.getTypeIntersection(lhsTrueType, rhsTrueType);
-            BType tmpType = types.getTypeIntersection(lhsTrueType, rhsFalseType);
+            trueType = types.getTypeIntersection(lhsTrueType, rhsTrueType, this.env);
+            BType tmpType = types.getTypeIntersection(lhsTrueType, rhsFalseType, this.env);
             falseType = getTypeUnion(lhsFalseType, tmpType);
         } else {
-            BType tmpType = types.getTypeIntersection(lhsFalseType, rhsTrueType);
+            BType tmpType = types.getTypeIntersection(lhsFalseType, rhsTrueType, this.env);
             trueType = getTypeUnion(lhsTrueType, tmpType);
-            falseType = types.getTypeIntersection(lhsFalseType, rhsFalseType);
+            falseType = types.getTypeIntersection(lhsFalseType, rhsFalseType, this.env);
         }
         return new NarrowedTypes(trueType, falseType);
     }

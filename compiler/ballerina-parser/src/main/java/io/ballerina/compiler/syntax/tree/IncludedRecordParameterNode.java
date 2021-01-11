@@ -27,9 +27,9 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class RequiredParameterNode extends ParameterNode {
+public class IncludedRecordParameterNode extends ParameterNode {
 
-    public RequiredParameterNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public IncludedRecordParameterNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -37,12 +37,16 @@ public class RequiredParameterNode extends ParameterNode {
         return new NodeList<>(childInBucket(0));
     }
 
-    public Node typeName() {
+    public Token asteriskToken() {
         return childInBucket(1);
     }
 
+    public Node typeName() {
+        return childInBucket(2);
+    }
+
     public Optional<Token> paramName() {
-        return optionalChildInBucket(2);
+        return optionalChildInBucket(3);
     }
 
     @Override
@@ -59,29 +63,33 @@ public class RequiredParameterNode extends ParameterNode {
     protected String[] childNames() {
         return new String[]{
                 "annotations",
+                "asteriskToken",
                 "typeName",
                 "paramName"};
     }
 
-    public RequiredParameterNode modify(
+    public IncludedRecordParameterNode modify(
             NodeList<AnnotationNode> annotations,
+            Token asteriskToken,
             Node typeName,
             Token paramName) {
         if (checkForReferenceEquality(
                 annotations.underlyingListNode(),
+                asteriskToken,
                 typeName,
                 paramName)) {
             return this;
         }
 
-        return NodeFactory.createRequiredParameterNode(
+        return NodeFactory.createIncludedRecordParameterNode(
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName);
     }
 
-    public RequiredParameterNodeModifier modify() {
-        return new RequiredParameterNodeModifier(this);
+    public IncludedRecordParameterNodeModifier modify() {
+        return new IncludedRecordParameterNodeModifier(this);
     }
 
     /**
@@ -89,42 +97,52 @@ public class RequiredParameterNode extends ParameterNode {
      *
      * @since 2.0.0
      */
-    public static class RequiredParameterNodeModifier {
-        private final RequiredParameterNode oldNode;
+    public static class IncludedRecordParameterNodeModifier {
+        private final IncludedRecordParameterNode oldNode;
         private NodeList<AnnotationNode> annotations;
+        private Token asteriskToken;
         private Node typeName;
         private Token paramName;
 
-        public RequiredParameterNodeModifier(RequiredParameterNode oldNode) {
+        public IncludedRecordParameterNodeModifier(IncludedRecordParameterNode oldNode) {
             this.oldNode = oldNode;
             this.annotations = oldNode.annotations();
+            this.asteriskToken = oldNode.asteriskToken();
             this.typeName = oldNode.typeName();
             this.paramName = oldNode.paramName().orElse(null);
         }
 
-        public RequiredParameterNodeModifier withAnnotations(
+        public IncludedRecordParameterNodeModifier withAnnotations(
                 NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public RequiredParameterNodeModifier withTypeName(
+        public IncludedRecordParameterNodeModifier withAsteriskToken(
+                Token asteriskToken) {
+            Objects.requireNonNull(asteriskToken, "asteriskToken must not be null");
+            this.asteriskToken = asteriskToken;
+            return this;
+        }
+
+        public IncludedRecordParameterNodeModifier withTypeName(
                 Node typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;
         }
 
-        public RequiredParameterNodeModifier withParamName(
+        public IncludedRecordParameterNodeModifier withParamName(
                 Token paramName) {
             this.paramName = paramName;
             return this;
         }
 
-        public RequiredParameterNode apply() {
+        public IncludedRecordParameterNode apply() {
             return oldNode.modify(
                     annotations,
+                    asteriskToken,
                     typeName,
                     paramName);
         }

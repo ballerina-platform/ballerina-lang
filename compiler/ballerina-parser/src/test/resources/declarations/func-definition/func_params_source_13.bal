@@ -1,2 +1,2 @@
-function foo(int a, int b, *person) {
+function foo(int a, int b, *person ) {
 }
