@@ -67,8 +67,8 @@ public class ShellCommandTest extends BaseCommandTest {
                 "not/existing/dir/abc'");
     }
 
+    @Test
     public void testShellExecution() throws Exception {
-        // Test disabled for now
         List<String[]> testCases = new ArrayList<>();
         testCases.add(new String[]{"int i = 35", ""});
         testCases.add(new String[]{"i*2 + 10", "80"});
