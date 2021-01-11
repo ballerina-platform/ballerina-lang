@@ -1950,7 +1950,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (referingForkedWorkerOutOfFork(symbol, env)) {
                     return;
                 }
-                dlog.error(pos, DiagnosticErrorCode.INVALID_WORKER_REFERRENCE, symbol.name);
+                dlog.error(pos, DiagnosticErrorCode.INVALID_WORKER_REFERRENCE, symbol);
             }
         }
     }
@@ -2315,7 +2315,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!this.workerExists(syncSendExpr.workerType, workerName)) {
-            this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
+            this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, syncSendExpr.workerSymbol);
             was.hasErrors = true;
         }
         syncSendExpr.type = createAccumulatedErrorTypeForMatchingRecive(syncSendExpr.pos, syncSendExpr.expr.type);
@@ -2508,7 +2508,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         if (bField.type.tag != TypeTags.NEVER) {
                             this.dlog.error(spreadOpExpr.pos,
                                             DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
-                                            recordLiteral.type.getKind().typeName(), name, spreadOpField);
+                                            recordLiteral.type.getKind().typeName(), bField.symbol, spreadOpField);
                         }
                         continue;
                     }
@@ -2522,7 +2522,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                             inclusiveTypeSpreadField != null && isSpreadExprRecordTypeSealed) {
                         this.dlog.error(spreadOpExpr.pos,
                                         DiagnosticErrorCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
-                                        recordLiteral.expectedType.getKind().typeName(), name, spreadOpField);
+                                        recordLiteral.expectedType.getKind().typeName(), bField.symbol, spreadOpField);
                     }
                     names.add(name);
                 }
@@ -2609,7 +2609,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(fieldAccessExpr.expr);
         BSymbol symbol = fieldAccessExpr.symbol;
         if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, fieldAccessExpr);
+            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
+                         fieldAccessExpr);
         }
     }
 
@@ -2630,8 +2631,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BSymbol funcSymbol = invocationExpr.symbol;
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.TRANSACTIONAL) && !withinTransactionScope) {
-                dlog.error(invocationExpr.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED,
-                           invocationExpr);
+                dlog.error(invocationExpr.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
                 return;
             }
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
@@ -2643,7 +2643,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     invocationExpr.parent.getKind() != NodeKind.EXPRESSION_STATEMENT) {
                 // Log an error if the function returns never and invoked invalidly.
                 dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION,
-                        funcSymbol.name);
+                        funcSymbol);
             }
         }
     }
@@ -2659,7 +2659,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!actionInvocation.async && !this.withinTransactionScope &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED,
-                       actionInvocation);
+                       actionInvocation.symbol);
             return;
         }
 
@@ -2693,7 +2693,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if ((actionInvocation.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.INVALID_FUNCTIONAL_CONSTRUCTOR_INVOCATION,
-                       actionInvocation.symbol.name);
+                       actionInvocation.symbol);
             return;
         }
 
@@ -2846,7 +2846,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                                               .collect(Collectors.toList());
             if (sendsToGivenWrkr.size() == 0) {
                 this.dlog.error(workerFlushExpr.pos, DiagnosticErrorCode.INVALID_WORKER_FLUSH_FOR_WORKER,
-                                flushWrkIdentifier, currentWrkerAction.currentWorkerId());
+                                workerFlushExpr.workerSymbol, currentWrkerAction.currentWorkerId());
                 return;
             } else {
                 sendStmts = sendsToGivenWrkr;
