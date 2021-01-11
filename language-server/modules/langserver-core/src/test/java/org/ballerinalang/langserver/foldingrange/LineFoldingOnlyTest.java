@@ -19,7 +19,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
-import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -44,9 +43,7 @@ public class LineFoldingOnlyTest {
 
     @BeforeClass
     public void init() throws Exception {
-        FoldingRangeCapabilities foldingRangeCapabilities = new FoldingRangeCapabilities();
-        foldingRangeCapabilities.setLineFoldingOnly(true);
-        this.serviceEndpoint = TestUtil.initializeLanguageSeverAndGetDocManager(foldingRangeCapabilities).getLeft();
+        this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
     @Test(description = "Test folding ranges", dataProvider = "foldingrange-data-provider")
@@ -62,9 +59,8 @@ public class LineFoldingOnlyTest {
      *
      * @param expected expected response
      * @param response JSON rpc response
-     * @throws IOException
      */
-    private void compareResponse(String expected, String response) throws IOException {
+    private void compareResponse(String expected, String response) {
         Path expectedPath = resourcesPath.resolve("expected").resolve(expected);
         JsonArray expectedJsonArray =
                 FileUtils.fileContentAsObject(expectedPath.toAbsolutePath().toString()).getAsJsonArray("result");

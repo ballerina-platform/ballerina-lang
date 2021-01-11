@@ -33,7 +33,6 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
-import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
@@ -110,6 +109,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.ST
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.closeQuietly;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getRectifiedSourcePath;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedundantQuotes;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
@@ -487,8 +487,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (terminateDebuggee) {
             new TerminatorFactory().getTerminator(OSUtils.getOperatingSystem()).terminate();
         }
-        IOUtils.closeQuietly(launchedErrorStream);
-        IOUtils.closeQuietly(launchedStdoutStream);
+        closeQuietly(launchedErrorStream);
+        closeQuietly(launchedStdoutStream);
         if (launchedProcess != null) {
             launchedProcess.destroy();
         }

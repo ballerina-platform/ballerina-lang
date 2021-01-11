@@ -10,6 +10,10 @@ json jdata = {
     ]
 };
 
+json jNulldata = {
+    name: null
+};
+
 function concatIntString(int i, string s) {
     output = output + i.toString() + ":" + s + " ";
 }
@@ -52,7 +56,7 @@ function testDirectAccessJsonArrayWithoutType() returns string {
     output = "";
 
     int i = 0;
-    json j = <json>jdata.subjects;
+    json j = checkpanic jdata.subjects;
     if j is json[] {
         foreach var v in j {
             concatIntJson(i, v);
@@ -66,7 +70,7 @@ function testDirectAccessJsonArrayWithType() returns string {
     output = "";
 
     int i = 0;
-    json j =  <json>jdata.subjects;
+    json j =  checkpanic jdata.subjects;
     if j is json[] {
         foreach json v in j {
             concatIntJson(i, v);
@@ -81,7 +85,7 @@ function testDirectAccessJsonArrayWithType() returns string {
 function testJsonArrayWithoutType() returns string {
     output = "";
 
-    json subjects =  <json>jdata.subjects;
+    json subjects = checkpanic jdata.subjects;
 
     int i = 0;
     if subjects is json[] {
@@ -96,7 +100,7 @@ function testJsonArrayWithoutType() returns string {
 function testJsonArrayWithType() returns string {
     output = "";
 
-    json subjects =  <json>jdata.subjects;
+    json subjects = checkpanic jdata.subjects;
 
     int i = 0;
     if subjects is json[] {
@@ -113,7 +117,7 @@ function testJsonArrayWithType() returns string {
 function testDirectAccessInvalidElementWithoutType() returns string|error {
     output = "";
 
-    json j =  <json>jdata.random;
+    json j = checkpanic jdata.random;
 
     int i = 0;
     foreach var v in <map<json>>j {
@@ -126,7 +130,7 @@ function testDirectAccessInvalidElementWithoutType() returns string|error {
 function testDirectAccessInvalidElementWithType() returns string|error {
     output = "";
 
-    json j =  <json>jdata.random;
+    json j = checkpanic jdata.random;
 
     int i = 0;
     foreach json v in <map<json>>j {

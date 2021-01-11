@@ -73,7 +73,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private BString[] bStringValues;
     // ------------------------ Constructors -------------------------------------------------------------------
 
-    @Deprecated
     public ArrayValueImpl(Object[] values, ArrayType type) {
         this.refValues = values;
         this.arrayType = type;
@@ -83,35 +82,30 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    @Deprecated
     public ArrayValueImpl(long[] values) {
         this.intValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_INT);
     }
 
-    @Deprecated
     public ArrayValueImpl(boolean[] values) {
         this.booleanValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_BOOLEAN);
     }
 
-    @Deprecated
     public ArrayValueImpl(byte[] values) {
         this.byteValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_BYTE);
     }
 
-    @Deprecated
     public ArrayValueImpl(double[] values) {
         this.floatValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_FLOAT);
     }
 
-    @Deprecated
     public ArrayValueImpl(String[] values) {
         this.size = values.length;
         bStringValues = new BString[size];
@@ -121,14 +115,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
         setArrayType(PredefinedTypes.TYPE_STRING);
     }
 
-    @Deprecated
     public ArrayValueImpl(BString[] values) {
         this.bStringValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_STRING);
     }
 
-    @Deprecated
     public ArrayValueImpl(ArrayType type) {
         this.arrayType = type;
         ArrayType arrayType = type;
@@ -173,7 +165,61 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    @Deprecated
+    @Override
+    public Object reverse() {
+        switch (elementType.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
+                for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
+                    long temp = intValues[j];
+                    intValues[j] = intValues[i];
+                    intValues[i] = temp;
+                }
+                return intValues;
+            case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
+                for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
+                    BString temp = bStringValues[j];
+                    bStringValues[j] = bStringValues[i];
+                    bStringValues[i] = temp;
+                }
+                return bStringValues;
+            case TypeTags.FLOAT_TAG:
+                for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
+                    double temp = floatValues[j];
+                    floatValues[j] = floatValues[i];
+                    floatValues[i] = temp;
+                }
+                return floatValues;
+            case TypeTags.BOOLEAN_TAG:
+                for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
+                    boolean temp = booleanValues[j];
+                    booleanValues[j] = booleanValues[i];
+                    booleanValues[i] = temp;
+                }
+                return booleanValues;
+            case TypeTags.BYTE_TAG:
+                for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
+                    byte temp = byteValues[j];
+                    byteValues[j] = byteValues[i];
+                    byteValues[i] = temp;
+                }
+                return byteValues;
+            default:
+                for (int i = size - 1, j = 0; j < size / 2; i--, j++) {
+                    Object temp = refValues[j];
+                    refValues[j] = refValues[i];
+                    refValues[i] = temp;
+                }
+                return refValues;
+        }
+    }
+
     public ArrayValueImpl(ArrayType type, long size) {
         this.arrayType = type;
         this.elementType = type.getElementType();
@@ -183,7 +229,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    @Deprecated
     public ArrayValueImpl(ArrayType type, long size, ListInitialValueEntry[] initialValues) {
         this.arrayType = type;
         this.elementType = type.getElementType();

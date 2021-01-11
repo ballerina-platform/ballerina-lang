@@ -95,7 +95,6 @@ public interface SemanticModel {
      */
     List<Diagnostic> diagnostics(LineRange range);
 
-
     /**
      * Retrieves the diagnostics of the module.
      *

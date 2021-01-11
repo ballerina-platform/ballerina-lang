@@ -18,8 +18,16 @@ apply plugin: 'base'
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
-description = 'Ballerina - Testerina Test'
-
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    distributionBalo
+    distributionBirJar
+    balRt
+    testRt
+    testCore
+}
 
 dependencies {
     testCompile 'org.testng:testng'
@@ -30,10 +38,32 @@ dependencies {
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-lang')
     testRuntime project(':ballerina-runtime')
+
+    testRuntime project(":ballerina-lang-test")
+    balRt project(':ballerina-rt')
+    testRt project(':testerina:testerina-runtime')
+    testCore project(':testerina:testerina-core')
+}
+
+task createTestDistributionCache(type: Copy) {
+    dependsOn configurations.distributionBalo
+    from configurations.distributionBalo
+    into "$buildDir/repo"
+}
+
+task createTestBre(type: Copy) {
+    from configurations.balRt
+    from configurations.testRt
+    from configurations.testCore
+    from configurations.distributionBirJar
+    into "$buildDir/bre/lib"
 }
 
 test {
     dependsOn ':ballerina-lang:build'
+    dependsOn createTestDistributionCache
+    dependsOn createTestBre
+    
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

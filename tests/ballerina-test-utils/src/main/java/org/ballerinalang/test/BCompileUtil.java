@@ -18,7 +18,7 @@
 package org.ballerinalang.test;
 
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
@@ -111,7 +111,7 @@ public class BCompileUtil {
 
     private static JBallerinaBackend jBallerinaBackend(Package currentPackage) {
         PackageCompilation packageCompilation = currentPackage.getCompilation();
-        return JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        return JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
     }
 
     /**
@@ -127,7 +127,8 @@ public class BCompileUtil {
                                                 String org,
                                                 String pkgName,
                                                 String version) throws IOException {
-        Path targetPath = baloCachePath(org, pkgName, version);
+        String baloFileName = ProjectUtils.getBaloName(org, pkgName, version, null);
+        Path targetPath = baloCachePath(org, pkgName, version).resolve(baloFileName);
         Files.copy(srcPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
@@ -163,8 +164,7 @@ public class BCompileUtil {
                     .resolve(pkgName)
                     .resolve(version);
             Files.createDirectories(baloDirPath);
-            String baloFileName = ProjectUtils.getBaloName(org, pkgName, version, null);
-            return baloDirPath.resolve(baloFileName);
+            return baloDirPath;
         } catch (IOException e) {
             throw new RuntimeException("error while creating the balo distribution cache directory at " +
                     testBuildDirectory, e);

@@ -20,7 +20,7 @@ package io.ballerina.projects.test;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDependencyScope;
@@ -170,7 +170,7 @@ public class PackageResolutionTests {
                 compilation.getResolution().dependencyGraph();
         Assert.assertEquals(depGraphOfSrcProject.getNodes().size(), 2);
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
@@ -181,7 +181,7 @@ public class PackageResolutionTests {
         Path balrDir = testBuildDirectory.resolve("test_gen_balrs");
         Path balrPath = balrDir.resolve(balrName);
         Files.createDirectories(balrDir);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrDir);
 
         // Load the balr file now.
         BaloProject baloProject = BaloProject.loadProject(BCompileUtil.getTestProjectEnvironmentBuilder(), balrPath);
@@ -209,7 +209,7 @@ public class PackageResolutionTests {
                 "projects_for_resolution_tests/ultimate_package_resolution/package_http");
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
         diagnosticResult.errors().forEach(out::println);

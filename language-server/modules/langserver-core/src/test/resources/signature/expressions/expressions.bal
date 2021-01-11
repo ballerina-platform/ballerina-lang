@@ -1,5 +1,5 @@
 import ballerina/lang.'object as lang;
-
+import ballerina/module1;
 public function expressions() returns error? {
     //expression :=
     //   literal[!]
@@ -397,4 +397,8 @@ function testConcat() {
     };
     
     concat();
+}
+
+function testQNameReference() {
+    module1:function3()
 }

@@ -152,10 +152,11 @@ isolated function getInequalityErrorMsg(any|error actual, any|error expected, st
         } else if (actual is string && expected is string) {
             string diff = getStringDiff(<string>actual, <string>expected);
             errorMsg = string `${msg}` + "\n \nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
-                                     + string `'${actualStr}'` + "\n \nDiff\t:\n \n" + string `${diff}` + " \n";
+                                     + string `'${actualStr}'` + "\n \nDiff\t:\n" + string `${diff}`;
         } else if (actual is map<anydata> && expected is map<anydata>) {
             string diff = getMapValueDiff(<map<anydata>>actual, <map<anydata>>expected);
-            errorMsg = string `${msg}` + "\n \nexpected: " + string `'${expectedStr}'` + "\nactual\t: " + string `'${actualStr}'` + "\n \nDiff\t:\n \n" + string `${diff}` + " \n";
+            errorMsg = string `${msg}` + "\n \nexpected: " + string `'${expectedStr}'` + "\nactual\t: " +
+                            string `'${actualStr}'` + "\n \nDiff\t:\n" + string `${diff}`;
         } else {
             errorMsg = string `${msg}` + "\n \nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
                                                  + string `'${actualStr}'`;
@@ -184,7 +185,7 @@ isolated function getMapValueDiff(map<anydata> actualMap, map<anydata> expectedM
     string keyDiff = getKeysDiff(actualKeyArray, expectedKeyArray);
     string valueDiff = compareMapValues(actualMap, expectedMap);
     if (keyDiff != "") {
-        diffValue = diffValue.concat(keyDiff, "\n \n", valueDiff);
+        diffValue = diffValue.concat(keyDiff, "\n", valueDiff);
     } else {
         diffValue = diffValue.concat(valueDiff);
     }
@@ -197,12 +198,14 @@ isolated function getValueComparison(anydata actual, anydata expected, string ke
     string expectedType = getBallerinaType(expected);
     string actualType = getBallerinaType(actual);
     if (expectedType != actualType) {
-        diff = diff.concat("\n \n", "key: ", keyVal, "\nexpected value\t: <", expectedType, "> ", expected.toString(), "\nactual value\t: <", actualType, "> ", actual.toString(), " \n");
+        diff = diff.concat("\n", "key: ", keyVal, "\n \nexpected value\t: <", expectedType, "> ", expected.toString(),
+        "\nactual value\t: <", actualType, "> ", actual.toString());
         diffCount = diffCount + 1;
     } else {
         if (actual is map<anydata> && expected is map<anydata>) {
             string[] expectedkeyArray = (<map<anydata>>expected).keys();
             string[] actualKeyArray = (<map<anydata>>actual).keys();
+            int orderCount = diffCount;
             foreach string childKey in actualKeyArray {
                 if (expectedkeyArray.indexOf(childKey) != ()){
                     anydata expectedChildVal = expected.get(childKey);
@@ -210,12 +213,17 @@ isolated function getValueComparison(anydata actual, anydata expected, string ke
                     string childDiff;
                     if (expectedChildVal != actualChildVal) {
                         [childDiff, diffCount] = getValueComparison(actualChildVal, expectedChildVal, keyVal + "." + childKey, diffCount);
+                        if (diffCount != (orderCount + 1)) {
+                            diff = diff.concat("\n");
+                        }
                         diff = diff.concat(childDiff);
                     }
                 }
+
             }
         } else {
-            diff = diff.concat("\n \n", "key: ", keyVal, "\nexpected value\t: ", expected.toString(), "\nactual value\t: ", actual.toString(), " \n");
+            diff = diff.concat("\n", "key: ", keyVal, "\n \nexpected value\t: ", expected.toString(),
+            "\nactual value\t: ", actual.toString());
             diffCount = diffCount + 1;
         }
     }
@@ -235,12 +243,15 @@ isolated function compareMapValues(map<anydata> actualMap, map<anydata> expected
             if (expected != actual) {
                 string diffVal;
                 [diffVal, count] = getValueComparison(actual, expected, keyVal, count);
+                if (count != 1) {
+                    diff = diff.concat("\n");
+                }
                 diff = diff.concat(diffVal);
             }
         }
     }
     if (count > mapValueDiffLimit) {
-        diff = diff.concat("\n \nTotal value mismatches: " + count.toString() + "\n \n");
+        diff = diff.concat("\n \nTotal value mismatches: " + count.toString() + "\n");
     }
     return diff;
 }

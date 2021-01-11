@@ -85,7 +85,8 @@ public class IsolationAnalysisTest {
                 "testIsolationAnalysisWithRemoteMethods",
                 "testIsolatedFunctionWithDefaultableParams",
                 "testAccessingFinalIsolatedObjectInIsolatedFunction",
-                "testIsolationOfBoundMethods"
+                "testIsolationOfBoundMethods",
+                "testFinalReadOnlyServiceAccessInIsolatedFunction"
         };
     }
 
@@ -187,6 +188,9 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 227, 73);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 253, 27);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 254, 17);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 271, 14);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 272, 14);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 273, 14);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

@@ -25,7 +25,7 @@ function foo() returns E1? {
 }
 
 function bar() returns int|E2 {
-    return E2(R1);
+    return error E2(R1);
 }
 
 public function main() {
