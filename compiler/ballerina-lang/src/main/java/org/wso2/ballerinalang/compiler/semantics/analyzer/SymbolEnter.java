@@ -423,6 +423,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
             }
         }
+        this.intersectionTypes.clear();
     }
 
 
