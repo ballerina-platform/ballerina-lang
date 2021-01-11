@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,16 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import start_stop_failing_project.basic;
-import start_stop_failing_project.dependent;
+import ballerina/test;
 
-function init() {
-	basic:println("Initializing module 'current'");
+@test:Config {
 }
-
-public function main() {
-    dependent:sample();
-    basic:println("main function invoked for current module");
+function testIntersectionTypes() {
+    Uuid uuid = {timeLow: 1, timeMid: 2, timeHiAndVersion: 3, clockSeqHiAndReserved: 4, clockSeqLo: 5, node: 6};
+    Uuid returnVal = testIntersection();
+    test:assertEquals(returnVal, uuid);
 }
-
-listener basic:TestListener ep = new basic:TestListener("current");

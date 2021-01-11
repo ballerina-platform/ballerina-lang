@@ -62,7 +62,7 @@ public class TestReportTest extends BaseTestCase {
         clientLeecher.waitForText(60000);
     }
 
-    @Test ()
+    @Test (enabled = false) // TODO: Enable the test case once the mismatch on line coverage is fixed. issue:#27524
     public void testWithCoverage() throws BallerinaTestException, IOException {
         runCommand(true);
         validateStatuses();

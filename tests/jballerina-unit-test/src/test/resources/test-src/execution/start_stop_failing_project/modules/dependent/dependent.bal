@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -15,15 +15,13 @@
 // under the License.
 
 import start_stop_failing_project.basic;
-import start_stop_failing_project.dependent;
 
 function init() {
-	basic:println("Initializing module 'current'");
+	basic:println("Initializing module 'dependent'");
 }
 
-public function main() {
-    dependent:sample();
-    basic:println("main function invoked for current module");
+public function sample() {
+
 }
 
-listener basic:TestListener ep = new basic:TestListener("current");
+listener basic:TestListener ep = new basic:TestListener("dependent");
