@@ -3679,6 +3679,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseQualifiedIdentifier(STNode identifier, boolean isInConditionalExpr) {
         return parseQualifiedIdentifier(identifier, isInConditionalExpr, false);
     }
+
     /**
      * Parse identifier or qualified identifier, given the starting identifier.
      *
