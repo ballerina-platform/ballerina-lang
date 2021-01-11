@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-class Person {
+client class Person {
     string name;
     int age;
 
@@ -24,4 +24,12 @@ class Person {
     }
 
     function getName() returns string => self.name;
+
+    remote function getAge() returns int => self.age;
+}
+
+function test() {
+    Person p = new("John Doe", 25);
+    string s = p.getName();
+    int a = p->getAge();
 }

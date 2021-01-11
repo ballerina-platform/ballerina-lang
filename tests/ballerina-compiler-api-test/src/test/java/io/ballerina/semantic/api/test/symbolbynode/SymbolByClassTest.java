@@ -19,14 +19,22 @@ package io.ballerina.semantic.api.test.symbolbynode;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.testng.annotations.Test;
 
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
+import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -48,15 +56,47 @@ public class SymbolByClassTest extends SymbolByNodeTest {
 
             @Override
             public void visit(ClassDefinitionNode classDefinitionNode) {
-                assertSymbol(classDefinitionNode, model);
-                assertSymbol(classDefinitionNode.className(), model);
+                assertSymbol(classDefinitionNode, model, CLASS, "Person");
+                assertSymbol(classDefinitionNode.className(), model, CLASS, "Person");
+
+                for (Node member : classDefinitionNode.members()) {
+                    member.accept(this);
+                }
+            }
+
+            @Override
+            public void visit(ObjectFieldNode objectFieldNode) {
+                assertSymbol(objectFieldNode, model, VARIABLE, objectFieldNode.fieldName().text());
+                assertSymbol(objectFieldNode.fieldName(), model, VARIABLE, objectFieldNode.fieldName().text());
+            }
+
+            @Override
+            public void visit(FunctionDefinitionNode functionDefinitionNode) {
+                if (functionDefinitionNode.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
+                    assertSymbol(functionDefinitionNode, model, METHOD, functionDefinitionNode.functionName().text());
+                    return;
+                }
+
+                functionDefinitionNode.functionBody().accept(this);
+            }
+
+            @Override
+            public void visit(MethodCallExpressionNode methodCallExpressionNode) {
+                assertSymbol(methodCallExpressionNode, model, METHOD, "getName");
+                assertSymbol(methodCallExpressionNode.methodName(), model, METHOD, "getName");
+            }
+
+            @Override
+            public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
+                assertSymbol(remoteMethodCallActionNode, model, METHOD, "getAge");
+                assertSymbol(remoteMethodCallActionNode.methodName(), model, METHOD, "getAge");
             }
         };
     }
 
-    private void assertSymbol(Node node, SemanticModel model) {
+    private void assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(node);
-        assertEquals(symbol.get().kind(), CLASS);
-        assertEquals(symbol.get().name(), "Person");
+        assertEquals(symbol.get().kind(), kind);
+        assertEquals(symbol.get().name(), name);
     }
 }

@@ -73,12 +73,14 @@ public class BallerinaSemanticModel implements SemanticModel {
     private final CompilerContext compilerContext;
     private final SymbolFactory symbolFactory;
     private final TypesFactory typesFactory;
+    private final SymbolTable symbolTable;
 
     public BallerinaSemanticModel(BLangPackage bLangPackage, CompilerContext context) {
         this.compilerContext = context;
         this.bLangPackage = bLangPackage;
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.typesFactory = TypesFactory.getInstance(context);
+        this.symbolTable = SymbolTable.getInstance(context);
     }
 
     /**
@@ -126,7 +128,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         SymbolFinder symbolFinder = new SymbolFinder();
         BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
 
-        if (symbolAtCursor == null) {
+        if (symbolAtCursor == null || symbolAtCursor == symbolTable.notFoundSymbol) {
             return Optional.empty();
         }
 
