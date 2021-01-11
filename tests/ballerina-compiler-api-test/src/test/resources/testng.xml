@@ -58,6 +58,7 @@
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByRecordTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByVarDeclTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByVarDeclNegativeTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByWorkerTest" />
         </classes>
     </test>
 </suite>
