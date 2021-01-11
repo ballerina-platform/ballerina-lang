@@ -47,7 +47,6 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.MODULES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.getExistingBindings;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getUpdatedConstantsList;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
@@ -265,7 +264,8 @@ public class BindingsGenerator {
                             createDirectory(outputFile);
                             filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
                         } else {
-                            filePath = Paths.get(modulePath.toString(), jClass.getShortClassName() + BAL_EXTENSION).toString();
+                            filePath = Paths.get(modulePath.toString(), jClass.getShortClassName()
+                                    + BAL_EXTENSION).toString();
                         }
                         writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
                         outStream.println("\t" + c);
