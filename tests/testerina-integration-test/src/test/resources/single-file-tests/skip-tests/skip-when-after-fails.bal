@@ -40,7 +40,7 @@ public function test1() {
 
 // This should be skipped
 @test:Config {
-    dependsOn:["test1"]
+    dependsOn: [test1]
 }
 public function test2() {
     a = a + "test2";

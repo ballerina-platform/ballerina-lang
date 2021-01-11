@@ -41,7 +41,7 @@ public function afterFunc() {
 
 // 2nd function
 @test:Config {
-    dependsOn:["testFunc"]
+    dependsOn: [testFunc]
 }
 public function testFunc2() {
     test:assertEquals(testString, "beforetestafter");

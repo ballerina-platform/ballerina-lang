@@ -64,7 +64,7 @@ function testFunction() {
 
 @test:Config {
     groups: ["g1"],
-    dependsOn:["testFunction"]
+    dependsOn: [testFunction]
 }
 function testFunction2() {
     a += "8";

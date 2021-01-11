@@ -60,7 +60,7 @@ public class MissingFunctionsTestCase extends BaseTestCase {
 
     @Test
     public void testMissingDependsOnFunction() throws BallerinaTestException {
-        String errMsg = "error: Cannot find the specified dependsOn function : non-existing";
+        String errMsg = "ERROR [depends-on-negative.bal:(22:17,22:28)] undefined symbol 'nonExisting'";
         LogLeecher clientLeecher = new LogLeecher(errMsg, ERROR);
         balClient.runMain("test", new String[]{"depends-on-negative.bal"}, null, new String[]{},
                 new LogLeecher[]{clientLeecher}, projectPath);

@@ -39,7 +39,7 @@ public function afterEachFunc() {
 
 // 2nd function
 @test:Config {
-    dependsOn:["testFunc"]
+    dependsOn: [testFunc]
 }
 public function testFunc2() {
     test:assertEquals(testString, "beforeEachtestafterEachbeforeEach");
@@ -56,7 +56,7 @@ public function testDisabledFunc() {
 
 // Test Dependent on disabled function
 @test:Config {
-    dependsOn: ["testDisabledFunc"]
+    dependsOn: [testDisabledFunc]
 }
 public function testDependentDisabledFunc() {
     test:assertEquals(testString, "beforeEachdisabledafterEachbeforeEach");

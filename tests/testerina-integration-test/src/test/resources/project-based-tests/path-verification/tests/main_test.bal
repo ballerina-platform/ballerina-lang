@@ -56,7 +56,7 @@ function afterSuiteFunc() {
 
 # Second Test function
 @test:Config {
-    dependsOn : ["testFunction"]
+    dependsOn : [testFunction]
 }
 function testFunction2() {
     test:assertEquals(testString, "beforeSuiteFuncbeforeFunctestafterFunc");
