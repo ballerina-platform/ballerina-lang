@@ -81,6 +81,7 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
@@ -296,6 +297,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -1045,6 +1047,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
                 objectTypeNode.addFunction(bLangFunction);
+                dlog.error(getPosition(node), DiagnosticErrorCode.OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL);
             } else if (bLangNode.getKind() == NodeKind.VARIABLE) {
                 objectTypeNode.addField((BLangSimpleVariable) bLangNode);
             } else if (bLangNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
@@ -1980,8 +1983,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ErrorConstructorExpressionNode errorConstructorExprNode) {
-        return createBLangInvocation(errorConstructorExprNode.errorKeyword(), errorConstructorExprNode.arguments(),
-                getPosition(errorConstructorExprNode), false);
+        BLangErrorConstructorExpr errorConstructorExpr =
+                (BLangErrorConstructorExpr) TreeBuilder.createErrorConstructorExpressionNode();
+        errorConstructorExpr.pos = getPosition(errorConstructorExprNode);
+        if (errorConstructorExprNode.typeReference().isPresent()) {
+            errorConstructorExpr.errorTypeRef =
+                    (BLangUserDefinedType) createTypeNode(errorConstructorExprNode.typeReference().get());
+        }
+
+        List<BLangExpression> positionalArgs = new ArrayList<>();
+        List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
+        for (Node argNode : errorConstructorExprNode.arguments()) {
+            if (argNode.kind() == SyntaxKind.POSITIONAL_ARG) {
+                positionalArgs.add((BLangExpression) transform((PositionalArgumentNode) argNode));
+            } else if (argNode.kind() == SyntaxKind.NAMED_ARG) {
+                namedArgs.add((BLangNamedArgsExpression) transform((NamedArgumentNode) argNode));
+            }
+        }
+
+        errorConstructorExpr.positionalArgs = positionalArgs;
+        errorConstructorExpr.namedArgs = namedArgs;
+        return errorConstructorExpr;
     }
 
     public BLangNode transform(MethodCallExpressionNode methodCallExprNode) {
@@ -2938,15 +2960,24 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(RequiredParameterNode requiredParameter) {
         BLangSimpleVariable simpleVar = createSimpleVar(requiredParameter.paramName(),
                                                         requiredParameter.typeName(), requiredParameter.annotations());
-
-        if (requiredParameter.kind() == SyntaxKind.INCLUDED_RECORD_PARAM) {
-            simpleVar.flagSet.add(INCLUDED);
-        }
         simpleVar.pos = getPosition(requiredParameter);
         if (requiredParameter.paramName().isPresent()) {
             simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
         }
         simpleVar.pos = trimLeft(simpleVar.pos, getPosition(requiredParameter.typeName()));
+        return simpleVar;
+    }
+
+    @Override
+    public BLangNode transform(IncludedRecordParameterNode includedRecordParameterNode) {
+        BLangSimpleVariable simpleVar = createSimpleVar(includedRecordParameterNode.paramName(),
+                includedRecordParameterNode.typeName(), includedRecordParameterNode.annotations());
+        simpleVar.flagSet.add(INCLUDED);
+        simpleVar.pos = getPosition(includedRecordParameterNode);
+        if (includedRecordParameterNode.paramName().isPresent()) {
+            simpleVar.name.pos = getPosition(includedRecordParameterNode.paramName().get());
+        }
+        simpleVar.pos = trimLeft(simpleVar.pos, getPosition(includedRecordParameterNode.typeName()));
         return simpleVar;
     }
 

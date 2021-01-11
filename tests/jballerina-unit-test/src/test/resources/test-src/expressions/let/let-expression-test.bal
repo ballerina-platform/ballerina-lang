@@ -298,7 +298,7 @@ type SampleErrorData record {
 type SampleError error<SampleErrorData>;
 
 function getSampleError() returns SampleError {
-    SampleError e = SampleError("Sample Error", info = "Detail Msg", fatal = true);
+    SampleError e = error SampleError("Sample Error", info = "Detail Msg", fatal = true);
     return e;
 }
 
@@ -312,7 +312,7 @@ type Foo record {
 type FooError error<Foo>;
 
 function getRecordConstrainedError() returns FooError {
-    FooError e = FooError("Some Error", detailMsg = "Failed Message", isFatal = true);
+    FooError e = error FooError("Some Error", detailMsg = "Failed Message", isFatal = true);
     return e;
 }
 

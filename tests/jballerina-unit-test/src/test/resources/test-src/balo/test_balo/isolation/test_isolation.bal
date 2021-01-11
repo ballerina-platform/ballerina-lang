@@ -72,5 +72,7 @@ isolated function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

@@ -63,7 +63,7 @@ public class ObjectConstructorExpressionNodeContext
             return this.getTypeReferenceCompletions(ctx);
         }
 
-        return this.getConstructorBodyCompletions(ctx);
+        return this.getConstructorBodyCompletions(node, ctx);
     }
 
     private List<LSCompletionItem> getTypeReferenceCompletions(BallerinaCompletionContext ctx) {
@@ -84,11 +84,12 @@ public class ObjectConstructorExpressionNodeContext
         return completionItems;
     }
 
-    private List<LSCompletionItem> getConstructorBodyCompletions(BallerinaCompletionContext context) {
+    private List<LSCompletionItem> getConstructorBodyCompletions(ObjectConstructorExpressionNode node,
+                                                                 BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(ObjectConstructorBodyContextUtil.getBodyContextSnippets(context));
+        completionItems.addAll(ObjectConstructorBodyContextUtil.getBodyContextSnippets(node, context));
 
         return completionItems;
     }
