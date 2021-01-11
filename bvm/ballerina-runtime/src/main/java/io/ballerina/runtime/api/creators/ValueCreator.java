@@ -20,7 +20,6 @@ package io.ballerina.runtime.api.creators;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FunctionType;
-import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
@@ -608,7 +607,7 @@ public class ValueCreator {
      * @param keyValues initial map values to be populated.
      * @return map value
      */
-    public static BMap<BString, Object> createMapValue(MapType mapType, BMapInitialValueEntry[] keyValues) {
+    public static BMap<BString, Object> createMapValue(Type mapType, BMapInitialValueEntry[] keyValues) {
         return new MapValueImpl<>(mapType, keyValues);
     }
 
@@ -656,6 +655,23 @@ public class ValueCreator {
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           Map<String, Object> valueMap) {
         return ValueUtils.createRecordValue(packageId, recordTypeName, valueMap);
+    }
+
+    /**
+     * Create a readonly record value that populates record fields using the given package id, record type name and a
+     * map of field names and associated values for fields.
+     *
+     * @param packageId      the package id that the record type resides.
+     * @param recordTypeName name of the record type.
+     * @param valueMap       values to be used for fields when creating the record.
+     * @return value of the populated record.
+     */
+    public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
+                                                                  Map<String, Object> valueMap) {
+        MapValueImpl<BString, Object> bmap = (MapValueImpl<BString, Object>) ValueUtils.createRecordValue(
+                packageId, recordTypeName, valueMap);
+        bmap.freezeDirect();
+        return bmap;
     }
 
     /**
