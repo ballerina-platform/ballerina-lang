@@ -191,6 +191,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(requiredParameterNode);
     }
 
+    public void visit(IncludedRecordParameterNode includedRecordParameterNode) {
+        visitSyntaxNode(includedRecordParameterNode);
+    }
+
     public void visit(RestParameterNode restParameterNode) {
         visitSyntaxNode(restParameterNode);
     }

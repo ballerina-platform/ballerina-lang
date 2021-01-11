@@ -419,12 +419,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineIntersectionTypes(SymbolEnv env) {
         for (BLangNode typeDescriptor : this.intersectionTypes) {
             defineNode(typeDescriptor, env);
-
-            BLangTypeDefinition typeDefinition = (BLangTypeDefinition) typeDescriptor;
-            if (isDistinctFlagPresent(typeDefinition)) {
-                BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
-            }
         }
+        this.intersectionTypes.clear();
     }
 
 
