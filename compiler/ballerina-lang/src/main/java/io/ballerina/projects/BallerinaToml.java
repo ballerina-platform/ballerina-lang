@@ -276,6 +276,9 @@ public class BallerinaToml extends TomlDocument {
                                     platformEntryMap.put(VERSION,
                                                          getStringValueFromPlatformEntry(platformEntryTable,
                                                                                          VERSION));
+                                    platformEntryMap.put("scope",
+                                                         getStringValueFromPlatformEntry(platformEntryTable,
+                                                                                         "scope"));
                                     platformEntry.add(platformEntryMap);
                                 }
                             }

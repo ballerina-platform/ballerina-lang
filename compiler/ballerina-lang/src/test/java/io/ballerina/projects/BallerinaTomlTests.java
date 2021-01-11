@@ -150,4 +150,33 @@ public class BallerinaTomlTests {
         List<Map<String, Object>> platformDependencies = packageManifest.platform("java11").dependencies();
         Assert.assertEquals(platformDependencies.size(), 0);
     }
+
+    @Test
+    public void testBallerinaTomlWithPlatformScopes() {
+        BallerinaToml ballerinaToml = BallerinaToml.from(BAL_TOML_REPO.resolve("platfoms-with-scope.toml"));
+        Assert.assertFalse(ballerinaToml.diagnostics().hasErrors());
+
+        PackageManifest packageManifest = ballerinaToml.packageManifest();
+
+        PackageManifest.Platform platform = packageManifest.platform("java11");
+        List<Map<String, Object>> platformDependencies = platform.dependencies();
+        Assert.assertEquals(platformDependencies.size(), 3);
+        for (Map<String, Object> library : platformDependencies) {
+            if (library.get("path").equals("./libs/ballerina-io-1.2.0-java.txt")) {
+                Assert.assertEquals(library.get("scope"), "testOnly");
+                Assert.assertEquals(library.get("artifactId"), "ldap");
+                Assert.assertEquals(library.get("version"), "1.0.0");
+                Assert.assertEquals(library.get("groupId"), "ballerina");
+            } else {
+                Assert.assertNull(library.get("scope"));
+                Assert.assertTrue(library.get("path").equals("/user/sameera/libs/toml4j.jar") || library.get("path")
+                        .equals("path/to/swagger.jar"));
+                Assert.assertTrue(
+                        library.get("artifactId").equals("toml4j") || library.get("artifactId").equals("swagger"));
+                Assert.assertEquals(library.get("version"), "0.7.2");
+                Assert.assertTrue(library.get("groupId").equals("com.moandjiezana.toml") || library.get("groupId")
+                        .equals("swagger.io"));
+            }
+        }
+    }
 }
