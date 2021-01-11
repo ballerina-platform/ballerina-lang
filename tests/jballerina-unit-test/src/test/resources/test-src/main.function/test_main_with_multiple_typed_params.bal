@@ -33,6 +33,6 @@ public function main(int i, float f, string s, byte b, boolean bool, json j, xml
 
     io:print("integer: " + i.toHexString() + ", float: " + f.toString() + ", string: " + s + ", byte: " +
             b.toString() + ", boolean: " + boolStr + ", JSON Name Field: " +
-            j.name.toString() + ", XML Element Name: " + element.getName() + ", Employee Name Field: " + e.name +
+            (checkpanic j.name).toString() + ", XML Element Name: " + element.getName() + ", Employee Name Field: " + e.name +
             ", string rest args: " + restArgs);
 }

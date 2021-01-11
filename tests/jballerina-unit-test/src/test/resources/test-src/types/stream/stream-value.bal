@@ -101,7 +101,7 @@ function testStreamConstructWithFilter() returns boolean {
         return intVal % 2 == 1;
     });
 
-    ResultValue? oddNumber = <ResultValue?> oddNumberStream.next();
+    ResultValue? oddNumber = <ResultValue?> checkpanic oddNumberStream.next();
     testPassed = testPassed && (<int>oddNumber["value"] % 2 == 1);
 
     oddNumber = getRecordValue(oddNumberStream.next());
@@ -177,7 +177,7 @@ class IteratorWithCustomError {
     public isolated function next() returns record {| int value; |}|CustomError? {
         self.i += 1;
         if (self.i == 2) {
-            CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 1);
+            CustomError e = error CustomError("CustomError", message = "custom error occured", accountID = 1);
             return e;
         } else {
             return { value: self.i };
@@ -287,10 +287,10 @@ class IteratorWithErrorUnion {
     public isolated function next() returns record {| int value; |}|Error? {
         self.i += 1;
         if (self.i == 2) {
-            CustomError e = CustomError("CustomError", message = "custom error occured", accountID = 2);
+            CustomError e = error CustomError("CustomError", message = "custom error occured", accountID = 2);
             return e;
         } else if (self.i == 3) {
-            CustomError1 e = CustomError1("CustomError1", message = "custom error occured", accountID = 3);
+            CustomError1 e = error CustomError1("CustomError1", message = "custom error occured", accountID = 3);
             return e;
         } else {
             return { value: self.i };

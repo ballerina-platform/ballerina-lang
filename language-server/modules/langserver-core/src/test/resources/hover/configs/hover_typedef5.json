@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 215,
+    "character": 12
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description for TestObjectType1\n  \n  \n---  \n  \n### Fields  \n  \n`int` ***field1*** : Description for the field1  \n  \n---  \n  \n### Methods  \n  \n+ `function () returns ()`  \n  \n+ `function () returns ()`  \n"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

@@ -21,8 +21,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -309,8 +309,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 //                        listPropJson.add((Boolean) listPropItem);
 //                    }
 //                }
-            } else if (prop instanceof BallerinaModuleID) {
-                BallerinaModuleID ballerinaModuleID = (BallerinaModuleID) prop;
+            } else if (prop instanceof ModuleID) {
+                ModuleID ballerinaModuleID = (ModuleID) prop;
                 JsonObject moduleIdJson = new JsonObject();
                 moduleIdJson.addProperty("orgName", ballerinaModuleID.orgName());
                 moduleIdJson.addProperty("moduleName", ballerinaModuleID.moduleName());

@@ -70,7 +70,7 @@ function testClassTypeAsParamtype() {
     var f = <[FunctionType, typedesc<anydata>]> functions["func"];
     FunctionType f1 = f[0];
     json|error j = f1(new(), 1);
-    var k = <map<json>>j;
+    var k = <map<json>> checkpanic j;
     string q = <string> k["j"];
     assertEquality("1", q);
 }
@@ -84,8 +84,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError("Assertion Error",
-            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("AssertionError",
+                                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
-
-type AssertionError error;

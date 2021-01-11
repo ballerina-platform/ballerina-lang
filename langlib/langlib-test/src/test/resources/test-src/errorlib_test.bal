@@ -40,7 +40,7 @@ function testTypeTestingErrorUnion() returns [string, map<anydata|readonly>]? {
 }
 
 function getError() returns Error? {
-    GenericError err = GenericError(GENERIC_ERROR, message = "Test union of errors with type test");
+    GenericError err = error GenericError(GENERIC_ERROR, message = "Test union of errors with type test");
     return err;
 }
 
@@ -66,7 +66,7 @@ public function testPassingErrorUnionToFunction() returns AnotherDetail? {
 }
 
 public function funcFoo() returns int|ErrorUnion {
-    FirstError e = FirstError(REASON_1, message = "Test passing error union to a function");
+    FirstError e = error FirstError(REASON_1, message = "Test passing error union to a function");
     return e;
 }
 

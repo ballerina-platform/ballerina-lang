@@ -82,7 +82,7 @@ function testInvalidAssignmentToWideReadOnlyIntersection() {
 
     any & readonly y = start testInvalidReaoOnlyRecordInit();
 
-    (Obj|int[]) & readonly z = arr;
+    (Obj|int[]|future<int>) & readonly z = arr;
 }
 
 type Employee record {|
@@ -147,7 +147,7 @@ function testInvalidReaoOnlyRecordFieldUpdates() {
 }
 
 class Foo {
-
+    stream<int> ft = (<int[]> [1, 2, 3]).toStream();
 }
 
 type Bar record {|
@@ -250,7 +250,7 @@ type NeverImmutable record {
 
 function getInt() returns int => 1;
 
-readonly class ReadOnlyObj {
+readonly class ReadOnlyClass {
     int j = 3;
 }
 
@@ -258,6 +258,43 @@ function testInvalidUpdateOfAnonTypeField() {
     readonly & record {int i;} x = {i: 1};
     x.i = 2; // error
 
-    readonly & object {int j;} y = new ReadOnlyObj();
+    readonly & object {int j;} y = new ReadOnlyClass();
     y.j = 4; // error
+}
+
+class NeverReadOnlyClass {
+    future<int> ft;
+
+    function init(future<int> ft) {
+        self.ft = ft;
+    }
+}
+
+function testNeverReadOnlyClassIntersectionWithReadOnly() {
+    var func = function () returns int => 1;
+    future<int> ft = start func();
+    readonly & NeverReadOnlyClass nrc = new (ft);
+}
+
+ReadOnlyClass & readonly rr1 = new;
+
+function testInvalidInitializationOfReadOnlyClassIntersectionWithReadOnly() {
+    ReadOnlyClass & readonly rr2 = new;
+}
+
+class NonReadOnlyClass {
+    int j = 3;
+}
+
+NonReadOnlyClass & readonly nr1 = new;
+
+function testInvalidInitializationOfNonReadOnlyClassIntersectionWithReadOnly() {
+    NonReadOnlyClass & readonly nr2 = new;
+}
+
+function testNonReadOnlyAssignmentToReadOnlyAndClassIntersection() {
+    NonReadOnlyClass nrc = new;
+
+    ReadOnlyClass & readonly r1 = nrc;
+    NonReadOnlyClass & readonly r2 = nrc;
 }
