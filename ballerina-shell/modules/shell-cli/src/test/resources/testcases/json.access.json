@@ -14,12 +14,6 @@
     "expr": "Colombo 03"
   },
   {
-    "description": "Field access of non-existing field.",
-    "code": "j1.age.year",
-    "expr": "| Unhandled Runtime Error.",
-    "stdout": "Exception occurred: error(\"{ballerina/lang.map}KeyNotFound\",message=\"Key 'age' not found in JSON mapping\")\n"
-  },
-  {
     "description": "Optional field access.",
     "code": "j1?.age?.year"
   },

@@ -8,18 +8,6 @@
     "code": "int|error result = trap divide(1, 0);"
   },
   {
-    "description": "View error.",
-    "code": "result",
-    "stdout": "Exception occurred: error(\"{ballerina}DivisionByZero\",message=\" / by zero\")\n",
-    "expr": "| Unhandled Runtime Error."
-  },
-  {
-    "description": "Directly view trapped value.",
-    "code": "trap divide(1, 0);",
-    "stdout": "Exception occurred: error(\"{ballerina}DivisionByZero\",message=\" / by zero\")\n",
-    "expr": "| Unhandled Runtime Error."
-  },
-  {
     "description": "Exit terminal.",
     "code": "/exit"
   }

@@ -37,12 +37,6 @@
     "code": "value = employee;"
   },
   {
-    "description": "Casting to incorrect type.",
-    "code": "Department department = <Department>value;",
-    "expr": "| Unhandled Runtime Error.",
-    "stdout": "Exception occurred: error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'Employee' cannot be cast to 'Department'\")\n"
-  },
-  {
     "description": "Exit terminal.",
     "code": "/exit"
   }

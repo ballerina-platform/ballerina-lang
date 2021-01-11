@@ -54,12 +54,6 @@
     "expr": "true"
   },
   {
-    "description": "Cannot update immutables.",
-    "code": "addEntryToMap(m2, \"intValTwo\", 10);",
-    "expr": "| Unhandled Runtime Error.",
-    "stdout": "Exception occurred: error(\"{ballerina/lang.map}InvalidUpdate\",message=\"Invalid map insertion: modification not allowed on readonly value\")\n"
-  },
-  {
     "description": "Clone immutable and check ref eq.",
     "code": "map<string|int> m3 = m2.cloneReadOnly(); m2 === m3",
     "expr": "true"

@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 public class FlowControlEvaluatorTest extends AbstractIntegrationTest {
     private static final String ELVIS_EVALUATOR_TESTCASE = "testcases/flow.control.elvis.json";
     private static final String IF_EVALUATOR_TESTCASE = "testcases/flow.control.if.json";
-    private static final String WHILE_EVALUATOR_TESTCASE = "testcases/flow.control.while.json";
 
     @Test
     public void testEvaluateElvis() throws Exception {
@@ -36,10 +35,5 @@ public class FlowControlEvaluatorTest extends AbstractIntegrationTest {
     @Test
     public void testEvaluateIf() throws Exception {
         test(IF_EVALUATOR_TESTCASE);
-    }
-
-    @Test
-    public void testEvaluateWhile() throws Exception {
-        test(WHILE_EVALUATOR_TESTCASE);
     }
 }
