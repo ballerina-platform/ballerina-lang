@@ -25,6 +25,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.eclipse.lsp4j.ClientCapabilities;
@@ -188,13 +189,15 @@ public class TestUtil {
         return GSON.toJson(jsonrpcResponse).replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
 
-    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath, WorkspaceManager workspaceManager)
-            throws IOException {
+    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath,
+                                                            WorkspaceManager workspaceManager,
+                                                            LanguageServerContext serverContext) throws IOException {
         List<Diagnostic> diagnostics = new ArrayList<>();
 
         DocumentServiceContext context = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
                 workspaceManager,
-                LSContextOperation.TXT_DID_OPEN);
+                LSContextOperation.TXT_DID_OPEN,
+                serverContext);
         DidOpenTextDocumentParams params = new DidOpenTextDocumentParams();
         TextDocumentItem textDocument = new TextDocumentItem();
         textDocument.setUri(sourcePath.toUri().toString());

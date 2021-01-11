@@ -84,7 +84,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
             String ballerinaCmd = Paths.get(CommonUtil.BALLERINA_CMD).toString();
             ProcessBuilder processBuilder = new ProcessBuilder(ballerinaCmd, "pull", moduleName);
             LanguageClient client = context.getLanguageClient();
-            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance();
+            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(context.languageServercontext());
             try {
                 notifyClient(client, MessageType.Info, "Pulling '" + moduleName + "' from the Ballerina Central...");
                 Process process = processBuilder.start();

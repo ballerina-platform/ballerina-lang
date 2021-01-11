@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -58,14 +59,13 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         }
         return actions;
     }
-
-
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isEnabled() {
-        return LSClientConfigHolder.getInstance()
+    public boolean isEnabled(LanguageServerContext serverContext) {
+        return LSClientConfigHolder.getInstance(serverContext)
                 .getConfigAs(ClientExtendedConfigImpl.class).getDataMapper().isEnabled();
     }
 
