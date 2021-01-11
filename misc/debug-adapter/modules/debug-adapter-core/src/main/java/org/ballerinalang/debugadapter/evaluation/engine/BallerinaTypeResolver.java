@@ -16,13 +16,18 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
+import com.sun.jdi.Field;
+import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +38,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VALUE_FROM_STRING_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_TYPE_INSTANCE_PREFIX;
 
 /**
  * Ballerina type resolver implementation for resolving ballerina runtime types using their syntax nodes.
@@ -64,8 +70,12 @@ public class BallerinaTypeResolver {
     }
 
     private static Value resolveSingleType(SuspendedContext context, String typeName) throws EvaluationException {
+        // Checks if the type name matches with ballerina predefined types.
         Optional<Value> result = resolvePredefinedType(context, typeName);
-        // Todo: Add support to resolve other named types.
+        // If any predefined type is not found, falls back to named types resolving.
+        if (result.isEmpty()) {
+            result = resolveNamedType(context, typeName);
+        }
         if (result.isEmpty()) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                     "failed to resolve type '" + typeName + "'."));
@@ -83,5 +93,32 @@ public class BallerinaTypeResolver {
         } catch (EvaluationException e) {
             return Optional.empty();
         }
+    }
+
+    private static Optional<Value> resolveNamedType(SuspendedContext context, String typeName) {
+        Optional<Symbol> typeDefinition = getTypeDefinitionSymbol(context, typeName);
+        if (typeDefinition.isEmpty()) {
+            return Optional.empty();
+        }
+
+        String packageInitClass = PackageUtils.getQualifiedClassName(context, PackageUtils.INIT_CLASS_NAME);
+        List<ReferenceType> classRef = context.getAttachedVm().classesByName(packageInitClass);
+        if (classRef.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Field typeField = classRef.get(0).fieldByName(INIT_TYPE_INSTANCE_PREFIX + typeName);
+        if (typeField == null) {
+            return Optional.empty();
+        }
+        return Optional.of(classRef.get(0).getValue(typeField));
+    }
+
+    private static Optional<Symbol> getTypeDefinitionSymbol(SuspendedContext context, String typeName) {
+        SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
+        return semanticContext.moduleLevelSymbols()
+                .stream()
+                .filter(symbol -> symbol.name().equals(typeName))
+                .findAny();
     }
 }
