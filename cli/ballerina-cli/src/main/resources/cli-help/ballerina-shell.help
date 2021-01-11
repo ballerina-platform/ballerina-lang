@@ -2,7 +2,7 @@ NAME
        ballerina-shell - Run ballerina interactive REPL
 
 SYNOPSIS
-       ballerina shell [-d|--debug] [-f|--force-dumb]
+       ballerina shell [-d|--debug] [-f|--force-dumb]  [-t|--time-out]
 
 
 DESCRIPTION
@@ -14,9 +14,12 @@ DESCRIPTION
 
 OPTIONS
        -d
-           Enable debug mode from the beginning.
+           Enable debug mode from the beginning. Not enabled by default.
        -f
-           Force dumb terminal mode.
+           Force dumb terminal mode. Not dumb by default.
+       -t <time-out-duration>
+           Change tree parsing timeout. Default is 500ms. Value should be
+           given in milliseconds. Increase in slow devices.
 
 
 EXAMPLES
@@ -25,3 +28,6 @@ EXAMPLES
 
        Run ballerina shell in debug mode.
           $ ballerina shell -d
+
+       Run ballerina shell with 1s time out.
+          $ ballerina shell -t 1000
