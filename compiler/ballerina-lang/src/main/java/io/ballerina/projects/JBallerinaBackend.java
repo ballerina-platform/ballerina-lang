@@ -66,6 +66,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.ProjectUtils.checkWritePermission;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
@@ -93,6 +94,8 @@ public class JBallerinaBackend extends CompilerBackend {
     private boolean codeGenCompleted;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JdkVersion jdkVersion) {
+        // Check if the project has write permissions
+        checkWritePermission(packageCompilation.packageContext().project().sourceRoot());
         return packageCompilation.getCompilerBackend(jdkVersion,
                 (targetPlatform -> new JBallerinaBackend(packageCompilation, jdkVersion)));
     }
