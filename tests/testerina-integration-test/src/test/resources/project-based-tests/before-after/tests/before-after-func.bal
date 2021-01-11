@@ -27,8 +27,8 @@ function beforeFunc() {
 
 // 2nd function
 @test:Config {
-    before:"beforeFunc",
-    after:"afterFunc"
+    before: beforeFunc,
+    after: afterFunc
 }
 public function testFunc() {
     testString += "test";

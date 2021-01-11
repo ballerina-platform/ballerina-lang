@@ -32,7 +32,7 @@ public function afterFunc() {
 
 // This test should pass
 @test:Config {
-    after: "afterFunc"
+    after: afterFunc
 }
 public function test1() {
     a = a + "test";

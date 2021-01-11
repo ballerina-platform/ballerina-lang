@@ -42,7 +42,7 @@ function cleanup () {
 }
 
 @test:Config{
-    before: "init"
+    before: init
 }
 function testBefore () {
     test:assertTrue(i == 1, msg = "Expected i to be 1, but i = "+i.toString());
@@ -50,8 +50,8 @@ function testBefore () {
 }
 
 @test:Config{
-    before: "init", 
-    after: "cleanup"
+    before: init,
+    after: cleanup
 }
 function test1 () {
     test:assertTrue(i == 1, msg = "Expected i to be 1, but i = "+i.toString());
@@ -66,7 +66,7 @@ function testAfter () {
 }
 
 @test:Config{
-    after: "cleanup"
+    after: cleanup
 }
 function test2 () {
     reset();

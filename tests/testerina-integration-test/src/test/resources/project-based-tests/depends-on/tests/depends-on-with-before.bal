@@ -35,7 +35,7 @@ public function testWithBefore2() {
 
 // 1st function
 @test:Config {
-    before: "before",
+    before: before,
     dependsOn: ["test4"] // added to preserve order of test execution 
 }
 public function testWithBefore1() {

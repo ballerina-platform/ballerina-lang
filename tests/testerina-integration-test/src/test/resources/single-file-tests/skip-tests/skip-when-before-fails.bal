@@ -29,7 +29,7 @@ public function before() {
 }
 
 @test:Config {
-    before:"before"
+    before: before
 }
 public function test1() {
     a = a + "test1";
