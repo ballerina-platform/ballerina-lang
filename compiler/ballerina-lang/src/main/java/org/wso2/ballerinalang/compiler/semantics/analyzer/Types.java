@@ -1205,13 +1205,13 @@ public class Types {
 
     private boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes,
                                                boolean forceCheck) {
-        if (!unresolvedTypes.add(type)) {
-            return true;
-        }
-
         if (isInherentlyImmutableType(type) || !(type instanceof SelectivelyImmutableReferenceType)) {
             // Always immutable.
             return false;
+        }
+
+        if (!unresolvedTypes.add(type)) {
+            return true;
         }
 
         if (!forceCheck && ((SelectivelyImmutableReferenceType) type).getImmutableType() != null) {
