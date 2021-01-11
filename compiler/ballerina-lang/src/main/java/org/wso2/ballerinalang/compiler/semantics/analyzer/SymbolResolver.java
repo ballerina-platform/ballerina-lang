@@ -1278,11 +1278,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                 .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.detailType);
 
-        if (detailType == symTable.noType) {
-            resultType = symTable.noType;
-            return;
-        }
-
         boolean distinctErrorDef = errorTypeNode.flagSet.contains(Flag.DISTINCT);
         if (detailType == symTable.detailType && !distinctErrorDef &&
                 !this.env.enclPkg.packageID.equals(PackageID.ANNOTATIONS)) {
