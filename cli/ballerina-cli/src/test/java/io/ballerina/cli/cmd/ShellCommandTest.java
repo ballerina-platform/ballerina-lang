@@ -42,27 +42,6 @@ import java.util.Objects;
 public class ShellCommandTest extends BaseCommandTest {
     public static final String BALLERINA_HOME = "ballerina.home";
 
-    @Test(description = "Test shell command initialization.")
-    public void testShellCommandSmoke() throws IOException {
-        PrintStream outStreamOrig = System.out;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        try {
-            System.setOut(new PrintStream(baos));
-            ShellCommand shellCommand = new ShellCommand(this.printStream, true);
-            shellCommand.execute();
-        } finally {
-            System.setOut(outStreamOrig);
-        }
-
-        // Gives the prompt
-        Assert.assertTrue(baos.toString().endsWith("=$ "));
-        // Exits because of EOF
-        Assert.assertEquals(readOutput().trim(), "" +
-                "Something went wrong while executing REPL: org.jline.reader.EndOfFileException: " +
-                "org.jline.utils.ClosedException");
-    }
-
     @Test(description = "Test shell command fail if ballerina.home is wrongly set.")
     public void testShellCommandFail() throws IOException {
         PrintStream outStreamOrig = System.out;
