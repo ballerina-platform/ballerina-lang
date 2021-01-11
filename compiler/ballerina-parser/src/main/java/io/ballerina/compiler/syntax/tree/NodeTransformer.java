@@ -192,6 +192,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(requiredParameterNode);
     }
 
+    public T transform(IncludedRecordParameterNode includedRecordParameterNode) {
+        return transformSyntaxNode(includedRecordParameterNode);
+    }
+
     public T transform(RestParameterNode restParameterNode) {
         return transformSyntaxNode(restParameterNode);
     }

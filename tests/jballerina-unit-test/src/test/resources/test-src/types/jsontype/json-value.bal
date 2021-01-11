@@ -59,7 +59,7 @@ function testGetString () returns [string, string] {
     string j1String;
     string j2String;
     j1String = <string> j1;
-    j2String = <string> j2.name;
+    j2String = <string> checkpanic j2.name;
     return [j1String, j2String];
 }
 
@@ -69,28 +69,28 @@ function testGetInt () returns [int, int] {
     int j1Int;
     int j2Int;
     j1Int = <int>j1;
-    j2Int = <int>j2.age;
+    j2Int = <int> checkpanic j2.age;
     return [j1Int, j2Int];
 }
 
 function testGetFloat () returns (float) {
     json j = {score:9.73};
     float jFloat;
-    jFloat = <float>j.score;
+    jFloat = <float> checkpanic j.score;
     return jFloat;
 }
 
 function testGetDecimal() returns (decimal) {
     json j = {score:9.5};
     decimal jDecimal;
-    jDecimal = <decimal>j.score;
+    jDecimal = <decimal> checkpanic j.score;
     return jDecimal;
 }
 
 function testGetBoolean () returns (boolean) {
     json j = {pass:true};
     boolean jBoolean;
-    jBoolean = <boolean>j.pass;
+    jBoolean = <boolean> checkpanic j.pass;
     return jBoolean;
 }
 
@@ -242,7 +242,7 @@ function testUpdateJsonArrayInArray () returns (json) {
 function testGetNestedJsonElement () returns (string) {
     json j = {name:"aaa", age:25, parent:{name:"bbb", age:50}, address:{city:"Colombo", "country":"SriLanka"}, array:[1, 5, 7]};
     string cityString;
-    cityString = <string>j.address.city;
+    cityString = <string> checkpanic j.address.city;
     return cityString;
 }
 
@@ -353,7 +353,7 @@ function testAddToNull () returns (json) {
 
 function testJsonIntToFloat () returns (float) {
     json j = {score:4};
-    float jFloat = <float>j.score;
+    float jFloat = <float> checkpanic j.score;
     return jFloat;
 }
 

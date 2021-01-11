@@ -19,7 +19,7 @@ package org.ballerinalang.testerina.natives.mock;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.MemberFunctionType;
+import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
@@ -51,7 +51,7 @@ public class ObjectMock {
     public static BObject mock(BTypedesc bTypedesc, BObject objectValue) {
         if (!objectValue.getType().getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             // handle user-defined mock object
-            if (objectValue.getType().getAttachedFunctions().length == 0 &&
+            if (objectValue.getType().getMethods().length == 0 &&
                     objectValue.getType().getFields().size() == 0) {
                 String detail = "mock object type '" + objectValue.getType().getName()
                         + "' should have at least one member function or field declared.";
@@ -59,9 +59,9 @@ public class ObjectMock {
                         MockConstants.INVALID_MOCK_OBJECT_ERROR, MockConstants.TEST_PACKAGE_ID,
                         StringUtils.fromString(detail));
             } else {
-                for (MemberFunctionType attachedFunction : objectValue.getType().getAttachedFunctions()) {
+                for (MethodType attachedFunction : objectValue.getType().getMethods()) {
                     BError error = validateFunctionSignatures(attachedFunction,
-                            ((ObjectType) bTypedesc.getDescribingType()).getAttachedFunctions());
+                            ((ObjectType) bTypedesc.getDescribingType()).getMethods());
                     if (error != null) {
                         throw  error;
                     }
@@ -110,7 +110,7 @@ public class ObjectMock {
 
     public static BError validateFunctionName(String functionName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
-        if (!validateFunctionName(functionName, genericMock.getType().getAttachedFunctions())) {
+        if (!validateFunctionName(functionName, genericMock.getType().getMethods())) {
             String detail = "invalid function name '" + functionName + " ' provided";
             return ErrorCreator.createDistinctError(
                     MockConstants.FUNCTION_NOT_FOUND_ERROR, MockConstants.TEST_PACKAGE_ID,
@@ -149,7 +149,7 @@ public class ObjectMock {
         String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
         BArray argsList = caseObj.getArrayValue(StringUtils.fromString("args"));
 
-        for (MemberFunctionType attachedFunction : genericMock.getType().getAttachedFunctions()) {
+        for (MethodType attachedFunction : genericMock.getType().getMethods()) {
             if (attachedFunction.getName().equals(functionName)) {
 
                 // validate the number of arguments provided
@@ -220,7 +220,7 @@ public class ObjectMock {
         if (functionName != null) {
             // register return value for member function
             BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
-            if (!validateReturnValue(functionName, returnVal, genericMock.getType().getAttachedFunctions())) {
+            if (!validateReturnValue(functionName, returnVal, genericMock.getType().getMethods())) {
                 String detail =
                         "return value provided does not match the return type of function " + functionName + "()";
                 return ErrorCreator.createDistinctError(
@@ -263,7 +263,7 @@ public class ObjectMock {
                 break;
             }
             if (!validateReturnValue(functionName, returnVals.getValues()[i],
-                    genericMock.getType().getAttachedFunctions())) {
+                    genericMock.getType().getMethods())) {
                 String details = "return value provided at position '" + i
                         + "' does not match the return type of function " + functionName + "()";
                 return ErrorCreator.createDistinctError(
@@ -282,8 +282,8 @@ public class ObjectMock {
      * @param attachedFunctions functions available in the mocked type
      * @return whether the function name is valid
      */
-    private static boolean validateFunctionName(String functionName, MemberFunctionType[] attachedFunctions) {
-        for (MemberFunctionType attachedFunction : attachedFunctions) {
+    private static boolean validateFunctionName(String functionName, MethodType[] attachedFunctions) {
+        for (MethodType attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
                 return true;
             }
@@ -316,9 +316,9 @@ public class ObjectMock {
      * @return whether the return value is valid
      */
     private static boolean validateReturnValue(
-            String functionName, Object returnVal, MemberFunctionType[] attachedFunctions) {
+            String functionName, Object returnVal, MethodType[] attachedFunctions) {
 
-        for (MemberFunctionType attachedFunction : attachedFunctions) {
+        for (MethodType attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
                 if (attachedFunction.getType().getReturnParameterType() instanceof UnionType) {
                     List<Type> memberTypes =
@@ -354,13 +354,13 @@ public class ObjectMock {
      * @param attachedFunctions functions available in the mocked type
      * @return whether the function signature is valid
      */
-    private static BError validateFunctionSignatures(MemberFunctionType func,
-                                                     MemberFunctionType[] attachedFunctions) {
+    private static BError validateFunctionSignatures(MethodType func,
+                                                     MethodType[] attachedFunctions) {
         String functionName = func.getName();
         Type[] paramTypes = func.getParameterTypes();
         Type returnType = func.getType().getReturnParameterType();
 
-        for (MemberFunctionType attachedFunction : attachedFunctions) {
+        for (MethodType attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
 
                 // validate that the number of parameters are equal

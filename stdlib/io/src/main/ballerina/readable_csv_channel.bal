@@ -63,7 +63,7 @@ public class ReadableCSVChannel {
         if (recordChannel is ReadableTextRecordChannel) {
             return recordChannel.hasNext();
         } else {
-            GenericError e = GenericError("channel not initialized");
+            GenericError e = error GenericError("channel not initialized");
             panic e;
         }
     }

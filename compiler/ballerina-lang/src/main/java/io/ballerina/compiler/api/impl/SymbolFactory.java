@@ -114,9 +114,6 @@ public class SymbolFactory {
                 }
                 return createFunctionSymbol((BInvokableSymbol) symbol, name);
             }
-            if (symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
-                return createTypeDefinition(symbol.type.tsymbol, name);
-            }
             if (symbol instanceof BConstantSymbol) {
                 return createConstantSymbol((BConstantSymbol) symbol, name);
             }

@@ -20,6 +20,7 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
@@ -36,17 +37,22 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
+import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
-import static java.util.Arrays.asList;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for the looking up symbols from the semantic API.
@@ -75,35 +81,31 @@ public class SymbolBIRTest {
         BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
         BPackageSymbol fooPkgSymbol = pkg.imports.get(0).symbol;
 
-        List<String> annotationModuleSymbols = asList("deprecated", "untainted", "tainted", "icon", "strand",
-                "StrandData", "typeParam", "Thread", "builtinSubtype",
-                "isolatedParam");
-        List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes");
-        List<String> moduleSymbols = asList("xml", "testproject", "object", "error", "boolean", "decimal", "typedesc",
-                "float", "future", "int", "map", "stream", "string", "table");
-        List<String> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
+        List<SymbolInfo> annotationModuleSymbols = getAnnotationModuleSymbolInfo();
+        List<SymbolInfo> moduleLevelSymbols = getModuleLevelSymbolInfo();
+        List<SymbolInfo> moduleSymbols = getModuleSymbolInfo();
+        List<SymbolInfo> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
 
-        Map<String, Symbol> symbolsInScope =
-                model.visibleSymbols("symbol_lookup_with_imports_test.bal", LinePosition.from(18, 0))
-                        .stream().collect(Collectors.toMap(Symbol::name, s -> s));
+        List<Symbol> symbolsInScope =
+                model.visibleSymbols("symbol_lookup_with_imports_test.bal", LinePosition.from(18, 0));
         assertList(symbolsInScope, expSymbolNames);
 
-        BallerinaModule fooModule = (BallerinaModule) symbolsInScope.get("testproject");
+        BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
+                .filter(sym -> sym.name().equals("testproject")).findAny().get();
         List<String> fooFunctions = getSymbolNames(fooPkgSymbol, SymTag.FUNCTION);
-        assertList(fooModule.functions(), fooFunctions);
+        SemanticAPITestUtils.assertList(fooModule.functions(), fooFunctions);
 
         List<String> fooConstants = getSymbolNames(fooPkgSymbol, SymTag.CONSTANT);
-        assertList(fooModule.constants(), fooConstants);
+        SemanticAPITestUtils.assertList(fooModule.constants(), fooConstants);
 
-        List<String> fooTypeDefs = getSymbolNames(getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF), "FileNotFoundError",
-                                                  "EofError", "Digit");
+        List<String> fooTypeDefs = getSymbolNames(getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF), "Digit");
         fooTypeDefs.remove("PersonObj");
-        assertList(fooModule.typeDefinitions(), fooTypeDefs);
+        SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), fooTypeDefs);
 
-        assertList(fooModule.classes(), List.of("PersonObj"));
+        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj"));
 
         List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
-        assertList(fooModule.allSymbols(), allSymbols);
+        SemanticAPITestUtils.assertList(fooModule.allSymbols(), allSymbols);
     }
 
     @Test(dataProvider = "ImportSymbolPosProvider")
@@ -132,5 +134,81 @@ public class SymbolBIRTest {
 //                {26, 12, "foo"}, // TODO: issue #25841
                 {31, 20, "getName"},
         };
+    }
+
+    // util methods
+
+    public static void assertList(List<Symbol> actualValues, List<SymbolInfo> expectedValues) {
+        assertEquals(actualValues.size(), expectedValues.size());
+
+        for (SymbolInfo val : expectedValues) {
+            assertTrue(actualValues.stream().anyMatch(sym -> val.equals(new SymbolInfo(sym.name(), sym.kind()))),
+                       "Symbol not found: " + val);
+
+        }
+    }
+
+    private List<SymbolInfo> getAnnotationModuleSymbolInfo() {
+        return createSymbolInfoList(
+                new Object[][]{
+                        {"deprecated", ANNOTATION}, {"untainted", ANNOTATION}, {"tainted", ANNOTATION},
+                        {"display", ANNOTATION}, {"strand", ANNOTATION}, {"StrandData", TYPE_DEFINITION},
+                        {"typeParam", ANNOTATION}, {"Thread", TYPE_DEFINITION}, {"builtinSubtype", ANNOTATION},
+                        {"isolatedParam", ANNOTATION}, {"error", TYPE_DEFINITION}
+                });
+    }
+
+    private List<SymbolInfo> getModuleLevelSymbolInfo() {
+        return createSymbolInfoList(
+                new Object[][]{
+                        {"aString", VARIABLE}, {"anInt", VARIABLE}, {"HELLO", CONSTANT}, {"testAnonTypes", FUNCTION}
+                });
+    }
+
+    private List<SymbolInfo> getModuleSymbolInfo() {
+        return createSymbolInfoList(
+                new Object[][]{
+                        {"xml", MODULE}, {"testproject", MODULE}, {"object", MODULE}, {"error", MODULE},
+                        {"boolean", MODULE}, {"decimal", MODULE}, {"typedesc", MODULE}, {"float", MODULE},
+                        {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
+                        {"string", MODULE}, {"table", MODULE}
+                });
+    }
+
+    private List<SymbolInfo> createSymbolInfoList(Object[][] infoArr) {
+        List<SymbolInfo> symInfo = new ArrayList<>();
+        for (int i = 0; i < infoArr.length; i++) {
+            symInfo.add(new SymbolInfo((String) infoArr[i][0], (SymbolKind) infoArr[i][1]));
+        }
+        return symInfo;
+    }
+
+    static class SymbolInfo {
+        private String name;
+        private SymbolKind kind;
+
+        SymbolInfo(String name, SymbolKind kind) {
+            this.name = name;
+            this.kind = kind;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+
+            if (!(obj instanceof SymbolInfo)) {
+                return false;
+            }
+
+            SymbolInfo info = (SymbolInfo) obj;
+            return this.name.equals(info.name) && this.kind == info.kind;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.name, this.kind);
+        }
     }
 }
