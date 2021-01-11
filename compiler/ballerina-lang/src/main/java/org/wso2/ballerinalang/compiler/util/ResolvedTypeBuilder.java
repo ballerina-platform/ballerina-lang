@@ -288,13 +288,15 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         boolean hasNewType = false;
         LinkedHashSet<BType> newMemberTypes = new LinkedHashSet<>();
 
+        if (!visitedTypes.add(originalType)) {
+            return originalType;
+        }
+
         for (BType member : originalType.getMemberTypes()) {
             if (this.visitedTypes.contains(member)) {
                 continue;
             }
-            this.visitedTypes.add(member);
             BType newMember = member.accept(this, null);
-            this.visitedTypes.remove(member);
             newMemberTypes.add(newMember);
 
             if (newMember != member) {
@@ -305,8 +307,6 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
         if (!hasNewType) {
             return originalType;
         }
-
-        assert originalType.isCyclic == false;
 
         BUnionType type = BUnionType.create(null, newMemberTypes);
         setFlags(type, originalType.flags);

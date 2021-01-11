@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -161,7 +162,7 @@ public class BUnionType extends BType implements UnionType {
      * @return The created union type.
      */
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
 
         boolean isImmutable = true;
         boolean hasNilableType = false;
@@ -188,7 +189,7 @@ public class BUnionType extends BType implements UnionType {
         }
 
         if (hasNilableType) {
-            LinkedHashSet<BType> bTypes = new LinkedHashSet<>();
+            LinkedHashSet<BType> bTypes = new LinkedHashSet<>(memberTypes.size());
             for (BType t : memberTypes) {
                 if (t.tag != TypeTags.NIL) {
                     bTypes.add(t);
@@ -215,10 +216,8 @@ public class BUnionType extends BType implements UnionType {
      * @return The created union type.
      */
     public static BUnionType create(BTypeSymbol tsymbol, BType... types) {
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-        for (BType type : types) {
-            memberTypes.add(type);
-        }
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.length);
+        memberTypes.addAll(Arrays.asList(types));
         return create(tsymbol, memberTypes);
     }
 

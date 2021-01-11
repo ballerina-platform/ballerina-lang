@@ -142,7 +142,7 @@ public class BUnionType extends BType implements UnionType {
         super(null, null, Object.class);
         this.typeFlags = typeFlags;
         this.readonly = readonly;
-        this.memberTypes = new ArrayList<>();
+        this.memberTypes = new ArrayList<>(2);
         this.isCyclic = isCyclic;
     }
 
@@ -185,7 +185,7 @@ public class BUnionType extends BType implements UnionType {
         super(name, null, Object.class);
         this.typeFlags = typeFlags;
         this.readonly = readonly;
-        this.memberTypes = new ArrayList<>();
+        this.memberTypes = null;
         this.isCyclic = isCyclic;
     }
 
@@ -193,38 +193,38 @@ public class BUnionType extends BType implements UnionType {
         this(Arrays.asList(memberTypes), name, typeFlags, readonly, isCyclic);
     }
 
-    public void setMemberTypes(Type[] memberTypes) {
-        if (memberTypes == null) {
+    public void setMemberTypes(Type[] members) {
+        if (members == null) {
             return;
         }
-        this.memberTypes = readonly ? getReadOnlyTypes(memberTypes) : Arrays.asList(memberTypes);
+        this.memberTypes = readonly ? getReadOnlyTypes(members) : Arrays.asList(members);
         setFlagsBasedOnMembers();
     }
 
-    public void setMemberTypes(List<Type> memberTypes) {
-        if (memberTypes == null) {
+    public void setMemberTypes(List<Type> members) {
+        if (members == null) {
             return;
         }
-        if (memberTypes.isEmpty()) {
-            this.memberTypes = memberTypes;
+        if (members.isEmpty()) {
+            this.memberTypes = members;
             return;
         }
         this.resolvingReadonly = true;
-        this.memberTypes = readonly ? getReadOnlyTypes(memberTypes, new HashSet<>()) : memberTypes;
+        this.memberTypes = readonly ? getReadOnlyTypes(members, new HashSet<>(members.size())) : members;
         this.resolvingReadonly = false;
         setFlagsBasedOnMembers();
     }
 
-    public void setMemberTypes(List<Type> memberTypes, Set<Type> unresolvedTypes) {
-        if (memberTypes == null) {
+    public void setMemberTypes(List<Type> members, Set<Type> unresolvedTypes) {
+        if (members == null) {
             return;
         }
-        if (memberTypes.isEmpty()) {
-            this.memberTypes = memberTypes;
+        if (members.isEmpty()) {
+            this.memberTypes = members;
             return;
         }
         this.resolvingReadonly = true;
-        this.memberTypes = readonly ? getReadOnlyTypes(memberTypes, unresolvedTypes) : memberTypes;
+        this.memberTypes = readonly ? getReadOnlyTypes(members, unresolvedTypes) : members;
         this.resolvingReadonly = false;
         setFlagsBasedOnMembers();
     }
@@ -297,30 +297,15 @@ public class BUnionType extends BType implements UnionType {
     }
 
     private List<Type> getReadOnlyTypes(List<Type> memberTypes, Set<Type> unresolvedTypes) {
-        List<Type> readOnlyTypes = new ArrayList<>();
+        List<Type> readOnlyTypes = new ArrayList<>(memberTypes.size());
         for (Type type : memberTypes) {
-//            if (type instanceof BMapType && ((BMapType) type).getConstrainedType() instanceof BUnionType) {
-//                BMapType mapType = (BMapType) type;
-//                BUnionType unionConstrainedType = (BUnionType) mapType.getConstrainedType();
-//                if (unionConstrainedType.resolvingReadonly) {
-//                    readOnlyTypes.add(type);
-//                    continue;
-//                }
-//            } else if (type instanceof BArrayType && ((BArrayType) type).getElementType() instanceof BUnionType) {
-//                BArrayType arrayType = (BArrayType) type;
-//                BUnionType unionConstrainedType = (BUnionType) arrayType.getElementType();
-//                if (unionConstrainedType.resolvingReadonly) {
-//                    readOnlyTypes.add(type);
-//                    continue;
-//                }
-//            }
             readOnlyTypes.add(ReadOnlyUtils.getReadOnlyType(type, unresolvedTypes));
         }
         return readOnlyTypes;
     }
 
     private List<Type> getReadOnlyTypes(Type[] memberTypes) {
-        List<Type> readOnlyTypes = new ArrayList<>();
+        List<Type> readOnlyTypes = new ArrayList<>(memberTypes.length);
         for (Type type : memberTypes) {
             readOnlyTypes.add(ReadOnlyUtils.getReadOnlyType(type));
         }
