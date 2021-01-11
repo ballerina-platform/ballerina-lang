@@ -22,6 +22,7 @@ import io.ballerina.shell.cli.PropertiesLoader;
 import org.testng.Assert;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -51,7 +52,10 @@ public class TestIntegrator extends Thread {
 
     @Override
     public void run() {
+        PrintStream origOut = System.out;
         try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(out, true, Charset.defaultCharset()));
             String shellPrompt = PropertiesLoader.getProperty(REPL_PROMPT);
             PrintStream testPrint = new PrintStream(outputStream, true, Charset.defaultCharset());
             InputStreamReader inStreamReader = new InputStreamReader(inputStream, Charset.defaultCharset());
@@ -59,7 +63,7 @@ public class TestIntegrator extends Thread {
 
             for (TestCase testCase : testCases) {
                 // Give input and record shell in/out.
-                testPrint.println(testCase.getInput() + System.lineSeparator());
+                testPrint.println(testCase.getCode() + System.lineSeparator());
                 StringBuilder recordedInput = new StringBuilder();
                 while (true) {
                     String line = Objects.requireNonNull(testReader.readLine());
@@ -77,15 +81,20 @@ public class TestIntegrator extends Thread {
                         recordedContent.length() - shellPrompt.length() - System.lineSeparator().length());
 
                 // Extract INPUT and verify.
-                String recordedContentInput = recordedContent.substring(0, testCase.getInput().length());
-                Assert.assertEquals(recordedContentInput, testCase.getInput(), testCase.getDescription());
+                String recordedContentInput = recordedContent.substring(0, testCase.getCode().length());
+                Assert.assertEquals(recordedContentInput, testCase.getCode(), testCase.getDescription());
 
                 // Extract OUTPUT and test.
-                String shellOutput = recordedContent.substring(testCase.getInput().length()).trim();
-                String expectedOutput = Objects.requireNonNullElse(testCase.getOutput(), "");
+                String shellOutput = recordedContent.substring(testCase.getCode().length()).trim();
+                String expectedOutput = Objects.requireNonNullElse(testCase.getExpr(), "");
                 Assert.assertEquals(shellOutput, expectedOutput, testCase.getDescription());
+
+                Assert.assertEquals(out.toString(), testCase.getStdout(), testCase.getDescription());
+                out.reset();
             }
         } catch (IOException ignored) {
+        } finally {
+            System.setOut(origOut);
         }
     }
 

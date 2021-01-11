@@ -21,9 +21,9 @@ package io.ballerina.shell.cli.test.integration;
 import io.ballerina.shell.cli.BShellConfiguration;
 import io.ballerina.shell.cli.ReplShellApplication;
 import io.ballerina.shell.cli.test.TestUtils;
+import io.ballerina.shell.cli.test.base.TestIntegrator;
 import io.ballerina.shell.cli.test.base.TestCase;
 import io.ballerina.shell.cli.test.base.TestCases;
-import io.ballerina.shell.cli.test.base.TestIntegrator;
 import org.jline.reader.EndOfFileException;
 
 import java.io.PipedInputStream;
@@ -34,7 +34,7 @@ import java.util.List;
  * Base class for integration tests.
  */
 public class AbstractIntegrationTest {
-    protected void testShell(String fileName) throws Exception {
+    protected void test(String fileName) throws Exception {
         List<TestCase> testCases = TestUtils.loadTestCases(fileName, TestCases.class);
 
         PipedOutputStream testOut = new PipedOutputStream();

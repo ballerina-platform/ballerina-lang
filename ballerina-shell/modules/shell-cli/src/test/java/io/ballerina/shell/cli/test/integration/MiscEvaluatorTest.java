@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,19 +21,13 @@ package io.ballerina.shell.cli.test.integration;
 import org.testng.annotations.Test;
 
 /**
- * Test integration basic tests.
+ * Test simple snippets.
  */
-public class BasicShellTest extends AbstractIntegrationTest {
-    private static final String BASIC_SMOKE_TEST = "testcases/basics.smoke.json";
-    private static final String BASIC_VALUES_TEST = "testcases/basics.values.json";
+public class MiscEvaluatorTest extends AbstractIntegrationTest {
+    private static final String ENUM_EVALUATOR_TESTCASE = "testcases/values.enum.json";
 
     @Test
-    public void testBasicSmoke() throws Exception {
-        testShell(BASIC_SMOKE_TEST);
-    }
-
-    @Test
-    public void testBasicValues() throws Exception {
-        testShell(BASIC_VALUES_TEST);
+    public void testEvaluateEnum() throws Exception {
+        test(ENUM_EVALUATOR_TESTCASE);
     }
 }

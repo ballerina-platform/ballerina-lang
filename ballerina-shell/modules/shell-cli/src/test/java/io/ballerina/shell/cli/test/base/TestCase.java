@@ -22,24 +22,33 @@ package io.ballerina.shell.cli.test.base;
  * Test case for terminal testing.
  */
 public class TestCase {
-    private String input;
-    private String output;
+    private String code;
+    private String expr;
+    private String stdout = "";
     private String description;
 
-    public String getInput() {
-        return input;
+    public String getCode() {
+        return code;
     }
 
-    public void setInput(String input) {
-        this.input = input;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public String getOutput() {
-        return output;
+    public String getExpr() {
+        return expr;
     }
 
-    public void setOutput(String output) {
-        this.output = output;
+    public void setExpr(String expr) {
+        this.expr = expr;
+    }
+
+    public String getStdout() {
+        return stdout;
+    }
+
+    public void setStdout(String stdout) {
+        this.stdout = stdout;
     }
 
     public String getDescription() {
