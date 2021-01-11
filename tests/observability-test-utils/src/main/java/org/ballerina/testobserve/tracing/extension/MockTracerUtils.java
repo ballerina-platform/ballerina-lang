@@ -42,7 +42,8 @@ public class MockTracerUtils {
                             mockSpan.context().traceId(),
                             mockSpan.context().spanId(),
                             mockSpan.parentId(),
-                            mockSpan.tags()))
+                            mockSpan.tags(),
+                            mockSpan.logEntries()))
                     .collect(Collectors.toList());
         }
         return JsonUtils.parse(new Gson().toJson(mockSpans));

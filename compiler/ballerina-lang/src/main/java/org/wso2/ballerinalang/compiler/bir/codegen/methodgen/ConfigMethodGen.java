@@ -23,6 +23,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
@@ -77,8 +78,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VARIABLE_
 public class ConfigMethodGen {
 
     public void generateConfigInit(List<PackageID> imprtMods, BIRNode.BIRPackage pkg, String moduleInitClass,
-                                   Map<String, byte[]> jarEntries) {
-        String innerClassName = JvmCodeGenUtil.getModuleLevelClassName(pkg.packageID, CONFIGURATION_CLASS_NAME);
+                                   JvmBStringConstantsGen stringConstantsGen, Map<String, byte[]> jarEntries) {
+        String innerClassName = JvmCodeGenUtil
+                .getModuleLevelClassName(pkg.packageID, CONFIGURATION_CLASS_NAME);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);
 
@@ -109,8 +111,7 @@ public class ConfigMethodGen {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        populateConfigDataMethod(cw, moduleInitClass, pkg);
-
+        populateConfigDataMethod(cw, moduleInitClass, pkg, new JvmTypeGen(stringConstantsGen));
         cw.visitEnd();
         jarEntries.put(innerClassName + ".class", cw.toByteArray());
     }
@@ -143,7 +144,8 @@ public class ConfigMethodGen {
                 "initConfigurableVariables", "(L" + MAP + ";)V", false);
     }
 
-    private void populateConfigDataMethod(ClassWriter cw, String moduleClass, BIRNode.BIRPackage module) {
+    private void populateConfigDataMethod(ClassWriter cw, String moduleClass,
+                                          BIRNode.BIRPackage module, JvmTypeGen jvmTypeGen) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, POPULATE_CONFIG_DATA_METHOD,
                 String.format("()[L%s;", VARIABLE_KEY), null, null);
         mv.visitCode();
@@ -162,7 +164,7 @@ public class ConfigMethodGen {
                 mv.visitFieldInsn(GETSTATIC, moduleClass, CURRENT_MODULE_VAR_NAME,
                         "L" + MODULE + ";");
                 mv.visitLdcInsn(globalVar.name.value);
-                JvmTypeGen.loadType(mv, globalVar.type);
+                jvmTypeGen.loadType(mv, globalVar.type);
                 mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V",
                         MODULE, STRING_VALUE, TYPE), false);
                 mv.visitVarInsn(ASTORE, varCount + 1);
@@ -189,5 +191,4 @@ public class ConfigMethodGen {
         }
         return count;
     }
-
 }

@@ -45,6 +45,7 @@ message TraceSpan {
     int64 duration = 6;
     map<string, string> tags = 7;
     repeated TraceSpanReference references = 8;
+    repeated Checkpoint checkpoints = 9;
 }
 
 message TraceSpanReference {
@@ -56,4 +57,10 @@ message TraceSpanReference {
 enum TraceReferenceType {
     CHILD_OF = 0;
     FOLLOWS_FROM = 1;
+}
+
+message Checkpoint {
+    int64 timestamp = 1;
+    string moduleID = 2;
+    string positionID = 3;
 }
