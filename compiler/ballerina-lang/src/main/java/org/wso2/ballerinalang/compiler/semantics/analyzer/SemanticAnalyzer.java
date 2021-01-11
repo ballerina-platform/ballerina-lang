@@ -707,6 +707,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangSimpleVariable varNode) {
 
+        // This will prevent cases Eg:- int _ = 100;
+        // We have prevented '_' from registering variable symbol at SymbolEnter, Hence this validation added.
+        Name varName = names.fromIdNode(varNode.name);
+        if (varName == Names.IGNORE) {
+            dlog.error(varNode.pos, DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+            return;
+        }
+
         boolean configurable = isConfigurable(varNode);
 
         if (varNode.isDeclaredWithVar) {
