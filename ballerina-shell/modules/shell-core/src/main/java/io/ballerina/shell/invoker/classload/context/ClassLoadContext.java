@@ -20,7 +20,7 @@ package io.ballerina.shell.invoker.classload.context;
 
 import freemarker.ext.beans.TemplateAccessible;
 import io.ballerina.shell.invoker.classload.ClassLoadInvoker;
-import io.ballerina.shell.invoker.classload.ClassLoadMemory;
+import io.ballerina.shell.rt.InvokerMemory;
 
 import java.util.Collection;
 import java.util.List;
@@ -131,6 +131,6 @@ public class ClassLoadContext {
 
     @TemplateAccessible
     public String getMemoryRef() {
-        return ClassLoadMemory.class.getCanonicalName();
+        return InvokerMemory.class.getCanonicalName();
     }
 }

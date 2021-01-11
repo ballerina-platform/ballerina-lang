@@ -19,22 +19,13 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
-description = 'Ballerina - Ballerina Shell'
+description = 'Ballerina - Ballerina Shell Runtime Dependencies'
 
 group = 'io.ballerina'
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
-    implementation project(":ballerina-shell:shell-rt")
-    implementation project(':ballerina-parser')
-    implementation project(':ballerina-lang')
-    implementation project(':ballerina-tools-api')
-    implementation(group: 'org.freemarker', name: 'freemarker', version: '2.3.30') {
-        because("To render the ballerina file generated code")
-    }
-
     testImplementation('org.testng:testng')
-    testImplementation('com.google.code.gson:gson')
 }
 
 test {
@@ -43,13 +34,4 @@ test {
     }
 }
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
-ext.moduleName = 'io.ballerina.shell'
+ext.moduleName = 'io.ballerina.shell.rt'

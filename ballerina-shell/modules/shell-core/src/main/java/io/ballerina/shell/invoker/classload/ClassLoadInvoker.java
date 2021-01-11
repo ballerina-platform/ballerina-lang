@@ -52,6 +52,7 @@ import io.ballerina.shell.invoker.classload.context.VariableContext;
 import io.ballerina.shell.invoker.classload.visitors.ElevatedTypeTransformer;
 import io.ballerina.shell.invoker.classload.visitors.TypeSignatureTransformer;
 import io.ballerina.shell.invoker.classload.visitors.TypeVisibilityVisitor;
+import io.ballerina.shell.rt.InvokerMemory;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.snippet.types.ExecutableSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
@@ -186,7 +187,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         // data wrt the memory context is also removed.
         this.moduleDclns.clear();
         this.globalVars.clear();
-        ClassLoadMemory.forgetAll(contextId);
+        InvokerMemory.forgetAll(contextId);
         this.knownSymbols.clear();
         this.initialized.set(false);
         this.imports.reset();
@@ -257,7 +258,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
                 }
 
                 // Save required data if execution was successful
-                Object executionResult = ClassLoadMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME);
+                Object executionResult = InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME);
                 this.knownSymbols.addAll(this.newSymbols);
                 this.newImplicitImports.forEach(imports::storeImplicitPrefix);
                 if (newSnippet.isVariableDeclaration()) {
@@ -713,7 +714,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         // Available variables and values as string.
         List<String> varStrings = new ArrayList<>();
         for (GlobalVariable entry : globalVars) {
-            Object obj = ClassLoadMemory.recall(contextId, entry.getVariableName());
+            Object obj = InvokerMemory.recall(contextId, entry.getVariableName());
             String value = StringUtils.shortenedString(obj);
             String varString = String.format("(%s) %s %s = %s",
                     entry.getVariableName(), entry.getType(), entry.getVariableName(), value);
