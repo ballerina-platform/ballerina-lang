@@ -35,6 +35,7 @@ public enum ParserRuleContext {
     FUNC_DEF_OR_FUNC_TYPE("func-def-or-func-type"),
     PARAM_LIST("parameters"),
     PARAMETER_START("parameter-start"),
+    PARAMETER_START_WITHOUT_ANNOTATION("parameter-start-without-annotation"),
     PARAM_END("param-end"),
     REQUIRED_PARAM("required-parameter"),
     DEFAULTABLE_PARAM("defaultable-parameter"),

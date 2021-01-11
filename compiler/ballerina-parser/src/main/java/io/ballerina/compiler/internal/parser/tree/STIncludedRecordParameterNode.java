@@ -17,9 +17,9 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
+import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,66 +30,76 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STRequiredParameterNode extends STParameterNode {
+public class STIncludedRecordParameterNode extends STParameterNode {
     public final STNode annotations;
+    public final STNode asteriskToken;
     public final STNode typeName;
     public final STNode paramName;
 
-    STRequiredParameterNode(
+    STIncludedRecordParameterNode(
             STNode annotations,
+            STNode asteriskToken,
             STNode typeName,
             STNode paramName) {
         this(
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName,
                 Collections.emptyList());
     }
 
-    STRequiredParameterNode(
+    STIncludedRecordParameterNode(
             STNode annotations,
+            STNode asteriskToken,
             STNode typeName,
             STNode paramName,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.REQUIRED_PARAM, diagnostics);
+        super(SyntaxKind.INCLUDED_RECORD_PARAM, diagnostics);
         this.annotations = annotations;
+        this.asteriskToken = asteriskToken;
         this.typeName = typeName;
         this.paramName = paramName;
 
         addChildren(
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STRequiredParameterNode(
+        return new STIncludedRecordParameterNode(
                 this.annotations,
+                this.asteriskToken,
                 this.typeName,
                 this.paramName,
                 diagnostics);
     }
 
-    public STRequiredParameterNode modify(
+    public STIncludedRecordParameterNode modify(
             STNode annotations,
+            STNode asteriskToken,
             STNode typeName,
             STNode paramName) {
         if (checkForReferenceEquality(
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName)) {
             return this;
         }
 
-        return new STRequiredParameterNode(
+        return new STIncludedRecordParameterNode(
                 annotations,
+                asteriskToken,
                 typeName,
                 paramName,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RequiredParameterNode(this, position, parent);
+        return new IncludedRecordParameterNode(this, position, parent);
     }
 
     @Override
