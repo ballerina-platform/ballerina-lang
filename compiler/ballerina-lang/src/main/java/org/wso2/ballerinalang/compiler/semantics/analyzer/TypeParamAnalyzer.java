@@ -262,10 +262,6 @@ public class TypeParamAnalyzer {
                 return anydataType;
             case TypeTags.READONLY:
                 return new BReadonlyType(type.tag, null, name, flags);
-//            case TypeTags.UNION:
-//                BUnionType unionType = new BUnionType((BUnionType) type);
-//                type.flags |= flags;
-//                return unionType;
         }
         // For others, we will use TSymbol.
         return type;
