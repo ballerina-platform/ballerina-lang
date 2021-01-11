@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -82,5 +83,11 @@ public class TestUtils {
         } catch (IOException e) {
             throw new RuntimeException("cannot delete file:" + file.toPath(), e);
         }
+    }
+
+    static void resetPermissions(Path projectPath) {
+        projectPath.toFile().setExecutable(true, false);
+        projectPath.toFile().setWritable(true, false);
+        projectPath.toFile().setReadable(true, false);
     }
 }

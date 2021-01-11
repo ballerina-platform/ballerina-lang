@@ -49,8 +49,10 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.text.LinePosition;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -59,6 +61,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.ballerina.projects.test.TestUtils.resetPermissions;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -112,6 +115,51 @@ public class TestBuildProject {
         Assert.assertEquals(noOfSrcDocuments, 4);
         Assert.assertEquals(noOfTestDocuments, 3);
 
+    }
+
+    @Test (description = "tests loading a build project with no read permission")
+    public void testBuildProjectWithNoReadPermission() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
+
+        // 1) Remove write permission
+        projectPath.toFile().setReadable(false, false);
+
+        // 2) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("does not have read permissions"));
+        }
+
+        resetPermissions(projectPath);
+    }
+
+    @Test (description = "tests compiling a build project with no write permission",
+            expectedExceptions = RuntimeException.class)
+    public void testBuildProjectWithNoWritePermission() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
+
+        // 1) Remove write permission
+        projectPath.toFile().setWritable(false, false);
+
+        // 2) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 3) Load the package
+        Package currentPackage = project.currentPackage();
+        Collection<ResolvedPackageDependency> resolvedPackageDependencies
+                = currentPackage.getResolution().allDependencies();
+
+        // 4) Compile the current package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+
+        resetPermissions(projectPath);
     }
 
     @Test(description = "tests package compilation", enabled = false)
@@ -680,5 +728,11 @@ public class TestBuildProject {
         // Test symbol
         Optional<Symbol> symbol = semanticModel.symbol("main.bal", LinePosition.from(5, 10));
         symbol.ifPresent(value -> assertEquals(value.name(), "runServices"));
+    }
+
+    @AfterClass (alwaysRun = true)
+    public void reset() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
+        TestUtils.resetPermissions(projectPath);
     }
 }
