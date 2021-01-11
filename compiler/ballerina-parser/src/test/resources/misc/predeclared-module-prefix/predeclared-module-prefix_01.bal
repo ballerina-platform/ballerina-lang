@@ -38,8 +38,8 @@ public function foo() returns int:c {
 
 // Predeclared module prefix in conditional expression
 public function bar() {
-any a = condition? int : float;
-any b = condition? int : x;
-any c = condition? int : x : y;
-any c = condition? int : x : boolean;
+    any a = condition ? int : float;
+    any b = condition ? int : x;
+    any c = condition ? int:x : y;
+    any d = condition ? int:x : boolean;
 }
