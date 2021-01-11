@@ -22,12 +22,10 @@ public type Uuid readonly & record {
     ints:Unsigned16 timeHiAndVersion;
     ints:Unsigned8 clockSeqHiAndReserved;
     ints:Unsigned8 clockSeqLo;
-    int node;    // Should be Unsigned48, but not available in lang.int at the moment
+    int node;
 };
 
 public function testIntersection() returns Uuid {
-    Uuid uuid = { timeLow: 1, timeMid: 2, timeHiAndVersion: 3, clockSeqHiAndReserved: 4, clockSeqLo: 5, node: 6 };
+    Uuid uuid = {timeLow: 1, timeMid: 2, timeHiAndVersion: 3, clockSeqHiAndReserved: 4, clockSeqLo: 5, node: 6};
     return uuid;
 }
-
-

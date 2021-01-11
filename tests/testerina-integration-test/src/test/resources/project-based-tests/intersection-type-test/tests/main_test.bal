@@ -19,7 +19,7 @@ import ballerina/test;
 @test:Config {
 }
 function testIntersectionTypes() {
-    Uuid uuid = { timeLow: 1, timeMid: 2, timeHiAndVersion: 3, clockSeqHiAndReserved: 4, clockSeqLo: 5, node: 6 };
+    Uuid uuid = {timeLow: 1, timeMid: 2, timeHiAndVersion: 3, clockSeqHiAndReserved: 4, clockSeqLo: 5, node: 6};
     Uuid returnVal = testIntersection();
     test:assertEquals(returnVal, uuid);
 }
