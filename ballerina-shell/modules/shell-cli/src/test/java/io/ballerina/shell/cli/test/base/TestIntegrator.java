@@ -80,7 +80,8 @@ public class TestIntegrator extends Thread {
                     recordedContent = filteredString(recordedInput.toString());
                     // Remove all unnecessary prefix/prompt strings. (Remove GARBAGE and PROMPT)
                     // recordedContent = [INPUT][OUTPUT][PROMPT][GARBAGE]
-                    recordedContent = recordedContent.substring(recordedContent.indexOf(shellPrompt) + shellPrompt.length());
+                    recordedContent = recordedContent.substring(recordedContent.indexOf(shellPrompt) +
+                            shellPrompt.length());
                     if (recordedContent.indexOf(shellPrompt) <= 0) {
                         continue;
                     }
