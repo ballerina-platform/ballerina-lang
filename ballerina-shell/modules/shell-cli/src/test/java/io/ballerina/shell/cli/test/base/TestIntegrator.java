@@ -78,7 +78,7 @@ public class TestIntegrator extends Thread {
                 // Remove all unnecessary prefix/prompt strings. (Remove GARBAGE and PROMPT)
                 recordedContent = recordedContent.substring(recordedContent.indexOf(shellPrompt));
                 recordedContent = recordedContent.substring(shellPrompt.length(),
-                        recordedContent.length() - shellPrompt.length() - System.lineSeparator().length());
+                        recordedContent.length() - shellPrompt.length() - 1);
 
                 // Extract INPUT and verify.
                 String recordedContentInput = recordedContent.substring(0, testCase.getCode().length());
@@ -99,6 +99,8 @@ public class TestIntegrator extends Thread {
     }
 
     private String filteredString(String rawString) {
-        return rawString.replaceAll("(\\x9B|\\x1B\\[)[0-?]*[ -/]*[@-~]", "");
+        return rawString
+                .replaceAll("(\\x9B|\\x1B\\[)[0-?]*[ -/]*[@-~]", "")
+                .replace("\r\n", "\n");
     }
 }
