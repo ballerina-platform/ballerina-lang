@@ -22,6 +22,9 @@ import io.ballerina.toml.syntax.tree.NodeLocation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+
+import java.util.List;
 
 /**
  * Represents a {@code Diagnostic} related to syntax analysis.
@@ -67,6 +70,11 @@ public class SyntaxDiagnostic extends Diagnostic {
     @Override
     public String message() {
         return DiagnosticMessageHelper.getDiagnosticMessage(nodeDiagnostic.diagnosticCode(), nodeDiagnostic.args());
+    }
+
+    @Override
+    public List<DiagnosticProperty<?>> properties() {
+        return null;
     }
 
     @Override

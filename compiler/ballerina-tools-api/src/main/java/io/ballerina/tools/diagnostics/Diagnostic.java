@@ -17,6 +17,10 @@
  */
 package io.ballerina.tools.diagnostics;
 
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+
+import java.util.List;
+
 /**
  * A diagnostic represents a compiler error, a warning or a message at a specific location in the source file.
  *
@@ -44,6 +48,13 @@ public abstract class Diagnostic {
      * @return diagnostic message
      */
     public abstract String message();
+
+    /*
+    * Get the diagnostic-properties passed when logging.
+    *
+    * @return {@link DiagnosticProperty} of the diagnostic.
+    * */
+    public abstract List<DiagnosticProperty<?>> properties();
 
     @Override
     public String toString() {
