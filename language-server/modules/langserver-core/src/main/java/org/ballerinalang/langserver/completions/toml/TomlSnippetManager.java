@@ -27,38 +27,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Maintains all the snippets for c2c.
+ * Maintains all the supported snippets for Toml.
  *
  * @since 2.0.0
  */
-public class C2CSnippetManager {
+public class TomlSnippetManager {
 
-    private static volatile C2CSnippetManager snippetManager = null;
-    private final Map<String, Map<String, CompletionItem>> completions;
+    private static volatile TomlSnippetManager snippetManager = null;
+    private final Map<Parent, Map<String, CompletionItem>> completions;
 
-    private C2CSnippetManager() {
+    private TomlSnippetManager() {
         Schema c2cRootSchema = Schema.from(getValidationSchema());
-        C2CSchemaVisitor visitor = new C2CSchemaVisitor();
+        TomlSchemaVisitor visitor = new TomlSchemaVisitor();
         c2cRootSchema.accept(visitor);
         this.completions = removeRedundantCompletions(visitor.getAllCompletionSnippets());
     }
 
-    public Map<String, Map<String, CompletionItem>> getCompletions() {
+    public Map<Parent, Map<String, CompletionItem>> getCompletions() {
         return Collections.unmodifiableMap(completions);
     }
 
-    public static synchronized C2CSnippetManager getInstance() {
+    public static synchronized TomlSnippetManager getInstance() {
         if (snippetManager == null) {
-            snippetManager = new C2CSnippetManager();
+            snippetManager = new TomlSnippetManager();
         }
         return snippetManager;
     }
 
-    private Map<String, Map<String, CompletionItem>> removeRedundantCompletions(Map<String, Map<String,
+    private Map<Parent, Map<String, CompletionItem>> removeRedundantCompletions(Map<Parent, Map<String,
             CompletionItem>> completions) {
-        Map<String, Map<String, CompletionItem>> optimizedCompletions = new HashMap<>();
-        for (Map.Entry<String, Map<String, CompletionItem>> entry : completions.entrySet()) {
-            String key = entry.getKey();
+        Map<Parent, Map<String, CompletionItem>> optimizedCompletions = new HashMap<>();
+        for (Map.Entry<Parent, Map<String, CompletionItem>> entry : completions.entrySet()) {
+            Parent key = entry.getKey();
             Map<String, CompletionItem> value = entry.getValue();
             if (!isRedundantCompletion(value)) {
                 optimizedCompletions.put(key, value);

@@ -39,6 +39,22 @@ public class ServiceInfo {
         return resourceInfo;
     }
 
+    public void setNode(ServiceDeclarationNode node) {
+        this.node = node;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public void setListener(ListenerInfo listener) {
+        this.listener = listener;
+    }
+
+    public void setResourceInfo(List<ResourceInfo> resourceInfo) {
+        this.resourceInfo = resourceInfo;
+    }
+
     public void addResource(ResourceInfo resourceInfo) {
         this.resourceInfo.add(resourceInfo);
     }

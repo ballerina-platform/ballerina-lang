@@ -15,28 +15,27 @@
  */
 package org.ballerinalang.langserver.toml;
 
+import io.ballerina.toml.syntax.tree.Node;
+
 /**
- * Represents a Probe in Kubernetes.toml.
+ * Represents a value in Kubernetes.toml Probe.
  *
  * @since 2.0.0
  */
-public class Probe {
-    private ProbeValue<Integer> port;
-    private ProbeValue<String> path;
+public class ProbeValue <T>{
+    private final Node node;
+    private final T value;
 
-    public ProbeValue<Integer> getPort() {
-        return port;
+    public ProbeValue(T value, Node node) {
+        this.node = node;
+        this.value = value;
     }
 
-    public void setPort(ProbeValue<Integer> port) {
-        this.port = port;
+    public Node getNode() {
+        return node;
     }
 
-    public ProbeValue<String> getPath() {
-        return path;
-    }
-
-    public void setPath(ProbeValue<String> path) {
-        this.path = path;
+    public T getValue() {
+        return value;
     }
 }

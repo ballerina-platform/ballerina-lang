@@ -1,6 +1,22 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ballerinalang.langserver.codeaction.toml;
 
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -15,8 +31,8 @@ import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Visitor for validation related to code to cloud.
@@ -25,8 +41,8 @@ import java.util.Map;
  */
 public class C2CVisitor extends NodeVisitor {
 
-    Map<String, ListenerInfo> listeners = new HashMap<>();
-    Map<String, ServiceInfo> services = new HashMap<>();
+    private List<ListenerInfo> listeners = new ArrayList<>();
+    private List<ServiceInfo> services = new ArrayList<>();
 
     @Override
     public void visit(ListenerDeclarationNode listenerDeclarationNode) {
@@ -39,28 +55,25 @@ public class C2CVisitor extends NodeVisitor {
             ExpressionNode expression = ((PositionalArgumentNode) functionArgumentNode).expression();
             int port = Integer.parseInt(((BasicLiteralNode) expression).literalToken().text());
             ListenerInfo listenerInfo = new ListenerInfo(listenerName, port);
-            listeners.put(listenerName, listenerInfo);
+            listeners.add(listenerInfo);
         }
     }
 
     @Override
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
         ListenerInfo listenerInfo;
+        String servicePath = toAbsoluteServicePath(serviceDeclarationNode.absoluteResourcePath());
         ExpressionNode expressionNode = serviceDeclarationNode.expressions().get(0);
         if (expressionNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             SimpleNameReferenceNode referenceNode = (SimpleNameReferenceNode) expressionNode;
             String listenerName = referenceNode.name().text();
-            listenerInfo = listeners.get(listenerName);
-            if (listenerInfo == null) {
-                //TODO if listner is not found in the file. search in other packages?
-                return;
-            }
-
+            listenerInfo = this.getListener(listenerName);
         } else {
-            //TODO Inline
-            listenerInfo = null;
+            ExplicitNewExpressionNode refNode = (ExplicitNewExpressionNode) expressionNode;
+            int port = Integer.parseInt(refNode.parenthesizedArgList().arguments().get(0).toString());
+            listenerInfo = new ListenerInfo(servicePath, port);
+            this.listeners.add(listenerInfo);
         }
-        String servicePath = toAbsoluteServicePath(serviceDeclarationNode.absoluteResourcePath());
         ServiceInfo serviceInfo = new ServiceInfo(listenerInfo, serviceDeclarationNode,
                 servicePath);
         NodeList<Node> function = serviceDeclarationNode.members();
@@ -72,7 +85,7 @@ public class C2CVisitor extends NodeVisitor {
                 serviceInfo.addResource(new ResourceInfo(functionDefinitionNode, httpMethod, resourcePath));
             }
         }
-        services.put(servicePath, serviceInfo);
+        services.add(serviceInfo);
     }
 
     private String toAbsoluteServicePath(NodeList<Node> servicePathNodes) {
@@ -83,11 +96,20 @@ public class C2CVisitor extends NodeVisitor {
         return absoluteServicePath.toString();
     }
 
-    public Map<String, ListenerInfo> getListeners() {
+    private ListenerInfo getListener(String name) {
+        for (ListenerInfo info : this.listeners) {
+            if (info.getName().equals(name)) {
+                return info;
+            }
+        }
+        return new ListenerInfo(name, 0);
+    }
+
+    public List<ListenerInfo> getListeners() {
         return listeners;
     }
 
-    public Map<String, ServiceInfo> getServices() {
+    public List<ServiceInfo> getServices() {
         return services;
     }
 }

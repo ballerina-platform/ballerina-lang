@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.toml;
+
+package org.ballerinalang.langserver.completions.toml;
 
 /**
- * Represents a Probe in Kubernetes.toml.
+ * Represents Parent Type for a Completion item.
  *
  * @since 2.0.0
  */
-public class Probe {
-    private ProbeValue<Integer> port;
-    private ProbeValue<String> path;
-
-    public ProbeValue<Integer> getPort() {
-        return port;
-    }
-
-    public void setPort(ProbeValue<Integer> port) {
-        this.port = port;
-    }
-
-    public ProbeValue<String> getPath() {
-        return path;
-    }
-
-    public void setPath(ProbeValue<String> path) {
-        this.path = path;
-    }
+public enum ParentType {
+    TABLE,
+    TABLE_ARRAY
 }

@@ -19,15 +19,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Schema Visitor for Code to Cloud.
+ * Schema Visitor for Toml based Json Schema.
  *
  * @since 2.0.0
  */
-public class C2CSchemaVisitor extends SchemaVisitor {
+public class TomlSchemaVisitor extends SchemaVisitor {
 
-    private final Map<String, Map<String, CompletionItem>> completions = new HashMap<>();
+    private final Map<Parent, Map<String, CompletionItem>> completions = new HashMap<>();
     private Map<String, CompletionItem> parentStore;
-    private String parentKey;
+    private Parent parentKey;
 
     @Override
     public void visit(Schema rootSchema) {
@@ -35,10 +35,10 @@ public class C2CSchemaVisitor extends SchemaVisitor {
         for (Map.Entry<String, AbstractSchema> entry : properties.entrySet()) {
             this.parentStore = new HashMap<>();
             String key = entry.getKey();
-            this.parentKey = key;
+            this.parentKey = new Parent(key, ParentType.TABLE);
             CompletionItem item = generateRootTableCompletionItem(key);
             AbstractSchema value = entry.getValue();
-            this.parentStore.put(this.parentKey, item);
+            this.parentStore.put(key, item);
             Map<String, CompletionItem> store = new HashMap<>();
             this.parentStore = store;
             visitNode(value);
@@ -51,69 +51,68 @@ public class C2CSchemaVisitor extends SchemaVisitor {
         Map<String, AbstractSchema> properties = objectSchema.properties();
         Map<String, CompletionItem> completionStore = this.parentStore;
         for (Map.Entry<String, AbstractSchema> entry : properties.entrySet()) {
-            CompletionItem item = new CompletionItem();
             String key = entry.getKey();
             AbstractSchema value = entry.getValue();
             if (value.type() == Type.OBJECT) {
-                key = this.parentKey + "." + key;
-                generateTableSnippet(item, key);
+                key = this.parentKey.getKey() + "." + key;
+                CompletionItem item = generateTableSnippet(key);
                 completionStore.put(key, item);
                 Map<String, CompletionItem> store = new HashMap<>();
-                visitNode(value, key, store);
-                completions.put(key, store);
+                visitNode(value, new Parent(key, ParentType.TABLE), store);
+                completions.put(new Parent(key, ParentType.TABLE), store);
             } else if (value.type() == Type.ARRAY) {
-                key = this.parentKey + "." + key;
-                visitNode(value, key, completionStore);
+                key = this.parentKey.getKey() + "." + key;
+                visitNode(value, new Parent(key, ParentType.TABLE), completionStore);
             } else {
-                visitNode(value, key, completionStore);
+                visitNode(value, new Parent(key, ParentType.TABLE), completionStore);
             }
         }
     }
 
     @Override
     public void visit(ArraySchema arraySchema) {
-        String key = this.parentKey;
+        String key = this.parentKey.getKey();
         Map<String, CompletionItem> parentStore = this.parentStore;
         CompletionItem item = generateArraySnippet(key);
         parentStore.put(key, item);
 
         AbstractSchema items = arraySchema.items();
         Map<String, CompletionItem> store = new HashMap<>();
-        visitNode(items, key, store);
-        this.completions.put(key, store);
+        visitNode(items, new Parent(key, ParentType.TABLE_ARRAY), store);
+        this.completions.put(new Parent(key, ParentType.TABLE_ARRAY), store);
     }
 
     @Override
     public void visit(BooleanSchema booleanSchema) {
-        String key = this.parentKey;
+        String key = this.parentKey.getKey();
         CompletionItem item = generateBooleanSnippet(key);
         this.parentStore.put(key, item);
     }
 
     @Override
     public void visit(NumericSchema numericSchema) {
-        String key = this.parentKey;
+        String key = this.parentKey.getKey();
         CompletionItem item = generateNumericSnippet(key);
         this.parentStore.put(key, item);
     }
 
     @Override
     public void visit(StringSchema stringSchema) {
-        String key = this.parentKey;
+        String key = this.parentKey.getKey();
         CompletionItem item = generateStringSnippet(key);
         this.parentStore.put(key, item);
     }
 
     private void visitNode(AbstractSchema schema) {
-        String oldKey = this.parentKey;
+        Parent oldKey = this.parentKey;
         Map<String, CompletionItem> oldStore = this.parentStore;
         schema.accept(this);
         this.parentKey = oldKey;
         this.parentStore = oldStore;
     }
 
-    private void visitNode(AbstractSchema schema, String newKey, Map<String, CompletionItem> newParentStore) {
-        String oldKey = this.parentKey;
+    private void visitNode(AbstractSchema schema, Parent newKey, Map<String, CompletionItem> newParentStore) {
+        Parent oldKey = this.parentKey;
         Map<String, CompletionItem> oldStore = this.parentStore;
         this.parentKey = newKey;
         this.parentStore = newParentStore;
@@ -122,7 +121,7 @@ public class C2CSchemaVisitor extends SchemaVisitor {
         this.parentStore = oldStore;
     }
 
-    public Map<String, Map<String, CompletionItem>> getAllCompletionSnippets() {
+    public Map<Parent, Map<String, CompletionItem>> getAllCompletionSnippets() {
         return Collections.unmodifiableMap(completions);
     }
 
@@ -131,17 +130,19 @@ public class C2CSchemaVisitor extends SchemaVisitor {
         CompletionItem item = new CompletionItem();
         item.setInsertText(objectNode.prettyPrint());
         item.setDetail("Table");
-        item.setLabel(this.parentKey);
+        item.setLabel(this.parentKey.getKey());
         return item;
     }
 
-    private void generateTableSnippet(CompletionItem item, String key) {
+    private CompletionItem generateTableSnippet(String key) {
         Table objectNode = new Table(key);
+        CompletionItem item = new CompletionItem();
         item.setInsertText(objectNode.prettyPrint());
         item.setDetail(TomlSyntaxTreeUtil.TABLE);
         item.setLabel(key);
         item.setKind(CompletionItemKind.Snippet);
         item.setInsertTextFormat(InsertTextFormat.Snippet);
+        return item;
     }
 
     private CompletionItem generateArraySnippet(String key) {

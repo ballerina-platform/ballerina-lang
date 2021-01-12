@@ -32,6 +32,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class TomlProbesVisitor extends NodeVisitor {
+
     private ProbeStore store = new ProbeStore();
 
     @Override
@@ -55,7 +56,7 @@ public class TomlProbesVisitor extends NodeVisitor {
                 if (value.kind() == SyntaxKind.DEC_INT) {
                     NumericLiteralNode numericLiteralNode = (NumericLiteralNode) value;
                     String port = numericLiteralNode.value().text();
-                    probe.setPort(Integer.parseInt(port));
+                    probe.setPort(new ProbeValue<>(Integer.parseInt(port), numericLiteralNode.value()));
                 }
             }
             if (key.equals("path")) {
@@ -66,7 +67,7 @@ public class TomlProbesVisitor extends NodeVisitor {
                     String path = "";
                     if (content.isPresent()) {
                         path = content.get().text();
-                        probe.setPath(path);
+                        probe.setPath(new ProbeValue<>(path, content.get()));
                     }
 
                 }

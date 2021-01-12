@@ -20,20 +20,21 @@ package org.ballerinalang.langserver.completions;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.CompletionExtension;
-import org.ballerinalang.langserver.completions.util.TomlCompletionRouter;
-import org.ballerinalang.langserver.contexts.TomlCompletionContextImpl;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.completions.util.K8sCompletionRouter;
+import org.ballerinalang.langserver.contexts.K8sCompletionContextImpl;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionParams;
 
 import java.util.List;
 
 /**
- * Completion extension implementation for toml.
+ * Completion extension implementation for Kubernetes.toml file from Code to Cloud.
  *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.LanguageExtension")
-public class TomlCompletionExtension implements CompletionExtension {
+public class K8sCompletionExtension implements CompletionExtension {
 
     @Override
     public boolean validate(CompletionParams inputParams) {
@@ -41,11 +42,10 @@ public class TomlCompletionExtension implements CompletionExtension {
     }
 
     @Override
-    public List<CompletionItem> execute(CompletionParams inputParams, CompletionContext context)
+    public List<CompletionItem> execute(CompletionParams inputParams, CompletionContext context, LanguageServerContext serverContext)
             throws Throwable {
-        TomlCompletionContextImpl tomlContext = new TomlCompletionContextImpl(context);
-        TomlCompletionRouter tomlCompletionRouter = new TomlCompletionRouter();
-        return tomlCompletionRouter.getCompletionItems(tomlContext);
+        K8sCompletionContextImpl k8sContext = new K8sCompletionContextImpl(context, serverContext);
+        K8sCompletionRouter k8sCompletionRouter = new K8sCompletionRouter();
+        return k8sCompletionRouter.getCompletionItems(k8sContext);
     }
 }
-
