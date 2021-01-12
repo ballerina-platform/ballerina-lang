@@ -128,7 +128,9 @@ public class BallerinaTomlProcessor {
                 if (platformValue != null) {
                     List<Map<String, Object>> platformDependencies =
                             (List<Map<String, Object>>) platformValue.get("dependency");
-                    Platform platform = new Platform(platformDependencies);
+                    List<Map<String, Object>> platformRepositories =
+                            (List<Map<String, Object>>) platformValue.get("repository");
+                    Platform platform = new Platform(platformDependencies, platformRepositories);
                     platforms.put(platformCode, platform);
                 }
             }
