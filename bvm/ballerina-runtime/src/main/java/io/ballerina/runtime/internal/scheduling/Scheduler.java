@@ -126,8 +126,7 @@ public class Scheduler {
     }
 
     public FutureValue scheduleTransactionalFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent,
-                                              Type returnType,
-                                        String strandName, StrandMetadata metadata) {
+                                                     Type returnType, String strandName, StrandMetadata metadata) {
         return scheduleTransactional(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
     }
 

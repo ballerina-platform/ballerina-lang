@@ -212,7 +212,6 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                       boolean isAsync,
                       boolean transactional,
                       BIRBasicBlock thenBB) {
-
             this(pos, kind, fp, args, lhsOp, isAsync, thenBB);
             this.transactional = transactional;
         }
