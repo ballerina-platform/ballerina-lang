@@ -99,6 +99,10 @@ public class BallerinaDocGenerator {
                 if (docJsonPath.toFile().exists()) {
                     try (BufferedReader br = Files.newBufferedReader(docJsonPath, StandardCharsets.UTF_8)) {
                         PackageLibrary jsonPackageLib = gson.fromJson(br, PackageLibrary.class);
+                        if (jsonPackageLib.packages.isEmpty()) {
+                            out.println("No packages found at: " + docJsonPath.toString());
+                            continue;
+                        }
                         jsonPackageLib.packages.forEach(docPackage -> {
                             try {
                                 docPackage.resources.addAll(getResourcePaths(Paths.get(file.getAbsolutePath())));

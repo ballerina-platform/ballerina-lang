@@ -30,6 +30,7 @@ import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -180,9 +181,9 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
     private ArrayList<LSCompletionItem> orgNameContextCompletions(BallerinaCompletionContext ctx) {
         List<String> orgNames = new ArrayList<>();
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Package> packagesList = LSPackageLoader.getDistributionRepoPackages();
+        List<Package> pkgList = LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages();
 
-        packagesList.forEach(pkg -> {
+        pkgList.forEach(pkg -> {
             String orgName = pkg.packageOrg().value();
             String pkgName = pkg.packageName().value();
             String fullPkgNameLabel = orgName + SLASH + pkgName;
@@ -266,7 +267,8 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                                                                      String orgName) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> pkgNameLabels = new ArrayList<>();
-        List<Package> packageList = LSPackageLoader.getDistributionRepoPackages();
+        LanguageServerContext serverContext = context.languageServercontext();
+        List<Package> packageList = LSPackageLoader.getInstance(serverContext).getDistributionRepoPackages();
         packageList.forEach(ballerinaPackage -> {
             if (isPreDeclaredLangLib(ballerinaPackage)) {
                 return;

@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
@@ -595,6 +596,7 @@ public class StaticMethods {
         return StringUtils.fromString("Ballerina");
     }
 
+
     public static BMap<BString, Object> createStudentUsingType() {
         Module module = new Module("$anon", ".", "0.0.0");
         BMap<BString, Object> bmap = ValueCreator.createRecordValue(module, "(Student & readonly)");
@@ -634,5 +636,4 @@ public class StaticMethods {
                 StringUtils.fromString("id"), 123L)};
         return ValueCreator.createMapValue(recordType, mapInitialValueEntries);
     }
-
 }
