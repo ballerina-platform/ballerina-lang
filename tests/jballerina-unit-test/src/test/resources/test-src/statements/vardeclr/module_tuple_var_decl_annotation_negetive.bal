@@ -18,4 +18,4 @@
 # # Deprecated
 # This tuple is deprecated.
 @deprecated
-[int, byte] [d,e] = [1,3];
+[int, byte] [d, e] = [1, 3];
