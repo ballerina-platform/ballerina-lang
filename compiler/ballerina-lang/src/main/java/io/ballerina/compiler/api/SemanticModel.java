@@ -59,7 +59,7 @@ public interface SemanticModel {
      * definitions etc.
      * <p>
      * One can also provide just the relevant portion of a particular construct to get the symbol. e.g., binding pattern
-     * node of a variable declaration node, function name node of a function definition node
+     * node of a variable declaration node, function name node of a function definition node.
      *
      * @param node The syntax tree node of which the symbol is required
      * @return {@link Symbol} for the given node

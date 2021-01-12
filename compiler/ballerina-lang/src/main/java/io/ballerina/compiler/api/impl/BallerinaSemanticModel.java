@@ -144,10 +144,6 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     @Override
     public Optional<Symbol> symbol(Node node) {
-        if (node == null) {
-            return Optional.empty();
-        }
-
         Optional<Location> nodeIdentifierLocation = node.apply(new SyntaxNodeToLocationMapper());
 
         if (nodeIdentifierLocation.isEmpty()) {
