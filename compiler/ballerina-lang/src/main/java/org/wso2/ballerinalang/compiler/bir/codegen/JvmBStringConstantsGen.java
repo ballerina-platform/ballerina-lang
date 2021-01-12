@@ -41,6 +41,7 @@ import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.IASTORE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.NEWARRAY;
 import static org.objectweb.asm.Opcodes.RETURN;
@@ -48,6 +49,7 @@ import static org.objectweb.asm.Opcodes.T_INT;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_CLASS_NAME;
@@ -67,6 +69,14 @@ public class JvmBStringConstantsGen {
     private String stringConstantsClass;
 
     private AtomicInteger constantIndex = new AtomicInteger();
+
+    /*
+     This value is calculated as below.
+        No of instructions required for create ballerina string constant object = 12
+        Java method limit = 64000
+        Max strings constant initializations per method = 64000/12 -> 5000
+     */
+    private static int MAX_STRINGS_PER_METHOD = 5000;
 
     public JvmBStringConstantsGen(BIRNode.BIRPackage module) {
         this.bStringVarMap = new ConcurrentHashMap<>();
@@ -94,6 +104,9 @@ public class JvmBStringConstantsGen {
         mv.visitEnd();
 
         bStringVarMap.values().forEach(bStringVar -> visitBStringField(cw, bStringVar));
+        // Create multiple string constant init methods depends on string count.
+        generateBStringInits(cw);
+        // Create static initializer which will call previously generated string init methods.
         generateStaticInitializer(cw);
         cw.visitEnd();
         jarEntries.put(stringConstantsClass + ".class", cw.toByteArray());
@@ -107,9 +120,14 @@ public class JvmBStringConstantsGen {
         fv.visitEnd();
     }
 
-    private void generateStaticInitializer(ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+    private void generateBStringInits(ClassWriter cw) {
+        MethodVisitor mv = null;
+        int bStringCount = 0;
+        int methodCount = 0;
         for (Map.Entry<String, String> entry : bStringVarMap.entrySet()) {
+            if (bStringCount % MAX_STRINGS_PER_METHOD == 0) {
+                mv = cw.visitMethod(ACC_STATIC, B_STRING_INIT_METHOD_PREFIX + methodCount, "()V", null, null);
+            }
             String bString = entry.getKey();
             String bStringVarName = entry.getValue();
             int[] highSurrogates = listHighSurrogates(bString);
@@ -118,6 +136,27 @@ public class JvmBStringConstantsGen {
             } else {
                 createBmpString(mv, bString, bStringVarName);
             }
+            bStringCount++;
+            if (bStringCount % MAX_STRINGS_PER_METHOD == 0) {
+                mv.visitInsn(RETURN);
+                mv.visitMaxs(0, 0);
+                mv.visitEnd();
+                methodCount++;
+            }
+        }
+        // Visit the previously started string init method if not ended.
+        if (bStringCount % MAX_STRINGS_PER_METHOD != 0) {
+            mv.visitInsn(RETURN);
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
+        }
+    }
+
+    private void generateStaticInitializer(ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+        int methodIndex = bStringVarMap.size() / MAX_STRINGS_PER_METHOD;
+        for (int i = 0; i <= methodIndex; i++) {
+            mv.visitMethodInsn(INVOKESTATIC, stringConstantsClass, B_STRING_INIT_METHOD_PREFIX + i, "()V", false);
         }
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
