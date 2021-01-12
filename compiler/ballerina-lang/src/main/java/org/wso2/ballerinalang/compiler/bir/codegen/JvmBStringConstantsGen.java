@@ -71,7 +71,7 @@ public class JvmBStringConstantsGen {
     private AtomicInteger constantIndex = new AtomicInteger();
 
     /*
-     This value is calculated as below.
+     MAX_STRINGS_PER_METHOD is calculated as below.
         No of instructions required for create ballerina string constant object = 12
         Java method limit = 64000
         Max strings constant initializations per method = 64000/12 -> 5000
@@ -104,7 +104,7 @@ public class JvmBStringConstantsGen {
         mv.visitEnd();
 
         bStringVarMap.values().forEach(bStringVar -> visitBStringField(cw, bStringVar));
-        // Create multiple string constant init methods depends on string count.
+        // Create multiple string constant init methods based on string count.
         generateBStringInits(cw);
         // Create static initializer which will call previously generated string init methods.
         generateStaticInitializer(cw);
@@ -126,7 +126,7 @@ public class JvmBStringConstantsGen {
         int methodCount = 0;
         for (Map.Entry<String, String> entry : bStringVarMap.entrySet()) {
             if (bStringCount % MAX_STRINGS_PER_METHOD == 0) {
-                mv = cw.visitMethod(ACC_STATIC, B_STRING_INIT_METHOD_PREFIX + methodCount, "()V", null, null);
+                mv = cw.visitMethod(ACC_STATIC, B_STRING_INIT_METHOD_PREFIX + methodCount++, "()V", null, null);
             }
             String bString = entry.getKey();
             String bStringVarName = entry.getValue();
@@ -141,7 +141,6 @@ public class JvmBStringConstantsGen {
                 mv.visitInsn(RETURN);
                 mv.visitMaxs(0, 0);
                 mv.visitEnd();
-                methodCount++;
             }
         }
         // Visit the previously started string init method if not ended.
@@ -154,7 +153,7 @@ public class JvmBStringConstantsGen {
 
     private void generateStaticInitializer(ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-        int methodIndex = bStringVarMap.size() / MAX_STRINGS_PER_METHOD;
+        int methodIndex = (bStringVarMap.size() - 1) / MAX_STRINGS_PER_METHOD;
         for (int i = 0; i <= methodIndex; i++) {
             mv.visitMethodInsn(INVOKESTATIC, stringConstantsClass, B_STRING_INIT_METHOD_PREFIX + i, "()V", false);
         }
