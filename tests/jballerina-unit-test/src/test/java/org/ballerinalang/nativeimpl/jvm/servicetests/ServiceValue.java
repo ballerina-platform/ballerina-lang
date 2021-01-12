@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ObjectType;
-import io.ballerina.runtime.api.types.ResourceFunctionType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -54,10 +54,9 @@ public class ServiceValue {
     private static MapValue annotationMap; // captured at attach method
 
     public static BFuture callMethod(Environment env, BObject l, BString name) {
-        BFuture k = env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
-                PredefinedTypes.TYPE_ANY);
 
-        return k;
+        return env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
+                                                  PredefinedTypes.TYPE_ANY);
     }
 
     public static BFuture callMethodWithParams(Environment env, BObject l, BString name, ArrayValue arrayValue) {
@@ -78,7 +77,7 @@ public class ServiceValue {
             return null;
         }
 
-        for (ResourceFunctionType attachedFunction : ((ServiceType) type).getResourceFunctions()) {
+        for (ResourceMethodType attachedFunction : ((ServiceType) type).getResourceMethods()) {
             if (attachedFunction.getName().equals(methodName.getValue())) {
                 String[] paramNames = attachedFunction.getParamNames();
                 BArray arrayValue = ValueCreator.createArrayValue(
@@ -148,21 +147,43 @@ public class ServiceValue {
         return ServiceValue.service;
     }
 
-    public static BValue getResourceAnnotation(BString resourceName, BString annotName) {
-        for (var r : ((ServiceType) ServiceValue.service.getType()).getResourceFunctions()) {
-            if (r.getName().equals(resourceName.getValue())) {
-                return (BValue) r.getAnnotation(annotName);
+    public static BValue getResourceAnnotation(BString methodName, ArrayValue path, BString annotName) {
+        String funcName = generateMethodName(methodName, path);
+
+        for (var methodType : ((ServiceType) ServiceValue.service.getType()).getResourceMethods()) {
+            if (methodType.getName().equals(funcName)) {
+                return (BValue) methodType.getAnnotation(annotName);
             }
         }
         return null;
     }
 
+    private static String generateMethodName(BString methodName, ArrayValue path) {
+        StringBuilder funcName = new StringBuilder();
+        funcName.append("$").append(methodName.getValue());
+        for (int i = 0; i < path.size(); i++) {
+            funcName.append("$").append(path.getBString(i).getValue());
+        }
+        return funcName.toString();
+    }
+
     public static BArray getServicePath() {
-        BArray ar = new ArrayValueImpl(names);
-        return ar;
+        return new ArrayValueImpl(names, false);
     }
 
     public static BMap getAnnotationsAtServiceAttach() {
         return ServiceValue.annotationMap;
+    }
+
+    public static BValue getResourceMethodAnnotations(BObject service, BString method, ArrayValue resourcePath,
+                                                      BString annotName) {
+        String methodName = generateMethodName(method, resourcePath);
+
+        for (var methodType : ((ServiceType) service.getType()).getResourceMethods()) {
+            if (methodType.getName().equals(methodName)) {
+                return (BValue) methodType.getAnnotation(annotName);
+            }
+        }
+        return null;
     }
 }

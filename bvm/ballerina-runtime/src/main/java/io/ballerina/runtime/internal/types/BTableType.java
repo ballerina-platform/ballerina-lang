@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 
@@ -32,7 +33,7 @@ import io.ballerina.runtime.internal.values.TableValueImpl;
  */
 public class BTableType extends BType implements TableType {
 
-    private Type constraint;
+    private final Type constraint;
     private Type keyType;
     private String[] fieldNames;
 
@@ -40,23 +41,18 @@ public class BTableType extends BType implements TableType {
     private IntersectionType immutableType;
 
     public BTableType(Type constraint, String[] fieldNames, boolean readonly) {
-        super(TypeConstants.TABLE_TNAME, null, TableValue.class);
-        this.constraint = constraint;
+        this(constraint, readonly);
         this.fieldNames = fieldNames;
-        this.keyType = null;
-        this.readonly = readonly;
     }
 
     public BTableType(Type constraint, Type keyType, boolean readonly) {
-        super(TypeConstants.TABLE_TNAME, null, TableValue.class);
-        this.constraint = constraint;
+        this(constraint, readonly);
         this.keyType = keyType;
-        this.readonly = readonly;
     }
 
     public BTableType(Type constraint, boolean readonly) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
-        this.constraint = constraint;
+        this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
     }
 

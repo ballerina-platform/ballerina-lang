@@ -17,14 +17,14 @@
 import testorg/errors as er;
 
 function getDistinctError() returns error {
-    er:OrderCreationError e = er:OrderCreationError("order creation failed", message = "Client has been stopped");
-    er:OrderCreationError2 k = er:OrderCreationError2("failed", message = "Client has been stopped");
+    er:OrderCreationError e = error er:OrderCreationError("order creation failed", message = "Client has been stopped");
+    er:OrderCreationError2 k = error er:OrderCreationError2("failed", message = "Client has been stopped");
     er:OrderCreationError f = k;
     k = f; // expected 'testorg/errors:1.0.0:OrderCreationError2', found 'testorg/errors:1.0.0:OrderCreationError'
     return f;
 }
 
 function testErrorDetailDefinedAfterErrorDef() returns er:PostDefinedError {
-    er:NewPostDefinedError e = er:PostDefinedError("New error", code = "ABCD");
+    er:NewPostDefinedError e = error er:PostDefinedError("New error", code = "ABCD");
     return e;
 }

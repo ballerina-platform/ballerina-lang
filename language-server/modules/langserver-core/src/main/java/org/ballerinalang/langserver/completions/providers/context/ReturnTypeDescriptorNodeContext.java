@@ -23,7 +23,7 @@ import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -38,7 +38,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<ReturnTypeDescriptorNode> {
 
     public ReturnTypeDescriptorNodeContext() {
@@ -46,7 +46,7 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ReturnTypeDescriptorNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ReturnTypeDescriptorNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
@@ -78,7 +78,7 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
         return completionItems;
     }
 
-    private boolean withinIdentifierContext(CompletionContext context, QualifiedNameReferenceNode node) {
+    private boolean withinIdentifierContext(BallerinaCompletionContext context, QualifiedNameReferenceNode node) {
         LineRange colonLineRange = node.colon().lineRange();
         Position cursor = context.getCursorPosition();
 

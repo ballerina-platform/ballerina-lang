@@ -17,12 +17,14 @@
  */
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBaloTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
+import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
@@ -34,7 +36,6 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
-import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -117,6 +118,12 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Parameters
     private List<String> argList;
+
+    @CommandLine.Option(names = "--dump-bir", hidden = true)
+    private boolean dumpBIR;
+
+    @CommandLine.Option(names = "--dump-bir-file", hidden = true)
+    private String dumpBIRFile;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -224,7 +231,7 @@ public class BuildCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory
-//                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
+                .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
                 .addTask(new RunTestsTask(outStream, errStream, args),
@@ -249,6 +256,8 @@ public class BuildCommand implements BLauncherCmd {
                 .skipTests(skipTests)
                 .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
+                .dumpBir(dumpBIR)
+                .dumpBirFile(dumpBIRFile)
                 .build();
     }
 

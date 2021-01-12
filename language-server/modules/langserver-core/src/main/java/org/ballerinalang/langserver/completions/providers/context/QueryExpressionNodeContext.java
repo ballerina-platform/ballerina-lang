@@ -19,7 +19,7 @@ import io.ballerina.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -36,7 +36,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class QueryExpressionNodeContext extends AbstractCompletionProvider<QueryExpressionNode> {
 
     public QueryExpressionNodeContext() {
@@ -44,7 +44,7 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, QueryExpressionNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, QueryExpressionNode node)
             throws LSCompletionException {
 
         if (this.onQueryPipeLine(context, node)) {
@@ -77,7 +77,7 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
         return new ArrayList<>();
     }
 
-    private boolean onQueryPipeLine(CompletionContext context, QueryExpressionNode node) {
+    private boolean onQueryPipeLine(BallerinaCompletionContext context, QueryExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
         QueryPipelineNode queryPipeline = node.queryPipeline();
         Optional<OnConflictClauseNode> onConflictClause = node.onConflictClause();

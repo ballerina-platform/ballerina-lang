@@ -94,15 +94,15 @@ public class InitMethodGen {
      * @param depMods   dependent module list
      */
     public void generateLambdaForPackageInits(ClassWriter cw, BIRNode.BIRPackage pkg, String initClass,
-                                              List<PackageID> depMods) {
+                                              List<PackageID> depMods, JvmCastGen jvmCastGen) {
         //need to generate lambda for package Init as well, if exist
         if (!MethodGenUtils.hasInitFunction(pkg)) {
             return;
         }
-        generateLambdaForModuleFunction(cw, MODULE_INIT, initClass);
+        generateLambdaForModuleFunction(cw, MODULE_INIT, initClass, jvmCastGen);
 
         // generate another lambda for start function as well
-        generateLambdaForModuleFunction(cw, MODULE_START, initClass);
+        generateLambdaForModuleFunction(cw, MODULE_START, initClass, jvmCastGen);
 
         MethodVisitor mv = visitFunction(cw, MethodGenUtils
                 .calculateLambdaStopFuncName(pkg.packageID));
@@ -115,7 +115,8 @@ public class InitMethodGen {
         }
     }
 
-    private void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass) {
+    private void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass,
+                                                 JvmCastGen jvmCastGen) {
         MethodVisitor mv = visitFunction(cw, String.format("$lambda$%s$", funcName));
         mv.visitCode();
 
@@ -126,7 +127,7 @@ public class InitMethodGen {
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, String.format("(L%s;)L%s;", STRAND_CLASS, OBJECT), false);
-        JvmCastGen.addBoxInsn(mv, errorOrNilType);
+        jvmCastGen.addBoxInsn(mv, errorOrNilType);
         MethodGenUtils.visitReturn(mv);
     }
 

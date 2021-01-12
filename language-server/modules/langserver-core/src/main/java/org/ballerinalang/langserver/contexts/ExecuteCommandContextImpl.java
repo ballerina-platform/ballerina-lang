@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.contexts;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -41,10 +42,11 @@ public class ExecuteCommandContextImpl extends AbstractWorkspaceServiceContext i
     private final BallerinaLanguageServer languageServer;
 
     ExecuteCommandContextImpl(WorkspaceManager wsManager,
+                              LanguageServerContext serverContext,
                               List<Object> arguments,
                               LSClientCapabilities clientCapabilities,
                               BallerinaLanguageServer languageServer) {
-        super(LSContextOperation.WS_EXEC_CMD, wsManager);
+        super(LSContextOperation.WS_EXEC_CMD, wsManager, serverContext);
         this.arguments = arguments;
         this.clientCapabilities = clientCapabilities;
         this.languageServer = languageServer;
@@ -82,14 +84,18 @@ public class ExecuteCommandContextImpl extends AbstractWorkspaceServiceContext i
         private final LSClientCapabilities clientCapabilities;
 
         private final BallerinaLanguageServer languageServer;
+        
+        private final LanguageServerContext serverContext;
 
         /**
          * Context Builder constructor.
          */
-        public ExecuteCommandContextBuilder(List<Object> arguments,
+        public ExecuteCommandContextBuilder(LanguageServerContext serverContext,
+                                            List<Object> arguments,
                                             LSClientCapabilities clientCapabilities,
                                             BallerinaLanguageServer languageServer) {
-            super(LSContextOperation.WS_EXEC_CMD);
+            super(LSContextOperation.WS_EXEC_CMD, serverContext);
+            this.serverContext = serverContext;
             this.arguments = arguments;
             this.clientCapabilities = clientCapabilities;
             this.languageServer = languageServer;
@@ -98,6 +104,7 @@ public class ExecuteCommandContextImpl extends AbstractWorkspaceServiceContext i
         public ExecuteCommandContext build() {
             return new ExecuteCommandContextImpl(
                     this.wsManager,
+                    this.serverContext,
                     this.arguments,
                     this.clientCapabilities,
                     this.languageServer);

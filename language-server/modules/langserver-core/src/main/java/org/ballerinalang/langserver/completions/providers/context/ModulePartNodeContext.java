@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -33,7 +33,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePartNode> {
 
     public ModulePartNodeContext() {
@@ -41,7 +41,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, ModulePartNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ModulePartNode node) {
         if (ModulePartNodeContextUtil.onServiceTypeDescContext(context.getTokenAtCursor(), context)) {
             /*
             Covers the following cases
@@ -74,7 +74,8 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
     }
 
     @Override
-    public void sort(CompletionContext context, ModulePartNode node, List<LSCompletionItem> items, Object... metaData) {
+    public void sort(BallerinaCompletionContext context, ModulePartNode node, List<LSCompletionItem> items,
+                     Object... metaData) {
         ModulePartNodeContextUtil.sort(items);
     }
 }

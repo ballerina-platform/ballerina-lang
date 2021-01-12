@@ -26,7 +26,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.projects.Module;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -70,7 +70,7 @@ public class AnnotationUtil {
      */
     public static LSCompletionItem getModuleQualifiedAnnotationItem(ModuleID moduleID,
                                                                     AnnotationSymbol annotationSymbol,
-                                                                    CompletionContext ctx) {
+                                                                    BallerinaCompletionContext ctx) {
         Optional<Module> currentModule = ctx.workspace().module(ctx.filePath());
         if (currentModule.isEmpty()) {
             throw new RuntimeException("Cannot find a valid module");
@@ -116,7 +116,8 @@ public class AnnotationUtil {
      * @param ctx              Language server context
      * @return {@link LSCompletionItem} generated for the annotation symbol
      */
-    public static LSCompletionItem getAnnotationItem(AnnotationSymbol annotationSymbol, CompletionContext ctx) {
+    public static LSCompletionItem getAnnotationItem(AnnotationSymbol annotationSymbol,
+                                                     BallerinaCompletionContext ctx) {
         String label = getAnnotationLabel(annotationSymbol);
         String insertText = getAnnotationInsertText(annotationSymbol);
         CompletionItem completionItem = prepareCompletionItem(label, insertText, new ArrayList<>());
@@ -262,7 +263,7 @@ public class AnnotationUtil {
         return annotationItem;
     }
 
-    private static Optional<String> getAlias(CompletionContext context, ModuleID moduleID) {
+    private static Optional<String> getAlias(BallerinaCompletionContext context, ModuleID moduleID) {
         return context.currentDocImports().stream().filter(importNode -> {
             Optional<ImportOrgNameNode> orgName = importNode.orgName();
             StringBuilder nodeName = new StringBuilder();

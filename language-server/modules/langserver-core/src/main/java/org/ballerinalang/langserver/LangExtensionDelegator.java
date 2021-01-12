@@ -17,12 +17,17 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.CodeActionExtension;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.CompletionExtension;
 import org.ballerinalang.langserver.commons.DiagnosticsExtension;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.FormattingExtension;
 import org.ballerinalang.langserver.commons.LanguageExtension;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
@@ -45,6 +50,7 @@ public class LangExtensionDelegator {
     private static final LangExtensionDelegator INSTANCE = new LangExtensionDelegator();
 
     private final List<CompletionExtension> completionExtensions = new ArrayList<>();
+    private final List<CodeActionExtension> codeActionsExtensions = new ArrayList<>();
     private final List<FormattingExtension> formatExtensions = new ArrayList<>();
     private final List<DiagnosticsExtension> diagExtensions = new ArrayList<>();
 
@@ -53,6 +59,9 @@ public class LangExtensionDelegator {
             switch (languageExtension.kind()) {
                 case COMPLETION:
                     completionExtensions.add((CompletionExtension) languageExtension);
+                    break;
+                case CODEACTION:
+                    codeActionsExtensions.add((CodeActionExtension) languageExtension);
                     break;
                 case FORMAT:
                     formatExtensions.add((FormattingExtension) languageExtension);
@@ -73,12 +82,14 @@ public class LangExtensionDelegator {
      * @return {@link Either} completion results
      * @throws Throwable while executing the extension
      */
-    public Either<List<CompletionItem>, CompletionList> completion(CompletionParams params, CompletionContext context)
+    public Either<List<CompletionItem>, CompletionList> completion(CompletionParams params,
+                                                                   CompletionContext context,
+                                                                   LanguageServerContext serverContext)
             throws Throwable {
         List<CompletionItem> completionItems = new ArrayList<>();
         for (CompletionExtension ext : completionExtensions) {
             if (ext.validate(params)) {
-                completionItems.addAll(ext.execute(params, context));
+                completionItems.addAll(ext.execute(params, context, serverContext));
             }
         }
 
@@ -92,16 +103,38 @@ public class LangExtensionDelegator {
      * @return {@link List} of text edits
      * @throws Throwable while executing the extension
      */
-    public List<? extends TextEdit> formatting(DocumentFormattingParams params, DocumentServiceContext context)
+    public List<? extends TextEdit> formatting(DocumentFormattingParams params,
+                                               DocumentServiceContext context,
+                                               LanguageServerContext serverContext)
             throws Throwable {
         List<TextEdit> textEdits = new ArrayList<>();
         for (FormattingExtension ext : formatExtensions) {
             if (ext.validate(params)) {
-                textEdits.addAll(ext.execute(params, context));
+                textEdits.addAll(ext.execute(params, context, serverContext));
             }
         }
 
         return textEdits;
+    }
+
+    /**
+     * Get code actions.
+     *
+     * @param params code-action parameters
+     * @return {@link List} of text edits
+     * @throws Throwable while executing the extension
+     */
+    public List<? extends CodeAction> codeActions(CodeActionParams params, CodeActionContext context,
+                                                  LanguageServerContext serverContext)
+            throws Throwable {
+        List<CodeAction> actions = new ArrayList<>();
+        for (CodeActionExtension ext : codeActionsExtensions) {
+            if (ext.validate(params)) {
+                actions.addAll(ext.execute(params, context, serverContext));
+            }
+        }
+
+        return actions;
     }
 
     /**
@@ -111,11 +144,13 @@ public class LangExtensionDelegator {
      * @return {@link PublishDiagnosticsParams} diagnostic params calculated
      * @throws Throwable while executing the extension
      */
-    public List<PublishDiagnosticsParams> diagnostics(String uri, DocumentServiceContext context) throws Throwable {
+    public List<PublishDiagnosticsParams> diagnostics(String uri,
+                                                      DocumentServiceContext context,
+                                                      LanguageServerContext serverContext) throws Throwable {
         List<PublishDiagnosticsParams> diagnosticsParams = new ArrayList<>();
         for (DiagnosticsExtension ext : diagExtensions) {
             if (ext.validate(uri)) {
-                diagnosticsParams.addAll(ext.execute(uri, context));
+                diagnosticsParams.addAll(ext.execute(uri, context, serverContext));
             }
         }
 

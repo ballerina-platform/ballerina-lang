@@ -44,7 +44,7 @@ configurations {
     debugAdapterLauncher {
         transitive false
     }
-    debugAdapterDistribution {
+    debugAdapterLib {
         transitive false
     }
     docerina
@@ -79,6 +79,7 @@ dependencies {
     dist 'me.tongfei:progressbar:0.7.4'
     dist 'org.jline:jline:3.11.0'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
+    dist 'org.apache.commons:commons-text:1.9'
 
     // Following dependencies are required for kraal library
     dist 'org.jetbrains.kotlin:kotlin-stdlib:1.3.31'
@@ -95,9 +96,11 @@ dependencies {
     dist 'com.atomikos:atomikos-util:5.0.8'
     dist 'com.atomikos:transactions:5.0.8'
 
+    // Temporary workaround until moving to native Toml Parser
+    dist 'com.moandjiezana.toml:toml4j:0.7.2'
+
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
-    dist project(':ballerina-tool')
     dist project(':ballerina-tools-api')
     dist project(':ballerina-cli-module')
     dist project(':central-client')
@@ -115,6 +118,7 @@ dependencies {
     dist project(':docerina')
     dist project(':observability-symbol-collector')
     dist project(':testerina:testerina-runtime')
+    dist project(':toml-parser')
     docerina project(':docerina-gradle-plugin')
 
     datamapperLib project(':ballerinalang-data-mapper')
@@ -123,8 +127,10 @@ dependencies {
     langserverLib project(':language-server:language-server-stdio-launcher')
     langserverLib project(':language-server:language-server-cli')
     langserverLib project(':language-server:language-server-core')
-    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
-    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
+
+    debugAdapterLib project(path: ':debug-adapter:debug-adapter-core', configuration: 'libs')
+    debugAdapterLib project(':debug-adapter:debug-adapter-cli')
+    debugAdapterLib project(':debug-adapter:debug-adapter-core')
 
     balSource project(path: ':jballerina', configuration: 'source')
 
@@ -311,6 +317,7 @@ def copyLangServerBinSpec = {
         into(path + 'lib/tools/lang-server/launcher')
     }
 }
+
 def copyDebugAdapterLauncher = {
     path -> copySpec {
         from('resources/debug-adapter-launcher.sh')
@@ -319,9 +326,9 @@ def copyDebugAdapterLauncher = {
     }
 }
 
-def copydebugAdapterDistributionSpec = {
+def copyDebugAdapterLibsSpec = {
     path -> copySpec {
-        from configurations.debugAdapterDistribution
+        from configurations.debugAdapterLib
         into(path + 'lib/tools/debug-adapter/lib')
      }
 }
@@ -415,7 +422,7 @@ task createZip(type: Zip) {
     with copyDataMapperLibsSpec(basePath)
     with copyLangServerBinSpec(basePath)
     with copyBallerinaZipSpec(basePath)
-    with copydebugAdapterDistributionSpec(basePath)
+    with copyDebugAdapterLibsSpec(basePath)
     with copyDebugAdapterLauncher(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
@@ -439,7 +446,7 @@ task updateBalHome(type: Copy) {
     with copyDataMapperLibsSpec(installDir)
     with copyLangServerBinSpec(installDir)
     with copyBallerinaZipSpec(installDir)
-    with copydebugAdapterDistributionSpec(installDir)
+    with copyDebugAdapterLibsSpec(installDir)
     with copyDebugAdapterLauncher(installDir)
     with apiDocsSpec(installDir)
     with copyStaticSpec(installDir)
@@ -465,7 +472,7 @@ task createDistribution(type: Copy) {
     with copyDataMapperLibsSpec("")
     with copyLangServerBinSpec("")
     with copyBallerinaZipSpec("")
-    with copydebugAdapterDistributionSpec("")
+    with copyDebugAdapterLibsSpec("")
     with copyDebugAdapterLauncher("")
     with apiDocsSpec("")
     with copyStaticSpec("")

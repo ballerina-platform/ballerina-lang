@@ -87,11 +87,11 @@ public class ParserTestFormatter extends FormatterTest {
                 "typed_binding_patterns_source_07.bal", "annotations_source_09.bal", "annotations_source_08.bal",
                 "annotations_source_06.bal", "resiliency_source_01.bal", "resiliency_source_02.bal",
                 "separated_node_list_modify_all_nodes_assert.bal", "child_node_list_test_01.bal",
-                "intersection_type_source_06.bal", "array_type_assert_04.bal",
+                "intersection_type_source_06.bal", "array_type_source_17.bal",
                 "stream_type_source_05.bal", "func_type_source_05.bal", "func_type_source_07.bal",
-                "func_type_source_08.bal", "table_type_source_08.bal", "singleton_type_source_08.bal",
-                "singleton_type_source_06.bal", "simple_types_source_02.bal", "tuple_type_source_04.bal",
-                "tuple_type_source_06.bal", "trivia_source_02.bal",
+                "func_type_source_08.bal", "table_type_source_08.bal", "table_type_source_09.bal",
+                "singleton_type_source_08.bal", "singleton_type_source_06.bal", "simple_types_source_02.bal",
+                "tuple_type_source_04.bal", "tuple_type_source_06.bal", "trivia_source_02.bal",
                 "enum_decl_source_05.bal", "enum_decl_source_08.bal", "enum_decl_source_09.bal",
                 "service_decl_source_09.bal", "service_decl_source_15.bal", "service_decl_source_03.bal",
                  "service_decl_source_12.bal", "service_decl_source_10.bal", "service_decl_source_04.bal",
@@ -161,8 +161,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "annot_decl_source_02.bal", "class_def_source_11.bal", "object_type_def_source_26.bal",
                 "ambiguity_source_32.bal", "service_object_constructor_source_01.bal",
                 "service_object_constructor_source_02.bal", "object_constructor_source_08.bal",
-                "annotations_source_01.bal", "do_stmt_source_08.bal", "func_params_source_10.bal",
-                "func_params_source_11.bal", "func_params_source_13.bal");
+                "annotations_source_01.bal", "do_stmt_source_08.bal", "func_params_source_11.bal",
+                "predeclared-module-prefix_02.bal");
     }
 
     @DataProvider(name = "test-file-provider")
