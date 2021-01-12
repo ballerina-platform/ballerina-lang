@@ -96,7 +96,7 @@ public function testVariableDeclaredInTupleAsAnnotationValue() {
 }
 
 // Test tuple variable reordering/forward referencing
-[decimal, byte] [l, m] = [n ,o];
+[decimal, byte] [l, m] = [n, o];
 [decimal, byte] [n, o] = [2.25, 20];
 public function testVariableForwardReferencing() {
     assertEquality(<decimal> 2.25, l);

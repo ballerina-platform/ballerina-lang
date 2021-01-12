@@ -16,7 +16,7 @@
 
 //Test duplicate module level var declaration inside tuple binding pattern
 int a = 5;
-[int ,float, string] [a, b, c] = [1, 2.5, "Mac"];
+[int, float, string] [a, b, c] = [1, 2.5, "Mac"];
 float b = 6;
 public function testBasic() returns [int, float, string] {
     // Access un declared module variable
