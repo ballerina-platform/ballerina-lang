@@ -135,7 +135,7 @@ public class ServiceSemanticAPITest {
 
     @Test(dataProvider = "LookupPosProvider")
     public void testInScopeSymbolLookup(int line, int col, List<String> expSymNames) {
-        List<Symbol> inscopeSymbols = model.visibleSymbols("service_symbol_test.bal", from(line, col));
+        List<Symbol> inscopeSymbols = model.visibleSymbols(srcFile, from(line, col));
         List<Symbol> sourceFileSymbols = getFilteredSymbolNames(inscopeSymbols);
 
         assertEquals(sourceFileSymbols.size(), expSymNames.size());

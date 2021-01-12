@@ -88,8 +88,8 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public List<Symbol> visibleSymbols(String fileName, LinePosition linePosition) {
-        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+    public List<Symbol> visibleSymbols(Document srcFile, LinePosition linePosition) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(srcFile);
         BPackageSymbol moduleSymbol = getModuleSymbol(compilationUnit);
         SymbolTable symbolTable = SymbolTable.getInstance(this.compilerContext);
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(moduleSymbol);

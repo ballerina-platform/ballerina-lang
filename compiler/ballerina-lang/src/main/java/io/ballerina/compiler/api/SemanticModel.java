@@ -39,11 +39,11 @@ public interface SemanticModel {
     /**
      * Lookup the visible symbols at the given location.
      *
-     * @param fileName  path for the file in which we need to look up symbols, relative to the source root path
+     * @param srcFile  The source file document in which to look up the position
      * @param position text position in the source
      * @return {@link List} of visible symbols in the given location
      */
-    List<Symbol> visibleSymbols(String fileName, LinePosition position);
+    List<Symbol> visibleSymbols(Document srcFile, LinePosition position);
 
     /**
      * Lookup the symbol at the given location.
@@ -97,7 +97,6 @@ public interface SemanticModel {
      * Retrieves the type of the expression in the specified text range. If it's not a valid expression, returns an
      * empty {@link Optional} value!.
      *
-     * @param fileName path for the file with the expression
      * @param range    the text range of the expression
      * @return the type of the expression
      */

@@ -85,7 +85,7 @@ public class TestSourcesTest {
 
     @Test(dataProvider = "VisibleSymbolPosProvider")
     public void testVisibleSymbols(int line, int col, List<String> expSymbols) {
-        List<Symbol> symbols = model.visibleSymbols("tests/test1.bal", from(line, col)).stream()
+        List<Symbol> symbols = model.visibleSymbols(srcFile, from(line, col)).stream()
                 .filter(sym -> sym.moduleID().moduleName().equals("semapi.baz") ||
                         !sym.moduleID().moduleName().startsWith("lang."))
                 .collect(Collectors.toList());

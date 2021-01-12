@@ -112,7 +112,7 @@ public class SemanticAPITestUtils {
         }
     }
 
-    public static Map<String, Symbol> getSymbolsInFile(SemanticModel model, String srcFile, int line,
+    public static Map<String, Symbol> getSymbolsInFile(SemanticModel model, Document srcFile, int line,
                                                        int column, ModuleID moduleID) {
         List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(line, column));
         return allInScopeSymbols.stream()

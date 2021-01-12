@@ -78,6 +78,7 @@ public class SymbolBIRTest {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_imports_test.bal");
         Package currentPackage = project.currentPackage();
         ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        Document srcFile = getDocumentForSingleSource(project);
 
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
@@ -89,8 +90,7 @@ public class SymbolBIRTest {
         List<SymbolInfo> moduleSymbols = getModuleSymbolInfo();
         List<SymbolInfo> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
 
-        List<Symbol> symbolsInScope =
-                model.visibleSymbols("symbol_lookup_with_imports_test.bal", LinePosition.from(18, 0));
+        List<Symbol> symbolsInScope = model.visibleSymbols(srcFile, LinePosition.from(18, 0));
         assertList(symbolsInScope, expSymbolNames);
 
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
