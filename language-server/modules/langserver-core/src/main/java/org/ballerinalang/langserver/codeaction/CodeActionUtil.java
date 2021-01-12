@@ -44,6 +44,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -311,11 +312,11 @@ public class CodeActionUtil {
                                                          CodeActionContext context) {
         // Find Cursor node
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
-        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
+        Optional<Document> srcFile = context.workspace().document(context.filePath());
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
 
         Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode, range,
-                semanticModel, relPath);
+                                                                                        semanticModel, srcFile.get());
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
         Optional<TypeSymbol> matchedExprTypeSymbol;
@@ -326,7 +327,7 @@ public class CodeActionUtil {
             matchedNode = cursorNode;
             matchedSymbol = null;
         }
-        matchedExprTypeSymbol = semanticModel.type(relPath, largestExpressionNode(cursorNode, range).lineRange());
+        matchedExprTypeSymbol = semanticModel.type(largestExpressionNode(cursorNode, range).lineRange());
         return CodeActionPositionDetails.from(matchedNode, matchedSymbol, matchedExprTypeSymbol.orElse(null));
     }
 
@@ -398,10 +399,15 @@ public class CodeActionUtil {
 
         List<TextEdit> edits = new ArrayList<>();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        String relativePath = context.workspace().relativePath(context.filePath()).orElseThrow();
-        Optional<Symbol> optEnclosedFuncSymbol = semanticModel.symbol(relativePath,
-                enclosedFunc.get().functionName().lineRange()
-                        .startLine());
+        Optional<Document> document = context.workspace().document(context.filePath());
+
+        if (document.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Optional<Symbol> optEnclosedFuncSymbol =
+                semanticModel.symbol(document.get(), enclosedFunc.get().functionName().lineRange().startLine());
+
         String returnText = "";
         Range returnRange = null;
         if (optEnclosedFuncSymbol.isPresent() && optEnclosedFuncSymbol.get().kind() == SymbolKind.FUNCTION) {
@@ -699,7 +705,7 @@ public class CodeActionUtil {
     private static Optional<Pair<NonTerminalNode, Symbol>> getMatchedNodeAndSymbol(NonTerminalNode cursorNode,
                                                                                    Range range,
                                                                                    SemanticModel semanticModel,
-                                                                                   String relPath) {
+                                                                                   Document srcFile) {
         // Find invocation position
         ScopedSymbolFinder scopedSymbolFinder = new ScopedSymbolFinder(range);
         scopedSymbolFinder.visit(cursorNode);
@@ -709,7 +715,7 @@ public class CodeActionUtil {
         // Get Symbol of the position
         LinePosition position = scopedSymbolFinder.nodeIdentifierPos().get();
         LinePosition matchedNodePos = LinePosition.from(position.line(), position.offset() + 1);
-        Optional<Symbol> optMatchedSymbol = semanticModel.symbol(relPath, matchedNodePos);
+        Optional<Symbol> optMatchedSymbol = semanticModel.symbol(srcFile, matchedNodePos);
         if (optMatchedSymbol.isEmpty()) {
             return Optional.empty();
         }
