@@ -15,7 +15,7 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
 
 configurations {
     balSource {
@@ -43,14 +43,14 @@ dependencies {
     interopImports project(':ballerina-runtime')
 }
 
-class CreateBaloTask extends JavaExec {
+class CreateBalaTask extends JavaExec {
     def isBuiltin = 'false'
     def skipWarnings = 'false'
     def jvmTarget = 'false'
     def newParser = 'true'
 
-    CreateBaloTask() {
-        setMain('org.ballerinalang.stdlib.utils.GenerateBalo')
+    CreateBalaTask() {
+        setMain('org.ballerinalang.stdlib.utils.GenerateBala')
         setEnableAssertions(true)
     }
 
@@ -60,7 +60,7 @@ class CreateBaloTask extends JavaExec {
         def args = []
         args << isBuiltin
         args << "src/main/ballerina/"
-        args << "${project.buildDir}/generated-balo/repo/" + project.ext.orgName
+        args << "${project.buildDir}/generated-bala/repo/" + project.ext.orgName
         args << "${project.buildDir}/ballerina-home/main"
         args << skipWarnings
         args << jvmTarget
@@ -96,10 +96,10 @@ jar {
     outputs.files("$buildDir/build/classes/java/main/META-INF/this.map.json")
 }
 
-task createBalo(type: CreateBaloTask) {
+task createBala(type: CreateBalaTask) {
     dependsOn createBalHome
     dependsOn jar
-    dependsOn configurations.baloImplementation
+    dependsOn configurations.balaImplementation
     dependsOn copyExternalMappingNextToBir
     dependsOn configurations.interopImports
     File interopJars = new File("$buildDir/interopJars.txt")
@@ -112,15 +112,15 @@ task createBalo(type: CreateBaloTask) {
         interopJars << jar.archivePath
     }
 
-    classpath = project.configurations.baloCreat
+    classpath = project.configurations.balaCreat
 //    classpath += files(jar.archivePath)
 
     environment 'BALLERINA_NATIVE_MAP', "./build/classes/java/main/META-INF/this.map.json"
     def balFiles = file("src/main/ballerina/")
     inputs.dir(balFiles)
-    inputs.files(configurations.baloImplementation)
+    inputs.files(configurations.balaImplementation)
     inputs.files("$buildDir/build/classes/java/main/META-INF/this.map.json")
-    outputs.dir("$buildDir/generated-balo")
+    outputs.dir("$buildDir/generated-bala")
     outputs.files("$buildDir/generated-bir-jar/" + project.ext.orgName + "-" +  project.ext.moduleName + "-" +
             project.ext.version + ".jar")
     outputs.files(interopJars)
@@ -128,22 +128,22 @@ task createBalo(type: CreateBaloTask) {
 }
 
 artifacts {
-    baloImplementation file("$buildDir/generated-balo/"), { builtBy(createBalo) }
-    balDoc file("$buildDir/generated-apidocs/"), { builtBy(createBalo) }
+    balaImplementation file("$buildDir/generated-bala/"), { builtBy(createBala) }
+    balDoc file("$buildDir/generated-apidocs/"), { builtBy(createBala) }
     balSource file("src/main/ballerina/")
 }
 
 task copySelfToTestBalHome(type: Copy) {
-    dependsOn createBalo
-    from "$buildDir/generated-balo"
+    dependsOn createBala
+    from "$buildDir/generated-bala"
     into "$buildDir/ballerina-home/test/lib"
 }
 
 task assembleArtifact(type: Zip) {
-    dependsOn createBalo
+    dependsOn createBala
     archiveName "$project.name-ballerina-binary-repo.zip"
     destinationDir file("$buildDir/bal-repos/")
-    from "build/generated-balo/"
+    from "build/generated-bala/"
     description "Assemble archive $archiveName into ${relativePath(destinationDir)}"
     outputs.dir("$buildDir/bal-repos/")
 }

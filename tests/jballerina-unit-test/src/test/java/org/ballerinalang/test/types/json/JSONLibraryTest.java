@@ -140,7 +140,7 @@ public class JSONLibraryTest {
                 "    \"balance\": \"$3,656.67\",\n \"picture\": \"http://placehold.it/32x32\",\n" +
                 "    \"age\": 32,\n \"eyeColor\": \"green\",\n \"name\": \"Knapp Price\",\n" +
                 "    \"gender\": \"male\",\n \"company\": \"BALOOBA\",\n" +
-                "    \"email\": \"knappprice@balooba.com\",\n \"phone\": \"+1 (994) 584-2832\",\n" +
+                "    \"email\": \"knappprice@balaoba.com\",\n \"phone\": \"+1 (994) 584-2832\",\n" +
                 "    \"address\": \"806 Grand Street, Bedias, Virgin Islands, 274\",\n" +
                 "    \"about\": \"Consequat ex veniam voluptate eu commodo minim nulla aliqua"
                 + " enim magna dolore cillum velit. Voluptate eiusmod proident cillum qui enim"

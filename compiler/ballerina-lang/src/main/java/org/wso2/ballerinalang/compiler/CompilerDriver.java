@@ -142,7 +142,7 @@ public class CompilerDriver {
     }
 
     void loadLangModules(List<PackageID> pkgIdList) {
-        // This logic interested in loading lang modules from source. For others we can load from balo.
+        // This logic interested in loading lang modules from source. For others we can load from bala.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);

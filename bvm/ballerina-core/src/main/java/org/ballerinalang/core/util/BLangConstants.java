@@ -47,7 +47,7 @@ public class BLangConstants {
 
     public static final String JAR_FILE_SUFFIX = ".jar";
 
-    public static final String BLANG_COMPILED_PACKAGE_FILE_EXT = "balo";
+    public static final String BLANG_COMPILED_PACKAGE_FILE_EXT = "bala";
     public static final String BLANG_COMPILED_PACKAGE_FILE_SUFFIX = "." + BLANG_COMPILED_PACKAGE_FILE_EXT;
 
     // int, float, string, boolean, decimal, reference type
