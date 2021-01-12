@@ -88,8 +88,8 @@ public class BTable extends BCompoundVariable {
                 values.put("[" + keyStr + "]", item);
             });
 
-            // If the size of the table exceeds allowed child variable limit, adds an notification at the end to
-            // inform the user.
+            // If the size of the table exceeds the allowed child variable limit, appends a notification (which is
+            // wrapped inside a dummy variable) to the list of child variables, to inform the user.
             if (getTableSize() > CHILD_VAR_LIMIT) {
                 addTailChildVariable(values);
             }
@@ -191,8 +191,8 @@ public class BTable extends BCompoundVariable {
     }
 
     /**
-     * If the size of the table exceeds allowed child variable limit, adds an notification at the end to inform the
-     * user.
+     * If the size of the table exceeds the allowed child variable limit, appends a notification (which is wrapped
+     * inside a dummy variable) to the list of child variables, to inform the user.
      *
      * @param values the list of child variables.
      */
