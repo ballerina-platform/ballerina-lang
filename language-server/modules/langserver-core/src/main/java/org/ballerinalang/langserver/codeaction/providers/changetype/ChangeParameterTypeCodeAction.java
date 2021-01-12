@@ -78,8 +78,8 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
 
         // Get parameter symbol
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Optional<Document> srcFile = context.workspace().document(context.filePath());
-        Optional<Symbol> optParamSymbol = semanticModel.symbol(srcFile.get(),
+        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
+        Optional<Symbol> optParamSymbol = semanticModel.symbol(srcFile,
                                                                initializer.get().lineRange().startLine());
         if (optParamSymbol.isEmpty() || optParamSymbol.get().kind() != SymbolKind.VARIABLE) {
             return Collections.emptyList();

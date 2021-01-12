@@ -157,8 +157,8 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
     private Optional<VariableSymbol> getVariableSymbol(CodeActionContext context, Node matchedNode) {
         AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Optional<Document> srcFile = context.workspace().document(context.filePath());
-        Optional<Symbol> symbol = semanticModel.symbol(srcFile.get(),
+        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
+        Optional<Symbol> symbol = semanticModel.symbol(srcFile,
                                                        assignmentStmtNode.varRef().lineRange().startLine());
         if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.VARIABLE) {
             return Optional.empty();

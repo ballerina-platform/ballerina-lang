@@ -312,11 +312,11 @@ public class CodeActionUtil {
                                                          CodeActionContext context) {
         // Find Cursor node
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
-        Optional<Document> srcFile = context.workspace().document(context.filePath());
+        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
 
         Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode, range,
-                                                                                        semanticModel, srcFile.get());
+                                                                                        semanticModel, srcFile);
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
         Optional<TypeSymbol> matchedExprTypeSymbol;
@@ -399,14 +399,9 @@ public class CodeActionUtil {
 
         List<TextEdit> edits = new ArrayList<>();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Optional<Document> document = context.workspace().document(context.filePath());
-
-        if (document.isEmpty()) {
-            return Collections.emptyList();
-        }
-
+        Document document = context.workspace().document(context.filePath()).orElseThrow();
         Optional<Symbol> optEnclosedFuncSymbol =
-                semanticModel.symbol(document.get(), enclosedFunc.get().functionName().lineRange().startLine());
+                semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
 
         String returnText = "";
         Range returnRange = null;
