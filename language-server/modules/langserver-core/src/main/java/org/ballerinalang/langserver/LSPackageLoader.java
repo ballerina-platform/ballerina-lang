@@ -25,6 +25,7 @@ import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,10 +37,12 @@ import java.util.Optional;
  * Loads the Ballerina builtin core and builtin packages.
  */
 public class LSPackageLoader {
+    private static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
+            new LanguageServerContext.Key<>();
 
-    private static final List<Package> distRepoPackages = getPackagesFromDistRepo();
+    private List<Package> distRepoPackages;
 
-    private static List<Package> getPackagesFromDistRepo() {
+    private List<Package> getPackagesFromDistRepo() {
         DefaultEnvironment environment = new DefaultEnvironment();
         // Creating a Ballerina distribution instance
         BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
@@ -74,7 +77,21 @@ public class LSPackageLoader {
      *
      * @return {@link List} of distribution repo packages
      */
-    public static List<Package> getDistributionRepoPackages() {
-        return distRepoPackages;
+    public List<Package> getDistributionRepoPackages() {
+        return this.distRepoPackages;
+    }
+
+    public static LSPackageLoader getInstance(LanguageServerContext context) {
+        LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
+        if (lsPackageLoader == null) {
+            lsPackageLoader = new LSPackageLoader(context);
+        }
+
+        return lsPackageLoader;
+    }
+
+    private LSPackageLoader(LanguageServerContext context) {
+        distRepoPackages = this.getPackagesFromDistRepo();
+        context.put(LS_PACKAGE_LOADER_KEY, this);
     }
 }

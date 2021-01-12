@@ -27,6 +27,7 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 
@@ -58,11 +59,17 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     private List<ImportDeclarationNode> currentDocImports;
 
     private Module currentModule;
+    
+    private final LanguageServerContext languageServerContext;
 
-    AbstractDocumentServiceContext(LSOperation operation, String fileUri, WorkspaceManager wsManager) {
+    AbstractDocumentServiceContext(LSOperation operation,
+                                   String fileUri,
+                                   WorkspaceManager wsManager,
+                                   LanguageServerContext serverContext) {
         this.operation = operation;
         this.fileUri = fileUri;
         this.workspaceManager = wsManager;
+        this.languageServerContext = serverContext;
         Optional<Path> optFilePath = CommonUtil.getPathFromURI(this.fileUri);
         if (optFilePath.isEmpty()) {
             throw new RuntimeException("Invalid file uri: " + this.fileUri);
@@ -138,6 +145,11 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
         return Optional.ofNullable(this.currentModule);
     }
 
+    @Override
+    public LanguageServerContext languageServercontext() {
+        return this.languageServerContext;
+    }
+
     /**
      * Represents Language server context Builder.
      *
@@ -146,6 +158,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
      */
     protected abstract static class AbstractContextBuilder<T extends AbstractContextBuilder<T>> {
         protected final LSOperation operation;
+        protected final LanguageServerContext serverContext;
         protected String fileUri;
         protected WorkspaceManager wsManager;
 
@@ -153,9 +166,11 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
          * Context Builder constructor.
          *
          * @param lsOperation LS Operation for the particular invocation
+         * @param serverContext Language server context
          */
-        public AbstractContextBuilder(LSOperation lsOperation) {
+        public AbstractContextBuilder(LSOperation lsOperation, LanguageServerContext serverContext) {
             this.operation = lsOperation;
+            this.serverContext = serverContext;
         }
 
         public T withFileUri(String fileUri) {
@@ -169,7 +184,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
         }
 
         public DocumentServiceContext build() {
-            return new AbstractDocumentServiceContext(this.operation, this.fileUri, this.wsManager);
+            return new AbstractDocumentServiceContext(this.operation, this.fileUri, this.wsManager, this.serverContext);
         }
 
         public abstract T self();

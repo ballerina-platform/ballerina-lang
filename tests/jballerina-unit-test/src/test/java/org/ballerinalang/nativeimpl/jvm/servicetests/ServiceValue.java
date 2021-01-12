@@ -54,10 +54,9 @@ public class ServiceValue {
     private static MapValue annotationMap; // captured at attach method
 
     public static BFuture callMethod(Environment env, BObject l, BString name) {
-        BFuture k = env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
-                PredefinedTypes.TYPE_ANY);
 
-        return k;
+        return env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
+                                                  PredefinedTypes.TYPE_ANY);
     }
 
     public static BFuture callMethodWithParams(Environment env, BObject l, BString name, ArrayValue arrayValue) {
@@ -169,8 +168,7 @@ public class ServiceValue {
     }
 
     public static BArray getServicePath() {
-        BArray ar = new ArrayValueImpl(names);
-        return ar;
+        return new ArrayValueImpl(names, false);
     }
 
     public static BMap getAnnotationsAtServiceAttach() {

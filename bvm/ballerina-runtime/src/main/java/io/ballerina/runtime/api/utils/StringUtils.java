@@ -72,10 +72,9 @@ public class StringUtils {
      * @return Converted string
      */
     public static BString getStringFromInputStream(InputStream in) {
-        BufferedInputStream bis = new BufferedInputStream(in);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         String result;
-        try {
+        try (BufferedInputStream bis = new BufferedInputStream(in);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             int data;
             while ((data = bis.read()) != -1) {
                 bos.write(data);
@@ -83,11 +82,6 @@ public class StringUtils {
             result = bos.toString();
         } catch (IOException ioe) {
             throw new BallerinaException("Error occurred when reading input stream", ioe);
-        } finally {
-            try {
-                bos.close();
-            } catch (IOException ignored) {
-            }
         }
         return StringUtils.fromString(result);
     }
@@ -148,7 +142,7 @@ public class StringUtils {
         for (int i = 0; i < s.length; i++) {
             bStringArray[i] = StringUtils.fromString(s[i]);
         }
-        return new ArrayValueImpl(bStringArray);
+        return new ArrayValueImpl(bStringArray, false);
     }
 
     public static BArray fromStringSet(Set<String> set) {
@@ -158,7 +152,7 @@ public class StringUtils {
             bStringArray[i] = StringUtils.fromString(s);
             i++;
         }
-        return new ArrayValueImpl(bStringArray);
+        return new ArrayValueImpl(bStringArray, false);
     }
 
     /**
@@ -379,4 +373,6 @@ public class StringUtils {
         return refValue.stringValue(null);
     }
 
+    private StringUtils() {
+    }
 }

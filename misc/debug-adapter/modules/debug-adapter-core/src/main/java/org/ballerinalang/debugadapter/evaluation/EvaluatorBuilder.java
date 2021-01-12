@@ -39,6 +39,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
@@ -54,6 +55,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.OptionalFieldAccessExpre
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.StringTemplateEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.TypeOfExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.TypeTestExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.UnaryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.XMLTemplateEvaluator;
 
@@ -274,6 +276,14 @@ public class EvaluatorBuilder extends NodeVisitor {
     public void visit(RestArgumentNode restArgumentNode) {
         visitSyntaxNode(restArgumentNode);
         restArgumentNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(TypeTestExpressionNode typeTestExpressionNode) {
+        visitSyntaxNode(typeTestExpressionNode);
+        typeTestExpressionNode.expression().accept(this);
+        Evaluator exprEvaluator = result;
+        result = new TypeTestExpressionEvaluator(context, typeTestExpressionNode, exprEvaluator);
     }
 
     @Override
@@ -516,7 +526,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addTypeTestExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.TYPE_TEST_EXPRESSION);
     }
 
     private void addEqualityExpressionSyntax() {

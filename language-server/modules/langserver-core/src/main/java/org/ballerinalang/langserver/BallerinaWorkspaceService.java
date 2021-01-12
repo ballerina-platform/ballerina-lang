@@ -18,6 +18,7 @@ package org.ballerinalang.langserver;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
@@ -35,22 +36,24 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static org.ballerinalang.langserver.LSClientLogger.logError;
-import static org.ballerinalang.langserver.LSClientLogger.notifyUser;
-
 /**
  * Workspace service implementation for Ballerina.
  */
 public class BallerinaWorkspaceService implements WorkspaceService {
     private final BallerinaLanguageServer languageServer;
-    private final LSClientConfigHolder configHolder = LSClientConfigHolder.getInstance();
+    private final LSClientConfigHolder configHolder;
     private LSClientCapabilities clientCapabilities;
     private final WorkspaceManager workspaceManager;
+    private final LanguageServerContext serverContext;
+    private final LSClientLogger clientLogger;
 
-
-    BallerinaWorkspaceService(BallerinaLanguageServer languageServer, WorkspaceManager workspaceManager) {
+    BallerinaWorkspaceService(BallerinaLanguageServer languageServer, WorkspaceManager workspaceManager,
+                              LanguageServerContext serverContext) {
         this.languageServer = languageServer;
         this.workspaceManager = workspaceManager;
+        this.serverContext = serverContext;
+        this.configHolder = LSClientConfigHolder.getInstance(this.serverContext);
+        this.clientLogger = LSClientLogger.getInstance(this.serverContext);
     }
 
     public void setClientCapabilities(LSClientCapabilities clientCapabilities) {
@@ -84,23 +87,24 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
         return CompletableFuture.supplyAsync(() -> {
             ExecuteCommandContext context = ContextBuilder.buildExecuteCommandContext(this.workspaceManager,
+                    this.serverContext,
                     params.getArguments(),
                     this.clientCapabilities,
                     this.languageServer);
 
             try {
-                Optional<LSCommandExecutor> executor = LSCommandExecutorProvidersHolder.getInstance()
+                Optional<LSCommandExecutor> executor = LSCommandExecutorProvidersHolder.getInstance(this.serverContext)
                         .getCommandExecutor(params.getCommand());
                 if (executor.isPresent()) {
                     return executor.get().execute(context);
                 }
             } catch (UserErrorException e) {
-                notifyUser("Execute Command", e);
+                this.clientLogger.notifyUser("Execute Command", e);
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/executeCommand' failed!";
-                logError(msg, e, null, (Position) null);
+                this.clientLogger.logError(msg, e, null, (Position) null);
             }
-            logError("Operation 'workspace/executeCommand' failed!",
+            this.clientLogger.logError("Operation 'workspace/executeCommand' failed!",
                     new LSCommandExecutorException("No command executor found for '" + params.getCommand() + "'"),
                     null, (Position) null);
             return false;

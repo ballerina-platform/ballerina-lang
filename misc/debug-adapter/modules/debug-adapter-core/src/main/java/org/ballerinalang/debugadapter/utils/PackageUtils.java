@@ -52,6 +52,7 @@ public class PackageUtils {
 
     public static final String BAL_FILE_EXT = ".bal";
     public static final String INIT_CLASS_NAME = "$_init";
+    public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
     private static final String MODULE_DIR_NAME = "modules";
     private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;

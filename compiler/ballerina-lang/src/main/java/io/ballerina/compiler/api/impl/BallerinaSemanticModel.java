@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -72,12 +73,14 @@ public class BallerinaSemanticModel implements SemanticModel {
     private final CompilerContext compilerContext;
     private final SymbolFactory symbolFactory;
     private final TypesFactory typesFactory;
+    private final SymbolTable symbolTable;
 
     public BallerinaSemanticModel(BLangPackage bLangPackage, CompilerContext context) {
         this.compilerContext = context;
         this.bLangPackage = bLangPackage;
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.typesFactory = TypesFactory.getInstance(context);
+        this.symbolTable = SymbolTable.getInstance(context);
     }
 
     /**
@@ -125,7 +128,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         SymbolFinder symbolFinder = new SymbolFinder();
         BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
 
-        if (symbolAtCursor == null) {
+        if (symbolAtCursor == null || symbolAtCursor == symbolTable.notFoundSymbol) {
             return Optional.empty();
         }
 
@@ -137,6 +140,18 @@ public class BallerinaSemanticModel implements SemanticModel {
 
         return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor, symbolAtCursor.name.value));
 
+    }
+
+    @Override
+    public Optional<Symbol> symbol(Node node) {
+        Optional<Location> nodeIdentifierLocation = node.apply(new SyntaxNodeToLocationMapper());
+
+        if (nodeIdentifierLocation.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return symbol(nodeIdentifierLocation.get().lineRange().filePath(),
+                      nodeIdentifierLocation.get().lineRange().startLine());
     }
 
     /**
