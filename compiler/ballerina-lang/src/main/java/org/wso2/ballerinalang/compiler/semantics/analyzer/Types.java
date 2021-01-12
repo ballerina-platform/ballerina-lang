@@ -104,10 +104,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
-import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
-import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
-import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
-import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -2886,136 +2882,6 @@ public class Types {
         }
     }
 
-    BType createMapIntersection(BMapType mapType, BMapType targetMapType, SymbolEnv env) {
-        BType intersectionConstraintType = getTypeIntersection(mapType.constraint,
-                targetMapType.constraint, env);
-        if (intersectionConstraintType == symTable.semanticError) {
-            return symTable.semanticError;
-        }
-        return new BMapType(TypeTags.MAP, intersectionConstraintType, null);
-    }
-
-    BType createMapRecordIntersection(BMapType mapType, BRecordType recordType, SymbolEnv env) {
-        BRecordType intersectionRecordType = createAnonymousRecord(env);
-        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
-        for (String key : recordType.fields.keySet()) {
-            BField recordField = recordType.fields.get(key);
-            BType intersectionKeyType = getTypeIntersection(recordField.type, mapType.constraint, env);
-            if (intersectionKeyType == symTable.semanticError) {
-                if (!Symbols.isOptional(recordField.symbol)) {
-                    return symTable.semanticError;
-                }
-            }
-            BVarSymbol fieldSymbol = new BVarSymbol(recordField.symbol.flags, names.fromString(key),
-                    env.enclPkg.symbol.pkgID, intersectionKeyType, intersectionRecordType.tsymbol,
-                    recordType.fields.get(key).pos, COMPILED_SOURCE);
-            BField field = new BField(names.fromString(key), recordType.fields.get(key).pos, fieldSymbol);
-            fields.put(key, field);
-        }
-        intersectionRecordType.fields = fields;
-
-        if (recordType.restFieldType != symTable.noType) {
-            BType intersectionRestType = getTypeIntersection(recordType.restFieldType, mapType.constraint, env);
-            if (intersectionRestType == symTable.semanticError) {
-                intersectionRecordType.sealed = true;
-                intersectionRestType = symTable.noType;
-            }
-            intersectionRecordType.restFieldType = intersectionRestType;
-        } else {
-            intersectionRecordType.restFieldType = symTable.noType;
-            intersectionRecordType.sealed = recordType.sealed;
-        }
-        return intersectionRecordType;
-    }
-
-    private BType createRecordIntersection(BType recordTypeOne, BType recordTypeTwo, SymbolEnv env) {
-        BRecordType recordType = createAnonymousRecord(env);
-
-        if (!populateRecordFields(recordType, recordTypeOne, env) ||
-                !populateRecordFields(recordType, recordTypeTwo, env)) {
-            return symTable.semanticError;
-        }
-
-        recordType.restFieldType = getTypeIntersection(((BRecordType) recordTypeOne).restFieldType,
-                ((BRecordType) recordTypeTwo).restFieldType, env);
-
-        if (recordType.restFieldType == symTable.semanticError) {
-            return symTable.semanticError;
-        }
-        return recordType;
-    }
-
-    private boolean populateRecordFields(BRecordType recordType, BType originalType, SymbolEnv env) {
-        BTypeSymbol intersectionRecordSymbol = recordType.tsymbol;
-        // If the detail type is BMapType simply ignore since the resulting detail type has `anydata` as rest type.
-        if (originalType.getKind() != TypeKind.RECORD) {
-            return true;
-        }
-        BRecordType originalRecordType = (BRecordType) originalType;
-        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
-        for (BField origField : originalRecordType.fields.values()) {
-            org.wso2.ballerinalang.compiler.util.Name origFieldName = origField.name;
-            String nameString = origFieldName.value;
-
-            BType recordFieldType = validateOverlappingFields(recordType, origField);
-            if (recordFieldType == symTable.semanticError) {
-                return false;
-            }
-
-            BVarSymbol recordFieldSymbol = new BVarSymbol(origField.symbol.flags, origFieldName,
-                    env.enclPkg.packageID, recordFieldType,
-                    intersectionRecordSymbol, origField.pos, SOURCE);
-            if (recordFieldType.tag == TypeTags.INVOKABLE && recordFieldType.tsymbol != null) {
-                BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) recordFieldType.tsymbol;
-                BInvokableSymbol invokableSymbol = (BInvokableSymbol) recordFieldSymbol;
-                invokableSymbol.params = tsymbol.params;
-                invokableSymbol.restParam = tsymbol.restParam;
-                invokableSymbol.retType = tsymbol.returnType;
-                invokableSymbol.flags = tsymbol.flags;
-            }
-            fields.put(nameString, new BField(origFieldName, null, recordFieldSymbol));
-        }
-        recordType.fields.putAll(fields);
-        return true;
-    }
-
-    private BType validateOverlappingFields(BRecordType recordType, BField origField) {
-        BField overlappingField = recordType.fields.get(origField.name.value);
-        if (overlappingField == null) {
-            return origField.type;
-        }
-
-        if (isAssignable(overlappingField.type, origField.type)) {
-            return overlappingField.type;
-        } else if (isAssignable(origField.type, overlappingField.type)) {
-            return origField.type;
-        }
-        return symTable.semanticError;
-    }
-
-    private BRecordType createAnonymousRecord(SymbolEnv env) {
-        EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
-                env.enclPkg.packageID, null,
-                env.scope.owner, null, VIRTUAL);
-        recordSymbol.name = names.fromString(
-                anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
-        BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
-        BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false,
-                symTable.builtinPos, VIRTUAL);
-        initFuncSymbol.retType = symTable.nilType;
-        recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
-                bInvokableType, symTable.builtinPos);
-        recordSymbol.scope = new Scope(recordSymbol);
-
-        BRecordType recordType = new BRecordType(recordSymbol);
-        recordType.tsymbol = recordSymbol;
-        recordSymbol.type = recordType;
-
-        return recordType;
-    }
-
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
         if (!lhsType.isPureType() || !rhsType.isPureType()) {
             return false;
@@ -3421,12 +3287,12 @@ public class Types {
                     return intersectionType;
                 }
             } else if (lhsType.tag == TypeTags.UNION) {
-                BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) lhsType, type);
+                BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) lhsType, type, env);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
             } else if (type.tag == TypeTags.UNION) {
-                BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) type, lhsType);
+                BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) type, lhsType, env);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
