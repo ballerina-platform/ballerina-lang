@@ -44,15 +44,15 @@ public class BTable extends BSimpleVariable {
     public String computeValue() {
         try {
             Optional<Value> type = getFieldValue(jvmValue, FIELD_TYPE);
-            if (!type.isPresent()) {
+            if (type.isEmpty()) {
                 return UNKNOWN_VALUE;
             }
             Optional<Value> constraint = getFieldValue(type.get(), FIELD_CONSTRAINT);
-            if (!constraint.isPresent()) {
+            if (constraint.isEmpty()) {
                 return UNKNOWN_VALUE;
             }
             Optional<Value> constraintTypeName = getFieldValue(constraint.get(), FIELD_TYPENAME);
-            if (!constraintTypeName.isPresent()) {
+            if (constraintTypeName.isEmpty()) {
                 return UNKNOWN_VALUE;
             }
             return String.format("table<%s>", getStringFrom(constraintTypeName.get()));
