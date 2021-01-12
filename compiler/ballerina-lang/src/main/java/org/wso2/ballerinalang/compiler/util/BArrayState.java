@@ -33,7 +33,7 @@ public enum BArrayState {
     OPEN((byte) 3);
 
     byte value;
-    private static final Map<Byte, BArrayState> map = new HashMap<>();
+    private static final Map<Byte, BArrayState> map = new HashMap<>(3);
 
     BArrayState(byte value) {
         this.value = value;

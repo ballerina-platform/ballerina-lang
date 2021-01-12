@@ -468,7 +468,7 @@ public class BIRPackageSymbolEnter {
 
     private void setInvokableTypeSymbol(BInvokableType invokableType) {
         BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
-        List<BVarSymbol> params = new ArrayList<>();
+        List<BVarSymbol> params = new ArrayList<>(invokableType.paramTypes.size());
         for (BType paramType : invokableType.paramTypes) {
             BVarSymbol varSymbol = new BVarSymbol(paramType.flags, Names.EMPTY, //TODO: should be written/read to BIR
                                                   this.env.pkgSymbol.pkgID, paramType, null, symTable.builtinPos,
@@ -491,15 +491,16 @@ public class BIRPackageSymbolEnter {
         if (!docPresent) {
             return;
         }
-        MarkdownDocAttachment markdownDocAttachment = new MarkdownDocAttachment();
 
         int descCPIndex = dataInStream.readInt();
         int retDescCPIndex = dataInStream.readInt();
+        int paramLength = dataInStream.readInt();
+        MarkdownDocAttachment markdownDocAttachment = new MarkdownDocAttachment(paramLength);
+
         markdownDocAttachment.description = descCPIndex >= 0 ? getStringCPEntryValue(descCPIndex) : null;
         markdownDocAttachment.returnValueDescription
                 = retDescCPIndex  >= 0 ? getStringCPEntryValue(retDescCPIndex) : null;
 
-        int paramLength = dataInStream.readInt();
         for (int i = 0; i < paramLength; i++) {
             int nameCPIndex = dataInStream.readInt();
             int paramDescCPIndex = dataInStream.readInt();
@@ -821,7 +822,7 @@ public class BIRPackageSymbolEnter {
 
             TaintRecord.TaintedStatus returnTaintedStatus =
                     convertByteToTaintedStatus(dataInStream.readByte());
-            List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>();
+            List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>(columnCount);
 
             for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
                 parameterTaintedStatusList.add(convertByteToTaintedStatus(dataInStream.readByte()));
@@ -1072,8 +1073,8 @@ public class BIRPackageSymbolEnter {
 
                     boolean hasFieldNameList = inputStream.readByte() == 1;
                     if (hasFieldNameList) {
-                        bTableType.fieldNameList = new ArrayList<>();
                         int fieldNameListSize = inputStream.readInt();
+                        bTableType.fieldNameList = new ArrayList<>(fieldNameListSize);
                         for (int i = 0; i < fieldNameListSize; i++) {
                             String fieldName = getStringCPEntryValue(inputStream);
                             bTableType.fieldNameList.add(fieldName);
@@ -1100,7 +1101,7 @@ public class BIRPackageSymbolEnter {
                     BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
                     bInvokableType.flags = flags;
                     int paramCount = inputStream.readInt();
-                    List<BType> paramTypes = new ArrayList<>();
+                    List<BType> paramTypes = new ArrayList<>(paramCount);
                     for (int i = 0; i < paramCount; i++) {
                         paramTypes.add(readTypeFromCp());
                     }
@@ -1250,7 +1251,7 @@ public class BIRPackageSymbolEnter {
                     BTupleType bTupleType = new BTupleType(tupleTypeSymbol, null);
                     bTupleType.flags = flags;
                     int tupleMemberCount = inputStream.readInt();
-                    List<BType> tupleMemberTypes = new ArrayList<>();
+                    List<BType> tupleMemberTypes = new ArrayList<>(tupleMemberCount);
                     for (int i = 0; i < tupleMemberCount; i++) {
                         tupleMemberTypes.add(readTypeFromCp());
                     }
@@ -1427,7 +1428,7 @@ public class BIRPackageSymbolEnter {
 
         private List<BType> readTypeInclusions() throws IOException {
             int nTypeInclusions = inputStream.readInt();
-            List<BType> typeInclusions = new ArrayList<>();
+            List<BType> typeInclusions = new ArrayList<>(nTypeInclusions);
             for (int i = 0; i < nTypeInclusions; i++) {
                 BType inclusion = readTypeFromCp();
                 typeInclusions.add(inclusion);

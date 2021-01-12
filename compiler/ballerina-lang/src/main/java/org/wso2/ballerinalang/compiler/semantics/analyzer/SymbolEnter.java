@@ -2928,9 +2928,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private MarkdownDocAttachment getMarkdownDocAttachment(BLangMarkdownDocumentation docNode) {
         if (docNode == null) {
-            return new MarkdownDocAttachment();
+            return new MarkdownDocAttachment(0);
         }
-        MarkdownDocAttachment docAttachment = new MarkdownDocAttachment();
+        MarkdownDocAttachment docAttachment = new MarkdownDocAttachment(docNode.getParameters().size());
         docAttachment.description = docNode.getDocumentation();
 
         docNode.getParameters().forEach(p ->
@@ -2946,7 +2946,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BLangType> invalidTypeRefs = new ArrayList<>();
         // Get the inherited fields from the type references
 
-        Map<String, BLangSimpleVariable> fieldNames = new HashMap<>();
+        Map<String, BLangSimpleVariable> fieldNames = new HashMap<>(structureTypeNode.fields.size());
         for (BLangSimpleVariable fieldVariable : structureTypeNode.fields) {
             fieldNames.put(fieldVariable.name.value, fieldVariable);
         }
