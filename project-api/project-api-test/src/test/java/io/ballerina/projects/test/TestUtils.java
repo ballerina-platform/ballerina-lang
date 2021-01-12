@@ -29,7 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * Contains utils to test the balo writer.
+ * Contains utils to test the bala writer.
  *
  * @since 2.0.0
  */

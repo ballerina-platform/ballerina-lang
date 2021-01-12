@@ -19,7 +19,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 
 configurations {
-    distributionBalo {
+    distributionBala {
         transitive false
     }
 
@@ -30,14 +30,14 @@ configurations {
     distributionBirJar {
         transitive false
     }
-    baloCreat {
+    balaCreat {
         transitive false
     }
 }
 
 dependencies {
     implementation project(':ballerina-lang')
-    baloCreat project(':lib-creator')
+    balaCreat project(':lib-creator')
 }
 
 compileJava {
@@ -84,9 +84,9 @@ class BallerinaLangLibBuildTask extends JavaExec {
 }
 
 task createDistributionCache() {
-    dependsOn configurations.distributionBalo
+    dependsOn configurations.distributionBala
     doLast {
-        configurations.distributionBalo.each { artifact ->
+        configurations.distributionBala.each { artifact ->
             copy {
                 from zipTree( artifact.getPath() )
                 into "$buildDir/repo"
@@ -109,7 +109,7 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     errorOutput = System.err
     projectDir = project.buildDir.toString() + "/ballerina-src" // + modName
     distCache = project.buildDir.toString()
-    classpath = project.configurations.baloCreat
+    classpath = project.configurations.balaCreat
     dependsOn copyBallerinaProject
     dependsOn createDistributionCache
     dependsOn jar
@@ -121,7 +121,7 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
 }
 
 artifacts {
-    distributionBalo file("$buildDir/ballerina-src/target/" + modName + ".zip"), {
+    distributionBala file("$buildDir/ballerina-src/target/" + modName + ".zip"), {
         builtBy(ballerinaLangLibBuild)
     }
     distributionBirJar file("$buildDir/ballerina-src/target/" + modName + ".jar"), {

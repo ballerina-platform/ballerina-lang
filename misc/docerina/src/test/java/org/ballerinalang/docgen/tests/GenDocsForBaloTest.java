@@ -19,7 +19,7 @@
 package org.ballerinalang.docgen.tests;
 
 import io.ballerina.projects.ProjectEnvironmentBuilder;
-import io.ballerina.projects.balo.BaloProject;
+import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.testng.Assert;
@@ -35,26 +35,26 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 
 /**
- * Test generating API docs for a balo.
+ * Test generating API docs for a bala.
  */
-public class GenDocsForBaloTest {
+public class GenDocsForBalaTest {
     private final Path resourceDir = Paths.get("src", "test", "resources");
     private Path docsPath;
     
     @BeforeMethod
     public void setup() throws IOException {
-        this.docsPath = Files.createTempDirectory("balo-doc-gen-" + System.currentTimeMillis());
+        this.docsPath = Files.createTempDirectory("bala-doc-gen-" + System.currentTimeMillis());
     }
     
     @Test
-    public void generatingDocsForBaloTest() throws IOException {
-        Path baloPath = this.resourceDir.resolve("balos").resolve("foo-sf-any-1.3.5.balo");
+    public void generatingDocsForBalaTest() throws IOException {
+        Path balaPath = this.resourceDir.resolve("balas").resolve("foo-sf-any-1.3.5.bala");
         
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-        BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
     
-        BallerinaDocGenerator.generateAPIDocs(baloProject, this.docsPath.toString());
+        BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString());
     
         String apiDocsJsonAsString = Files.readString(
                 this.docsPath.resolve("sf").resolve("data").resolve("doc_data.json"));

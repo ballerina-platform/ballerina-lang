@@ -181,7 +181,7 @@ public function testObjectReferingTypeFromBalo_1() returns [string, float] {
     return [mgr.getName(), mgr.getBonus(0.1)];
 }
 
-// Test referring an object coming from a balo 
+// Test referring an object coming from a bala
 class Manager2 {
     string dpt = "HR";
 
@@ -207,7 +207,7 @@ public function testObjectReferingTypeFromBalo_2() returns [string, float] {
     return [mgr2.getName(), mgr2.getBonus(0.1)];
 }
 
-// Test referring a type coming from a balo
+// Test referring a type coming from a bala
 type Employee3 object {
     public float salary;
     *foo:Person1;
@@ -216,7 +216,7 @@ type Employee3 object {
 };
 
 // Test invking a method with default values, of an object
-// coming from a balo 
+// coming from a bala
 class Manager3 {
     string dpt = "HR";
 

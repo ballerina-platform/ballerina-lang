@@ -165,7 +165,7 @@ public class TestUtils {
     }
 
     // TODO: find a better way to run client bal files during integration tests.
-    public static void prepareBalo(Object test) throws URISyntaxException {
+    public static void prepareBala(Object test) throws URISyntaxException {
         if (System.getProperty(BLangConstants.BALLERINA_HOME) != null) {
             return;
         }

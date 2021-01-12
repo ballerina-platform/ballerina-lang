@@ -110,19 +110,19 @@ public class LockFileTestCase extends BaseTest {
     @Test(description = "Test building TestProject1 and then pushing it's modules.")
     public void testBuildAndPushTestProject1() throws BallerinaTestException {
         // Build module
-        String module1BaloFileName = module1Name + "-"
+        String module1BalaFileName = module1Name + "-"
                               + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                               + ProgramFileConstants.ANY_PLATFORM + "-"
                               + "1.0.0"
                               + BLANG_COMPILED_PKG_BINARY_EXT;
     
-        String module2BaloFileName = module2Name + "-"
+        String module2BalaFileName = module2Name + "-"
                                      + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                      + ProgramFileConstants.ANY_PLATFORM + "-"
                                      + "1.0.0"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
-        String module1BuildMsg = "target" + File.separator + "balo" + File.separator + module1BaloFileName;
-        String module2BuildMsg = "target" + File.separator + "balo" + File.separator + module2BaloFileName;
+        String module1BuildMsg = "target" + File.separator + "bala" + File.separator + module1BalaFileName;
+        String module2BuildMsg = "target" + File.separator + "bala" + File.separator + module2BalaFileName;
         LogLeecher module1BuildLeecher = new LogLeecher(module1BuildMsg);
         LogLeecher module2BuildLeecher = new LogLeecher(module2BuildMsg);
         balClient.runMain("build", new String[]{"-c", "-a"}, envVariables, new String[]{},
@@ -160,12 +160,12 @@ public class LockFileTestCase extends BaseTest {
         PackerinaTestUtils.modifyContent(fooTestBal, "MODULE_2", module2Name);
 
         // Build module
-        String fooBaloFileName = "foo-"
+        String fooBalaFileName = "foo-"
                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                 + ProgramFileConstants.ANY_PLATFORM + "-"
                 + "9.9.9"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBaloFile = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        String fooBalaFile = "target" + File.separator + "bala" + File.separator + fooBalaFileName;
         String fooBuildMsg = "1 passing";
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
         given().with().pollInterval(Duration.TEN_SECONDS).and()
@@ -174,7 +174,7 @@ public class LockFileTestCase extends BaseTest {
             balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new
                     LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
             fooBuildLeecher.waitForText(10000);
-            return Files.exists(testProj2Path.resolve(fooBaloFile));
+            return Files.exists(testProj2Path.resolve(fooBalaFile));
         });
     }
     
@@ -195,19 +195,19 @@ public class LockFileTestCase extends BaseTest {
         Path ballerinaTomlPath = testProj1Path.resolve("Ballerina.toml");
         PackerinaTestUtils.modifyContent(ballerinaTomlPath, "1.0.0", "1.2.0");
     
-        String module1BaloFileName = module1Name + "-"
+        String module1BalaFileName = module1Name + "-"
                                      + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                      + ProgramFileConstants.ANY_PLATFORM + "-"
                                      + "1.2.0"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
     
-        String module2BaloFileName = module2Name + "-"
+        String module2BalaFileName = module2Name + "-"
                                      + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                      + ProgramFileConstants.ANY_PLATFORM + "-"
                                      + "1.2.0"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
-        String module1BuildMsg = "target" + File.separator + "balo" + File.separator + module1BaloFileName;
-        String module2BuildMsg = "target" + File.separator + "balo" + File.separator + module2BaloFileName;
+        String module1BuildMsg = "target" + File.separator + "bala" + File.separator + module1BalaFileName;
+        String module2BuildMsg = "target" + File.separator + "bala" + File.separator + module2BalaFileName;
         LogLeecher module1BuildLeecher = new LogLeecher(module1BuildMsg);
         LogLeecher module2BuildLeecher = new LogLeecher(module2BuildMsg);
         balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
@@ -229,7 +229,7 @@ public class LockFileTestCase extends BaseTest {
     
     /**
      * Since the Ballerina.lock file is created where the versions of the modules of TestProject1 are set to "1.0.0",
-     * rebuilding TestProject2 should not pull the dependencies but instead resolved from the home balo cache. When
+     * rebuilding TestProject2 should not pull the dependencies but instead resolved from the home bala cache. When
      * running it should give the output as previous since its the same dependencies.
      *
      * @throws BallerinaTestException When running commands.
@@ -237,12 +237,12 @@ public class LockFileTestCase extends BaseTest {
     @Test(description = "Test rebuilding and running TestProject2", dependsOnMethods = "testModifyProj1AndPush")
     public void testRebuildTestProj2() throws BallerinaTestException {
         // Build module
-        String fooBaloFileName = "foo-"
+        String fooBalaFileName = "foo-"
                                  + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBuildMsg = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        String fooBuildMsg = "target" + File.separator + "bala" + File.separator + fooBalaFileName;
         String fooTestMsg = "1 passing";
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
         LogLeecher fooTestLeecher = new LogLeecher(fooTestMsg);
@@ -258,7 +258,7 @@ public class LockFileTestCase extends BaseTest {
     /**
      * Delete generated Ballerina.lock file of TestProject2 and rebuild with offline flag. Since the lock file is not
      * there, it will try to resolve to the latest dependency. But since the offline flag is given it cannot connect to
-     * central to look for a latest version. Hence it will look in the home balo repo resolving to "1.0.0" version.
+     * central to look for a latest version. Hence it will look in the home bala repo resolving to "1.0.0" version.
      *
      * @throws IOException            When deleting the Ballerina.lock file.
      */
@@ -270,14 +270,14 @@ public class LockFileTestCase extends BaseTest {
         Files.delete(lockFilePath);
         
         // Build module
-        String fooBaloFileName = "foo-"
+        String fooBalaFileName = "foo-"
                                  + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBaloFile = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        String fooBalaFile = "target" + File.separator + "bala" + File.separator + fooBalaFileName;
         String fooTestMsg = "1 passing";
-        LogLeecher fooBuildLeecher = new LogLeecher(fooBaloFile);
+        LogLeecher fooBuildLeecher = new LogLeecher(fooBalaFile);
         LogLeecher fooTestLeecher = new LogLeecher(fooTestMsg);
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
@@ -286,7 +286,7 @@ public class LockFileTestCase extends BaseTest {
                     LogLeecher[]{fooBuildLeecher, fooTestLeecher}, testProj2Path.toString());
             fooBuildLeecher.waitForText(10000);
             fooTestLeecher.waitForText(10000);
-            return Files.exists(testProj2Path.resolve(fooBaloFile));
+            return Files.exists(testProj2Path.resolve(fooBalaFile));
         });
         
         
@@ -312,14 +312,14 @@ public class LockFileTestCase extends BaseTest {
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
         Files.delete(lockFilePath);
         // Build module
-        String fooBaloFileName = "foo-"
+        String fooBalaFileName = "foo-"
                                  + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBaloFile = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        String fooBalaFile = "target" + File.separator + "bala" + File.separator + fooBalaFileName;
         String fooTestMsg = "1 passing";
-        LogLeecher fooBuildLeecher = new LogLeecher(fooBaloFile);
+        LogLeecher fooBuildLeecher = new LogLeecher(fooBalaFile);
         LogLeecher fooTestLeecher = new LogLeecher(fooTestMsg);
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
@@ -328,7 +328,7 @@ public class LockFileTestCase extends BaseTest {
                     LogLeecher[]{fooBuildLeecher, fooTestLeecher}, testProj2Path.toString());
             fooBuildLeecher.waitForText(10000);
             fooTestLeecher.waitForText(10000);
-            return Files.exists(testProj2Path.resolve(fooBaloFile));
+            return Files.exists(testProj2Path.resolve(fooBalaFile));
         });
 
         fooBuildLeecher.waitForText(10000);
@@ -338,7 +338,7 @@ public class LockFileTestCase extends BaseTest {
     
     /**
      * Update the Ballerina.toml file by adding the 2 dependencies and set the versions to "1.0.0". But since the
-     * Ballerina.lock is still there with version "1.2.0", an error will be thrown when creating the balo. The
+     * Ballerina.lock is still there with version "1.2.0", an error will be thrown when creating the bala. The
      * Ballerina.lock file has priority than Ballerina.toml.
      *
      * @throws IOException When updating the Ballerina.toml.
@@ -360,18 +360,18 @@ public class LockFileTestCase extends BaseTest {
                 LogLeecher[]{}, testProj2Path.toString());
         Thread.sleep(3000);
     
-        String fooBaloFileName = "foo-"
+        String fooBalaFileName = "foo-"
                                  + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBaloPath = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
-        Files.notExists(testProj2Path.resolve(fooBaloPath));
+        String fooBalaPath = "target" + File.separator + "bala" + File.separator + fooBalaFileName;
+        Files.notExists(testProj2Path.resolve(fooBalaPath));
     }
     
     /**
      * Now delete the Ballerina.lock file. Since version "1.0.0" is mentioned in the Ballerina.toml. It will resolve to
-     * that version from home balo repo.
+     * that version from home bala repo.
      *
      * @throws IOException When deleting the Ballerina.lock.
      */
@@ -386,14 +386,14 @@ public class LockFileTestCase extends BaseTest {
         Files.delete(lockFilePath);
         
         // Build module
-        String fooBaloFileName = "foo-"
+        String fooBalaFileName = "foo-"
                                  + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBaloFile = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        String fooBalaFile = "target" + File.separator + "bala" + File.separator + fooBalaFileName;
         String fooTestMsg = "1 passing";
-        LogLeecher fooBuildLeecher = new LogLeecher(fooBaloFile);
+        LogLeecher fooBuildLeecher = new LogLeecher(fooBalaFile);
         LogLeecher fooTestLeecher = new LogLeecher(fooTestMsg);
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
@@ -402,7 +402,7 @@ public class LockFileTestCase extends BaseTest {
                     LogLeecher[]{fooBuildLeecher, fooTestLeecher}, testProj2Path.toString());
             fooBuildLeecher.waitForText(10000);
             fooTestLeecher.waitForText(10000);
-            return Files.exists(testProj2Path.resolve(fooBaloFile));
+            return Files.exists(testProj2Path.resolve(fooBalaFile));
         });
         
         lockFilePath = testProj2Path.resolve("Ballerina.lock");

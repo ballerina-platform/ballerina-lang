@@ -49,7 +49,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLE
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME;
 
 /**
- * Write a compiled executable program(.balx) or a compiled package(balo.) to a file.
+ * Write a compiled executable program(.balx) or a compiled package(bala.) to a file.
  *
  * @since 0.965.0
  */
@@ -197,7 +197,7 @@ public class BinaryFileWriter {
             }
             this.sourceDirectory.saveCompiledPackage(compiledPackage, destDirPath, compiledPackageFileName);
         } catch (IOException e) {
-            String msg = "error writing the compiled module(balo) of '" +
+            String msg = "error writing the compiled module(bala) of '" +
                     packageID + "' to '" + destDirPath + "': " + e.getMessage();
             throw new BLangCompilerException(msg, e);
         }

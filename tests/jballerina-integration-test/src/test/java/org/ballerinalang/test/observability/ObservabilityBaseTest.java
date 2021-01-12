@@ -41,7 +41,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class ObservabilityBaseTest extends BaseTest {
     private static BServerInstance servicesServerInstance;
 
-    private static final String OBESERVABILITY_TEST_UTILS_BALO = System.getProperty("observability.test.utils.balo");
+    private static final String OBESERVABILITY_TEST_UTILS_BALO = System.getProperty("observability.test.utils.bala");
     private static final String OBESERVABILITY_TEST_UTILS_JAR = System.getProperty("observability.test.utils.jar");
     private static final String BALLERINA_TOML_TEST_NATIVES_JAR_NAME = "observability-test-utils.jar";
 

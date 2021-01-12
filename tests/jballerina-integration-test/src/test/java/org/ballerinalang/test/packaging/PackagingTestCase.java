@@ -112,23 +112,23 @@ public class PackagingTestCase extends BaseTest {
         datePushed = dtf.format(LocalDateTime.now());
 
         // First try to push without building
-        String firstMsg = "error: cannot find balo file for the module: " + moduleName + ". Run " +
-                          "'bal build -c <module_name>' to compile and generate the balo.";
+        String firstMsg = "error: cannot find bala file for the module: " + moduleName + ". Run " +
+                          "'bal build -c <module_name>' to compile and generate the bala.";
         LogLeecher clientLeecher = new LogLeecher(firstMsg, LeecherType.ERROR);
         balClient.runMain("push", new String[]{moduleName}, envVariables, new String[]{},
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(2000);
         
-        String baloFileName = moduleName + "-"
+        String balaFileName = moduleName + "-"
                               + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                               + ProgramFileConstants.ANY_PLATFORM + "-"
                               + "0.1.0"
                               + BLANG_COMPILED_PKG_BINARY_EXT;
-        Path baloPath = projectPath.resolve("target").resolve("balo").resolve(baloFileName);
-        Assert.assertTrue(Files.notExists(baloPath));
+        Path balaPath = projectPath.resolve("target").resolve("bala").resolve(balaFileName);
+        Assert.assertTrue(Files.notExists(balaPath));
 
         // Build module
-        String buildMessage = "Created target" + File.separator + "balo" + File.separator + baloFileName;
+        String buildMessage = "Created target" + File.separator + "bala" + File.separator + balaFileName;
         clientLeecher = new LogLeecher(buildMessage);
 
         PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main.bal"),
@@ -149,12 +149,12 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(enabled = false, description = "Test pulling a package from central", dependsOnMethods = "testPush")
     public void testPull() {
-        String baloFileName = moduleName + "-"
+        String balaFileName = moduleName + "-"
                               + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                               + ProgramFileConstants.ANY_PLATFORM + "-"
                               + "0.1.0"
                               + BLANG_COMPILED_PKG_BINARY_EXT;
-        Path baloPath = Paths.get(ProjectDirConstants.BALO_CACHE_DIR_NAME,
+        Path balaPath = Paths.get(ProjectDirConstants.BALO_CACHE_DIR_NAME,
                                  orgName, moduleName, "0.1.0");
 
         given().with().pollInterval(Duration.TEN_SECONDS).and()
@@ -164,10 +164,10 @@ public class PackagingTestCase extends BaseTest {
             balClient.runMain("pull", clientArgs, envVariables, new String[]{},
                     new LogLeecher[]{}, balServer.getServerHome());
             totalPullCount += 1;
-            return Files.exists(tempHomeDirectory.resolve(baloPath).resolve(baloFileName));
+            return Files.exists(tempHomeDirectory.resolve(balaPath).resolve(balaFileName));
         });
 
-        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(baloPath).resolve(baloFileName)));
+        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(balaPath).resolve(balaFileName)));
     }
 
     @Test(enabled = false, description = "Test searching a package from central", dependsOnMethods = "testPush")
@@ -309,9 +309,9 @@ public class PackagingTestCase extends BaseTest {
                 new LogLeecher[] { buildLeecher }, projectPath.toString());
         buildLeecher.waitForText(60000);
 
-        String fooModuleBaloFileName = "foo.bar-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
+        String fooModuleBalaFileName = "foo.bar-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
-        String runMsg = "target" + File.separator + "balo" + File.separator + fooModuleBaloFileName;
+        String runMsg = "target" + File.separator + "bala" + File.separator + fooModuleBalaFileName;
 
         // Run module
         LogLeecher runLeecher = new LogLeecher(runMsg);
