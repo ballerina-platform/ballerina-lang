@@ -22,6 +22,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -45,7 +46,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     private static final String UNDEFINED_FUNCTION = "undefined function";
 
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled(LanguageServerContext serverContext) {
         //TODO: Need to get return type of the function invocation blocked due to #27211
         return false;
     }
