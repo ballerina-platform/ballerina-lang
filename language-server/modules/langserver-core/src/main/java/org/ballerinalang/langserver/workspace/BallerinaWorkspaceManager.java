@@ -37,6 +37,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -67,14 +68,28 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     /**
      * Cache mapping of document path to source root.
      */
-    private static final Map<Path, Path> pathToSourceRootCache;
+    private final Map<Path, Path> pathToSourceRootCache;
+    private static final LanguageServerContext.Key<BallerinaWorkspaceManager> WORKSPACE_MANAGER_KEY =
+            new LanguageServerContext.Key<>();
+    private final LSClientLogger clientLogger;
 
-    static {
+    private BallerinaWorkspaceManager(LanguageServerContext serverContext) {
+        serverContext.put(WORKSPACE_MANAGER_KEY, this);
+        this.clientLogger = LSClientLogger.getInstance(serverContext);
         Cache<Path, Path> cache = CacheBuilder.newBuilder()
                 .expireAfterWrite(10, TimeUnit.MINUTES)
                 .maximumSize(1000)
                 .build();
-        pathToSourceRootCache = cache.asMap();
+        this.pathToSourceRootCache = cache.asMap();
+    }
+
+    public static BallerinaWorkspaceManager getInstance(LanguageServerContext serverContext) {
+        BallerinaWorkspaceManager workspaceManager = serverContext.get(WORKSPACE_MANAGER_KEY);
+        if (workspaceManager == null) {
+            workspaceManager = new BallerinaWorkspaceManager(serverContext);
+        }
+
+        return workspaceManager;
     }
 
     @Override
@@ -303,7 +318,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             Path projectRoot = project.get().sourceRoot();
             sourceRootToProject.remove(projectRoot);
-            LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
+            clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
                     "' {project: '" + projectRoot.toUri().toString() +
                     "' kind: '" + project.get().kind().name().toLowerCase(Locale.getDefault()) +
                     "'} removed}");
@@ -376,7 +391,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         } else {
             project = SingleFileProject.load(projectRoot, options);
         }
-        LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
+        clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
                 "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
                 project.kind().name().toLowerCase(Locale.getDefault()) + "'} created}");
         return ProjectPair.from(project);

@@ -21,6 +21,10 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Represent a diagnostic in the ballerina compiler front-end. A diagnostic can be a semantic
@@ -34,20 +38,20 @@ public class BLangDiagnostic extends Diagnostic {
     private String msg;
     private DiagnosticInfo diagnosticInfo;
     private DiagnosticCode diagnosticCode;
-
-    public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo) {
-        this.location = location;
-        this.msg = msg;
-        this.diagnosticInfo = diagnosticInfo;
-        this.diagnosticCode = null;
-    }
+    private List<DiagnosticProperty<?>> properties;
 
     public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo,
                            DiagnosticCode diagnosticCode) {
+        this(location, msg, diagnosticInfo, diagnosticCode, Collections.emptyList());
+    }
+
+    public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo,
+                           DiagnosticCode diagnosticCode, List<DiagnosticProperty<?>> properties) {
         this.location = location;
         this.msg = msg;
         this.diagnosticInfo = diagnosticInfo;
         this.diagnosticCode = diagnosticCode;
+        this.properties = properties;
     }
 
     /**
@@ -72,6 +76,11 @@ public class BLangDiagnostic extends Diagnostic {
     @Override
     public String message() {
         return msg;
+    }
+
+    @Override
+    public List<DiagnosticProperty<?>> properties() {
+        return properties;
     }
 
     public DiagnosticCode getCode() {

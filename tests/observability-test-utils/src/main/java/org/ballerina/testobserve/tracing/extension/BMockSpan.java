@@ -19,7 +19,16 @@
 
 package org.ballerina.testobserve.tracing.extension;
 
+import io.opentracing.mock.MockSpan;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_MODULE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_POSITION;
 
 /**
  * Class that holds the mock spans of the tracing integration tests.
@@ -31,13 +40,16 @@ public class BMockSpan {
     private long spanId;
     private long parentId;
     private Map<String, Object> tags;
+    private List<MockSpan.LogEntry> events;
 
-    public BMockSpan(String operationName, long traceId, long spanId, long parentId, Map<String, Object> tags) {
+    public BMockSpan(String operationName, long traceId, long spanId, long parentId, Map<String, Object> tags,
+                     List<MockSpan.LogEntry> events) {
         this.operationName = operationName;
         this.traceId = traceId;
         this.spanId = spanId;
         this.parentId = parentId;
         this.tags = tags;
+        this.events = events;
     }
 
     public String getOperationName() {
@@ -78,5 +90,59 @@ public class BMockSpan {
 
     public void setTags(Map<String, Object> tags) {
         this.tags = tags;
+    }
+
+    public List<MockSpan.LogEntry> getEvents() {
+        return events;
+    }
+
+    public List<BMockSpanEvent> getCheckpoints() {
+        List<BMockSpanEvent> checkpoints;
+        if (getEvents() != null) {
+            checkpoints = new ArrayList<>(getEvents().size());
+            for (MockSpan.LogEntry eventLog : getEvents()) {
+                BMockSpan.BMockSpanEvent checkpoint = new BMockSpan.BMockSpanEvent(
+                        (((Map) eventLog.fields().get(CHECKPOINT_EVENT_NAME)).
+                                get(TAG_KEY_SRC_MODULE)).toString(),
+                        (((Map) eventLog.fields().get(CHECKPOINT_EVENT_NAME)).
+                                get(TAG_KEY_SRC_POSITION)).toString()
+                );
+                checkpoints.add(checkpoint);
+            }
+        } else {
+            checkpoints = null;
+        }
+        return checkpoints;
+    }
+
+    /**
+     * Trace Span Event.
+     */
+    public static class BMockSpanEvent {
+        private String moduleID;
+        private String positionID;
+
+        public BMockSpanEvent(String moduleID, String positionID) {
+            this.moduleID = moduleID;
+            this.positionID = positionID;
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            if (object == null || getClass() != object.getClass()) {
+                return false;
+            }
+            BMockSpanEvent that = (BMockSpanEvent) object;
+            return Objects.equals(moduleID, that.moduleID) &&
+                    Objects.equals(positionID, that.positionID);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(moduleID, positionID);
+        }
     }
 }

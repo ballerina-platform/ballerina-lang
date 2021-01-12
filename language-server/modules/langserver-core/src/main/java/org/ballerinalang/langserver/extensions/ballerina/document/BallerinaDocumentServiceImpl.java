@@ -19,7 +19,9 @@ import com.google.gson.JsonElement;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.diagramutil.DiagramUtil;
+import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 
@@ -27,19 +29,18 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static org.ballerinalang.langserver.LSClientLogger.logError;
-
 /**
  * Implementation of Ballerina Document extension for Language Server.
  *
  * @since 0.981.2
  */
 public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
-
     private final WorkspaceManager workspaceManager;
+    private final LSClientLogger clientLogger;
 
-    public BallerinaDocumentServiceImpl(WorkspaceManager workspaceManager) {
+    public BallerinaDocumentServiceImpl(WorkspaceManager workspaceManager, LanguageServerContext serverContext) {
         this.workspaceManager = workspaceManager;
+        this.clientLogger = LSClientLogger.getInstance(serverContext);
     }
 
     @Override
@@ -72,7 +73,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/syntaxTree' failed!";
-            logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+            this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
@@ -99,7 +100,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/syntaxTreeModify' failed!";
-            logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+            this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
@@ -124,7 +125,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
-            logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+            this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
@@ -142,7 +143,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 project.setPath(projectRoot.toString());
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/project' failed!";
-                logError(msg, e, params.getDocumentIdentifier(), (Position) null);
+                this.clientLogger.logError(msg, e, params.getDocumentIdentifier(), (Position) null);
             }
             return project;
         });

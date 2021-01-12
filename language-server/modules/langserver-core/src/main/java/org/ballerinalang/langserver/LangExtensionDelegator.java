@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.commons.DiagnosticsExtension;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.FormattingExtension;
 import org.ballerinalang.langserver.commons.LanguageExtension;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CompletionItem;
@@ -81,12 +82,14 @@ public class LangExtensionDelegator {
      * @return {@link Either} completion results
      * @throws Throwable while executing the extension
      */
-    public Either<List<CompletionItem>, CompletionList> completion(CompletionParams params, CompletionContext context)
+    public Either<List<CompletionItem>, CompletionList> completion(CompletionParams params,
+                                                                   CompletionContext context,
+                                                                   LanguageServerContext serverContext)
             throws Throwable {
         List<CompletionItem> completionItems = new ArrayList<>();
         for (CompletionExtension ext : completionExtensions) {
             if (ext.validate(params)) {
-                completionItems.addAll(ext.execute(params, context));
+                completionItems.addAll(ext.execute(params, context, serverContext));
             }
         }
 
@@ -100,12 +103,14 @@ public class LangExtensionDelegator {
      * @return {@link List} of text edits
      * @throws Throwable while executing the extension
      */
-    public List<? extends TextEdit> formatting(DocumentFormattingParams params, DocumentServiceContext context)
+    public List<? extends TextEdit> formatting(DocumentFormattingParams params,
+                                               DocumentServiceContext context,
+                                               LanguageServerContext serverContext)
             throws Throwable {
         List<TextEdit> textEdits = new ArrayList<>();
         for (FormattingExtension ext : formatExtensions) {
             if (ext.validate(params)) {
-                textEdits.addAll(ext.execute(params, context));
+                textEdits.addAll(ext.execute(params, context, serverContext));
             }
         }
 
@@ -119,12 +124,13 @@ public class LangExtensionDelegator {
      * @return {@link List} of text edits
      * @throws Throwable while executing the extension
      */
-    public List<? extends CodeAction> codeActions(CodeActionParams params, CodeActionContext context)
+    public List<? extends CodeAction> codeActions(CodeActionParams params, CodeActionContext context,
+                                                  LanguageServerContext serverContext)
             throws Throwable {
         List<CodeAction> actions = new ArrayList<>();
         for (CodeActionExtension ext : codeActionsExtensions) {
             if (ext.validate(params)) {
-                actions.addAll(ext.execute(params, context));
+                actions.addAll(ext.execute(params, context, serverContext));
             }
         }
 
@@ -138,11 +144,13 @@ public class LangExtensionDelegator {
      * @return {@link PublishDiagnosticsParams} diagnostic params calculated
      * @throws Throwable while executing the extension
      */
-    public List<PublishDiagnosticsParams> diagnostics(String uri, DocumentServiceContext context) throws Throwable {
+    public List<PublishDiagnosticsParams> diagnostics(String uri,
+                                                      DocumentServiceContext context,
+                                                      LanguageServerContext serverContext) throws Throwable {
         List<PublishDiagnosticsParams> diagnosticsParams = new ArrayList<>();
         for (DiagnosticsExtension ext : diagExtensions) {
             if (ext.validate(uri)) {
-                diagnosticsParams.addAll(ext.execute(uri, context));
+                diagnosticsParams.addAll(ext.execute(uri, context, serverContext));
             }
         }
 
