@@ -141,7 +141,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // byte variable test
         debugTestRunner.assertExpression(context, BYTE_VAR, "128", "int");
         // table variable test
-        debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee>", "table");
+        debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee>[3]", "table");
         // stream variable test
         debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int>", "stream");
         // never variable test
