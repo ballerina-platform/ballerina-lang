@@ -195,7 +195,8 @@ public class RecordVariableDefinitionTest {
                 "Z");
     }
 
-    @Test(description = "Test record var def inside tuple var def inside record var def")
+    // TODO: enable the test case once module record variable is supported
+    @Test(description = "Test record var def inside tuple var def inside record var def", enabled = false)
     public void testRecordInsideTupleInsideRecord2() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord2");
         Assert.assertEquals(returns.length, 4);
@@ -219,7 +220,8 @@ public class RecordVariableDefinitionTest {
                 "Z");
     }
 
-    @Test(description = "Test record var def inside tuple var def inside record var def")
+    // TODO: enable the test case one module record variable is supported
+    @Test(description = "Test record var def inside tuple var def inside record var def", enabled = false)
     public void testRecordInsideTupleInsideRecord2WithVar() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord2WithVar");
         Assert.assertEquals(returns.length, 4);

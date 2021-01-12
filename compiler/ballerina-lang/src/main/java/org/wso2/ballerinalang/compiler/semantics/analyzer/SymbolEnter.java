@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -143,6 +144,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -362,7 +364,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
         defineTypeNodes(typeAndClassDefs, pkgEnv);
 
-        for (BLangSimpleVariable variable : pkgNode.globalVars) {
+        for (BLangVariable variable : pkgNode.globalVars) {
             if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA && variable.isDeclaredWithVar) {
                 resolveAndSetFunctionTypeFromRHSLambda(variable, pkgEnv);
             }
@@ -409,9 +411,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         // Update globalVar for endpoints.
-        pkgNode.globalVars.stream().filter(var -> var.symbol.type.tsymbol != null && Symbols
-                .isFlagOn(var.symbol.type.tsymbol.flags, Flags.CLIENT)).map(varNode -> varNode.symbol)
-                .forEach(varSymbol -> varSymbol.tag = SymTag.ENDPOINT);
+        for (BLangVariable var : pkgNode.globalVars) {
+            if (var.getKind() == NodeKind.VARIABLE) {
+                BTypeSymbol tSymbol = var.symbol.type.tsymbol;
+                if (tSymbol != null && Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT)) {
+                    var.symbol.tag = SymTag.ENDPOINT;
+                }
+            }
+        }
     }
 
     private void defineIntersectionTypes(SymbolEnv env) {
@@ -1694,10 +1701,166 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariable varNode) {
-        // assign the type to var type node
+        if (varNode.isDeclaredWithVar) {
+            // Symbol enter with type other
+            List<BLangVariable> memberVariables = new ArrayList<>(varNode.memberVariables);
+            if (varNode.restVariable != null) {
+                memberVariables.add(varNode.restVariable);
+            }
+            for (int i = 0; i < memberVariables.size(); i++) {
+                BLangVariable memberVar = memberVariables.get(i);
+                memberVar.isDeclaredWithVar = true;
+                if (memberVar.getKind() == NodeKind.VARIABLE &&
+                        names.fromIdNode(((BLangSimpleVariable) memberVar).name) == Names.IGNORE) {
+                    continue;
+                }
+                defineNode(memberVar, env);
+            }
+            return;
+        }
         if (varNode.type == null) {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
+        // To support variable forward referencing we need to symbol enter each tuple member with type at SymbolEnter.
+        if (!(checkTypeAndVarCountConsistency(varNode, env))) {
+            varNode.type = symTable.semanticError;
+            return;
+        }
+    }
+
+    boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, SymbolEnv env) {
+        Name varName = names.fromString(anonymousModelHelper.getNextTupleVarKey(env.enclPkg.packageID));
+        varNode.symbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env, varNode.internal);
+        
+        return checkTypeAndVarCountConsistency(varNode, null, env);
+    }
+
+    boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode,
+                                                    SymbolEnv env) {
+
+        if (tupleTypeNode == null) {
+        /*
+          This switch block will resolve the tuple type of the tuple variable.
+          For example consider the following - [int, string]|[boolean, float] [a, b] = foo();
+          Since the varNode type is a union, the types of 'a' and 'b' will be resolved as follows:
+          Type of 'a' will be (int | boolean) while the type of 'b' will be (string | float).
+          Consider anydata (a, b) = foo();
+          Here, the type of 'a'and type of 'b' will be both anydata.
+         */
+            switch (varNode.type.tag) {
+                case TypeTags.UNION:
+                    Set<BType> unionType = types.expandAndGetMemberTypesRecursive(varNode.type);
+                    List<BType> possibleTypes = new ArrayList<>();
+                    for (BType type :unionType) {
+                        if (!(TypeTags.TUPLE == type.tag &&
+                                (varNode.memberVariables.size() == ((BTupleType) type).tupleTypes.size())) &&
+                                TypeTags.ANY != type.tag &&
+                                TypeTags.ANYDATA != type.tag) {
+                            continue;
+                        }
+                        possibleTypes.add(type);
+                    }
+                    if (possibleTypes.isEmpty()) {
+                        dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
+                        return false;
+                    }
+
+                    if (possibleTypes.size() > 1) {
+                        List<BType> memberTupleTypes = new ArrayList<>();
+                        for (int i = 0; i < varNode.memberVariables.size(); i++) {
+                            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+                            for (BType possibleType : possibleTypes) {
+                                if (possibleType.tag == TypeTags.TUPLE) {
+                                    memberTypes.add(((BTupleType) possibleType).tupleTypes.get(i));
+                                } else {
+                                    memberTupleTypes.add(varNode.type);
+                                }
+                            }
+
+                            if (memberTypes.size() > 1) {
+                                memberTupleTypes.add(BUnionType.create(null, memberTypes));
+                            } else {
+                                memberTupleTypes.addAll(memberTypes);
+                            }
+                        }
+                        tupleTypeNode = new BTupleType(memberTupleTypes);
+                        break;
+                    }
+
+                    if (possibleTypes.get(0).tag == TypeTags.TUPLE) {
+                        tupleTypeNode = (BTupleType) possibleTypes.get(0);
+                        break;
+                    }
+
+                    List<BType> memberTypes = new ArrayList<>();
+                    for (int i = 0; i < varNode.memberVariables.size(); i++) {
+                        memberTypes.add(possibleTypes.get(0));
+                    }
+                    tupleTypeNode = new BTupleType(memberTypes);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                    List<BType> memberTupleTypes = new ArrayList<>();
+                    for (int i = 0; i < varNode.memberVariables.size(); i++) {
+                        memberTupleTypes.add(varNode.type);
+                    }
+                    tupleTypeNode = new BTupleType(memberTupleTypes);
+                    if (varNode.restVariable != null) {
+                        tupleTypeNode.restType = varNode.type;
+                    }
+                    break;
+                case TypeTags.TUPLE:
+                    tupleTypeNode = (BTupleType) varNode.type;
+                    break;
+                default:
+                    dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
+                    return false;
+            }
+        }
+
+        if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()
+                || (tupleTypeNode.restType == null && varNode.restVariable != null)
+                ||  (tupleTypeNode.restType != null && varNode.restVariable == null)) {
+            dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_TUPLE_BINDING_PATTERN);
+            return false;
+        }
+
+        int ignoredCount = 0;
+        List<BLangVariable> memberVariables = new ArrayList<>(varNode.memberVariables);
+        if (varNode.restVariable != null) {
+            memberVariables.add(varNode.restVariable);
+        }
+        for (int i = 0; i < memberVariables.size(); i++) {
+            BLangVariable var = memberVariables.get(i);
+            BType type = (i <= tupleTypeNode.tupleTypes.size() - 1) ? tupleTypeNode.tupleTypes.get(i) :
+                    new BArrayType(tupleTypeNode.restType);
+            if (var.getKind() == NodeKind.VARIABLE) {
+                // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
+                BLangSimpleVariable simpleVar = (BLangSimpleVariable) var;
+                Name varName = names.fromIdNode(simpleVar.name);
+                if (varName == Names.IGNORE) {
+                    ignoredCount++;
+                    simpleVar.type = symTable.anyType;
+                    types.checkType(varNode.pos, type, simpleVar.type,
+                            DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                    continue;
+                }
+            }
+            var.type = type;
+            int ownerSymTag = env.scope.owner.tag;
+            if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE && varNode.isDeclaredWithVar) {
+                var.symbol.type = type;
+                continue;
+            }
+            defineNode(var, env);
+        }
+
+        if (!varNode.memberVariables.isEmpty() && ignoredCount == varNode.memberVariables.size()
+                && varNode.restVariable == null) {
+            dlog.error(varNode.pos, DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -2024,7 +2187,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgNode.services.add((BLangService) node);
                 break;
             case VARIABLE:
-                pkgNode.globalVars.add((BLangSimpleVariable) node);
+            case TUPLE_VARIABLE:
+            case RECORD_VARIABLE:
+            case ERROR_VARIABLE:
+                pkgNode.globalVars.add((BLangVariable) node);
                 // TODO There are two kinds of package level variables, constant and regular variables.
                 break;
             case ANNOTATION:
@@ -3092,7 +3258,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return pkgName.value.equals(importSymbol.pkgID.name.value);
     }
 
-    private void resolveAndSetFunctionTypeFromRHSLambda(BLangSimpleVariable variable, SymbolEnv env) {
+    private void resolveAndSetFunctionTypeFromRHSLambda(BLangVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
         BInvokableType invokableType = (BInvokableType) symResolver.createInvokableType(function.getParameters(),
                                                                                         function.restParam,

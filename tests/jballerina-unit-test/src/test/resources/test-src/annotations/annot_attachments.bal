@@ -83,6 +83,10 @@ const annotation map<string> v14 on source annotation;
     val: 11
 }
 int i = 12;
+@v11 {
+    val: 2
+}
+[int, string] [intVar, stringVar] = [1, "myString"];
 
 @v12 {
     str: "v12 value"

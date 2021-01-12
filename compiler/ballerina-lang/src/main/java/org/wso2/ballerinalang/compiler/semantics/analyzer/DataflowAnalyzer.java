@@ -345,10 +345,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.currDependentSymbol.pop();
     }
 
-    private void checkForUninitializedGlobalVars(List<BLangSimpleVariable> globalVars) {
-        for (BLangSimpleVariable globalVar : globalVars) {
-            if (this.uninitializedVars.containsKey(globalVar.symbol)) {
-                this.dlog.error(globalVar.pos, DiagnosticErrorCode.UNINITIALIZED_VARIABLE, globalVar.symbol);
+    private void checkForUninitializedGlobalVars(List<BLangVariable> globalVars) {
+        // TODO: remove unwanted cases after disallowing uninitialized tuple variables from parser
+        for (BLangVariable globalVar : globalVars) {
+            switch (globalVar.getKind()) {
+                case VARIABLE:
+                    if (this.uninitializedVars.containsKey(globalVar.symbol)) {
+                        this.dlog.error(globalVar.pos, DiagnosticErrorCode.UNINITIALIZED_VARIABLE, globalVar.symbol);
+                    }
+                    break;
+                case TUPLE_VARIABLE:
+                    checkForUninitializedGlobalVars(((BLangTupleVariable) globalVar).memberVariables);
+                    break;
             }
         }
     }
@@ -1667,15 +1675,24 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         analyzeNode(bLangTupleVariable.typeNode, env);
+        if (bLangTupleVariable.expr != null) {
+            this.currDependentSymbol.push(bLangTupleVariable.symbol);
+            analyzeNode(bLangTupleVariable.expr, env);
+            this.currDependentSymbol.pop();
+            return;
+        }
+        for (BLangVariable member: bLangTupleVariable.memberVariables) {
+            if (member.getKind() == NodeKind.VARIABLE) {
+                addUninitializedVar(member);
+                continue;
+            }
+            analyzeNode(member, env);
+        }
     }
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
-        BLangVariable var = bLangTupleVariableDef.var;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-            return;
-        }
+        analyzeNode(bLangTupleVariableDef.var, env);
     }
 
     @Override

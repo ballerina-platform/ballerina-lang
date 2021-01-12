@@ -344,7 +344,7 @@ public class GlobalVariableRefAnalyzer {
     private void projectSortToTopLevelNodesList() {
         // Swap global variable nodes in 'topLevelNodes' list to reflect sorted global variables.
         List<Integer> topLevelPositions = new ArrayList<>();
-        for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
+        for (BLangVariable globalVar : pkgNode.globalVars) {
             topLevelPositions.add(pkgNode.topLevelNodes.indexOf(globalVar));
         }
         topLevelPositions.sort(Comparator.comparingInt(i -> i));
@@ -365,16 +365,20 @@ public class GlobalVariableRefAnalyzer {
     }
 
     private void projectSortToGlobalVarsList(Set<BSymbol> sorted) {
-        Map<BSymbol, BLangSimpleVariable> varMap = this.pkgNode.globalVars.stream()
-                .collect(Collectors.toMap(k -> k.symbol, k -> k));
+        Map<BSymbol, BLangVariable> varMap = new HashMap<>();
+        this.pkgNode.globalVars.forEach(globalVar -> {
+            if (globalVar.symbol != null) {
+                varMap.put(globalVar.symbol, globalVar);
+            }
+        });
 
-        List<BLangSimpleVariable> sortedGlobalVars = sorted.stream()
+        List<BLangVariable> sortedGlobalVars = sorted.stream()
                 .filter(varMap::containsKey)
                 .map(varMap::get)
                 .collect(Collectors.toList());
 
         if (sortedGlobalVars.size() != this.pkgNode.globalVars.size()) {
-            List<BLangSimpleVariable> symbolLessGlobalVars = this.pkgNode.globalVars.stream()
+            List<BLangVariable> symbolLessGlobalVars = this.pkgNode.globalVars.stream()
                     .filter(g -> g.symbol == null)
                     .collect(Collectors.toList());
             sortedGlobalVars.addAll(symbolLessGlobalVars);
@@ -411,7 +415,7 @@ public class GlobalVariableRefAnalyzer {
             }
         }
 
-        for (BLangSimpleVariable var : this.pkgNode.globalVars) {
+        for (BLangVariable var : this.pkgNode.globalVars) {
             if (var.symbol != null) {
                 dependents.add(var.symbol);
             }
