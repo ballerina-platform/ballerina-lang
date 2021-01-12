@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
@@ -118,6 +119,21 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                             "Annotation can only be attached to a test:MockFunction object");
                 }
+            }
+        }
+    }
+
+    @Override
+    public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
+        // Remove the duplicated annotations.
+        annotations = annotations.stream().distinct().collect(Collectors.toList());
+        // Check for usage of mock annotation on a function which is deprecated.
+        for (AnnotationAttachmentNode attachmentNode : annotations) {
+            String annotationName = attachmentNode.getAnnotationName().getValue();
+            if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
+                // Throw an error saying its not a MockFunction object
+                diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
+                        "Annotation can only be attached to a test:MockFunction object");
             }
         }
     }

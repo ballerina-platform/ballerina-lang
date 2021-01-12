@@ -1,0 +1,4 @@
+[package]
+org = "intg_tests"
+name = "deprecated_annotations"
+version = "0.0.0"

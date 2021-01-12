@@ -37,7 +37,7 @@ public class BaseTestCase {
     public static BalServer balServer;
     Path tempProjectDirectory;
     protected static Path singleFileTestsPath;
-    static Path projectBasedTestsPath;
+    protected static Path projectBasedTestsPath;
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {
