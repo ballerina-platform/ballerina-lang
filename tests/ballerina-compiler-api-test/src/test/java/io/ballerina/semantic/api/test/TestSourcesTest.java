@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LineRange;
@@ -58,7 +59,8 @@ public class TestSourcesTest {
         Project project = BCompileUtil.loadProject("test-src/test-project");
         Module baz = getModule(project, "baz");
         model = baz.getCompilation().getSemanticModel();
-        srcFile = baz.testDocuments().iterator().next();
+        DocumentId id = baz.testDocumentIds().iterator().next();
+        srcFile = baz.document(id);
     }
 
     @Test(dataProvider = "SymbolPosProvider")

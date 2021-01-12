@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
@@ -56,7 +57,14 @@ public class SemanticAPITestUtils {
 
     public static Document getDocumentForSingleSource(Project project) {
         Package currentPackage = project.currentPackage();
-        return currentPackage.getDefaultModule().documents().iterator().next();
+        DocumentId id = currentPackage.getDefaultModule().documentIds().iterator().next();
+        return currentPackage.getDefaultModule().document(id);
+    }
+
+    public static Document getDocumentForSingleTestSource(Project project) {
+        Package currentPackage = project.currentPackage();
+        DocumentId id = currentPackage.getDefaultModule().testDocumentIds().iterator().next();
+        return currentPackage.getDefaultModule().document(id);
     }
 
     public static Module getModule(Project project, String moduleName) {
@@ -80,6 +88,12 @@ public class SemanticAPITestUtils {
 
     public static SemanticModel getSemanticModelOf(String projectPath, String moduleName) {
         Project project = BCompileUtil.loadProject(projectPath);
+        Package currentPackage = project.currentPackage();
+        ModuleName modName = ModuleName.from(currentPackage.packageName(), moduleName);
+        return currentPackage.module(modName).getCompilation().getSemanticModel();
+    }
+
+    public static SemanticModel getSemanticModelOf(Project project, String moduleName) {
         Package currentPackage = project.currentPackage();
         ModuleName modName = ModuleName.from(currentPackage.packageName(), moduleName);
         return currentPackage.module(modName).getCompilation().getSemanticModel();
