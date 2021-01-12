@@ -106,7 +106,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
         if (moduleEntry.isEmpty()) {
             List<LSCompletionItem> completionItems = new ArrayList<>();
             // Import statement has not been added. Hence try resolving from the annotation cache
-            LSAnnotationCache.getInstance().getAnnotationsInModule(context, alias, kind)
+            LSAnnotationCache.getInstance(context.languageServercontext()).getAnnotationsInModule(context, alias, kind)
                     .forEach((key, value) -> value.forEach(annotation -> {
                         completionItems.add(AnnotationUtil.getAnnotationItem(annotation, context));
                     }));

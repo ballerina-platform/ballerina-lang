@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.Diagnostic;
@@ -174,7 +175,7 @@ class AIDataMapperCodeActionUtil {
         JsonArray schemas = new JsonArray();
         schemas.add(leftRecordJSON);
         schemas.add(rightRecordJSON);
-        return getMapping(schemas);
+        return getMapping(schemas, context);
     }
 
     /**
@@ -184,13 +185,13 @@ class AIDataMapperCodeActionUtil {
      * @return mapped function
      * @throws IOException throws if an error occurred in HTTP request
      */
-    private static String getMapping(JsonArray schemas) throws IOException {
+    private static String getMapping(JsonArray schemas, CodeActionContext context) throws IOException {
         int hashCode = schemas.hashCode();
         if (mappingCache.asMap().containsKey(hashCode)) {
             return mappingCache.asMap().get(hashCode);
         }
         try {
-            String mappedFunction = getMappingFromServer(schemas);
+            String mappedFunction = getMappingFromServer(schemas, context.languageServercontext());
             mappingCache.put(hashCode, mappedFunction);
             return mappedFunction;
         } catch (IOException e) {
@@ -229,12 +230,14 @@ class AIDataMapperCodeActionUtil {
      * @return - response data from the Data Mapper service
      * @throws IOException If an error occurs in the Data Mapper service
      */
-    private static String getMappingFromServer(JsonArray dataToSend) throws IOException {
+    private static String getMappingFromServer(JsonArray dataToSend,
+                                               LanguageServerContext serverContext) throws IOException {
         try {
             Map<String, String> headers = new HashMap<>();
             headers.put("Content-Type", "application/json; utf-8");
             headers.put("Accept", "application/json");
-            String url = LSClientConfigHolder.getInstance().getConfigAs(ClientExtendedConfigImpl.class).getDataMapper()
+            String url = LSClientConfigHolder.getInstance(serverContext)
+                    .getConfigAs(ClientExtendedConfigImpl.class).getDataMapper()
                     .getUrl() + "/map/1.0.0";
             HttpResponse response = HttpClientRequest.doPost(url, dataToSend.toString(), headers);
             int responseCode = response.getResponseCode();

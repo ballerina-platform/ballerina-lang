@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -46,8 +47,9 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     public CodeActionContextImpl(LSOperation operation,
                                  String fileUri,
                                  WorkspaceManager wsManager,
-                                 CodeActionParams params) {
-        super(operation, fileUri, wsManager);
+                                 CodeActionParams params,
+                                 LanguageServerContext serverContext) {
+        super(operation, fileUri, wsManager, serverContext);
         this.params = params;
     }
 
@@ -58,7 +60,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
             int col = params.getRange().getStart().getCharacter();
             this.cursorPosition = new Position(line, col);
         }
-        
+
         return this.cursorPosition;
     }
 
@@ -96,8 +98,9 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
 
         private final CodeActionParams params;
 
-        public CodeActionContextBuilder(CodeActionParams params) {
-            super(LSContextOperation.TXT_CODE_ACTION);
+        public CodeActionContextBuilder(CodeActionParams params,
+                                        LanguageServerContext serverContext) {
+            super(LSContextOperation.TXT_CODE_ACTION, serverContext);
             this.params = params;
         }
 
@@ -105,7 +108,8 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
             return new CodeActionContextImpl(this.operation,
                     this.fileUri,
                     this.wsManager,
-                    this.params);
+                    this.params,
+                    this.serverContext);
         }
 
         @Override
