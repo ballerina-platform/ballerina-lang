@@ -909,7 +909,7 @@ function testError_1() returns [boolean, boolean, boolean, boolean] {
 }
 
 function testError_2() returns [boolean, boolean, boolean] {
-    MyError e = MyError(ERR_REASON, message = "detail message");
+    MyError e = error MyError(ERR_REASON, message = "detail message");
     any|error f = e;
     return [f is MyError, f is error, f is MyErrorTwo];
 }

@@ -25,10 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Java class to store and get data from a json (for a test run).
- *
- * @deprecated Use {@link io.ballerina.projects.testsuite.TestSuite} instead.
  */
-@Deprecated
 public class TestSuite {
 
     private String orgName;

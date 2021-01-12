@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -1028,12 +1029,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (recordFieldDefaultValue) {
-            if (isBallerinaModule(env.enclPkg)) {
-                // TODO: 9/13/20 remove this error once stdlibs are migrated
-                dlog.warning(varRefExpr.pos, DiagnosticWarningCode.WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
-            } else {
-                dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
-            }
+            dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
         }
 
         if (objectFieldDefaultValue) {
@@ -1071,6 +1067,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
+            analyzeNode(positionalArg, env);
+        }
+        for (BLangNamedArgsExpression namedArgsExpression : errorConstructorExpr.namedArgs) {
+            analyzeNode(namedArgsExpression, env);
+        }
+    }
+
+    @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
         if (!actionInvocationExpr.async) {
             analyzeInvocation(actionInvocationExpr);
@@ -1098,15 +1104,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 dlog.error(typeInitExpr.pos,
                            DiagnosticErrorCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_ISOLATED_FUNCTION);
             } else if (isRecordFieldDefaultValue(env.enclType)) {
-                if (isBallerinaModule(env.enclPkg)) {
-                    // TODO: 9/16/20 remove this once stdlibs are migrated
-                    dlog.warning(typeInitExpr.pos,
-                            DiagnosticWarningCode.WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
-                } else {
-                    dlog.error(typeInitExpr.pos,
-                               DiagnosticErrorCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
-                }
-
+                dlog.error(typeInitExpr.pos,
+                           DiagnosticErrorCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
             } else if (isObjectFieldDefaultValueRequiringIsolation(env)) {
                 dlog.error(typeInitExpr.pos,
                            DiagnosticErrorCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_DEFAULT);
@@ -1619,7 +1618,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         BInvokableSymbol symbol = (BInvokableSymbol) invocationExpr.symbol;
-        if (symbol == null || symbol.getKind() == SymbolKind.ERROR_CONSTRUCTOR) {
+        if (symbol == null) {
             analyzeArgs(requiredArgs, restArgs);
             return;
         }
@@ -1661,13 +1660,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (recordFieldDefaultValue) {
-            if (isBallerinaModule(env.enclPkg)) {
-                // TODO: 9/13/20 remove this once stdlibs are migrated
-                dlog.warning(invocationExpr.pos,
-                        DiagnosticWarningCode.WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
-            } else {
-                dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
-            }
+            dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
         }
 
         if (objectFieldDefaultValueRequiringIsolation) {
@@ -2043,9 +2036,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isDefinitionReference(BSymbol symbol) {
-        return Symbols.isTagOn(symbol, SymTag.SERVICE) ||
-                Symbols.isTagOn(symbol, SymTag.TYPE_DEF) ||
-                Symbols.isTagOn(symbol, SymTag.FUNCTION);
+        return Symbols.isTagOn(symbol, SymTag.TYPE_DEF) || Symbols.isTagOn(symbol, SymTag.FUNCTION);
     }
 
     private boolean isIsolated(long flags) {

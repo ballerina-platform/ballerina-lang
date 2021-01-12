@@ -35,7 +35,7 @@ class FilterSupport {
             } else {
                 var value = nextVal?.value;
                 function(any|error) returns boolean func = internal:getFilterFunc(self.func);
-                var filtered = internal:invokeAsExternal(func, value);
+                var filtered = checkpanic internal:invokeAsExternal(func, value);
                 if (<boolean>filtered) {
                     return nextVal;
                 }

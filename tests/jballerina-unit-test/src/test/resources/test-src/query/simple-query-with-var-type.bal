@@ -206,7 +206,7 @@ function testMapWithArity() returns boolean {
 function testJSONArrayWithArity() returns boolean {
     json[] jdata = [{name: "bob", age: 10}, {name: "tom", age: 16}];
     var val = from var v in jdata
-                   select <string> v.name;
+                   select <string> checkpanic v.name;
     return val == ["bob", "tom"];
 }
 

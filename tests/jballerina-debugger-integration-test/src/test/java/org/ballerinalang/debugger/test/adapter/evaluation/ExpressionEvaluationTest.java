@@ -655,7 +655,16 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void typeTestEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // predefined types
+        debugTestRunner.assertExpression(context, String.format("%s is string", INT_VAR), "false", "boolean");
+        debugTestRunner.assertExpression(context, String.format("%s is int", INT_VAR), "true", "boolean");
+        debugTestRunner.assertExpression(context, String.format("%s is error", ERROR_VAR), "true", "boolean");
+        // union types
+        debugTestRunner.assertExpression(context, String.format("%s is int | string", STRING_VAR), "true", "boolean");
+        // other named types
+        debugTestRunner.assertExpression(context, String.format("%s is 'Person_\\\\\\ \\/\\<\\>\\:\\@\\[\\`\\{\\~" +
+                "\\u{2324}_ƮέŞŢ", OBJECT_VAR), "true", "boolean");
+        // Todo: add tests for full qualified type resolving, after adding support
     }
 
     @Override

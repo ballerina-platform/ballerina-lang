@@ -49,7 +49,7 @@ function getXML() returns xml[] {
 
 function testFromString() returns xml|error {
     string s = catalog.toString();
-    xml x = <xml> 'xml:fromString(s);
+    xml x = <xml> checkpanic 'xml:fromString(s);
     return x/<CD>/<TITLE>;
 }
 
@@ -59,7 +59,7 @@ function emptyConcatCall() returns xml {
 
 function testConcat() returns xml {
     xml x = xml `<hello>xml content</hello>`;
-    return 'xml:concat(x, <xml> testFromString(), "hello from String");
+    return 'xml:concat(x, <xml> checkpanic testFromString(), "hello from String");
 }
 
 function testIsElement() returns [boolean, boolean, boolean] {
@@ -258,21 +258,21 @@ function testAsyncFpArgsWithXmls() returns [int, xml] {
 
     int sum = 0;
     ((bookstore/*).elements()).forEach(function (xml x) {
-      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      int value = <int> checkpanic langint:fromString((x/<year>/*).toString()) ;
       future<int> f1 = start getRandomNumber(value);
       int result = wait f1;
       sum = sum + result;
     });
 
     var filter = ((bookstore/*).elements()).filter(function (xml x) returns boolean {
-      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      int value =   <int> checkpanic langint:fromString((x/<year>/*).toString()) ;
       future<int> f1 = start getRandomNumber(value);
       int result = wait f1;
       return result > 2000;
     });
 
     var filter2 = (filter).map(function (xml x) returns xml {
-      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      int value =   <int> checkpanic langint:fromString((x/<year>/*).toString()) ;
       future<int> f1 = start getRandomNumber(value);
       int result = wait f1;
       return xml `<year>${result}</year>`;

@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.commons.codeaction.spi;
 
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -43,7 +44,7 @@ public interface LSCodeActionProvider {
      *
      * @return True if code action is enabled, False otherwise
      */
-    default boolean isEnabled() {
+    default boolean isEnabled(LanguageServerContext serverContext) {
         return true;
     }
 

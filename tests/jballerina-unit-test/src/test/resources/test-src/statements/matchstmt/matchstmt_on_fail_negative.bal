@@ -54,7 +54,7 @@ function testIncompatibleErrorTypeOnFail(string | int | boolean a) returns strin
         }
         "fail" => {
              error err = error("custom error", message = "error value");
-             fail ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
+             fail error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
         }
     } on fail ErrorTypeB e {
         return "Value is 'error'";
@@ -83,7 +83,7 @@ function testUnreachableInOnFail(string | int | boolean a) returns string|error 
         }
         "fail" => {
              error err = error("custom error", message = "error value");
-             fail ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
+             fail error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
         }
     } on fail ErrorTypeB e {
         return "Value is 'error'";
@@ -95,11 +95,11 @@ function testUnreachableInOnFail(string | int | boolean a) returns string|error 
 
 function testOnFailErrorType(string | int | boolean a) returns string|error {
    var getTypeAError = function () returns int|ErrorTypeA{
-       ErrorTypeA errorA = ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
+       ErrorTypeA errorA = error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
        return errorA;
    };
    var getTypeBError = function () returns int|ErrorTypeB{
-       ErrorTypeB errorB = ErrorTypeB(TYPE_B_ERROR_REASON, message = "Error Type B");
+       ErrorTypeB errorB = error ErrorTypeB(TYPE_B_ERROR_REASON, message = "Error Type B");
        return errorB;
    };
     match a {
