@@ -392,9 +392,8 @@ public class JvmPackageGen {
 
 
         Set<PackageID> moduleImports = new LinkedHashSet<>();
-
         addBuiltinImports(module.packageID, moduleImports);
-
+        boolean serviceEPAvailable = module.isListenerAvailable;
         for (BIRNode.BIRImportModule importModule : module.importModules) {
 
             BPackageSymbol pkgSymbol = packageCache.getSymbol(
@@ -403,6 +402,7 @@ public class JvmPackageGen {
             if (dlog.errorCount() > 0) {
                 return new CompiledJarFile(Collections.emptyMap());
             }
+            serviceEPAvailable = serviceEPAvailable || listenerDeclarationFound(pkgSymbol);
         }
         String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, isEntry);
@@ -439,7 +439,8 @@ public class JvmPackageGen {
         frameClassGen.generateFrameClasses(module, jarEntries);
 
         // generate module classes
-        generateModuleClasses(module, jarEntries, moduleInitClass, jvmClassMapping, flattenedModuleImports);
+        generateModuleClasses(module, jarEntries, moduleInitClass, jvmClassMapping, flattenedModuleImports,
+                              serviceEPAvailable);
 
         // clear class name mappings
         clearPackageGenInfo();
@@ -450,13 +451,13 @@ public class JvmPackageGen {
     }
 
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries, String moduleInitClass,
-                                       Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports) {
+                                       Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
+                                       boolean serviceEPAvailable) {
         jvmClassMapping.entrySet().parallelStream().forEach(entry -> {
             String moduleClass = entry.getKey();
             JavaClass javaClass = entry.getValue();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
-            boolean serviceEPAvailable = false;
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
             if (isInitClass) {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
@@ -478,7 +479,6 @@ public class JvmPackageGen {
                             .cleanupPathSeparators(mainFunc.pos.lineRange().filePath()));
                 }
 
-                serviceEPAvailable = listenerDeclarationFound(module.globalVars);
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
                                                  asyncDataCollector);
@@ -515,15 +515,6 @@ public class JvmPackageGen {
             byte[] bytes = getBytes(cw, module);
             jarEntries.put(moduleClass + ".class", bytes);
         });
-    }
-
-    private boolean listenerDeclarationFound(List<BIRGlobalVariableDcl> variableDcls) {
-        for (BIRGlobalVariableDcl globalVariableDcl : variableDcls) {
-            if (Symbols.isFlagOn(globalVariableDcl.flags, Flags.LISTENER)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private List<PackageID> flattenModuleImports(Set<PackageID> dependentModuleArray) {
@@ -810,5 +801,19 @@ public class JvmPackageGen {
         if (!dependentModules.containsKey(pkgName)) {
             dependentModules.put(pkgName, moduleId);
         }
+    }
+
+    private boolean listenerDeclarationFound(BPackageSymbol packageSymbol) {
+        if (packageSymbol.bir != null && packageSymbol.bir.isListenerAvailable) {
+            return true;
+        } else {
+            for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
+                if (importPkgSymbol == null) {
+                    continue;
+                }
+                return listenerDeclarationFound(importPkgSymbol);
+            }
+        }
+        return false;
     }
 }
