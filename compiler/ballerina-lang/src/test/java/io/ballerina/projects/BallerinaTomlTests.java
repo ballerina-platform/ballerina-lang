@@ -179,4 +179,13 @@ public class BallerinaTomlTests {
             }
         }
     }
+
+    @Test
+    public void testBallerinaTomlWithPlatformDependencyAsInlineTable() {
+        BallerinaToml ballerinaToml = BallerinaToml.from(BAL_TOML_REPO.resolve("inline-table.toml"));
+        DiagnosticResult diagnostics = ballerinaToml.diagnostics();
+        Assert.assertTrue(diagnostics.hasErrors());
+        Assert.assertEquals(diagnostics.errors().iterator().next().message(),
+                            "invalid Ballerina.toml file: 'dependency' under 'platform' should be a table array");
+    }
 }

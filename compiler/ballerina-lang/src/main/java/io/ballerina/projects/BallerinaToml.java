@@ -92,10 +92,24 @@ public class BallerinaToml extends TomlDocument {
 
     public String getErrorMessage() {
         StringBuilder message = new StringBuilder();
+        message.append("Ballerina.toml contains errors\n");
         for (Diagnostic diagnostic : diagnostics().errors()) {
-            message.append(diagnostic.message());
+            message.append(convertDiagnosticToString(diagnostic));
+            message.append("\n");
         }
         return message.toString();
+    }
+
+    private String convertDiagnosticToString(Diagnostic diagnostic) {
+        LineRange lineRange = diagnostic.location().lineRange();
+
+        LineRange oneBasedLineRange = LineRange.from(
+                lineRange.filePath(),
+                LinePosition.from(lineRange.startLine().line(), lineRange.startLine().offset() + 1),
+                LinePosition.from(lineRange.endLine().line(), lineRange.endLine().offset() + 1));
+
+        return diagnostic.diagnosticInfo().severity().toString() + " [" +
+                oneBasedLineRange.filePath() + ":" + oneBasedLineRange + "] " + diagnostic.message();
     }
 
     public PackageManifest packageManifest() {
