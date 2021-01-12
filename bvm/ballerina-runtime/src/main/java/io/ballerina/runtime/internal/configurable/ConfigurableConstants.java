@@ -26,7 +26,10 @@ package io.ballerina.runtime.internal.configurable;
 public class ConfigurableConstants {
     public static final String CONFIG_FILE_NAME = "configuration.toml";
     public static final String INVALID_TOML_FILE = "Invalid `" + CONFIG_FILE_NAME + "` file : ";
-    public static final String INVALID_VARIABLE_TYPE = "invalid type found for variable '%s', expected type is '%s'";
+    public static final String INVALID_VARIABLE_TYPE = "invalid type found for variable '%s', expected type is '%s'" +
+            ", found '%s'";
+    public static final String CONFIGURATION_NOT_SUPPORTED =
+            "Configurable feature is yet to be supported for type '%s'";
     public static final String DEFAULT_MODULE = ".";
     public static final String SUBMODULE_DELIMITER = ".";
 

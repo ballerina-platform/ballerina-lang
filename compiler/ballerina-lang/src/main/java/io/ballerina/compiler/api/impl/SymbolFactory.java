@@ -114,9 +114,6 @@ public class SymbolFactory {
                 }
                 return createFunctionSymbol((BInvokableSymbol) symbol, name);
             }
-            if (symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
-                return createTypeDefinition(symbol.type.tsymbol, name);
-            }
             if (symbol instanceof BConstantSymbol) {
                 return createConstantSymbol((BConstantSymbol) symbol, name);
             }
@@ -248,6 +245,9 @@ public class SymbolFactory {
         }
         if (isFlagOn(symbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+        if (isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+            symbolBuilder.withQualifier(Qualifier.CONFIGURABLE);
         }
 
         for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {

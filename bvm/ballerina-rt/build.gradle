@@ -82,8 +82,9 @@ dependencies {
     // config
     dist 'org.slf4j:slf4j-jdk14:1.7.22'
     dist 'org.slf4j:slf4j-api:1.7.22'
-    dist 'com.moandjiezana.toml:toml4j:0.7.2'
     dist 'org.apache.commons:commons-lang3:3.8.1'
+    dist 'org.apache.commons:commons-text:1.9'
+    dist 'com.moandjiezana.toml:toml4j:0.7.2'
     dist 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
     dist 'org.codehaus.woodstox:stax2-api:4.2'
 
@@ -129,6 +130,8 @@ dependencies {
     dist project(':ballerina-core')
     dist project(':ballerina-config')
     dist project(':ballerina-logging')
+    dist project(':toml-parser')
+    dist project(':ballerina-tools-api')
 
 }
 

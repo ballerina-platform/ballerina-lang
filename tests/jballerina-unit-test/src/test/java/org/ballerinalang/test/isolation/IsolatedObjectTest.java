@@ -180,6 +180,11 @@ public class IsolatedObjectTest {
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 471, 59);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 471, 112);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 471, 115);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 477, 5);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 478, 5);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 493, 40);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 505, 6);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 505, 6);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

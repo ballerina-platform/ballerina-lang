@@ -17,7 +17,6 @@
 
 apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
-
 configurations {
     dist {
         transitive false
@@ -30,6 +29,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-parser')
 //    implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-lang:java')
     implementation 'org.testng:testng'
