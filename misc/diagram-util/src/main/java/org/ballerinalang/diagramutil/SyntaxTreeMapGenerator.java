@@ -68,7 +68,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private Document srcFile;
     private List<JsonObject> visibleEpsForEachBlock;
 
-    public SyntaxTreeMapGenerator(String fileName, SemanticModel semanticModel, Document srcFile) {
+    public SyntaxTreeMapGenerator(String fileName, SemanticModel semanticModel) {
         this.semanticModel = semanticModel;
         this.fileName = fileName;
         this.visibleEpsForEachBlock = new ArrayList<>();

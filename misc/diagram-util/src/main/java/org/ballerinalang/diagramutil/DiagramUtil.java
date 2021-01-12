@@ -58,7 +58,7 @@ public class DiagramUtil {
         JsonElement syntaxTreeJson;
         try {
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(
-                    classDefinitionNode.syntaxTree().filePath(), semanticModel, );
+                    classDefinitionNode.syntaxTree().filePath(), semanticModel);
             syntaxTreeJson = mapGenerator.transform(classDefinitionNode);
         } catch (NullPointerException e) {
             syntaxTreeJson = new JsonObject();
@@ -71,8 +71,8 @@ public class DiagramUtil {
                                                           SemanticModel semanticModel) {
         JsonElement syntaxTreeJson;
         try {
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(
-                    typeDefinitionNode.syntaxTree().filePath(), semanticModel, );
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(typeDefinitionNode.syntaxTree().filePath(),
+                                                                             semanticModel);
             syntaxTreeJson = mapGenerator.transform(typeDefinitionNode);
         } catch (NullPointerException e) {
             syntaxTreeJson = new JsonObject();

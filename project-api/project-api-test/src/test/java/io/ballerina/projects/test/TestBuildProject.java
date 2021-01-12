@@ -739,12 +739,25 @@ public class TestBuildProject {
         // 6) Get semantic model
         SemanticModel semanticModel = compilation.getSemanticModel();
 
+        // 7) Get the document
+        Document srcFile = null;
+        for (Document doc : defaultModule.documents()) {
+            if (doc.name().equals("main.bal")) {
+                srcFile = doc;
+                break;
+            }
+        }
+
+        if (srcFile == null) {
+            Assert.fail("Source file 'main.bal' not found");
+        }
+
         // Test module level symbols
         List<Symbol> symbols = semanticModel.moduleLevelSymbols();
         Assert.assertEquals(symbols.size(), 5);
 
         // Test symbol
-        Optional<Symbol> symbol = semanticModel.symbol("main.bal", LinePosition.from(5, 10));
+        Optional<Symbol> symbol = semanticModel.symbol(srcFile, LinePosition.from(5, 10));
         symbol.ifPresent(value -> assertEquals(value.name(), "runServices"));
     }
 

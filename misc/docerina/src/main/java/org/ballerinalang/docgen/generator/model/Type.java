@@ -126,9 +126,7 @@ public class Type {
             type.category = "reference";
             Optional<Symbol> symbol = null;
             try {
-                symbol = semanticModel.symbol(fileName,
-                        LinePosition.from(node.lineRange().startLine().line(),
-                                node.lineRange().startLine().offset()));
+                symbol = semanticModel.symbol(node);
             } catch (NullPointerException nullException) {
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     log.error("Symbol find threw null pointer in " + fileName + " : Line range:" + node.lineRange());
@@ -144,10 +142,7 @@ public class Type {
             type.name = qualifiedNameReferenceNode.identifier().text();
             Optional<Symbol> symbol = null;
             try {
-                    symbol = semanticModel.symbol(fileName,
-                            LinePosition.from(qualifiedNameReferenceNode.identifier().lineRange().startLine().line(),
-                                    qualifiedNameReferenceNode.identifier().lineRange().startLine().offset()));
-
+                symbol = semanticModel.symbol(node);
             } catch (NullPointerException nullException) {
                 System.out.print(Arrays.toString(nullException.getStackTrace()));
             }
