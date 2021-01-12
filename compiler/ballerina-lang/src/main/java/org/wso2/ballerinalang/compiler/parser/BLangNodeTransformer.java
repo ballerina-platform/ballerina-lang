@@ -574,8 +574,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case ERROR_VARIABLE:
                 unsupportedBP = "error";
                 break;
-            default:
-                break;
         }
 
         if (unsupportedBP != null) {

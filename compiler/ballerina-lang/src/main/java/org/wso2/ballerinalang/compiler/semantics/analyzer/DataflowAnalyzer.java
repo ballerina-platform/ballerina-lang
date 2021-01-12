@@ -1681,9 +1681,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.currDependentSymbol.pop();
             return;
         }
-        bLangTupleVariable.memberVariables.forEach(member -> {
+        for (BLangVariable member: bLangTupleVariable.memberVariables) {
+            if (member.getKind() == NodeKind.VARIABLE) {
+                addUninitializedVar(member);
+                continue;
+            }
             analyzeNode(member, env);
-        });
+        }
     }
 
     @Override

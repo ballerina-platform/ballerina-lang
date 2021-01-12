@@ -107,4 +107,14 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'x' is not initialized", 24, 62);
         Assert.assertEquals(result.getErrorCount(), i);
     }
+
+    @Test(description = "Test uninitialized local tuple variable")
+    public void testUninitializedLocalTupleVar() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/dataflow/analysis/uninitialized_local_tuple_variable.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 19, 13);
+        BAssertUtil.validateError(result, i++, "variable 'b' is not initialized", 20, 13);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
 }
