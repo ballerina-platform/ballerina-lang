@@ -4651,7 +4651,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         bLiteral.pos = pos;
         bLiteral.type = symTable.stringType;
-        bLiteral.type.tag = TypeTags.STRING;
         bLiteral.value = "";
         bLiteral.originalValue = "";
         return bLiteral;
