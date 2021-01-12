@@ -120,8 +120,8 @@ public function testIntersectionAsFieldInAnonymousRecord() {
     assertEquality(errRec.err, err);
 }
 
-function getAnonymousRecord(IntersectionErrorThree err) returns record{IntersectionErrorThree err;} {
-    RecordWithIntersectionReference errRec = {err};
+function getAnonymousRecord(IntersectionErrorThree err) returns record {IntersectionErrorThree err;} {
+    record {IntersectionErrorThree err;} errRec = {err};
     return errRec;
 }
 

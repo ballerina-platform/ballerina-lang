@@ -113,6 +113,7 @@ public class IntersectionTypeTest {
         validateError(result, index++,
                       "incompatible types: expected 'DistinctErrorIntersection', found 'IntersectionErrorFour'", 57,
                       38);
+        validateError(result, index++, "incompatible types: 'Y' is not a record", 64, 6);
 
         assertEquals(result.getErrorCount(), index);
     }
