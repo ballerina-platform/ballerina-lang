@@ -703,7 +703,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(invocationExpr.annAttachments);
         find(invocationExpr.restArgs);
 
-        if (!invocationExpr.pkgAlias.value.isEmpty()) {
+        if (!invocationExpr.pkgAlias.value.isEmpty() && invocationExpr.symbol != null) {
             addIfSameSymbol(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos);
         }
         addIfSameSymbol(invocationExpr.symbol, invocationExpr.name.pos);

@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.ReferencesContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -105,6 +106,26 @@ public class ContextBuilder {
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCapabilities(capabilities)
+                .withPosition(position)
+                .build();
+    }
+
+    /**
+     * Build the References context.
+     *
+     * @param uri              file uri
+     * @param workspaceManager workspace manager instance
+     * @param serverContext    language server context
+     * @param position         cursor position
+     * @return {@link SignatureContext} generated signature context
+     */
+    public static ReferencesContext buildReferencesContext(String uri,
+                                                          WorkspaceManager workspaceManager,
+                                                          LanguageServerContext serverContext,
+                                                          Position position) {
+        return new ReferencesContextImpl.ReferencesContextBuilder(serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
                 .withPosition(position)
                 .build();
     }
