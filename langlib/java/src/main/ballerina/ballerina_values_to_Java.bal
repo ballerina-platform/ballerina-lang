@@ -97,7 +97,8 @@ public isolated function getClass(string name) returns handle | error = @Method 
 # + return - A string resulting from the conversion
 isolated function getStringValue(int v) returns string = @Method {
     'class: "org.ballerinalang.langlib.java.ToString",
-    name: "toString"
+    name: "toString",
+    paramTypes: ["java.lang.Long"]
 } external;
 
 # Returns an `JObject|error`, which is obtained after casting the provided `JObject` instance
