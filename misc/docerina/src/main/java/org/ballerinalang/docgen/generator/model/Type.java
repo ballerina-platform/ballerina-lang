@@ -248,19 +248,15 @@ public class Type {
     }
 
     public static void resolveSymbol(Type type, Symbol symbol) {
+        type.moduleName = symbol.moduleID().moduleName();
+        type.orgName = symbol.moduleID().orgName();
+        type.version = symbol.moduleID().version();
         if (symbol instanceof TypeReferenceTypeSymbol) {
             TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) symbol;
-            type.moduleName = typeSymbol.moduleID().moduleName();
-            type.orgName = typeSymbol.moduleID().orgName();
-            type.version = typeSymbol.moduleID().version();
             if (typeSymbol.typeDescriptor() != null) {
                 type.category = getTypeCategory(typeSymbol.typeDescriptor());
             }
         } else if (symbol instanceof ConstantSymbol) {
-            ConstantSymbol constantSymbol = (ConstantSymbol) symbol;
-            type.moduleName = constantSymbol.moduleID().moduleName();
-            type.orgName = constantSymbol.moduleID().orgName();
-            type.version = constantSymbol.moduleID().version();
             type.category = "constants";
         } else if (symbol instanceof VariableSymbol) {
             VariableSymbol variableSymbol = (VariableSymbol) symbol;
