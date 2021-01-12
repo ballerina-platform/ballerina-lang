@@ -576,6 +576,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case WILDCARD_BINDING_PATTERN:
                 unsupportedBP = "wildcard";
                 break;
+            case LIST_BINDING_PATTERN:
+                unsupportedBP = "list";
+                break;
         }
 
         if (unsupportedBP != null) {
