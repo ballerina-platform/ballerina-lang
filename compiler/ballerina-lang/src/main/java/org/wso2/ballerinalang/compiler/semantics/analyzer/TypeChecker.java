@@ -106,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessibleExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -2462,11 +2463,14 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        // First analyze the variable reference expression.
-        ((BLangVariableReference) fieldAccessExpr.expr).lhsVar = fieldAccessExpr.lhsVar;
-        ((BLangVariableReference) fieldAccessExpr.expr).compoundAssignmentLhsVar =
-                fieldAccessExpr.compoundAssignmentLhsVar;
-        BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
+        // First analyze the accessible expression.
+        BLangExpression containerExpression = fieldAccessExpr.expr;
+        if (containerExpression instanceof BLangAccessibleExpression) {
+            ((BLangAccessibleExpression) containerExpression).lhsVar = fieldAccessExpr.lhsVar;
+            ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
+                    fieldAccessExpr.compoundAssignmentLhsVar;
+        }
+        BType varRefType = getTypeOfExprInFieldAccess(containerExpression);
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
         if (fieldAccessExpr instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess
@@ -2588,9 +2592,11 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = symTable.semanticError;
             return;
         }
-        ((BLangVariableReference) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
-        ((BLangVariableReference) containerExpression).compoundAssignmentLhsVar =
-                indexBasedAccessExpr.compoundAssignmentLhsVar;
+        if (containerExpression instanceof BLangAccessibleExpression) {
+            ((BLangAccessibleExpression) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
+            ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
+                    indexBasedAccessExpr.compoundAssignmentLhsVar;
+        }
         checkExpr(containerExpression, this.env, symTable.noType);
 
         if (indexBasedAccessExpr.indexExpr.getKind() == NodeKind.TABLE_MULTI_KEY &&
@@ -5235,7 +5241,7 @@ public class TypeChecker extends BLangNodeVisitor {
     // - foo->bar();
     // - start foo.bar(); or start foo->bar()
     private void checkActionInvocation(BLangInvocation.BLangActionInvocation aInv, BObjectType expType) {
-        BLangVariableReference varRef = (BLangVariableReference) aInv.expr;
+        BLangAccessExpression varRef = (BLangAccessExpression) aInv.expr;
 
         if (((varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) && !aInv.async) {
             dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION, varRef.type);
@@ -5981,7 +5987,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return BUnionType.create(null, actualType, symTable.nilType);
     }
 
-    private BType checkRecordRequiredFieldAccess(BLangVariableReference varReferExpr, Name fieldName,
+    private BType checkRecordRequiredFieldAccess(BLangAccessExpression varReferExpr, Name fieldName,
                                                  BRecordType recordType) {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
 
@@ -5994,7 +6000,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return fieldSymbol.type;
     }
 
-    private BType checkRecordOptionalFieldAccess(BLangVariableReference varReferExpr, Name fieldName,
+    private BType checkRecordOptionalFieldAccess(BLangAccessExpression varReferExpr, Name fieldName,
                                                  BRecordType recordType) {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
 
@@ -6007,7 +6013,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return fieldSymbol.type;
     }
 
-    private BType checkRecordRestFieldAccess(BLangVariableReference varReferExpr, Name fieldName,
+    private BType checkRecordRestFieldAccess(BLangAccessExpression varReferExpr, Name fieldName,
                                              BRecordType recordType) {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
 

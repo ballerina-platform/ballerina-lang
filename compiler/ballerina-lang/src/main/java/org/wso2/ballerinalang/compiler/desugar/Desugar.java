@@ -2367,7 +2367,7 @@ public class Desugar extends BLangNodeVisitor {
      * This method creates a assignment statement and assigns and array expression based on the given indexExpr.
      *
      */
-    private void createSimpleVarRefAssignmentStmt(BLangVariableReference simpleVarRef, BLangBlockStmt parentBlockStmt,
+    private void createSimpleVarRefAssignmentStmt(BLangExpression simpleVarRef, BLangBlockStmt parentBlockStmt,
                                                   BLangExpression indexExpr, BVarSymbol tupleVarSymbol,
                                                   BLangIndexBasedAccess parentArrayAccessExpr) {
 
@@ -3061,7 +3061,7 @@ public class Desugar extends BLangNodeVisitor {
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
 
-        BLangVariableReference varRef = compoundAssignment.varRef;
+        BLangAccessExpression varRef = compoundAssignment.varRef;
         if (compoundAssignment.varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
             // Create a new varRef if this is a simpleVarRef. Because this can be a
             // narrowed type var. In that case, lhs and rhs must be visited in two
@@ -3099,11 +3099,11 @@ public class Desugar extends BLangNodeVisitor {
             varRefs.add(0, tempVarRef);
             types.add(0, varRef.type);
 
-            varRef = (BLangVariableReference) ((BLangIndexBasedAccess) varRef).expr;
+            varRef = (BLangAccessExpression) ((BLangIndexBasedAccess) varRef).expr;
         } while (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR);
 
         // Create the index access expression. ex: c[$temp3$][$temp2$][$temp1$]
-        BLangVariableReference var = varRef;
+        BLangExpression var = varRef;
         for (int ref = 0; ref < varRefs.size(); ref++) {
             var = ASTBuilderUtil.createIndexAccessExpr(var, varRefs.get(ref));
             var.type = types.get(ref);
@@ -6490,7 +6490,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
-        BLangVariableReference expr;
+        BLangAccessExpression expr;
         if (iExpr.expr == null) {
             expr = new BLangSimpleVarRef();
         } else {
@@ -8090,7 +8090,7 @@ public class Desugar extends BLangNodeVisitor {
         return nillTypeNode;
     }
 
-    private BLangVariableReference cloneExpression(BLangExpression expr) {
+    private BLangAccessExpression cloneExpression(BLangExpression expr) {
         switch (expr.getKind()) {
             case SIMPLE_VARIABLE_REF:
                 return ASTBuilderUtil.createVariableRef(expr.pos, ((BLangSimpleVarRef) expr).symbol);
@@ -8108,7 +8108,7 @@ public class Desugar extends BLangNodeVisitor {
             return originalAccessExpr;
         }
 
-        BLangVariableReference varRef;
+        BLangExpression varRef;
         NodeKind kind = originalAccessExpr.expr.getKind();
         if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR || kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
                 kind == NodeKind.INVOCATION) {

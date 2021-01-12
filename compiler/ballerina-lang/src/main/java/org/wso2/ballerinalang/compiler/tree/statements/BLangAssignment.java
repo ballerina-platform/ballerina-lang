@@ -73,7 +73,7 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
 
     @Override
     public void setVariable(VariableReferenceNode variableReferenceNode) {
-        this.varRef = (BLangVariableReference) variableReferenceNode;
+        this.varRef = (BLangExpression) variableReferenceNode;
     }
 
     @Override
