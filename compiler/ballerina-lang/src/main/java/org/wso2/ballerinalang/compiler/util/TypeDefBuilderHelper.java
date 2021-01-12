@@ -220,12 +220,12 @@ public class TypeDefBuilderHelper {
         return classDefNode;
     }
 
-    public static BLangErrorType createBLangErrorType(Location pos, BType detailType, String name) {
+    public static BLangErrorType createBLangErrorType(Location pos, BType detailType) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         BLangUserDefinedType userDefinedTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         userDefinedTypeNode.pos = pos;
         userDefinedTypeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        userDefinedTypeNode.typeName = createIdentifier(pos, name);
+        userDefinedTypeNode.typeName = createIdentifier(pos, detailType.tsymbol.name.value);
         userDefinedTypeNode.type = detailType;
         errorType.detailType = userDefinedTypeNode;
 

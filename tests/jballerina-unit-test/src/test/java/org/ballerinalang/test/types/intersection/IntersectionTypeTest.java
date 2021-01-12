@@ -90,6 +90,16 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testIntersectionAsFieldInRecord() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionAsFieldInRecord");
+    }
+
+    @Test
+    public void testIntersectionAsFieldInAnonymousRecord() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionAsFieldInAnonymousRecord");
+    }
+
+    @Test
     public void testErrorIntersectionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/intersection/error_intersection_type_negative.bal");
 
