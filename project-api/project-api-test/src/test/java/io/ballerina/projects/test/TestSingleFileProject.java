@@ -31,6 +31,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
@@ -38,6 +39,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
+import static io.ballerina.projects.test.TestUtils.isWindows;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
 
 /**
@@ -193,10 +195,17 @@ public class TestSingleFileProject {
 
     @Test (description = "tests loading a single file with no read permission")
     public void testSingleFileWithNoReadPermission() {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
         Path projectPath = RESOURCE_DIRECTORY.resolve("single_file_no_permission").resolve("main.bal");
 
         // 1) Remove write permission
-        projectPath.toFile().setReadable(false, false);
+        boolean readable = projectPath.toFile().setReadable(false, false);
+        if (!readable) {
+            Assert.fail("could not remove read permission of file");
+        }
 
         // 2) Initialize the project instance
         SingleFileProject project = null;
@@ -211,12 +220,22 @@ public class TestSingleFileProject {
 
     @Test (description = "tests compiling a single file with no write permission")
     public void testSingleFileWithNoWritePermission() {
+        // Skip test in windows due to file permission setting issue
+        if (isWindows()) {
+            throw new SkipException("Skipping tests on Windows");
+        }
         Path projectParent = RESOURCE_DIRECTORY.resolve("single_file_no_permission");
         Path projectPath = RESOURCE_DIRECTORY.resolve("single_file_no_permission").resolve("main.bal");
 
         // 1) Remove write permission
-        projectParent.toFile().setWritable(false, false);
-        projectPath.toFile().setWritable(false, false);
+        boolean writable = projectParent.toFile().setWritable(false, true);
+        if (!writable) {
+            Assert.fail("could not remove read permission of project parent");
+        }
+        writable = projectPath.toFile().setWritable(false, true);
+        if (!writable) {
+            Assert.fail("could not remove read permission of file");
+        }
 
         // 2) Initialize the project instance
         SingleFileProject project = null;

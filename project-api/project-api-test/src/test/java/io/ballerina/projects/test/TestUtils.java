@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -33,6 +34,8 @@ import java.util.zip.ZipInputStream;
  * @since 2.0.0
  */
 public class TestUtils {
+
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
     static void unzip(String fileZipPath, String destinationDirectory) throws IOException {
         byte[] buffer = new byte[1024 * 4];
@@ -86,8 +89,12 @@ public class TestUtils {
     }
 
     static void resetPermissions(Path projectPath) {
-        projectPath.toFile().setExecutable(true, false);
-        projectPath.toFile().setWritable(true, false);
-        projectPath.toFile().setReadable(true, false);
+        projectPath.toFile().setExecutable(true, true);
+        projectPath.toFile().setWritable(true, true);
+        projectPath.toFile().setReadable(true, true);
+    }
+
+    public static boolean isWindows() {
+        return (OS.contains("win"));
     }
 }
