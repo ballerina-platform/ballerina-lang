@@ -45,7 +45,7 @@ public class ShellCommand implements BLauncherCmd {
     private boolean forceDumb = false;
 
     @CommandLine.Option(names = {"-t", "--time-out"}, description = "Timeout to use for tree parsing.")
-    private long timeOut = 500;
+    private long timeOut = 100;
 
     public ShellCommand() {
         errStream = System.err;

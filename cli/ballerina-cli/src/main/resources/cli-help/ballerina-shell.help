@@ -18,7 +18,7 @@ OPTIONS
        -f
            Force dumb terminal mode. Not dumb by default.
        -t <time-out-duration>
-           Change tree parsing timeout. Default is 500ms. Value should be
+           Change tree parsing timeout. Default is 100ms. Value should be
            given in milliseconds. Increase in slow devices.
 
 
