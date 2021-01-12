@@ -4617,10 +4617,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangLiteral createEmptyStringLiteral(Location pos) {
         BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        int typeTag = TypeTags.STRING;
         bLiteral.pos = pos;
-        bLiteral.type = symTable.getTypeFromTag(typeTag);
-        bLiteral.type.tag = typeTag;
+        bLiteral.type = symTable.stringType;
+        bLiteral.type.tag = TypeTags.STRING;
         bLiteral.value = "";
         bLiteral.originalValue = "";
         return bLiteral;
