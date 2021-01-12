@@ -22,7 +22,6 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.engine.RuntimeStaticMethod;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -88,8 +87,7 @@ public class VMUtils {
      * @return {@link io.ballerina.runtime.api.values.BString} instance
      */
     private static Value getAsBString(SuspendedContext context, String val) throws EvaluationException {
-        List<String> argTypeNames = new ArrayList<>();
-        argTypeNames.add(JAVA_STRING_CLASS);
+        List<String> argTypeNames = Collections.singletonList(JAVA_STRING_CLASS);
         RuntimeStaticMethod fromStringMethod = getRuntimeMethod(context, B_STRING_UTILS_CLASS, FROM_STRING_METHOD,
                 argTypeNames);
         fromStringMethod.setArgValues(Collections.singletonList(context.getAttachedVm().mirrorOf(val)));

@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.workspace;
 
 import io.ballerina.projects.Document;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
@@ -42,7 +43,8 @@ import java.util.Optional;
 public class TestWorkspaceManager {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/project");
     private final String dummyContent = "function foo() {\n}";
-    private final BallerinaWorkspaceManager workspaceManager = new BallerinaWorkspaceManager();
+    private final BallerinaWorkspaceManager workspaceManager
+            = BallerinaWorkspaceManager.getInstance(new LanguageServerContextImpl());
 
     @Test(dataProvider = "workspace-data-provider")
     public void testOpenDocument(Path filePath) throws IOException {

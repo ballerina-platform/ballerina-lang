@@ -122,7 +122,13 @@
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "value": "person"
+                      "value": "person",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },

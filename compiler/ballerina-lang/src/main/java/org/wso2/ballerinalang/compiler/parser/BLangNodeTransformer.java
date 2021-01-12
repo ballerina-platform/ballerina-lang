@@ -81,6 +81,7 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
@@ -574,6 +575,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 break;
             case WILDCARD_BINDING_PATTERN:
                 unsupportedBP = "wildcard";
+                break;
+            case LIST_BINDING_PATTERN:
+                unsupportedBP = "list";
                 break;
         }
 
@@ -2959,15 +2963,24 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(RequiredParameterNode requiredParameter) {
         BLangSimpleVariable simpleVar = createSimpleVar(requiredParameter.paramName(),
                                                         requiredParameter.typeName(), requiredParameter.annotations());
-
-        if (requiredParameter.kind() == SyntaxKind.INCLUDED_RECORD_PARAM) {
-            simpleVar.flagSet.add(INCLUDED);
-        }
         simpleVar.pos = getPosition(requiredParameter);
         if (requiredParameter.paramName().isPresent()) {
             simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
         }
         simpleVar.pos = trimLeft(simpleVar.pos, getPosition(requiredParameter.typeName()));
+        return simpleVar;
+    }
+
+    @Override
+    public BLangNode transform(IncludedRecordParameterNode includedRecordParameterNode) {
+        BLangSimpleVariable simpleVar = createSimpleVar(includedRecordParameterNode.paramName(),
+                includedRecordParameterNode.typeName(), includedRecordParameterNode.annotations());
+        simpleVar.flagSet.add(INCLUDED);
+        simpleVar.pos = getPosition(includedRecordParameterNode);
+        if (includedRecordParameterNode.paramName().isPresent()) {
+            simpleVar.name.pos = getPosition(includedRecordParameterNode.paramName().get());
+        }
+        simpleVar.pos = trimLeft(simpleVar.pos, getPosition(includedRecordParameterNode.typeName()));
         return simpleVar;
     }
 

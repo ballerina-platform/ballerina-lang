@@ -310,7 +310,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.REQUIRED_PARAM };
 
     private static final ParserRuleContext[] PARAMETER_START =
-            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.TYPE_DESC_IN_PARAM };
+            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.PARAMETER_START_WITHOUT_ANNOTATION };
+
+    private static final ParserRuleContext[] PARAMETER_START_WITHOUT_ANNOTATION =
+            { ParserRuleContext.TYPE_DESC_IN_PARAM, ParserRuleContext.ASTERISK };
 
     private static final ParserRuleContext[] REQUIRED_PARAM_NAME_RHS =
             { ParserRuleContext.PARAM_END, ParserRuleContext.ASSIGN_OP };
@@ -746,6 +749,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FIRST_MAPPING_FIELD:
             case SPECIFIC_FIELD_RHS:
             case PARAMETER_START:
+            case PARAMETER_START_WITHOUT_ANNOTATION:
             case STMT_START_WITH_EXPR_RHS:
             case EXPR_STMT_RHS:
             case RECORD_FIELD_OR_RECORD_END:
@@ -1359,6 +1363,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CONST_DECL_RHS:
             case ARRAY_LENGTH:
             case PARAMETER_START:
+            case PARAMETER_START_WITHOUT_ANNOTATION:
             case STMT_START_WITH_EXPR_RHS:
             case EXPR_STMT_RHS:
             case EXPRESSION_STATEMENT_START:
@@ -1659,6 +1664,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case PARAMETER_START:
                 alternativeRules = PARAMETER_START;
+                break;
+            case PARAMETER_START_WITHOUT_ANNOTATION:
+                alternativeRules = PARAMETER_START_WITHOUT_ANNOTATION;
                 break;
             case ANNOT_DECL_OPTIONAL_TYPE:
                 alternativeRules = ANNOT_DECL_OPTIONAL_TYPE;
@@ -2497,13 +2505,17 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.RECORD_KEYWORD;
             case ASTERISK:
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
-                    return ParserRuleContext.CLOSE_BRACKET;
-                } else if (parentCtx == ParserRuleContext.XML_ATOMIC_NAME_PATTERN) {
-                    endContext();
-                    return ParserRuleContext.XML_NAME_PATTERN_RHS;
+                switch (parentCtx) {
+                    case ARRAY_TYPE_DESCRIPTOR:
+                        return ParserRuleContext.CLOSE_BRACKET;
+                    case XML_ATOMIC_NAME_PATTERN:
+                        endContext();
+                        return ParserRuleContext.XML_NAME_PATTERN_RHS;
+                    case REQUIRED_PARAM:
+                        return ParserRuleContext.TYPE_DESC_IN_PARAM;
+                    default:
+                        return ParserRuleContext.TYPE_REFERENCE_IN_TYPE_INCLUSION;
                 }
-                return ParserRuleContext.TYPE_REFERENCE_IN_TYPE_INCLUSION;
             case TYPE_NAME:
                 return ParserRuleContext.TYPE_DESC_IN_TYPE_DEF;
             case OBJECT_TYPE_DESCRIPTOR:
