@@ -16,11 +16,16 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.Method;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.DebugVariableException;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_TYPE;
@@ -35,6 +40,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
 public class BTable extends BSimpleVariable {
 
     private static final String FIELD_CONSTRAINT = "constraint";
+    private static final String METHOD_SIZE = "size()";
 
     public BTable(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.TABLE, value);
@@ -43,21 +49,38 @@ public class BTable extends BSimpleVariable {
     @Override
     public String computeValue() {
         try {
-            Optional<Value> type = getFieldValue(jvmValue, FIELD_TYPE);
-            if (type.isEmpty()) {
-                return UNKNOWN_VALUE;
-            }
-            Optional<Value> constraint = getFieldValue(type.get(), FIELD_CONSTRAINT);
-            if (constraint.isEmpty()) {
-                return UNKNOWN_VALUE;
-            }
-            Optional<Value> constraintTypeName = getFieldValue(constraint.get(), FIELD_TYPENAME);
-            if (constraintTypeName.isEmpty()) {
-                return UNKNOWN_VALUE;
-            }
-            return String.format("table<%s>", getStringFrom(constraintTypeName.get()));
+            String constrainedTypeName = getConstrainedTypeName();
+            String tableSize = getTableSize();
+            return String.format("table<%s>[%s]", constrainedTypeName, tableSize);
         } catch (Exception e) {
             return UNKNOWN_VALUE;
         }
+    }
+
+    private String getConstrainedTypeName() throws DebugVariableException {
+        Optional<Value> type = getFieldValue(jvmValue, FIELD_TYPE);
+        if (type.isEmpty()) {
+            return UNKNOWN_VALUE;
+        }
+        Optional<Value> constraint = getFieldValue(type.get(), FIELD_CONSTRAINT);
+        if (constraint.isEmpty()) {
+            return UNKNOWN_VALUE;
+        }
+        Optional<Value> constraintTypeName = getFieldValue(constraint.get(), FIELD_TYPENAME);
+        if (constraintTypeName.isEmpty()) {
+            return UNKNOWN_VALUE;
+        }
+        return getStringFrom(constraintTypeName.get());
+    }
+
+    private String getTableSize() throws Exception {
+        // Invokes "size()" method of the table value object.
+        Optional<Method> method = VariableUtils.getMethod(jvmValue, METHOD_SIZE);
+        if (method.isEmpty()) {
+            return UNKNOWN_VALUE;
+        }
+        Value size = ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread().getThreadReference(),
+                method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+        return getStringFrom(size);
     }
 }
