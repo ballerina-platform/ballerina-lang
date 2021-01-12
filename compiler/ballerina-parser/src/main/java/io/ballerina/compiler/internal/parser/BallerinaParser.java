@@ -12107,15 +12107,20 @@ public class BallerinaParser extends AbstractParser {
             if (modulePrefix.kind == SyntaxKind.IDENTIFIER_TOKEN) {
                 middleExpr = STNodeFactory.createSimpleNameReferenceNode(modulePrefix);
             } else {
+                // If it is not an identifier it will be a predeclared prefix and it is already a
+                // STBuiltinSimpleNameReferenceNode
                 middleExpr = modulePrefix;
             }
             colon = qualifiedNameRef.colon;
             endContext();
             endExpr = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
         } else {
+            // Case identifier:identifier : expr or preDeclaredPrefix:identifier : expr
             if (middleExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) middleExpr;
                 STNode modulePrefix =  qualifiedNameRef.modulePrefix;
+                // modulePrefix will be a STBuiltinSimpleNameReferenceNode if the module prefix is a predeclared prefix
+                // hence convert it to an identifier (case : preDeclaredPrefix:identifier : expr)
                 if (modulePrefix.kind != SyntaxKind.IDENTIFIER_TOKEN) {
                     STBuiltinSimpleNameReferenceNode builtInType = (STBuiltinSimpleNameReferenceNode) modulePrefix;
                     STToken nameToken = (STToken) builtInType.name;

@@ -313,7 +313,6 @@ public enum ParserRuleContext {
     TYPEDESC_TYPE_DESCRIPTOR("typedesc-type-descriptor"),
     TYPEDESC_TYPE_DESCRIPTOR_RHS("typedesc-type-descriptor-rhs"),
 
-
     // Statements
     STATEMENT("statement"),
     STATEMENT_WITHOUT_ANNOTS("statement-without-annots"),

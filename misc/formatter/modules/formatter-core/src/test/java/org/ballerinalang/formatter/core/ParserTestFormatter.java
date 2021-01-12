@@ -163,7 +163,6 @@ public class ParserTestFormatter extends FormatterTest {
                 "service_object_constructor_source_02.bal", "object_constructor_source_08.bal",
                 "annotations_source_01.bal", "do_stmt_source_08.bal", "func_params_source_11.bal",
                 "predeclared-module-prefix_02.bal");
-
     }
 
     @DataProvider(name = "test-file-provider")
