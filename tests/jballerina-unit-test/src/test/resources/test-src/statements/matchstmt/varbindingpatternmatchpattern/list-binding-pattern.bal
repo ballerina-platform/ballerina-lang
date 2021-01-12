@@ -250,16 +250,16 @@ function testListBindingPattern11() {
 function listBindingPattern12(any x) returns string {
     match x {
         var [s, i] if s is string => {
-            return "Matched with string : " + s + " added text with " + i.toString();
+            return "Matched with string : " + s + " added text with " + (checkpanic i).toString();
         }
         var [s, i] if s is float => {
-            return "Matched with float : " + (s + 4.5).toString() + " with " + i.toString();
+            return "Matched with float : " + (s + 4.5).toString() + " with " + (checkpanic i).toString();
         }
         var [s, i] if i is int => {
-            return "Matched with int : " + s.toString() + " with " + (i + 3456).toString();
+            return "Matched with int : " + (checkpanic s).toString() + " with " + (i + 3456).toString();
         }
         var [s, i] if i is boolean => {
-            return "Matched with boolean : " + s.toString() + ", " + i.toString();
+            return "Matched with boolean : " + (checkpanic s).toString() + ", " + i.toString();
         }
         var y => {
             return "Matched with default type - float : " + y.toString();
@@ -285,16 +285,18 @@ function testListBindingPattern12() {
 function listBindingPattern13(any x) returns string {
     match x {
         var [s, i, f] if s is string => {
-            return "Matched with string : " + s + " added text with " + i.toString();
+            return "Matched with string : " + s + " added text with " + (checkpanic i).toString();
         }
         var [s, [i, f]] if s is float => {
-            return "Matched with float : " + (s + 4.5).toString() + " with " + i.toString() + " and " + f.toString();
+            return "Matched with float : " + (s + 4.5).toString() + " with " + (checkpanic i).toString()
+                                                                                  + " and " + (checkpanic f).toString();
         }
         var [[s, i], f] if i is int => {
-            return "Matched with int : " + s.toString() + " with " + (i + 3456).toString() + " and " + f.toString();
+            return "Matched with int : " + (checkpanic s).toString() + " with " + (i + 3456).toString()
+                                                                                + " and " + (checkpanic f).toString();
         }
         var [s, i] if i is boolean => {
-            return "Matched with boolean : " + s.toString() + ", " + i.toString();
+            return "Matched with boolean : " + (checkpanic s).toString() + ", " + i.toString();
         }
     }
     return "Default";

@@ -70,9 +70,9 @@ function listBindingPattern5(any v) returns int|string {
     match v {
         var [a, b, ...c] => {
             if (c[0] is string) {
-                return <string> c[0];
+                return <string> checkpanic c[0];
             } else if (c[0] is int) {
-                return <int> c[0];
+                return <int> checkpanic c[0];
             }
         }
         _ => {

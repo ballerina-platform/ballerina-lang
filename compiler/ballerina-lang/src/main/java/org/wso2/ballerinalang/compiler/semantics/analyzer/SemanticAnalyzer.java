@@ -2805,7 +2805,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case LIST_BINDING_PATTERN:
                 BLangListBindingPattern listBindingPattern = (BLangListBindingPattern) bindingPattern;
                 analyzeNode(listBindingPattern, env);
-                listBindingPattern.type = types.resolvePatternTypeFromMatchExpr(listBindingPattern, varBindingPattern);
+                listBindingPattern.type = types.resolvePatternTypeFromMatchExpr(listBindingPattern, varBindingPattern,
+                        this.env);
                 assignTypesToMemberPatterns(listBindingPattern, listBindingPattern.type);
         }
         varBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
@@ -2835,7 +2836,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             listMemberTypes.add(bindingPattern.type);
             listBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
         }
-        // TODO : check rest-binding-pattern
         BTupleType listBindingPatternType = new BTupleType(listMemberTypes);
 
         if (listBindingPattern.restBindingPattern != null) {

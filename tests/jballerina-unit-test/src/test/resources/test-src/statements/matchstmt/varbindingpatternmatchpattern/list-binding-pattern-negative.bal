@@ -60,7 +60,7 @@ function testListOfMatchPatternsNegative() returns string {
         }
     }
 
-    [int, int] v2 = [1, 2];
+    [int, int] v2 = [1, 2]; // unreachable code
     match v2 {
         [var a, 2] | var [a, b] | var [a, b, c] => { // match patterns should contain same set of variables
                                                      // pattern will not be matched, unreachable pattern
@@ -68,7 +68,7 @@ function testListOfMatchPatternsNegative() returns string {
         }
     }
 
-    return "No match";
+    return "No match"; // unreachable code
 }
 
 const X = 2;
@@ -78,11 +78,11 @@ function testSameMatchPatternsNegative1() {
     match v {
         var [a, b] | var [a, b] => { // unreachable pattern
         }
-        var [a, b, c] if a is int => { // pattern will not be matched
+        var [a, b, c] if a is int => { // pattern will not be matched, unreachable pattern
         }
-        var [a, b, c] if b is int => { // pattern will not be matched
+        var [a, b, c] if b is int => { // pattern will not be matched, unreachable pattern
         }
-        var [a, b, c] if a is int => { // unreachable pattern, pattern will not be matched
+        var [a, b, c] if a is int => { // pattern will not be matched, unreachable pattern
         }
     }
 }

@@ -381,13 +381,14 @@ public class Types {
     }
 
     public BType resolvePatternTypeFromMatchExpr(BLangListBindingPattern listBindingPattern,
-                                                 BLangVarBindingPatternMatchPattern varBindingPatternMatchPattern) {
+                                                 BLangVarBindingPatternMatchPattern varBindingPatternMatchPattern,
+                                                 SymbolEnv env) {
         BTupleType listBindingPatternType = (BTupleType) listBindingPattern.type;
         if (varBindingPatternMatchPattern.matchExpr == null) {
             return listBindingPatternType;
         }
         BType matchExprType = varBindingPatternMatchPattern.matchExpr.type;
-        BType intersectionType = getTypeIntersection(matchExprType, listBindingPatternType);
+        BType intersectionType = getTypeIntersection(matchExprType, listBindingPatternType, env);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
         }
@@ -402,12 +403,12 @@ public class Types {
     }
 
     public BType resolvePatternTypeFromMatchExpr(BLangListMatchPattern listMatchPattern,
-                                                 BTupleType listMatchPatternType) {
+                                                 BTupleType listMatchPatternType, SymbolEnv env) {
         if (listMatchPattern.matchExpr == null) {
             return listMatchPatternType;
         }
         BType matchExprType = listMatchPattern.matchExpr.type;
-        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType);
+        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType, env);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
         }
