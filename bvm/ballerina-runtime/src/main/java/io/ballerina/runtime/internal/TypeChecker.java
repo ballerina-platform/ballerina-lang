@@ -923,7 +923,7 @@ public class TypeChecker {
             BXmlType source = (BXmlType) sourceType;
             if (source.constraint.getTag() == TypeTags.NEVER_TAG) {
                 if (targetConstraint.getTag() == TypeTags.UNION_TAG) {
-                    return checkIsType(source, targetConstraint, unresolvedTypes);
+                    return checkIsUnionType(sourceType, (BUnionType) targetConstraint, unresolvedTypes);
                 }
                 return targetConstraint.getTag() == TypeTags.XML_TEXT_TAG ||
                         targetConstraint.getTag() == TypeTags.NEVER_TAG;

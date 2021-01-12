@@ -2158,21 +2158,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         SyntaxKind kind = expressionNode.kind();
         switch (kind) {
             case XML_TEMPLATE_EXPRESSION:
-                SyntaxKind contentKind;
-                if (expressionNode.content().isEmpty()) {
-                    contentKind = SyntaxKind.XML_TEXT;
-                } else {
-                    contentKind = expressionNode.content().get(0).kind();
-                }
-                switch (contentKind) {
-                    case XML_COMMENT:
-                    case XML_PI:
-                    case XML_ELEMENT:
-                    case XML_EMPTY_ELEMENT:
-                        return createExpression(expressionNode.content().get(0));
-                    default:
-                        return createXMLLiteral(expressionNode);
-                }
+                createXmlTemplateLiteral(expressionNode);
             case STRING_TEMPLATE_EXPRESSION:
                 return createStringTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             case RAW_TEMPLATE_EXPRESSION:
@@ -3253,7 +3239,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
         if (expressionNode.content().isEmpty()) {
             xmlTextLiteral.pos = getPosition(expressionNode);
-            xmlTextLiteral.textFragments.add(createEmptyStringLiteral(expressionNode));
+            xmlTextLiteral.textFragments.add(createEmptyStringLiteral(xmlTextLiteral.pos));
             return xmlTextLiteral;
         }
         xmlTextLiteral.pos = getPosition(expressionNode.content().get(0));
@@ -4004,6 +3990,24 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return matchStatement;
     }
 
+    public BLangNode createXmlTemplateLiteral(TemplateExpressionNode expressionNode){
+        SyntaxKind contentKind;
+        if (expressionNode.content().isEmpty()) {
+            contentKind = SyntaxKind.XML_TEXT;
+        } else {
+            contentKind = expressionNode.content().get(0).kind();
+        }
+        switch (contentKind) {
+            case XML_COMMENT:
+            case XML_PI:
+            case XML_ELEMENT:
+            case XML_EMPTY_ELEMENT:
+                return createExpression(expressionNode.content().get(0));
+            default:
+                return createXMLLiteral(expressionNode);
+        }
+    }
+
     private BLangMatchPattern transformMatchPattern(Node matchPattern, Location matchPatternPos) {
 
         if (matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
@@ -4611,10 +4615,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLIdentifer;
     }
 
-    private BLangLiteral createEmptyStringLiteral(TemplateExpressionNode expressionNode) {
+    private BLangLiteral createEmptyStringLiteral(Location pos) {
         BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         int typeTag = TypeTags.STRING;
-        bLiteral.pos = getPosition(expressionNode);
+        bLiteral.pos = pos;
         bLiteral.type = symTable.getTypeFromTag(typeTag);
         bLiteral.type.tag = typeTag;
         bLiteral.value = "";
