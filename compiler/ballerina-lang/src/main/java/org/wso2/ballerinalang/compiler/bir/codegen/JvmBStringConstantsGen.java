@@ -76,7 +76,7 @@ public class JvmBStringConstantsGen {
         Java method limit = 64000
         Max strings constant initializations per method = 64000/12 -> 5000
      */
-    private static int MAX_STRINGS_PER_METHOD = 5000;
+    private static final int MAX_STRINGS_PER_METHOD = 5000;
 
     public JvmBStringConstantsGen(BIRNode.BIRPackage module) {
         this.bStringVarMap = new ConcurrentHashMap<>();
@@ -197,7 +197,6 @@ public class JvmBStringConstantsGen {
 
 
     private int[] listHighSurrogates(String str) {
-
         List<Integer> highSurrogates = new ArrayList<>();
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
