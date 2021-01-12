@@ -906,7 +906,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
-        IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
+        IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
         bLTypeDef.setName(anonTypeGenName);
         bLTypeDef.flagSet.add(Flag.PUBLIC);
         bLTypeDef.flagSet.add(Flag.ANONYMOUS);
