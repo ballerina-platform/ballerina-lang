@@ -41,7 +41,6 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.text.LinePosition;
@@ -64,19 +63,10 @@ import java.util.stream.Collectors;
  */
 public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private SemanticModel semanticModel;
-    private String fileName;
-    private Document srcFile;
     private List<JsonObject> visibleEpsForEachBlock;
 
-    public SyntaxTreeMapGenerator(String fileName, SemanticModel semanticModel) {
+    public SyntaxTreeMapGenerator(SemanticModel semanticModel) {
         this.semanticModel = semanticModel;
-        this.fileName = fileName;
-        this.visibleEpsForEachBlock = new ArrayList<>();
-    }
-
-    public SyntaxTreeMapGenerator(Document srcFile, SemanticModel semanticModel) {
-        this.semanticModel = semanticModel;
-        this.srcFile = srcFile;
         this.visibleEpsForEachBlock = new ArrayList<>();
     }
 
@@ -135,41 +125,11 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             }
 
             try {
-                Optional<Symbol> symbol = this.semanticModel.symbol(this.srcFile, startLine);
+                Optional<Symbol> symbol = this.semanticModel.symbol(node);
 
-                // Check if required params contains endpoints.
-                if (node instanceof RequiredParameterNode) {
-                    RequiredParameterNode requiredParameterNode = (RequiredParameterNode) node;
-                    if (requiredParameterNode.paramName().isPresent()) {
-                        Optional<Symbol> paramNameSymbol = this.semanticModel
-                                .symbol(this.srcFile, requiredParameterNode.paramName().get()
-                                        .lineRange().startLine());
-                        if (paramNameSymbol.isPresent() && (paramNameSymbol.get() instanceof VariableSymbol)) {
-                            VariableSymbol variableSymbol = (VariableSymbol) paramNameSymbol.get();
-                            markVisibleEp(variableSymbol, symbolJson, node);
-                        }
-                    }
-                } else if (node instanceof VariableDeclarationNode) {
-                    VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
-                    if (variableDeclarationNode.typedBindingPattern() != null
-                            && variableDeclarationNode.typedBindingPattern().bindingPattern() != null) {
-                        Optional<Symbol> typeBindingSymbol =
-                                this.semanticModel.symbol(this.srcFile,
-                                                          variableDeclarationNode.typedBindingPattern().bindingPattern()
-                                                                  .lineRange().startLine());
-                        if (typeBindingSymbol.isPresent() && (typeBindingSymbol.get() instanceof VariableSymbol)) {
-                            VariableSymbol variableSymbol = (VariableSymbol) typeBindingSymbol.get();
-                            markVisibleEp(variableSymbol, symbolJson, node);
-                        }
-                    }
-                } else if (node instanceof AssignmentStatementNode) {
-                    AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
-                    Optional<Symbol> assignmentSymbol = this.semanticModel
-                            .symbol(this.srcFile, assignmentStatementNode.lineRange().startLine());
-                    if (assignmentSymbol.isPresent() && (assignmentSymbol.get() instanceof VariableSymbol)) {
-                        VariableSymbol variableSymbol = (VariableSymbol) assignmentSymbol.get();
-                        markVisibleEp(variableSymbol, symbolJson, node);
-                    }
+                if (symbol.isPresent() && (symbol.get() instanceof VariableSymbol)) {
+                    VariableSymbol variableSymbol = (VariableSymbol) symbol.get();
+                    markVisibleEp(variableSymbol, symbolJson, node);
                 }
 
                 if (symbol.isPresent()) {

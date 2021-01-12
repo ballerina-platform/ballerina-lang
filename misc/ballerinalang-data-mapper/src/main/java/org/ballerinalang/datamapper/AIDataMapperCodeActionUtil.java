@@ -106,7 +106,6 @@ class AIDataMapperCodeActionUtil {
         // Insert function call in the code where error is found
         Range newTextRange = CommonUtil.toRange(diagnostic.location().lineRange());
 
-        String filePath = context.filePath().getFileName().toString();
         Optional<Document> srcFile = context.workspace().document(context.filePath());
 
         if (srcFile.isEmpty()) {

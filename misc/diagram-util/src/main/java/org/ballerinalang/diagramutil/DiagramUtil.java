@@ -42,7 +42,7 @@ public class DiagramUtil {
         JsonElement syntaxTreeJson;
         try {
             // Map each type data by looking at the line ranges and prepare the SyntaxTree JSON.
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(srcFile, semanticModel);
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
             SyntaxTree syntaxTree = srcFile.syntaxTree();
             ModulePartNode modulePartNode = syntaxTree.rootNode();
             syntaxTreeJson = mapGenerator.transform(modulePartNode);
@@ -57,8 +57,7 @@ public class DiagramUtil {
                                                            SemanticModel semanticModel) {
         JsonElement syntaxTreeJson;
         try {
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(
-                    classDefinitionNode.syntaxTree().filePath(), semanticModel);
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
             syntaxTreeJson = mapGenerator.transform(classDefinitionNode);
         } catch (NullPointerException e) {
             syntaxTreeJson = new JsonObject();
@@ -71,8 +70,7 @@ public class DiagramUtil {
                                                           SemanticModel semanticModel) {
         JsonElement syntaxTreeJson;
         try {
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(typeDefinitionNode.syntaxTree().filePath(),
-                                                                             semanticModel);
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
             syntaxTreeJson = mapGenerator.transform(typeDefinitionNode);
         } catch (NullPointerException e) {
             syntaxTreeJson = new JsonObject();
