@@ -33,9 +33,11 @@ public class ChoreoTraceSpan {
     private long duration;
     private Map<String, String> tags;
     private List<Reference> references;
+    private List<SpanEvent> events;
 
     public ChoreoTraceSpan(long traceId, long spanId, String serviceName, String operationName,
-                           long timestamp, long duration, Map<String, String> tags, List<Reference> references) {
+                           long timestamp, long duration, Map<String, String> tags, List<Reference> references,
+                           List<SpanEvent> events) {
         this.traceId = traceId;
         this.spanId = spanId;
         this.serviceName = serviceName;
@@ -44,6 +46,7 @@ public class ChoreoTraceSpan {
         this.duration = duration;
         this.tags = tags;
         this.references = references;
+        this.events = events;
     }
 
     public long getTraceId() {
@@ -76,6 +79,10 @@ public class ChoreoTraceSpan {
 
     public List<Reference> getReferences() {
         return references;
+    }
+
+    public List<SpanEvent> getEvents() {
+        return events;
     }
 
     /**

@@ -20,6 +20,7 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -42,7 +43,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
     private static final String UNRESOLVED_MODULE = "cannot resolve module";
 
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled(LanguageServerContext serverContext) {
         //TODO: disabled since offline is yet to be supported through project api
         return false;
     }
@@ -56,7 +57,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
 
         String diagnosticMessage = diagnostic.getMessage();
         String uri = context.fileUri();
-        CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
+        CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
         Matcher matcher = CommandConstants.UNRESOLVED_MODULE_PATTERN.matcher(
@@ -66,7 +67,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
             List<Object> args = new ArrayList<>();
             String pkgName = matcher.group(1).trim();
             String version = getVersion(context, pkgName, matcher);
-            args.add(new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, pkgName + version));
+            args.add(CommandArgument.from(CommandConstants.ARG_KEY_MODULE_NAME, pkgName + version));
             args.add(uriArg);
             String commandTitle = CommandConstants.PULL_MOD_TITLE;
 

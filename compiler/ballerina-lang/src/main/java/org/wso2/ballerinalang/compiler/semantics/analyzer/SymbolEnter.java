@@ -417,12 +417,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineIntersectionTypes(SymbolEnv env) {
         for (BLangNode typeDescriptor : this.intersectionTypes) {
             defineNode(typeDescriptor, env);
-
-            BLangTypeDefinition typeDefinition = (BLangTypeDefinition) typeDescriptor;
-            if (isDistinctFlagPresent(typeDefinition)) {
-                BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
-            }
         }
+        this.intersectionTypes.clear();
     }
 
 
@@ -974,8 +970,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         this.unresolvedTypes = new ArrayList<>();
         for (BLangNode typeDef : typeDefs) {
-            boolean isIntersectionType = typeDef.getKind() == NodeKind.TYPE_DEFINITION
-                    && ((BLangTypeDefinition) typeDef).typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE;
+            boolean isIntersectionType = isErrorIntersectionType(typeDef, env);
             if (isIntersectionType) {
                 this.intersectionTypes.add(typeDef);
                 continue;
@@ -1009,6 +1004,25 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         defineTypeNodes(unresolvedTypes, env);
+    }
+
+    private boolean isErrorIntersectionType(BLangNode typeDef, SymbolEnv env) {
+        boolean isIntersectionType = typeDef.getKind() == NodeKind.TYPE_DEFINITION
+                && ((BLangTypeDefinition) typeDef).typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE;
+        if (!isIntersectionType) {
+            return false;
+        }
+
+        BLangIntersectionTypeNode intersectionTypeNode =
+                (BLangIntersectionTypeNode) ((BLangTypeDefinition) typeDef).typeNode;
+
+        for (BLangType type : intersectionTypeNode.constituentTypeNodes) {
+            BType bType = symResolver.resolveTypeNode(type, env);
+            if (bType.tag == TypeTags.ERROR) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void checkErrors(BLangNode unresolvedType, BLangNode currentTypeOrClassNode, Stack<String> visitedNodes) {

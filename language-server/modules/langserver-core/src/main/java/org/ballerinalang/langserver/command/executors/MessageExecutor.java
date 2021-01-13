@@ -15,10 +15,10 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
@@ -46,15 +46,13 @@ public class MessageExecutor implements LSCommandExecutor {
         // Derive message type and message
         MessageType messageType = null;
         String message = "";
-        for (Object arg : context.getArguments()) {
-            String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
-            String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
-            switch (argKey) {
+        for (CommandArgument arg : context.getArguments()) {
+            switch (arg.key()) {
                 case CommandConstants.ARG_KEY_MESSAGE_TYPE:
-                    messageType = MessageType.forValue(Integer.parseInt(argVal));
+                    messageType = MessageType.forValue(arg.valueAs(Integer.class));
                     break;
                 case CommandConstants.ARG_KEY_MESSAGE:
-                    message = argVal;
+                    message = arg.valueAs(String.class);
                     break;
                 default:
             }

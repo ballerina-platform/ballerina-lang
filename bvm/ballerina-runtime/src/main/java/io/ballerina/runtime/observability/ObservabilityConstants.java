@@ -89,4 +89,7 @@ public class ObservabilityConstants {
 
     // Tracing Configs
     public static final String CONFIG_TRACING_ENABLED = CONFIG_TABLE_TRACING + ".enabled";
+
+    // Checkpoint Configs
+    public static final String CHECKPOINT_EVENT_NAME = "CHECKPOINT";
 }

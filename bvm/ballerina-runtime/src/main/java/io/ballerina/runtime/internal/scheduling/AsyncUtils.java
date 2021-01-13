@@ -68,8 +68,8 @@ public class AsyncUtils {
                                                          Scheduler scheduler) {
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
-            public void notifySuccess() {
-                setReturnValuesAndUnblock(resultHandleFunction.apply(getFutureResult()));
+            public void notifySuccess(Object result) {
+                setReturnValues(resultHandleFunction.apply(getFutureResult()));
             }
 
             @Override
@@ -147,7 +147,7 @@ public class AsyncUtils {
                     scheduleNextFunction(func, strand, strandName, metadata, noOfIterations, callCount, argsSupplier,
                                          futureResultConsumer, returnValueSupplier, scheduler);
                 } else {
-                    setReturnValuesAndUnblock(returnValueSupplier.get());
+                    setReturnValues(returnValueSupplier.get());
                 }
             }
 
@@ -165,7 +165,7 @@ public class AsyncUtils {
                                                                   Scheduler scheduler) {
 
         final FutureValue future = scheduler.createFuture(parent, null, null,
-                ((BFunctionType) func.getType()).retType, name, metadata);
+                                                            ((BFunctionType) func.getType()).retType, name, metadata);
         future.callback = callback;
         callback.setFuture(future);
         callback.setStrand(parent);
@@ -177,29 +177,25 @@ public class AsyncUtils {
                                                            StrandMetadata metadata,
                                                            Supplier<Object[]> argsSupplier,
                                                            Consumer<Object> futureResultConsumer,
-                                                           Supplier<Object> returnValueSupplier,
                                                            Scheduler scheduler) {
 
         Strand strand = Scheduler.getStrand();
         AtomicInteger callCount = new AtomicInteger(0);
         scheduleNextFunction(fpList, strand, strandName, metadata, callCount, argsSupplier,
-                futureResultConsumer, returnValueSupplier, scheduler);
+                futureResultConsumer, scheduler);
     }
 
     private static void scheduleNextFunction(List<BFunctionPointer> fpList, Strand strand, String strandName,
                                              StrandMetadata metadata, AtomicInteger callCount,
                                              Supplier<Object[]> argsSupplier,
-                                             Consumer<Object> futureResultConsumer,
-                                             Supplier<Object> returnValueSupplier, Scheduler scheduler) {
+                                             Consumer<Object> futureResultConsumer, Scheduler scheduler) {
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
-            public void notifySuccess() {
+            public void notifySuccess(Object result) {
                 futureResultConsumer.accept(getFutureResult());
                 if (callCount.incrementAndGet() != fpList.size()) {
                     scheduleNextFunction(fpList, strand, strandName, metadata, callCount, argsSupplier,
-                            futureResultConsumer, returnValueSupplier, scheduler);
-                } else {
-                    setReturnValues(returnValueSupplier.get());
+                            futureResultConsumer, scheduler);
                 }
             }
 

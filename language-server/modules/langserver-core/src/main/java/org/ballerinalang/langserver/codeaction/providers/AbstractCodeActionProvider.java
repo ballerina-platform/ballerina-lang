@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
@@ -41,7 +42,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
     protected boolean isNodeTypeBased;
 
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled(LanguageServerContext serverContext) {
         return true;
     }
 
