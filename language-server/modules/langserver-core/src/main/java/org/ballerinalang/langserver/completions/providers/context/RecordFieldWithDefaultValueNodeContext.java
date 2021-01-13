@@ -29,7 +29,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -47,7 +47,7 @@ import java.util.stream.Stream;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class RecordFieldWithDefaultValueNodeContext extends
         AbstractCompletionProvider<RecordFieldWithDefaultValueNode> {
 
@@ -56,10 +56,10 @@ public class RecordFieldWithDefaultValueNodeContext extends
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, RecordFieldWithDefaultValueNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, RecordFieldWithDefaultValueNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (this.onQualifiedNameIdentifier(context, node.expression())) {
+        if (this.onQualifiedNameIdentifier(ctx, node.expression())) {
             /*
             Captures the following cases
             (1) [module:]TypeName c = module:<cursor>
@@ -67,24 +67,24 @@ public class RecordFieldWithDefaultValueNodeContext extends
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.expression();
             Predicate<Symbol> modSymbolFilter = symbol -> symbol instanceof VariableSymbol;
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, modSymbolFilter);
-            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(ctx, qNameRef, modSymbolFilter);
+            completionItems.addAll(this.getCompletionItemList(moduleContent, ctx));
         } else {
             /*
             Captures the following cases
             (1) [module:]TypeName c = <cursor>
             (2) [module:]TypeName c = a<cursor>
              */
-            completionItems.addAll(this.actionKWCompletions(context));
-            completionItems.addAll(this.expressionCompletions(context));
-            completionItems.addAll(getNewExprCompletionItems(context, node.typeName()));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IS.get()));
+            completionItems.addAll(this.actionKWCompletions(ctx));
+            completionItems.addAll(this.expressionCompletions(ctx));
+            completionItems.addAll(getNewExprCompletionItems(ctx, node.typeName()));
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_IS.get()));
         }
 
         return completionItems;
     }
 
-    private List<LSCompletionItem> getNewExprCompletionItems(CompletionContext context, Node typeNameNode) {
+    private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context, Node typeNameNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<ClassSymbol> objectType;
@@ -119,7 +119,7 @@ public class RecordFieldWithDefaultValueNodeContext extends
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, RecordFieldWithDefaultValueNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, RecordFieldWithDefaultValueNode node) {
         Integer textPosition = context.getCursorPositionInTree();
         TextRange equalTokenRange = node.equalsToken().textRange();
         return equalTokenRange.endOffset() <= textPosition;

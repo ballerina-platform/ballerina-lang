@@ -909,7 +909,7 @@ function testError_1() returns [boolean, boolean, boolean, boolean] {
 }
 
 function testError_2() returns [boolean, boolean, boolean] {
-    MyError e = MyError(ERR_REASON, message = "detail message");
+    MyError e = error MyError(ERR_REASON, message = "detail message");
     any|error f = e;
     return [f is MyError, f is error, f is MyErrorTwo];
 }
@@ -1050,6 +1050,54 @@ public function testMapAsRecord() {
     assertTrue(det is map<anydata|readonly>);
     assertTrue(det is 'error:Detail);
     assertTrue(det is record {| string message; |});
+}
+
+// ========================== XML ==========================
+
+public function testXMLNeverType() {
+    string empty = "";
+    'xml:Text a = xml `${empty}`;
+    any y = a;
+    assertEquality(y is xml<never>, true);
+    assertEquality(y is xml, true);
+    assertEquality(y is 'xml:Text, true);
+    assertEquality(y is 'xml:Element, false);
+
+    xml b = 'xml:createText("");
+    any x = b;
+    assertEquality(x is xml<never>, true);
+    assertEquality(x is xml, true);
+    assertEquality(x is 'xml:Text, true);
+    assertEquality(x is 'xml:ProcessingInstruction, false);
+
+    'xml:Text c = xml ``;
+    any z = c;
+    assertEquality(z is xml<never>, true);
+    assertEquality(z is xml, true);
+    assertEquality(z is 'xml:Text, true);
+    assertEquality(z is 'xml:Comment, false);
+
+    xml<never> d = xml ``;
+    any w = d;
+    assertEquality(w is xml<never>, true);
+    assertEquality(w is xml, true);
+    assertEquality(w is 'xml:Text, true);
+    assertEquality(w is 'xml:Element, false);
+    assertEquality(w is xml<'xml:Text|'xml:Comment>, true);
+
+    xml e = xml ``;
+    assertEquality(<any> e is byte, false);
+    assertEquality(<any> e is xml<'xml:Element>, false);
+    assertEquality(<any> e is xml<'xml:Text>, true);
+    assertEquality(<any> e is xml, true);
+    assertEquality(<any> e is 'xml:Text, true);
+    assertEquality(<any> e is 'xml:Element, false);
+    assertEquality(<any> e is xml<'xml:Element|'xml:Comment>, false);
+}
+
+function testXMLTextType(){
+    'xml:Text t = xml `foo`;
+    assertEquality(<any> t is string, true);
 }
 
 function assertTrue(anydata actual) {

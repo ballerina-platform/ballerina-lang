@@ -124,7 +124,7 @@ isolated class InvalidIsolatedClassWithNonUniqueInitializerExprs {
     ];
     final readonly & xml[] f = [xml `hello ${globStr}`, xml `<!-- int: ${globIntArr[0]} -->`, xml `ok`,
                                 xml `?pi ${globBoolMap["a"] is boolean ? "true" : globStr}?`];
-    final int g = checkpanic trap <int> 'int:fromString(globStr);
+    final int g = <int> checkpanic trap 'int:fromString(globStr);
     private float h;
 
     function init(int[][]? a) returns error? {
@@ -148,7 +148,7 @@ function testInvalidIsolatedObjectWithNonUniqueInitializerExprs() {
         ];
         final readonly & xml[] f = [xml `hello ${globStr}`, xml `<!-- int: ${globIntArr[0]} -->`, xml `ok`,
                                     xml `?pi ${globBoolMap["a"] is boolean ? "true" : globStr}?`];
-        final int g = checkpanic trap <int> 'int:fromString(globStr);
+        final int g = <int> checkpanic trap 'int:fromString(globStr);
         private float h;
 
         function init() {
@@ -470,5 +470,42 @@ isolated class IsolatedClassWithInvalidVarRefs {
         lock {
             self.z = let int[] v = y in [v, let int[] w = y in isolated function () returns int[2][] { return [w, v]; }];
         }
+    }
+}
+
+isolated service class InvalidIsolatedServiceClassWithNonPrivateMutableFields {
+    int a;
+    public map<int> b;
+    private final string c = "invalid";
+
+    function init(int a, map<int> b) {
+        self.a = a;
+        self.b = b.clone();
+    }
+}
+
+client isolated class InvalidIsolatedClientClassWithCopyInInsideBlock {
+    private string[] uniqueGreetings = [];
+
+    isolated function add(string[] greetings) {
+        lock {
+            if self.uniqueGreetings.length() == 0 {
+                self.uniqueGreetings = greetings;
+            }
+        }
+    }
+}
+
+type IsolatedServiceObjectType isolated service object {
+    int a;
+    string[] b;
+};
+
+service isolated class InvalidIsolatedServiceClassNotOverridingMutableFieldsInIncludedIsolatedServiceObject {
+    *IsolatedServiceObjectType;
+
+    function init() {
+        self.a = 1;
+        self.b = [];
     }
 }

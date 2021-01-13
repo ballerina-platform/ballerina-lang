@@ -25,8 +25,11 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.ReferencesContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
@@ -50,11 +53,13 @@ public class ContextBuilder {
      * @param uri              file uri
      * @param workspaceManager workspace manager instance
      * @param operation        language server operation
+     * @param serverContext    language server context
      * @return {@link DocumentServiceContext} base context generated
      */
     public static DocumentServiceContext buildBaseContext(String uri, WorkspaceManager workspaceManager,
-                                                          LSContextOperation operation) {
-        return new BaseContextImpl.BaseContextBuilder(operation)
+                                                          LSContextOperation operation,
+                                                          LanguageServerContext serverContext) {
+        return new BaseContextImpl.BaseContextBuilder(operation, serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .build();
@@ -66,13 +71,16 @@ public class ContextBuilder {
      * @param uri              file uri
      * @param workspaceManager workspace manager instance
      * @param capabilities     completion capabilities
+     * @param serverContext    language server context
+     * @param position         cursor position where the completion triggered
      * @return {@link DocumentServiceContext} base context generated
      */
     public static CompletionContext buildCompletionContext(String uri,
                                                            WorkspaceManager workspaceManager,
                                                            CompletionCapabilities capabilities,
+                                                           LanguageServerContext serverContext,
                                                            Position position) {
-        return new CompletionContextImpl.CompletionContextBuilder()
+        return new CompletionContextImpl.CompletionContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCapabilities(capabilities)
@@ -86,17 +94,39 @@ public class ContextBuilder {
      * @param uri              file uri
      * @param workspaceManager workspace manager instance
      * @param capabilities     signature help capabilities
+     * @param serverContext    language server context
      * @param position         cursor position
      * @return {@link SignatureContext} generated signature context
      */
     public static SignatureContext buildSignatureContext(String uri,
                                                          WorkspaceManager workspaceManager,
                                                          SignatureHelpCapabilities capabilities,
+                                                         LanguageServerContext serverContext,
                                                          Position position) {
-        return new SignatureContextImpl.SignatureContextBuilder()
+        return new SignatureContextImpl.SignatureContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCapabilities(capabilities)
+                .withPosition(position)
+                .build();
+    }
+
+    /**
+     * Build the References context.
+     *
+     * @param uri              file uri
+     * @param workspaceManager workspace manager instance
+     * @param serverContext    language server context
+     * @param position         cursor position
+     * @return {@link SignatureContext} generated signature context
+     */
+    public static ReferencesContext buildReferencesContext(String uri,
+                                                          WorkspaceManager workspaceManager,
+                                                          LanguageServerContext serverContext,
+                                                          Position position) {
+        return new ReferencesContextImpl.ReferencesContextBuilder(serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
                 .withPosition(position)
                 .build();
     }
@@ -106,13 +136,15 @@ public class ContextBuilder {
      *
      * @param uri              file uri
      * @param workspaceManager workspace manager instance
+     * @param serverContext    language server context
      * @param params           code action parameters
      * @return {@link CodeActionContext} generated signature context
      */
     public static CodeActionContext buildCodeActionContext(String uri,
                                                            WorkspaceManager workspaceManager,
+                                                           LanguageServerContext serverContext,
                                                            CodeActionParams params) {
-        return new CodeActionContextImpl.CodeActionContextBuilder(params)
+        return new CodeActionContextImpl.CodeActionContextBuilder(params, serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .build();
@@ -123,10 +155,15 @@ public class ContextBuilder {
      *
      * @param uri              file uri
      * @param workspaceManager workspace manager instance
+     * @param serverContext    language server context
+     * @param position         cursor position where the hover request executed
      * @return {@link HoverContext} generated hover context
      */
-    public static HoverContext buildHoverContext(String uri, WorkspaceManager workspaceManager, Position position) {
-        return new HoverContextImpl.HoverContextBuilder()
+    public static HoverContext buildHoverContext(String uri,
+                                                 WorkspaceManager workspaceManager,
+                                                 LanguageServerContext serverContext,
+                                                 Position position) {
+        return new HoverContextImpl.HoverContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withPosition(position)
@@ -137,13 +174,16 @@ public class ContextBuilder {
      * Build the command execution context.
      *
      * @param workspaceManager workspace manager instance
+     * @param arguments
      * @return {@link ExecuteCommandContext} generated command execution context
      */
     public static ExecuteCommandContext buildExecuteCommandContext(WorkspaceManager workspaceManager,
-                                                                   List<Object> arguments,
+                                                                   LanguageServerContext serverContext,
+                                                                   List<CommandArgument> arguments,
                                                                    LSClientCapabilities clientCapabilities,
                                                                    BallerinaLanguageServer languageServer) {
-        return new ExecuteCommandContextImpl.ExecuteCommandContextBuilder(arguments, clientCapabilities, languageServer)
+        return new ExecuteCommandContextImpl.ExecuteCommandContextBuilder(serverContext,
+                arguments, clientCapabilities, languageServer)
                 .withWorkspaceManager(workspaceManager)
                 .build();
     }
@@ -153,12 +193,14 @@ public class ContextBuilder {
      *
      * @param uri              file uri
      * @param workspaceManager workspace manager instance
+     * @param serverContext    language server context
      * @param lineFoldingOnly  if line folding only or not
      * @return {@link FoldingRangeContext} generated folding range context
      */
     public static FoldingRangeContext buildFoldingRangeContext(String uri, WorkspaceManager workspaceManager,
+                                                               LanguageServerContext serverContext,
                                                                boolean lineFoldingOnly) {
-        return new FoldingRangeContextImpl.FoldingRangeContextBuilder(lineFoldingOnly)
+        return new FoldingRangeContextImpl.FoldingRangeContextBuilder(lineFoldingOnly, serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .build();

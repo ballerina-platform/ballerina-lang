@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.contexts;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 
 /**
@@ -29,8 +30,12 @@ public class FoldingRangeContextImpl extends AbstractDocumentServiceContext impl
 
     private final boolean lineFoldingOnly;
 
-    FoldingRangeContextImpl(LSOperation operation, String uri, WorkspaceManager wsManager, boolean lineFoldingOnly) {
-        super(operation, uri, wsManager);
+    FoldingRangeContextImpl(LSOperation operation,
+                            String uri,
+                            WorkspaceManager wsManager,
+                            boolean lineFoldingOnly,
+                            LanguageServerContext serverContext) {
+        super(operation, uri, wsManager, serverContext);
         this.lineFoldingOnly = lineFoldingOnly;
     }
 
@@ -46,13 +51,17 @@ public class FoldingRangeContextImpl extends AbstractDocumentServiceContext impl
 
         private final boolean lineFoldingOnly;
 
-        public FoldingRangeContextBuilder(boolean lineFoldingOnly) {
-            super(LSContextOperation.TXT_FOLDING_RANGE);
+        public FoldingRangeContextBuilder(boolean lineFoldingOnly, LanguageServerContext serverContext) {
+            super(LSContextOperation.TXT_FOLDING_RANGE, serverContext);
             this.lineFoldingOnly = lineFoldingOnly;
         }
 
         public FoldingRangeContext build() {
-            return new FoldingRangeContextImpl(this.operation, this.fileUri, this.wsManager, this.lineFoldingOnly);
+            return new FoldingRangeContextImpl(this.operation,
+                    this.fileUri,
+                    this.wsManager,
+                    this.lineFoldingOnly,
+                    this.serverContext);
         }
 
         @Override

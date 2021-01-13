@@ -426,6 +426,16 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "error",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to anydata or readonly type."
+      },
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -646,7 +656,7 @@
     {
       "label": "self",
       "kind": "Variable",
-      "detail": "object {resource function $name$.() returns () ;}",
+      "detail": "isolated service object {resource function $name$.() returns () ;}",
       "insertText": "self",
       "insertTextFormat": "Snippet"
     },

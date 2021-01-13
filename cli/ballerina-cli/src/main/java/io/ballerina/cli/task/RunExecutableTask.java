@@ -18,13 +18,13 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.cli.launcher.RuntimePanicException;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
-import io.ballerina.projects.JdkVersion;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import org.ballerinalang.tool.RuntimePanicException;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
@@ -35,10 +35,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for running the executable.
@@ -76,7 +76,7 @@ public class RunExecutableTask implements Task {
 
     private void runGeneratedExecutable(Module executableModule, Project project) {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JdkVersion.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
         String initClassName = JarResolver.getQualifiedClassName(

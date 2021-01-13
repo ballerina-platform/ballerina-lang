@@ -44,13 +44,12 @@ dependencies {
     implementation project(':formatter:formatter-core')
     implementation project(':diagram-util')
     implementation project(':language-server:language-server-commons')
-    implementation project(':language-server:language-server-compiler')
 
     // Standard libs
     implementation project(':ballerina-lang:annotations')
     implementation project(':language-server:language-server-stdlib')
 
-    implementation project(':ballerina-tool')
+    implementation project(':ballerina-cli')
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'

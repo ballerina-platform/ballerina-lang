@@ -17,7 +17,7 @@
  */
 package org.ballerina.testobserve.listenerendpoint;
 
-import io.ballerina.runtime.api.types.ResourceFunctionType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BObject;
 
@@ -32,12 +32,12 @@ import static org.ballerina.testobserve.listenerendpoint.Constants.TEST_OBSERVE_
  */
 public class Resource {
     private final BObject serviceObject;
-    private final ResourceFunctionType resourceFunctionType;
+    private final ResourceMethodType resourceMethodType;
     private final String basePath;
 
-    public Resource(BObject serviceObject, ResourceFunctionType resourceFunctionType, String basePath) {
+    public Resource(BObject serviceObject, ResourceMethodType resourceMethodType, String basePath) {
         this.serviceObject = serviceObject;
-        this.resourceFunctionType = resourceFunctionType;
+        this.resourceMethodType = resourceMethodType;
         this.basePath = basePath;
 
         // Validate resource
@@ -73,23 +73,23 @@ public class Resource {
     }
 
     public String getResourceFunctionName() {
-        return this.resourceFunctionType.getName();
+        return this.resourceMethodType.getName();
     }
 
     public String getAccessor() {
-        return this.resourceFunctionType.getAccessor();
+        return this.resourceMethodType.getAccessor();
     }
 
     public String getResourcePath() {
         return Utils.normalizeResourcePath(basePath)
-                + Utils.normalizeResourcePath(String.join("/", this.resourceFunctionType.getResourcePath()));
+                + Utils.normalizeResourcePath(String.join("/", this.resourceMethodType.getResourcePath()));
     }
 
     public Type[] getParamTypes() {
-        return this.resourceFunctionType.getParameterTypes();
+        return this.resourceMethodType.getParameterTypes();
     }
 
     public Type getReturnType() {
-        return this.resourceFunctionType.getReturnType();
+        return this.resourceMethodType.getReturnType();
     }
 }

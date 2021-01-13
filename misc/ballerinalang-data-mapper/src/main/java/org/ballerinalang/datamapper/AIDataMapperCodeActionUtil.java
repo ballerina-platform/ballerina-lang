@@ -29,16 +29,16 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
-import org.ballerinalang.datamapper.config.LSClientExtendedConfig;
+import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
 import org.ballerinalang.datamapper.utils.HttpClientRequest;
 import org.ballerinalang.datamapper.utils.HttpResponse;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
-import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
+import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -71,13 +71,12 @@ class AIDataMapperCodeActionUtil {
     /**
      * Returns the workspace edits for the automatic data mapping code action.
      *
-     * @param context    {@link LSContext}
+     * @param context    {@link CodeActionContext}
      * @param diagnostic {@link Diagnostic}
      * @return edits for the data mapper code action
      * @throws IOException throws if error occurred when getting generatedRecordMappingFunction
      */
-    static List<TextEdit> getAIDataMapperCodeActionEdits(CodeActionContext context,
-                                                         Diagnostic diagnostic)
+    static List<TextEdit> getAIDataMapperCodeActionEdits(CodeActionContext context, Diagnostic diagnostic)
             throws IOException {
         List<TextEdit> fEdits = new ArrayList<>();
         String diagnosticMessage = diagnostic.getMessage();
@@ -136,8 +135,8 @@ class AIDataMapperCodeActionUtil {
     /**
      * Given two record types, this returns a function with mapped schemas.
      *
-     * @param context         {@link LSContext}
      * @param positionDetails {@link PositionDetails}
+     * @param context         {@link CodeActionContext}
      * @param foundTypeLeft   {@link String}
      * @param foundTypeRight  {@link String}
      * @return function string with mapped schemas
@@ -176,7 +175,7 @@ class AIDataMapperCodeActionUtil {
         JsonArray schemas = new JsonArray();
         schemas.add(leftRecordJSON);
         schemas.add(rightRecordJSON);
-        return getMapping(schemas);
+        return getMapping(schemas, context);
     }
 
     /**
@@ -186,13 +185,13 @@ class AIDataMapperCodeActionUtil {
      * @return mapped function
      * @throws IOException throws if an error occurred in HTTP request
      */
-    private static String getMapping(JsonArray schemas) throws IOException {
+    private static String getMapping(JsonArray schemas, CodeActionContext context) throws IOException {
         int hashCode = schemas.hashCode();
         if (mappingCache.asMap().containsKey(hashCode)) {
             return mappingCache.asMap().get(hashCode);
         }
         try {
-            String mappedFunction = getMappingFromServer(schemas);
+            String mappedFunction = getMappingFromServer(schemas, context.languageServercontext());
             mappingCache.put(hashCode, mappedFunction);
             return mappedFunction;
         } catch (IOException e) {
@@ -231,12 +230,14 @@ class AIDataMapperCodeActionUtil {
      * @return - response data from the Data Mapper service
      * @throws IOException If an error occurs in the Data Mapper service
      */
-    private static String getMappingFromServer(JsonArray dataToSend) throws IOException {
+    private static String getMappingFromServer(JsonArray dataToSend,
+                                               LanguageServerContext serverContext) throws IOException {
         try {
             Map<String, String> headers = new HashMap<>();
             headers.put("Content-Type", "application/json; utf-8");
             headers.put("Accept", "application/json");
-            String url = LSClientConfigHolder.getInstance().getConfigAs(LSClientExtendedConfig.class).getDataMapper()
+            String url = LSClientConfigHolder.getInstance(serverContext)
+                    .getConfigAs(ClientExtendedConfigImpl.class).getDataMapper()
                     .getUrl() + "/map/1.0.0";
             HttpResponse response = HttpClientRequest.doPost(url, dataToSend.toString(), headers);
             int responseCode = response.getResponseCode();

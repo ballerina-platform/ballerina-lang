@@ -21,12 +21,12 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Package;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -64,7 +64,9 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         String diagnosticMessage = diagnostic.getMessage();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                 diagnosticMessage.lastIndexOf("'"));
-        List<Package> packagesList = new ArrayList<>(LSPackageLoader.getDistributionRepoPackages());
+        LanguageServerContext serverContext = context.languageServercontext();
+        List<Package> packagesList =
+                new ArrayList<>(LSPackageLoader.getInstance(serverContext).getDistributionRepoPackages());
 
         packagesList.stream()
                 .filter(pkgEntry -> {
@@ -78,7 +80,7 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                     CodeAction action = new CodeAction(commandTitle);
                     Position insertPos = getImportPosition(context);
                     String importText = ItemResolverConstants.IMPORT + " " + pkgEntry.packageOrg().value() + "/"
-                            + moduleName + CommonKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
+                            + moduleName + ";" + CommonUtil.LINE_SEPARATOR;
                     List<TextEdit> edits = Collections.singletonList(
                             new TextEdit(new Range(insertPos, insertPos), importText));
                     action.setKind(CodeActionKind.QuickFix);

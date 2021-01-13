@@ -154,4 +154,13 @@ public class BasicCasesTest extends BaseTestCase {
         clientLeecher.waitForText(40000);
     }
 
+    @Test
+    public void testIntersectionTypes() throws BallerinaTestException {
+        String msg = "1 passing";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"intersection-type-test"}, null,
+                          new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(40000);
+    }
+
 }

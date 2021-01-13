@@ -21,12 +21,14 @@ import com.atomikos.icatch.jta.UserTransactionManager;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.config.ConfigRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -73,6 +75,8 @@ public class TransactionResourceManager {
             TRANSACTION_PACKAGE_VERSION, "onRollback");
     private static final String ATOMIKOS_LOG_BASE_PROPERTY = "com.atomikos.icatch.log_base_dir";
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
+    private static final String CONFIG_TRANSACTION_MANAGER_ENABLED = "b7a.transaction.manager.enabled";
+    private static final String CONFIG_TRANSACTION_LOG_BASE = "b7a.transaction.log.base";
 
     private static final ConfigRegistry CONFIG_REGISTRY = ConfigRegistry.getInstance();
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
@@ -126,13 +130,13 @@ public class TransactionResourceManager {
         final Path projectRoot = findProjectRoot(Paths.get(System.getProperty("user.dir")));
         if (projectRoot != null) {
             String logDir = getTransactionLogDirectory();
-            String logPath = projectRoot.toAbsolutePath().toString() + "/" + logDir;
+            String logPath = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
             Path transactionLogDirectory = Paths.get(logPath);
             if (!Files.exists(transactionLogDirectory)) {
                 try {
                     Files.createDirectory(transactionLogDirectory);
                 } catch (IOException e) {
-                    stderr.println("error: failed to create transaction log directory");
+                    stderr.println("error: failed to create '" + logDir + "' transaction log directory");
                 }
             }
             System.setProperty(ATOMIKOS_LOG_BASE_PROPERTY, logPath);
@@ -146,7 +150,7 @@ public class TransactionResourceManager {
      * @return boolean whether the atomikos transaction manager should be enabled or not
      */
     private boolean getTransactionManagerEnabled() {
-        boolean transactionManagerEnabled = CONFIG_REGISTRY.getAsBoolean("b7a.transaction.manager.enabled");
+        boolean transactionManagerEnabled = CONFIG_REGISTRY.getAsBoolean(CONFIG_TRANSACTION_MANAGER_ENABLED);
         return transactionManagerEnabled;
     }
 
@@ -156,7 +160,7 @@ public class TransactionResourceManager {
      * @return string log directory name
      */
     private String getTransactionLogDirectory() {
-        String transactionLogDirectory = CONFIG_REGISTRY.getAsString("b7a.transaction.log.base");
+        String transactionLogDirectory = CONFIG_REGISTRY.getAsString(CONFIG_TRANSACTION_LOG_BASE);
         if (transactionLogDirectory != null) {
             return transactionLogDirectory;
         }
@@ -281,10 +285,8 @@ public class TransactionResourceManager {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
-                    if (transactionManagerEnabled) {
-                        if (xaResource == null) {
-                            ctx.commit();
-                        }
+                    if (transactionManagerEnabled && xaResource == null) {
+                        ctx.commit();
                     } else {
                         if (xaResource != null) {
                             Xid xid = xidRegistry.get(combinedId);
@@ -339,10 +341,8 @@ public class TransactionResourceManager {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
-                    if (transactionManagerEnabled) {
-                        if (xaResource == null) {
-                            ctx.rollback();
-                        }
+                    if (transactionManagerEnabled && xaResource == null) {
+                        ctx.rollback();
                     } else {
                         Xid xid = xidRegistry.get(combinedId);
                         if (xaResource != null) {
@@ -506,18 +506,16 @@ public class TransactionResourceManager {
             }
         } else {
             Xid xid = xidRegistry.get(combinedId);
-            if (xid != null) {
-                List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
-                if (txContextList != null) {
-                    for (BallerinaTransactionContext ctx : txContextList) {
-                        try {
-                            XAResource xaResource = ctx.getXAResource();
-                            if (xaResource != null) {
-                                ctx.getXAResource().end(xid, TMSUCCESS);
-                            }
-                        } catch (XAException e) {
-                            log.error("error in ending XA transaction " + transactionId + ":" + e.getMessage(), e);
+            List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
+            if (xid != null && txContextList != null) {
+                for (BallerinaTransactionContext ctx : txContextList) {
+                    try {
+                        XAResource xaResource = ctx.getXAResource();
+                        if (xaResource != null) {
+                            ctx.getXAResource().end(xid, TMSUCCESS);
                         }
+                    } catch (XAException e) {
+                        log.error("error in ending XA transaction " + transactionId + ":" + e.getMessage(), e);
                     }
                 }
             }
@@ -545,12 +543,11 @@ public class TransactionResourceManager {
     private void invokeCommittedFunction(Strand strand, String transactionId, String transactionBlockId) {
         List<BFunctionPointer> fpValueList = committedFuncRegistry.get(transactionId);
         if (fpValueList != null) {
-            Object[] args = {strand, strand.currentTrxContext.getInfoRecord(), true};
-            for (int i = fpValueList.size(); i > 0; i--) {
-                BFunctionPointer fp = fpValueList.get(i - 1);
-                //TODO: Replace fp.getFunction().apply
-                fp.getFunction().apply(args);
-            }
+            Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true };
+            AsyncUtils.invokeAndForgetFunctionPointerAsync(fpValueList, "trxCommit",
+                    COMMIT_METADATA, () -> args,
+                    result -> {
+                    }, Scheduler.getStrand().scheduler);
         }
     }
 
@@ -559,11 +556,10 @@ public class TransactionResourceManager {
         //TODO: Need to pass the retryManager to get the willRetry value.
         if (fpValueList != null) {
             Object[] args = {strand, strand.currentTrxContext.getInfoRecord(), true, error, true, false, true};
-            for (int i = fpValueList.size(); i > 0; i--) {
-                BFunctionPointer fp = fpValueList.get(i - 1);
-                //TODO: Replace fp.getFunction().apply
-                fp.getFunction().apply(args);
-            }
+            AsyncUtils.invokeAndForgetFunctionPointerAsync(fpValueList, "trxAbort",
+                    COMMIT_METADATA, () -> args,
+                    result -> {
+                    }, Scheduler.getStrand().scheduler);
         }
     }
 

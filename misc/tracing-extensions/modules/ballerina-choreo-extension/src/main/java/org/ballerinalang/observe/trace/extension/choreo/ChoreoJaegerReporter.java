@@ -20,6 +20,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.jaegertracing.internal.JaegerSpan;
 import io.jaegertracing.internal.JaegerSpanContext;
+import io.jaegertracing.internal.LogData;
 import io.jaegertracing.internal.Reference;
 import io.jaegertracing.spi.Reporter;
 import io.opentracing.References;
@@ -29,6 +30,7 @@ import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClien
 import org.ballerinalang.observe.trace.extension.choreo.logging.LogFactory;
 import org.ballerinalang.observe.trace.extension.choreo.logging.Logger;
 import org.ballerinalang.observe.trace.extension.choreo.model.ChoreoTraceSpan;
+import org.ballerinalang.observe.trace.extension.choreo.model.SpanEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +42,10 @@ import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_MODULE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_POSITION;
 
 /**
  * Custom Jaeger tracing reporter for publishing stats to Choreo cloud.
@@ -120,11 +126,31 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
                 );
                 references.add(reference);
             }
+            List<SpanEvent> events;
+            if (jaegerSpan.getLogs() != null) {
+                events = new ArrayList<>(jaegerSpan.getLogs().size());
+                for (LogData eventLog : jaegerSpan.getLogs()) {
+                    SpanEvent event = new SpanEvent(
+                            eventLog.getTime(),
+                            (((Map) eventLog.getFields().get(CHECKPOINT_EVENT_NAME)).
+                                    get(TAG_KEY_SRC_MODULE)).toString(),
+                            (((Map) eventLog.getFields().get(CHECKPOINT_EVENT_NAME)).
+                                    get(TAG_KEY_SRC_POSITION)).toString()
+                    );
+                    events.add(event);
+                }
+            } else {
+                events = null;
+            }
+
             JaegerSpanContext spanContext = jaegerSpan.context();
             long timestamp = jaegerSpan.getStart() / 1000;  // Jaeger stores timestamp in microseconds by default
             long duration = jaegerSpan.getDuration() / 1000;    // Jaeger stores duration in microseconds by default
+
             ChoreoTraceSpan traceSpan = new ChoreoTraceSpan(spanContext.getTraceId(), spanContext.getSpanId(),
-                    jaegerSpan.getServiceName(), jaegerSpan.getOperationName(), timestamp, duration, tags, references);
+                    jaegerSpan.getServiceName(), jaegerSpan.getOperationName(), timestamp, duration, tags, references,
+                    events);
+
             synchronized (this) {
                 traceSpans.add(traceSpan);
             }
