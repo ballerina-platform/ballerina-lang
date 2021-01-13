@@ -155,9 +155,8 @@ class JvmObservabilityGen {
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
                 BIRFunction func = typeDef.attachedFuncs.get(i);
                 if (isService) {
-                    if ((func.flags & Flags.RESOURCE) == Flags.RESOURCE) {
-                        rewriteControlFlowInvocation(func, pkg);
-                    } else if ((func.flags & Flags.REMOTE) == Flags.REMOTE) {
+                    if ((func.flags & Flags.RESOURCE) == Flags.RESOURCE ||
+                            (func.flags & Flags.REMOTE) == Flags.REMOTE) {
                         rewriteControlFlowInvocation(func, pkg);
                     }
                 }
