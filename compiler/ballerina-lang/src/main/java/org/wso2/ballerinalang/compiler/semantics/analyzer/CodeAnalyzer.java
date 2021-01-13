@@ -1140,7 +1140,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangErrorMatchPattern errorMatchPattern) {}
+    public void visit(BLangErrorMatchPattern errorMatchPattern) {
+
+    }
 
     @Override
     public void visit(BLangMatch matchStmt) {

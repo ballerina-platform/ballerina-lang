@@ -2845,7 +2845,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleMatchPattern simpleMatchPattern) {
         if (simpleMatchPattern.wildCardMatchPattern != null) {
             analyzeNode(simpleMatchPattern.wildCardMatchPattern, env);
-            simpleMatchPattern.wildCardMatchPattern.matchesAll = true;
+            simpleMatchPattern.wildCardMatchPattern.isLastPattern = true;
             return;
         }
         if (simpleMatchPattern.constPattern != null) {

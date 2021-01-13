@@ -3798,7 +3798,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                        BLangBlockStmt restPatternBlock,
                                                                        BLangSimpleVarRef varRef,
                                                                        Location pos) {
-        BLangExpression condition = null;
+        BLangExpression condition = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);;
         if (errorMatchPattern.errorMessageMatchPattern != null) {
             Location messagePos = errorMatchPattern.errorMessageMatchPattern.pos;
             BLangInvocation messageInvocation = createLangLibInvocationNode(ERROR_MESSAGE_FUNCTION_NAME, varRef,
@@ -3839,14 +3839,9 @@ public class Desugar extends BLangNodeVisitor {
             BLangExpression errorDetailCondition =
                     createConditionForErrorFieldMatchPatterns(errorMatchPattern.errorFieldMatchPatterns,
                             errorDetailVarRef);
-
-            if (condition != null) {
-                condition = ASTBuilderUtil.createBinaryExpr(pos, condition, errorDetailCondition, symTable.booleanType,
-                        OperatorKind.AND, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.AND,
-                                symTable.booleanType, symTable.booleanType));
-            } else {
-                condition = errorDetailCondition;
-            }
+            condition = ASTBuilderUtil.createBinaryExpr(pos, condition, errorDetailCondition, symTable.booleanType,
+                    OperatorKind.AND, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.AND,
+                            symTable.booleanType, symTable.booleanType));
 
             if (errorMatchPattern.errorFieldMatchPatterns.restMatchPattern != null) {
                 BLangRestMatchPattern restMatchPattern = errorMatchPattern.errorFieldMatchPatterns.restMatchPattern;

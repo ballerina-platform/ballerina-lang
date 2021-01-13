@@ -159,11 +159,28 @@ function errorMatchPattern8(error e) returns string {
 }
 
 function testErrorMatchPattern8() {
-    error e1 = MyError1("Message", x = 2);
-    assertEquals("match1", errorMatchPattern8(e1));
-    assertEquals("match2", errorMatchPattern8(MyError1("Message1", x = 2)));
-    assertEquals("match3", errorMatchPattern8(MyError1("Message1", x = 4)));
-    assertEquals("No match", errorMatchPattern8(MyError1("Message1", x = 1)));
+    assertEquals("match1", errorMatchPattern8(error MyError1("Message", x = 2)));
+    assertEquals("match2", errorMatchPattern8(error MyError1("Message1", x = 2)));
+    assertEquals("match3", errorMatchPattern8(error MyError1("Message1", x = 4)));
+    assertEquals("No match", errorMatchPattern8(error MyError1("Message1", x = 1)));
+}
+
+function errorMatchPattern9(error e) returns string {
+    match e {
+        error MyError1() => {
+            return "match1";
+        }
+        error () => {
+            return "match2";
+        }
+    }
+
+    return "No match";
+}
+
+function testErrorMatchPattern9() {
+    assertEquals("match1", errorMatchPattern9(error MyError1("Message", x = 2)));
+    assertEquals("match2", errorMatchPattern9(error("Message1")));
 }
 
 function assertEquals(anydata expected, anydata actual) {

@@ -4128,6 +4128,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLangErrorMatchPattern.errorTypeReference = (BLangUserDefinedType) createTypeNode(nameReferenceNode);
             }
 
+            if (errorMatchPatternNode.argListMatchPatternNode().size() == 0) {
+                return bLangErrorMatchPattern;
+            }
+
             Node node = errorMatchPatternNode.argListMatchPatternNode().get(0);
             if (isErrorFieldMatchPattern(node)) {
                 createErrorFieldMatchPatterns(0, errorMatchPatternNode, bLangErrorMatchPattern);

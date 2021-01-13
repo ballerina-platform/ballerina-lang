@@ -50,37 +50,31 @@ public class BLangErrorMatchPattern extends BLangMatchPattern implements ErrorMa
 
     @Override
     public ErrorMessageMatchPatternNode getErrorMessageMatchPattern() {
-
         return errorMessageMatchPattern;
     }
 
     @Override
     public void setErrorMessageMatchPattern(ErrorMessageMatchPatternNode errorMessageMatchPattern) {
-
         this.errorMessageMatchPattern = (BLangErrorMessageMatchPattern) errorMessageMatchPattern;
     }
 
     @Override
     public ErrorCauseMatchPatternNode getErrorCauseMatchPatternNode() {
-
         return errorCauseMatchPattern;
     }
 
     @Override
     public void setErrorCauseMatchPatternNode(ErrorCauseMatchPatternNode errorCauseMatchPatternNode) {
-
         this.errorCauseMatchPattern = (BLangErrorCauseMatchPattern) errorCauseMatchPatternNode;
     }
 
     @Override
     public ErrorFieldMatchPatternsNode getErrorFieldMatchPatternNode() {
-
         return errorFieldMatchPatterns;
     }
 
     @Override
     public void setErrorFieldMatchPatternsNode(ErrorFieldMatchPatternsNode errorFieldMatchPatternsNode) {
-
         this.errorFieldMatchPatterns = (BLangErrorFieldMatchPatterns) errorFieldMatchPatternsNode;
     }
 

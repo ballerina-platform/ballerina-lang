@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases to verify the behaviour of the error-match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 @Test(groups = { "disableOnOldParser" })
 public class MatchStmtErrorMatchPatternTest {
@@ -76,6 +76,11 @@ public class MatchStmtErrorMatchPatternTest {
     @Test
     public void testErrorMatchPattern8() {
         BRunUtil.invoke(result, "testErrorMatchPattern8");
+    }
+
+    @Test
+    public void testErrorMatchPattern9() {
+        BRunUtil.invoke(result, "testErrorMatchPattern9");
     }
 
     @Test
