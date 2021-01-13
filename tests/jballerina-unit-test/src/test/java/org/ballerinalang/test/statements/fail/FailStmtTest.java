@@ -24,10 +24,12 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * This contains methods to test fail statement.
@@ -62,5 +64,10 @@ public class FailStmtTest {
         validateError(negativeResult, index++,
                 "type 'err' not allowed here; expected an 'error' or a subtype of 'error'.",
                 5, 10);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

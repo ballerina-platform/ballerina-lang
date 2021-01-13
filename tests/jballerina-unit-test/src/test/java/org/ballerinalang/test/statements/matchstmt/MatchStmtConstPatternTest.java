@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -168,5 +169,12 @@ public class MatchStmtConstPatternTest {
     public void testConstPatternNegativeSemantics() {
         Assert.assertEquals(resultNegativeSemantics.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegativeSemantics, 0, "variable 'a' should be declared as constant", 22, 9);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
+        resultNegativeSemantics = null;
     }
 }

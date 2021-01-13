@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -142,5 +143,11 @@ public class NeverTypeTest {
                 "table key specifier '[name]' does not match with key constraint type '[never]'", 129, 34);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "table key specifier mismatch with key constraint. expected: '1' fields but found '0'", 138, 37);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        neverTypeTestResult = null;
+        negativeCompileResult = null;
     }
 }
