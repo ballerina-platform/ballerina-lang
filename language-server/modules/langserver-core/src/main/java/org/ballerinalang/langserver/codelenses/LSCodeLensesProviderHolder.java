@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codelenses;
 
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
 import org.ballerinalang.langserver.config.ClientConfigListener;
 import org.ballerinalang.langserver.config.LSClientConfig;
@@ -26,25 +27,26 @@ import java.util.ServiceLoader;
 
 /**
  * Loads and provides the Code Lenses Providers.
- * 
+ *
  * @since 0.990.3
  */
 public class LSCodeLensesProviderHolder {
-
     private static final List<LSCodeLensesProvider> providers = new ArrayList<>();
+    private static final LanguageServerContext.Key<LSCodeLensesProviderHolder> CODE_LENSES_PROVIDER_HOLDER_KEY =
+            new LanguageServerContext.Key<>();
 
-    private static final LSCodeLensesProviderHolder INSTANCE = new LSCodeLensesProviderHolder();
 
     private boolean isEnabled = true;
 
-    private LSCodeLensesProviderHolder() {
+    private LSCodeLensesProviderHolder(LanguageServerContext serverContext) {
+        serverContext.put(CODE_LENSES_PROVIDER_HOLDER_KEY, this);
         ServiceLoader<LSCodeLensesProvider> providers = ServiceLoader.load(LSCodeLensesProvider.class);
         for (LSCodeLensesProvider executor : providers) {
             if (executor != null && executor.isEnabled()) {
                 LSCodeLensesProviderHolder.providers.add(executor);
             }
         }
-        LSClientConfigHolder.getInstance().register(new ClientConfigListener() {
+        LSClientConfigHolder.getInstance(serverContext).register(new ClientConfigListener() {
             @Override
             public void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig) {
                 isEnabled = newConfig.getCodeLens().getAll().isEnabled();
@@ -52,8 +54,13 @@ public class LSCodeLensesProviderHolder {
         });
     }
 
-    public static LSCodeLensesProviderHolder getInstance() {
-        return INSTANCE;
+    public static LSCodeLensesProviderHolder getInstance(LanguageServerContext serverContext) {
+        LSCodeLensesProviderHolder lsCodeLensesProviderHolder = serverContext.get(CODE_LENSES_PROVIDER_HOLDER_KEY);
+        if (lsCodeLensesProviderHolder == null) {
+            lsCodeLensesProviderHolder = new LSCodeLensesProviderHolder(serverContext);
+        }
+        
+        return lsCodeLensesProviderHolder;
     }
 
     /**

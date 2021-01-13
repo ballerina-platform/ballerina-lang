@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 
@@ -40,8 +41,9 @@ public class HoverContextImpl extends AbstractDocumentServiceContext implements 
     HoverContextImpl(LSOperation operation,
                      String fileUri,
                      WorkspaceManager wsManager,
-                     Position cursorPosition) {
-        super(operation, fileUri, wsManager);
+                     Position cursorPosition,
+                     LanguageServerContext serverContext) {
+        super(operation, fileUri, wsManager, serverContext);
         this.cursorPosition = cursorPosition;
     }
 
@@ -73,15 +75,16 @@ public class HoverContextImpl extends AbstractDocumentServiceContext implements 
         
         private Position cursorPosition;
 
-        public HoverContextBuilder() {
-            super(LSContextOperation.TXT_HOVER);
+        public HoverContextBuilder(LanguageServerContext serverContext) {
+            super(LSContextOperation.TXT_HOVER, serverContext);
         }
 
         public HoverContext build() {
             return new HoverContextImpl(this.operation,
                     this.fileUri,
                     this.wsManager,
-                    this.cursorPosition);
+                    this.cursorPosition,
+                    this.serverContext);
         }
         
         public HoverContextBuilder withPosition(Position cursorPosition) {

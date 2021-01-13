@@ -3893,7 +3893,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expType = requiresTypeInference ? targetType : symTable.noType;
         BType sourceType = checkExpr(expr, env, expType);
 
-        if (types.isTypeCastable(expr, sourceType, targetType)) {
+        if (types.isTypeCastable(expr, sourceType, targetType, this.env)) {
             // We reach this block only if the cast is valid, so we set the target type as the actual type.
             actualType = targetType;
         } else {
@@ -4124,7 +4124,14 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
-        checkStringTemplateExprs(bLangXMLTextLiteral.textFragments, false);
+        List<BLangExpression> literalValues = bLangXMLTextLiteral.textFragments;
+        checkStringTemplateExprs(literalValues, false);
+        BLangExpression xmlExpression = literalValues.get(0);
+        if (literalValues.size() == 1 && xmlExpression.getKind() == NodeKind.LITERAL &&
+                ((String) ((BLangLiteral) xmlExpression).value).isEmpty()) {
+            resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlNeverType, expType);
+            return;
+        }
         resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlTextType, expType);
     }
 
