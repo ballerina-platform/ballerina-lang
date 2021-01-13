@@ -58,7 +58,7 @@ public class TableTypeDescriptorNodeContext extends AbstractCompletionProvider<T
         Optional<Node> keyConstraint = node.keyConstraintNode();
         Node rowTypeParamNode = node.rowTypeParameterNode();
 
-        return (keyConstraint.isPresent() && cursor >= rowTypeParamNode.textRange().endOffset())
+        return (keyConstraint.isEmpty() && cursor >= rowTypeParamNode.textRange().endOffset())
                 || (keyConstraint.isPresent() && cursor <= keyConstraint.get().textRange().startOffset()
                 && cursor >= rowTypeParamNode.textRange().endOffset());
     }

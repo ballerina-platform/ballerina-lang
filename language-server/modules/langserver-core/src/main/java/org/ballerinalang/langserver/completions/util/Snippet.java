@@ -54,6 +54,12 @@ public enum Snippet {
 
     DEF_ERROR_TYPE_DESC(SnippetGenerator.getErrorTypeDescSnippet()),
 
+    DEF_TABLE_TYPE_DESC(SnippetGenerator.getTableTypeDescSnippet()),
+
+    DEF_TABLE_WITH_KEY_TYPE_DESC(SnippetGenerator.getTableWithKeyTypeDescSnippet()),
+
+    DEF_STREAM(SnippetGenerator.getStreamDefSnippet()),
+
 //    DEF_RESOURCE_HTTP(SnippetGenerator.getResourceDefinitionSnippet()),
 //
 //    DEF_RESOURCE_COMMON(SnippetGenerator.getCommonResourceDefinitionSnippet()),
