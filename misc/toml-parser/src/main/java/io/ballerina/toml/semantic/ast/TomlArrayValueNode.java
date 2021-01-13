@@ -20,8 +20,10 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents Toml Array in AST. Used to support nested and mixed arrays.
@@ -60,5 +62,14 @@ public class TomlArrayValueNode extends TomlValueNode {
     @Override
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Set<Diagnostic> diagnostics() {
+        Set<Diagnostic> tomlDiagnostics = diagnostics;
+        for (TomlValueNode child : elements) {
+            tomlDiagnostics.addAll(child.diagnostics());
+        }
+        return tomlDiagnostics;
     }
 }
