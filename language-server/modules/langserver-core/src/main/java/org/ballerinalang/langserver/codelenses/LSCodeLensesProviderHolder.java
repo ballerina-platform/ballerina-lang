@@ -31,27 +31,36 @@ import java.util.ServiceLoader;
  * @since 0.990.3
  */
 public class LSCodeLensesProviderHolder {
-    private static final List<LSCodeLensesProvider> providers = new ArrayList<>();
+    private static final List<LSCodeLensesProvider> codeLenses = new ArrayList<>();
     private static final LanguageServerContext.Key<LSCodeLensesProviderHolder> CODE_LENSES_PROVIDER_HOLDER_KEY =
             new LanguageServerContext.Key<>();
-
+    private final LanguageServerContext serverContext;
 
     private boolean isEnabled = true;
 
     private LSCodeLensesProviderHolder(LanguageServerContext serverContext) {
         serverContext.put(CODE_LENSES_PROVIDER_HOLDER_KEY, this);
-        ServiceLoader<LSCodeLensesProvider> providers = ServiceLoader.load(LSCodeLensesProvider.class);
-        for (LSCodeLensesProvider executor : providers) {
-            if (executor != null && executor.isEnabled()) {
-                LSCodeLensesProviderHolder.providers.add(executor);
-            }
-        }
+        loadServices();
         LSClientConfigHolder.getInstance(serverContext).register(new ClientConfigListener() {
             @Override
             public void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig) {
                 isEnabled = newConfig.getCodeLens().getAll().isEnabled();
             }
         });
+        this.serverContext = serverContext;
+    }
+
+    private void loadServices() {
+        if (!LSCodeLensesProviderHolder.codeLenses.isEmpty()) {
+            return;
+        }
+        ServiceLoader<LSCodeLensesProvider> providers = ServiceLoader.load(LSCodeLensesProvider.class);
+        for (LSCodeLensesProvider codeLens : providers) {
+            if (codeLens == null) {
+                continue;
+            }
+            LSCodeLensesProviderHolder.codeLenses.add(codeLens);
+        }
     }
 
     public static LSCodeLensesProviderHolder getInstance(LanguageServerContext serverContext) {
@@ -59,7 +68,7 @@ public class LSCodeLensesProviderHolder {
         if (lsCodeLensesProviderHolder == null) {
             lsCodeLensesProviderHolder = new LSCodeLensesProviderHolder(serverContext);
         }
-        
+
         return lsCodeLensesProviderHolder;
     }
 
@@ -79,8 +88,8 @@ public class LSCodeLensesProviderHolder {
      */
     public List<LSCodeLensesProvider> getProviders() {
         List<LSCodeLensesProvider> activeProviders = new ArrayList<>();
-        for (LSCodeLensesProvider provider : providers) {
-            if (provider != null && provider.isEnabled()) {
+        for (LSCodeLensesProvider provider : this.codeLenses) {
+            if (provider != null && provider.isEnabled(this.serverContext)) {
                 activeProviders.add(provider);
             }
         }

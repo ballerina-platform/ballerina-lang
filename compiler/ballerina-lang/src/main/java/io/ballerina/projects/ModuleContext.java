@@ -164,7 +164,7 @@ class ModuleContext {
         allModuleLoadRequests = new LinkedHashSet<>();
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : srcDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests(PackageDependencyScope.DEFAULT));
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleId, PackageDependencyScope.DEFAULT));
         }
 
         allModuleLoadRequests.addAll(moduleLoadRequests);
@@ -174,7 +174,7 @@ class ModuleContext {
     Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : testDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests(PackageDependencyScope.TEST_ONLY));
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleId, PackageDependencyScope.TEST_ONLY));
         }
 
         allModuleLoadRequests.addAll(moduleLoadRequests);

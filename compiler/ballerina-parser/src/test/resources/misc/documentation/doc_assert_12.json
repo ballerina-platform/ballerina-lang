@@ -466,7 +466,7 @@
                                   ]
                                 },
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "kind": "CODE_DESCRIPTION",
                                   "value": " as an alternative to `` function `bar` ``",
                                   "trailingMinutiae": [
                                     {
