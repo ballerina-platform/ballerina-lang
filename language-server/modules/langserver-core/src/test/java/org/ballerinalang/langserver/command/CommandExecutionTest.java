@@ -75,9 +75,9 @@ public class CommandExecutionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = Arrays.asList(
-                new CommandArgument("node.type", configJsonObject.get("nodeType").getAsString()),
-                new CommandArgument("doc.uri", sourcePath.toUri().toString()),
-                new CommandArgument("node.line", configJsonObject.get("nodeLine").getAsString()));
+                CommandArgument.from("node.type", configJsonObject.get("nodeType").getAsString()),
+                CommandArgument.from("doc.uri", sourcePath.toUri().toString()),
+                CommandArgument.from("node.line", configJsonObject.get("nodeLine").getAsString()));
         JsonObject responseJson = getCommandResponse(args, AddDocumentationExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
@@ -91,7 +91,7 @@ public class CommandExecutionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = Collections.singletonList(
-                new CommandArgument("doc.uri", sourcePath.toUri().toString()));
+                CommandArgument.from("doc.uri", sourcePath.toUri().toString()));
         JsonObject responseJson = getCommandResponse(args, AddAllDocumentationExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
@@ -107,9 +107,10 @@ public class CommandExecutionTest {
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = new ArrayList<>();
         JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
-        args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
-        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
-        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
+        args.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+        args.add(CommandArgument.from(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
+        args.add(CommandArgument.from(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString())
+        );
         JsonObject responseJson = getCommandResponse(args, CreateFunctionExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
