@@ -94,6 +94,26 @@ class AIDataMapperCodeActionUtil {
         boolean foundErrorLeft = false;
         boolean foundErrorRight = false;
 
+        // If the project has multiple modules
+        if (foundTypeLeft.contains(":")) {
+            foundTypeLeft = foundTypeLeft.split(":")[foundTypeLeft.split(":").length - 1];
+            // If the check or checkpanic is to get the symbol name
+            if (foundTypeLeft.contains("|")) {
+                foundTypeLeft = foundTypeLeft.split("[|]")[0];
+                foundErrorLeft = true;
+            }
+        }
+
+        // If the project has multiple modules
+        if (foundTypeRight.contains(":")) {
+            foundTypeRight = foundTypeRight.split(":")[foundTypeRight.split(":").length - 1];
+            // If the function is returning an error need to get the symbol name
+            if (foundTypeRight.contains("|")) {
+                foundTypeRight = foundTypeRight.split("[|]")[0];
+                foundErrorRight = true;
+            }
+        }
+
         // If the check or checkpanic is to get the symbol name
         if (foundTypeLeft.contains("|")) {
             foundTypeLeft = foundTypeLeft.split("[(|]")[1];
