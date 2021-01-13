@@ -137,7 +137,8 @@ public class LangLibFunctionTest {
                                             "toCodePointInts", "clone", "cloneReadOnly", "cloneWithType", "isReadOnly",
                                             "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
                                             "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
-                                            "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType");
+                                            "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
+                                            "includes");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
