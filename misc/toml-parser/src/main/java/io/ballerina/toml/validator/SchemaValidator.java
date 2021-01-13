@@ -96,7 +96,7 @@ public class SchemaValidator extends TomlNodeVisitor {
             DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0006", "error.required.field.missing",
                     DiagnosticSeverity.ERROR);
             TomlDiagnostic diagnostic = new TomlDiagnostic(tomlTableNode.location(), diagnosticInfo,
-                    "Required Field Missing \"" + field + "\"");
+                    "Missing required field \"" + field + "\"");
             tomlTableNode.addDiagnostic(diagnostic);
         }
     }
