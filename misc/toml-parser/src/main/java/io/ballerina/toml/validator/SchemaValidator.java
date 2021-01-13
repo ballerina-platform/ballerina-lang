@@ -18,6 +18,7 @@
 
 package io.ballerina.toml.validator;
 
+import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
 import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
@@ -72,9 +73,11 @@ public class SchemaValidator extends TomlNodeVisitor {
         }
         ObjectSchema objectSchema = (ObjectSchema) schema;
         Map<String, AbstractSchema> properties = objectSchema.properties();
+        List<String> requiredFields = getRequiredFields(objectSchema);
         Map<String, TopLevelNode> tableEntries = tomlTableNode.entries();
         for (Map.Entry<String, TopLevelNode> tableEntry : tableEntries.entrySet()) {
             String key = tableEntry.getKey();
+            requiredFields.remove(key);
             TopLevelNode value = tableEntry.getValue();
             AbstractSchema schema = properties.get(key);
             if (schema != null) {
@@ -82,12 +85,19 @@ public class SchemaValidator extends TomlNodeVisitor {
                 continue;
             }
             if (!objectSchema.hasAdditionalProperties()) {
-                DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0001", "warn.unexpected.property",
-                        DiagnosticSeverity.WARNING);
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0001", "error.unexpected.property",
+                        DiagnosticSeverity.ERROR);
                 TomlDiagnostic diagnostic = new TomlDiagnostic(value.location(), diagnosticInfo,
                         "Unexpected Property \"" + key + "\"");
                 tomlTableNode.addDiagnostic(diagnostic);
             }
+        }
+        for (String field : requiredFields) {
+            DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0006", "error.required.field.missing",
+                    DiagnosticSeverity.ERROR);
+            TomlDiagnostic diagnostic = new TomlDiagnostic(tomlTableNode.location(), diagnosticInfo,
+                    "Missing required field \"" + field + "\"");
+            tomlTableNode.addDiagnostic(diagnostic);
         }
     }
 
@@ -175,6 +185,23 @@ public class SchemaValidator extends TomlNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(TomlArrayValueNode tomlArrayValueNode) {
+        if (schema.type() != Type.ARRAY) {
+            TomlDiagnostic diagnostic =
+                    getTomlDiagnostic(tomlArrayValueNode.location(), "TVE0002", "error.invalid.type",
+                            DiagnosticSeverity.ERROR, String.format("Key \"%s\" expects %s . Found array", this.key,
+                                    schema.type()));
+            tomlArrayValueNode.addDiagnostic(diagnostic);
+            return;
+        }
+        ArraySchema arraySchema = (ArraySchema) schema;
+        AbstractSchema items = arraySchema.items();
+        for (TomlValueNode valueNode: tomlArrayValueNode.elements()) {
+            visitNode(valueNode, items);
+        }
+    }
+
     private List<Diagnostic> validateMinMaxValues(NumericSchema numericSchema, Double value,
                                                   TomlNodeLocation location) {
         List<Diagnostic> diagnostics = new ArrayList<>();
@@ -240,5 +267,12 @@ public class SchemaValidator extends TomlNodeVisitor {
                                              DiagnosticSeverity severity, String message) {
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, template, severity);
         return new TomlDiagnostic(location, diagnosticInfo, message);
+    }
+
+    private List<String> getRequiredFields(ObjectSchema objectSchema) {
+        if (objectSchema.required() == null) {
+            return new ArrayList<>();
+        }
+        return objectSchema.required();
     }
 }

@@ -218,7 +218,7 @@ public class ServiceDesugar {
                     .createBeginParticipantInvocation(functionNode.pos));
             ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
         }
-//        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
+        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
 //        httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
     }
 }

@@ -14,6 +14,7 @@
           }
         },
         "severity": "Error",
+        "code": "BCE2003",
         "message": "cannot resolve module 'ballerina/io'"
       },
       {
@@ -28,6 +29,7 @@
           }
         },
         "severity": "Error",
+        "code": "BCE2011",
         "message": "undefined function 'println'"
       },
       {
@@ -42,6 +44,7 @@
           }
         },
         "severity": "Error",
+        "code": "BCE2000",
         "message": "undefined module 'io'"
       },
       {
@@ -56,6 +59,7 @@
           }
         },
         "severity": "Error",
+        "code": "BCE0002",
         "message": "missing semicolon token"
       }
     ]

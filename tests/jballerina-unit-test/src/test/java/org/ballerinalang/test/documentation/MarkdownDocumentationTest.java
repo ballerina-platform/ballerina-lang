@@ -619,16 +619,16 @@ public class MarkdownDocumentationTest {
         documentationAttachment = packageNode.getFunctions().get(0).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentationLines().get(1).text, "``` Purpose of adding\n" +
-                "    # this documentation is\n" +
-                "    # to check backtic documentations ```");
+                " this documentation is\n" +
+                " to check backtic documentations ```");
 
         documentationAttachment = packageNode.getFunctions().get(1).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentationLines().get(1).text, "```\n" +
-                "    # Purpose of adding\n" +
-                "    # this documentation is\n" +
-                "    # to check backtic documentations\n" +
-                "    # ```");
+                " Purpose of adding\n" +
+                " this documentation is\n" +
+                " to check backtic documentations\n" +
+                " ```");
     }
 
     @Test(description = "Test doc multiple.", groups = { "disableOnOldParser" })

@@ -295,6 +295,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(typeDefinition.annAttachments);
         lookupNode(typeDefinition.typeNode);
     }
 
