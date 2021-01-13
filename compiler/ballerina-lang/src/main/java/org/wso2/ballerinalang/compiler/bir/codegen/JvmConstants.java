@@ -145,6 +145,7 @@ public class JvmConstants {
     public static final String MODULE = "io/ballerina/runtime/api/Module";
     public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String B_STRING_VAR_PREFIX = "$bString";
+    public static final String CONFIG_VARIABLE = "io/ballerina/runtime/api/internal/configurable/ConfigurableVariable";
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/internal/types/BTypeIdSet$TypeId";
@@ -202,8 +203,6 @@ public class JvmConstants {
     public static final String COLLECTION = "java/util/Collection";
     public static final String NUMBER = "java/lang/Number";
     public static final String HASH_MAP = "java/util/HashMap";
-    public static final String PATH = "java/nio/file/Path";
-    public static final String PATHS = "java/nio/file/Paths";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
@@ -278,7 +277,7 @@ public class JvmConstants {
     public static final String RECORD_INIT_WRAPPER_NAME = "$init";
     public static final String LISTENER_REGISTRY_VARIABLE = "$listenerRegistry";
     public static final String CONFIGURE_INIT = "$configureInit";
-    public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
+    public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$populateConfigurationData";
 
 

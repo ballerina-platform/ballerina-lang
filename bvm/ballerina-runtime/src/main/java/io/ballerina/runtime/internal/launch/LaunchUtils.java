@@ -136,9 +136,9 @@ public class LaunchUtils {
         }
     }
 
-    public static void initConfigurableVariables(Path filePath, Map<Module, VariableKey[]> configurationData) {
+    public static void initConfigurableVariables(Map<Module, VariableKey[]> configurationData) {
         try {
-            ConfigTomlParser.populateConfigMap(filePath, configurationData);
+            ConfigTomlParser.populateConfigMap(configurationData);
         } catch (TomlException exception) {
             throw ErrorCreator.createError(StringUtils.fromString(exception.getMessage()));
         }

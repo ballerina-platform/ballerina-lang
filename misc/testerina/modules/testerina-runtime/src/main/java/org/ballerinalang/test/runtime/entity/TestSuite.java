@@ -31,7 +31,6 @@ public class TestSuite {
     private String orgName;
     private String version;
     private String packageName;
-    private String moduleName;
     private String packageId;
 
     private String initFunctionName;
@@ -86,14 +85,6 @@ public class TestSuite {
 
     public void setOrgName(String orgName) {
         this.orgName = orgName;
-    }
-
-    public String getModuleName() {
-        return moduleName;
-    }
-
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
     }
 
     public String getVersion() {

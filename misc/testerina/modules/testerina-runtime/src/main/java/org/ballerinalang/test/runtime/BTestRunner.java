@@ -19,7 +19,6 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
-import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.BooleanType;
 import io.ballerina.runtime.api.types.ByteType;
@@ -82,7 +81,6 @@ public class BTestRunner {
     private static final String TEST_INIT_FUNCTION_NAME = ".<testinit>";
     private static final String TEST_START_FUNCTION_NAME = ".<teststart>";
     private static final String TEST_STOP_FUNCTION_NAME = ".<teststop>";
-    private static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
 
     private PrintStream errStream;
     private PrintStream outStream;
@@ -268,15 +266,6 @@ public class BTestRunner {
         } catch (Throwable e) {
             throw new BallerinaTestException("failed to load init class :" + initClassName);
         }
-        Class<?> configClazz;
-        String configClassName = TesterinaUtils
-                .getQualifiedClassName(suite.getOrgName(), suite.getPackageID(), suite.getVersion(),
-                        CONFIGURATION_CLASS_NAME);
-        try {
-            configClazz = classLoader.loadClass(configClassName);
-        } catch (Throwable e) {
-            throw new BallerinaTestException("failed to load configuration class :" + configClassName);
-        }
         Scheduler scheduler = new Scheduler(4, false);
         Scheduler initScheduler = new Scheduler(4, false);
         Class<?> testInitClazz = null;
@@ -299,7 +288,7 @@ public class BTestRunner {
         tReport.setReportRequired(suite.isReportRequired());
         // Initialize the test suite.
         // This will init and start the test module.
-        startSuite(suite, initScheduler, initClazz, testInitClazz, configClazz, hasTestablePackage);
+        startSuite(suite, initScheduler, initClazz, testInitClazz, hasTestablePackage);
         // Run Before suite functions
         executeBeforeSuiteFunctions(suite, classLoader, scheduler, shouldSkip, shouldSkipAfterSuite);
         // Run Tests
@@ -564,21 +553,13 @@ public class BTestRunner {
     }
 
     private void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz, Class<?> testInitClazz,
-                            Class<?> configClazz, boolean hasTestablePackage) {
+                            boolean hasTestablePackage) {
         TesterinaFunction init = new TesterinaFunction(initClazz, INIT_FUNCTION_NAME, initScheduler);
         TesterinaFunction start = new TesterinaFunction(initClazz, START_FUNCTION_NAME, initScheduler);
-        TesterinaFunction configInit = new TesterinaFunction(configClazz, "$configureInit", initScheduler);
         // As the init function we need to use $moduleInit to initialize all the dependent modules
         // properly.
-
-        Object response = configInit.directInvoke(new Class[]{Path.class}, new Object[]{getConfigPath(suite)});
-        if (response instanceof Throwable) {
-            throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
-                    response.toString(), (Throwable) response);
-        }
-
         init.setName("$moduleInit");
-        response = init.invoke();
+        Object response = init.invoke();
         if (response instanceof Throwable) {
             throw new BallerinaTestException("Dependant module initialization for test suite failed due to " +
                     response.toString(), (Throwable) response);
@@ -610,15 +591,6 @@ public class BTestRunner {
         immortalThread.start();
     }
 
-    private Path getConfigPath(TestSuite testSuite) {
-        String moduleName = testSuite.getModuleName();
-        Path configFilePath = Paths.get(testSuite.getSourceRootPath());
-        if (!moduleName.equals("")) {
-            configFilePath = configFilePath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
-        }
-        return configFilePath.resolve(ProjectConstants.TEST_DIR_NAME);
-    }
-
     private void stopSuite(TestSuite suite, Scheduler scheduler, Class<?> initClazz, Class<?> testInitClazz,
                            boolean hasTestablePackage) {
         TesterinaFunction stop = new TesterinaFunction(initClazz, STOP_FUNCTION_NAME, scheduler);
@@ -630,8 +602,7 @@ public class BTestRunner {
             testStop.invoke();
         }
         stop.setName("$moduleStop");
-        stop.directInvoke(new Class<?>[]{Scheduler.ListenerRegistry.class},
-                new Object[]{scheduler.getListenerRegistry()});
+        stop.directInvoke(new Class<?>[]{Scheduler.ListenerRegistry.class});
     }
 
     private Object invokeTestFunction(TestSuite suite, String functionName, ClassLoader classLoader,

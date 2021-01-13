@@ -418,9 +418,9 @@ public class JvmPackageGen {
 
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
-        JvmBStringConstantsGen stringConstantsGen = new JvmBStringConstantsGen(module);
-        configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, stringConstantsGen,
-                jarEntries);
+        JvmBStringConstantsGen stringConstantsGen =  new JvmBStringConstantsGen(module);
+        configMethodGen.generateConfigInit(flattenedModuleImports, module, moduleInitClass, stringConstantsGen,
+                                           jarEntries);
 
         // generate the shutdown listener class.
         new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries);
