@@ -88,7 +88,7 @@ class Person4 {
 
     function init() returns FooErr|BarErr {
         self.name = "";
-        FooErr e = FooErr("Foo Error", f = "foo");
+        FooErr e = error FooErr("Foo Error", f = "foo");
         return e;
     }
 }

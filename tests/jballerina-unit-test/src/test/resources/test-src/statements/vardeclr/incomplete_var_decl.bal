@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
+import ballerina/lang.test;
 
 function foo() {
-    http:Client c1 = new http:L
-    http:Client c2 = new http:
+    test:Caller c1 = new test:L
+    test:Caller c2 = new test:
 }

@@ -33,16 +33,18 @@ import static org.testng.Assert.assertEquals;
  */
 public class IntersectionTypeTest {
 
-    private CompileResult result;
+    private CompileResult readOnlyIntersectionResults;
+    private CompileResult errorIntersectionResults;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/intersection/test_intersection_type.bal");
+        readOnlyIntersectionResults = BCompileUtil.compile("test-src/types/intersection/test_intersection_type.bal");
+        errorIntersectionResults = BCompileUtil.compile("test-src/types/intersection/error_intersection_type.bal");
     }
 
     @Test(groups = "brokenOnNewParser")
     public void testImmutableTypes() {
-        BRunUtil.invoke(result, "testIntersectionTypes");
+        BRunUtil.invoke(readOnlyIntersectionResults, "testIntersectionTypes");
     }
 
     @Test
@@ -54,8 +56,53 @@ public class IntersectionTypeTest {
                 "'readonly'", 19, 5);
         validateError(result, index++, "invalid intersection type 'json & int', intersection types are currently " +
                 "supported only with 'readonly'", 23, 5);
-        validateError(result, index++, "invalid intersection type '(Bar & readonly)': no intersection", 26, 45);
-        validateError(result, index++, "invalid intersection type '(Baz & readonly)': no intersection", 32, 45);
+        validateError(result, index++, "invalid intersection type '(Bar & readonly)': no intersection", 26,
+                      45);
+        validateError(result, index++, "invalid intersection type '(Baz & readonly)': no intersection", 32,
+                      45);
+
+        assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test
+    public void testErrorIntersectionWithExistingDetail() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionForExistingDetail");
+    }
+
+    @Test
+    public void testErrorIntersectionWithExistingAndNewDetail() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionForExisitingAndNewDetail");
+    }
+
+    @Test
+    public void testErrorIntersectionWithDetailRecordAndMap() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionForDetailRecordAndDetailMap");
+    }
+
+    @Test
+    public void testDistinctErrorIntersection() {
+        BRunUtil.invoke(errorIntersectionResults, "testDistinctIntersectionType");
+    }
+
+    @Test
+    public void testIntersectionOfDistinctErrors() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionOfDistinctErrors");
+    }
+
+    @Test
+    public void testErrorIntersectionNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/types/intersection/error_intersection_type_negative.bal");
+
+        int index = 0;
+        validateError(result, index++, "invalid intersection type 'ErrorOne & ErrorTwo': no intersection", 45, 24);
+        validateError(result, index++, "invalid intersection type 'ErrorOne & ErrorThree': no intersection", 47, 27);
+        validateError(result, index++, "invalid intersection type 'ErrorOne & ErrorFour': no intersection", 49, 29);
+        validateError(result, index++,
+                      "invalid error detail rest arg 'z' passed to open detail record '"
+                              + "record {| string x; string...; |}'", 56, 15);
+        validateError(result, index++,
+                      "incompatible types: expected 'DistinctErrorIntersection', found 'IntersectionErrorFour'", 57,
+                      38);
 
         assertEquals(result.getErrorCount(), index);
     }

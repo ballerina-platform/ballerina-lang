@@ -95,7 +95,12 @@ function reset() = @java:Method {
     name: "reset"
 } external;
 
-function getResourceAnnotation(string funcName, string annotName) returns any = @java:Method {
+public function callMethod(service object {} s, string name) returns future<any|error>  = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name:"callMethod"
+} external;
+
+function getResourceAnnotation(string methodName, string[] funcName, string annotName) returns any = @java:Method {
     'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name: "getResourceAnnotation"
 } external;
@@ -104,6 +109,13 @@ function getAnnotationsAtServiceAttach() returns map<any> = @java:Method {
     'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name: "getAnnotationsAtServiceAttach"
 } external;
+
+function getResourceAnnot(service object {} obj, string methodName, string[] path, string annotName) returns any =
+@java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "getResourceMethodAnnotations"
+} external;
+
 
 type LE Listener|EmptyListener|error;
 listener LE lsn = new Listener();
@@ -129,6 +141,24 @@ service S / on lsn {
     function createError() returns @tainted error? {
         return ();
     }
+
+    resource function get foo() returns service object {} {
+        return service object {
+            resource function get foo() returns string {
+                return "foo/foo";
+            }
+        };
+    }
+}
+
+int i = 0;
+function returnServiceObj() returns service object {} {
+    i = i + 1;
+    return service object {
+        @RAnnot {val: "anot-val: " + i.toString()}  resource function get processRequest() returns json {
+                return {output: "Hello"};
+        }
+    };
 }
 
 type MagicField object { public string magic; };
@@ -141,14 +171,33 @@ function testServiceDecl() {
     MagicField o = <MagicField> getService(); // get service attached to the listener
     assertEquality("The Somebody Else's Problem field", o.magic);
 
-    // validate resource function annotation
-    any val = getResourceAnnotation("$get$processRequest", "RAnnot");
+    // Validate resource function annotation
+    any val = getResourceAnnotation("get", ["processRequest"], "RAnnot");
     map<any> m = <map<any>> val;
     string s = <string> m["val"];
     assertEquality(s, "anot-val");
 
+    // Test annotation on service decl
     map<any> annots = getAnnotationsAtServiceAttach();
     assertEquality(annots["ServiceAnnot"], true);
+
+    // Create multiple services using same service constructor expression and verify that each annotations
+    // is set correctly to each service object.
+    service object {} s0 = returnServiceObj();
+    service object {} s1 = returnServiceObj();
+    service object {} s2 = returnServiceObj();
+    map<any> rAnnot0  = <map<any>> getResourceAnnot(s0, "get", ["processRequest"], "RAnnot");
+    assertEquality(rAnnot0["val"], "anot-val: 1");
+    map<any> rAnnot1  = <map<any>> getResourceAnnot(s1, "get", ["processRequest"], "RAnnot");
+    assertEquality(rAnnot1["val"], "anot-val: 2");
+    map<any> rAnnot2  = <map<any>> getResourceAnnot(s2, "get", ["processRequest"], "RAnnot");
+    assertEquality(rAnnot2["val"], "anot-val: 3");
+
+    // Test service within a service
+    service object {} inner = <service object {}>
+        (checkpanic(wait callMethod(<service object {}> getService(), "$get$foo")));
+    string str = <string> (checkpanic (wait callMethod(inner, "$get$foo")));
+    assertEquality(str, "foo/foo");
 
     reset();
 }
@@ -162,6 +211,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error("AssertionError",
-            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

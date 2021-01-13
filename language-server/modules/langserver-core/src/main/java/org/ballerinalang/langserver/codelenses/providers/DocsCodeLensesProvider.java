@@ -31,9 +31,6 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.config.ClientConfigListener;
-import org.ballerinalang.langserver.config.LSClientConfig;
-import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
@@ -53,12 +50,13 @@ import java.util.Optional;
 public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
     public DocsCodeLensesProvider() {
         super("docs.CodeLenses");
-        LSClientConfigHolder.getInstance().register(new ClientConfigListener() {
-            @Override
-            public void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig) {
-                isEnabled = newConfig.getCodeLens().getDocs().isEnabled();
-            }
-        });
+        // TODO: Fix me
+//        LSClientConfigHolder.getInstance().register(new ClientConfigListener() {
+//            @Override
+//            public void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig) {
+//                isEnabled = newConfig.getCodeLens().getDocs().isEnabled();
+//            }
+//        });
     }
 
     /**
@@ -134,8 +132,8 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
             }
             if (showLens) {
                 String documentUri = context.fileUri();
-                CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, documentUri);
-                CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE,
+                CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, documentUri);
+                CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_LINE,
                         String.valueOf(line));
                 List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
                 Command command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,

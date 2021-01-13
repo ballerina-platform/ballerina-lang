@@ -156,7 +156,7 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(ObjectConstructorBodyContextUtil.getBodyContextSnippets(context));
+        completionItems.addAll(ObjectConstructorBodyContextUtil.getBodyContextSnippets(node, context));
 
         return completionItems;
     }

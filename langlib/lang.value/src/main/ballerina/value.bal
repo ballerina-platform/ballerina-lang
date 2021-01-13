@@ -96,7 +96,7 @@ public isolated function isReadOnly(anydata v) returns boolean = @java:Method {
 #
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the direct style.
-public isolated function toString((any|error) v) returns string = @java:Method {
+public isolated function toString((any) v) returns string = @java:Method {
     'class: "org.ballerinalang.langlib.value.ToString",
     name: "toString",
     paramTypes: ["java.lang.Object"]
@@ -112,7 +112,7 @@ public isolated function toString((any|error) v) returns string = @java:Method {
 #
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the expression style.
-public isolated function toBalString(any|error v) returns string = @java:Method {
+public isolated function toBalString(any v) returns string = @java:Method {
   'class: "org.ballerinalang.langlib.value.ToBalString",
   name: "toBalString"
 } external;

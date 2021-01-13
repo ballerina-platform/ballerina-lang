@@ -48,7 +48,7 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
-    public void testAccessConfigurablePrimitiveVariables() throws BallerinaTestException {
+    public void testAccessConfigurableVariables() throws BallerinaTestException {
         Path projectPath = Paths.get(testFileLocation, "configurableProject").toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("Tests passed");
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
@@ -88,11 +88,20 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testInvalidTomlFile() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "InvalidTomlFile").toAbsolutePath();
-        String tomlError = "Invalid table definition on line 1: [testOrg..main.file..]]";
-        LogLeecher errorLeecher = new LogLeecher(errorMsg + tomlError, ERROR);
+        String tomlError1 = "missing identifier [configuration.toml:(0:9,0:9)]";
+        String tomlError2 = "missing identifier [configuration.toml:(0:20,0:20)]";
+        String tomlError3 = "missing identifier [configuration.toml:(0:21,0:21)]";
+        LogLeecher errorLeecher1 = new LogLeecher(errorMsg, ERROR);
+        LogLeecher errorLeecher2 = new LogLeecher(tomlError1, ERROR);
+        LogLeecher errorLeecher3 = new LogLeecher(tomlError2, ERROR);
+        LogLeecher errorLeecher4 = new LogLeecher(tomlError3, ERROR);
+
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLeecher}, projectPath.toString());
-        errorLeecher.waitForText(5000);
+                new LogLeecher[]{errorLeecher1, errorLeecher2, errorLeecher3, errorLeecher4}, projectPath.toString());
+        errorLeecher1.waitForText(5000);
+        errorLeecher2.waitForText(5000);
+        errorLeecher3.waitForText(5000);
+        errorLeecher4.waitForText(5000);
     }
 
     @Test
@@ -107,7 +116,7 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testInvalidType() throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "InvalidType").toAbsolutePath();
-        String typeError = "invalid type found for variable 'intVar', expected type is 'int'";
+        String typeError = "invalid type found for variable 'intVar', expected type is 'int', found 'DOUBLE'";
         LogLeecher errorLeecher = new LogLeecher(errorMsg + typeError, ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, projectPath.toString());

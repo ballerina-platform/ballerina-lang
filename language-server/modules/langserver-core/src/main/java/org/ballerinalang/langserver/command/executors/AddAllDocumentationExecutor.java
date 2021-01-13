@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import com.google.gson.JsonObject;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -23,6 +22,7 @@ import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
@@ -39,6 +39,7 @@ import java.util.Optional;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
 import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.getDocumentationEditForNode;
+import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.hasDocs;
 
 /**
  * Command executor for adding all documentation for top level items.
@@ -60,9 +61,9 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
         String documentUri = "";
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
-        for (Object arg : context.getArguments()) {
-            if (((JsonObject) arg).get(ARG_KEY).getAsString().equals(CommandConstants.ARG_KEY_DOC_URI)) {
-                documentUri = ((JsonObject) arg).get(ARG_VALUE).getAsString();
+        for (CommandArgument arg : context.getArguments()) {
+            if (CommandConstants.ARG_KEY_DOC_URI.equals(arg.key())) {
+                documentUri = arg.valueAs(String.class);
                 textDocumentIdentifier.setUri(documentUri);
             }
         }
@@ -79,8 +80,10 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
         List<TextEdit> textEdits = new ArrayList<>();
         ((ModulePartNode) syntaxTree.get().rootNode()).members()
+                .stream().filter(node -> !hasDocs(node))
                 .forEach(member ->
-                        getDocumentationEditForNode(member, true).ifPresent(docs -> textEdits.add(getTextEdit(docs))));
+                                 getDocumentationEditForNode(member)
+                                         .ifPresent(docs -> textEdits.add(getTextEdit(docs))));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
         LanguageClient languageClient = context.getLanguageClient();
 
@@ -103,6 +106,6 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
      */
     private static TextEdit getTextEdit(DocAttachmentInfo attachmentInfo) {
         Range range = new Range(attachmentInfo.getDocStartPos(), attachmentInfo.getDocStartPos());
-        return new TextEdit(range, attachmentInfo.getDocAttachment());
+        return new TextEdit(range, attachmentInfo.getDocumentationString());
     }
 }

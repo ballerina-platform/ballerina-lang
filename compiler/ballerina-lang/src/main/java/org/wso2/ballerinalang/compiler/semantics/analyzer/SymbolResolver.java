@@ -50,8 +50,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -70,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -98,6 +101,7 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
+import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
@@ -842,7 +846,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             symTable.errorType = (BErrorType) entry.symbol.type;
             symTable.detailType = (BMapType) symTable.errorType.detailType;
-            symTable.errorConstructor = ((BErrorTypeSymbol) symTable.errorType.tsymbol).ctorSymbol;
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
             symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
@@ -1651,6 +1654,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         Map<BType, BLangType> typeBLangTypeMap = new HashMap<>();
 
         boolean validIntersection = true;
+        boolean isErrorIntersection = false;
+        boolean isAlreadyExistingType = false;
 
         BLangType bLangTypeOne = constituentTypeNodes.get(0);
         BType typeOne = resolveTypeNode(bLangTypeOne, env);
@@ -1671,7 +1676,21 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
 
-        BType potentialIntersectionType = getPotentialReadOnlyIntersection(typeOne, typeTwo);
+        if (typeOne.tag == TypeTags.ERROR || typeTwo.tag == TypeTags.ERROR) {
+            isErrorIntersection = true;
+        }
+
+        BType potentialIntersectionType = getPotentialIntersection(typeOne, typeTwo, this.env);
+        if (typeOne == potentialIntersectionType || typeTwo == potentialIntersectionType) {
+            isAlreadyExistingType = true;
+        }
+
+        LinkedHashSet<BType> constituentBTypes = new LinkedHashSet<>() {
+            {
+                add(typeOne);
+                add(typeTwo);
+            }
+        };
 
         if (potentialIntersectionType == symTable.semanticError) {
             validIntersection = false;
@@ -1679,6 +1698,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             for (int i = 2; i < constituentTypeNodes.size(); i++) {
                 BLangType bLangType = constituentTypeNodes.get(i);
                 BType type = resolveTypeNode(bLangType, env);
+                if (type.tag == TypeTags.ERROR) {
+                    isErrorIntersection = true;
+                }
                 typeBLangTypeMap.put(type, bLangType);
 
                 if (!hasReadOnlyType) {
@@ -1689,17 +1711,35 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return symTable.noType;
                 }
 
-                potentialIntersectionType = getPotentialReadOnlyIntersection(potentialIntersectionType, type);
-                if (potentialIntersectionType == symTable.semanticError) {
+                BType tempIntersectionType = getPotentialIntersection(potentialIntersectionType, type, this.env);
+                if (tempIntersectionType == symTable.semanticError) {
                     validIntersection = false;
                     break;
                 }
+
+                if (type == tempIntersectionType) {
+                    potentialIntersectionType = type;
+                    isAlreadyExistingType = true;
+                } else if (potentialIntersectionType != tempIntersectionType) {
+                    potentialIntersectionType = tempIntersectionType;
+                    isAlreadyExistingType = false;
+                }
+                constituentBTypes.add(type);
             }
         }
 
         if (!validIntersection) {
             dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, intersectionTypeNode);
             return symTable.semanticError;
+        }
+
+        if (isErrorIntersection) {
+            if (isAlreadyExistingType) {
+                potentialIntersectionType = types.createErrorType(((BErrorType) potentialIntersectionType).detailType,
+                                                                  potentialIntersectionType.flags, env);
+            }
+            return defineIntersectionType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos,
+                                          constituentBTypes, isAlreadyExistingType, env);
         }
 
         if (!hasReadOnlyType) {
@@ -1712,7 +1752,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return potentialIntersectionType;
         }
 
-        if (!types.isSelectivelyImmutableType(potentialIntersectionType, true, false)) {
+        if (!types.isSelectivelyImmutableType(potentialIntersectionType, false)) {
             if (types.isSelectivelyImmutableType(potentialIntersectionType)) {
                 // This intersection would have been valid if not for `readonly object`s.
                 dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.INVALID_READONLY_OBJECT_INTERSECTION_TYPE);
@@ -1740,7 +1780,81 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                                 env, symTable, anonymousModelHelper, names, flagSet);
     }
 
-    private BType getPotentialReadOnlyIntersection(BType lhsType, BType rhsType) {
+    private BIntersectionType defineIntersectionType(BErrorType intersectionErrorType,
+                                                     Location pos,
+                                                     LinkedHashSet<BType> constituentBTypes,
+                                                     boolean isAlreadyDefinedDetailType, SymbolEnv env) {
+
+        BSymbol owner = intersectionErrorType.tsymbol.owner;
+        PackageID pkgId = intersectionErrorType.tsymbol.pkgID;
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
+
+        if (!isAlreadyDefinedDetailType) {
+            BLangTypeDefinition detailTypeDef = defineErrorDetailRecord((BRecordType) intersectionErrorType.detailType,
+                                                                        pos, pkgEnv);
+            defineErrorType(intersectionErrorType, detailTypeDef.type, detailTypeDef.symbol.name.value, pkgEnv, pos);
+        } else {
+            defineErrorType(intersectionErrorType, intersectionErrorType.detailType,
+                            intersectionErrorType.detailType.tsymbol.name.value, pkgEnv, pos);
+        }
+        return defineErrorIntersectionType(intersectionErrorType, constituentBTypes, pkgId, owner,
+                                           pkgEnv);
+    }
+
+    private BLangTypeDefinition defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
+        BRecordTypeSymbol detailRecordSymbol = (BRecordTypeSymbol) detailRecord.tsymbol;
+        detailRecordSymbol.scope.define(names.fromString(
+                detailRecordSymbol.name.value + "." + detailRecordSymbol.initializerFunc.funcName.value),
+                                        detailRecordSymbol.initializerFunc.symbol);
+        env.scope.define(detailRecordSymbol.name, detailRecordSymbol);
+
+        for (BField field : detailRecord.fields.values()) {
+            BVarSymbol fieldSymbol = field.symbol;
+            detailRecordSymbol.scope.define(fieldSymbol.name, fieldSymbol);
+        }
+
+        BLangRecordTypeNode detailRecordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(),
+                                                                                             detailRecord, pos);
+        TypeDefBuilderHelper.createInitFunctionForRecordType(detailRecordTypeNode, env, names, symTable);
+        BLangTypeDefinition detailRecordTypeDefinition = TypeDefBuilderHelper.addTypeDefinition(detailRecord,
+                                                                                                detailRecordSymbol,
+                                                                                                detailRecordTypeNode,
+                                                                                                env);
+        detailRecordTypeDefinition.pos = pos;
+        return detailRecordTypeDefinition;
+    }
+
+    private void defineErrorType(BErrorType errorType, BType detailType, String detailTypeName,
+                                 SymbolEnv pkgEnv, Location pos) {
+
+        BTypeSymbol errorTSymbol = errorType.tsymbol;
+
+        // Create error type definition
+        BLangErrorType bLangErrorType = TypeDefBuilderHelper.createBLangErrorType(pos, detailType, detailTypeName);
+        bLangErrorType.type = errorType;
+        BLangTypeDefinition errorTypeDefinition = TypeDefBuilderHelper
+                .addTypeDefinition(errorType, errorTSymbol, bLangErrorType, pkgEnv);
+        errorTypeDefinition.pos = pos;
+    }
+
+    private BIntersectionType defineErrorIntersectionType(BErrorType effectiveType,
+                                                          LinkedHashSet<BType> constituentBTypes, PackageID pkgId,
+                                                          BSymbol owner, SymbolEnv pkgEnv) {
+
+        BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
+                                                                      Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                                                                      null,
+                                                                      pkgId, null, owner,
+                                                                      symTable.builtinPos, VIRTUAL);
+
+        BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentBTypes,
+                                                                   effectiveType);
+        intersectionTypeSymbol.type = intersectionType;
+
+        return intersectionType;
+    }
+
+    private BType getPotentialIntersection(BType lhsType, BType rhsType, SymbolEnv env) {
         if (lhsType == symTable.readonlyType) {
             return rhsType;
         }
@@ -1749,7 +1863,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return lhsType;
         }
 
-        return types.getTypeIntersection(lhsType, rhsType);
+        return types.getTypeIntersection(lhsType, rhsType, env);
     }
 
     private static class ParameterizedTypeInfo {

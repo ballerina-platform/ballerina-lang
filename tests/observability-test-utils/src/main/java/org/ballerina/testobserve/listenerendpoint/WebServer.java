@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.ResourceFunctionType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -98,9 +98,9 @@ public class WebServer {
      * @param basePath The base path of the service
      */
     public void addService(BObject serviceObject, String basePath) {
-        ResourceFunctionType[] resourceFunctions = ((ServiceType) serviceObject.getType()).getResourceFunctions();
-        for (ResourceFunctionType resourceFunctionType : resourceFunctions) {
-            Resource resource = new Resource(serviceObject, resourceFunctionType, basePath);
+        ResourceMethodType[] resourceFunctions = ((ServiceType) serviceObject.getType()).getResourceMethods();
+        for (ResourceMethodType resourceMethodType : resourceFunctions) {
+            Resource resource = new Resource(serviceObject, resourceMethodType, basePath);
             String resourceMapKey = generateResourceMapKey(resource.getAccessor(), resource.getResourcePath());
             if (this.resourceMap.containsKey(resourceMapKey)) {
                 throw new IllegalArgumentException("Unable to register service with duplicate resource path");

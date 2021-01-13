@@ -18,7 +18,9 @@ package org.ballerinalang.langserver.extensions.ballerina.example;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 
@@ -32,20 +34,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static org.ballerinalang.langserver.LSClientLogger.logError;
-
 /**
  * Ballerina example service.
  *
  * @since 0.981.2
  */
 public class BallerinaExampleServiceImpl implements BallerinaExampleService {
-
     private static final String BBE_DEF_JSON = "index.json";
-
     private static final String EXAMPLES_DIR = "examples";
+    private static final Type EXAMPLE_CATEGORY_TYPE = new TypeToken<List<BallerinaExampleCategory>>() {
+    }.getType();
+    private final LSClientLogger clientLogger;
 
-    private static final Type EXAMPLE_CATEGORY_TYPE = new TypeToken<List<BallerinaExampleCategory>>() { }.getType();
+    public BallerinaExampleServiceImpl(LanguageServerContext serverContext) {
+        this.clientLogger = LSClientLogger.getInstance(serverContext);
+    }
 
     @Override
     public CompletableFuture<BallerinaExampleListResponse> list(BallerinaExampleListRequest request) {
@@ -61,7 +64,7 @@ public class BallerinaExampleServiceImpl implements BallerinaExampleService {
                 response.setSamples(data);
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaExample/list' failed!";
-                logError(msg, e, new TextDocumentIdentifier(bbeJSONPath.toString()), (Position) null);
+                this.clientLogger.logError(msg, e, new TextDocumentIdentifier(bbeJSONPath.toString()), (Position) null);
                 response.setSamples(new ArrayList<>());
             }
             return response;

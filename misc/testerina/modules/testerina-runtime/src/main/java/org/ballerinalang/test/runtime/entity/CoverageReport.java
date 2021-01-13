@@ -19,10 +19,9 @@ package org.ballerinalang.test.runtime.entity;
 
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.jacoco.core.analysis.Analyzer;
@@ -38,9 +37,8 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
@@ -81,26 +79,24 @@ public class CoverageReport {
      *
      * @throws IOException when file operations are failed
      */
-    public ModuleCoverage generateReport() throws IOException {
+    public ModuleCoverage generateReport(JarResolver jarResolver) throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
         String version = this.module.packageInstance().packageVersion().toString();
 
-        Path moduleJarPath = target.cachesPath().resolve(orgName)
-                .resolve(packageName)
-                .resolve(version).resolve(JvmTarget.JAVA_11.code());
-        // Obtain a path list of all the .jar files generated
-        List<Path> pathList;
-        try (Stream<Path> walk = Files.walk(moduleJarPath, 1)) {
-            pathList = walk.filter(f -> f.toString().endsWith(ProjectConstants.BLANG_COMPILED_JAR_EXT)).collect(
-                    Collectors.toList());
-        } catch (IOException e) {
-            return null;
+        List<Path> filteredPathList;
+
+        if (!module.testDocumentIds().isEmpty()) {
+            filteredPathList =
+                    filterPaths(jarResolver.getJarFilePathsRequiredForTestExecution(this.module.moduleName()));
+        } else {
+            filteredPathList =
+                    filterPaths(jarResolver.getJarFilePathsRequiredForExecution());
         }
 
-        if (!pathList.isEmpty()) {
+        if (!filteredPathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
-            for (Path jarPath : pathList) {
+            for (Path jarPath : filteredPathList) {
                 try {
                     // Creates coverage folder with each class per module
                     CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir, orgName, packageName, version);
@@ -183,4 +179,17 @@ public class CoverageReport {
 
         }
     }
+
+    private List<Path> filterPaths(Collection<Path> pathCollection) {
+        List<Path> filteredPathList = new ArrayList<>();
+
+        for (Path path : pathCollection) {
+            if (path.toString().contains(this.module.project().sourceRoot().toString())) {
+                filteredPathList.add(path);
+            }
+        }
+
+        return filteredPathList;
+    }
+
 }

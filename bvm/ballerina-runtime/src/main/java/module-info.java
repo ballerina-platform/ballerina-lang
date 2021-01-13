@@ -1,6 +1,5 @@
 module io.ballerina.runtime {
     requires java.xml;
-    requires toml4j;
     requires woodstox.core.asl;
     requires org.apache.commons.lang3;
     requires axiom.api;
@@ -12,6 +11,8 @@ module io.ballerina.runtime {
     requires axiom.impl;
     requires io.ballerina.config;
     requires io.ballerina.logging;
+    requires io.ballerina.toml;
+    requires io.ballerina.tools.api;
 
     requires transactions.jta;
     requires java.transaction;
