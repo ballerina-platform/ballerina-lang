@@ -47,18 +47,19 @@ public class StaticMethodTest {
         result = BCompileUtil.compile("test-src/javainterop/basic/static_method_tests.bal");
     }
 
-    @Test(description = "Test invoking a java static function that accepts and return nothing")
-    public void testAcceptNothingAndReturnNothing() {
-        BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnNothing");
-        Assert.assertEquals(returns.length, 1);
+    @Test(dataProvider = "nullReturnFunctions")
+    public void testReturnNothing(String funcName, int length) {
+        BValue[] returns = BRunUtil.invoke(result, funcName);
+        Assert.assertEquals(returns.length, length);
         Assert.assertNull(returns[0]);
     }
 
-    @Test(description = "Test invoking a java static function that accepts and return nothing")
-    public void testInteropFunctionWithDifferentName() {
-        BValue[] returns = BRunUtil.invoke(result, "testInteropFunctionWithDifferentName");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNull(returns[0]);
+    @DataProvider(name = "nullReturnFunctions")
+    public Object[] getNullReturnFunctions() {
+        return new Object[][]{
+                {"testAcceptNothingAndReturnNothing", 1}, {"testInteropFunctionWithDifferentName", 1},
+                {"testErrorOrTupleReturn", 2}
+        };
     }
 
     @Test(description = "Test invoking a java static function that accepts nothing and returns a Date")
@@ -131,13 +132,6 @@ public class StaticMethodTest {
                 "{\"resources\":[{\"path\":\"basePath\",\"method\":\"Method string\"}]}");
     }
 
-    @Test(description = "Test tuple return with null values")
-    public void testTupleReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorOrTupleReturn");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertNull(returns[0]);
-    }
-
     @Test
     public void testFuncWithAsyncDefaultParamExpression() {
         BValue[] returns = BRunUtil.invoke(result, "testFuncWithAsyncDefaultParamExpression");
@@ -176,7 +170,7 @@ public class StaticMethodTest {
     }
 
     @Test(dataProvider = "functionNamesProvider")
-    public void testBalEnvSlowAsync(String funcName) {
+    public void testInvokeFunctions(String funcName) {
         BRunUtil.invoke(result, funcName);
     }
 
