@@ -111,6 +111,16 @@ public class TypeNarrower extends BLangNodeVisitor {
         return targetEnv;
     }
 
+    /**
+     * Evaluate an expression to truth value. Remove the given type from the type of expression and new expression type
+     * is assigned to the target node.
+     *
+     * @param expr         Expression to evaluate
+     * @param typeToRemove Type which is going to remove from expr
+     * @param targetNode   Node to which the type narrowing applies
+     * @param env          Current environment
+     * @return target environment
+     */
     public SymbolEnv evaluateTruth(BLangExpression expr, BType typeToRemove, BLangNode targetNode, SymbolEnv env) {
         if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF || typeToRemove == null) {
             return env;
