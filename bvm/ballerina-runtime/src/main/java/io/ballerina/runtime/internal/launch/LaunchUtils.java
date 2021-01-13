@@ -119,35 +119,36 @@ public class LaunchUtils {
     private static void loadConfigurations(Map<String, String> configArgs, String configFilePath) {
         Path ballerinaConfPath = Paths.get(System.getProperty("user.dir")).resolve("ballerina.conf");
         try {
-            ConfigRegistry.getInstance().initRegistry(configArgs, configFilePath, ballerinaConfPath);
+            ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+            configRegistry.initRegistry(configArgs, configFilePath, ballerinaConfPath);
             LogManager logManager = LogManager.getLogManager();
             if (logManager instanceof BLogManager) {
                 ((BLogManager) logManager).loadUserProvidedLogConfiguration();
             }
 
-            if (ConfigRegistry.getInstance().contains(CONFIG_OBSERVABILITY_ENABLED)) {
+            if (configRegistry.contains(CONFIG_OBSERVABILITY_ENABLED)) {
                 // Only try to inherit if "b7a.observability" config is provided
-                boolean observeFlag = ConfigRegistry.getInstance().getAsBoolean(CONFIG_OBSERVABILITY_ENABLED);
-                if (!ConfigRegistry.getInstance().contains(CONFIG_METRICS_ENABLED)) {
+                boolean observeFlag = configRegistry.getAsBoolean(CONFIG_OBSERVABILITY_ENABLED);
+                if (!configRegistry.contains(CONFIG_METRICS_ENABLED)) {
                     // Only try to inherit if "b7a.observability.metrics" config is not provided
-                    ConfigRegistry.getInstance().addConfiguration(CONFIG_METRICS_ENABLED, observeFlag);
+                    configRegistry.addConfiguration(CONFIG_METRICS_ENABLED, observeFlag);
                 }
-                if (!ConfigRegistry.getInstance().contains(CONFIG_TRACING_ENABLED)) {
+                if (!configRegistry.contains(CONFIG_TRACING_ENABLED)) {
                     // Only try to inherit if "b7a.observability.tracing" config is not provided
-                    ConfigRegistry.getInstance().addConfiguration(CONFIG_TRACING_ENABLED, observeFlag);
+                    configRegistry.addConfiguration(CONFIG_TRACING_ENABLED, observeFlag);
                 }
             }
-            if (ConfigRegistry.getInstance().contains(CONFIG_OBSERVABILITY_PROVIDER)) {
+            if (configRegistry.contains(CONFIG_OBSERVABILITY_PROVIDER)) {
                 // Only try to inherit if "b7a.observability" config is provided
-                String observabilityProvider = ConfigRegistry.getInstance().getAsString(CONFIG_OBSERVABILITY_PROVIDER);
-                if (!ConfigRegistry.getInstance().contains(CONFIG_OBSERVABILITY_METRICS_REPORTER)) {
+                String observabilityProvider = configRegistry.getAsString(CONFIG_OBSERVABILITY_PROVIDER);
+                if (!configRegistry.contains(CONFIG_OBSERVABILITY_METRICS_REPORTER)) {
                     // Only try to inherit if "b7a.observability.metrics" config is not provided
-                    ConfigRegistry.getInstance().addConfiguration(CONFIG_OBSERVABILITY_METRICS_REPORTER,
+                    configRegistry.addConfiguration(CONFIG_OBSERVABILITY_METRICS_REPORTER,
                             observabilityProvider);
                 }
-                if (!ConfigRegistry.getInstance().contains(CONFIG_OBSERVABILITY_TRACING_PROVIDER)) {
+                if (!configRegistry.contains(CONFIG_OBSERVABILITY_TRACING_PROVIDER)) {
                     // Only try to inherit if "b7a.observability.tracing" config is not provided
-                    ConfigRegistry.getInstance().addConfiguration(CONFIG_OBSERVABILITY_TRACING_PROVIDER,
+                    configRegistry.addConfiguration(CONFIG_OBSERVABILITY_TRACING_PROVIDER,
                             observabilityProvider);
                 }
             }
