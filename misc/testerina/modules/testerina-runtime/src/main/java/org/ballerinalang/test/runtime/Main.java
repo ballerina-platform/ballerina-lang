@@ -50,6 +50,7 @@ public class Main {
             //convert the json string back to object
             Gson gson = new Gson();
             TestSuite response = gson.fromJson(br, TestSuite.class);
+            response.setModuleName(args[args.length - 1]);
             startTestSuit(Paths.get(response.getSourceRootPath()), response, jsonTmpSummaryPath);
         }
     }

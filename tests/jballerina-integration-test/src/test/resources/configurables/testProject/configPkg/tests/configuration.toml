@@ -1,0 +1,10 @@
+[testOrg.configPkg]
+intVar = 45
+floatVar = 3.5
+stringVar = "abc"
+booleanVar = false
+testInt = 24
+testFloat = 77.2
+testString = "configurable variable test"
+testBoolean = true
+
