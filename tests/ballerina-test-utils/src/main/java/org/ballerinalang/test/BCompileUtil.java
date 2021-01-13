@@ -74,8 +74,7 @@ public class BCompileUtil {
 
     public static BPackageSymbol generateBIR(String sourceFilePath) {
         Project project = loadProject(sourceFilePath);
-        NullBackend nullBackend = new NullBackend(project.currentPackage().getCompilation());
-        nullBackend.compile();
+        NullBackend nullBackend = NullBackend.from(project.currentPackage().getCompilation());
         Package currentPackage = project.currentPackage();
         if (currentPackage.getCompilation().diagnosticResult().hasErrors() || nullBackend.hasErrors()) {
             return null;

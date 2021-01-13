@@ -31,25 +31,29 @@ import java.util.List;
  * @since 2.0
  */
 public class NullBackend extends CompilerBackend {
-    private final PackageCompilation compilation;
     private final PackageContext packageContext;
     private final CompilerContext compilerContext;
     private DefaultDiagnosticResult diagnosticResult;
 
-    public NullBackend(PackageCompilation compilation) {
-        this.compilation = compilation;
+    private NullBackend(PackageCompilation compilation) {
         this.packageContext = compilation.packageContext();
         ProjectEnvironment projectEnvContext = this.packageContext.project().projectEnvironmentContext();
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
     }
 
-    public void compile() {
+    public static NullBackend from(PackageCompilation compilation) {
+        NullBackend nullBackend = new NullBackend(compilation);
+        performBIRGen(compilation, nullBackend);
+        return nullBackend;
+    }
+
+    private static void performBIRGen(PackageCompilation compilation, NullBackend nullBackend) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : compilation.getResolution().topologicallySortedModuleList()) {
-            moduleContext.generatePlatformSpecificCode(compilerContext, this);
+            moduleContext.generatePlatformSpecificCode(nullBackend.compilerContext, nullBackend);
             diagnostics.addAll(moduleContext.diagnostics());
         }
-        this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+        nullBackend.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
     }
 
 
