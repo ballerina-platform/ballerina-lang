@@ -61,6 +61,10 @@ public class CommandConstants {
 
     public static final String ARG_KEY_NODE_COLUMN = "node.column";
 
+    public static final String ARG_KEY_NODE_POS = "node.position";
+
+    public static final String ARG_KEY_NODE_RANGE = "node.range";
+
     public static final String ARG_KEY_MESSAGE_TYPE = "message.type";
 
     public static final String ARG_KEY_MESSAGE = "message";
@@ -87,6 +91,8 @@ public class CommandConstants {
     public static final String CREATE_TEST_SERVICE_TITLE = "Create test for service";
 
     public static final String ADD_DOCUMENTATION_TITLE = "Document this";
+
+    public static final String UPDATE_DOCUMENTATION_TITLE = "Update documentation";
 
     public static final String ADD_ALL_DOC_TITLE = "Document all";
 
