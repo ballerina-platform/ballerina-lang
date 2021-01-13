@@ -80,7 +80,8 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
 
     @Override
     public <T extends MethodType> MethodType duplicate() {
-        return new BResourceMethodType(funcName, parentObjectType, type, flags, accessor, resourcePath, paramNames);
+        return new BResourceMethodType(funcName, parentObjectType, type, flags, accessor, resourcePath, paramNames,
+                paramDefaultability);
     }
 
     @Override
