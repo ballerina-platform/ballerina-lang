@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.testerina.core;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -38,6 +39,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.ProjectConstants;
@@ -77,6 +79,12 @@ public class TestProcessor {
     private static final String TEST_PREFIX = "@test:";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
+
+    private Map<ModuleId, SemanticModel> semanticModelMap;
+
+    public TestProcessor(Map<ModuleId, SemanticModel> semanticModelMap) {
+        this.semanticModelMap = semanticModelMap;
+    }
 
     /**
      * Generate and return the testsuite for module tests.
@@ -224,8 +232,8 @@ public class TestProcessor {
         List<FunctionSymbol> functionSymbolList = new ArrayList<>();
         List<String> functionNamesList = new ArrayList<>();
         for (Map.Entry<String, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
-            List<Symbol> symbols = module.getCompilation().getSemanticModel().visibleSymbols(
-                    syntaxTreeEntry.getKey(),
+            List<Symbol> symbols = semanticModelMap.get(module.moduleId()).
+                    visibleSymbols(syntaxTreeEntry.getKey(),
                     LinePosition.from(syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().line(),
                             syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().offset()));
             for (Symbol symbol : symbols) {

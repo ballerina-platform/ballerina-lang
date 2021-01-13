@@ -20,6 +20,7 @@ package io.ballerina.cli.task;
 
 import com.google.gson.Gson;
 import io.ballerina.cli.launcher.LauncherUtils;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
@@ -58,7 +59,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -158,17 +161,21 @@ public class RunTestsTask implements Task {
         int result = 0;
         boolean hasTests = false;
 
+        //Add semantic models to a map.
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        Map<ModuleId, SemanticModel> semanticModelMap = new HashMap<>();
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            semanticModelMap.put(moduleId, packageCompilation.getSemanticModel(moduleId));
+        }
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
-        TestProcessor testProcessor = new TestProcessor();
+        TestProcessor testProcessor = new TestProcessor(semanticModelMap);
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
         // in packages.
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
-
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
             Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
 

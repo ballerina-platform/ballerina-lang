@@ -18,8 +18,10 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -28,7 +30,9 @@ import org.ballerinalang.testerina.core.TestProcessor;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -46,9 +50,14 @@ public class ListTestGroupsTask implements Task {
     }
     @Override
     public void execute(Project project) {
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        Map<ModuleId, SemanticModel> semanticModelMap = new HashMap<>();
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            semanticModelMap.put(moduleId, packageCompilation.getSemanticModel(moduleId));
+        }
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
-            TestProcessor testProcessor = new TestProcessor();
+            TestProcessor testProcessor = new TestProcessor(semanticModelMap);
             Optional<TestSuite> suite = testProcessor.testSuite(module);
             if (!project.currentPackage().packageOrg().anonymous()) {
                 out.println();
