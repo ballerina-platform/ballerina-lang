@@ -150,3 +150,13 @@ service on new PathOnlyListener() {
 service / on new PathOnlyListener() {
 
 }
+
+type JustObj object {
+
+};
+
+type UnionType PathOnlyListener|JustObj;
+listener UnionType ul = new PathOnlyListener();
+
+type UnionWithError PathOnlyListener|error;
+listener UnionWithError ue = new UnionWithError();

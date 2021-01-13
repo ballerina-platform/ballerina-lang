@@ -60,6 +60,8 @@ public class ServiceDeclTest {
         validateError(result, i++, "service absolute path is required by the listener", 142, 27);
         validateError(result, i++, "service path literal is not supported by listener", 142, 27);
         validateError(result, i++, "service absolute path is required by the listener", 146, 12);
+        validateError(result, i++, "listener variable incompatible types: 'ul' is not a Listener object", 159, 1);
+        validateError(result, i++, "listener variable incompatible types: 'ue' is not a Listener object", 162, 1);
         Assert.assertEquals(i, result.getErrorCount());
     }
 }

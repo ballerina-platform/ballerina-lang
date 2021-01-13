@@ -2911,9 +2911,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(attachExpr.pos, DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT);
             }
 
+            // Validate listener attachment based on attach-point of the service decl and second param of listener.
             if (exprType.getKind() == TypeKind.OBJECT) {
                 BObjectType listenerType = (BObjectType) exprType;
                 validateServicePathOnListener(serviceNode, attachExpr, listenerType);
+            } else if (exprType.getKind() == TypeKind.UNION) {
+                for (BType memberType : ((BUnionType) exprType).getMemberTypes()) {
+                    if (memberType.tag == TypeTags.ERROR) {
+                        continue;
+                    }
+                    validateServicePathOnListener(serviceNode, attachExpr, (BObjectType) memberType);
+                }
             }
         }
     }
