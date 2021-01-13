@@ -46,12 +46,16 @@ public class LSCommandExecutorProvidersHolder {
 
     private LSCommandExecutorProvidersHolder(LanguageServerContext serverContext) {
         serverContext.put(CMD_EXEC_PROVIDERS_HOLDER_KEY, this);
+        loadServices();
+    }
+
+    private void loadServices() {
         ServiceLoader<LSCommandExecutor> loader = ServiceLoader.load(LSCommandExecutor.class);
         for (LSCommandExecutor executor : loader) {
             if (executor == null) {
                 continue;
             }
-            executors.put(executor.getCommand(), executor);
+            LSCommandExecutorProvidersHolder.executors.put(executor.getCommand(), executor);
         }
     }
 
@@ -62,7 +66,7 @@ public class LSCommandExecutorProvidersHolder {
      * @return {@link Optional}     Mapped command executor
      */
     public Optional<LSCommandExecutor> getCommandExecutor(String command) {
-        return Optional.ofNullable(executors.get(command));
+        return Optional.ofNullable(LSCommandExecutorProvidersHolder.executors.get(command));
     }
 
     /**
@@ -71,6 +75,6 @@ public class LSCommandExecutorProvidersHolder {
      * @return {@link List} Command List
      */
     public List<String> getCommandsList() {
-        return new ArrayList<>(executors.keySet());
+        return new ArrayList<>(LSCommandExecutorProvidersHolder.executors.keySet());
     }
 }
