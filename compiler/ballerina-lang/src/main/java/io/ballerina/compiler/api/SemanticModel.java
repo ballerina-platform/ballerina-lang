@@ -39,11 +39,11 @@ public interface SemanticModel {
     /**
      * Lookup the visible symbols at the given location.
      *
-     * @param srcFile  The source file document in which to look up the position
-     * @param position text position in the source
+     * @param sourceFile The source file document in which to look up the position
+     * @param position   text position in the source
      * @return {@link List} of visible symbols in the given location
      */
-    List<Symbol> visibleSymbols(Document srcFile, LinePosition position);
+    List<Symbol> visibleSymbols(Document sourceFile, LinePosition position);
 
     /**
      * Lookup the symbol at the given location.
@@ -87,11 +87,11 @@ public interface SemanticModel {
      * If there's an identifier associated with a symbol at the specified cursor position, finds all the references of
      * the specified symbol within the relevant scope.
      *
-     * @param fileName name of the file in which to look up the specified position
-     * @param position a cursor position in the source
+     * @param sourceFile The source file document in which to look up the position
+     * @param position   a cursor position in the source
      * @return A {@link List} of line ranges of all the references
      */
-    List<Location> references(String fileName, LinePosition position);
+    List<Location> references(Document sourceFile, LinePosition position);
 
     /**
      * Retrieves the type of the expression in the specified text range. If it's not a valid expression, returns an

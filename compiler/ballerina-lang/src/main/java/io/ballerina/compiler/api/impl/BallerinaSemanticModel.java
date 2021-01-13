@@ -182,8 +182,8 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public List<Location> references(String fileName, LinePosition position) {
-        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+    public List<Location> references(Document sourceFile, LinePosition position) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(sourceFile);
         SymbolFinder symbolFinder = new SymbolFinder();
         BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
 

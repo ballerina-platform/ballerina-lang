@@ -199,11 +199,12 @@ public class BallerinaTreeModifyUtil {
         }
 
         Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(compilationPath);
-        if (semanticModel.isEmpty()) {
+        Optional<Document> srcFile = workspaceManager.document(compilationPath);
+        if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             throw new JSONGenerationException("Modification error");
         }
-        UnusedSymbolsVisitor unusedSymbolsVisitor = new UnusedSymbolsVisitor(oldSyntaxTree.get().filePath(),
-                semanticModel.get(), deleteRange);
+        UnusedSymbolsVisitor unusedSymbolsVisitor =
+                new UnusedSymbolsVisitor(srcFile.get(), semanticModel.get(), deleteRange);
         unusedSymbolsVisitor.visit((ModulePartNode) oldSyntaxTree.get().rootNode());
 
         TextDocument oldTextDocument = oldSyntaxTree.get().textDocument();

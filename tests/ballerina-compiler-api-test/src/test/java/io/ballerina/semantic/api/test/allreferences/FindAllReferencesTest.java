@@ -60,7 +60,7 @@ public abstract class FindAllReferencesTest {
 
     @Test(dataProvider = "PositionProvider")
     public void testFindAllReferencesUsingLocation(int line, int col, List<Location> expLocations) {
-        List<Location> locations = model.references(srcFile.name(), LinePosition.from(line, col));
+        List<Location> locations = model.references(srcFile, LinePosition.from(line, col));
         assertLocations(locations, expLocations);
     }
 
