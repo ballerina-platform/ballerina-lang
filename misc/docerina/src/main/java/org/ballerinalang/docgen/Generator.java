@@ -63,6 +63,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
+import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
@@ -174,6 +175,9 @@ public class Generator {
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INTERSECTION_TYPE_DESC) {
                             hasPublicConstructs = true;
                             module.types.add(getIntersectionTypeModel(typeDefinition, semanticModel, fileName));
+                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
+                            hasPublicConstructs = true;
+                            module.types.add(getTypeDescModel(typeDefinition, semanticModel, fileName));
                         }
                         // TODO: handle value type nodes
                         // TODO: handle function type nodes
@@ -312,6 +316,20 @@ public class Generator {
         BType bType = new BType(typeDefinition.typeName().text(),
                 getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), memberTypes);
         bType.isTuple = true;
+        return bType;
+    }
+
+    private static BType getTypeDescModel(TypeDefinitionNode typeDefinition,
+                                           SemanticModel semanticModel, String fileName) {
+        TypedescTypeDescriptorNode typeDescriptor = (TypedescTypeDescriptorNode) typeDefinition.typeDescriptor();
+        Type type = null;
+        if (typeDescriptor.typedescTypeParamsNode().isPresent()) {
+            type = Type.fromNode(typeDescriptor.typedescTypeParamsNode().get().typeNode(), semanticModel, fileName);
+        }
+        BType bType = new BType(typeDefinition.typeName().text(),
+                getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), null);
+        bType.isTypeDesc = true;
+        bType.elementType = type;
         return bType;
     }
 

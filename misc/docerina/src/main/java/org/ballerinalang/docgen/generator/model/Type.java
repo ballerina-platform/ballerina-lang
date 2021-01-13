@@ -92,6 +92,8 @@ public class Type {
     @Expose
     public boolean isParenthesisedType;
     @Expose
+    public boolean isTypeDesc;
+    @Expose
     public boolean isRestParam;
     @Expose
     public boolean isLambda;
