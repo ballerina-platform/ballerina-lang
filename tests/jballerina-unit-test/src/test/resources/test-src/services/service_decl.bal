@@ -117,7 +117,7 @@ function getResourceAnnot(service object {} obj, string methodName, string[] pat
 } external;
 
 
-type LE Listener|EmptyListener;
+type LE EmptyListener|Listener;
 listener LE lsn = new Listener();
 
 type S service object {
