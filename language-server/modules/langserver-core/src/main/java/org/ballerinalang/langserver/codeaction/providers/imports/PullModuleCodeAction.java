@@ -57,7 +57,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
 
         String diagnosticMessage = diagnostic.getMessage();
         String uri = context.fileUri();
-        CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
+        CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
         Matcher matcher = CommandConstants.UNRESOLVED_MODULE_PATTERN.matcher(
@@ -67,7 +67,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
             List<Object> args = new ArrayList<>();
             String pkgName = matcher.group(1).trim();
             String version = getVersion(context, pkgName, matcher);
-            args.add(new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, pkgName + version));
+            args.add(CommandArgument.from(CommandConstants.ARG_KEY_MODULE_NAME, pkgName + version));
             args.add(uriArg);
             String commandTitle = CommandConstants.PULL_MOD_TITLE;
 

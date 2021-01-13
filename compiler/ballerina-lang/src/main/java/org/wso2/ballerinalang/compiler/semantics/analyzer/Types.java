@@ -625,7 +625,7 @@ public class Types {
             return true;
         }
 
-        if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
+        if (TypeTags.isXMLTypeTag(sourceTag) && (TypeTags.isXMLTypeTag(targetTag) || targetTag == TypeTags.STRING)) {
             return isXMLTypeAssignable(source, target, unresolvedTypes);
         }
 
@@ -634,14 +634,6 @@ public class Types {
         }
 
         if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.XML_TEXT) {
-            return true;
-        }
-
-        if (sourceTag == TypeTags.STRING && targetTag == TypeTags.XML_TEXT) {
-            return true;
-        }
-
-        if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.STRING) {
             return true;
         }
 
@@ -932,11 +924,69 @@ public class Types {
                     return isAssignable(sourceType, target.constraint, unresolvedTypes);
                 }
                 BXMLType source = (BXMLType) sourceType;
+                if (source.constraint.tag == TypeTags.NEVER) {
+                    if (sourceTag == targetTag) {
+                        return true;
+                    }
+                    return isAssignable(source, target.constraint, unresolvedTypes);
+                }
                 return isAssignable(source.constraint, target.constraint, unresolvedTypes);
             }
             return true;
         }
+        if (sourceTag == TypeTags.XML) {
+            BXMLType source = (BXMLType) sourceType;
+            if (targetTag == TypeTags.XML_TEXT) {
+                if (source.constraint != null) {
+                    return source.constraint.tag == TypeTags.NEVER;
+                }
+                return false;
+            }
+            if (targetTag == TypeTags.STRING) {
+                if (source.constraint.tag == TypeTags.NEVER) {
+                    return true;
+                }
+                return isAssignable(source.constraint, targetType, unresolvedTypes);
+            }
+        } else if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.STRING) {
+            return true;
+        }
         return sourceTag == targetTag;
+    }
+
+    public boolean isXMLExprCastableToString(BType source, BType target) {
+        if (target.tag == TypeTags.STRING && isXMLSourceCastableToString(source)) {
+            return true;
+        }
+        if (target.tag == TypeTags.UNION || target.tag == TypeTags.FINITE) {
+            return isAssignable(target, symTable.stringType) && isXMLSourceCastableToString(source);
+        }
+        return false;
+    }
+
+    public boolean isXMLSourceCastableToString(BType source) {
+        int exprTag = source.tag;
+        if (exprTag == TypeTags.XML_TEXT) {
+            return true;
+        }
+        if (exprTag == TypeTags.XML) {
+            BXMLType conversionExpressionType = (BXMLType) source;
+            // Revisit and check xml<xml<constraint>>> on chained iteration.
+            while (conversionExpressionType.constraint.tag == TypeTags.XML) {
+                conversionExpressionType = (BXMLType) conversionExpressionType.constraint;
+            }
+            return conversionExpressionType.constraint.tag == TypeTags.NEVER ||
+                    conversionExpressionType.constraint.tag == TypeTags.XML_TEXT;
+        }
+        if (exprTag == TypeTags.UNION) {
+            for (BType member : ((BUnionType) source).getMemberTypes()) {
+                if (!TypeTags.isXMLTypeTag(member.tag) && !(member.tag == TypeTags.STRING)) {
+                    return false;
+                }
+            }
+            return isAssignable(source, symTable.stringType);
+        }
+        return false;
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -1098,6 +1148,8 @@ public class Types {
             case TypeTags.TYPEDESC:
             case TypeTags.HANDLE:
                 return true;
+            case TypeTags.XML:
+                return ((BXMLType) type).constraint.tag == TypeTags.NEVER;
         }
         return false;
     }
@@ -1905,8 +1957,14 @@ public class Types {
                 && (actualType.tag == TypeTags.UNION
                 && isAllErrorMembers((BUnionType) actualType))) {
             return true;
-        } else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.XML_TEXT) {
-            return true;
+        } else if (targetType.tag == TypeTags.STRING) {
+            if (actualType.tag == TypeTags.XML) {
+                return isXMLTypeAssignable(actualType, targetType, new HashSet<>());
+            }
+            if (actualType.tag == TypeTags.UNION) {
+                return isAssignable(actualType, symTable.stringType);
+            }
+            return actualType.tag == TypeTags.XML_TEXT;
         }
         return false;
     }
