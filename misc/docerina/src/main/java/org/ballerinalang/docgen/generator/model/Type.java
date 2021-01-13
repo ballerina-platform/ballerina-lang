@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
@@ -275,7 +276,12 @@ public class Type {
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.ERROR)) {
                 return "errors";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.UNION)) {
-                return "types";
+                if (((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream().anyMatch(typeSymbol ->
+                        typeSymbol.typeKind().equals(TypeDescKind.ERROR))) {
+                    return "errors";
+                } else {
+                    return "types";
+                }
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
                 return getTypeCategory(((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor());
             }

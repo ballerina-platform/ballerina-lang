@@ -245,11 +245,6 @@
                     <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.documentation.ErrorsTest">
-                <methods>
-                    <exclude name="testErrorAsAType"/>
-                </methods>
-            </class>
             <class name="org.ballerinalang.test.bir.BirVariableOptimizationTest">
                 <methods>
                     <exclude name="testAttachedFunctions"/>

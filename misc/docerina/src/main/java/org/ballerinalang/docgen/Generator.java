@@ -129,10 +129,26 @@ public class Generator {
                             module.abstractObjects.add(getAbstractObjectModel(typeDefinition, semanticModel, fileName));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
                             hasPublicConstructs = true;
-                            module.types.add(getUnionTypeModel(typeDefinition, semanticModel, fileName));
+                            Type firstType = Type.fromNode(((UnionTypeDescriptorNode) (typeDefinition.typeDescriptor()))
+                                    .leftTypeDesc(), semanticModel, fileName);
+                            if (firstType.category.equals("errors")) {
+                                module.errors.add(new Error(typeDefinition.typeName().text(),
+                                        getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
+                                        .metadata()), Type.fromNode(typeDefinition.typeDescriptor(),
+                                        semanticModel, fileName)));
+                            } else {
+                                module.types.add(getUnionTypeModel(typeDefinition, semanticModel, fileName));
+                            }
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                             hasPublicConstructs = true;
-                            module.types.add(getUnionTypeModel(typeDefinition, semanticModel, fileName));
+                            Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, fileName);
+                            if (refType.category.equals("errors")) {
+                                module.errors.add(new Error(typeDefinition.typeName().text(),
+                                        getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
+                                        .metadata()), refType));
+                            } else {
+                                module.types.add(getUnionTypeModel(typeDefinition, semanticModel, fileName));
+                            }
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
                                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                                         == SyntaxKind.ERROR_TYPE_DESC) {
