@@ -21,14 +21,10 @@ import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -213,49 +209,6 @@ public class TestSingleFileProject {
             project = SingleFileProject.load(projectPath);
         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().contains("does not have read permissions"));
-        }
-
-        resetPermissions(projectPath);
-    }
-
-    @Test (description = "tests compiling a single file with no write permission")
-    public void testSingleFileWithNoWritePermission() {
-        // Skip test in windows due to file permission setting issue
-        if (isWindows()) {
-            throw new SkipException("Skipping tests on Windows");
-        }
-        Path projectParent = RESOURCE_DIRECTORY.resolve("single_file_no_permission");
-        Path projectPath = RESOURCE_DIRECTORY.resolve("single_file_no_permission").resolve("main.bal");
-
-        // 1) Remove write permission
-        boolean writable = projectParent.toFile().setWritable(false, true);
-        if (!writable) {
-            Assert.fail("could not remove read permission of project parent");
-        }
-        writable = projectPath.toFile().setWritable(false, true);
-        if (!writable) {
-            Assert.fail("could not remove read permission of file");
-        }
-
-        // 2) Initialize the project instance
-        SingleFileProject project = null;
-        try {
-            project = SingleFileProject.load(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        // 3) Load the package
-        Package currentPackage = project.currentPackage();
-        Collection<ResolvedPackageDependency> resolvedPackageDependencies
-                = currentPackage.getResolution().allDependencies();
-
-        // 4) Compile the current package
-        PackageCompilation compilation = currentPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
-        try {
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, projectParent);
-        } catch (ProjectException e) {
-            Assert.assertTrue(e.getMessage().contains("does not have write permissions"));
         }
 
         resetPermissions(projectPath);

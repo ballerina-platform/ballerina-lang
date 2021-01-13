@@ -90,6 +90,8 @@ public class JBallerinaBackend extends CompilerBackend {
     private boolean codeGenCompleted;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
+        // Check if the project has write permissions
+        checkWritePermission(packageCompilation.packageContext().project().sourceRoot());
         return packageCompilation.getCompilerBackend(jdkVersion,
                 (targetPlatform -> new JBallerinaBackend(packageCompilation, jdkVersion)));
     }
@@ -151,11 +153,9 @@ public class JBallerinaBackend extends CompilerBackend {
 
         switch (outputType) {
             case EXEC:
-                checkWritePermission(filePath.getParent());
                 generatedArtifact = emitExecutable(filePath);
                 break;
             case BALO:
-                checkWritePermission(filePath);
                 generatedArtifact = emitBalo(filePath);
                 break;
             default:

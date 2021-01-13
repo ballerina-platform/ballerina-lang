@@ -27,7 +27,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.io.File;
@@ -41,6 +40,7 @@ import java.util.ServiceLoader;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
+import static io.ballerina.projects.util.ProjectUtils.checkWritePermission;
 
 /**
  * Task for creating the executable jar file.
@@ -63,14 +63,19 @@ public class CreateExecutableTask implements Task {
         this.out.println();
         this.out.println("Generating executable");
 
+        Target target;
+        Path currentDir = Paths.get(System.getProperty(USER_DIR));
+
         try {
-            ProjectUtils.checkWritePermission(project.sourceRoot());
+            if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                checkWritePermission(currentDir);
+            } else {
+                checkWritePermission(project.sourceRoot());
+            }
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
         }
 
-        Target target;
-        Path currentDir = Paths.get(System.getProperty(USER_DIR));
         try {
             target = new Target(project.sourceRoot());
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
