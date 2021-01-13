@@ -29,7 +29,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
-import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * This contains methods to test fail statement.
