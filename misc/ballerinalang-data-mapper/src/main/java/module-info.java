@@ -7,6 +7,6 @@ module io.ballerina.datamapper {
     requires org.eclipse.lsp4j;
     requires org.eclipse.lsp4j.jsonrpc;
     requires org.slf4j;
-    requires guava;
     requires gson;
+    requires com.google.common;
 }
