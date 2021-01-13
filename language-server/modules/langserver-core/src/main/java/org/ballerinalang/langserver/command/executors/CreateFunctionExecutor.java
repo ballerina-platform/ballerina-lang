@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -27,6 +26,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.eclipse.lsp4j.Position;
@@ -68,34 +68,27 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 //        String funcArgs = "";
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
-        int line = -1;
-        int column = -1;
+        Position position = null;
 
-        for (Object arg : context.getArguments()) {
-            String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
-            String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
-            switch (argKey) {
+        for (CommandArgument arg : context.getArguments()) {
+            switch (arg.key()) {
                 case CommandConstants.ARG_KEY_DOC_URI:
-                    uri = argVal;
+                    uri = arg.valueAs(String.class);
                     textDocumentIdentifier.setUri(uri);
                     break;
-                case CommandConstants.ARG_KEY_NODE_LINE:
-                    line = Integer.parseInt(argVal);
-                    break;
-                case CommandConstants.ARG_KEY_NODE_COLUMN:
-                    column = Integer.parseInt(argVal);
+                case CommandConstants.ARG_KEY_NODE_POS:
+                    position = arg.valueAs(Position.class);
                     break;
                 default:
             }
         }
 
         Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
-        if (line == -1 || column == -1 || filePath.isEmpty()) {
+        if (position == null || filePath.isEmpty()) {
             throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
         SyntaxTree syntaxTree = context.workspace().syntaxTree(filePath.get()).orElseThrow();
-        Position position = new Position(line, column);
         NonTerminalNode matchedNode = CommonUtil.findNode(new Range(position, position), syntaxTree);
         Node identifier = null;
         while (matchedNode != null) {
