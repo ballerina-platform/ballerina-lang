@@ -161,6 +161,7 @@
             <class name="org.ballerinalang.test.javainterop.basic.ConstructorTest"></class>
             <class name="org.ballerinalang.test.javainterop.basic.FieldAccessMutateTest"></class>
             <class name="org.ballerinalang.test.javainterop.basic.JavaToBallerinaTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.JavaCastTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.FunctionsReturningPrimitivesTest"></class>
             <class name="org.ballerinalang.test.javainterop.basic.HandleRefersNullTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveConversionInFunctionReturnsTest"></class>

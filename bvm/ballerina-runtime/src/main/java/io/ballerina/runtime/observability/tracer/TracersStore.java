@@ -18,25 +18,19 @@
 
 package io.ballerina.runtime.observability.tracer;
 
+import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
 import io.opentracing.Tracer;
-import org.ballerinalang.config.ConfigRegistry;
 
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ServiceLoader;
-
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_PROVIDER;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.JAEGER;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.TRACER_NAME_CONFIG;
 
 /**
  * Class that creates the tracer for a given service.
  */
 public class TracersStore {
 
-    private OpenTracer tracerGenerator;
+    private TracerProvider tracerProvider;
     private Map<String, Tracer> store;
     private static final PrintStream consoleError = System.err;
     private static final TracersStore instance = new TracersStore();
@@ -48,31 +42,8 @@ public class TracersStore {
     private TracersStore() {
     }
 
-    public void loadTracers() {
-        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        if (configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED)) {
-            String overallProviderName = configRegistry.getConfigOrDefault(CONFIG_OBSERVABILITY_PROVIDER, JAEGER);
-            String tracerName = configRegistry.getConfigOrDefault(TRACER_NAME_CONFIG, overallProviderName);
-
-            ServiceLoader<OpenTracer> openTracers = ServiceLoader.load(OpenTracer.class);
-            for (OpenTracer openTracer : openTracers) {
-                if (tracerName.equalsIgnoreCase(openTracer.getName())) {
-                    tracerGenerator = openTracer;
-                    break;
-                }
-            }
-
-            if (tracerGenerator != null) {
-                try {
-                    tracerGenerator.init();
-                } catch (InvalidConfigurationException e) {
-                    consoleError.println("error: error in observability tracing configurations: " + e.getMessage());
-                }
-            } else {
-                consoleError.println(
-                        "error: observability enabled but no tracing extension found for name " + tracerName);
-            }
-        }
+    public void setTracerGenerator(TracerProvider tracerProvider) {
+        this.tracerProvider = tracerProvider;
         store = new HashMap<>();
     }
 
@@ -87,13 +58,13 @@ public class TracersStore {
         if (store.containsKey(serviceName)) {
             openTracer = store.get(serviceName);
         } else {
-            if (tracerGenerator != null) {
+            if (tracerProvider != null) {
                 try {
-                    openTracer = tracerGenerator.getTracer(serviceName);
+                    openTracer = tracerProvider.getTracer(serviceName);
                     store.put(serviceName, openTracer);
                 } catch (Throwable e) {
-                    consoleError.println("error: error getting tracer for " + serviceName + " service from "
-                            + tracerGenerator.getName() + ". " + e.getMessage());
+                    consoleError.println("error: error getting tracer for " + serviceName + " service. "
+                            + e.getMessage());
                 }
             }
         }

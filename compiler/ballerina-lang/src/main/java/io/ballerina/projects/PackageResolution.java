@@ -24,6 +24,7 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -145,6 +146,15 @@ public class PackageResolution {
                 ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
                 allModuleLoadRequests.addAll(moduleContext.populateTestSrcModuleLoadRequests());
             }
+        }
+
+        // TODO: Move to compiler extension once new Compiler Extension model is introduced
+        if (compilationOptions.observabilityIncluded()) {
+            PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
+            ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
+                    PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), packageName, ModuleName.from(packageName),
+                    null, PackageDependencyScope.DEFAULT);
+            allModuleLoadRequests.add(observeModuleLoadReq);
         }
 
         return getPackageLoadRequestsOfDirectDependencies(allModuleLoadRequests);

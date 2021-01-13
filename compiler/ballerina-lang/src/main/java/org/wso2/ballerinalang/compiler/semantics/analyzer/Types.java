@@ -1494,7 +1494,55 @@ public class Types {
                 varType = inferRecordFieldType(recordType);
                 break;
             case TypeTags.XML:
-                varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
+                BType constraint = ((BXMLType) collectionType).constraint;
+                while (constraint.tag == TypeTags.XML) {
+                    collectionType = constraint;
+                    constraint = ((BXMLType) collectionType).constraint;
+                }
+                switch (constraint.tag) {
+                    case TypeTags.XML_ELEMENT:
+                        varType = symTable.xmlElementType;
+                        break;
+                    case TypeTags.XML_COMMENT:
+                        varType = symTable.xmlCommentType;
+                        break;
+                    case TypeTags.XML_TEXT:
+                        varType = symTable.xmlTextType;
+                        break;
+                    case TypeTags.XML_PI:
+                        varType = symTable.xmlPIType;
+                        break;
+                    default:
+                        Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
+                        Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
+                                ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
+                        if (collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes)) {
+                            varType = symTable.xmlType;
+                        } else {
+                            LinkedHashSet<BType> collectionTypesInSymTable = new LinkedHashSet<>();
+                            for (BType subType : collectionTypes) {
+                                switch (subType.tag) {
+                                    case TypeTags.XML_ELEMENT:
+                                        collectionTypesInSymTable.add(symTable.xmlElementType);
+                                        break;
+                                    case TypeTags.XML_COMMENT:
+                                        collectionTypesInSymTable.add(symTable.xmlCommentType);
+                                        break;
+                                    case TypeTags.XML_TEXT:
+                                        collectionTypesInSymTable.add(symTable.xmlTextType);
+                                        break;
+                                    case TypeTags.XML_PI:
+                                        collectionTypesInSymTable.add(symTable.xmlPIType);
+                                        break;
+                                }
+
+                            }
+                            varType = BUnionType.create(null, collectionTypesInSymTable);
+                        }
+                }
+                break;
+            case TypeTags.XML_TEXT:
+                varType = symTable.xmlTextType;
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
