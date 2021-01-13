@@ -56,12 +56,3 @@ function testRecordAndMapIntersection() {
     var err = error IntersectionErrorFour("message", x = "x", z = 10);
     DistinctErrorIntersection err2 = error IntersectionErrorFour("message", x = "x");
 }
-
-type X error<record { int i?; }> & error<record { int i; }>;
-type Y readonly & record { int i; };
-
-type Z record {
-    *Y;
-    X x;
-    Y y;
-};
