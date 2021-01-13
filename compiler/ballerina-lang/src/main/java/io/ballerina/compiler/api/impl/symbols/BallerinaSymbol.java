@@ -40,7 +40,6 @@ public class BallerinaSymbol implements Symbol {
     private final String name;
     private final PackageID moduleID;
     private final SymbolKind symbolKind;
-    private final Documentation docAttachment;
     private final Location position;
     private final BSymbol internalSymbol;
 
@@ -48,7 +47,6 @@ public class BallerinaSymbol implements Symbol {
         this.name = name;
         this.moduleID = moduleID;
         this.symbolKind = symbolKind;
-        this.docAttachment = getDocAttachment(symbol);
 
         if (symbol == null) {
             throw new IllegalArgumentException("'symbol' cannot be null");
@@ -91,7 +89,7 @@ public class BallerinaSymbol implements Symbol {
      */
     @Override
     public Optional<Documentation> docAttachment() {
-        return Optional.ofNullable(this.docAttachment);
+        return Optional.empty();
     }
 
     @Override
@@ -126,7 +124,7 @@ public class BallerinaSymbol implements Symbol {
         return this.internalSymbol;
     }
 
-    private Documentation getDocAttachment(BSymbol symbol) {
+    Documentation getDocAttachment(BSymbol symbol) {
         return symbol == null ? null : new BallerinaDocumentation(symbol.markdownDocumentation);
     }
 
