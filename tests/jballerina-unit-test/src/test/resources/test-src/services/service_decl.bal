@@ -165,11 +165,11 @@ type MagicField object { public string magic; };
 
 function testServiceDecl() {
     Listener l = <Listener> getListener(); // get the listener
-    assertEquality(true, l.initialized);
-    assertEquality(true, l.started);
+    assertEquality(l.initialized, true);
+    assertEquality(l.started, true);
 
     MagicField o = <MagicField> getService(); // get service attached to the listener
-    assertEquality("The Somebody Else's Problem field", o.magic);
+    assertEquality(o.magic, "The Somebody Else's Problem field");
 
     // Validate resource function annotation
     any val = getResourceAnnotation("get", ["processRequest"], "RAnnot");
@@ -202,7 +202,7 @@ function testServiceDecl() {
     reset();
 }
 
-function assertEquality(any|error expected, any|error actual) {
+function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }
