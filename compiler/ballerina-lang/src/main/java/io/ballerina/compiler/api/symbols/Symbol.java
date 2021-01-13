@@ -20,8 +20,6 @@ package io.ballerina.compiler.api.symbols;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.tools.diagnostics.Location;
 
-import java.util.Optional;
-
 /**
  * Represents a compiled language symbol.
  *
@@ -49,13 +47,6 @@ public interface Symbol {
      * @return {@link SymbolKind} of the symbol
      */
     SymbolKind kind();
-
-    /**
-     * Get the Documentation attachment bound to the symbol.
-     *
-     * @return {@link Optional} doc attachment
-     */
-    Optional<Documentation> docAttachment();
 
     /**
      * This retrieves position information of the symbol in the source code. The position given here is the location of

@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Represents the implementation of a Compiled Ballerina Symbol.
@@ -82,14 +81,6 @@ public class BallerinaSymbol implements Symbol {
     @Override
     public SymbolKind kind() {
         return this.symbolKind;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Optional<Documentation> docAttachment() {
-        return Optional.empty();
     }
 
     @Override
