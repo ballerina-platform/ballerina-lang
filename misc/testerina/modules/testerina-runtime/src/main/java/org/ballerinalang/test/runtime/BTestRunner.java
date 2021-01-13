@@ -82,7 +82,7 @@ public class BTestRunner {
     private static final String TEST_INIT_FUNCTION_NAME = ".<testinit>";
     private static final String TEST_START_FUNCTION_NAME = ".<teststart>";
     private static final String TEST_STOP_FUNCTION_NAME = ".<teststop>";
-    private static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
+    private static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
 
     private PrintStream errStream;
     private PrintStream outStream;
