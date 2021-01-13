@@ -20,6 +20,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -353,5 +354,10 @@ public class AnnotationAttachmentTest {
         element = listConstructorExpr.exprs.get(1);
         Assert.assertEquals(element.getKind(), NodeKind.LITERAL);
         Assert.assertEquals(((BLangLiteral) element).value, "test");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

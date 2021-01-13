@@ -326,4 +326,8 @@ public class BenchmarkUtilTest {
         Assert.assertTrue(returns[0].stringValue().isEmpty());
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+    }
 }

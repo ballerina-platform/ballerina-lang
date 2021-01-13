@@ -22,6 +22,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -51,4 +52,8 @@ public class AnnotationExpressionCodeAnalysisNegative {
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+    }
 }

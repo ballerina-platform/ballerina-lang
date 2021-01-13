@@ -23,6 +23,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -101,5 +102,11 @@ public class DisplayAnnotationTest {
             return ((BLangInvocation) expression).expr;
         }
         return expression;
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negative = null;
     }
 }

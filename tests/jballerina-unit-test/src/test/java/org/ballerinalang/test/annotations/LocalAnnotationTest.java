@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -49,5 +50,10 @@ public class LocalAnnotationTest {
         for (int i = 0; i < 6; i++) {
             Assert.assertEquals(array.getBoolean(i), 1);
         }
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -21,7 +21,6 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.balo.BaloCreator;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,8 +47,8 @@ public class ListenerBaloTest {
         Assert.assertEquals(result[0].stringValue(), "2_3");
     }
 
-    @AfterClass(enabled = false)
+    @AfterClass
     public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_listener", "listenerProject", "bee");
+        compileResult = null;
     }
 }

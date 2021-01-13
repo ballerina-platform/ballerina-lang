@@ -151,7 +151,7 @@ public class NativeConversionNegativeTest {
     @AfterClass
     public void tearDown() {
         negativeResult = null;
-        negativeCompileResult= null;
+        negativeCompileResult = null;
         taintCheckResult = null;
     }
 }

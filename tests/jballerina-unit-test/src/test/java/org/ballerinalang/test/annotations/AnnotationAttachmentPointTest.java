@@ -19,6 +19,7 @@ package org.ballerinalang.test.annotations;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -436,5 +437,10 @@ public class AnnotationAttachmentPointTest {
     public void testInvalidAttachmentForClass() {
         int index = 242;
         validateError(compileResult, index++, "annotation 'v19' is not allowed on class", 852, 6);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

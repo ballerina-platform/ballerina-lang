@@ -30,6 +30,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -167,5 +168,10 @@ public class GlobalVarFunctionInBaloTest {
         Assert.assertEquals(((BInteger) returns[4]).intValue(), 3);
         Assert.assertEquals(((BInteger) returns[5]).intValue(), 3);
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 2);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }
