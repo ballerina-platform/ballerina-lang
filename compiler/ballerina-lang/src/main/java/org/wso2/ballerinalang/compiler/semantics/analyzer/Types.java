@@ -3352,7 +3352,6 @@ public class Types {
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
         errorType.flags |= errorTypeSymbol.flags;
         errorTypeSymbol.type = errorType;
-        symResolver.markParameterizedType(errorType, detailType);
         errorType.typeIdSet = BTypeIdSet.emptySet();
 
         return errorType;
