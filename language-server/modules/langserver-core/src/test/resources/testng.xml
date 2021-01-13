@@ -28,11 +28,11 @@ under the License.
         </groups>
         <packages>
 <!--            <package name="org.ballerinalang.langserver.highlighting.*"/>-->
-<!--            <package name="org.ballerinalang.langserver.definition.*"/>-->
+            <package name="org.ballerinalang.langserver.definition.*"/>
 <!--            <package name="org.ballerinalang.langserver.docsymbol.*"/>-->
-<!--            <package name="org.ballerinalang.langserver.hover.*"/>-->
+            <package name="org.ballerinalang.langserver.hover.*"/>
 <!--            <package name="org.ballerinalang.langserver.implementation.*"/>-->
-<!--            <package name="org.ballerinalang.langserver.references.*"/>-->
+            <package name="org.ballerinalang.langserver.references.*"/>
 <!--            <package name="org.ballerinalang.langserver.rename.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.completion.*"/>-->
             <package name="org.ballerinalang.langserver.signature.*"/>
@@ -44,6 +44,7 @@ under the License.
             <package name="org.ballerinalang.langserver.completion.*" />
             <package name="org.ballerinalang.langserver.diagnostics.*" />
 <!--            <package name="org.ballerinalang.langserver.command.*"/>-->
+            <package name="org.ballerinalang.langserver.foldingrange.*" />
         </packages>
         <classes>
             <class name="org.ballerinalang.langserver.workspace.TestWorkspaceManager"/>

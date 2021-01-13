@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.commons;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 
 /**
- * Represents the language server context.
+ * Represents the language server workspace service context.
  *
  * @since 2.0.0
  */
@@ -39,4 +39,11 @@ public interface WorkspaceServiceContext {
      * @return {@link LSOperation}
      */
     LSOperation operation();
+
+    /**
+     * Get the language server context.
+     *
+     * @return {@link LanguageServerContext}
+     */
+    LanguageServerContext languageServercontext();
 }

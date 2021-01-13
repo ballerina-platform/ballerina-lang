@@ -1,11 +1,11 @@
 import ballerina/lang.'string as strings;
 
-final string envVar = "";
+final string envVar = "test";
 final string varFunc = dummyStringFunction();
 final string str = "ballerina is ";
 final string varNativeFunc = strings:concat(str, "awesome");
 final int varIntExpr = 10 + 10 + 10;
-final string varConcat = envVar + varFunc + varNativeFunc;
+final string varConcat = varFunc + varNativeFunc;
 
 function accessConstant() returns (string) {
     return envVar;

@@ -114,7 +114,8 @@ public class JDIEventProcessor {
                 context.getClient().stopped(stoppedEventArguments);
             } else {
                 long threadId = ((StepEvent) event).thread().uniqueID();
-                sendStepRequest(threadId, StepRequest.STEP_OVER);
+                int stepType = ((StepRequest) event.request()).depth();
+                sendStepRequest(threadId, stepType);
             }
         } else if (event instanceof VMDisconnectEvent
                 || event instanceof VMDeathEvent
@@ -172,12 +173,15 @@ public class JDIEventProcessor {
         context.getClient().continued(continuedEventArguments);
     }
 
-    void restoreBreakpoints() {
+    void restoreBreakpoints(boolean isContinue) {
         if (context.getDebuggee() == null) {
             return;
         }
         context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
-        context.getDebuggee().allClasses().forEach(this::configureUserBreakPoints);
+
+        if (isContinue) {
+            context.getDebuggee().allClasses().forEach(this::configureUserBreakPoints);
+        }
     }
 
     private void populateMaps() {
@@ -213,9 +217,9 @@ public class JDIEventProcessor {
             Location currentLocation = threadReference.frames().get(0).location();
             ReferenceType referenceType = currentLocation.declaringType();
             List<Location> allLocations = currentLocation.method().allLineLocations();
-            Optional<Location> lastLocation = allLocations.stream().max(Comparator.comparingInt(Location::lineNumber));
             Optional<Location> firstLocation = allLocations.stream().min(Comparator.comparingInt(Location::lineNumber));
-            if (!firstLocation.isPresent()) {
+            Optional<Location> lastLocation = allLocations.stream().max(Comparator.comparingInt(Location::lineNumber));
+            if (firstLocation.isEmpty()) {
                 return;
             }
             // If the debug flow is in the last line of the method and the user wants to step over, the expected
@@ -225,11 +229,11 @@ public class JDIEventProcessor {
                 return;
             }
 
-            int nextStepPoint = currentLocation.lineNumber();
+            int nextStepPoint = firstLocation.get().lineNumber();
             context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
             do {
                 List<Location> locations = referenceType.locationsOfLine(nextStepPoint);
-                if (!locations.isEmpty() && (locations.get(0).lineNumber() > currentLocation.lineNumber())) {
+                if (!locations.isEmpty() && (locations.get(0).lineNumber() > firstLocation.get().lineNumber())) {
                     BreakpointRequest bpReq = context.getDebuggee().eventRequestManager()
                             .createBreakpointRequest(locations.get(0));
                     bpReq.enable();
@@ -238,7 +242,8 @@ public class JDIEventProcessor {
             } while (nextStepPoint <= lastLocation.get().lineNumber());
         } catch (IncompatibleThreadStateException | AbsentInformationException e) {
             LOGGER.error(e.getMessage());
-            sendStepRequest(threadId, StepRequest.STEP_OVER);
+            int stepType = ((StepRequest) this.stepEventRequests.get(0)).depth();
+            sendStepRequest(threadId, stepType);
         }
     }
 

@@ -171,17 +171,17 @@ public class QueryExprWithQueryConstructTypeTest {
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
-                38, 35);
+                54, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'Customer[]', " +
                         "found '(table<Customer> key(id, name)|error)'",
-                55, 32);
+                71, 32);
         validateError(negativeResult, index++, "incompatible types: expected " +
                         "'table<Customer> key(id, name)', found '(table<Customer> key(id, name)|error)'",
-                70, 35);
+                86, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'error', found 'boolean'",
-                91, 21);
+                107, 21);
         validateError(negativeResult, index, "type 'error' not allowed here; expected " +
-                "an 'error' or a subtype of 'error'.", 91, 21);
+                "an 'error' or a subtype of 'error'.", 107, 21);
     }
 
     @Test(description = "Test semantic negative scenarios for query expr with query construct type")

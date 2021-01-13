@@ -47,24 +47,22 @@ public class ObservabilityConstants {
     public static final String TAG_KEY_ERROR = "error";     // Standard boolean error tag
     public static final String TAG_KEY_ENTRYPOINT_FUNCTION_MODULE = "entrypoint.function.module";
     public static final String TAG_KEY_ENTRYPOINT_FUNCTION_POSITION = "entrypoint.function.position";
+    public static final String TAG_KEY_LISTENER_NAME = "listener.name";
 
     // Source related tags
     public static final String TAG_KEY_SRC_MODULE = "src.module";
     public static final String TAG_KEY_SRC_POSITION = "src.position";
-    public static final String TAG_KEY_SRC_RESOURCE_PATH = "src.service.resource.path";
-    public static final String TAG_KEY_SRC_RESOURCE_ACCESSOR = "src.service.resource.accessor";
-    public static final String TAG_KEY_SRC_FUNCTION_NAME = "function";
-    public static final String TAG_KEY_SRC_OBJECT_NAME = "object_name";
-    public static final String TAG_KEY_SRC_ACTION_NAME = "action";
-    public static final String TAG_KEY_CONNECTOR_NAME = "connector_name";
-    public static final String TAG_KEY_LISTENER_NAME = "listener.name";
+    public static final String TAG_KEY_SRC_RESOURCE_PATH = "src.resource.path";
+    public static final String TAG_KEY_SRC_RESOURCE_ACCESSOR = "src.resource.accessor";
+    public static final String TAG_KEY_SRC_OBJECT_NAME = "src.object.name";
+    public static final String TAG_KEY_SRC_FUNCTION_NAME = "src.function.name";
 
-    // Source related flag tags
-    public static final String TAG_KEY_IS_SRC_MAIN_FUNCTION = "src.entry_point.main";
+    // Source related boolean flag tags
+    public static final String TAG_KEY_IS_SRC_MAIN_FUNCTION = "src.main";
     public static final String TAG_KEY_IS_SRC_WORKER = "src.worker";
-    public static final String TAG_KEY_IS_SRC_CLIENT_REMOTE = "src.remote";
-    public static final String TAG_KEY_IS_SRC_SERVICE_REMOTE = "src.entry_point.remote";
-    public static final String TAG_KEY_IS_SRC_SERVICE_RESOURCE = "src.entry_point.resource";
+    public static final String TAG_KEY_IS_SRC_CLIENT_REMOTE = "src.client.remote";
+    public static final String TAG_KEY_IS_SRC_SERVICE_REMOTE = "src.service.remote";
+    public static final String TAG_KEY_IS_SRC_SERVICE_RESOURCE = "src.service.resource";
 
     public static final String PROPERTY_HTTP_HOST = "host";
     public static final String PROPERTY_HTTP_PORT = "port";
@@ -91,4 +89,7 @@ public class ObservabilityConstants {
 
     // Tracing Configs
     public static final String CONFIG_TRACING_ENABLED = CONFIG_TABLE_TRACING + ".enabled";
+
+    // Checkpoint Configs
+    public static final String CHECKPOINT_EVENT_NAME = "CHECKPOINT";
 }

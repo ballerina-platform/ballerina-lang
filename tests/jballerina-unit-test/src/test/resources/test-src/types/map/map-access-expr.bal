@@ -92,7 +92,7 @@ function testGetMapValues () returns [string, string] {
     }, values);
     var nam = <string> values[0];
     var jsn = <json> values[8];
-    var city = <string> jsn.city;
+    var city = <string> checkpanic jsn.city;
     return [nam, city];
 }
 

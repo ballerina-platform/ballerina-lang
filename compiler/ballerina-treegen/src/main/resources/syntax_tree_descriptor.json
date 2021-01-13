@@ -126,7 +126,8 @@
                 },
                 {
                     "name": "typeDescriptor",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
                 },
                 {
                     "name": "variableName",
@@ -945,6 +946,28 @@
         {
             "name": "RequiredParameterNode",
             "base": "ParameterNode",
+            "kind": "REQUIRED_PARAM",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "typeName",
+                    "type": "Node"
+                },
+                {
+                    "name": "paramName",
+                    "type": "Token",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "IncludedRecordParameterNode",
+            "base": "ParameterNode",
+            "kind": "INCLUDED_RECORD_PARAM",
             "attributes": [
                 {
                     "name": "annotations",
@@ -953,8 +976,7 @@
                 },
                 {
                     "name": "asteriskToken",
-                    "type": "Token",
-                    "isOptional": true
+                    "type": "Token"
                 },
                 {
                     "name": "typeName",
@@ -3291,7 +3313,7 @@
                 },
                 {
                     "name": "receiveWorkers",
-                    "type": "SimpleNameReferenceNode"
+                    "type": "Node"
                 }
             ]
         },

@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.TypeTags;
@@ -21,8 +22,10 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -34,8 +37,8 @@ import java.util.stream.Collectors;
  */
 public class BTupleType extends BType implements TupleType {
 
-    private List<Type> tupleTypes;
-    private Type restType;
+    private final List<Type> tupleTypes;
+    private final Type restType;
     private int typeFlags;
     private final boolean readonly;
     private IntersectionType immutableType;
@@ -62,11 +65,7 @@ public class BTupleType extends BType implements TupleType {
     }
 
     public BTupleType(List<Type> typeList, int typeFlags) {
-        super(null, null, Object.class);
-        this.tupleTypes = typeList;
-        this.restType = null;
-        this.typeFlags = typeFlags;
-        this.readonly = false;
+        this(typeList, null, typeFlags, false);
     }
 
     /**
@@ -79,10 +78,23 @@ public class BTupleType extends BType implements TupleType {
      */
     public BTupleType(List<Type> typeList, Type restType, int typeFlags, boolean readonly) {
         super(null, null, Object.class);
-        this.tupleTypes = typeList;
-        this.restType = restType;
+        if (readonly) {
+            this.tupleTypes = getReadOnlyTypes(typeList);
+            this.restType = restType != null ? ReadOnlyUtils.getReadOnlyType(restType) : null;
+        } else {
+            this.tupleTypes = typeList;
+            this.restType = restType;
+        }
         this.typeFlags = typeFlags;
         this.readonly = readonly;
+    }
+
+    private List<Type> getReadOnlyTypes(List<Type> typeList) {
+        List<Type> readOnlyTypes = new ArrayList<>();
+        for (Type type : typeList) {
+            readOnlyTypes.add(ReadOnlyUtils.getReadOnlyType(type));
+        }
+        return readOnlyTypes;
     }
 
     public List<Type> getTupleTypes() {

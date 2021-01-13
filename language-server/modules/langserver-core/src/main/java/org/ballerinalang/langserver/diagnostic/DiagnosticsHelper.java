@@ -21,6 +21,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Diagnostic;
@@ -43,18 +44,25 @@ import java.util.Optional;
  * @since 0.983.0
  */
 public class DiagnosticsHelper {
-    private static final List<Diagnostic> EMPTY_DIAGNOSTIC_LIST = new ArrayList<>(0);
-    private static final DiagnosticsHelper INSTANCE = new DiagnosticsHelper();
+    private final List<Diagnostic> emptyDiagnosticList = new ArrayList<>(0);
+    private static final LanguageServerContext.Key<DiagnosticsHelper> DIAGNOSTICS_HELPER_KEY =
+            new LanguageServerContext.Key<>();
     /**
      * Holds last sent diagnostics for the purpose of clear-off when publishing new diagnostics.
      */
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
 
-    public static DiagnosticsHelper getInstance() {
-        return INSTANCE;
+    public static DiagnosticsHelper getInstance(LanguageServerContext serverContext) {
+        DiagnosticsHelper diagnosticsHelper = serverContext.get(DIAGNOSTICS_HELPER_KEY);
+        if (diagnosticsHelper == null) {
+            diagnosticsHelper = new DiagnosticsHelper(serverContext);
+        }
+
+        return diagnosticsHelper;
     }
 
-    private DiagnosticsHelper() {
+    private DiagnosticsHelper(LanguageServerContext serverContext) {
+        serverContext.put(DIAGNOSTICS_HELPER_KEY, this);
         this.lastDiagnosticMap = new HashMap<>();
     }
 
@@ -77,8 +85,12 @@ public class DiagnosticsHelper {
             return;
         }
 
-        // Replace old entries with an empty list
-        lastDiagnosticMap.keySet().forEach((key) -> diagnosticMap.computeIfAbsent(key, value -> EMPTY_DIAGNOSTIC_LIST));
+        // Clear old entries with an empty list
+        lastDiagnosticMap.forEach((key, value) -> {
+            if (!diagnosticMap.containsKey(key)) {
+                client.publishDiagnostics(new PublishDiagnosticsParams(key, emptyDiagnosticList));
+            }
+        });
 
         // Publish diagnostics
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
@@ -132,7 +144,7 @@ public class DiagnosticsHelper {
             endChar = (endChar <= 0) ? startChar + 1 : endChar;
 
             Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
-            Diagnostic diagnostic = new Diagnostic(range, diag.message());
+            Diagnostic diagnostic = new Diagnostic(range, diag.message(), null, null, diag.diagnosticInfo().code());
 
             switch (diag.diagnosticInfo().severity()) {
                 case ERROR:

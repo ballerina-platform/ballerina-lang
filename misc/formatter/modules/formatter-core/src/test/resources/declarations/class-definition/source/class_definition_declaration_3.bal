@@ -1,7 +1,7 @@
 class
 
   Foo
-  { public
+  {
             remote
         function
 
@@ -13,7 +13,7 @@ int
         0
             ;}
 
-    public
+
         remote
     function
 

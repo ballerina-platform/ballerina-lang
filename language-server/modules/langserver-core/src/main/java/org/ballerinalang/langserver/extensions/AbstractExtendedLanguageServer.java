@@ -18,8 +18,11 @@ package org.ballerinalang.langserver.extensions;
 import com.google.common.base.Objects;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
+import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethod;
@@ -34,8 +37,6 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
 
-import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
-
 /**
  * Provides capabilities for the extended language server services.
  *
@@ -46,10 +47,12 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
     protected List<ExtendedLanguageServerService> extendedServices = new ArrayList<>();
     private Map<String, JsonRpcMethod> supportedMethods;
     private final Multimap<String, Endpoint> extensionServices = LinkedListMultimap.create();
-    private final WorkspaceDocumentManager documentManager;
+    protected final WorkspaceManager workspaceManager;
+    protected final LanguageServerContext serverContext;
 
-    public AbstractExtendedLanguageServer(WorkspaceDocumentManager documentManager) {
-        this.documentManager = documentManager;
+    public AbstractExtendedLanguageServer(LanguageServerContext serverContext) {
+        this.workspaceManager = BallerinaWorkspaceManager.getInstance(serverContext);
+        this.serverContext = serverContext;
         ServiceLoader<ExtendedLanguageServerService> serviceLoader = ServiceLoader.load(
                 ExtendedLanguageServerService.class);
         for (ExtendedLanguageServerService service : serviceLoader) {
@@ -69,20 +72,22 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
             Map<String, JsonRpcMethod> extensions = new LinkedHashMap<>();
             for (ExtendedLanguageServerService ext : this.extendedServices) {
                 if (ext != null) {
-                    ext.init(documentManager, this);
+                    ext.init(this, this.workspaceManager);
                     Map<String, JsonRpcMethod> supportedExtensions = ext.supportedMethods();
                     for (Map.Entry<String, JsonRpcMethod> entry : supportedExtensions.entrySet()) {
                         if (supportedMethods.containsKey(entry.getKey())) {
                             String msg = "The json rpc method '" + entry.getKey()
                                     + "' can not be an extension as it is already defined in the LSP standard.";
-                            logError(msg, new RuntimeException(msg), null, (Position) null);
+                            LSClientLogger.getInstance(this.serverContext)
+                                    .logError(msg, new RuntimeException(msg), null, (Position) null);
                         } else {
                             JsonRpcMethod existing = extensions.put(entry.getKey(), entry.getValue());
                             if (existing != null && !Objects.equal(existing, entry.getValue())) {
                                 String msg = "An incompatible LSP extension '" + entry.getKey()
                                         + "' has already been registered. Using 1 ignoring 2. \n1 : " +
                                         existing + " \n2 : " + entry.getValue();
-                                logError(msg, new RuntimeException(msg), null, (Position) null);
+                                LSClientLogger.getInstance(this.serverContext)
+                                        .logError(msg, new RuntimeException(msg), null, (Position) null);
                                 extensions.put(entry.getKey(), existing);
                             } else {
                                 Endpoint endpoint = ServiceEndpoints.toEndpoint(ext);

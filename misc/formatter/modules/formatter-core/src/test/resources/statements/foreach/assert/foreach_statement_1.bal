@@ -5,4 +5,5 @@ function foo() {
     }
     foreach var [country, capital] in countryCapitals.entries() {
     }
+
 }

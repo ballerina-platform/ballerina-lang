@@ -19,10 +19,10 @@
 package org.ballerinalang.test.documentation;
 
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.ballerinalang.docgen.generator.model.DocPackage;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
-import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -39,20 +39,29 @@ public class MultilineDocsTest {
     private Function multilineDocsFunction;
     private Function multilineDocsDeprecatedFunction;
 
-    private final String lines = "<p>Returns a formatted string using the specified format string and arguments. "
-            + "Following format specifiers are allowed.</p>\n"
-            + "<p>b - boolean</p>\n"
-            + "<p>B - boolean (ALL_CAPS)</p>\n"
-            + "<p>d - int</p>\n"
-            + "<p>f - float</p>\n"
-            + "<p>x - hex</p>\n"
-            + "<p>X - HEX (ALL_CAPS)</p>\n"
-            + "<p>s - string (This specifier is applicable for any of the supported types in Ballerina.\n"
-            + "These values will be converted to their string representation.)</p>\n"
-            + "<pre><code class=\"language-ballerina\">"
-            + "string s8 = io:sprintf(&quot;%s scored %d for %s and has an average of %.2f.&quot;, name, marks, "
-            + "subjects[0], average);\n"
-            + "</code></pre>\n";
+    private final String lines = "Returns a formatted string using the specified format string and arguments. " +
+            "Following format specifiers are allowed.\n" +
+            "\n" +
+            "b - boolean\n" +
+            "\n" +
+            "B - boolean (ALL_CAPS)\n" +
+            "\n" +
+            "d - int\n" +
+            "\n" +
+            "f - float\n" +
+            "\n" +
+            "x - hex\n" +
+            "\n" +
+            "X - HEX (ALL_CAPS)\n" +
+            "\n" +
+            "s - string (This specifier is applicable for any of the supported types in Ballerina.\n" +
+            "            These values will be converted to their string representation.)\n" +
+            "\n" +
+            "```ballerina\n" +
+            "# string s8 = io:sprintf(\"%s scored %d for %s and has an average of %.2f.\", name, marks, " +
+            "subjects[0], average);\n" +
+            "# ```\n" +
+            "\n";
 
     @BeforeClass
     public void setup() throws IOException {
@@ -60,9 +69,9 @@ public class MultilineDocsTest {
                 "test-src" + File.separator + "documentation" + File.separator + "multi_line_docs_project";
         io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
-        Project docerinaProject = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
+        DocPackage docerinaDocPackage = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
                 .packageOrg().toString(), project.currentPackage().packageVersion().toString());
-        Module testModule = docerinaProject.modules.get(0);
+        Module testModule = docerinaDocPackage.modules.get(0);
 
         for (Function function : testModule.functions) {
             String funcName = function.name;

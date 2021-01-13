@@ -268,4 +268,9 @@ public class IdentifierLiteralTest {
         BRunUtil.invoke(result, "testImmutableTypeIL");
     }
 
+    @Test(description = "Test IL with table type with quoted IL as key")
+    public void testILInTableType() {
+        BRunUtil.invoke(result, "testILInTableType");
+    }
+
 }

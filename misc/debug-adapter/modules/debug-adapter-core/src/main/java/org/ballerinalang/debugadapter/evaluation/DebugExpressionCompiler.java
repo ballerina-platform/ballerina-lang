@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -36,8 +37,6 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 
 import java.util.Optional;
 import java.util.StringJoiner;
-
-import static org.ballerinalang.debugadapter.utils.PackageUtils.isBlank;
 
 /**
  * A ballerina expression-specific implementation for validating, parsing and compiling ballerina expressions.
@@ -63,7 +62,7 @@ public class DebugExpressionCompiler {
      */
     ExpressionNode validateAndCompile(String expression) throws EvaluationException {
         // validates for empty inputs.
-        if (isBlank(expression)) {
+        if (expression.isBlank()) {
             throw new EvaluationException(EvaluationExceptionKind.EMPTY.getString());
         }
 
@@ -98,6 +97,13 @@ public class DebugExpressionCompiler {
         String newContent = new String(document.textDocument().apply(TextDocumentChange.from(textEdit)).toCharArray());
         Document newDocument = document.modify().withContent(newContent).apply();
         return newDocument.module().getCompilation();
+    }
+
+    public SemanticModel getSemanticInfo() {
+        if (document == null) {
+            document = context.getDocument();
+        }
+        return document.module().getCompilation().getSemanticModel();
     }
 
     /**
@@ -150,7 +156,7 @@ public class DebugExpressionCompiler {
             Optional<ExpressionNode> expressionNode = ((ReturnStatementNode) (((FunctionBodyBlockNode)
                     ((FunctionDefinitionNode) ((ModulePartNode) syntaxTree.rootNode()).members().get(0)).functionBody())
                     .statements().get(0))).expression();
-            if (!expressionNode.isPresent()) {
+            if (expressionNode.isEmpty()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID.getString(), expression));
             }
             return expressionNode.get();

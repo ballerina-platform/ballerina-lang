@@ -49,6 +49,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.model.tree.SourceKind.REGULAR_SOURCE;
+import static org.ballerinalang.model.tree.SourceKind.TEST_SOURCE;
 
 /**
  * Maintains the internal state of a {@code Module} instance.
@@ -162,7 +164,7 @@ class ModuleContext {
         allModuleLoadRequests = new LinkedHashSet<>();
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : srcDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests(PackageDependencyScope.DEFAULT));
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleId, PackageDependencyScope.DEFAULT));
         }
 
         allModuleLoadRequests.addAll(moduleLoadRequests);
@@ -172,7 +174,7 @@ class ModuleContext {
     Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : testDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests(PackageDependencyScope.TEST_ONLY));
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleId, PackageDependencyScope.TEST_ONLY));
         }
 
         allModuleLoadRequests.addAll(moduleLoadRequests);
@@ -219,7 +221,7 @@ class ModuleContext {
         testablePkg.pos = new BLangDiagnosticLocation(this.moduleName().toString(), 1, 1, 1, 1);
         pkgNode.addTestablePkg(testablePkg);
         for (DocumentContext documentContext : testDocContextMap.values()) {
-            testablePkg.addCompilationUnit(documentContext.compilationUnit(compilerContext, pkgId));
+            testablePkg.addCompilationUnit(documentContext.compilationUnit(compilerContext, pkgId, TEST_SOURCE));
         }
     }
 
@@ -325,7 +327,8 @@ class ModuleContext {
 
         // Parse source files
         for (DocumentContext documentContext : moduleContext.srcDocContextMap.values()) {
-            pkgNode.addCompilationUnit(documentContext.compilationUnit(compilerContext, moduleCompilationId));
+            pkgNode.addCompilationUnit(documentContext.compilationUnit(compilerContext, moduleCompilationId,
+                                                                       REGULAR_SOURCE));
         }
 
         // Parse test source files if --skip-tests option is set to false

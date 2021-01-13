@@ -1,6 +1,6 @@
 [package]
 org="testorg"
-name="bar"
+name="project_two"
 version="1.0.0"
 
 [dependencies]

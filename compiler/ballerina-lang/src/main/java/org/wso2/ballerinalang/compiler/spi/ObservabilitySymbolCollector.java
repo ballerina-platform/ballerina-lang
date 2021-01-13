@@ -18,8 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.spi;
 
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import io.ballerina.projects.Project;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -31,9 +30,7 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public interface ObservabilitySymbolCollector {
-    void init(CompilerContext context);
+    void process(Project project);
 
-    void process(BLangPackage pkgNode);
-
-    void writeCollectedSymbols(Path executableFile) throws IOException;
+    void writeToExecutable(Path executableFile) throws IOException;
 }

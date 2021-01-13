@@ -100,13 +100,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             MetadataNode metadata,
             Token visibilityQualifier,
             Token listenerKeyword,
-            Node typeDescriptor,
+            TypeDescriptorNode typeDescriptor,
             Token variableName,
             Token equalsToken,
             Node initializer,
             Token semicolonToken) {
         Objects.requireNonNull(listenerKeyword, "listenerKeyword must not be null");
-        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
         Objects.requireNonNull(variableName, "variableName must not be null");
         Objects.requireNonNull(equalsToken, "equalsToken must not be null");
         Objects.requireNonNull(initializer, "initializer must not be null");
@@ -116,7 +115,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 getOptionalSTNode(metadata),
                 getOptionalSTNode(visibilityQualifier),
                 listenerKeyword.internalNode(),
-                typeDescriptor.internalNode(),
+                getOptionalSTNode(typeDescriptor),
                 variableName.internalNode(),
                 equalsToken.internalNode(),
                 initializer.internalNode(),
@@ -708,21 +707,34 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static RequiredParameterNode createRequiredParameterNode(
-            SyntaxKind kind,
             NodeList<AnnotationNode> annotations,
-            Token asteriskToken,
             Node typeName,
             Token paramName) {
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(typeName, "typeName must not be null");
 
         STNode stRequiredParameterNode = STNodeFactory.createRequiredParameterNode(
-                kind,
                 annotations.underlyingListNode().internalNode(),
-                getOptionalSTNode(asteriskToken),
                 typeName.internalNode(),
                 getOptionalSTNode(paramName));
         return stRequiredParameterNode.createUnlinkedFacade();
+    }
+
+    public static IncludedRecordParameterNode createIncludedRecordParameterNode(
+            NodeList<AnnotationNode> annotations,
+            Token asteriskToken,
+            Node typeName,
+            Token paramName) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
+        Objects.requireNonNull(asteriskToken, "asteriskToken must not be null");
+        Objects.requireNonNull(typeName, "typeName must not be null");
+
+        STNode stIncludedRecordParameterNode = STNodeFactory.createIncludedRecordParameterNode(
+                annotations.underlyingListNode().internalNode(),
+                asteriskToken.internalNode(),
+                typeName.internalNode(),
+                getOptionalSTNode(paramName));
+        return stIncludedRecordParameterNode.createUnlinkedFacade();
     }
 
     public static RestParameterNode createRestParameterNode(
@@ -2373,7 +2385,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ReceiveActionNode createReceiveActionNode(
             Token leftArrow,
-            SimpleNameReferenceNode receiveWorkers) {
+            Node receiveWorkers) {
         Objects.requireNonNull(leftArrow, "leftArrow must not be null");
         Objects.requireNonNull(receiveWorkers, "receiveWorkers must not be null");
 

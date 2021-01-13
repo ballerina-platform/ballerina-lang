@@ -127,11 +127,11 @@ function testReturningInMatch() returns string? {
 }
 
 function testReturnsDuringValidCheck() returns error? {
-    int x = <int>ints:fromString("15");
+    int x = checkpanic ints:fromString("15");
 }
 
 function testValidCheckWithExplicitReturn() returns error? {
-    int x = <int>ints:fromString("15");
+    int x = checkpanic ints:fromString("15");
     return;
 }
 

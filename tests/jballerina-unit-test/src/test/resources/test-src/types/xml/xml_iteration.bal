@@ -57,63 +57,46 @@ function foreachOpTest() returns [int, string][] {
 
     count = 0;
 
-    (bookstore/<book>).forEach(function (xml|string entry) {
-        if entry is xml {
-            titles[count] = [count, (entry/<title>/*).toString()];
-            count += 1;
-        }
+    (bookstore/<book>).forEach(function (xml entry) {
+        titles[count] = [count, (entry/<title>/*).toString()];
+        count += 1;
     });
 
     return titles;
 }
 
 function mapOpTest() returns xml {
-    xml titles = (bookstore/<book>).map(function (xml|string book) returns xml {
-        if book is xml {
-            return book/<author>;
-        }
-        return xml ` `;
+    xml titles = (bookstore/<book>).map(function (xml book) returns xml {
+        return book/<author>;
     });
     return titles;
 }
 
 function filterOpTest() returns xml {
-    xml books = (bookstore/<book>).filter(function (xml|string book) returns boolean {
-                                                if book is xml {
-                                                    var result = intlib:fromString((book/<year>/*).toString());
-                                                    if (result is int) {
-                                                       return result > 2004;
-                                                    } else {
-                                                       return false;
-                                                    }
-                                                }
-                                                return false;
-                                            }).map(function(xml|string value) returns xml {
-                                                if value is xml {
-                                                    return value;
-                                                }
-                                                return xml ` `;
-                                            });
+    xml books = (bookstore/<book>).filter(function (xml book) returns boolean {
+        var result = intlib:fromString((book/<year>/*).toString());
+        if (result is int) {
+            return result > 2004;
+        } else {
+            return false;
+        }
+        }).map(function(xml value) returns xml {
+            return value;
+        });
     return books;
 }
 
 function chainedIterableOps() returns xml {
-    xml authors = (bookstore/<book>).filter(function (xml|string book) returns boolean {
-                                                if book is xml {
-                                                    var result = intlib:fromString((book/<year>/*).toString());
-                                                    if (result is int) {
-                                                       return result > 2004;
-                                                    } else {
-                                                       return false;
-                                                    }
-                                                }
-                                                return false;
-                                            }).map(function (xml|string book) returns xml {
-                                                    if book is xml {
-                                                        return book/<author>;
-                                                    }
-                                                    return xml ` `;
-                                                });
+    xml authors = (bookstore/<book>).filter(function (xml book) returns boolean {
+        var result = intlib:fromString((book/<year>/*).toString());
+        if (result is int) {
+            return result > 2004;
+        } else {
+            return false;
+        }
+        }).map(function (xml book) returns xml {
+            return book/<author>;
+        });
     return authors;
 }
 

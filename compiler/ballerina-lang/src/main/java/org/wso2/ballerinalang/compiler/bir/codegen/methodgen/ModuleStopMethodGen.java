@@ -83,10 +83,12 @@ public class ModuleStopMethodGen {
     public static final String ARR_VAR = "arrVar";
     private final SymbolTable symbolTable;
     private final BIRVarToJVMIndexMap indexMap;
+    private final JvmTypeGen jvmTypeGen;
 
-    public ModuleStopMethodGen(SymbolTable symbolTable) {
+    public ModuleStopMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen) {
         this.symbolTable = symbolTable;
         indexMap = new BIRVarToJVMIndexMap(1);
+        this.jvmTypeGen = jvmTypeGen;
     }
 
     public void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRNode.BIRPackage module,
@@ -105,9 +107,8 @@ public class ModuleStopMethodGen {
         mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, "(IZ)V", false);
         mv.visitVarInsn(ASTORE, schedulerIndex);
 
-        PackageID currentModId = MethodGenUtils.packageToModuleId(module);
-        String moduleInitClass = getModuleInitClassName(currentModId);
-        String fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(currentModId);
+        String moduleInitClass = getModuleInitClassName(module.packageID);
+        String fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(module.packageID);
         String lambdaName = generateStopDynamicListenerLambdaBody(cw);
         generateCallStopDynamicListenersLambda(mv, lambdaName, moduleInitClass, asyncDataCollector);
         scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
@@ -201,7 +202,7 @@ public class ModuleStopMethodGen {
 
         // no parent strand
         mv.visitInsn(ACONST_NULL);
-        JvmTypeGen.loadType(mv, new BNilType());
+        jvmTypeGen.loadType(mv, new BNilType());
         MethodGenUtils.submitToScheduler(mv, initClass, "stop", asyncDataCollector);
         int futureIndex = indexMap.get(FUTURE_VAR);
         mv.visitVarInsn(ASTORE, futureIndex);
@@ -242,8 +243,7 @@ public class ModuleStopMethodGen {
     }
 
     private String getModuleInitClassName(PackageID id) {
-        return JvmCodeGenUtil.getModuleLevelClassName(id.orgName.value, id.name.value, id.version.value,
-                                                      MODULE_INIT_CLASS_NAME);
+        return JvmCodeGenUtil.getModuleLevelClassName(id, MODULE_INIT_CLASS_NAME);
     }
 
 }

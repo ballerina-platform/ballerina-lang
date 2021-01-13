@@ -106,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -265,11 +266,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int transactionCount;
     private boolean statementReturns;
     private boolean failureHandled;
-    private boolean matchClauseReturns;
     private boolean lastStatement;
     private boolean errorThrown;
     private boolean failVisited;
-    private boolean hasLastPatternInClause;
+    private boolean hasLastPatternInStatement;
     private boolean withinLockBlock;
     private SymbolTable symTable;
     private Types types;
@@ -683,7 +683,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetrySpec retrySpec) {
         if (retrySpec.retryManagerType != null) {
-            BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langObjectModuleSymbol.scope
+            BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langErrorModuleSymbol.scope
                     .lookup(names.fromString("RetryManager")).symbol;
             BType abstractRetryManagerType = retryManagerTypeSymbol.type;
             if (!types.isAssignable(retrySpec.retryManagerType.type, abstractRetryManagerType)) {
@@ -748,11 +748,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.returnWithinLambdaWrappingCheckStack.push(true);
         }
 
-        if (returnStmt.parent != null && returnStmt.parent.parent.getKind() == NodeKind.MATCH_CLAUSE) {
-            this.matchClauseReturns = true;
-        } else {
-            this.statementReturns = true;
-        }
+        this.statementReturns = true;
         analyzeExpr(returnStmt.expr);
         this.returnTypes.peek().add(returnStmt.expr.type);
     }
@@ -804,12 +800,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         matchExprType = matchStatement.expr.type;
 
         boolean currentErrorThrown = this.errorThrown;
-        this.hasLastPatternInClause = false;
-        boolean containsLastPatternInStatement = false;
+        boolean hasLastPatternInStatement = this.hasLastPatternInStatement;
+        this.hasLastPatternInStatement = false;
         boolean allClausesReturns = true;
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
         for (int i = 0; i < matchClauses.size(); i++) {
-            this.matchClauseReturns = false;
             BLangMatchClause matchClause = matchClauses.get(i);
             for (int j = i; j > 0; j--) {
                 if (!checkSimilarMatchGuard(matchClause.matchGuard, matchClauses.get(j - 1).matchGuard)) {
@@ -819,24 +814,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             this.resetErrorThrown();
             analyzeNode(matchClause, env);
-            allClausesReturns = allClausesReturns && this.matchClauseReturns;
-            containsLastPatternInStatement =
-                    containsLastPatternInStatement || (matchClause.matchGuard == null && this.hasLastPatternInClause);
+            allClausesReturns = allClausesReturns && this.statementReturns;
+            resetStatementReturns();
         }
-        this.statementReturns = allClausesReturns && containsLastPatternInStatement;
+        this.statementReturns = allClausesReturns && this.hasLastPatternInStatement;
         this.errorThrown = currentErrorThrown;
         analyzeOnFailClause(matchStatement.onFailClause);
+        this.hasLastPatternInStatement = hasLastPatternInStatement;
     }
 
     @Override
     public void visit(BLangMatchClause matchClause) {
         Map<String, BVarSymbol> variablesInMatchPattern = new HashMap<>();
         boolean patternListContainsSameVars = true;
+        boolean hasLastPatternInClause = false;
 
         List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
         for (int i = 0; i < matchPatterns.size(); i++) {
             BLangMatchPattern matchPattern = matchPatterns.get(i);
-            if (this.hasLastPatternInClause && matchClause.matchGuard == null) {
+            if (this.hasLastPatternInStatement || (hasLastPatternInClause && matchClause.matchGuard == null)) {
                 dlog.error(matchPattern.pos, DiagnosticErrorCode.MATCH_STMT_PATTERN_UNREACHABLE);
             }
             if (matchPattern.type == symTable.noType) {
@@ -853,7 +849,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             this.isJSONContext = types.isJSONContext(matchExprType);
             analyzeNode(matchPattern, env);
-            matchPattern.isLastPattern = this.hasLastPatternInClause;
+            hasLastPatternInClause = hasLastPatternInClause || matchPattern.isLastPattern;
         }
 
         if (!patternListContainsSameVars) {
@@ -862,7 +858,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         matchClause.declaredVars.putAll(matchClause.matchPatterns.get(0).declaredVars);
 
         analyzeNode(matchClause.blockStmt, env);
-        resetStatementReturns();
+        this.hasLastPatternInStatement =
+                    this.hasLastPatternInStatement || (matchClause.matchGuard == null && hasLastPatternInClause);
     }
 
     private void checkSimilarMatchPatternsBetweenClauses(BLangMatchClause firstClause, BLangMatchClause secondClause) {
@@ -1022,7 +1019,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
-        this.hasLastPatternInClause = wildCardMatchPattern.matchesAll =
+        wildCardMatchPattern.isLastPattern =
                 wildCardMatchPattern.matchExpr != null && types.isAssignable(wildCardMatchPattern.matchExpr.type,
                         symTable.anyType);
     }
@@ -1031,8 +1028,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         BLangBindingPattern bindingPattern = varBindingPattern.getBindingPattern();
         analyzeNode(bindingPattern, env);
-        this.hasLastPatternInClause = varBindingPattern.matchExpr != null
-                && this.hasLastPatternInClause && !varBindingPattern.matchGuardIsAvailable;
+
+        // This switch-case will be extended when implementing other binding-patterns
+        switch (bindingPattern.getKind()) {
+            case CAPTURE_BINDING_PATTERN:
+                varBindingPattern.isLastPattern =
+                        varBindingPattern.matchExpr != null && !varBindingPattern.matchGuardIsAvailable;
+        }
     }
 
     @Override
@@ -1040,7 +1042,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (listMatchPattern.matchExpr == null) {
             return;
         }
-        this.hasLastPatternInClause = types.isSameType(listMatchPattern.type, listMatchPattern.matchExpr.type)
+        listMatchPattern.isLastPattern = types.isSameType(listMatchPattern.type, listMatchPattern.matchExpr.type)
                 && !isConstMatchPatternExist(listMatchPattern);
     }
 
@@ -1058,7 +1060,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCaptureBindingPattern captureBindingPattern) {
-        this.hasLastPatternInClause = true;
+
     }
 
     @Override
@@ -1948,7 +1950,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (referingForkedWorkerOutOfFork(symbol, env)) {
                     return;
                 }
-                dlog.error(pos, DiagnosticErrorCode.INVALID_WORKER_REFERRENCE, symbol.name);
+                dlog.error(pos, DiagnosticErrorCode.INVALID_WORKER_REFERRENCE, symbol);
             }
         }
     }
@@ -2313,7 +2315,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!this.workerExists(syncSendExpr.workerType, workerName)) {
-            this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
+            this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, syncSendExpr.workerSymbol);
             was.hasErrors = true;
         }
         syncSendExpr.type = createAccumulatedErrorTypeForMatchingRecive(syncSendExpr.pos, syncSendExpr.expr.type);
@@ -2506,7 +2508,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         if (bField.type.tag != TypeTags.NEVER) {
                             this.dlog.error(spreadOpExpr.pos,
                                             DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
-                                            recordLiteral.type.getKind().typeName(), name, spreadOpField);
+                                            recordLiteral.type.getKind().typeName(), bField.symbol, spreadOpField);
                         }
                         continue;
                     }
@@ -2520,7 +2522,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                             inclusiveTypeSpreadField != null && isSpreadExprRecordTypeSealed) {
                         this.dlog.error(spreadOpExpr.pos,
                                         DiagnosticErrorCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
-                                        recordLiteral.expectedType.getKind().typeName(), name, spreadOpField);
+                                        recordLiteral.expectedType.getKind().typeName(), bField.symbol, spreadOpField);
                     }
                     names.add(name);
                 }
@@ -2607,7 +2609,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(fieldAccessExpr.expr);
         BSymbol symbol = fieldAccessExpr.symbol;
         if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, fieldAccessExpr);
+            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
+                         fieldAccessExpr);
         }
     }
 
@@ -2628,8 +2631,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BSymbol funcSymbol = invocationExpr.symbol;
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.TRANSACTIONAL) && !withinTransactionScope) {
-                dlog.error(invocationExpr.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED,
-                           invocationExpr);
+                dlog.error(invocationExpr.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
                 return;
             }
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
@@ -2641,8 +2643,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     invocationExpr.parent.getKind() != NodeKind.EXPRESSION_STATEMENT) {
                 // Log an error if the function returns never and invoked invalidly.
                 dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION,
-                        funcSymbol.name);
+                        funcSymbol);
             }
+        }
+    }
+
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        analyzeExprs(errorConstructorExpr.positionalArgs);
+        if (!errorConstructorExpr.namedArgs.isEmpty()) {
+            analyzeExprs(errorConstructorExpr.namedArgs);
         }
     }
 
@@ -2650,7 +2659,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!actionInvocation.async && !this.withinTransactionScope &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED,
-                       actionInvocation);
+                       actionInvocation.symbol);
             return;
         }
 
@@ -2684,11 +2693,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if ((actionInvocation.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.INVALID_FUNCTIONAL_CONSTRUCTOR_INVOCATION,
-                       actionInvocation.symbol.name);
+                       actionInvocation.symbol);
             return;
         }
 
         validateActionInvocation(actionInvocation.pos, actionInvocation);
+
+        if (!actionInvocation.async && this.withinTransactionScope) {
+            actionInvocation.invokedInsideTransaction = true;
+        }
     }
 
     private void validateActionInvocation(Location pos, BLangInvocation iExpr) {
@@ -2833,7 +2846,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                                               .collect(Collectors.toList());
             if (sendsToGivenWrkr.size() == 0) {
                 this.dlog.error(workerFlushExpr.pos, DiagnosticErrorCode.INVALID_WORKER_FLUSH_FOR_WORKER,
-                                flushWrkIdentifier, currentWrkerAction.currentWorkerId());
+                                workerFlushExpr.workerSymbol, currentWrkerAction.currentWorkerId());
                 return;
             } else {
                 sendStmts = sendsToGivenWrkr;
@@ -3614,6 +3627,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         int tag = bType.tag;
         if (tag == TypeTags.ERROR) {
             errorType = bType;
+        } else if (tag == TypeTags.READONLY) {
+            errorType = symTable.errorType;
         } else if (tag == TypeTags.UNION) {
             LinkedHashSet<BType> errTypes = new LinkedHashSet<>();
             Set<BType> memTypes = ((BUnionType) bType).getMemberTypes();

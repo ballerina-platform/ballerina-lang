@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/runtime;
+import ballerina/java;
 
 function foo() returns int {
     return 1;
@@ -64,7 +64,7 @@ function process() returns string {
 
     worker w2 {
         int b = 15;
-        runtime:sleep(10);
+        sleep(10);
 
         foreach var i in 1 ... 5 {
         }
@@ -99,3 +99,7 @@ function testFunction1(int a) {
 function testFunction2(int a) {
     start a + b;
 }
+
+public function sleep(int millis) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Sleep"
+} external;
