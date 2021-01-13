@@ -1,5 +1,7 @@
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.projects.Document;
@@ -8,11 +10,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.toml.syntax.tree.DocumentNode;
-import io.ballerina.toml.syntax.tree.NonTerminalNode;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.codeaction.toml.C2CVisitor;
 import org.ballerinalang.langserver.codeaction.toml.ListenerInfo;
 import org.ballerinalang.langserver.codeaction.toml.ProjectServiceInfo;
@@ -37,6 +35,7 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -178,7 +177,8 @@ public class TomlCodeActionRouter {
                     List<TextEdit> edits = Collections.singletonList(
                             new TextEdit(new Range(position, position), importText));
                     action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                            new TextDocumentEdit(new VersionedTextDocumentIdentifier(balFilePath.toUri().toString(), null),
+                            new TextDocumentEdit(
+                                    new VersionedTextDocumentIdentifier(balFilePath.toUri().toString(), null),
                                     edits)))));
                     action.setTitle("Add Resource to Service");
                     List<Diagnostic> cursorDiagnostics = new ArrayList<>();
@@ -189,7 +189,6 @@ public class TomlCodeActionRouter {
                 }
             }
         }
-
         return codeActionList;
     }
 
@@ -223,12 +222,18 @@ public class TomlCodeActionRouter {
         return codeAction;
     }
 
+    private static String getProbeServiceWithImportString(int port, String servicePath, String resourcePath) {
+        return String
+                .format("import ballerina/http;%s%s",
+                        CommonUtil.LINE_SEPARATOR, getProbeServiceString(port,servicePath,resourcePath));
+    }
+
     private static String getProbeServiceString(int port, String servicePath, String resourcePath) {
         return String
-                .format("import ballerina/http;%s%sservice http:Service %s on new http:Listener(%d) {%s    resource " +
+                .format("%sservice http:Service %s on new http:Listener(%d) {%s    resource " +
                                 "function get %s (http:Caller caller) returns error? {%s        check caller->ok" +
                                 "(\"Resource is Ready\");%s    }%s}%s",
-                        CommonUtil.LINE_SEPARATOR, CommonUtil.LINE_SEPARATOR, servicePath, port,
+                        CommonUtil.LINE_SEPARATOR, servicePath, port,
                         CommonUtil.LINE_SEPARATOR, resourcePath,
                         CommonUtil.LINE_SEPARATOR, CommonUtil.LINE_SEPARATOR, CommonUtil.LINE_SEPARATOR,
                         CommonUtil.LINE_SEPARATOR);
@@ -248,10 +253,31 @@ public class TomlCodeActionRouter {
             servicePath = "/" + String.join("/", Arrays.copyOf(split, split.length - 1));
         }
         Path balFilePath = ctx.workspace().projectRoot(ctx.filePath()).resolve("probe.bal");
-        String content = getProbeServiceString(tomlPort, servicePath, resourcePath);
-        //TODO: if file exist
-        codeActionList.add(createFile("Create Probe file", balFilePath.toUri().toString(), content,
-                diagnostic));
+        if (Files.exists(balFilePath)) {
+            io.ballerina.compiler.syntax.tree.SyntaxTree syntaxTree =
+                    ctx.workspace().syntaxTree(balFilePath).orElseThrow();
+            ModulePartNode modulePartNode = syntaxTree.rootNode();
+            NodeList<ModuleMemberDeclarationNode> members = modulePartNode.members();
+            ModuleMemberDeclarationNode lastTopLevelNode = members.get(members.size() - 1);
+            Position position = new Position(lastTopLevelNode.lineRange().endLine().line() + 1, 0);
+            String content = getProbeServiceString(tomlPort, servicePath, resourcePath);
+            List<TextEdit> edits = Collections.singletonList(
+                    new TextEdit(new Range(position, position), content));
+
+            CodeAction action = new CodeAction("Add to Probe file");
+            action.setKind(CodeActionKind.QuickFix);
+            action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                    new TextDocumentEdit(
+                            new VersionedTextDocumentIdentifier(balFilePath.toUri().toString(), null),
+                            edits)))));
+            List<Diagnostic> cursorDiagnostics = new ArrayList<>();
+            cursorDiagnostics.add(diagnostic);
+            action.setDiagnostics(cursorDiagnostics);
+            codeActionList.add(action);
+        } else {
+            String content = getProbeServiceWithImportString(tomlPort, servicePath, resourcePath);
+            codeActionList.add(createFile("Create Probe file", balFilePath.toUri().toString(), content, diagnostic));
+        }
         return codeActionList;
     }
 

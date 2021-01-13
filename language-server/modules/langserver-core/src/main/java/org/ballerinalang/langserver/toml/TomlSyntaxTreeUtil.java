@@ -70,7 +70,7 @@ public class TomlSyntaxTreeUtil {
             String valueString = valueNode.toString().trim();
             output.append(".").append(valueString);
         }
-        return output.substring(1);
+        return output.substring(1).trim();
     }
 
     public static TableNode getTableNode(SyntaxTree syntaxTree, CodeActionContext context) {
