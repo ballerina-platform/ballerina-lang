@@ -96,4 +96,19 @@ public class FunctionParamsTest extends AbstractDeclarationTest {
     public void testIncludedRecordParamWithMissingIdentifierAndTypedesc() {
         test("func-definition/func_params_source_14.bal", "func-definition/func_params_assert_14.json");
     }
+
+    @Test
+    public void testAsteriskWithKeyWord() {
+        test("func-definition/func_params_source_15.bal", "func-definition/func_params_assert_15.json");
+    }
+
+    @Test
+    public void testIncludedRecordParamWithExtraKeyWord() {
+        test("func-definition/func_params_source_16.bal", "func-definition/func_params_assert_16.json");
+    }
+
+    @Test
+    public void testIncludedRecordParamWithAnnotationAndExtraKeyWord() {
+        test("func-definition/func_params_source_17.bal", "func-definition/func_params_assert_17.json");
+    }
 }

@@ -226,6 +226,7 @@ public isolated function when(MockFunction mockFunction) returns FunctionStub {
 public class MockFunction {
     string functionToMock = "";
     string functionToMockPackage = "";
+    string[] mockFunctionClasses = [];
 }
 
 # Represents an object that allows stubbing function invocations

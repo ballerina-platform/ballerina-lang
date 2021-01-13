@@ -114,6 +114,8 @@ public enum Snippet {
 
     DEF_REMOTE_FUNCTION(SnippetGenerator.getRemoteFunctionSnippet()),
 
+    DEF_REMOTE_METHOD_DECL(SnippetGenerator.getRemoteMethodDeclSnippet()),
+
     DEF_INIT_FUNCTION(SnippetGenerator.getInitFunctionSnippet()),
 
     DEF_ATTACH_FUNCTION(SnippetGenerator.getAttachFunctionSnippet()),
@@ -297,6 +299,8 @@ public enum Snippet {
     CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
     
     CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet()),
+    
+    CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet()),
     
     TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
 

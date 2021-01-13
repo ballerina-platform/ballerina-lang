@@ -91,7 +91,7 @@ function testInferringForReadOnly() {
     readonly rd1 =[1, str];
 
     assertEquality(true, rd1 is [int, string] & readonly);
-    [int, string] arr1 = <[int, string] & readonly> rd1;
+    [int, string] arr1 = <[int, string] & readonly> checkpanic rd1;
 
     var fn = function() {
         arr1[0] = 12;
@@ -110,7 +110,7 @@ function testInferringForReadOnly() {
 
     assertEquality(true, rd2 is [int, [boolean, boolean], Foo, Foo & readonly] & readonly);
     assertEquality(false, rd2 is [int, [boolean, boolean], object {} & readonly, Foo & readonly] & readonly);
-    [int, [boolean, boolean], Foo, Foo] arr2 = <[int, [boolean, boolean], Foo, Foo] & readonly> rd2;
+    [int, [boolean, boolean], Foo, Foo] arr2 = <[int, [boolean, boolean], Foo, Foo] & readonly> checkpanic rd2;
 
     fn = function() {
         arr2[0] = 2;
@@ -133,7 +133,7 @@ function testInferringForReadOnlyInUnion() {
 
     assertEquality(true, rd is [int, [boolean, boolean], Foo, Foo & readonly] & readonly);
     assertEquality(false, rd is [int, [boolean, boolean], object {} & readonly, Foo & readonly] & readonly);
-    [int, [boolean, boolean], Foo, Foo] arr = <[int, [boolean, boolean], Foo, Foo] & readonly> rd;
+    [int, [boolean, boolean], Foo, Foo] arr = <[int, [boolean, boolean], Foo, Foo] & readonly> checkpanic rd;
 
     var fn = function() {
         arr[0] = 2;
@@ -156,6 +156,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

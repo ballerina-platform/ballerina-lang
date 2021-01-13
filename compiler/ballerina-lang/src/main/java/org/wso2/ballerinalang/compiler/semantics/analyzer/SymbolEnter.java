@@ -51,9 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -209,6 +207,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
     private PackageCache packageCache;
+    private List<BLangNode> intersectionTypes;
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
@@ -240,6 +239,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
+        this.intersectionTypes = new ArrayList<>();
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         projectAPIInitiatedCompilation = Boolean.parseBoolean(
@@ -376,11 +376,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.typeDefinitions.sort(getTypePrecedenceComparator());
         typeAndClassDefs.sort(getTypePrecedenceComparator());
 
-        // Define error details
-        defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
-
         // Define type def fields (if any)
         defineFields(typeAndClassDefs, pkgEnv);
+
+        // Calculate error intersections types.
+        defineIntersectionTypes(pkgEnv);
+
+        // Define error details.
+        defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def members (if any)
         defineMembers(typeAndClassDefs, pkgEnv);
@@ -391,7 +394,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
         // them and set the fields and members of the relevant immutable type.
-        validateReadOnlyIntersectionTypeDefinitions(pkgNode.typeDefinitions);
+        validateIntersectionTypeDefinitions(pkgNode.typeDefinitions);
         defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, typeAndClassDefs, pkgEnv);
 
         // Define service and resource nodes.
@@ -409,6 +412,30 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.globalVars.stream().filter(var -> var.symbol.type.tsymbol != null && Symbols
                 .isFlagOn(var.symbol.type.tsymbol.flags, Flags.CLIENT)).map(varNode -> varNode.symbol)
                 .forEach(varSymbol -> varSymbol.tag = SymTag.ENDPOINT);
+    }
+
+    private void defineIntersectionTypes(SymbolEnv env) {
+        for (BLangNode typeDescriptor : this.intersectionTypes) {
+            defineNode(typeDescriptor, env);
+        }
+        this.intersectionTypes.clear();
+    }
+
+
+    private void populateSecondaryTypeIdSet(Set<BTypeIdSet.BTypeId> secondaryTypeIds, BErrorType typeOne) {
+        secondaryTypeIds.addAll(typeOne.typeIdSet.primary);
+        secondaryTypeIds.addAll(typeOne.typeIdSet.secondary);
+    }
+
+    private void defineErrorType(BErrorType errorType, Location pos) {
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
+        BTypeSymbol errorTSymbol = errorType.tsymbol;
+        errorTSymbol.scope = new Scope(errorTSymbol);
+        pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
+
+        SymbolEnv prevEnv = this.env;
+        this.env = pkgEnv;
+        this.env = prevEnv;
     }
 
     private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
@@ -943,6 +970,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         this.unresolvedTypes = new ArrayList<>();
         for (BLangNode typeDef : typeDefs) {
+            boolean isIntersectionType = isErrorIntersectionType(typeDef, env);
+            if (isIntersectionType) {
+                this.intersectionTypes.add(typeDef);
+                continue;
+            }
+
             defineNode(typeDef, env);
         }
 
@@ -971,6 +1004,25 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         defineTypeNodes(unresolvedTypes, env);
+    }
+
+    private boolean isErrorIntersectionType(BLangNode typeDef, SymbolEnv env) {
+        boolean isIntersectionType = typeDef.getKind() == NodeKind.TYPE_DEFINITION
+                && ((BLangTypeDefinition) typeDef).typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE;
+        if (!isIntersectionType) {
+            return false;
+        }
+
+        BLangIntersectionTypeNode intersectionTypeNode =
+                (BLangIntersectionTypeNode) ((BLangTypeDefinition) typeDef).typeNode;
+
+        for (BLangType type : intersectionTypeNode.constituentTypeNodes) {
+            BType bType = symResolver.resolveTypeNode(type, env);
+            if (bType.tag == TypeTags.ERROR) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void checkErrors(BLangNode unresolvedType, BLangNode currentTypeOrClassNode, Stack<String> visitedNodes) {
@@ -1150,6 +1202,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        boolean isErrorIntersection = isErrorIntersection(definedType);
+        if (isErrorIntersection) {
+            populateSymbolNamesForErrorIntersection(definedType, typeDefinition);
+            defineErrorIntersection(definedType, typeDefinition.pos);
+        }
+
         // Check for any circular type references
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE ||
                 typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
@@ -1198,9 +1256,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) definedType, typeDefSymbol);
                 typeDefinition.typeNode.type = distinctType;
                 definedType = distinctType;
+            } else if (definedType.getKind() == TypeKind.INTERSECTION
+                    && ((BIntersectionType) definedType).effectiveType.getKind() == TypeKind.ERROR) {
+                populateTypeIds((BErrorType) ((BIntersectionType) definedType).effectiveType,
+                                (BLangIntersectionTypeNode) typeDefinition.typeNode, typeDefinition.name.value);
             } else if (definedType.getKind() == TypeKind.OBJECT) {
                 BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) definedType,
-                        typeDefSymbol);
+                                                                 typeDefSymbol);
                 typeDefinition.typeNode.type = distinctType;
                 definedType = distinctType;
             } else if (definedType.getKind() == TypeKind.UNION) {
@@ -1245,12 +1307,44 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        defineSymbol(typeDefinition.name.pos, typeDefSymbol);
-
-        if (typeDefinition.typeNode.type.tag == TypeTags.ERROR) {
-            // constructors are only defined for named types.
-            defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
+        if (!isErrorIntersection) { // We have already defined for IntersectionTtypeDef
+            defineSymbol(typeDefinition.name.pos, typeDefSymbol);
         }
+    }
+
+    private void populateTypeIds(BErrorType effectiveType, BLangIntersectionTypeNode typeNode, String name) {
+        Set<BTypeIdSet.BTypeId> secondaryTypeIds = new HashSet<>();
+        for (BLangType constituentType : typeNode.constituentTypeNodes) {
+            BType type = symResolver.resolveTypeNode(constituentType, env);
+            if (type.getKind() == TypeKind.ERROR) {
+                populateSecondaryTypeIdSet(secondaryTypeIds, (BErrorType) type);
+            }
+        }
+        effectiveType.typeIdSet = BTypeIdSet.from(env.enclPkg.packageID, name, true, secondaryTypeIds);
+    }
+
+    private void defineErrorIntersection(BType definedType, Location pos) {
+        BIntersectionType intersectionType = (BIntersectionType) definedType;
+        BErrorType errorType = (BErrorType) intersectionType.effectiveType;
+
+        defineErrorType(errorType, pos);
+    }
+
+    private void populateSymbolNamesForErrorIntersection(BType definedType, BLangTypeDefinition typeDefinition) {
+        String typeDefName = typeDefinition.name.value;
+        definedType.tsymbol.name = names.fromString(typeDefName);
+
+        BErrorType effectiveErrorType = (BErrorType) ((BIntersectionType) definedType).effectiveType;
+        effectiveErrorType.tsymbol.name = names.fromString(typeDefName);
+    }
+
+    private boolean isErrorIntersection(BType definedType) {
+        if (definedType.tag == TypeTags.INTERSECTION) {
+            BIntersectionType intersectionType = (BIntersectionType) definedType;
+            return intersectionType.effectiveType.tag == TypeTags.ERROR;
+        }
+
+        return false;
     }
 
     private BEnumSymbol createEnumSymbol(BLangTypeDefinition typeDefinition, BType definedType) {
@@ -1347,10 +1441,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             throw new IllegalStateException("Not supported annotation attachment at:" + attachment.pos);
         }
         defineSymbol(typeDefinition.name.pos, typeDefinition.symbol);
-        if (typeDefinition.typeNode.type.tag == TypeTags.ERROR) {
-            // constructors are only defined for named types.
-            defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefinition.symbol);
-        }
     }
 
     // If this type is defined to a public type or this is a anonymous type, return int with all bits set to 1,
@@ -1365,21 +1455,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             return ~Flags.PUBLIC;
         }
-    }
-
-    private void defineErrorConstructorSymbol(Location pos, BTypeSymbol typeDefSymbol) {
-        BErrorType errorType = (BErrorType) typeDefSymbol.type;
-        BConstructorSymbol symbol = new BConstructorSymbol(typeDefSymbol.flags, typeDefSymbol.name,
-                                                           typeDefSymbol.pkgID, errorType, typeDefSymbol.owner, pos,
-                                                           getOrigin(typeDefSymbol.name));
-        symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
-        symbol.scope = new Scope(symbol);
-        symbol.retType = errorType;
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
-            env.scope.define(symbol.name, symbol);
-        }
-
-        ((BErrorTypeSymbol) typeDefSymbol).ctorSymbol = symbol;
     }
 
     @Override
@@ -2143,7 +2218,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void validateReadOnlyIntersectionTypeDefinitions(List<BLangTypeDefinition> typeDefNodes) {
+    private void validateIntersectionTypeDefinitions(List<BLangTypeDefinition> typeDefNodes) {
         Set<BType> loggedTypes = new HashSet<>();
 
         for (BLangTypeDefinition typeDefNode : typeDefNodes) {
@@ -2168,8 +2243,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                     if (constituentType == symTable.readonlyType) {
                         continue;
                     }
+                    // If constituent type is error, we have already validated error intersections.
+                    if (!types.isSelectivelyImmutableType(constituentType, true)
+                            && constituentType.tag != TypeTags.ERROR) {
 
-                    if (!types.isSelectivelyImmutableType(constituentType, true, true)) {
                         hasNonReadOnlyElement = true;
                         break;
                     }
@@ -2208,7 +2285,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (!types.isSelectivelyImmutableType(mutableType, false, true)) {
+            if (!types.isSelectivelyImmutableType(mutableType, true)) {
                 dlog.error(typeDefNode.typeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, immutableType);
                 typeNode.type = symTable.semanticError;
             }
@@ -2333,10 +2410,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             boolean allImmutableFields = true;
 
             Collection<BField> fields = structureType.fields.values();
-
-            if (fields.isEmpty()) {
-                continue;
-            }
 
             for (BField field : fields) {
                 if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {

@@ -21,6 +21,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.CompletionExtension;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.contexts.BallerinaCompletionContextImpl;
 import org.eclipse.lsp4j.CompletionItem;
@@ -42,9 +43,11 @@ public class BallerinaCompletionExtension implements CompletionExtension {
     }
 
     @Override
-    public List<CompletionItem> execute(CompletionParams inputParams, CompletionContext context)
+    public List<CompletionItem> execute(CompletionParams inputParams,
+                                        CompletionContext context,
+                                        LanguageServerContext serverContext)
             throws Throwable {
-        BallerinaCompletionContext bcContext = new BallerinaCompletionContextImpl(context);
+        BallerinaCompletionContext bcContext = new BallerinaCompletionContextImpl(context, serverContext);
         return CompletionUtil.getCompletionItems(bcContext);
     }
 }

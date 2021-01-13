@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
+import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
@@ -156,6 +157,37 @@ public class ObserveUtils {
         for (BallerinaObserver observer : observers) {
             observer.startServerObservation(observerContext);
         }
+    }
+
+    /**
+     * Add record checkpoint data to active Trace Span.
+     *
+     * @param env The Ballerina Environment
+     * @param pkg The package the instrumented code belongs to
+     * @param position The source code position the instrumented code defined in
+     */
+    public static void recordCheckpoint(Environment env, BString pkg, BString position) {
+        if (!tracingEnabled) {
+            return;
+        }
+
+        ObserverContext observerContext = (ObserverContext) env.getStrandLocal(KEY_OBSERVER_CONTEXT);
+        if (observerContext == null) {
+            return;
+        }
+        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
+        if (span == null) {
+            return;
+        }
+
+        // Adding Position and Module ID to the Jaeger Span
+        Map<String, String> eventAttributes = new HashMap<>(2);
+        eventAttributes.put(TAG_KEY_SRC_MODULE, pkg.getValue());
+        eventAttributes.put(TAG_KEY_SRC_POSITION, position.getValue());
+
+        HashMap<String, Object> events = new HashMap<>(1);
+        events.put(CHECKPOINT_EVENT_NAME, eventAttributes);
+        span.log(events);
     }
 
     /**

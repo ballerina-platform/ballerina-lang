@@ -44,7 +44,9 @@ import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.diagramutil.DiagramUtil;
+import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.exception.LSConnectorException;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
@@ -68,8 +70,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
-import static org.ballerinalang.langserver.LSClientLogger.logError;
-
 /**
  * Implementation of the BallerinaConnectorService.
  *
@@ -83,10 +83,12 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             .resolve("balo");
     private String connectorConfig;
     private final ConnectorExtContext connectorExtContext;
+    private final LSClientLogger clientLogger;
 
-    public BallerinaConnectorServiceImpl() {
+    public BallerinaConnectorServiceImpl(LanguageServerContext serverContext) {
         this.connectorExtContext = new ConnectorExtContext();
         connectorConfig = System.getenv(DEFAULT_CONNECTOR_FILE_KEY);
+        this.clientLogger = LSClientLogger.getInstance(serverContext);
         if (connectorConfig == null) {
             connectorConfig = System.getProperty(DEFAULT_CONNECTOR_FILE_KEY);
         }
@@ -99,7 +101,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             return CompletableFuture.supplyAsync(() -> response);
         } catch (IOException e) {
             String msg = "Operation 'ballerinaConnector/connectors' failed!";
-            logError(msg, e, null, (Position) null);
+            this.clientLogger.logError(msg, e, null, (Position) null);
         }
 
         return CompletableFuture.supplyAsync(BallerinaConnectorsResponse::new);
@@ -143,7 +145,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
                 BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
-                ModuleId moduleId = baloProject.currentPackage().moduleIds().stream().findFirst().get();
+                ModuleId moduleId = baloProject.currentPackage().moduleIds().stream()
+                        .filter(modId -> modId.moduleName().equals(request.getModule())).findFirst().get();
                 Module module = baloProject.currentPackage().module(moduleId);
                 SemanticModel semanticModel = module.getCompilation().getSemanticModel();
 
@@ -174,7 +177,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     }
 
                     JsonElement jsonST = DiagramUtil.getClassDefinitionSyntaxJson(connector, semanticModel);
-                    if (jsonST instanceof JsonObject) {
+                    if (jsonST instanceof JsonObject && ((JsonObject) jsonST).has("typeData")) {
                         JsonElement recordsJson = gson.toJsonTree(connectorRecords);
                         ((JsonObject) ((JsonObject) jsonST).get("typeData")).add("records", recordsJson);
                     }
@@ -188,7 +191,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
                         request.getName() + " failed!";
                 error = e.getMessage();
-                logError(msg, e, null, (Position) null);
+                this.clientLogger.logError(msg, e, null, (Position) null);
             }
         }
         BallerinaConnectorResponse response = new BallerinaConnectorResponse(request.getOrg(), request.getModule(),
@@ -359,7 +362,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 String msg = "Operation 'ballerinaConnector/record' for " + cacheableKey + ":" +
                         request.getName() + " failed!";
                 error = e.getMessage();
-                logError(msg, e, null, (Position) null);
+                this.clientLogger.logError(msg, e, null, (Position) null);
             }
 
         }

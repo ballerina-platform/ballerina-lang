@@ -106,7 +106,7 @@ function testSafeAssignOpInAssignmentStatement7 () returns (string | error) {
 
 
 function readLineError() returns string|MyError {
-    MyError e = MyError("io error");
+    MyError e = error MyError("io error");
     return e;
 }
 

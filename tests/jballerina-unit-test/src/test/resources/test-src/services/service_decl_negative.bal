@@ -30,7 +30,7 @@ public class NoPathListener {
 }
 
 type S service object {
-    resource function get processRequest() returns json;
+
 };
 
 service S / on new NoPathListener() {

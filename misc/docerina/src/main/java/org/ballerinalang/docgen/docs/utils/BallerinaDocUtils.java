@@ -19,6 +19,7 @@
 package org.ballerinalang.docgen.docs.utils;
 
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
+import org.ballerinalang.docgen.generator.model.ModuleDoc;
 import org.commonmark.Extension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.BlockQuote;
@@ -29,7 +30,6 @@ import org.commonmark.node.ListBlock;
 import org.commonmark.node.Node;
 import org.commonmark.node.ThematicBreak;
 import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -63,30 +63,6 @@ public class BallerinaDocUtils {
     private static final boolean debugEnabled = "true".equals(System.getProperty(
             BallerinaDocConstants.ENABLE_DEBUG_LOGS));
     private static final PrintStream out = System.out;
-
-    /**
-     * Convert a given md to a html.
-     *
-     * @param mdContent content
-     * @param pureMdFile is the mdContent read from a .md file(true) or a bal file(false).
-     * @return html representation
-     */
-    public static String mdToHtml(String mdContent, boolean pureMdFile) {
-        // TODO: Handle this properly at grammar level
-        // TODO: ```ballerina ``` sections in markdown shouldn't contain '#' at the beginning of each line
-        if (mdContent != null) {
-            mdContent = !pureMdFile
-                    ? mdContent.replaceAll("\n[\\s]*#", "\n")
-                    : mdContent;
-        }
-        List<Extension> extensions = Arrays.asList(TablesExtension.create());
-        Parser parser = Parser.builder().extensions(extensions).enabledBlockTypes(new HashSet<>(Arrays.asList(Heading
-                .class, HtmlBlock.class, ThematicBreak.class, FencedCodeBlock.class, BlockQuote.class, ListBlock
-                .class))).build();
-        Node document = parser.parse(mdContent != null ? mdContent.trim() : "");
-        HtmlRenderer renderer = HtmlRenderer.builder().extensions(extensions).build();
-        return renderer.render(document);
-    }
 
     /**
      * Parse a given markdown.
@@ -163,6 +139,17 @@ public class BallerinaDocUtils {
     
     public static boolean isDebugEnabled() {
         return debugEnabled;
+    }
+
+    public static String getSummary(Path descriptionPath) throws IOException {
+        if (descriptionPath != null) {
+            String mdContent = new String(Files.readAllBytes(descriptionPath), "UTF-8");
+            Node document = BallerinaDocUtils.parseMD(mdContent);
+            ModuleDoc.SummaryVisitor summaryVisitor = new ModuleDoc.SummaryVisitor();
+            document.accept(summaryVisitor);
+            return summaryVisitor.getSummary();
+        }
+        return null;
     }
 
     public static String getPrimitiveDescription(List<String> descriptions, String type) {

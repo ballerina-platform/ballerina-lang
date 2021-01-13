@@ -30,16 +30,17 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.testsuite.TestSuite;
-import io.ballerina.projects.testsuite.TesterinaRegistry;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.runtime.entity.CoverageReport;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
+import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
+import org.ballerinalang.testerina.core.TestProcessor;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedReader;
@@ -160,7 +161,7 @@ public class RunTestsTask implements Task {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
-
+        TestProcessor testProcessor = new TestProcessor();
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
         // in packages.
@@ -168,7 +169,7 @@ public class RunTestsTask implements Task {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
 
-            TestSuite suite = jBallerinaBackend.testSuite(module).orElse(null);
+            TestSuite suite = testProcessor.testSuite(module).orElse(null);
             Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
 
             if (suite == null) {
@@ -208,7 +209,6 @@ public class RunTestsTask implements Task {
             if (result == 0) {
                 result = testResult;
             }
-
             if (report || coverage) {
                 try {
                     ModuleStatus moduleStatus = loadModuleStatusFromFile(moduleTestCachePath
@@ -222,7 +222,7 @@ public class RunTestsTask implements Task {
 
         try {
             if (hasTests) {
-                generateCoverage(project);
+                generateCoverage(project, jarResolver);
                 generateHtmlReport(project, this.out, testReport, target);
             }
         } catch (IOException e) {
@@ -234,7 +234,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private void generateCoverage(Project project) throws IOException {
+    private void generateCoverage(Project project, JarResolver jarResolver) throws IOException {
         // Generate code coverage
         if (!coverage) {
             return;
@@ -242,7 +242,7 @@ public class RunTestsTask implements Task {
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             CoverageReport coverageReport = new CoverageReport(module);
-            testReport.addCoverage(module.moduleName().toString(), coverageReport.generateReport());
+            testReport.addCoverage(module.moduleName().toString(), coverageReport.generateReport(jarResolver));
         }
     }
 
@@ -254,30 +254,6 @@ public class RunTestsTask implements Task {
         } else if (groupList != null) {
             testerinaRegistry.setGroups(groupList);
             testerinaRegistry.setShouldIncludeGroups(true);
-        }
-    }
-
-    /**
-     * Write the content into a json.
-     *
-     * @param testSuite Data that are parsed to the json
-     */
-    private static void writeToJson(TestSuite testSuite, Path moduleTestsCachePath) {
-        if (!Files.exists(moduleTestsCachePath)) {
-            try {
-                Files.createDirectories(moduleTestsCachePath);
-            } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("couldn't create test suite : " + e.toString());
-            }
-        }
-        Path tmpJsonPath = Paths.get(moduleTestsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
-        File jsonFile = new File(tmpJsonPath.toString());
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            Gson gson = new Gson();
-            String json = gson.toJson(testSuite);
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
         }
     }
 
@@ -354,7 +330,7 @@ public class RunTestsTask implements Task {
                     File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator +
                     REPORT_ZIP_NAME;
             out.println("warning: Could not find the required HTML report tools for code coverage at "
-                + reportToolsPath);
+                    + reportToolsPath);
         }
     }
 
@@ -428,6 +404,30 @@ public class RunTestsTask implements Task {
             return gson.fromJson(bufferedReader, ArrayList.class);
         } catch (IOException e) {
             throw createLauncherException("error while running failed tests. ", e);
+        }
+    }
+
+    /**
+     * Write the content into a json.
+     *
+     * @param testSuite Data that are parsed to the json
+     */
+    private static void writeToJson(TestSuite testSuite, Path moduleTestsCachePath) {
+        if (!Files.exists(moduleTestsCachePath)) {
+            try {
+                Files.createDirectories(moduleTestsCachePath);
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException("couldn't create test suite : " + e.toString());
+            }
+        }
+        Path tmpJsonPath = Paths.get(moduleTestsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+        File jsonFile = new File(tmpJsonPath.toString());
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            String json = gson.toJson(testSuite);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
         }
     }
 }
