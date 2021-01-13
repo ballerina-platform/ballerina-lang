@@ -2465,11 +2465,18 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         // First analyze the accessible expression.
         BLangExpression containerExpression = fieldAccessExpr.expr;
-        if (containerExpression instanceof BLangAccessibleExpression) {
-            ((BLangAccessibleExpression) containerExpression).lhsVar = fieldAccessExpr.lhsVar;
-            ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
-                    fieldAccessExpr.compoundAssignmentLhsVar;
+
+        // Container expression must be a accessible expression.
+        if (!(containerExpression instanceof BLangAccessibleExpression)) {
+            dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS,
+                    containerExpression);
+            resultType = symTable.semanticError;
+            return;
         }
+
+        ((BLangAccessibleExpression) containerExpression).lhsVar = fieldAccessExpr.lhsVar;
+        ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
+                fieldAccessExpr.compoundAssignmentLhsVar;
         BType varRefType = getTypeOfExprInFieldAccess(containerExpression);
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
@@ -2592,11 +2599,18 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = symTable.semanticError;
             return;
         }
-        if (containerExpression instanceof BLangAccessibleExpression) {
-            ((BLangAccessibleExpression) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
-            ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
-                    indexBasedAccessExpr.compoundAssignmentLhsVar;
+
+        // Container expression must be a accessible expression.
+        if (!(containerExpression instanceof BLangAccessibleExpression)) {
+            dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_INDEX_ACCESS,
+                    containerExpression);
+            resultType = symTable.semanticError;
+            return;
         }
+
+        ((BLangAccessibleExpression) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
+        ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
+                indexBasedAccessExpr.compoundAssignmentLhsVar;
         checkExpr(containerExpression, this.env, symTable.noType);
 
         if (indexBasedAccessExpr.indexExpr.getKind() == NodeKind.TABLE_MULTI_KEY &&

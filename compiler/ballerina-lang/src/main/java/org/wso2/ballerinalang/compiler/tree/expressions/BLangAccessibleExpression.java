@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -27,9 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
  * @since 2.0.0
  */
 public abstract class BLangAccessibleExpression extends BLangExpression {
-
     public BSymbol symbol;
     public boolean lhsVar = false;
     public boolean compoundAssignmentLhsVar = false;
-
 }
