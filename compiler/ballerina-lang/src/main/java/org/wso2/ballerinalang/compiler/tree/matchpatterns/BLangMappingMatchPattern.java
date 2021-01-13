@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Represent mapping-match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class BLangMappingMatchPattern extends BLangMatchPattern implements MappingMatchPatternNode {
 

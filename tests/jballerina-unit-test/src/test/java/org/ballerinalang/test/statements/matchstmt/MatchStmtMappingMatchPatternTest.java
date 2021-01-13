@@ -20,6 +20,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -213,5 +214,12 @@ public class MatchStmtMappingMatchPatternTest {
         BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 91, 9);
         BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 98, 9);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultRestPattern = null;
+        resultNegative = null;
     }
 }

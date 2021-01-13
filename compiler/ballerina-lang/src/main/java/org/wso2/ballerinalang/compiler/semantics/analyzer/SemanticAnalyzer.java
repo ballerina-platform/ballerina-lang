@@ -2483,60 +2483,55 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(matchClause.blockStmt, env);
         List<BLangMatchPattern> matchPatterns = matchClause.matchPatterns;
         if (matchPatterns.size() == 0) {
             return;
         }
-        BLangMatchPattern firstPattern = matchPatterns.get(0);
-        SymbolEnv patternEnv = SymbolEnv.createPatternEnv(firstPattern, env);
-        analyzeNode(firstPattern, patternEnv);
+
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(matchClause.blockStmt, env);
         Map<String, BVarSymbol> clauseVariables = matchClause.declaredVars;
-        Map<String, BVarSymbol> patternVariables = firstPattern.declaredVars;
+
+        BLangMatchPattern matchPattern = matchPatterns.get(0);
+        SymbolEnv patternEnv = SymbolEnv.createPatternEnv(matchPattern, env);
+        analyzeNode(matchPattern, patternEnv);
+        resolveMatchClauseVariableTypes(matchPattern, clauseVariables, blockEnv);
+        if (matchPattern.getKind() != NodeKind.CONST_MATCH_PATTERN) {
+            matchClause.patternsType = matchPattern.type;
+        }
+        for (int i = 1; i < matchPatterns.size(); i++) {
+            matchPattern = matchPatterns.get(i);
+            patternEnv = SymbolEnv.createPatternEnv(matchPattern, env);
+            analyzeNode(matchPattern, patternEnv);
+            resolveMatchClauseVariableTypes(matchPattern, clauseVariables, blockEnv);
+            if (matchPattern.getKind() == NodeKind.CONST_MATCH_PATTERN) {
+                continue;
+            }
+            matchClause.patternsType = types.mergeTypes(matchClause.patternsType, matchPattern.type);
+        }
+
+        if (matchClause.matchGuard != null) {
+            typeChecker.checkExpr(matchClause.matchGuard.expr, blockEnv);
+            blockEnv = typeNarrower.evaluateTruth(matchClause.matchGuard.expr, matchClause.blockStmt, blockEnv);
+            evaluatePatternsTypeAccordingToMatchGuard(matchClause, matchClause.matchGuard.expr, blockEnv);
+        }
+        analyzeStmt(matchClause.blockStmt, blockEnv);
+    }
+
+    private void resolveMatchClauseVariableTypes(BLangMatchPattern matchPattern,
+                                                 Map<String, BVarSymbol> clauseVariables, SymbolEnv env) {
+        Map<String, BVarSymbol> patternVariables = matchPattern.declaredVars;
         for (String patternVariableName : patternVariables.keySet()) {
             BVarSymbol patternVariableSymbol = patternVariables.get(patternVariableName);
             if (!clauseVariables.containsKey(patternVariableName)) {
-                symbolEnter.defineSymbol(patternVariableSymbol.pos, patternVariableSymbol, blockEnv);
-                clauseVariables.put(patternVariableName, patternVariableSymbol);
+                BVarSymbol clauseVarSymbol = symbolEnter.defineVarSymbol(patternVariableSymbol.pos,
+                        patternVariableSymbol.getFlags(), patternVariableSymbol.type, patternVariableSymbol.name,
+                        env, false);
+                clauseVariables.put(patternVariableName, clauseVarSymbol);
                 continue;
             }
             BVarSymbol clauseVariableSymbol = clauseVariables.get(patternVariableName);
             clauseVariableSymbol.type = types.mergeTypes(clauseVariableSymbol.type, patternVariableSymbol.type);
         }
-        if (firstPattern.getKind() != NodeKind.CONST_MATCH_PATTERN) {
-            matchClause.patternsType = firstPattern.type;
-        }
-        for (int i = 1; i < matchPatterns.size(); i++) {
-            BLangMatchPattern matchPattern = matchPatterns.get(i);
-            patternEnv = SymbolEnv.createPatternEnv(matchPattern, env);
-            analyzeNode(matchPattern, patternEnv);
-            clauseVariables = matchClause.declaredVars;
-            patternVariables = matchPattern.declaredVars;
-            for (String patternVariableName : patternVariables.keySet()) {
-                BVarSymbol patternVariableSymbol = patternVariables.get(patternVariableName);
-                if (!clauseVariables.containsKey(patternVariableName)) {
-                    BVarSymbol clauseVarSymbol = symbolEnter.defineVarSymbol(patternVariableSymbol.pos,
-                            patternVariableSymbol.getFlags(), patternVariableSymbol.type, patternVariableSymbol.name,
-                            blockEnv, false);
-                    clauseVariables.put(patternVariableName, clauseVarSymbol);
-                    continue;
-                }
-                BVarSymbol clauseVariableSymbol = clauseVariables.get(patternVariableName);
-                clauseVariableSymbol.type = types.mergeTypes(clauseVariableSymbol.type, patternVariableSymbol.type);
-            }
-            if (matchPattern.getKind() == NodeKind.CONST_MATCH_PATTERN) {
-                continue;
-            }
-            matchClause.patternsType = types.mergeTypes(matchClause.patternsType, matchPattern.type);
-
-        }
-
-        if (matchClause.matchGuard != null) {
-            typeChecker.checkExpr(matchClause.matchGuard.expr, env);
-            blockEnv = typeNarrower.evaluateTruth(matchClause.matchGuard.expr, matchClause.blockStmt, env);
-            evaluatePatternsTypeAccordingToMatchGuard(matchClause, matchClause.matchGuard.expr, blockEnv);
-        }
-        analyzeStmt(matchClause.blockStmt, blockEnv);
     }
 
     private void evaluatePatternsTypeAccordingToMatchGuard(BLangMatchClause matchClause, BLangExpression matchGuardExpr,

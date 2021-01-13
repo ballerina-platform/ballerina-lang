@@ -3702,6 +3702,7 @@ public class Desugar extends BLangNodeVisitor {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 addAsRecordTypeDefinition(memberType, pos);
             }
+            return;
         }
         if (type.tag != TypeTags.RECORD) {
             return;

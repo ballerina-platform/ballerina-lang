@@ -137,8 +137,6 @@ public class Types {
     private Names names;
     private int finiteTypeCount = 0;
     private BUnionType expandedXMLBuiltinSubtypes;
-    private int recordCount = 0;
-    private SymbolEnv env;
     private final BLangAnonymousModelHelper anonymousModelHelper;
 
     public static Types getInstance(CompilerContext context) {
