@@ -708,6 +708,6 @@ public class TypeCastExprTest {
 
     @AfterClass
     public void tearDown() {
-        compileResult = null;
+        result = null;
     }
 }

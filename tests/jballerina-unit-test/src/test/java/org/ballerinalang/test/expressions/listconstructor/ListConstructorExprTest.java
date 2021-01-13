@@ -116,5 +116,4 @@ public class ListConstructorExprTest {
         resultInferType = null;
         resultNegative = null;
     }
-
 }
