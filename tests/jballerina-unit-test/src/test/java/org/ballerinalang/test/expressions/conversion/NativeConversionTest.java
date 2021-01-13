@@ -30,6 +30,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -671,5 +672,11 @@ public class NativeConversionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConvertWithFuncReturnUnion");
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 125);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        packageResult = null;
     }
 }

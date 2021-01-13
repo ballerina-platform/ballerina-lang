@@ -20,6 +20,7 @@ package org.ballerinalang.test.balo.object;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -49,5 +50,10 @@ public class ObjectIncludeOverrideBaloTest {
     @Test
     public void testObjectWithOverriddenFieldsAndMethods() {
         BRunUtil.invoke(result, "testObjectWithOverriddenFieldsAndMethods");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

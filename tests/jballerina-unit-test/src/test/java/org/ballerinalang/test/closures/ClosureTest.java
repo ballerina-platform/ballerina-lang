@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -264,5 +265,10 @@ public class ClosureTest {
     public void testRestParamsAsClosureVars2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRestParamsAsClosureVars2");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

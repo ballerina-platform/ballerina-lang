@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -100,5 +101,11 @@ public class CheckPanicExpressionOperatorTest {
                 "operator: all expression types are equivalent to error type", 29, 30);
         BAssertUtil.validateError(negative, 3, "incompatible types: expected '(string|error)'" +
                 ", found '(string|int)'", 37, 30);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negative = null;
     }
 }

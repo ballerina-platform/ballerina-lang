@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -149,5 +150,11 @@ public class GreaterLessThanOperationTest {
     @Test(description = "Test decimal greater than, less than expression")
     public void testDecimalComparison() {
         BRunUtil.invoke(result, "testDecimalComparison");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -145,6 +146,13 @@ public class NativeConversionNegativeTest {
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
                             "'Manager' value has cyclic reference");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        negativeResult = null;
+        negativeCompileResult= null;
+        taintCheckResult = null;
     }
 }
 

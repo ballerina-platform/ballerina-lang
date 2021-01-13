@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -138,5 +139,10 @@ public class ModOperationTest {
     public void testIntModFloatZero() {
         BValue[] returns = BRunUtil.invoke(result, "intFloatMod", new BValue[]{new BInteger(2100), new BFloat(0.0)});
         Assert.assertEquals(returns[0].stringValue(), "NaN");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

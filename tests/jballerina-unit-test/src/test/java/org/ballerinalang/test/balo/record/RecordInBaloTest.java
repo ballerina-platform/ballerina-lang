@@ -61,7 +61,6 @@ public class RecordInBaloTest {
 
     @AfterClass
     public void tearDown() {
-        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project/", "testorg", "records");
         result = null;
     }
 }

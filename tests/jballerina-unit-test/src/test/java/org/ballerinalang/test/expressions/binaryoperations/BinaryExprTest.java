@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -150,5 +151,10 @@ public class BinaryExprTest {
         Assert.assertEquals(((BByte) returns[1]).byteValue(), a & c);
         Assert.assertEquals(((BByte) returns[2]).byteValue(), c & d);
         Assert.assertEquals(((BByte) returns[3]).byteValue(), b & d);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

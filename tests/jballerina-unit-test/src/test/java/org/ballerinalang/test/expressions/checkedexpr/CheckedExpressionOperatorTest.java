@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -254,5 +255,10 @@ public class CheckedExpressionOperatorTest {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_within_resource.bal");
         Assert.assertEquals(compile.getErrorCount(), 0);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

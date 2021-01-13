@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -129,5 +130,10 @@ public class ClientObjectTest {
         BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 121, 5);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        remoteBasic = null;
     }
 }

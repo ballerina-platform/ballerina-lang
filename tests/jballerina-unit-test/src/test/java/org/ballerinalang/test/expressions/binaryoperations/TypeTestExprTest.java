@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -724,5 +725,10 @@ public class TypeTestExprTest {
     @Test
     public void testMapAsRecord() {
         BRunUtil.invoke(result, "testMapAsRecord");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

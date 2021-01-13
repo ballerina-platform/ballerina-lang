@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -149,5 +150,10 @@ public class BasicAsyncOperationsTest {
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'future<int>', found 'int'", 3, 23);
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'future<int>', found 'int'", 9, 23);
         BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'future<int>', found 'any'", 15, 23);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }
