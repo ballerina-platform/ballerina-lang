@@ -17,14 +17,9 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
-import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.MarkupContent;
-
-import java.util.Optional;
 
 /**
  * Completion item builder for the {@link XMLNamespaceSymbol}.
@@ -46,20 +41,8 @@ public class XMLNSCompletionItemBuilder {
         completionItem.setLabel(namespaceSymbol.name());
         completionItem.setInsertText(namespaceSymbol.name());
         completionItem.setDetail(namespaceSymbol.namespaceUri());
-        completionItem.setDocumentation(getDocumentation(namespaceSymbol));
         completionItem.setKind(CompletionItemKind.Unit);
 
         return completionItem;
-    }
-
-    private static MarkupContent getDocumentation(XMLNamespaceSymbol namespaceSymbol) {
-        MarkupContent docMarkupContent = new MarkupContent();
-        Optional<Documentation> docAttachment = namespaceSymbol.docAttachment();
-        String description = docAttachment.isEmpty() || docAttachment.get().description().isEmpty() ? ""
-                : docAttachment.get().description().get();
-        docMarkupContent.setValue(description);
-        docMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
-
-        return docMarkupContent;
     }
 }
