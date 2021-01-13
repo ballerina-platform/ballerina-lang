@@ -337,6 +337,7 @@ public class Desugar extends BLangNodeVisitor {
     private ClosureDesugar closureDesugar;
     private QueryDesugar queryDesugar;
     private TransactionDesugar transactionDesugar;
+    private ObservabilityDesugar observabilityDesugar;
     private AnnotationDesugar annotationDesugar;
     private Types types;
     private Names names;
@@ -403,6 +404,7 @@ public class Desugar extends BLangNodeVisitor {
         this.closureDesugar = ClosureDesugar.getInstance(context);
         this.queryDesugar = QueryDesugar.getInstance(context);
         this.transactionDesugar = TransactionDesugar.getInstance(context);
+        this.observabilityDesugar = ObservabilityDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
@@ -703,6 +705,8 @@ public class Desugar extends BLangNodeVisitor {
             result = pkgNode;
             return;
         }
+        observabilityDesugar.addObserveInternalModuleImport(pkgNode);
+
         createPackageInitFunctions(pkgNode, env);
         // Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode, env);
@@ -3569,6 +3573,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
             case TypeTags.XML:
+            case TypeTags.XML_TEXT:
             case TypeTags.MAP:
             case TypeTags.TABLE:
             case TypeTags.STREAM:

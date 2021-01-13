@@ -244,12 +244,6 @@ public class ProjectUtils {
         return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
     }
 
-    public static Path getChoreoRuntimeJarPath() {
-        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
-        String runtimeJarName = "ballerina-choreo-extension-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
-        return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
-    }
-
     public static List<Path> testDependencies() {
         List<Path> dependencies = new ArrayList<>();
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();

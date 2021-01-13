@@ -42,9 +42,14 @@ public class IntersectionTypeTest {
         errorIntersectionResults = BCompileUtil.compile("test-src/types/intersection/error_intersection_type.bal");
     }
 
-    @Test(groups = "brokenOnNewParser")
+    @Test
     public void testImmutableTypes() {
         BRunUtil.invoke(readOnlyIntersectionResults, "testIntersectionTypes");
+    }
+
+    @Test
+    public void testReadOnlyIntersectionFieldInRecord() {
+        BRunUtil.invoke(readOnlyIntersectionResults, "testReadOnlyIntersectionFieldInRecord");
     }
 
     @Test
@@ -60,6 +65,7 @@ public class IntersectionTypeTest {
                       45);
         validateError(result, index++, "invalid intersection type '(Baz & readonly)': no intersection", 32,
                       45);
+        validateError(result, index++, "incompatible types: 'Y' is not a record", 42, 6);
 
         assertEquals(result.getErrorCount(), index);
     }
@@ -87,6 +93,16 @@ public class IntersectionTypeTest {
     @Test
     public void testIntersectionOfDistinctErrors() {
         BRunUtil.invoke(errorIntersectionResults, "testIntersectionOfDistinctErrors");
+    }
+
+    @Test
+    public void testIntersectionAsFieldInRecord() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionAsFieldInRecord");
+    }
+
+    @Test
+    public void testIntersectionAsFieldInAnonymousRecord() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionAsFieldInAnonymousRecord");
     }
 
     @Test

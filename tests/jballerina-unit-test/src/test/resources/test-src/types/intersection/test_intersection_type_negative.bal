@@ -34,3 +34,12 @@ type IntersectionWithInvalidObjectTypeAfter Baz & readonly;
 type Baz object {
     future<int> ft;
 };
+
+type X error<record { int i?; }> & error<record { int i; }>;
+type Y readonly & record { int i; };
+
+type Z record {
+    *Y;
+    X x;
+    Y y;
+};
