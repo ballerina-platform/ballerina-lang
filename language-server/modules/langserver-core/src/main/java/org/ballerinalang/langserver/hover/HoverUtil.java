@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
@@ -82,6 +83,12 @@ public class HoverUtil {
             case ENUM:
             case VARIABLE:
                 return getDescriptionOnlyHoverObject(symbolAtCursor.get());
+            case TYPE:
+                if (((TypeSymbol) symbolAtCursor.get()).typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                    return getTypeRefHoverMarkupContent((TypeReferenceTypeSymbol) symbolAtCursor.get(),
+                                                        semanticModel.get(), relPath);
+                }
+                return getDefaultHoverObject();
             default:
                 return HoverUtil.getDefaultHoverObject();
         }
@@ -193,6 +200,26 @@ public class HoverUtil {
         hover.setContents(hoverMarkupContent);
 
         return hover;
+    }
+
+    private static Hover getTypeRefHoverMarkupContent(TypeReferenceTypeSymbol typeSymbol, SemanticModel model,
+                                                      String fileName) {
+        Optional<Symbol> associatedDef = model.symbol(fileName, typeSymbol.location().lineRange().startLine());
+
+        if (associatedDef.isEmpty()) {
+            return getDefaultHoverObject();
+        }
+
+        switch (associatedDef.get().kind()) {
+            case TYPE_DEFINITION:
+                return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) associatedDef.get());
+            case ENUM:
+                return getDescriptionOnlyHoverObject(associatedDef.get());
+            case CLASS:
+                return getClassHoverMarkupContent((ClassSymbol) associatedDef.get());
+        }
+
+        return getDefaultHoverObject();
     }
 
     /**
