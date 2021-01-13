@@ -2522,13 +2522,13 @@ public class Types {
     }
 
     private boolean isAssignableToUnionType(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        Set<BType> sourceTypes = new LinkedHashSet<>();
-        Set<BType> targetTypes = new LinkedHashSet<>();
-
         TypePair pair = new TypePair(source, target);
         if (unresolvedTypes.contains(pair)) {
             return true;
         }
+
+        Set<BType> sourceTypes = new LinkedHashSet<>();
+        Set<BType> targetTypes = new LinkedHashSet<>();
 
         if (source.tag == TypeTags.UNION || source.tag == TypeTags.JSON || source.tag == TypeTags.ANYDATA) {
             sourceTypes.addAll(getEffectiveMemberTypes((BUnionType) source));
