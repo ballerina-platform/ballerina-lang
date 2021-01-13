@@ -26,8 +26,10 @@ import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.ReferencesContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
@@ -110,6 +112,26 @@ public class ContextBuilder {
     }
 
     /**
+     * Build the References context.
+     *
+     * @param uri              file uri
+     * @param workspaceManager workspace manager instance
+     * @param serverContext    language server context
+     * @param position         cursor position
+     * @return {@link SignatureContext} generated signature context
+     */
+    public static ReferencesContext buildReferencesContext(String uri,
+                                                          WorkspaceManager workspaceManager,
+                                                          LanguageServerContext serverContext,
+                                                          Position position) {
+        return new ReferencesContextImpl.ReferencesContextBuilder(serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
+                .withPosition(position)
+                .build();
+    }
+
+    /**
      * Build the code action context.
      *
      * @param uri              file uri
@@ -152,11 +174,12 @@ public class ContextBuilder {
      * Build the command execution context.
      *
      * @param workspaceManager workspace manager instance
+     * @param arguments
      * @return {@link ExecuteCommandContext} generated command execution context
      */
     public static ExecuteCommandContext buildExecuteCommandContext(WorkspaceManager workspaceManager,
                                                                    LanguageServerContext serverContext,
-                                                                   List<Object> arguments,
+                                                                   List<CommandArgument> arguments,
                                                                    LSClientCapabilities clientCapabilities,
                                                                    BallerinaLanguageServer languageServer) {
         return new ExecuteCommandContextImpl.ExecuteCommandContextBuilder(serverContext,

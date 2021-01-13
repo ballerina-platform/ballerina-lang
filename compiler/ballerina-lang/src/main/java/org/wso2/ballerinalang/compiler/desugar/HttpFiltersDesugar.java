@@ -200,11 +200,6 @@ public class HttpFiltersDesugar {
         serviceRef.type = serviceSelf.type;
         serviceRef.pos = resourceNode.pos;
 
-        BLangLiteral serviceName = new BLangLiteral();
-        serviceName.value = getServiceName(serviceSelf.type.tsymbol.name.value);
-        serviceName.type = symTable.stringType;
-        serviceName.pos = resourceNode.pos;
-
         BLangLiteral resourceName = new BLangLiteral();
         resourceName.value = resourceNode.name.value;
         resourceName.type = symTable.stringType;
@@ -215,10 +210,8 @@ public class HttpFiltersDesugar {
         filterInvocation.symbol = ((BObjectTypeSymbol) filterContextType.tsymbol).initializerFunc.symbol;
         filterInvocation.pos = resourceNode.pos;
         filterInvocation.requiredArgs.add(serviceRef);
-        filterInvocation.requiredArgs.add(serviceName);
         filterInvocation.requiredArgs.add(resourceName);
         filterInvocation.argExprs.add(serviceRef);
-        filterInvocation.argExprs.add(serviceName);
         filterInvocation.argExprs.add(resourceName);
         filterInvocation.type = symTable.nilType;
 
@@ -227,7 +220,6 @@ public class HttpFiltersDesugar {
         filterInitNode.type = filterContextType;
         filterInitNode.initInvocation = filterInvocation;
         filterInitNode.argsExpr.add(serviceRef);
-        filterInitNode.argsExpr.add(serviceName);
         filterInitNode.argsExpr.add(resourceName);
 
 
@@ -265,11 +257,6 @@ public class HttpFiltersDesugar {
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, expr);
         stmtExpr.type = expr.type;
         return stmtExpr;
-    }
-
-    private String getServiceName(String serviceTypeName) {
-        int serviceIndex = serviceTypeName.lastIndexOf("$$service$");
-        return serviceTypeName.substring(0, serviceIndex);
     }
 
     /**

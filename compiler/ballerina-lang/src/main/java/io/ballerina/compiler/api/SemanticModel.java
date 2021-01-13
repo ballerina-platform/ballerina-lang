@@ -19,6 +19,7 @@ package io.ballerina.compiler.api;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -46,11 +47,24 @@ public interface SemanticModel {
     /**
      * Lookup the symbol at the given location.
      *
-     * @param fileName  path for the file in which we need to look up symbols, relative to the source root path
+     * @param fileName path for the file in which we need to look up symbols, relative to the source root path
      * @param position text position in the source
      * @return {@link Symbol} in the given location
      */
     Optional<Symbol> symbol(String fileName, LinePosition position);
+
+    /**
+     * Looks up the symbol for the specified syntax tree node. This will only return a symbol if the provided node is a
+     * construct in the language for which we associate names. e.g., functions, variables, function calls, type
+     * definitions etc.
+     * <p>
+     * One can also provide just the relevant portion of a particular construct to get the symbol. e.g., binding pattern
+     * node of a variable declaration node, function name node of a function definition node.
+     *
+     * @param node The syntax tree node of which the symbol is required
+     * @return {@link Symbol} for the given node
+     */
+    Optional<Symbol> symbol(Node node);
 
     /**
      * Retrieves the symbols of module-scoped constructs in the semantic model.

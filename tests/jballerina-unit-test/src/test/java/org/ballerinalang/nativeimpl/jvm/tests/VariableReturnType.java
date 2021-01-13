@@ -191,7 +191,7 @@ public class VariableReturnType {
     }
 
     public static ArrayValue getArray(BTypedesc td) {
-        return new ArrayValueImpl(new long[]{10, 20, 30});
+        return new ArrayValueImpl(new long[]{10, 20, 30}, false);
     }
 
     public static Object getInvalidValue(BTypedesc td1, BTypedesc td2) {

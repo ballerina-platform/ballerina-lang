@@ -153,13 +153,7 @@ public class CoverageReport {
 
                         for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine(); i++) {
                             ILine line = sourceFileCoverage.getLine(i);
-
-                            if (line.getInstructionCounter().getTotalCount() == 0 &&
-                                    line.getBranchCounter().getTotalCount() == 0) {
-                                // do nothing. This is to capture the empty lines
-                            } else if ((line.getBranchCounter().getCoveredCount() == 0
-                                    && line.getBranchCounter().getMissedCount() > 0)
-                                    || line.getStatus() == NOT_COVERED) {
+                            if (line.getStatus() == NOT_COVERED) {
                                 missedLines.add(i);
                             } else if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
                                 coveredLines.add(i);

@@ -144,7 +144,7 @@ public class DiagnosticsHelper {
             endChar = (endChar <= 0) ? startChar + 1 : endChar;
 
             Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
-            Diagnostic diagnostic = new Diagnostic(range, diag.message());
+            Diagnostic diagnostic = new Diagnostic(range, diag.message(), null, null, diag.diagnosticInfo().code());
 
             switch (diag.diagnosticInfo().severity()) {
                 case ERROR:
