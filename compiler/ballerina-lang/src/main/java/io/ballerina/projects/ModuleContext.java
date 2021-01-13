@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
@@ -166,15 +165,6 @@ class ModuleContext {
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : srcDocContextMap.values()) {
             moduleLoadRequests.addAll(docContext.moduleLoadRequests(PackageDependencyScope.DEFAULT));
-        }
-
-        // TODO: Move to compiler extension once new Compiler Extension model is introduced
-        if (project().buildOptions().observabilityIncluded()) {
-            PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
-            ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
-                    PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), packageName, ModuleName.from(packageName),
-                    null, PackageDependencyScope.DEFAULT);
-            moduleLoadRequests.add(observeModuleLoadReq);
         }
 
         allModuleLoadRequests.addAll(moduleLoadRequests);
