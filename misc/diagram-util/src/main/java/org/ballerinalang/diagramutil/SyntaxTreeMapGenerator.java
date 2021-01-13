@@ -78,8 +78,15 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeJson.add(childNodeEntry.name(), apply(childNodeEntry.node().get()));
             }
         }
+
         nodeJson.addProperty("source", node.toSourceCode());
         nodeJson.addProperty("kind", prettifyKind(node.kind().toString()));
+
+        // TODO: Generalize the diagnostic implementation.
+        Iterable<Diagnostic> syntaxDiagnostics = node.diagnostics();
+        if (syntaxDiagnostics!= null) {
+            nodeJson.add("syntaxDiagnostics", DiagnosticUtil.getDiagnostics(syntaxDiagnostics));
+        }
         nodeJson.add("leadingMinutiae", detectMinutiae(node.leadingMinutiae()));
         nodeJson.add("trailingMinutiae", detectMinutiae(node.trailingMinutiae()));
 
@@ -125,6 +132,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 // Check if required params contains endpoints.
                 if (node instanceof RequiredParameterNode) {
                     RequiredParameterNode requiredParameterNode = (RequiredParameterNode) node;
+
                     if (requiredParameterNode.paramName().isPresent()) {
                         Optional<Symbol> paramNameSymbol = this.semanticModel
                                 .symbol(this.fileName, requiredParameterNode.paramName().get()
@@ -161,20 +169,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
                 List<Diagnostic> diagnostics = this.semanticModel.diagnostics(lineRange);
                 if (diagnostics != null) {
-                    JsonArray diagnosticsArray = new JsonArray();
-                    for (Diagnostic diagnostic : diagnostics) {
-                        JsonObject diagnosticJson = new JsonObject();
-                        diagnosticJson.addProperty("message", diagnostic.message());
-                        DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
-                        if (diagnosticInfo != null) {
-                            JsonObject diagnosticInfoJson = new JsonObject();
-                            diagnosticInfoJson.addProperty("code", diagnosticInfo.code());
-                            diagnosticInfoJson.addProperty("severity", diagnosticInfo.severity().name());
-                            diagnosticJson.add("diagnosticInfo", diagnosticInfoJson);
-                        }
-                        diagnosticsArray.add(diagnosticJson);
-                    }
-                    symbolJson.add("diagnostics", diagnosticsArray);
+                    symbolJson.add("diagnostics", DiagnosticUtil.getDiagnostics(diagnostics));
                 }
 
                 nodeJson.add("typeData", symbolJson);
@@ -370,7 +365,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         for (Minutiae m : minutiae){
             JsonObject nodeJson = new JsonObject();
             nodeJson.addProperty("kind", m.kind().toString());
-
             if(m.isInvalidNodeMinutiae()) {
                 nodeJson.addProperty("value", m.text());
                 invalidNodes.add(nodeJson);
@@ -386,7 +380,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
     private JsonArray detectMinutiae(MinutiaeList minutiae){
         JsonArray minutiaeList = new JsonArray();
-
         for (Minutiae m : minutiae) {
                 JsonObject nodeJson = new JsonObject();
                 nodeJson.addProperty("kind", m.kind().toString());
