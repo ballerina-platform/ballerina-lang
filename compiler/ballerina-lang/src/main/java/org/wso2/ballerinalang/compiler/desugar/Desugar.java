@@ -3572,6 +3572,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
             case TypeTags.XML:
+            case TypeTags.XML_TEXT:
             case TypeTags.MAP:
             case TypeTags.TABLE:
             case TypeTags.STREAM:
