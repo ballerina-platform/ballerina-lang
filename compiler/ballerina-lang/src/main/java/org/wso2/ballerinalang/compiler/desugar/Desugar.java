@@ -1397,7 +1397,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(arrayVarRef,
                     createLengthInvocation(pos, arrayVarRef));
             indexAccessExpr.type = (isTupleType ? ((BTupleType) parentTupleVariable.type).restType : symTable.anyType);
-            createSimpleVarRefAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
+            createAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
             foreach.body = foreachBody;
             blockStmt.addStatement(foreach);
         }
@@ -2264,7 +2264,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(restParam,
                     createLengthInvocation(pos, restParam));
             indexAccessExpr.type = restParamType.eType;
-            createSimpleVarRefAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
+            createAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
 
             foreach.body = foreachBody;
             blockStmt.addStatement(foreach);
@@ -2305,7 +2305,7 @@ public class Desugar extends BLangNodeVisitor {
                     NodeKind.XML_ATTRIBUTE_ACCESS_EXPR == expression.getKind()) {
                 //if this is simple var, then create a simple var def stmt
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(expression.pos, symTable.intType, (long) index);
-                createSimpleVarRefAssignmentStmt((BLangVariableReference) expression, parentBlockStmt, indexExpr,
+                createAssignmentStmt((BLangAccessExpression) expression, parentBlockStmt, indexExpr,
                         tupleVarSymbol, parentIndexAccessExpr);
                 continue;
             }
@@ -2367,25 +2367,25 @@ public class Desugar extends BLangNodeVisitor {
      * This method creates a assignment statement and assigns and array expression based on the given indexExpr.
      *
      */
-    private void createSimpleVarRefAssignmentStmt(BLangExpression simpleVarRef, BLangBlockStmt parentBlockStmt,
-                                                  BLangExpression indexExpr, BVarSymbol tupleVarSymbol,
-                                                  BLangIndexBasedAccess parentArrayAccessExpr) {
+    private void createAssignmentStmt(BLangAccessExpression accessExpression, BLangBlockStmt parentBlockStmt,
+                                      BLangExpression indexExpr, BVarSymbol tupleVarSymbol,
+                                      BLangIndexBasedAccess parentArrayAccessExpr) {
 
-        if (simpleVarRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            Name varName = names.fromIdNode(((BLangSimpleVarRef) simpleVarRef).variableName);
+        if (accessExpression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            Name varName = names.fromIdNode(((BLangSimpleVarRef) accessExpression).variableName);
             if (varName == Names.IGNORE) {
                 return;
             }
         }
 
-        BLangExpression assignmentExpr = createIndexBasedAccessExpr(simpleVarRef.type, simpleVarRef.pos,
+        BLangExpression assignmentExpr = createIndexBasedAccessExpr(accessExpression.type, accessExpression.pos,
                 indexExpr, tupleVarSymbol, parentArrayAccessExpr);
 
-        assignmentExpr = addConversionExprIfRequired(assignmentExpr, simpleVarRef.type);
+        assignmentExpr = addConversionExprIfRequired(assignmentExpr, accessExpression.type);
 
         final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos,
                 parentBlockStmt);
-        assignmentStmt.varRef = simpleVarRef;
+        assignmentStmt.varRef = accessExpression;
         assignmentStmt.expr = assignmentExpr;
     }
 
@@ -2460,21 +2460,21 @@ public class Desugar extends BLangNodeVisitor {
                                              BVarSymbol recordVarSymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
         final List<BLangRecordVarRefKeyValue> variableRefList = parentRecordVarRef.recordRefFields;
         for (BLangRecordVarRefKeyValue varRefKeyValue : variableRefList) {
-            BLangExpression variableReference = varRefKeyValue.variableReference;
-            BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(variableReference.pos, symTable.stringType,
+            BLangExpression expression = varRefKeyValue.variableReference;
+            BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(expression.pos, symTable.stringType,
                     varRefKeyValue.variableName.getValue());
 
-            if (NodeKind.SIMPLE_VARIABLE_REF == variableReference.getKind() ||
-                    NodeKind.FIELD_BASED_ACCESS_EXPR == variableReference.getKind() ||
-                    NodeKind.INDEX_BASED_ACCESS_EXPR == variableReference.getKind() ||
-                    NodeKind.XML_ATTRIBUTE_ACCESS_EXPR == variableReference.getKind()) {
-                createSimpleVarRefAssignmentStmt((BLangVariableReference) variableReference, parentBlockStmt,
+            if (NodeKind.SIMPLE_VARIABLE_REF == expression.getKind() ||
+                    NodeKind.FIELD_BASED_ACCESS_EXPR == expression.getKind() ||
+                    NodeKind.INDEX_BASED_ACCESS_EXPR == expression.getKind() ||
+                    NodeKind.XML_ATTRIBUTE_ACCESS_EXPR == expression.getKind()) {
+                createAssignmentStmt((BLangAccessExpression) expression, parentBlockStmt,
                         indexExpr, recordVarSymbol, parentIndexAccessExpr);
                 continue;
             }
 
-            if (NodeKind.RECORD_VARIABLE_REF == variableReference.getKind()) {
-                BLangRecordVarRef recordVariable = (BLangRecordVarRef) variableReference;
+            if (NodeKind.RECORD_VARIABLE_REF == expression.getKind()) {
+                BLangRecordVarRef recordVariable = (BLangRecordVarRef) expression;
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
                         parentRecordVarRef.pos, symTable.mapType, recordVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
@@ -2484,8 +2484,8 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
-            if (NodeKind.TUPLE_VARIABLE_REF == variableReference.getKind()) {
-                BLangTupleVarRef tupleVariable = (BLangTupleVarRef) variableReference;
+            if (NodeKind.TUPLE_VARIABLE_REF == expression.getKind()) {
+                BLangTupleVarRef tupleVariable = (BLangTupleVarRef) expression;
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVariable.pos,
                         symTable.tupleType, recordVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
@@ -2495,13 +2495,13 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
-            if (NodeKind.ERROR_VARIABLE_REF == variableReference.getKind()) {
-                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(variableReference.pos,
+            if (NodeKind.ERROR_VARIABLE_REF == expression.getKind()) {
+                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(expression.pos,
                         symTable.errorType, recordVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
-                createVarRefAssignmentStmts((BLangErrorVarRef) variableReference, parentBlockStmt, recordVarSymbol,
+                createVarRefAssignmentStmts((BLangErrorVarRef) expression, parentBlockStmt, recordVarSymbol,
                         arrayAccessExpr);
             }
         }
