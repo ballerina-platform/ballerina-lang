@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -240,5 +241,11 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, i++,
                                   "invalid list index expression: value space '(3|4|5|6)' out of range", 158, 19);
         BAssertUtil.validateError(resultNegative, i, "list index out of range: index: '-1'", 165, 19);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

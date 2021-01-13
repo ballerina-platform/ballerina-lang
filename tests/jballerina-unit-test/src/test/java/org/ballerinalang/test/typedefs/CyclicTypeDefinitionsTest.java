@@ -22,6 +22,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -31,7 +32,7 @@ import org.testng.annotations.Test;
  */
 public class CyclicTypeDefinitionsTest {
 
-    private static CompileResult compileResult, negativeResult;
+    private CompileResult compileResult, negativeResult;
     private static final String INVALID_CYCLIC_MESSAGE = "invalid cyclic type reference in '[%s]'";
 
     @BeforeClass
@@ -68,5 +69,11 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "D, C, D"), 6, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
                 "'(int|record {| E a; anydata...; |})', found 'string'", 8, 25);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        negativeResult = null;
+        compileResult = null;
     }
 }
