@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -119,5 +120,11 @@ public class ErrorTypeTest {
                 "incompatible types: expected 'testorg/errors:1.0.0:NewPostDefinedError', " +
                         "found 'testorg/errors:1.0.0:PostDefinedError'", 28, 32);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 }

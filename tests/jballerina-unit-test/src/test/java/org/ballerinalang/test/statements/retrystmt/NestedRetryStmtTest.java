@@ -21,6 +21,7 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,5 +41,10 @@ public class NestedRetryStmtTest {
     public void testRetryStatement() {
         BValue[] params = {};
         BRunUtil.invoke(programFile, "testRetryStatement", params);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        programFile = null;
     }
 }

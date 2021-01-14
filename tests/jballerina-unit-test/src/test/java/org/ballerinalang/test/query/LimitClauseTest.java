@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -161,5 +162,11 @@ public class LimitClauseTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 38, 19);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 78, 19);
         validateError(negativeResult, i, "more clauses after select clause", 123, 13);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 }

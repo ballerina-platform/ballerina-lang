@@ -23,6 +23,7 @@ import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -121,5 +122,10 @@ public class ObjectSubtypingTest {
         validateError(result, i++, "uninitialized field 'intField1'", 27, 5);
         validateError(result, i++, "uninitialized field 'intField2'", 28, 5);
         assertEquals(result.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -99,5 +100,10 @@ public class TopLevelVarDeclarationTest {
         BValue[] returns = BRunUtil.invoke(result, "testVarAssign");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "{\"x\":\"y\"}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }
