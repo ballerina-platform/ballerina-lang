@@ -29,6 +29,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -200,6 +201,11 @@ public class UnionTypeStampInbuiltFunctionTest {
                 BStringType.class);
         Assert.assertEquals(((BValue) ((BMap) employee0.getMap().get("b")).getMap().get("batch")).getType().getClass(),
                 BStringType.class);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }
 

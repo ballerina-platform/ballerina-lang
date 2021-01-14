@@ -20,6 +20,7 @@ package org.ballerinalang.test.types.map;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -51,5 +52,10 @@ public class MapInitializerExprNegativeTest {
     @Test(description = "Test map initializer expression with duplicated keys when both keys are string literals")
     public void mapInitWithDuplicatedKeysBothStringKeysTest() {
         BAssertUtil.validateError(compileResult, 2, "invalid usage of map literal: duplicate key 'key'", 12, 42);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }
