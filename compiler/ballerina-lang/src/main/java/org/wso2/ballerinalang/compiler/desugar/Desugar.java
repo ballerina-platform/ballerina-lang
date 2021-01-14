@@ -3798,7 +3798,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                        BLangBlockStmt restPatternBlock,
                                                                        BLangSimpleVarRef varRef,
                                                                        Location pos) {
-        BLangExpression condition = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);;
+        BLangExpression condition = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
         if (errorMatchPattern.errorMessageMatchPattern != null) {
             Location messagePos = errorMatchPattern.errorMessageMatchPattern.pos;
             BLangInvocation messageInvocation = createLangLibInvocationNode(ERROR_MESSAGE_FUNCTION_NAME, varRef,
@@ -3862,11 +3862,10 @@ public class Desugar extends BLangNodeVisitor {
                 BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(restPatternPos);
                 BLangInvocation mapInvocation = generateMapMapInvocation(restPatternPos, filtersVarDef.var,
                         backToMapLambda);
-                BLangSimpleVariable restVar =
-                        ASTBuilderUtil.createVariable(restPatternPos, restMatchPattern.getIdentifier().getValue(),
-                                restMatchPattern.symbol.type, mapInvocation, restMatchPattern.symbol);
-                BLangSimpleVariableDef restVarDef = ASTBuilderUtil.createVariableDef(restPatternPos, restVar);
-                restPatternBlock.addStatement(restVarDef);
+                BLangSimpleVarRef restMatchPatternVarRef =
+                        declaredVarDef.get(restMatchPattern.getIdentifier().getValue());
+                restPatternBlock.addStatement(ASTBuilderUtil.createAssignmentStmt(restPatternPos,
+                        restMatchPatternVarRef, mapInvocation));
             }
         }
 
@@ -3895,7 +3894,7 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(true));
         mainBlockStmt.addStatement(failureResult);
 
-        BLangExpression condition = null;
+        BLangExpression condition = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
         for (int i = 0; i < errorFieldMatchPatterns.namedArgMatchPatterns.size(); i++) {
             BLangNamedArgMatchPattern namedArgMatchPattern = errorFieldMatchPatterns.namedArgMatchPatterns.get(i);
             String argName = namedArgMatchPattern.argName.value;

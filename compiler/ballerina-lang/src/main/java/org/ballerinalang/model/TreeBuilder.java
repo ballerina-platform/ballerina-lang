@@ -116,7 +116,6 @@ import org.ballerinalang.model.tree.matchpatterns.FieldMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.ListMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.MappingMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.NamedArgMatchPatternNode;
-import org.ballerinalang.model.tree.matchpatterns.RestMatchPattern;
 import org.ballerinalang.model.tree.matchpatterns.RestMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.SimpleMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.VarBindingPatternMatchPatternNode;
@@ -813,10 +812,6 @@ public class TreeBuilder {
 
     public static ExpressionNode createMatchGuard() {
         return new BLangMatchGuard();
-    }
-
-    public static RestMatchPatternNode createRestMatchPattern() {
-        return new BLangRestMatchPattern();
     }
 
     public static CaptureBindingPattern createCaptureBindingPattern() {

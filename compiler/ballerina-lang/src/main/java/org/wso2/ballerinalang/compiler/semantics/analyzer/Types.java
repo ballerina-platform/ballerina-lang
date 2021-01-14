@@ -397,25 +397,16 @@ public class Types {
         return symTable.noType;
     }
 
-//    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BLangExpression constPatternExpr) {
-//
-//        if (matchExpr == null) {
-//            if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-//                return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
-//            } else {
-//                return constPatternExpr.type;
-//            }
-//        }
-//
-//        BType matchExprType = matchExpr.type;
-//    }
-
-    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BType matchPatternType) {
-        if (isAssignable(matchExprType, matchPatternType)) {
-            return matchExprType;
+    public BType resolvePatternTypeFromMatchExpr(BLangErrorMatchPattern errorMatchPattern, BLangExpression matchExpr) {
+        if (matchExpr == null) {
+            return errorMatchPattern.type;
         }
-        if (isAssignable(matchPatternType, matchExprType)) {
-            return matchPatternType;
+
+        if (isAssignable(matchExpr.type, errorMatchPattern.type)) {
+            return matchExpr.type;
+        }
+        if (isAssignable(errorMatchPattern.type, matchExpr.type)) {
+            return errorMatchPattern.type;
         }
         return symTable.noType;
     }

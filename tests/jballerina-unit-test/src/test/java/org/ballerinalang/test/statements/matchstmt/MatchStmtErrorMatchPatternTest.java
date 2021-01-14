@@ -16,9 +16,12 @@
 
 package org.ballerinalang.test.statements.matchstmt;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -29,13 +32,16 @@ import org.testng.annotations.Test;
  */
 @Test(groups = { "disableOnOldParser" })
 public class MatchStmtErrorMatchPatternTest {
-    private CompileResult result, restPatternResult;
+    private CompileResult result, restPatternResult, resultNegative;
+    private String patternNotMatched = "pattern will not be matched";
+    private String unreachablePattern = "unreachable pattern";
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/error-match-pattern.bal");
         restPatternResult = BCompileUtil.compile("test-src/statements/matchstmt/error-match-pattern-with-rest-match" +
                 "-pattern.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/error-match-pattern-negative.bal");
     }
 
     @Test
@@ -96,5 +102,31 @@ public class MatchStmtErrorMatchPatternTest {
     @Test
     public void testErrorMatchPatternWithRestPattern3() {
         BRunUtil.invoke(restPatternResult, "testErrorMatchPattern3");
+    }
+
+    @Test
+    public void testErrorMatchPatternNegative() {
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 23, 9);
+        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 28, 9);
+        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 33, 9);
+        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 40, 19);
+        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 41, 28);
+        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 42, 20);
+        BAssertUtil.validateError(resultNegative, i++, "all match patterns should contain the same set of variables",
+                43, 9);
+        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 43, 24);
+        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 44, 42);
+        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 45, 49);
+        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 47, 44);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        restPatternResult = null;
+        resultNegative = null;
     }
 }

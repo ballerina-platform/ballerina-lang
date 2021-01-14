@@ -2819,11 +2819,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else {
             errorMatchPattern.type = symTable.errorType;
         }
-
-        if (errorMatchPattern.matchExpr != null) {
-            errorMatchPattern.type = types.resolvePatternTypeFromMatchExpr(errorMatchPattern.matchExpr.type,
-                    errorMatchPattern.type);
-        }
+        errorMatchPattern.type = types.resolvePatternTypeFromMatchExpr(errorMatchPattern,
+                    errorMatchPattern.matchExpr);
 
         if (errorMatchPattern.errorMessageMatchPattern != null) {
             analyzeNode(errorMatchPattern.errorMessageMatchPattern, env);
