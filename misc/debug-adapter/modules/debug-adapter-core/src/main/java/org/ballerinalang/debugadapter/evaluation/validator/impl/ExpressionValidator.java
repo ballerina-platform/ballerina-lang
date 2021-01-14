@@ -22,8 +22,13 @@ import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.parser.ExpressionParser;
 import org.ballerinalang.debugadapter.evaluation.validator.ValidatorException;
+
+import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Validator implementation for ballerina expressions.
@@ -46,14 +51,25 @@ public class ExpressionValidator extends StatementValidator {
         NodeList<StatementNode> statements = getStatementsFrom(syntaxTree);
         StatementNode exprStatement = statements.get(0);
         failIf(exprStatement.kind() != SyntaxKind.RETURN_STATEMENT, "Statement evaluation is not supported.");
-        failIf(((ReturnStatementNode) exprStatement).expression().isEmpty(), "Failed to retrieve the expression due " +
-                "to a parsing error.");
+        Optional<ExpressionNode> expression = ((ReturnStatementNode) exprStatement).expression();
+        failIf(expression.isEmpty(), "Failed to derive the expression due to a parsing error.");
+
+        // Validate for syntax errors.
+        if (expression.get().hasDiagnostics()) {
+            final StringJoiner errors = new StringJoiner(System.lineSeparator());
+            expression.get().diagnostics().forEach(diagnostic -> {
+                if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                    errors.add(diagnostic.message());
+                }
+            });
+            failIf(errors.length() > 0, String.format(EvaluationExceptionKind.SYNTAX_ERROR.getString(),
+                    errors.toString()));
+        }
     }
 
     public ExpressionNode getExpressionNodeFrom(SyntaxTree syntaxTree) throws ValidatorException {
         NodeList<StatementNode> statements = getStatementsFrom(syntaxTree);
         StatementNode exprStatement = statements.get(0);
         return ((ReturnStatementNode) exprStatement).expression().get();
-
     }
 }
