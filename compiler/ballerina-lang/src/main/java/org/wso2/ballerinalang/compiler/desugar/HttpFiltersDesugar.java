@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -201,7 +202,7 @@ public class HttpFiltersDesugar {
         serviceRef.pos = resourceNode.pos;
 
         BLangLiteral resourceName = new BLangLiteral();
-        resourceName.value = resourceNode.name.value;
+        resourceName.value = extractResourceName(resourceNode);
         resourceName.type = symTable.stringType;
         resourceName.pos = resourceNode.pos;
 
@@ -231,6 +232,11 @@ public class HttpFiltersDesugar {
         addStatementToResourceBody(resourceNode.body,
                                    ASTBuilderUtil.createVariableDef(resourceNode.pos, filterContextVar), 0);
         return filterContextVar;
+    }
+
+    private String extractResourceName(BLangFunction resourceNode) {
+        String resourceName = resourceNode.name.value;
+        return resourceName.replace("$" + ((BLangResourceFunction) resourceNode).accessorName.value + "$", "");
     }
 
     private void addStatementToResourceBody(BLangFunctionBody body, BLangStatement stmt, int index) {
