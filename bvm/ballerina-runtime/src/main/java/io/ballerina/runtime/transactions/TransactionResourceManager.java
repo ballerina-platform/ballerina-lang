@@ -149,9 +149,8 @@ public class TransactionResourceManager {
      *
      * @return boolean whether the atomikos transaction manager should be enabled or not
      */
-    private boolean getTransactionManagerEnabled() {
-        boolean transactionManagerEnabled = CONFIG_REGISTRY.getAsBoolean(CONFIG_TRANSACTION_MANAGER_ENABLED);
-        return transactionManagerEnabled;
+    public boolean getTransactionManagerEnabled() {
+        return CONFIG_REGISTRY.getAsBoolean("b7a.transaction.manager.enabled");
     }
 
     /**
@@ -391,8 +390,7 @@ public class TransactionResourceManager {
                     trx = userTransactionManager.getTransaction();
                     trxRegistry.put(combinedId, trx);
                 }
-                trx.enlistResource(xaResource);
-            } catch (RollbackException | SystemException | NotSupportedException e) {
+            } catch (SystemException | NotSupportedException e) {
                 log.error("error in initiating transaction " + transactionId + ":" + e.getMessage(), e);
             }
         } else {
@@ -484,7 +482,7 @@ public class TransactionResourceManager {
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
      */
-    void endXATransaction(String transactionId, String transactionBlockId) {
+    public void endXATransaction(String transactionId, String transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         if (transactionManagerEnabled) {
             Transaction trx = trxRegistry.get(combinedId);
