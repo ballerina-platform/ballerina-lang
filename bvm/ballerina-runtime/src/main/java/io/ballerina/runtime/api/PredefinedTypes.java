@@ -140,6 +140,9 @@ public class PredefinedTypes {
                                                          new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
                                                          TypeTags.XML_TEXT_TAG, true);
 
+    public static final Type TYPE_XML_NEVER = new BXmlType(TypeConstants.XML_TNAME, new BNeverType(EMPTY_MODULE),
+                                              EMPTY_MODULE, true);
+
     public static final Type TYPE_XML = new BXmlType(TypeConstants.XML_TNAME,
                                                      new BUnionType(Arrays.asList(TYPE_ELEMENT, TYPE_COMMENT,
                                                                                   TYPE_PROCESSING_INSTRUCTION,
@@ -172,9 +175,15 @@ public class PredefinedTypes {
 
     public static final RecordType STRING_ITR_NEXT_RETURN_TYPE =
             IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING);
-    public static final RecordType XML_ITR_NEXT_RETURN_TYPE = IteratorUtils
-            .createIteratorNextReturnType(
-                    new BUnionType(Arrays.asList(PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_XML)));
+
+    public static final RecordType XML_ITR_NEXT_RETURN_ELEMENT_TYPE =
+            IteratorUtils.createIteratorNextReturnType(TYPE_ELEMENT);
+    public static final RecordType XML_ITR_NEXT_RETURN_TEXT_TYPE =
+            IteratorUtils.createIteratorNextReturnType(TYPE_TEXT);
+    public static final RecordType XML_ITR_NEXT_RETURN_COMMENT_TYPE =
+            IteratorUtils.createIteratorNextReturnType(TYPE_COMMENT);
+    public static final RecordType XML_ITR_NEXT_RETURN_PI_TYPE =
+            IteratorUtils.createIteratorNextReturnType(TYPE_PROCESSING_INSTRUCTION);
 
     // type anydata =  ()|boolean|int|float|decimal|string|xml|anydata[]|map<anydata>|table<map<anydata>>
     static {

@@ -18,12 +18,15 @@
 
 package io.ballerina.toml.validator.schema;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,6 +47,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
     public static final String DESCRIPTION = "description";
     public static final String ADDITIONAL_PROPERTIES = "additionalProperties";
     public static final String PROPERTIES = "properties";
+    public static final String REQUIRED = "required";
     public static final String ITEMS = "items";
     public static final String PATTERN = "pattern";
     public static final String MINIMUM = "minimum";
@@ -85,7 +89,8 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
                     abstractSchema = jsonDeserializationContext.deserialize(entry.getValue(), AbstractSchema.class);
             propertiesList.put(key, abstractSchema);
         }
-        return new ObjectSchema(Type.OBJECT, description, additionalProperties, propertiesList);
+        List<String> requiredList = parseOptionalListFromJson(jsonObj, REQUIRED);
+        return new ObjectSchema(Type.OBJECT, description, additionalProperties, propertiesList, requiredList);
     }
 
     private AbstractSchema getArraySchema(JsonDeserializationContext jsonDeserializationContext, JsonObject jsonObj) {
@@ -127,6 +132,23 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
             return jsonElement.getAsBoolean();
         }
         throw new JsonSchemaException(key + " should always be a boolean");
+    }
+
+    private List<String> parseOptionalListFromJson(JsonObject jsonObject, String key) {
+        JsonArray jsonArray = jsonObject.getAsJsonArray(key);
+        if (jsonArray == null || jsonArray.isJsonNull()) {
+            return new ArrayList<>();
+        }
+        if (!jsonArray.isJsonArray()) {
+            throw new JsonSchemaException(key + " should always be an array");
+        }
+        List<String> list = new ArrayList<>();
+        for (JsonElement jsonElement : jsonArray) {
+            if (jsonElement.isJsonPrimitive() && jsonElement.getAsJsonPrimitive().isString()) {
+                list.add(jsonElement.getAsString());
+            }
+        }
+        return list;
     }
 
     private String parseOptionalStringFromJson(JsonObject jsonObject, String key) {

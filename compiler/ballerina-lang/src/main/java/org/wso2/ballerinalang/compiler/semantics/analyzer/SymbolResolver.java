@@ -1893,12 +1893,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
 
         if (!isAlreadyDefinedDetailType) {
-            BLangTypeDefinition detailTypeDef = defineErrorDetailRecord((BRecordType) intersectionErrorType.detailType,
+            defineErrorDetailRecord((BRecordType) intersectionErrorType.detailType,
                                                                         pos, pkgEnv);
-            defineErrorType(intersectionErrorType, detailTypeDef.type, detailTypeDef.symbol.name.value, pkgEnv, pos);
-        } else {
-            defineErrorType(intersectionErrorType, intersectionErrorType.detailType,
-                            intersectionErrorType.detailType.tsymbol.name.value, pkgEnv, pos);
         }
         return defineErrorIntersectionType(intersectionErrorType, constituentBTypes, pkgId, owner,
                                            pkgEnv);
@@ -1925,19 +1921,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                                                                 env);
         detailRecordTypeDefinition.pos = pos;
         return detailRecordTypeDefinition;
-    }
-
-    private void defineErrorType(BErrorType errorType, BType detailType, String detailTypeName,
-                                 SymbolEnv pkgEnv, Location pos) {
-
-        BTypeSymbol errorTSymbol = errorType.tsymbol;
-
-        // Create error type definition
-        BLangErrorType bLangErrorType = TypeDefBuilderHelper.createBLangErrorType(pos, detailType, detailTypeName);
-        bLangErrorType.type = errorType;
-        BLangTypeDefinition errorTypeDefinition = TypeDefBuilderHelper
-                .addTypeDefinition(errorType, errorTSymbol, bLangErrorType, pkgEnv);
-        errorTypeDefinition.pos = pos;
     }
 
     private BIntersectionType defineErrorIntersectionType(BErrorType effectiveType,

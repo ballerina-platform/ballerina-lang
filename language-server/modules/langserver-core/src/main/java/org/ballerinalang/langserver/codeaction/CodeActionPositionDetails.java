@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 
 /**
@@ -26,11 +26,11 @@ import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
  * @since 2.0.0
  */
 public class CodeActionPositionDetails implements PositionDetails {
-    private final Node matchedNode;
+    private final NonTerminalNode matchedNode;
     private final Symbol matchedSymbol;
     private final TypeSymbol matchedExprType;
 
-    private CodeActionPositionDetails(Node matchedNode,
+    private CodeActionPositionDetails(NonTerminalNode matchedNode,
                                       Symbol matchedSymbol,
                                       TypeSymbol matchedExprType) {
         this.matchedNode = matchedNode;
@@ -38,7 +38,7 @@ public class CodeActionPositionDetails implements PositionDetails {
         this.matchedExprType = matchedExprType;
     }
 
-    public static PositionDetails from(Node matchedNode,
+    public static PositionDetails from(NonTerminalNode matchedNode,
                                        Symbol matchedSymbol,
                                        TypeSymbol optTypeDesc) {
         return new CodeActionPositionDetails(matchedNode, matchedSymbol, optTypeDesc);
@@ -48,7 +48,7 @@ public class CodeActionPositionDetails implements PositionDetails {
      * {@inheritDoc}
      */
     @Override
-    public Node matchedNode() {
+    public NonTerminalNode matchedNode() {
         return matchedNode;
     }
 

@@ -86,6 +86,10 @@ public class TransactionLocalContext {
         return transactionBlockIdStack.peek();
     }
 
+    public void addCurrentTransactionBlockId(String blockId) {
+        transactionBlockIdStack.push(blockId);
+    }
+
     public boolean hasTransactionBlock() {
         return !transactionBlockIdStack.empty();
     }

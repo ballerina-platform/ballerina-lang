@@ -145,7 +145,6 @@ public class JvmConstants {
     public static final String MODULE = "io/ballerina/runtime/api/Module";
     public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String B_STRING_VAR_PREFIX = "$bString";
-    public static final String CONFIG_VARIABLE = "io/ballerina/runtime/api/internal/configurable/ConfigurableVariable";
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/internal/types/BTypeIdSet$TypeId";
@@ -203,6 +202,8 @@ public class JvmConstants {
     public static final String COLLECTION = "java/util/Collection";
     public static final String NUMBER = "java/lang/Number";
     public static final String HASH_MAP = "java/util/HashMap";
+    public static final String PATH = "java/nio/file/Path";
+    public static final String PATHS = "java/nio/file/Paths";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
@@ -242,6 +243,7 @@ public class JvmConstants {
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "$_string_constants";
+    public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
     public static final String MODULE_START = "$moduleStart";
@@ -286,7 +288,9 @@ public class JvmConstants {
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
+    public static final String SCHEDULE_TRANSACTIONAL_FUNCTION_METHOD = "scheduleTransactionalFunction";
     public static final String SCHEDULE_LOCAL_METHOD = "scheduleLocal";
+    public static final String SCHEDULE_TRANSACTIONAL_LOCAL_METHOD = "scheduleTransactionalLocal";
     public static final String SCHEDULER_START_METHOD = "start";
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";

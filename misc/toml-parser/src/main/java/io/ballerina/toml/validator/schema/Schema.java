@@ -26,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,19 +35,21 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class Schema extends ObjectSchema {
+
     @SerializedName("$schema")
     private String schema;
     private String title;
 
     public Schema(String description, boolean additionalProperties,
-                  Map<String, AbstractSchema> properties, String schema, String title) {
-        super(Type.OBJECT, description, additionalProperties, properties);
+                  Map<String, AbstractSchema> properties, String schema, String title, List<String> required) {
+        super(Type.OBJECT, description, additionalProperties, properties, required);
         this.schema = schema;
         this.title = title;
     }
 
     /**
      * Builds a Json schema from external file.
+     *
      * @param jsonPath path of the json schema file.
      * @return Parsed json schema object.
      * @throws IOException if the input is not resolved
@@ -62,6 +65,7 @@ public class Schema extends ObjectSchema {
 
     /**
      * Builds a Json schema from json string.
+     *
      * @param jsonContent string content of the json schema.
      * @return Parsed json schema object.
      */

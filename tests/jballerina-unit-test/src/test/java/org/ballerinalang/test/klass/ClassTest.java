@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -115,5 +116,11 @@ public class ClassTest {
         BAssertUtil.validateError(negative, i++, String.format(uninitializedMessage, "q"), 17, 13);
         BAssertUtil.validateError(negative, i++, String.format(uninitializedMessage, "q"), 18, 13);
         Assert.assertEquals(negative.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        distinctCompUnit = null;
     }
 }

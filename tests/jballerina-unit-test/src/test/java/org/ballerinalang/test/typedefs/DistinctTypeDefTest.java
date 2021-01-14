@@ -53,4 +53,9 @@ public class DistinctTypeDefTest {
     public void tearDown() {
         negative = null;
     }
+
+    @AfterClass
+    public void tearDown() {
+        negative = null;
+    }
 }

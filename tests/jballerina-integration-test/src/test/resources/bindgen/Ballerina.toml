@@ -1,0 +1,6 @@
+[package]
+org= "test"
+name= "bindgen"
+version= "0.1.0"
+
+[dependencies]

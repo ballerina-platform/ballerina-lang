@@ -132,6 +132,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -429,7 +430,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         secondaryTypeIds.addAll(typeOne.typeIdSet.secondary);
     }
 
-    private void defineErrorType(BErrorType errorType, Location pos) {
+    private void defineErrorType(BErrorType errorType, SymbolEnv env) {
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
         BTypeSymbol errorTSymbol = errorType.tsymbol;
         errorTSymbol.scope = new Scope(errorTSymbol);
@@ -972,9 +973,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         this.unresolvedTypes = new ArrayList<>();
         for (BLangNode typeDef : typeDefs) {
-            boolean isIntersectionType = isErrorIntersectionType(typeDef, env);
-            if (isIntersectionType) {
-                this.intersectionTypes.add(typeDef);
+            if (isErrorIntersectionType(typeDef, env)) {
+                populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
                 continue;
             }
 
@@ -1006,6 +1006,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         defineTypeNodes(unresolvedTypes, env);
+    }
+
+    private void populateUndefinedErrorIntersection(BLangTypeDefinition typeDef, SymbolEnv env) {
+        BErrorType intersectionErrorType = types.createErrorType(null, Flags.PUBLIC, env);
+        intersectionErrorType.tsymbol.name = names.fromString(typeDef.name.value);
+        defineErrorType(intersectionErrorType, env);
+
+        this.intersectionTypes.add(typeDef);
     }
 
     private boolean isErrorIntersectionType(BLangNode typeDef, SymbolEnv env) {
@@ -1249,7 +1257,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         boolean isErrorIntersection = isErrorIntersection(definedType);
         if (isErrorIntersection) {
             populateSymbolNamesForErrorIntersection(definedType, typeDefinition);
-            defineErrorIntersection(definedType, typeDefinition.pos);
+            populateUndefinedErrorIntersection(definedType, typeDefinition, env);
         }
 
         // Check for any circular type references
@@ -1369,11 +1377,32 @@ public class SymbolEnter extends BLangNodeVisitor {
         effectiveType.typeIdSet = BTypeIdSet.from(env.enclPkg.packageID, name, true, secondaryTypeIds);
     }
 
-    private void defineErrorIntersection(BType definedType, Location pos) {
+    private void populateUndefinedErrorIntersection(BType definedType, BLangTypeDefinition typeDefinition,
+                                                    SymbolEnv env) {
+
         BIntersectionType intersectionType = (BIntersectionType) definedType;
+        BTypeSymbol alreadyDefinedErrorTypeSymbol =
+                (BTypeSymbol) symResolver.lookupSymbolInMainSpace(env,
+                                                                  names.fromString(typeDefinition.name.value));
+        BErrorType alreadyDefinedErrorType = (BErrorType) alreadyDefinedErrorTypeSymbol.type;
         BErrorType errorType = (BErrorType) intersectionType.effectiveType;
 
-        defineErrorType(errorType, pos);
+        alreadyDefinedErrorType.typeIdSet = errorType.typeIdSet;
+        alreadyDefinedErrorType.detailType = errorType.detailType;
+        alreadyDefinedErrorType.flags = errorType.flags;
+        alreadyDefinedErrorType.name = errorType.name;
+        intersectionType.effectiveType = alreadyDefinedErrorType;
+
+        addErrorTypeDefinition(alreadyDefinedErrorType, env, typeDefinition.pos);
+    }
+
+    private void addErrorTypeDefinition(BErrorType errorType, SymbolEnv pkgEnv, Location pos) {
+        BTypeSymbol errorTSymbol = errorType.tsymbol;
+        BLangErrorType bLangErrorType = TypeDefBuilderHelper.createBLangErrorType(pos, errorType.detailType);
+        bLangErrorType.type = errorType;
+        BLangTypeDefinition errorTypeDefinition = TypeDefBuilderHelper
+                .addTypeDefinition(errorType, errorTSymbol, bLangErrorType, pkgEnv);
+        errorTypeDefinition.pos = pos;
     }
 
     private void populateSymbolNamesForErrorIntersection(BType definedType, BLangTypeDefinition typeDefinition) {

@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.ReferencesContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -46,6 +47,7 @@ import org.ballerinalang.langserver.hover.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
+import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -259,13 +261,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = params.getTextDocument().getUri();
 
-            // Note: If the source is a cached stdlib source, then return early and ignore
-            if (CommonUtil.isCachedExternalSource(fileUri)) {
-                return null;
-            }
-
             try {
-                return new ArrayList<>();
+                ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
+                        this.workspaceManager,
+                        this.serverContext,
+                        params.getPosition());
+                return ReferencesUtil.getReferences(context);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Find References", e);
                 return new ArrayList<>();

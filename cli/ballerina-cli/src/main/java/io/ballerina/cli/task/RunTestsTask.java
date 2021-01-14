@@ -341,6 +341,7 @@ public class RunTestsTask implements Task {
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
         String orgName = module.packageInstance().packageOrg().toString();
         String packageName = module.packageInstance().packageName().toString();
+        String moduleName = module.isDefaultModule() ? "" : module.moduleName().moduleNamePart();
 
         String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
                 .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
@@ -369,6 +370,7 @@ public class RunTestsTask implements Task {
             cmdArgs.add(target.path().toString());
             cmdArgs.add(orgName);
             cmdArgs.add(packageName);
+            cmdArgs.add(moduleName);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
             Process proc = processBuilder.start();
             return proc.waitFor();

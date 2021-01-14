@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -297,5 +298,10 @@ public class ObjectInitializerTest {
     @Test(description = "Test invoking 'init' function with lambda function args")
     public void testFunctionPointerAsDefaultableParam2() {
         BRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam2");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }
