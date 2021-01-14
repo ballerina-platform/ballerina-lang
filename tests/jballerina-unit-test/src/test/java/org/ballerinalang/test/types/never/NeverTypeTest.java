@@ -162,10 +162,4 @@ public class NeverTypeTest {
         neverTypeTestResult = null;
         negativeCompileResult = null;
     }
-
-    @AfterClass
-    public void tearDown() {
-        neverTypeTestResult = null;
-        negativeCompileResult = null;
-    }
 }
