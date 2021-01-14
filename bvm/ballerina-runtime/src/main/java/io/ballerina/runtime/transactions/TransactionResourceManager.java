@@ -481,7 +481,7 @@ public class TransactionResourceManager {
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
      */
-    public void endXATransaction(String transactionId, String transactionBlockId) {
+    void endXATransaction(String transactionId, String transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         if (transactionManagerEnabled) {
             Transaction trx = trxRegistry.get(combinedId);
