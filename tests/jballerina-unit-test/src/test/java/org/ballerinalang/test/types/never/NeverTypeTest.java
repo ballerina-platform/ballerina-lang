@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -154,5 +155,11 @@ public class NeverTypeTest {
                 "incompatible types: expected 'string', found '(xml<never>|xml)'", 154, 18);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected '(int|float)', found 'xml<never>'", 156, 19);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        neverTypeTestResult = null;
+        negativeCompileResult = null;
     }
 }

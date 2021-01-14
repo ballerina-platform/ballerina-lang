@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
@@ -39,7 +40,6 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -79,7 +79,7 @@ class AIDataMapperCodeActionUtil {
     static List<TextEdit> getAIDataMapperCodeActionEdits(CodeActionContext context, Diagnostic diagnostic)
             throws IOException {
         List<TextEdit> fEdits = new ArrayList<>();
-        String diagnosticMessage = diagnostic.getMessage();
+        String diagnosticMessage = diagnostic.message();
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
 
         if (!(matcher.find() && matcher.groupCount() > 1)) {
@@ -102,7 +102,7 @@ class AIDataMapperCodeActionUtil {
         }
 
         // Insert function call in the code where error is found
-        Range newTextRange = diagnostic.getRange();
+        Range newTextRange = CommonUtil.toRange(diagnostic.location().lineRange());
 
         String filePath = context.filePath().getFileName().toString();
         LinePosition linePosition = LinePosition.from(context.cursorPosition().getLine(), context.cursorPosition().

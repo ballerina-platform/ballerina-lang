@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -374,5 +375,10 @@ public class MultipleFromClauseTest {
                 "deptAccess:\"HR\", address:{city:\"NY\", country:\"America\"}}");
         Assert.assertEquals(person4.stringValue(), "{firstName:\"Ranjan\", lastName:\"Fonseka\", " +
                 "deptAccess:\"Operations\", address:{city:\"NY\", country:\"America\"}}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

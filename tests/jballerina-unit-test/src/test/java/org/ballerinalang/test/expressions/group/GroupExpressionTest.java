@@ -57,9 +57,9 @@ public class GroupExpressionTest {
                 {"testGroupedInvocationRef"},
                 {"testGroupedTypeDescRef"},
                 {"testGroupedBuiltInInvocationRef"},
-                {"testGroupedTypedescLibInvocation"}
-                // {"testNestedGroupedInvocationRef"},
-                // {"testGroupedLangLibInvocationRef"},
+                {"testGroupedTypedescLibInvocation"},
+                {"testNestedGroupedInvocationRef"},
+                {"testGroupedLangLibInvocationRef"}
         };
     }
 }

@@ -161,7 +161,7 @@ public class DocumentationGenerator {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         int offset = docStart.getCharacter();
-        String desc = String.format("# Description%n%s",
+        String desc = String.format("Description%n%s",
                                     String.join("", Collections.nCopies(offset, " ")));
         return new DocAttachmentInfo(desc, docStart);
     }
@@ -204,7 +204,7 @@ public class DocumentationGenerator {
         }
         int offset = docStart.getCharacter();
         io.ballerina.compiler.syntax.tree.Node typeDesc = typeDefNode.typeDescriptor();
-        String desc = String.format("# Description%n%s",
+        String desc = String.format("Description%n%s",
                                     String.join("", Collections.nCopies(offset, " ")));
         Map<String, String> parameters = new HashMap<>();
         switch (typeDesc.kind()) {
@@ -251,7 +251,7 @@ public class DocumentationGenerator {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         int offset = docStart.getCharacter();
-        String desc = String.format("# Description%n%s",
+        String desc = String.format("Description%n%s",
                                     String.join("", Collections.nCopies(offset, " ")));
         Map<String, String> parameters = new HashMap<>();
         classDefNode.members().forEach(field -> {
@@ -282,7 +282,7 @@ public class DocumentationGenerator {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         int offset = docStart.getCharacter();
-        String desc = String.format("# Description%n%s",
+        String desc = String.format("Description%n%s",
                                     String.join("", Collections.nCopies(offset, " ")));
         Map<String, String> parameters = new HashMap<>();
         signatureNode.parameters().forEach(param -> {

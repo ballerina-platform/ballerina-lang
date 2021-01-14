@@ -35,7 +35,7 @@ import java.util.List;
  * @see BLangJSONArrayLiteral
  * @since 1.0
  */
-public class BLangListConstructorExpr extends BLangExpression implements ListConstructorExprNode {
+public class BLangListConstructorExpr extends BLangAccessibleExpression implements ListConstructorExprNode {
 
     public List<BLangExpression> exprs;
     public boolean isTypedescExpr = false;

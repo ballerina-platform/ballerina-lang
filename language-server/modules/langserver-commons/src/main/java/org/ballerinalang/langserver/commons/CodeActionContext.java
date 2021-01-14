@@ -49,7 +49,7 @@ public interface CodeActionContext extends DocumentServiceContext {
      *
      * @return {@link List} of diagnostics
      */
-    List<Diagnostic> allDiagnostics();
+    List<io.ballerina.tools.diagnostics.Diagnostic> allDiagnostics();
 
     /**
      * Get the diagnostics at the cursor.
