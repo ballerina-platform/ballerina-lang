@@ -44,7 +44,7 @@ public class ServiceDeclTest {
     }
 
     @Test
-    public void testServiceAbsolutePathOrNameLiteralWithRespectToListenerAttach() {
+    public void testServiceDeclAndListenerAttachmentsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/services/service_decl_negative.bal");
         int i = 0;
 
@@ -62,6 +62,8 @@ public class ServiceDeclTest {
         validateError(result, i++, "service absolute path is required by the listener", 146, 12);
         validateError(result, i++, "listener variable incompatible types: 'ul' is not a Listener object", 159, 1);
         validateError(result, i++, "listener variable incompatible types: 'ue' is not a Listener object", 162, 1);
+        validateError(result, i++, "listener variable incompatible types: 'ui' is not a Listener object", 165, 1);
+        validateError(result, i++, "service type is not supported by the listener", 186, 14);
         Assert.assertEquals(i, result.getErrorCount());
     }
 }
