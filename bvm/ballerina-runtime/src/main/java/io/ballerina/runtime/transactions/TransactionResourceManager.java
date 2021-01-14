@@ -21,7 +21,6 @@ import com.atomikos.icatch.jta.UserTransactionManager;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.config.ConfigRegistry;
@@ -541,11 +540,12 @@ public class TransactionResourceManager {
     private void invokeCommittedFunction(Strand strand, String transactionId, String transactionBlockId) {
         List<BFunctionPointer> fpValueList = committedFuncRegistry.get(transactionId);
         if (fpValueList != null) {
-            Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true };
-            AsyncUtils.invokeAndForgetFunctionPointerAsync(fpValueList, "trxCommit",
-                    COMMIT_METADATA, () -> args,
-                    result -> {
-                    }, Scheduler.getStrand().scheduler);
+            Object[] args = {strand, strand.currentTrxContext.getInfoRecord(), true};
+            for (int i = fpValueList.size(); i > 0; i--) {
+                BFunctionPointer fp = fpValueList.get(i - 1);
+                //TODO: Replace fp.getFunction().apply
+                fp.getFunction().apply(args);
+            }
         }
     }
 
@@ -554,10 +554,11 @@ public class TransactionResourceManager {
         //TODO: Need to pass the retryManager to get the willRetry value.
         if (fpValueList != null) {
             Object[] args = {strand, strand.currentTrxContext.getInfoRecord(), true, error, true, false, true};
-            AsyncUtils.invokeAndForgetFunctionPointerAsync(fpValueList, "trxAbort",
-                    COMMIT_METADATA, () -> args,
-                    result -> {
-                    }, Scheduler.getStrand().scheduler);
+            for (int i = fpValueList.size(); i > 0; i--) {
+                BFunctionPointer fp = fpValueList.get(i - 1);
+                //TODO: Replace fp.getFunction().apply
+                fp.getFunction().apply(args);
+            }
         }
     }
 
