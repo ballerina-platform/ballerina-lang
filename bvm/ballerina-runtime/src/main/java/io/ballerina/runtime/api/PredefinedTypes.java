@@ -200,8 +200,10 @@ public class PredefinedTypes {
         anydataType.isCyclic = true;
         MapType internalAnydataMap = new BMapType(TypeConstants.MAP_TNAME, anydataType, EMPTY_MODULE);
         ArrayType internalAnydataArray = new BArrayType(anydataType);
+        BTableType internalAnydataMapTable = new BTableType(internalAnydataMap, false);
         members.add(internalAnydataArray);
         members.add(internalAnydataMap);
+        members.add(internalAnydataMapTable);
         TYPE_ANYDATA = anydataType;
         TYPE_READONLY_ANYDATA = new BAnydataType(anydataType, TypeConstants.READONLY_ANYDATA_TNAME, true);
     }
@@ -237,7 +239,7 @@ public class PredefinedTypes {
         cloneable.isCyclic = true;
         MapType internalCloneableMap = new BMapType(TypeConstants.MAP_TNAME, cloneable, valueModule);
         ArrayType internalCloneableArray = new BArrayType(cloneable);
-        BTableType internalCloneableMapTable = new BTableType(cloneable, false);
+        BTableType internalCloneableMapTable = new BTableType(internalCloneableMap, false);
         members.add(internalCloneableMap);
         members.add(internalCloneableArray);
         members.add(internalCloneableMapTable);
