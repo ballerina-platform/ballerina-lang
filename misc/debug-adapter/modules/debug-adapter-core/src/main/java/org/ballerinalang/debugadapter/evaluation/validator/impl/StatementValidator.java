@@ -51,7 +51,15 @@ public class StatementValidator extends Validator {
         SyntaxTree syntaxTree = debugParser.getSyntaxTreeFor(source);
         NodeList<StatementNode> statements = getStatementsFrom(syntaxTree);
         failIf(statements.isEmpty(), "No expressions found.");
-        failIf(statements.size() > 0, "Statement evaluation is not supported.");
+
+        // Validates for block statements.
+        failIf(statements.size() > 1, "Statement evaluation is not supported.");
+
+        // Needs to filter out expression statements and other erroneous statements, since standalone
+        // expressions can be matched to statements with errors, when parsing.
+        StatementNode statement = statements.get(0);
+        failIf(statement.kind() != SyntaxKind.INVALID_EXPRESSION_STATEMENT && !statement.hasDiagnostics(),
+                "Statement evaluation is not supported.");
     }
 
     protected static NodeList<StatementNode> getStatementsFrom(SyntaxTree syntaxTree) throws ValidatorException {

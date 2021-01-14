@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
  */
 public class TopLevelDeclarationValidator extends Validator {
 
+    private static final String IMPORT_START = "import ";
+
     public TopLevelDeclarationValidator(DebugParser parser) {
         super(parser);
     }
@@ -45,8 +47,12 @@ public class TopLevelDeclarationValidator extends Validator {
         ModulePartNode moduleNode = syntaxTree.rootNode();
 
         // Checks for import declarations in user input.
+        // Needs to do an additional string check due to false positive import declarations matched by the ballerina
+        // parser.
         NodeList<ImportDeclarationNode> imports = moduleNode.imports();
-        failIf(imports.size() > 0, "Import declaration evaluation is not supported.");
+        failIf(imports.size() > 0 && imports.stream()
+                        .allMatch(importNode -> importNode.toSourceCode().trim().startsWith(IMPORT_START)),
+                "Import declaration evaluation is not supported.");
 
         // Checks for top-level declarations in user input.
         NodeList<ModuleMemberDeclarationNode> memberNodes = moduleNode.members();
