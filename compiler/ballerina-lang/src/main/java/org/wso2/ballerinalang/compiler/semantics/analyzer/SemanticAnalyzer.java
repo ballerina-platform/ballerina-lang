@@ -113,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
@@ -3429,7 +3428,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void setTypeOfVarRef(BLangExpression expr) {
-        BLangVariableReference varRefExpr = (BLangVariableReference) expr;
+        BLangAccessExpression varRefExpr = (BLangAccessExpression) expr;
         varRefExpr.lhsVar = true;
         typeChecker.checkExpr(varRefExpr, env);
 
@@ -3447,7 +3446,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void setTypeOfVarRefForBindingPattern(BLangExpression expr) {
-        BLangVariableReference varRefExpr = (BLangVariableReference) expr;
+        BLangAccessExpression varRefExpr = (BLangAccessExpression) expr;
         varRefExpr.lhsVar = true;
         typeChecker.checkExpr(varRefExpr, env);
 
