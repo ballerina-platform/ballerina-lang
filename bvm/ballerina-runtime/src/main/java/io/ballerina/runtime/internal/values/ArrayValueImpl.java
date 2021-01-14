@@ -82,43 +82,43 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    public ArrayValueImpl(long[] values) {
+    public ArrayValueImpl(long[] values, boolean readonly) {
         this.intValues = values;
         this.size = values.length;
-        setArrayType(PredefinedTypes.TYPE_INT);
+        setArrayType(PredefinedTypes.TYPE_INT, readonly);
     }
 
-    public ArrayValueImpl(boolean[] values) {
+    public ArrayValueImpl(boolean[] values, boolean readonly) {
         this.booleanValues = values;
         this.size = values.length;
-        setArrayType(PredefinedTypes.TYPE_BOOLEAN);
+        setArrayType(PredefinedTypes.TYPE_BOOLEAN, readonly);
     }
 
-    public ArrayValueImpl(byte[] values) {
+    public ArrayValueImpl(byte[] values, boolean readonly) {
         this.byteValues = values;
         this.size = values.length;
-        setArrayType(PredefinedTypes.TYPE_BYTE);
+        setArrayType(PredefinedTypes.TYPE_BYTE, readonly);
     }
 
-    public ArrayValueImpl(double[] values) {
+    public ArrayValueImpl(double[] values, boolean readonly) {
         this.floatValues = values;
         this.size = values.length;
-        setArrayType(PredefinedTypes.TYPE_FLOAT);
+        setArrayType(PredefinedTypes.TYPE_FLOAT, readonly);
     }
 
-    public ArrayValueImpl(String[] values) {
+    public ArrayValueImpl(String[] values, boolean readonly) {
         this.size = values.length;
         bStringValues = new BString[size];
         for (int i = 0; i < size; i++) {
             bStringValues[i] = StringUtils.fromString(values[i]);
         }
-        setArrayType(PredefinedTypes.TYPE_STRING);
+        setArrayType(PredefinedTypes.TYPE_STRING, readonly);
     }
 
-    public ArrayValueImpl(BString[] values) {
+    public ArrayValueImpl(BString[] values, boolean readonly) {
         this.bStringValues = values;
         this.size = values.length;
-        setArrayType(PredefinedTypes.TYPE_STRING);
+        setArrayType(PredefinedTypes.TYPE_STRING, readonly);
     }
 
     public ArrayValueImpl(ArrayType type) {
@@ -741,20 +741,20 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED32_INT_TAG:
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
-                valueArray = new ArrayValueImpl(Arrays.copyOf(intValues, this.size));
+                valueArray = new ArrayValueImpl(Arrays.copyOf(intValues, this.size), arrayType.isReadOnly());
                 break;
             case TypeTags.BOOLEAN_TAG:
-                valueArray = new ArrayValueImpl(Arrays.copyOf(booleanValues, this.size));
+                valueArray = new ArrayValueImpl(Arrays.copyOf(booleanValues, this.size), arrayType.isReadOnly());
                 break;
             case TypeTags.BYTE_TAG:
-                valueArray = new ArrayValueImpl(Arrays.copyOf(byteValues, this.size));
+                valueArray = new ArrayValueImpl(Arrays.copyOf(byteValues, this.size), arrayType.isReadOnly());
                 break;
             case TypeTags.FLOAT_TAG:
-                valueArray = new ArrayValueImpl(Arrays.copyOf(floatValues, this.size));
+                valueArray = new ArrayValueImpl(Arrays.copyOf(floatValues, this.size), arrayType.isReadOnly());
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
-                valueArray = new ArrayValueImpl(Arrays.copyOf(bStringValues, this.size));
+                valueArray = new ArrayValueImpl(Arrays.copyOf(bStringValues, this.size), arrayType.isReadOnly());
                 break;
             default:
                 Object[] values = new Object[this.size];
@@ -802,24 +802,24 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED32_INT_TAG:
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
-                slicedArray = new ArrayValueImpl(new long[slicedSize]);
+                slicedArray = new ArrayValueImpl(new long[slicedSize], arrayType.isReadOnly());
                 System.arraycopy(intValues, (int) startIndex, slicedArray.intValues, 0, slicedSize);
                 break;
             case TypeTags.BOOLEAN_TAG:
-                slicedArray = new ArrayValueImpl(new boolean[slicedSize]);
+                slicedArray = new ArrayValueImpl(new boolean[slicedSize], arrayType.isReadOnly());
                 System.arraycopy(booleanValues, (int) startIndex, slicedArray.booleanValues, 0, slicedSize);
                 break;
             case TypeTags.BYTE_TAG:
-                slicedArray = new ArrayValueImpl(new byte[slicedSize]);
+                slicedArray = new ArrayValueImpl(new byte[slicedSize], arrayType.isReadOnly());
                 System.arraycopy(byteValues, (int) startIndex, slicedArray.byteValues, 0, slicedSize);
                 break;
             case TypeTags.FLOAT_TAG:
-                slicedArray = new ArrayValueImpl(new double[slicedSize]);
+                slicedArray = new ArrayValueImpl(new double[slicedSize], arrayType.isReadOnly());
                 System.arraycopy(floatValues, (int) startIndex, slicedArray.floatValues, 0, slicedSize);
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
-                slicedArray = new ArrayValueImpl(new BString[slicedSize]);
+                slicedArray = new ArrayValueImpl(new BString[slicedSize], arrayType.isReadOnly());
                 System.arraycopy(bStringValues, (int) startIndex, slicedArray.bStringValues, 0, slicedSize);
                 break;
             default:
@@ -1133,8 +1133,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         resetSize(intIndex);
     }
 
-    private void setArrayType(Type elementType) {
-        this.arrayType = new BArrayType(elementType);
+    private void setArrayType(Type elementType, boolean readonly) {
+        this.arrayType = new BArrayType(elementType, readonly);
         this.elementType = elementType;
     }
 

@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -98,5 +99,10 @@ public class UntaintAndTaintAnnotationTest {
     public void untaintWithLengthOf() {
         BValue[] returns = BRunUtil.invoke(compileResult, "untaintWithLengthOf");
         Assert.assertEquals(returns[0].stringValue(), "24");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

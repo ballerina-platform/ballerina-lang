@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -151,5 +152,11 @@ public class JoinClauseTest {
         validateError(negativeResult, i++, "undefined symbol 'dept'", 329, 24);
         validateError(negativeResult, i++, "missing equals keyword", 330, 1);
         validateError(negativeResult, i, "missing identifier", 330, 1);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 }
