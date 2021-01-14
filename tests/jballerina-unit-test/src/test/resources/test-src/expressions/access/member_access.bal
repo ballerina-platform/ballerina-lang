@@ -462,7 +462,6 @@ function testOutOfRangeFiniteTypeStringMemberAccess() {
     _ = s[i];
 }
 
-const ASSERTION_ERROR_REASON = "AssertionError";
 
 type Foo1 record {|
     string s1;
@@ -505,4 +504,81 @@ function testMemberAccessInUnionType2() {
     if !(x1 == ()) && x2 == () && x3 == "s" && x4 == 1 {
         panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found 'false'");
     }
+}
+
+type EmployeeEntity record {
+    int id;
+    string fname;
+    string lname;
+    int age;
+    AddressEntity addr;
+};
+
+type AddressEntity record {
+    string line1;
+    string line2;
+    string city;
+    string state;
+    string postalCode;
+};
+
+type EmployeeView record {|
+    string fname;
+    string lname;
+    int age;
+    AddressView addr;
+|};
+
+type AddressView record {|
+    string city;
+    string state;
+    string postalCode;
+|};
+
+function testMemberAccessOnStructuralConstructs() {
+    testMemberAccessOnMapConstruct();
+    testMemberAccessOnListConstruct();
+    testMemberAccessOnTableConstruct();
+    testMemberAccessOnQueryExperssion();
+}
+
+function testMemberAccessOnMapConstruct() {
+    string name = {name: "Sanjiva", registered: true, id: 1}["name"];
+    assertEquality("Sanjiva", name);
+}
+
+function testMemberAccessOnListConstruct() {
+    EmployeeEntity entity = [{id: 1232, fname: "S", lname: "J", age: 30,
+        addr: {line1: "N", line2: "561", city: "S", state: "C", postalCode: "95"}}][0];
+    assertEquality(1232, entity["id"]);
+}
+
+function testMemberAccessOnTableConstruct() {
+    Employee emp  = table key(name) [{name: "Sanjiva", registered: true, id: 1},
+        {name: "James", registered: true, id: 2}]["James"];
+    assertEquality(2, emp["id"]);
+}
+
+function testMemberAccessOnQueryExperssion() {
+    EmployeeEntity entity = {id: 1232, fname: "S", lname: "J", age: 30,
+        addr: {line1: "N", line2: "561", city: "S", state: "C", postalCode: "95"}};
+    EmployeeView emp = (from var {fname, lname, age, addr:{city, state, postalCode}} in [entity]
+                        select {fname, lname, age, addr:{city, state, postalCode}})[0];
+    assertEquality(30, emp["age"]);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

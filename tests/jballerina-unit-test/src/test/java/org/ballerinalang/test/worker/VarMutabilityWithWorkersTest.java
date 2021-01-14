@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -102,5 +103,10 @@ public class VarMutabilityWithWorkersTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testWithObjects");
         Assert.assertEquals(((BMap) returns[0]).size(), 3);
         Assert.assertEquals(((BMap) returns[0]).getMap().toString(), "{age=40, name=Adam, fullName=Adam Adam Page}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

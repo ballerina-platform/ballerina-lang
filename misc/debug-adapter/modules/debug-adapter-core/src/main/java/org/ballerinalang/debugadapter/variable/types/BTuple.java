@@ -86,15 +86,15 @@ public class BTuple extends BCompoundVariable {
     private String getTupleType(Value jvmValue) {
         try {
             Optional<Value> tupleType = VariableUtils.getFieldValue(jvmValue, "tupleType");
-            if (!tupleType.isPresent()) {
+            if (tupleType.isEmpty()) {
                 return UNKNOWN_VALUE;
             }
             Optional<Value> subTypes = VariableUtils.getFieldValue(tupleType.get(), "tupleTypes");
-            if (!subTypes.isPresent()) {
+            if (subTypes.isEmpty()) {
                 return UNKNOWN_VALUE;
             }
             Optional<Value> typesArray = VariableUtils.getFieldValue(subTypes.get(), "elementData");
-            if (!typesArray.isPresent()) {
+            if (typesArray.isEmpty()) {
                 return UNKNOWN_VALUE;
             }
             List<Value> subValues = ((ArrayReference) typesArray.get()).getValues();

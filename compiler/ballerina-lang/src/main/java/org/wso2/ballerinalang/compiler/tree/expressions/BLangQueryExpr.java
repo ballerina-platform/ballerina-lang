@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  *
  * @since 1.2.0
  */
-public class BLangQueryExpr extends BLangExpression implements QueryExpressionNode {
+public class BLangQueryExpr extends BLangAccessibleExpression implements QueryExpressionNode {
     public List<BLangNode> queryClauseList = new ArrayList<>();
     public List<IdentifierNode> fieldNameIdentifierList = new ArrayList<>();
     public boolean isStream = false;

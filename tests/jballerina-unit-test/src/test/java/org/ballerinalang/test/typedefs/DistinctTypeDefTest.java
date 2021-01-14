@@ -21,6 +21,7 @@ package org.ballerinalang.test.typedefs;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -30,7 +31,7 @@ import org.testng.annotations.Test;
 @Test(groups = "disableOnOldParser")
 public class DistinctTypeDefTest {
 
-    private static CompileResult negative;
+    private CompileResult negative;
 
     @BeforeClass
     public void setup() {
@@ -46,5 +47,10 @@ public class DistinctTypeDefTest {
         BAssertUtil.validateError(negative, 2,
                 "distinct typing is only supported for object type and error type", 7, 1);
 
+    }
+
+    @AfterClass
+    public void tearDown() {
+        negative = null;
     }
 }

@@ -238,6 +238,7 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -2169,16 +2170,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         SyntaxKind kind = expressionNode.kind();
         switch (kind) {
             case XML_TEMPLATE_EXPRESSION:
-                SyntaxKind contentKind = expressionNode.content().get(0).kind();
-                switch (contentKind) {
-                    case XML_COMMENT:
-                    case XML_PI:
-                    case XML_ELEMENT:
-                    case XML_EMPTY_ELEMENT:
-                        return createExpression(expressionNode.content().get(0));
-                    default:
-                        return createXMLLiteral(expressionNode);
-                }
+                return createXmlTemplateLiteral(expressionNode);
             case STRING_TEMPLATE_EXPRESSION:
                 return createStringTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             case RAW_TEMPLATE_EXPRESSION:
@@ -2559,7 +2551,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLCompAssignment.setExpression(createExpression(compoundAssignmentStmtNode.rhsExpression()));
 
         bLCompAssignment
-                .setVariable((BLangVariableReference) createExpression(compoundAssignmentStmtNode.lhsExpression()));
+                .setVariable((VariableReferenceNode) createExpression(compoundAssignmentStmtNode.lhsExpression()));
         bLCompAssignment.pos = getPosition(compoundAssignmentStmtNode);
         bLCompAssignment.opKind = OperatorKind.valueFrom(compoundAssignmentStmtNode.binaryOperator().text());
         return bLCompAssignment;
@@ -3278,6 +3270,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangNode createXMLLiteral(TemplateExpressionNode expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
+        if (expressionNode.content().isEmpty()) {
+            xmlTextLiteral.pos = getPosition(expressionNode);
+            xmlTextLiteral.textFragments.add(createEmptyStringLiteral(xmlTextLiteral.pos));
+            return xmlTextLiteral;
+        }
         xmlTextLiteral.pos = getPosition(expressionNode.content().get(0));
         for (Node node : expressionNode.content()) {
             xmlTextLiteral.textFragments.add(createExpression(node));
@@ -4026,6 +4023,24 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return matchStatement;
     }
 
+    public BLangNode createXmlTemplateLiteral(TemplateExpressionNode expressionNode) {
+        SyntaxKind contentKind;
+        if (expressionNode.content().isEmpty()) {
+            contentKind = SyntaxKind.XML_TEXT;
+        } else {
+            contentKind = expressionNode.content().get(0).kind();
+        }
+        switch (contentKind) {
+            case XML_COMMENT:
+            case XML_PI:
+            case XML_ELEMENT:
+            case XML_EMPTY_ELEMENT:
+                return createExpression(expressionNode.content().get(0));
+            default:
+                return createXMLLiteral(expressionNode);
+        }
+    }
+
     private BLangMatchPattern transformMatchPattern(Node matchPattern, Location matchPatternPos) {
 
         if (matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
@@ -4633,6 +4648,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLIdentifer;
     }
 
+    private BLangLiteral createEmptyStringLiteral(Location pos) {
+        BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        bLiteral.pos = pos;
+        bLiteral.type = symTable.stringType;
+        bLiteral.value = "";
+        bLiteral.originalValue = "";
+        return bLiteral;
+    }
+
     private BLangLiteral createSimpleLiteral(Node literal) {
         return createSimpleLiteral(literal, false);
     }
@@ -4940,6 +4964,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Node singleDocLine : docLineList) {
             switch (singleDocLine.kind()) {
                 case MARKDOWN_DOCUMENTATION_LINE:
+                case MARKDOWN_CODE_DOCUMENTATION_LINE:
                 case MARKDOWN_REFERENCE_DOCUMENTATION_LINE:
                     MarkdownDocumentationLineNode docLineNode = (MarkdownDocumentationLineNode) singleDocLine;
                     NodeList<Node> docElements = docLineNode.documentElements();
@@ -5071,6 +5096,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else if (element.kind() == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
                 Token docDescription = (Token) element;
                 docText.append(docDescription.text());
+            } else if (element.kind() == SyntaxKind.CODE_DESCRIPTION) {
+                Token codeDescription = (Token) element;
+                docText.append(codeDescription.text().replaceAll("\n[\\s]*#", "\n"));
             }
         }
 

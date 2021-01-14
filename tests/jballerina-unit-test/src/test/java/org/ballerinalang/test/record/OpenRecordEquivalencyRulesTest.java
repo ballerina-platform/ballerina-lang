@@ -23,6 +23,7 @@ import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -193,5 +194,11 @@ public class OpenRecordEquivalencyRulesTest {
         BValue[] returns = BRunUtil.invoke(openRecToOpenRec, "testHeterogeneousTypedescEq4");
         assertEquals(returns[0].stringValue(),
                      "{name:\"John Doe\", age:25, address:\"Colombo, Sri Lanka\"}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        closedRecToOpenRec = null;
+        openRecToOpenRec = null;
     }
 }
