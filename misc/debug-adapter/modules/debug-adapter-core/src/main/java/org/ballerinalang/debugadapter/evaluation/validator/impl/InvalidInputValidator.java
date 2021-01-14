@@ -31,18 +31,23 @@ import org.ballerinalang.debugadapter.evaluation.validator.Validator;
  */
 public class InvalidInputValidator extends Validator {
 
+    private static final String DOCUMENTATION_START = "# ";
+
     public InvalidInputValidator(DebugParser parser) {
         super(parser);
     }
 
     @Override
     public void validate(String source) throws Exception {
-        // validates for empty expressions (which could be a whitespace, comment, etc).
+        // validates for blank statements.
         failIf(source.isBlank(), "Empty expressions cannot be evaluated.");
 
+        // validates for documentation.
+        failIf(source.trim().startsWith(DOCUMENTATION_START), "Documentation is not allowed.");
+
+        // validates for empty expressions (which could be whitespaces, comments, etc).
         SyntaxTree syntaxTree = debugParser.getSyntaxTreeFor(source);
         failIf(!syntaxTree.containsModulePart(), "Empty expressions cannot be evaluated.");
-
         ModulePartNode moduleNode = syntaxTree.rootNode();
         NodeList<ModuleMemberDeclarationNode> members = moduleNode.members();
         NodeList<ImportDeclarationNode> imports = moduleNode.imports();
