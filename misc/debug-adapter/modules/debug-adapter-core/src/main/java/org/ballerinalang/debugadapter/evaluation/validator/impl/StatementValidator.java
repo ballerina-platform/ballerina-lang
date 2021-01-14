@@ -60,7 +60,7 @@ public class StatementValidator extends Validator {
         failIf(function.kind() != SyntaxKind.FUNCTION_DEFINITION, "Top-level declaration evaluation is not supported");
 
         String name = ((FunctionDefinitionNode) function).functionName().toSourceCode().trim();
-        failIf(name.equals(BAL_WRAPPER_FUNCTION_NAME), "Top-level declaration evaluation is not supported.");
+        failIf(!name.equals(BAL_WRAPPER_FUNCTION_NAME), "Top-level declaration evaluation is not supported.");
 
         FunctionBodyNode functionBody = ((FunctionDefinitionNode) function).functionBody();
         return ((FunctionBodyBlockNode) functionBody).statements();
