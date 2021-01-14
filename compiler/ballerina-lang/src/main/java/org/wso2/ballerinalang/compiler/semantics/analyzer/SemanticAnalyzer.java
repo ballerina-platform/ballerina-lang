@@ -3118,7 +3118,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     if (memberType.tag == TypeTags.ERROR) {
                         continue;
                     }
-                    validateServiceAttachmentOnListener(serviceNode, attachExpr, (BObjectType) memberType, serviceType);
+                    if (memberType.tag == TypeTags.OBJECT) {
+                        validateServiceAttachmentOnListener(serviceNode, attachExpr,
+                                (BObjectType) memberType, serviceType);
+                    }
                 }
             }
         }

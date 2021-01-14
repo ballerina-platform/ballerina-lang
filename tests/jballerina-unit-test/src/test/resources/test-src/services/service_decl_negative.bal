@@ -164,6 +164,10 @@ listener UnionWithError ue = new PathOnlyListener();
 type UnionWithInt PathOnlyListener|int;
 listener UnionWithInt ui = new PathOnlyListener();
 
+service / on ui {
+
+}
+
 type ServType service object {
     function exec() returns any|error;
 };

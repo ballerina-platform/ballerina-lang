@@ -63,6 +63,7 @@ public class ServiceDeclTest {
         validateError(result, i++, "listener variable incompatible types: 'ul' is not a Listener object", 159, 1);
         validateError(result, i++, "listener variable incompatible types: 'ue' is not a Listener object", 162, 1);
         validateError(result, i++, "listener variable incompatible types: 'ui' is not a Listener object", 165, 1);
+        validateError(result, i++, "incompatible types: expected 'listener', found '(PathOnlyListener|int)'", 167, 14);
         validateError(result, i++, "service type is not supported by the listener", 186, 14);
         Assert.assertEquals(i, result.getErrorCount());
     }
