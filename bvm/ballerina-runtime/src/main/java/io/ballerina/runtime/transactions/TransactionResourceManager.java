@@ -391,8 +391,7 @@ public class TransactionResourceManager {
                     trx = userTransactionManager.getTransaction();
                     trxRegistry.put(combinedId, trx);
                 }
-                trx.enlistResource(xaResource);
-            } catch (RollbackException | SystemException | NotSupportedException e) {
+            } catch (SystemException | NotSupportedException e) {
                 log.error("error in initiating transaction " + transactionId + ":" + e.getMessage(), e);
             }
         } else {
