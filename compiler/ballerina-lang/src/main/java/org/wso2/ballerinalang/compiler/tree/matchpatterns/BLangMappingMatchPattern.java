@@ -18,8 +18,8 @@
 package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.matchpatterns.ListMatchPatternNode;
-import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.FieldMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.MappingMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.RestMatchPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -27,22 +27,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represent list-match-pattern.
+ * Represent mapping-match-pattern.
  *
  * @since 2.0.0
  */
-public class BLangListMatchPattern extends BLangMatchPattern implements ListMatchPatternNode {
-    public List<BLangMatchPattern> matchPatterns = new ArrayList<>();
+public class BLangMappingMatchPattern extends BLangMatchPattern implements MappingMatchPatternNode {
+
+    public List<BLangFieldMatchPattern> fieldMatchPatterns = new ArrayList<>();
     public BLangRestMatchPattern restMatchPattern;
 
     @Override
-    public List<? extends MatchPatternNode> getMatchPatterns() {
-        return matchPatterns;
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
-    public void addMatchPattern(MatchPatternNode matchPattern) {
-        matchPatterns.add((BLangMatchPattern) matchPattern);
+    public NodeKind getKind() {
+        return NodeKind.MAPPING_MATCH_PATTERN;
+    }
+
+    @Override
+    public List<? extends FieldMatchPatternNode> getFieldMatchPatterns() {
+        return fieldMatchPatterns;
+    }
+
+    @Override
+    public void addFieldMatchPattern(FieldMatchPatternNode fieldMatchPatternNode) {
+        fieldMatchPatterns.add((BLangFieldMatchPattern) fieldMatchPatternNode);
     }
 
     @Override
@@ -53,15 +64,5 @@ public class BLangListMatchPattern extends BLangMatchPattern implements ListMatc
     @Override
     public void setRestMatchPattern(RestMatchPatternNode restMatchPattern) {
         this.restMatchPattern = (BLangRestMatchPattern) restMatchPattern;
-    }
-
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.LIST_MATCH_PATTERN;
     }
 }

@@ -18,13 +18,14 @@
 package org.ballerinalang.model.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.Node;
 
 /**
  * The interface with the APIs to implement the rest-match-pattern.
  *
  * @since 2.0.0
  */
-public interface RestMatchPattern {
+public interface RestMatchPatternNode extends Node {
     IdentifierNode getIdentifier();
 
     void setIdentifier(IdentifierNode variableName);

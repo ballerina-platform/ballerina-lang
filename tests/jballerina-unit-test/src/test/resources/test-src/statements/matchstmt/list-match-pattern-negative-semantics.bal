@@ -17,7 +17,7 @@
 function testSimilarVariables() {
     any v = [2, 3];
     match v {
-        [var a, var a] => {} // same variable cannot repeat in a match pattern
-        [var a, [var a, 2]] => {} // same variable cannot repeat in a match pattern
+        [var a, var a] => {} // same variable cannot repeat in a match pattern // redeclared symbol 'a'
+        [var a, [var a, 2]] => {} // same variable cannot repeat in a match pattern // redeclared symbol 'a'
     }
 }

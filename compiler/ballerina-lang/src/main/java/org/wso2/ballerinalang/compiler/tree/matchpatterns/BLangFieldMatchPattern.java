@@ -15,22 +15,24 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
+package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPattern;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.ballerinalang.model.tree.matchpatterns.FieldMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
+ * Represent field-match-pattern.
+ *
  * @since 2.0.0
  */
-public class BLangCaptureBindingPattern extends BLangBindingPattern implements CaptureBindingPattern {
+public class BLangFieldMatchPattern extends BLangMatchPattern implements FieldMatchPatternNode {
 
-    BLangIdentifier identifier;
-    public BVarSymbol symbol;
+    public BLangIdentifier fieldName;
+    public BLangMatchPattern matchPattern;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -39,16 +41,21 @@ public class BLangCaptureBindingPattern extends BLangBindingPattern implements C
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.CAPTURE_BINDING_PATTERN;
+        return NodeKind.FIELD_MATCH_PATTERN;
     }
 
     @Override
-    public IdentifierNode getIdentifier() {
-        return identifier;
+    public IdentifierNode getFieldName() {
+        return fieldName;
     }
 
     @Override
-    public void setIdentifier(IdentifierNode identifier) {
-        this.identifier = (BLangIdentifier) identifier;
+    public void setFieldName(IdentifierNode fieldName) {
+        this.fieldName = (BLangIdentifier) fieldName;
+    }
+
+    @Override
+    public MatchPatternNode getMatchPattern() {
+        return matchPattern;
     }
 }

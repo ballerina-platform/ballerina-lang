@@ -3240,7 +3240,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public FieldMatchPatternNode transform(FieldMatchPatternNode fieldMatchPatternNode) {
-        SimpleNameReferenceNode fieldNameNode = formatNode(fieldMatchPatternNode.fieldNameNode(), 0, 0);
+        IdentifierToken fieldNameNode = formatNode(fieldMatchPatternNode.fieldNameNode(), 0, 0);
         Token colonToken = formatToken(fieldMatchPatternNode.colonToken(), 0, 0);
         Node matchPattern = formatNode(fieldMatchPatternNode.matchPattern(), env.trailingWS, env.trailingNL);
         return fieldMatchPatternNode.modify()
