@@ -148,8 +148,9 @@ public class TransactionResourceManager {
      *
      * @return boolean whether the atomikos transaction manager should be enabled or not
      */
-    public boolean getTransactionManagerEnabled() {
-        return CONFIG_REGISTRY.getAsBoolean("b7a.transaction.manager.enabled");
+    private boolean getTransactionManagerEnabled() {
+        boolean transactionManagerEnabled = CONFIG_REGISTRY.getAsBoolean(CONFIG_TRANSACTION_MANAGER_ENABLED);
+        return transactionManagerEnabled;
     }
 
     /**
@@ -390,7 +391,8 @@ public class TransactionResourceManager {
                     trx = userTransactionManager.getTransaction();
                     trxRegistry.put(combinedId, trx);
                 }
-            } catch (SystemException | NotSupportedException e) {
+                trx.enlistResource(xaResource);
+            } catch (RollbackException | SystemException | NotSupportedException e) {
                 log.error("error in initiating transaction " + transactionId + ":" + e.getMessage(), e);
             }
         } else {
