@@ -113,6 +113,7 @@ dependencies {
     dist 'com.atomikos:transactions-jta:5.0.8'
     dist 'com.atomikos:atomikos-util:5.0.8'
     dist 'com.atomikos:transactions-api:5.0.8'
+    dist 'com.atomikos:transactions-jdbc:5.0.8'
     dist 'com.atomikos:transactions:5.0.8'
     dist 'javax.transaction:javax.transaction-api:1.3'
 
