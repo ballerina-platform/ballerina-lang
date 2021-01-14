@@ -115,7 +115,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
@@ -665,8 +664,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         if (varTaintedStatus != TaintedStatus.IGNORED) {
             // Generate error if a global variable has been assigned with a tainted value.
-            if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangVariableReference) {
-                BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
+            if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangAccessExpression) {
+                BLangAccessExpression varRef = (BLangAccessExpression) varRefExpr;
                 if (isMutableVariable(varRef) && isGlobalVarOrServiceVar(varRef) && !isMarkedTainted(varRef)) {
                     if (varRef.symbol != null && varRef.symbol.type.tag == TypeTags.OBJECT) {
                         addTaintError(location, getVariableName(varRef),
@@ -715,21 +714,21 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 updatedVarRefTaintedState(((BLangXMLAttributeAccess) varRefExpr).expr, varTaintedStatus);
                 overridingAnalysis = true;
             } else if (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                setTaintedStatus((BLangVariableReference) varRefExpr, varTaintedStatus);
+                setTaintedStatus((BLangAccessExpression) varRefExpr, varTaintedStatus);
             }
         }
     }
 
-    private String getVariableName(BLangVariableReference varRef) {
+    private String getVariableName(BLangAccessExpression varRef) {
         if (isStructuredAccessOnVariableReference(varRef)) {
-            return getVariableName((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+            return getVariableName((BLangAccessExpression) varRef.expr);
         }
         return varRef.symbol.name.value;
     }
 
-    private boolean isMutableVariable(BLangVariableReference varRef) {
+    private boolean isMutableVariable(BLangAccessExpression varRef) {
         if (isStructuredAccessOnVariableReference(varRef)) {
-            return isMutableVariable((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+            return isMutableVariable((BLangAccessExpression) varRef.expr);
         }
         if (varRef.symbol.getKind() == SymbolKind.CONSTANT || (varRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
             return false;
@@ -737,33 +736,33 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean notInSameScope(BLangVariableReference varRefExpr, SymbolEnv env) {
+    private boolean notInSameScope(BLangAccessExpression varRefExpr, SymbolEnv env) {
         return !varRefExpr.symbol.owner.equals(env.scope.owner);
     }
 
-    private boolean isMarkedTainted(BLangVariableReference varRef) {
+    private boolean isMarkedTainted(BLangAccessExpression varRef) {
         if (isStructuredAccessOnVariableReference(varRef)) {
-            return isMarkedTainted((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+            return isMarkedTainted((BLangAccessExpression) varRef.expr);
         }
         return ((BVarSymbol) varRef.symbol).taintabilityAllowance == BVarSymbol.TaintabilityAllowance.TAINTED;
     }
 
-    private boolean isStructuredAccessOnVariableReference(BLangVariableReference variableReference) {
+    private boolean isStructuredAccessOnVariableReference(BLangAccessExpression variableReference) {
         return (variableReference.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
                 || variableReference.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
                 || variableReference.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR);
     }
 
-    private boolean isMarkedUntainted(BLangVariableReference varRef) {
+    private boolean isMarkedUntainted(BLangAccessExpression varRef) {
         if (isStructuredAccessOnVariableReference(varRef)) {
-            return isMarkedUntainted((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+            return isMarkedUntainted((BLangAccessExpression) varRef.expr);
         }
         return ((BVarSymbol) varRef.symbol).taintabilityAllowance == BVarSymbol.TaintabilityAllowance.UNTAINTED;
     }
 
-    private boolean isGlobalVarOrServiceVar(BLangVariableReference varRef) {
+    private boolean isGlobalVarOrServiceVar(BLangAccessExpression varRef) {
         if (isStructuredAccessOnVariableReference(varRef)) {
-            return isGlobalVarOrServiceVar((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+            return isGlobalVarOrServiceVar((BLangAccessExpression) varRef.expr);
         }
         return varRef.symbol != null && varRef.symbol.owner != null
                 && (isModuleVariable(varRef.symbol)
@@ -772,7 +771,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void updatedVarRefTaintedState(BLangExpression varRef, TaintedStatus taintedState) {
         if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            setTaintedStatus((BLangVariableReference) varRef, taintedState);
+            setTaintedStatus((BLangAccessExpression) varRef, taintedState);
         } else if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
                 || varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
             BLangAccessExpression accessExpr = (BLangAccessExpression) varRef;
@@ -1904,7 +1903,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      * @param varNode       Variable node to be updated.
      * @param taintedStatus Tainted status.
      */
-    private void setTaintedStatus(BLangVariableReference varNode, TaintedStatus taintedStatus) {
+    private void setTaintedStatus(BLangAccessExpression varNode, TaintedStatus taintedStatus) {
         if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || (varNode.symbol != null
                 && !varNode.symbol.tainted))) {
             setTaintedStatus(varNode.symbol, taintedStatus);

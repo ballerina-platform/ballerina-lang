@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BIterator;
@@ -49,10 +50,21 @@ public class Next {
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            return ValueCreator.createRecordValue(ValueCreator.createMapValue(PredefinedTypes.XML_ITR_NEXT_RETURN_TYPE),
-                                                  xmlValue);
+            switch (((BXml) xmlValue).getType().getTag()) {
+                case TypeTags.XML_ELEMENT_TAG:
+                    return ValueCreator.createRecordValue(ValueCreator.createMapValue
+                                    (PredefinedTypes.XML_ITR_NEXT_RETURN_ELEMENT_TYPE), xmlValue);
+                case TypeTags.XML_TEXT_TAG:
+                    return ValueCreator.createRecordValue(ValueCreator.createMapValue
+                            (PredefinedTypes.XML_ITR_NEXT_RETURN_TEXT_TYPE), xmlValue);
+                case TypeTags.XML_COMMENT_TAG:
+                    return ValueCreator.createRecordValue(ValueCreator.createMapValue
+                            (PredefinedTypes.XML_ITR_NEXT_RETURN_COMMENT_TYPE), xmlValue);
+                case TypeTags.XML_PI_TAG:
+                    return ValueCreator.createRecordValue(ValueCreator.createMapValue
+                            (PredefinedTypes.XML_ITR_NEXT_RETURN_PI_TYPE), xmlValue);
+            }
         }
-
         return null;
     }
 }

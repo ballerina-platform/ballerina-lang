@@ -19,6 +19,7 @@
 package org.ballerinalang.test.types.string;
 
 import org.ballerinalang.test.BCompileUtil;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -35,5 +36,10 @@ public class BStringAnnotationTest extends BStringTestCommons {
     @Test
     public void testAnnotation() {
         testAndAssert("testAnnotation", 8);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }
