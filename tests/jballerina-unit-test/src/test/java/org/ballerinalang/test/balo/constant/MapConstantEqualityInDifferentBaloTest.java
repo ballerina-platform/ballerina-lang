@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -32,7 +33,7 @@ import org.testng.annotations.Test;
  */
 public class MapConstantEqualityInDifferentBaloTest {
 
-    private static CompileResult compileResult;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
@@ -1144,5 +1145,10 @@ public class MapConstantEqualityInDifferentBaloTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleNilMapReferenceEqualityInDifferentMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

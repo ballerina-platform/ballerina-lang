@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -258,5 +259,10 @@ public class ErrorVariableDefinitionTest {
                 "incompatible types: expected 'string', found '(anydata|readonly)'", 64, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found '(anydata|readonly)'", 70, 16);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -291,5 +292,11 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns[0].getType().toString(), "function (int) returns (boolean)");
         Assert.assertEquals(returns[1].getType().toString(), "function (int) returns (boolean)");
         Assert.assertEquals(returns[2].getType().toString(), "function (int) returns (boolean)");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        basic = null;
+        negative = null;
     }
 }

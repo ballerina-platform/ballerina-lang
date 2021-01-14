@@ -30,6 +30,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -376,5 +377,10 @@ public class FiniteTypeTest {
     @Test(description = "Test finite type where float literals with positive sign as members")
     public void testFiniteTypesWithPositiveFloats() {
         BRunUtil.invoke(result, "testFiniteTypesWithPositiveFloats");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

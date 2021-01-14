@@ -62,6 +62,25 @@ function testConcat() returns xml {
     return 'xml:concat(x, <xml> checkpanic testFromString(), "hello from String");
 }
 
+function testConcatWithXMLSequence() {
+    string a = "string one";
+    string b = "string two";
+    'xml:Element catalogClone = catalog.clone();
+
+    xml c = 'xml:concat(catalog, a, b);
+    assert(c.length(), 2);
+    assert(catalog, catalogClone);
+
+    xml d = 'xml:concat();
+    foreach var x in catalog/<CD> {
+        d = 'xml:concat(d, x);
+    }
+    assert(d.length(), 3);
+
+    xml e = 'xml:concat(c, d);
+    assert(e.length(), 5);
+}
+
 function testIsElement() returns [boolean, boolean, boolean] {
     xml x1 = 'xml:concat();
     boolean b1 = x1 is 'xml:Element;
@@ -168,16 +187,12 @@ function testCreateText() {
     assert(<string>text5, "XML\ntext");
 }
 
-function testForEach() returns xml {
+function testForEach() {
     xml r = 'xml:concat();
     foreach var x in catalog/* {
-        if (x is xml) {
-            if (x is 'xml:Element) {
-                r = 'xml:concat(r, x);
-            }
-        }
+        r = 'xml:concat(r, x);
     }
-    return r;
+    assert(r.length(), 7);
 }
 
 function testSlice() returns [xml, xml, xml] {
@@ -380,6 +395,53 @@ function testElementChildrenNS() {
     xml toNoNs = seq.elementChildren("to");
     assert(toNoNs.length(), 2);
     assert(toNoNs.toString(), "<to>Irshad</to><to>Irshad</to>");
+}
+
+function testXMLIteratorInvocation() {
+    xml a = xml `<!--first-->`;
+    xml<'xml:Comment> seq1 = <xml<'xml:Comment>> a.concat(xml `<!--second-->`);
+
+    object {
+        public isolated function next() returns record {| 'xml:Comment value; |}?;
+    } iter1 = seq1.iterator();
+
+    assert((iter1.next()).toString(), "{\"value\":`<!--first-->`}");
+
+    xml b = xml `<one>first</one>`;
+    xml<'xml:Element> seq2 = <xml<'xml:Element>> b.concat(xml `<two>second</two>`);
+
+    object {
+            public isolated function next() returns record {| 'xml:Element value; |}?;
+    } iter2 = seq2.iterator();
+
+    assert((iter2.next()).toString(), "{\"value\":`<one>first</one>`}");
+
+    xml c = xml `bit of text1`;
+    xml<'xml:Text> seq3 = <xml<'xml:Text>> c.concat(xml ` bit of text2`);
+
+    object {
+        public isolated function next() returns record {| 'xml:Text value; |}?;
+    } iter3 = seq3.iterator();
+
+    assert((iter3.next()).toString(), "{\"value\":`bit of text1`}");
+
+    xml d = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
+    xml<'xml:ProcessingInstruction> seq4 = <xml<'xml:ProcessingInstruction>> d.concat(xml `<?pi-node type="cont"?>`);
+
+    object {
+        public isolated function next() returns record {| 'xml:ProcessingInstruction value; |}?;
+    } iter4 = seq4.iterator();
+
+    assert((iter4.next()).toString(), "{\"value\":`<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>`}");
+
+    xml e = xml `<one>first</one>`;
+    xml<'xml:Element|'xml:Text> seq5 = <xml<'xml:Element|'xml:Text>> e.concat(xml `<two>second</two>`);
+
+    object {
+        public isolated function next() returns record {| 'xml:Element|'xml:Text value; |}?;
+    } iter5 = seq5.iterator();
+
+    assert((iter5.next()).toString(), "{\"value\":`<one>first</one>`}");
 }
 
 function assert(anydata actual, anydata expected) {

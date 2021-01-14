@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -445,5 +446,10 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 140, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int'", 150, 11);
         BAssertUtil.validateError(compileResult, i, "invalid expr in compound assignment lhs", 156, 18);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

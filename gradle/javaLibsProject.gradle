@@ -89,10 +89,10 @@ dependencies {
     dist project(':ballerina-logging')
     dist project(':ballerina-observability')
     dist project(':ballerina-cli')
+    dist project(':ballerina-observability-internal')
 //    dist project(':ballerina-transactions')
     dist project(':ballerina-lang:java')
     dist project(':metrics-extensions:ballerina-metrics-extension')
-    dist project(':tracing-extensions:ballerina-jaeger-extension')
 
     // Lang libs
     dist project(':ballerina-lang:annotations')

@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -360,5 +361,10 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
                 "deptAccess:\"XYZ\", address:{city:\"Colombo\", country:\"SL\"}}");
         Assert.assertEquals(person2.stringValue(), "{firstName:\"John\", lastName:\"David\", " +
                 "deptAccess:\"XYZ\", address:{city:\"Colombo\", country:\"SL\"}}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

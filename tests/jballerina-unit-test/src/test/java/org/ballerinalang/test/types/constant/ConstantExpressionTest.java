@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -33,7 +34,7 @@ import org.testng.annotations.Test;
  */
 public class ConstantExpressionTest {
 
-    private static CompileResult compileResult;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
@@ -130,4 +131,8 @@ public class ConstantExpressionTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"v1\":3.0, \"v2\":5.0}");
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+    }
 }
