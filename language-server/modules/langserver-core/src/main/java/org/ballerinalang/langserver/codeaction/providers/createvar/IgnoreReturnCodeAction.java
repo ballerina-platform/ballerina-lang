@@ -18,12 +18,13 @@ package org.ballerinalang.langserver.codeaction.providers.createvar;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -46,7 +47,7 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     CodeActionContext context) {
-        if (!(diagnostic.getMessage().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
+        if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
 
@@ -55,7 +56,7 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
         String uri = context.fileUri();
-        Position pos = diagnostic.getRange().getStart();
+        Position pos = CommonUtil.toRange(diagnostic.location().lineRange()).getStart();
         // Add ignore return value code action
         if (!hasErrorType(typeDescriptor)) {
             String commandTitle = CommandConstants.IGNORE_RETURN_TITLE;

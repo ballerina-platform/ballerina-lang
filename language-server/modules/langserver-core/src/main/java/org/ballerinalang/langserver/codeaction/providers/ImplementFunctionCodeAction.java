@@ -23,15 +23,16 @@ import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -58,12 +59,12 @@ public class ImplementFunctionCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     CodeActionContext context) {
-        if (!(diagnostic.getMessage().startsWith(CommandConstants.NO_IMPL_FOUND_FOR_METHOD))) {
+        if (!(diagnostic.message().startsWith(CommandConstants.NO_IMPL_FOUND_FOR_METHOD))) {
             return Collections.emptyList();
         }
 
         String methodName;
-        Matcher matcher = CommandConstants.NO_IMPL_FOUND_FOR_FUNCTION_PATTERN.matcher(diagnostic.getMessage());
+        Matcher matcher = CommandConstants.NO_IMPL_FOUND_FOR_FUNCTION_PATTERN.matcher(diagnostic.message());
         if (matcher.find() && matcher.groupCount() > 1) {
             methodName = matcher.group(1);
         } else {
@@ -110,7 +111,7 @@ public class ImplementFunctionCodeAction extends AbstractCodeActionProvider {
         edits.add(new TextEdit(new Range(editPos, editPos), editText));
         String commandTitle = String.format(CommandConstants.IMPLEMENT_FUNCS_TITLE, unimplMethod.get().name());
         CodeAction quickFixCodeAction = createQuickFixCodeAction(commandTitle, edits, context.fileUri());
-        quickFixCodeAction.setDiagnostics(Collections.singletonList(diagnostic));
+        quickFixCodeAction.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
         return Collections.singletonList(quickFixCodeAction);
     }
 }

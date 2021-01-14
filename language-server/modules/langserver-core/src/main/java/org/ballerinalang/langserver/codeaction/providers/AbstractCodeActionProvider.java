@@ -15,13 +15,14 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
@@ -116,7 +117,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         action.setKind(CodeActionKind.QuickFix);
         action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
                 new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
-        action.setDiagnostics(diagnostics);
+        action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
         return action;
     }
 }
