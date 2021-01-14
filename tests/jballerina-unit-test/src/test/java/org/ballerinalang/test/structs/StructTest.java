@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -183,5 +184,10 @@ public class StructTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "{name:\"default first name\", fname:\"\", lname:\"Doe\", adrs:{}, age:999, " +
                         "family:{spouse:\"Jane\", noOfChildren:0, children:[\"Alex\", \"Bob\"]}}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }
