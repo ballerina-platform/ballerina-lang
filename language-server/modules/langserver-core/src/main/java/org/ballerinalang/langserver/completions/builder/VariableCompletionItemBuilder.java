@@ -54,8 +54,8 @@ public final class VariableCompletionItemBuilder {
         if (varSymbol == null) {
             return;
         }
-        if (varSymbol.docAttachment().isPresent() && varSymbol.docAttachment().get().description().isPresent()) {
-            item.setDocumentation(varSymbol.docAttachment().get().description().get());
+        if (varSymbol.documentation().isPresent() && varSymbol.documentation().get().description().isPresent()) {
+            item.setDocumentation(varSymbol.documentation().get().description().get());
         }
     }
 }

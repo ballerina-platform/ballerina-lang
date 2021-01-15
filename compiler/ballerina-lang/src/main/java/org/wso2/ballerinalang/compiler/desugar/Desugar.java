@@ -756,6 +756,12 @@ public class Desugar extends BLangNodeVisitor {
                     }
                 }
 
+                // Module init should fail if listener is a error value.
+                if (Symbols.isFlagOn(globalVarFlags, Flags.LISTENER)
+                        && types.containsErrorType(globalVar.expr.type)) {
+                    globalVar.expr = ASTBuilderUtil.createCheckExpr(globalVar.expr.pos, globalVar.expr, globalVar.type);
+                }
+
                 BLangAssignment assignment = createAssignmentStmt(globalVar);
                 initFnBody.stmts.add(assignment);
             }
@@ -1904,7 +1910,7 @@ public class Desugar extends BLangNodeVisitor {
                 tempDetailVarSymbol, null);
         if (detailEntryVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             BLangIndexBasedAccess bLangIndexBasedAccess = (BLangIndexBasedAccess) detailEntryVar;
-            bLangIndexBasedAccess.originalType = symTable.pureType;
+            bLangIndexBasedAccess.originalType = symTable.cloneableType;
         }
         return detailEntryVar;
     }
@@ -2604,7 +2610,7 @@ public class Desugar extends BLangNodeVisitor {
                     detailTempVarDef.var.symbol, null);
             if (detailEntryVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
                 BLangIndexBasedAccess bLangIndexBasedAccess = (BLangIndexBasedAccess) detailEntryVar;
-                bLangIndexBasedAccess.originalType = symTable.pureType;
+                bLangIndexBasedAccess.originalType = symTable.cloneableType;
             }
 
             BLangAssignment detailAssignment = ASTBuilderUtil.createAssignmentStmt(ref.pos, parentBlockStmt);
@@ -5207,10 +5213,25 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
+    /* This function is a workaround and need improvement
+    *  Notes for improvement :
+    *    1. Both arguments are same.
+    *    2. Due to current type param logic we put type param flag on the original type.
+    *    3. Error type having Cloneable type with type param flag, change expression type by this code.
+    *    4. using error type is a problem as Cloneable type is an typeparm eg: ExprBodiedFunctionTest
+    *       added never to CloneableType type param
+    *       @typeParam type
+    *       CloneableType Cloneable|never;
+    *
+    */
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
-        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
+        var returnTypeOfInvokable = ((BInvokableSymbol) iExpr.symbol).retType;
+        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(returnTypeOfInvokable)) {
+            // why we dont consider whole action invocation
             BType originalInvType = genIExpr.type;
-            genIExpr.type = ((BInvokableSymbol) genIExpr.symbol).retType;
+            if (!genIExpr.async) {
+                genIExpr.type = returnTypeOfInvokable;
+            }
             BLangExpression expr = addConversionExprIfRequired(genIExpr, originalInvType);
 
             // Prevent adding another type conversion
@@ -7726,7 +7747,6 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             binaryExpr = ASTBuilderUtil
                     .createBinaryExpr(pos, varRef, expression, symTable.booleanType, OperatorKind.EQUAL, null);
-
             BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.EQUAL, varRef.type, expression.type);
             if (opSymbol == symTable.notFoundSymbol) {
                 opSymbol = symResolver

@@ -291,6 +291,11 @@
     </Match>
     <Match>
         <Class name="io.ballerina.projects.internal.BaloFiles"/>
+        <Method name="createManifest"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.BaloFiles"/>
         <Method name="createPackageDependencyGraph"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>

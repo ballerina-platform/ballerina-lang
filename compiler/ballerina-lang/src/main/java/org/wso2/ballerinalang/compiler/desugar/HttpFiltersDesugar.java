@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -128,9 +127,7 @@ public class HttpFiltersDesugar {
 
     private static final String ORG_NAME = "ballerina";
     private static final String PACKAGE_NAME = "http";
-    private static final String CALLER_TYPE_NAME = "Caller";
 
-    private static final String ORG_SEPARATOR = "/";
     private static final int ENDPOINT_PARAM_NUM = 0;
     private static final int REQUEST_PARAM_NUM = 1;
 
@@ -154,28 +151,12 @@ public class HttpFiltersDesugar {
         this.types = Types.getInstance(context);
     }
 
-    /**
-     * Check if the resource is an http resource and apply filter.
-     *
-     * @param resourceNode The resource to apply filter on if it is http
-     * @param env          the symbol environment
-     */
-    void addHttpFilterStatementsToResource(BLangFunction resourceNode, SymbolEnv env) {
-        if (isHttpResource(resourceNode)) {
-            addFilterStatements(resourceNode, env);
-        }
+    boolean isHttpPackage(List<BType> expressionTypes) {
+        return expressionTypes.stream().anyMatch(a -> a.tsymbol.pkgID.orgName.value.equals(ORG_NAME) &&
+                a.tsymbol.pkgID.name.value.equals(PACKAGE_NAME));
     }
 
-    private boolean isHttpResource(BLangFunction resourceNode) {
-        if (resourceNode.requiredParams.size() < 2) {
-            return false;
-        }
-        BTypeSymbol tsymbol = resourceNode.requiredParams.get(0).type.tsymbol;
-        return ORG_NAME.equals(tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(tsymbol.pkgID.name.value) &&
-                CALLER_TYPE_NAME.equals(tsymbol.name.value);
-    }
-
-    private void addFilterStatements(BLangFunction resourceNode, SymbolEnv env) {
+    void addFilterStatements(BLangFunction resourceNode, SymbolEnv env) {
         BLangSimpleVariable filterContextVar = addFilterContextCreation(resourceNode, env);
         addAssignmentAndForEach(resourceNode, filterContextVar, env);
     }
@@ -454,18 +435,6 @@ public class HttpFiltersDesugar {
         return ((BObjectTypeSymbol) filterType.tsymbol).attachedFuncs.stream().filter(func -> {
             return FILTER_REQUEST_FUNCTION.equals(func.funcName.value);
         }).findFirst().get().symbol;
-    }
-
-    /**
-     * Check if the resource is an http resource and inject ParamOrderConfig annotation.
-     *
-     * @param resourceNode The resource to inject annotation
-     * @param env          the symbol environment
-     */
-    void addCustomAnnotationToResource(BLangFunction resourceNode, SymbolEnv env) {
-        if (isHttpResource(resourceNode)) {
-            addOrderParamConfig(resourceNode, env);
-        }
     }
 
     private void addOrderParamConfig(BLangFunction resourceNode, SymbolEnv env) {

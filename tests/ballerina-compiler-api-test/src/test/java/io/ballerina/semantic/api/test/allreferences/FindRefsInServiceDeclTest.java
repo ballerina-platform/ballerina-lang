@@ -56,11 +56,6 @@ public class FindRefsInServiceDeclTest extends FindAllReferencesTest {
     }
 
     @Override
-    public String getFileName() {
-        return "service_symbol_test.bal";
-    }
-
-    @Override
     public String getTestSourcePath() {
         return "test-src/service_symbol_test.bal";
     }
