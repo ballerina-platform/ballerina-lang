@@ -1175,6 +1175,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Base16 literal Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBase16LiteralSnippet() {
+        String snippet = "base16 `${1}`";
+        return new SnippetBlock("base16", snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Base64 literal Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBase64LiteralSnippet() {
+        String snippet = "base64 `${1}`";
+        return new SnippetBlock("base64", snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
      * Get Panic Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
