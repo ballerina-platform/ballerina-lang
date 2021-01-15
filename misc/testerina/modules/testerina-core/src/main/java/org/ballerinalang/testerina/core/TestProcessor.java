@@ -229,10 +229,14 @@ public class TestProcessor {
                     LinePosition.from(syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().line(),
                                       syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().offset()));
             for (Symbol symbol : symbols) {
-                if (symbol.kind() == SymbolKind.FUNCTION && symbol instanceof FunctionSymbol &&
-                        !functionNamesList.contains(symbol.name())) {
-                    functionSymbolList.add((FunctionSymbol) symbol);
-                    functionNamesList.add(symbol.name());
+                if (symbol.kind() != SymbolKind.FUNCTION) {
+                    continue;
+                }
+
+                FunctionSymbol fnSymbol = (FunctionSymbol) symbol;
+                if (!functionNamesList.contains(fnSymbol.name())) {
+                    functionSymbolList.add(fnSymbol);
+                    functionNamesList.add(fnSymbol.name());
                 }
             }
         }
