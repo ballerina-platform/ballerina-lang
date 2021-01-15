@@ -23,6 +23,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -195,8 +196,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             RequiredParameterNode requiredParameterNode = (RequiredParameterNode) node;
             Optional<Token> paramName = requiredParameterNode.paramName();
             symbolMetaInfo.addProperty("name", paramName.isPresent() ? paramName.get().text() : "");
-            symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-            symbolMetaInfo.addProperty("typeName", typeSymbol.name());
+            symbolMetaInfo.addProperty("isCaller", getTypeName(typeSymbol).equals("Caller"));
+            symbolMetaInfo.addProperty("typeName", getTypeName(typeSymbol));
             symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
             symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
@@ -204,8 +205,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             CaptureBindingPatternNode captureBindingPatternNode =
                     (CaptureBindingPatternNode) variableDeclarationNode.typedBindingPattern().bindingPattern();
             symbolMetaInfo.addProperty("name", captureBindingPatternNode.variableName().text());
-            symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-            symbolMetaInfo.addProperty("typeName", typeSymbol.name());
+            symbolMetaInfo.addProperty("isCaller", getTypeName(typeSymbol).equals("Caller"));
+            symbolMetaInfo.addProperty("typeName", getTypeName(typeSymbol));
             symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
             symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
         } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
@@ -214,8 +215,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 SimpleNameReferenceNode simpleNameReferenceNode =
                         (SimpleNameReferenceNode) assignmentStatementNode.varRef();
                 symbolMetaInfo.addProperty("name", simpleNameReferenceNode.name().text());
-                symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-                symbolMetaInfo.addProperty("typeName", typeSymbol.name());
+                symbolMetaInfo.addProperty("isCaller", getTypeName(typeSymbol).equals("Caller"));
+                symbolMetaInfo.addProperty("typeName", getTypeName(typeSymbol));
                 symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
                 symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
             }
@@ -331,5 +332,13 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 .map(String::toLowerCase)
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining());
+    }
+
+    private String getTypeName(TypeSymbol type) {
+        if (type instanceof Identifiable) {
+            return ((Identifiable) type).name();
+        }
+
+        return "";
     }
 }
