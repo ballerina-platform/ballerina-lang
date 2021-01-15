@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -47,6 +48,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
@@ -204,17 +206,21 @@ public class ServiceDesugar {
     }
 
     void engageCustomServiceDesugar(BLangService service, SymbolEnv env) {
+        List<BType> expressionTypes = service.attachedExprs.stream().map(expression -> expression.type)
+                .collect(Collectors.toList());
         service.serviceClass.functions.stream().filter(fun -> Symbols.isFlagOn(fun.symbol.flags, Flags.RESOURCE))
-                .forEach(func -> engageCustomResourceDesugar(func, env));
+                .forEach(func -> engageCustomResourceDesugar(func, env, expressionTypes));
     }
 
-    private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env) {
+    private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env, List<BType> expressionTypes) {
         if (Symbols.isFlagOn(functionNode.symbol.flags, Flags.TRANSACTIONAL)) {
             BLangExpressionStmt stmt = new BLangExpressionStmt(transactionDesugar
                     .createBeginParticipantInvocation(functionNode.pos));
             ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
         }
-        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
-//        httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
+        if (httpFiltersDesugar.isHttpPackage(expressionTypes)) {
+            httpFiltersDesugar.addFilterStatements(functionNode, env);
+//            httpFiltersDesugar.addOrderParamConfig(functionNode, env);
+        }
     }
 }
