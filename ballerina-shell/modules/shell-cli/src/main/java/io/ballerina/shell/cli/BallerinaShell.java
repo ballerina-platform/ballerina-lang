@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -48,6 +48,8 @@ import static io.ballerina.shell.cli.PropertiesLoader.REPL_PROMPT;
 /**
  * REPL shell terminal executor. Launches the terminal.
  * Independent of third party libraries.
+ *
+ * @since slp8
  */
 public class BallerinaShell {
     private static final int INIT_WARNING_THRESH_S = 2;

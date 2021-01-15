@@ -28,6 +28,8 @@ import java.util.Scanner;
 /**
  * Class with utility functions required for
  * other tests.
+ *
+ * @since slp8
  */
 public abstract class TestUtils {
     private static final String SPECIAL_DELIMITER = "\\A";

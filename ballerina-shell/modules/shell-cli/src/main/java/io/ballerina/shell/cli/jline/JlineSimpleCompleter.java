@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -40,6 +40,8 @@ import static io.ballerina.shell.cli.PropertiesLoader.TOPICS_FILE;
  * A simple completer to give completions based on the input line.
  * If the input starts with /, built-in commands are given.
  * Otherwise keyword completion is given.
+ *
+ * @since slp8
  */
 public class JlineSimpleCompleter implements Completer {
     private final StringsCompleter topicsCompleter;

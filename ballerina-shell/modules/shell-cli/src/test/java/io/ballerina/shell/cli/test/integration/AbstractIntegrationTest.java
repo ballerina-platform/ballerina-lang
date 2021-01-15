@@ -32,6 +32,8 @@ import java.util.List;
 
 /**
  * Base class for integration tests.
+ *
+ * @since slp8
  */
 public class AbstractIntegrationTest {
     protected void test(String fileName) throws Exception {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -25,6 +25,8 @@ import java.util.Properties;
 
 /**
  * Loads the properties file.
+ *
+ * @since slp8
  */
 public class PropertiesLoader {
     public static final String APP_NAME = "app.name";
@@ -60,30 +62,6 @@ public class PropertiesLoader {
     }
 
     /**
-     * Load properties file from resources.
-     *
-     * @return Loaded properties file.
-     * @throws IOException File reading failed.
-     */
-    private Properties load() throws IOException {
-        Properties properties = new Properties();
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE);
-        Objects.requireNonNull(inputStream, "Properties file open failed.");
-        properties.load(inputStream);
-        return properties;
-    }
-
-    /**
-     * Get value associated with a key in props file.
-     *
-     * @param key Key to find.
-     * @return Value of the key.
-     */
-    public String get(String key) {
-        return properties.getProperty(key);
-    }
-
-    /**
      * Get the instance of the loader.
      *
      * @return Property loader instance.
@@ -107,5 +85,29 @@ public class PropertiesLoader {
      */
     public static String getProperty(String key) {
         return getInstance().get(key);
+    }
+
+    /**
+     * Load properties file from resources.
+     *
+     * @return Loaded properties file.
+     * @throws IOException File reading failed.
+     */
+    private Properties load() throws IOException {
+        Properties properties = new Properties();
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE);
+        Objects.requireNonNull(inputStream, "Properties file open failed.");
+        properties.load(inputStream);
+        return properties;
+    }
+
+    /**
+     * Get value associated with a key in props file.
+     *
+     * @param key Key to find.
+     * @return Value of the key.
+     */
+    public String get(String key) {
+        return properties.getProperty(key);
     }
 }
