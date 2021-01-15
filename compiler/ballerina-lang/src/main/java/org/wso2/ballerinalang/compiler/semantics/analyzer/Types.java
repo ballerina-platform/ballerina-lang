@@ -1494,7 +1494,55 @@ public class Types {
                 varType = inferRecordFieldType(recordType);
                 break;
             case TypeTags.XML:
-                varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
+                BType constraint = ((BXMLType) collectionType).constraint;
+                while (constraint.tag == TypeTags.XML) {
+                    collectionType = constraint;
+                    constraint = ((BXMLType) collectionType).constraint;
+                }
+                switch (constraint.tag) {
+                    case TypeTags.XML_ELEMENT:
+                        varType = symTable.xmlElementType;
+                        break;
+                    case TypeTags.XML_COMMENT:
+                        varType = symTable.xmlCommentType;
+                        break;
+                    case TypeTags.XML_TEXT:
+                        varType = symTable.xmlTextType;
+                        break;
+                    case TypeTags.XML_PI:
+                        varType = symTable.xmlPIType;
+                        break;
+                    default:
+                        Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
+                        Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
+                                ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
+                        if (collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes)) {
+                            varType = symTable.xmlType;
+                        } else {
+                            LinkedHashSet<BType> collectionTypesInSymTable = new LinkedHashSet<>();
+                            for (BType subType : collectionTypes) {
+                                switch (subType.tag) {
+                                    case TypeTags.XML_ELEMENT:
+                                        collectionTypesInSymTable.add(symTable.xmlElementType);
+                                        break;
+                                    case TypeTags.XML_COMMENT:
+                                        collectionTypesInSymTable.add(symTable.xmlCommentType);
+                                        break;
+                                    case TypeTags.XML_TEXT:
+                                        collectionTypesInSymTable.add(symTable.xmlTextType);
+                                        break;
+                                    case TypeTags.XML_PI:
+                                        collectionTypesInSymTable.add(symTable.xmlPIType);
+                                        break;
+                                }
+
+                            }
+                            varType = BUnionType.create(null, collectionTypesInSymTable);
+                        }
+                }
+                break;
+            case TypeTags.XML_TEXT:
+                varType = symTable.xmlTextType;
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
@@ -3123,6 +3171,69 @@ public class Types {
         return false;
     }
 
+    public BType getRemainingMatchExprType(BType originalType, BType typeToRemove) {
+        switch (originalType.tag) {
+            case TypeTags.UNION:
+                return getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove));
+            case TypeTags.FINITE:
+                return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove));
+            case TypeTags.TUPLE:
+                return getRemainingType((BTupleType) originalType, typeToRemove);
+            default:
+                return originalType;
+        }
+    }
+
+    private BType getRemainingType(BTupleType originalType, BType typeToRemove) {
+        switch (typeToRemove.tag) {
+            case TypeTags.TUPLE:
+                return getRemainingType(originalType, (BTupleType) typeToRemove);
+            case TypeTags.ARRAY:
+                return getRemainingType(originalType, (BArrayType) typeToRemove);
+            default:
+                return originalType;
+        }
+    }
+
+    private BType getRemainingType(BTupleType originalType, BTupleType typeToRemove) {
+        if (originalType.restType != null) {
+            return originalType;
+        }
+
+        List<BType> originalTupleTypes = new ArrayList<>(originalType.tupleTypes);
+        List<BType> typesToRemove = new ArrayList<>(typeToRemove.tupleTypes);
+        if (originalTupleTypes.size() < typesToRemove.size()) {
+            return originalType;
+        }
+        List<BType> tupleTypes = new ArrayList<>();
+        for (int i = 0; i < originalTupleTypes.size(); i++) {
+            tupleTypes.add(getRemainingMatchExprType(originalTupleTypes.get(i), typesToRemove.get(i)));
+        }
+        if (typeToRemove.restType == null) {
+            return new BTupleType(tupleTypes);
+        }
+        if (originalTupleTypes.size() == typesToRemove.size()) {
+            return originalType;
+        }
+        for (int i = typesToRemove.size(); i < originalTupleTypes.size(); i++) {
+            tupleTypes.add(getRemainingMatchExprType(originalTupleTypes.get(i), typeToRemove.restType));
+        }
+        return new BTupleType(tupleTypes);
+    }
+
+    private BType getRemainingType(BTupleType originalType, BArrayType typeToRemove) {
+        BType eType = typeToRemove.eType;
+        List<BType> tupleTypes = new ArrayList<>();
+        for (BType tupleType : originalType.tupleTypes) {
+            tupleTypes.add(getRemainingMatchExprType(tupleType, eType));
+        }
+        BTupleType remainingType = new BTupleType(tupleTypes);
+        if (originalType.restType != null) {
+            remainingType.restType = getRemainingMatchExprType(originalType.restType, eType);
+        }
+        return remainingType;
+    }
+
     public BType getRemainingType(BType originalType, BType typeToRemove) {
         switch (originalType.tag) {
             case TypeTags.UNION:
@@ -3304,7 +3415,6 @@ public class Types {
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
         errorType.flags |= errorTypeSymbol.flags;
         errorTypeSymbol.type = errorType;
-        symResolver.markParameterizedType(errorType, detailType);
         errorType.typeIdSet = BTypeIdSet.emptySet();
 
         return errorType;

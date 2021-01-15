@@ -20,8 +20,10 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Package;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -30,7 +32,6 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
@@ -56,12 +57,12 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
-        if (!(diagnostic.getMessage().startsWith(UNDEFINED_MODULE))) {
+        if (!(diagnostic.message().startsWith(UNDEFINED_MODULE))) {
             return actions;
         }
         String uri = context.fileUri();
         List<Diagnostic> diagnostics = new ArrayList<>();
-        String diagnosticMessage = diagnostic.getMessage();
+        String diagnosticMessage = diagnostic.message();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                 diagnosticMessage.lastIndexOf("'"));
         LanguageServerContext serverContext = context.languageServercontext();
@@ -86,7 +87,7 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                     action.setKind(CodeActionKind.QuickFix);
                     action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
                             new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
-                    action.setDiagnostics(diagnostics);
+                    action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
                     actions.add(action);
                 });
         return actions;

@@ -20,6 +20,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -87,5 +88,10 @@ public class WaitActionsNegativeTest {
                 "incompatible types: expected 'future<int>', found 'future<string>'", 89, 55);
         BAssertUtil.validateError(resultNegative, index,
                 "incompatible types: expected 'future<string>', found 'future<int>'", 90, 54);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        resultNegative = null;
     }
 }

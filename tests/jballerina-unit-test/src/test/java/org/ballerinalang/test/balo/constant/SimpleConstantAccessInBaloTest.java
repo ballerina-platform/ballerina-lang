@@ -160,5 +160,6 @@ public class SimpleConstantAccessInBaloTest {
     @AfterClass
     public void tearDown() {
         BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
+        compileResult = null;
     }
 }

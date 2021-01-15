@@ -156,7 +156,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "jsonVar", "map<json>", "json");
 
         // table variable visibility test
-        debugTestRunner.assertVariable(localVariables, "tableVar", "table<Employee>", "table");
+        debugTestRunner.assertVariable(localVariables, "tableVar", "table<Employee>[3]", "table");
 
         // stream variable visibility test
         debugTestRunner.assertVariable(localVariables, "oddNumberStream", "stream<int>", "stream");
@@ -278,6 +278,12 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(jsonChildVariables, "color", "red", "string");
         debugTestRunner.assertVariable(jsonChildVariables, "name", "apple", "string");
         debugTestRunner.assertVariable(jsonChildVariables, "price", "40", "int");
+
+        // table child variable visibility test
+        Map<String, Variable> tableChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("tableVar"));
+        debugTestRunner.assertVariable(tableChildVariables, "[1]", "Employee", "record");
+        debugTestRunner.assertVariable(tableChildVariables, "[2]", "Employee", "record");
+        debugTestRunner.assertVariable(tableChildVariables, "[3]", "Employee", "record");
     }
 
     @AfterClass(alwaysRun = true)
