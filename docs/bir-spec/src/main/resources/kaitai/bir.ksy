@@ -279,8 +279,10 @@ types:
         type: s1
       - id: pkd_id_cp_index
         type: s4
+        if: has_name == 1
       - id: name_cp_index
         type: s4
+        if: has_name == 1
       - id: member_types_count
         type: s4
       - id: member_type_cp_index
