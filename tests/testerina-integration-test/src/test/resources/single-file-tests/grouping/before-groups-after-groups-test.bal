@@ -55,8 +55,8 @@ function beforeFunc() {
 
 # Test function
 @test:Config {
-    before: "beforeFunc",
-    after: "afterFunc"
+    before: beforeFunc,
+    after: afterFunc
 }
 function testFunction() {
     a += "4";
@@ -64,7 +64,7 @@ function testFunction() {
 
 @test:Config {
     groups: ["g1"],
-    dependsOn:["testFunction"]
+    dependsOn: [testFunction]
 }
 function testFunction2() {
     a += "8";
