@@ -22,5 +22,5 @@ package io.ballerina.compiler.api.symbols;
  *
  * @since 2.0.0
  */
-public interface IntSigned32TypeSymbol extends IntTypeSymbol {
+public interface IntSigned32TypeSymbol extends IntTypeSymbol, NamedSymbol {
 }

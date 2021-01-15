@@ -48,7 +48,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol {
+public class BallerinaClassSymbol extends BallerinaNamedSymbol implements ClassSymbol {
 
     private final ObjectTypeSymbol typeDescriptor;
     private final List<Qualifier> qualifiers;

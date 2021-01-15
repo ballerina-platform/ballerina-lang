@@ -66,11 +66,6 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     public abstract String signature();
 
     @Override
-    public String name() {
-        return "";
-    }
-
-    @Override
     public SymbolKind kind() {
         return SymbolKind.TYPE;
     }

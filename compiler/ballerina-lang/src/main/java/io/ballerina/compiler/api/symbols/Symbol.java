@@ -28,13 +28,6 @@ import io.ballerina.tools.diagnostics.Location;
 public interface Symbol {
 
     /**
-     * Get the symbol name.
-     * 
-     * @return {@link String} name of the symbol
-     */
-    String name();
-
-    /**
      * Get the moduleID of the symbol.
      * 
      * @return {@link ModuleID} of the symbol

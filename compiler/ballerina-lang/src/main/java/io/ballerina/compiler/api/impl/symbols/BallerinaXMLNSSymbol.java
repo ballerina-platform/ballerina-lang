@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
  *
  * @since 2.0.0
  */
-public class BallerinaXMLNSSymbol extends BallerinaSymbol implements XMLNamespaceSymbol {
+public class BallerinaXMLNSSymbol extends BallerinaNamedSymbol implements XMLNamespaceSymbol {
 
     private final String namespaceUri;
 

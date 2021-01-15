@@ -35,11 +35,6 @@ public class BallerinaByteTypeSymbol extends AbstractTypeSymbol implements ByteT
     }
 
     @Override
-    public String name() {
-        return "byte";
-    }
-
-    @Override
     public String signature() {
         return "byte";
     }

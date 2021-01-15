@@ -36,14 +36,12 @@ import java.util.Objects;
  */
 public class BallerinaSymbol implements Symbol {
 
-    private final String name;
     private final PackageID moduleID;
     private final SymbolKind symbolKind;
     private final Location position;
     private final BSymbol internalSymbol;
 
     protected BallerinaSymbol(String name, PackageID moduleID, SymbolKind symbolKind, BSymbol symbol) {
-        this.name = name;
         this.moduleID = moduleID;
         this.symbolKind = symbolKind;
 
@@ -57,14 +55,6 @@ public class BallerinaSymbol implements Symbol {
                                                     symbol.pos.lineRange().endLine().line(),
                                                     symbol.pos.lineRange().startLine().offset(),
                                                     symbol.pos.lineRange().endLine().offset());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String name() {
-        return this.name;
     }
 
     /**
@@ -100,15 +90,14 @@ public class BallerinaSymbol implements Symbol {
 
         Symbol symbol = (Symbol) obj;
 
-        return this.name().equals(symbol.name())
-                && this.moduleID().equals(symbol.moduleID())
+        return this.moduleID().equals(symbol.moduleID())
                 && this.kind().equals(symbol.kind())
                 && this.location().lineRange().equals(symbol.location().lineRange());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.name(), this.moduleID(), this.kind(), this.location().lineRange());
+        return Objects.hash(this.moduleID(), this.kind(), this.location().lineRange());
     }
 
     public BSymbol getInternalSymbol() {

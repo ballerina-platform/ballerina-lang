@@ -40,7 +40,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaFieldSymbol extends BallerinaSymbol implements FieldSymbol {
+public class BallerinaFieldSymbol extends BallerinaNamedSymbol implements FieldSymbol {
 
     private final Documentation docAttachment;
     private final BField bField;

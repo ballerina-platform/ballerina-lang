@@ -38,7 +38,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaVariableSymbol extends BallerinaSymbol implements VariableSymbol {
+public class BallerinaVariableSymbol extends BallerinaNamedSymbol implements VariableSymbol {
 
     private final List<Qualifier> qualifiers;
     private final List<AnnotationSymbol> annots;

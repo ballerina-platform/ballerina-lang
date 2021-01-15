@@ -15,30 +15,29 @@
  * limitations under the License.
  */
 
-package io.ballerina.compiler.api.symbols;
+package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.compiler.api.symbols.NamedSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 /**
- * Represents a symbol which is associated with a name and can be located in a source file.
+ * Implementation of NamedSymbol.
  *
  * @since 2.0.0
  */
-public interface NamedSymbol extends Symbol, Identifiable {
+public class BallerinaNamedSymbol extends BallerinaSymbol implements NamedSymbol {
 
-    /**
-     * Get the moduleID of the symbol.
-     *
-     * @return {@link ModuleID} of the symbol
-     */
-    ModuleID moduleID();
+    private final String name;
 
-    /**
-     * This retrieves position information of the symbol in the source code. The position given here is the location of
-     * the definition of the symbol.
-     *
-     * @return The position information of the symbol
-     */
-    Location location();
+    protected BallerinaNamedSymbol(String name, PackageID moduleID, SymbolKind symbolKind, BSymbol symbol) {
+        super(name, moduleID, symbolKind, symbol);
+        this.name = name;
+    }
+
+    @Override
+    public String name() {
+        return this.name;
+    }
 }

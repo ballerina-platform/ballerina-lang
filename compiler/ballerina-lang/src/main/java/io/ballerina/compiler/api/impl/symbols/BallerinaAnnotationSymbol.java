@@ -40,7 +40,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaAnnotationSymbol extends BallerinaSymbol implements AnnotationSymbol {
+public class BallerinaAnnotationSymbol extends BallerinaNamedSymbol implements AnnotationSymbol {
 
     private final List<Qualifier> qualifiers;
     private final TypeSymbol typeDescriptor;

@@ -17,6 +17,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -25,7 +26,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  *
  * @since 2.0.0
  */
-public class BallerinaTypeSymbol extends AbstractTypeSymbol {
+public class BallerinaTypeSymbol extends AbstractTypeSymbol implements Identifiable {
 
     private final String typeName;
 

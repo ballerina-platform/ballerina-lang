@@ -51,7 +51,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.is
  *
  * @since 2.0.0
  */
-public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
+public class BallerinaModule extends BallerinaNamedSymbol implements ModuleSymbol {
 
     private final CompilerContext context;
     private BPackageSymbol packageSymbol;
