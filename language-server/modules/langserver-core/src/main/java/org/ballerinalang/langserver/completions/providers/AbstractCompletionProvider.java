@@ -28,6 +28,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
+import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -50,6 +51,7 @@ import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBu
 import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.WorkerCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.XMLNSCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -66,6 +68,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
 
 /**
  * Interface for completion item providers.
@@ -166,7 +169,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             } else if (symbol.kind() == SymbolKind.WORKER) {
                 CompletionItem workerItem = WorkerCompletionItemBuilder.build((WorkerSymbol) symbol);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, workerItem));
+            } else if (symbol.kind() == XMLNS) {
+                CompletionItem xmlItem = XMLNSCompletionItemBuilder.build((XMLNamespaceSymbol) symbol);
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, xmlItem));
             }
+            
             processedSymbols.add(symbol);
         });
         return completionItems;

@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -100,5 +101,10 @@ public class MultipleLetClauseTest {
         Assert.assertEquals(teacher2.get("firstName").stringValue(), "Ranjan");
         Assert.assertEquals(teacher2.get("lastName").stringValue(), "Fonseka");
         Assert.assertEquals(teacher2.get("age").stringValue(), "30");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

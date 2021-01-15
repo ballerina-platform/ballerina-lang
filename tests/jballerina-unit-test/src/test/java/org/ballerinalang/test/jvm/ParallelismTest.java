@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -59,4 +60,8 @@ public class ParallelismTest {
         Assert.assertEquals(result[0].stringValue(), "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+    }
 }

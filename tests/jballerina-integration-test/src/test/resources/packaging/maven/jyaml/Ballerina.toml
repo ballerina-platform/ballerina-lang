@@ -1,14 +1,11 @@
-[project]
-org-name= "jo"
+[package]
+org= "jo"
+name="tests"
 version= "0.1.0"
 
 [dependencies]
 
-[platform]
-target = "java11"
-
-    [[platform.libraries]]
-    modules = ["jyaml"]
-    groupId = "org.yaml"
-    artifactId = "snakeyaml"
-    version = "1.26"
+[[platform.java11.dependency]]
+groupId = "org.yaml"
+artifactId = "snakeyaml"
+version = "1.26"

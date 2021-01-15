@@ -367,6 +367,7 @@ public class ParserTestUtils {
             case TEMPLATE_STRING:
             case DOCUMENTATION_DESCRIPTION:
             case DOCUMENTATION_STRING:
+            case CODE_DESCRIPTION:
                 return cleanupText(token.text());
             default:
                 return token.kind.toString();
@@ -1252,6 +1253,8 @@ public class ParserTestUtils {
                 return SyntaxKind.MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE;
             case "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE":
                 return SyntaxKind.MARKDOWN_DEPRECATION_DOCUMENTATION_LINE;
+            case "MARKDOWN_CODE_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_CODE_DOCUMENTATION_LINE;
             case "DOCUMENTATION_DESCRIPTION":
                 return SyntaxKind.DOCUMENTATION_DESCRIPTION;
             case "DOCUMENTATION_REFERENCE":
@@ -1264,6 +1267,8 @@ public class ParserTestUtils {
                 return SyntaxKind.DEPRECATION_LITERAL;
             case "DOCUMENTATION_STRING":
                 return SyntaxKind.DOCUMENTATION_STRING;
+            case "CODE_DESCRIPTION":
+                return SyntaxKind.CODE_DESCRIPTION;
 
             // Trivia
             case "EOF_TOKEN":

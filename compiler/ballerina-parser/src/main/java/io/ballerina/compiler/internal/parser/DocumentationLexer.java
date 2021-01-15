@@ -358,11 +358,11 @@ public class DocumentationLexer extends AbstractLexer {
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getDocumentationDescriptionToken() {
+    private STToken getDescriptionToken(SyntaxKind tokenKind) {
         STNode leadingTrivia = getLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createLiteralValueToken(SyntaxKind.DOCUMENTATION_DESCRIPTION, lexeme, leadingTrivia,
+        return STNodeFactory.createLiteralValueToken(tokenKind, lexeme, leadingTrivia,
                 trailingTrivia);
     }
 
@@ -476,6 +476,7 @@ public class DocumentationLexer extends AbstractLexer {
             return getDocumentationSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
         }
 
+        boolean hasCodeContent = false;
         while (!reader.isEOF()) {
             switch (nextChar) {
                 case LexerTerminals.NEWLINE:
@@ -485,7 +486,9 @@ public class DocumentationLexer extends AbstractLexer {
                 case LexerTerminals.BACKTICK:
                     if (reader.peek(1) != LexerTerminals.BACKTICK) {
                         break;
-                    } else if (reader.peek(2) != LexerTerminals.BACKTICK) {
+                    }
+
+                    if (reader.peek(2) != LexerTerminals.BACKTICK) {
                         // Double backtick detected
                         reader.advance(2);
                         processDocumentationCodeContent(false);
@@ -494,6 +497,7 @@ public class DocumentationLexer extends AbstractLexer {
                         reader.advance(3);
                         processDocumentationCodeContent(true);
                     }
+                    hasCodeContent = true;
                     nextChar = peek();
                     continue;
                 default:
@@ -516,7 +520,11 @@ public class DocumentationLexer extends AbstractLexer {
             // Reaching here means, first immediate character itself belong to a documentation reference
             return readDocumentationReferenceTypeToken();
         }
-        return getDocumentationDescriptionToken();
+
+        SyntaxKind tokenKind = hasCodeContent ?
+                SyntaxKind.CODE_DESCRIPTION : SyntaxKind.DOCUMENTATION_DESCRIPTION;
+
+        return getDescriptionToken(tokenKind);
     }
 
     private void processDocumentationCodeContent(boolean isTripleBacktick) {

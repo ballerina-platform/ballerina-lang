@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -122,5 +123,10 @@ public class BByteValueNegativeTest {
         Assert.assertTrue(returnValue[0] instanceof BError);
         Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {\"message\":" +
                 "\"'int' value '12,345' cannot be converted to 'byte'\"}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

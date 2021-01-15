@@ -148,7 +148,7 @@ public class TransactionResourceManager {
      *
      * @return boolean whether the atomikos transaction manager should be enabled or not
      */
-    private boolean getTransactionManagerEnabled() {
+    public boolean getTransactionManagerEnabled() {
         boolean transactionManagerEnabled = CONFIG_REGISTRY.getAsBoolean(CONFIG_TRANSACTION_MANAGER_ENABLED);
         return transactionManagerEnabled;
     }
@@ -264,6 +264,7 @@ public class TransactionResourceManager {
      */
     public boolean notifyCommit(String transactionId, String transactionBlockId) {
         Strand strand = Scheduler.getStrand();
+        endXATransaction(transactionId, transactionBlockId);
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean commitSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -390,8 +391,7 @@ public class TransactionResourceManager {
                     trx = userTransactionManager.getTransaction();
                     trxRegistry.put(combinedId, trx);
                 }
-                trx.enlistResource(xaResource);
-            } catch (RollbackException | SystemException | NotSupportedException e) {
+            } catch (SystemException | NotSupportedException e) {
                 log.error("error in initiating transaction " + transactionId + ":" + e.getMessage(), e);
             }
         } else {

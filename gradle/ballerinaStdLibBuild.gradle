@@ -146,6 +146,8 @@ ext {
         modName = 'module1'
     } else if (project.projectDir.name == 'observability-test-utils'){
         modName = 'testobserve'
+    } else if (project.projectDir.name == 'observe-internal') {
+        modName = 'observe'
     } else {
         modName = project.projectDir.name
     }

@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -61,5 +62,12 @@ public class RetryStmtTest {
         BAssertUtil.validateError(retryStmtNegative, index++, "no implementation found for the function " +
                 "'shouldRetry' of non-abstract object 'CustomRetryManager'", 14, 10);
         BAssertUtil.validateError(retryStmtNegative, index++, "unreachable code", 25, 5);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        programFile = null;
+        managerNegative = null;
+        retryStmtNegative = null;
     }
 }

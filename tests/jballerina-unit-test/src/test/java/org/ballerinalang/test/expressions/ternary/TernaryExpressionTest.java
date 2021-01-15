@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -344,5 +345,10 @@ public class TernaryExpressionTest {
     public void testErrorInTernary() {
         BValue[] results = BRunUtil.invoke(compileResult, "testErrorInTernary");
         Assert.assertEquals(((BInteger) results[0]).intValue(), 7);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

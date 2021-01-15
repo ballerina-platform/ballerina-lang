@@ -56,6 +56,7 @@ public class DocumentationParser extends AbstractParser {
      *          | DeprecationDocumentationLine
      *          | ParameterDocumentationLine
      *          | ReturnParameterDocumentationLine
+     *          | DocumentationCodeLine
      *          | InvalidDocumentationLine )
      * </code>
      * <p>
@@ -107,7 +108,7 @@ public class DocumentationParser extends AbstractParser {
     }
 
     /**
-     * Parse documentation line and reference documentation line.
+     * Parse documentation line, reference documentation line and code documentation line.
      *
      * @param hashToken Hash token at the beginning of the line
      * @return Parsed node
@@ -124,6 +125,8 @@ public class DocumentationParser extends AbstractParser {
                 STNode docElement = docElements.get(0);
                 if (docElement.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
                     return createMarkdownDocumentationLineNode(hashToken, docElementList);
+                } else if (docElement.kind == SyntaxKind.CODE_DESCRIPTION) {
+                    return createMarkdownCodeDocumentationLineNode(hashToken, docElementList);
                 }
                 // Else fall through
             default:
@@ -136,9 +139,8 @@ public class DocumentationParser extends AbstractParser {
         STNode docElement;
         SyntaxKind nextTokenKind = peek().kind;
         while (!isEndOfIntermediateDocumentation(nextTokenKind)) {
-            if (nextTokenKind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
+            if (nextTokenKind == SyntaxKind.DOCUMENTATION_DESCRIPTION || nextTokenKind == SyntaxKind.CODE_DESCRIPTION) {
                 docElement = consume();
-
             } else {
                 docElement = parseDocumentationReference();
             }
@@ -214,6 +216,7 @@ public class DocumentationParser extends AbstractParser {
             case BACKTICK_CONTENT:
             case RETURN_KEYWORD:
             case DEPRECATION_LITERAL:
+            case CODE_DESCRIPTION:
                 return false;
             default:
                 return !isDocumentReferenceType(kind);
@@ -416,6 +419,11 @@ public class DocumentationParser extends AbstractParser {
 
     private STNode createMarkdownDocumentationLineNode(STNode hashToken, STNode documentationElements) {
         return STNodeFactory.createMarkdownDocumentationLineNode(SyntaxKind.MARKDOWN_DOCUMENTATION_LINE, hashToken,
+                documentationElements);
+    }
+
+    private STNode createMarkdownCodeDocumentationLineNode(STNode hashToken, STNode documentationElements) {
+        return STNodeFactory.createMarkdownDocumentationLineNode(SyntaxKind.MARKDOWN_CODE_DOCUMENTATION_LINE, hashToken,
                 documentationElements);
     }
 

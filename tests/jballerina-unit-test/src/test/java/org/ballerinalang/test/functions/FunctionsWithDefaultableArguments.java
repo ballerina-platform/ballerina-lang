@@ -31,6 +31,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -229,5 +230,10 @@ public class FunctionsWithDefaultableArguments {
         Assert.assertTrue(returns[0] instanceof BString);
 
         Assert.assertEquals(returns[0].stringValue(), "hellohelloasyncworldworldasyncsamplevalue");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -15,19 +15,14 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import com.google.gson.JsonObject;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.eclipse.lsp4j.Range;
@@ -59,18 +54,17 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
     @Override
     public Object execute(ExecuteCommandContext ctx) throws LSCommandExecutorException {
         String documentUri = "";
-        int line = 0;
+        Range nodeRange = null;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
-        for (Object arg : ctx.getArguments()) {
-            String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
-            String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
+        for (CommandArgument arg : ctx.getArguments()) {
+            String argKey = arg.key();
             switch (argKey) {
                 case CommandConstants.ARG_KEY_DOC_URI:
-                    documentUri = argVal;
+                    documentUri = arg.valueAs(String.class);
                     textDocumentIdentifier.setUri(documentUri);
                     break;
-                case CommandConstants.ARG_KEY_NODE_LINE:
-                    line = Integer.parseInt(argVal);
+                case CommandConstants.ARG_KEY_NODE_RANGE:
+                    nodeRange = arg.valueAs(Range.class);
                     break;
                 default:
                     break;
@@ -78,33 +72,21 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
         }
 
         Optional<Path> filePath = CommonUtil.getPathFromURI(documentUri);
-        if (filePath.isEmpty()) {
+        if (filePath.isEmpty() || nodeRange == null) {
             return Collections.emptyList();
         }
+
         SyntaxTree syntaxTree = ctx.workspace().syntaxTree(filePath.get()).orElseThrow();
-        TextDocument textDocument = syntaxTree.textDocument();
-        int txtPos = textDocument.textPositionFrom(LinePosition.from(line, 1));
-        NonTerminalNode node = ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
-        Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(getDocumentableNode(node),
-                                                                                    false);
+        NonTerminalNode node = CommonUtil.findNode(nodeRange, syntaxTree);
+        Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(node);
         if (docAttachmentInfo.isPresent()) {
             DocAttachmentInfo docs = docAttachmentInfo.get();
             Range range = new Range(docs.getDocStartPos(), docs.getDocStartPos());
             LanguageClient languageClient = ctx.getLanguageClient();
-            return applySingleTextEdit(docs.getDocAttachment(), range, textDocumentIdentifier, languageClient);
+            return applySingleTextEdit(docs.getDocumentationString(), range, textDocumentIdentifier, languageClient);
         }
-        
-        return Collections.emptyList();
-    }
 
-    private NonTerminalNode getDocumentableNode(NonTerminalNode node) {
-        while (node.parent().kind() != SyntaxKind.MODULE_PART &&
-                //node.parent().kind() != SyntaxKind.SERVICE_BODY &&
-                node.parent().kind() != SyntaxKind.OBJECT_TYPE_DESC &&
-                node.parent().kind() != SyntaxKind.CLASS_DEFINITION) {
-            node = node.parent();
-        }
-        return node;
+        return Collections.emptyList();
     }
 
     /**
