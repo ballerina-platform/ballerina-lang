@@ -20,8 +20,10 @@ package org.ballerinalang.bindgen.model;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setExceptionList;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTRUCTOR_INTEROP_TYPE;
@@ -34,6 +36,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
  */
 public class JConstructor implements Cloneable {
 
+    private Class parentClass;
     private String interopType;
     private String exceptionName;
     private String shortClassName;
@@ -49,8 +52,10 @@ public class JConstructor implements Cloneable {
 
     private List<JParameter> parameters = new ArrayList<>();
     private StringBuilder paramTypes = new StringBuilder();
+    private Set<String> importedPackages = new HashSet<>();
 
     JConstructor(Constructor c) {
+        parentClass = c.getDeclaringClass();
         shortClassName = getAlias(c.getDeclaringClass());
         constructorName = c.getName();
         interopType = CONSTRUCTOR_INTEROP_TYPE;
@@ -58,8 +63,9 @@ public class JConstructor implements Cloneable {
 
         // Loop through the parameters of the constructor to populate a list.
         for (Parameter param : c.getParameters()) {
-            JParameter parameter = new JParameter(param);
+            JParameter parameter = new JParameter(param, parentClass);
             parameters.add(parameter);
+            importedPackages.add(param.getType().getPackageName());
             paramTypes.append(getAlias(param.getType()).toLowerCase(Locale.ENGLISH));
             if (parameter.getIsPrimitiveArray() || param.getType().isArray()) {
                 javaArraysModule = true;
@@ -118,5 +124,9 @@ public class JConstructor implements Cloneable {
 
     boolean requireJavaArrays() {
         return javaArraysModule;
+    }
+
+    Set<String> getImportedPackages() {
+        return importedPackages;
     }
 }

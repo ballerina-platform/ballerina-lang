@@ -34,6 +34,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -237,5 +238,10 @@ public class StringTest {
         validateError(multilineLiterals, indx++, "missing double quote", 19, 11);
         validateError(multilineLiterals, indx++, "missing semicolon token", 20, 1);
         Assert.assertEquals(multilineLiterals.getErrorCount(), indx);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

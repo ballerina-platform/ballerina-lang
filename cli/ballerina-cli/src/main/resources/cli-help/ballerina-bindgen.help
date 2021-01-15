@@ -4,7 +4,7 @@ NAME
 SYNOPSIS
        ballerina bindgen [(-cp|--classpath) <classpath>...]
                          [(-mvn|--maven) <groupId>:<artifactId>:<version>]
-                         [(-o|--output) <output>]
+                         [(-o|--output) <output> | (-m|--modules)]
                          [--public]
                          (<class-name>...)
 
@@ -33,6 +33,11 @@ OPTIONS
        (-o|--output) <output>
            Location of the generated Ballerina bridge code. If this path is not specified,
            the output will be written onto the same directory from where the command is run.
+
+       (-m|--modules)
+           The flag that can be used to generate separate Ballerina module mappings for each
+           Java package inside a project, instead of generating all the bindings inside a
+           single output directory.
 
        --public
            Set the visibility modifier of generated binding objects to public.

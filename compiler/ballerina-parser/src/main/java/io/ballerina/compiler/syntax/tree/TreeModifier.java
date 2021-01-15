@@ -2939,7 +2939,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public FieldMatchPatternNode transform(
             FieldMatchPatternNode fieldMatchPatternNode) {
-        SimpleNameReferenceNode fieldNameNode =
+        IdentifierToken fieldNameNode =
                 modifyNode(fieldMatchPatternNode.fieldNameNode());
         Token colonToken =
                 modifyToken(fieldMatchPatternNode.colonToken());

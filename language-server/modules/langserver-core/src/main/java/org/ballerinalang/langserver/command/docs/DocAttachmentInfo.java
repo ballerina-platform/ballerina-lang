@@ -100,6 +100,6 @@ public class DocAttachmentInfo implements Documentation {
             result += String.format("%s# + return - %s", offsetStr, this.returnDesc.trim());
         }
 
-        return result.trim();
+        return result.trim() + CommonUtil.MD_LINE_SEPARATOR;
     }
 }

@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -798,5 +799,10 @@ public class BByteValueTest {
         BRunUtil.invoke(result, "testByteReturnAsIntInLambda1");
         BRunUtil.invoke(result, "testByteReturnAsIntInLambda2");
         BRunUtil.invoke(result, "testByteReturnAsIntInLambda3");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -106,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessibleExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -2038,7 +2039,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(syncSendExpr.expr, this.env);
 
         // Validate if the send expression type is anydata
-        if (!syncSendExpr.expr.type.isAnydata()) {
+        if (!types.isAssignable(syncSendExpr.expr.type, symTable.cloneableType)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_SEND,
                     syncSendExpr.expr.type);
         }
@@ -2462,11 +2463,21 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        // First analyze the variable reference expression.
-        ((BLangVariableReference) fieldAccessExpr.expr).lhsVar = fieldAccessExpr.lhsVar;
-        ((BLangVariableReference) fieldAccessExpr.expr).compoundAssignmentLhsVar =
+        // First analyze the accessible expression.
+        BLangExpression containerExpression = fieldAccessExpr.expr;
+
+        // Container expression must be a accessible expression.
+        if (!(containerExpression instanceof BLangAccessibleExpression)) {
+            dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS,
+                    containerExpression);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        ((BLangAccessibleExpression) containerExpression).lhsVar = fieldAccessExpr.lhsVar;
+        ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
                 fieldAccessExpr.compoundAssignmentLhsVar;
-        BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
+        BType varRefType = getTypeOfExprInFieldAccess(containerExpression);
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
         if (fieldAccessExpr instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess
@@ -2588,8 +2599,17 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = symTable.semanticError;
             return;
         }
-        ((BLangVariableReference) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
-        ((BLangVariableReference) containerExpression).compoundAssignmentLhsVar =
+
+        // Container expression must be a accessible expression.
+        if (!(containerExpression instanceof BLangAccessibleExpression)) {
+            dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_INDEX_ACCESS,
+                    containerExpression);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        ((BLangAccessibleExpression) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
+        ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
                 indexBasedAccessExpr.compoundAssignmentLhsVar;
         checkExpr(containerExpression, this.env, symTable.noType);
 
@@ -5242,7 +5262,7 @@ public class TypeChecker extends BLangNodeVisitor {
     // - foo->bar();
     // - start foo.bar(); or start foo->bar()
     private void checkActionInvocation(BLangInvocation.BLangActionInvocation aInv, BObjectType expType) {
-        BLangVariableReference varRef = (BLangVariableReference) aInv.expr;
+        BLangAccessExpression varRef = (BLangAccessExpression) aInv.expr;
 
         if (((varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) && !aInv.async) {
             dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION, varRef.type);
@@ -5988,7 +6008,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return BUnionType.create(null, actualType, symTable.nilType);
     }
 
-    private BType checkRecordRequiredFieldAccess(BLangVariableReference varReferExpr, Name fieldName,
+    private BType checkRecordRequiredFieldAccess(BLangAccessExpression varReferExpr, Name fieldName,
                                                  BRecordType recordType) {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
 
@@ -6001,7 +6021,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return fieldSymbol.type;
     }
 
-    private BType checkRecordOptionalFieldAccess(BLangVariableReference varReferExpr, Name fieldName,
+    private BType checkRecordOptionalFieldAccess(BLangAccessExpression varReferExpr, Name fieldName,
                                                  BRecordType recordType) {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
 
@@ -6014,7 +6034,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return fieldSymbol.type;
     }
 
-    private BType checkRecordRestFieldAccess(BLangVariableReference varReferExpr, Name fieldName,
+    private BType checkRecordRestFieldAccess(BLangAccessExpression varReferExpr, Name fieldName,
                                              BRecordType recordType) {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
 
@@ -6476,6 +6496,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 return ((BMapType) exprType).constraint;
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) exprType;
+                if (types.isSameType(symTable.jsonType, unionType)) {
+                    return symTable.jsonType;
+                }
                 LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
                 unionType.getMemberTypes().forEach(bType -> memberTypes.add(getLaxFieldAccessType(bType)));
                 return memberTypes.size() == 1 ? memberTypes.iterator().next() : BUnionType.create(null, memberTypes);

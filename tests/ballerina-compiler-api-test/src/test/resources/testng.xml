@@ -24,6 +24,7 @@
             <class name="io.ballerina.semantic.api.test.AnnotationsTest" />
             <class name="io.ballerina.semantic.api.test.ClassSymbolTest" />
             <class name="io.ballerina.semantic.api.test.DiagnosticsTest" />
+            <class name="io.ballerina.semantic.api.test.DocumentationTest" />
             <class name="io.ballerina.semantic.api.test.ExpressionTypeTest" />
             <class name="io.ballerina.semantic.api.test.LangLibFunctionTest" />
             <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest" />
@@ -33,6 +34,7 @@
             <class name="io.ballerina.semantic.api.test.TestSourcesTest" />
             <class name="io.ballerina.semantic.api.test.SymbolLookupTest" />
             <class name="io.ballerina.semantic.api.test.SymbolPositionTest" />
+            <class name="io.ballerina.semantic.api.test.TypeCacheTest" />
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
             <class name="io.ballerina.semantic.api.test.ServiceSemanticAPITest" />
