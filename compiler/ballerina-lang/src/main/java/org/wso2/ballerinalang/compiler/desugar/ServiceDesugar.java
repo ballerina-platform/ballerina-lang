@@ -280,7 +280,8 @@ public class ServiceDesugar {
                     .createBeginParticipantInvocation(functionNode.pos));
             ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
         }
-        if (httpFiltersDesugar.isHttpPackage(expressionTypes)) {
+        if (httpFiltersDesugar.isHttpPackage(expressionTypes) &&
+                httpFiltersDesugar.isRequiredParamsAvailable(functionNode)) {
             httpFiltersDesugar.addFilterStatements(functionNode, env);
 //            httpFiltersDesugar.addOrderParamConfig(functionNode, env);
         }
