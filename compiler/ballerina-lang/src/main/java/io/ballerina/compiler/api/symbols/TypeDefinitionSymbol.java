@@ -22,7 +22,7 @@ package io.ballerina.compiler.api.symbols;
  *
  * @since 2.0.0
  */
-public interface TypeDefinitionSymbol extends Symbol, Qualifiable, Deprecatable, Annotatable {
+public interface TypeDefinitionSymbol extends Symbol, Qualifiable, Deprecatable, Annotatable, Documentable {
 
     /**
      * Get the module qualified name.

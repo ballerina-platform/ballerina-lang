@@ -27,7 +27,7 @@ function before() {
 
 // 2nd function
 @test:Config {
-    dependsOn:["testWithBefore1"]
+    dependsOn: [testWithBefore1]
 }
 public function testWithBefore2() {
     testStr = testStr + "test2";
@@ -35,8 +35,8 @@ public function testWithBefore2() {
 
 // 1st function
 @test:Config {
-    before: "before",
-    dependsOn: ["test4"] // added to preserve order of test execution 
+    before: before,
+    dependsOn: [test4] // added to preserve order of test execution
 }
 public function testWithBefore1() {
     testStr = testStr + "test1";
@@ -44,7 +44,7 @@ public function testWithBefore1() {
 
 // 3rd function
 @test:Config {
-    dependsOn:["testWithBefore2"]
+    dependsOn: [testWithBefore2]
 }
 public function testWithBefore3() {
     testStr = testStr + "test3";
@@ -52,7 +52,7 @@ public function testWithBefore3() {
 
 // Last function
 @test:Config {
-    dependsOn:["testWithBefore3"]
+    dependsOn: [testWithBefore3]
 }
 public function testWithBefore4() {
     test:assertEquals(testStr, "beforetest1test2test3", msg = "Order is not correct");

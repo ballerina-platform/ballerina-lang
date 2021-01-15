@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -206,12 +207,21 @@ public class MatchStmtListMatchPatternTest {
 
     @Test(description = "test negative semantics")
     public void testNegativeSemantics() {
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 2);
-
         int i = -1;
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "same variable cannot repeat in a match pattern", 20,
                 17);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 20, 21);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "same variable cannot repeat in a match pattern", 21,
                 17);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 21, 22);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
+        resultSemanticsNegative = null;
+        restMatchPatternResult = null;
     }
 }

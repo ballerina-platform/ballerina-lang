@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -240,6 +241,21 @@ public class SymbolEnv {
         }
 
         SymbolEnv symbolEnv = new SymbolEnv(block, scope);
+        env.copyTo(symbolEnv);
+        symbolEnv.envCount = env.envCount + 1;
+        symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createPatternEnv(BLangMatchPattern pattern, SymbolEnv env) {
+        // Create a scope for the block node if one doesn't exists
+        Scope scope = pattern.scope;
+        if (scope == null) {
+            scope = new Scope(env.scope.owner);
+            pattern.scope = scope;
+        }
+
+        SymbolEnv symbolEnv = new SymbolEnv(pattern, scope);
         env.copyTo(symbolEnv);
         symbolEnv.envCount = env.envCount + 1;
         symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;

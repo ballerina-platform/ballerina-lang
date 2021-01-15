@@ -42,6 +42,7 @@ public class BindgenConstants {
     public static final String USER_DIR = "user.dir";
     public static final String CONSTANTS_FILE_NAME = "Constants.bal";
     public static final String ARRAY_BRACKETS = "[]";
+    public static final String MODULES_DIR = "modules";
     static final String TARGET_DIR = "target";
     static final String MVN_REPO = "platform-libs";
     static final String FILE_SEPARATOR = "file.separator";

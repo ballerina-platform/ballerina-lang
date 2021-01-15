@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectUtils.checkReadPermission;
 
 /**
  * Contains a set of utility methods that create an in-memory representation of a Ballerina project directory.
@@ -178,10 +179,7 @@ public class ProjectFiles {
             throw new ProjectException("Provided path is already within a Ballerina package: " + projectDirPath);
         }
 
-        if (!projectDirPath.toFile().canRead() || !projectDirPath.toFile().canWrite() ||
-                !projectDirPath.toFile().canExecute()) {
-            throw new ProjectException("Insufficient privileges to path: " + projectDirPath);
-        }
+        checkReadPermission(projectDirPath);
     }
 
     public static void validateSingleFileProjectFilePath(Path filePath) {
@@ -209,6 +207,7 @@ public class ProjectFiles {
                 }
             }
         }
+        checkReadPermission(filePath);
     }
 
     public static void validateBalrProjectPath(Path balrPath) {

@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -100,5 +101,10 @@ public class JavaCastTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0].stringValue().contains("{ballerina/java} Error while retrieving details of " +
                 "the `@java:Binding` annotation from `Object2` object: java.lang.NullPointerException"));
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

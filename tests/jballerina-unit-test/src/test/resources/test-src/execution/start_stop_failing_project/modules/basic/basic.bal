@@ -29,18 +29,18 @@ public class TestListener {
     }
 
     public function 'start() returns error? {
-        println("basic:TestListener listener __start called, service name - " + self.name);
+        println("basic:TestListener listener start called, service name - " + self.name);
         if (self.name == "dependent") {
-            println("listener __start panicked for service name - " + self.name);
+            println("listener start panicked for service name - " + self.name);
             error sampleErr = error("panicked while starting module 'dependent'");
             panic sampleErr;
         }
     }
 
     public function gracefulStop() returns error? {
-        println("basic:TestListener listener __gracefulStop called, service name - " + self.name);
+        println("basic:TestListener listener gracefulStop called, service name - " + self.name);
         if (self.name == "dependent") {
-            println("listener __gracefulStop panicked, service name - " + self.name);
+            println("listener gracefulStop panicked, service name - " + self.name);
             error sampleErr = error("panicked while stopping module 'dependent'");
             panic sampleErr;
         }
@@ -48,16 +48,16 @@ public class TestListener {
     }
 
     public function immediateStop() returns error? {
-        println("basic:TestListener listener __immediateStop called, service name - " + self.name);
+        println("basic:TestListener listener immediateStop called, service name - " + self.name);
         return ();
     }
 
     public function attach(service object {} s, string[]? name) returns error? {
-        println("basic:TestListener listener __attach called, service name - " + self.name);
+        println("basic:TestListener listener attach called, service name - " + self.name);
     }
 
     public function detach(service object {} s) returns error? {
-        println("basic:TestListener listener __detach called, service name - " + self.name);
+        println("basic:TestListener listener detach called, service name - " + self.name);
     }
 }
 

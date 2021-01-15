@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -30,6 +31,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a ballerina type definition implementation.
@@ -40,6 +42,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
 
     private final List<Qualifier> qualifiers;
     private final TypeSymbol typeDescriptor;
+    private final Documentation docAttachment;
     private final boolean deprecated;
     private final boolean readonly;
 
@@ -51,6 +54,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
         super(name, moduleID, SymbolKind.TYPE_DEFINITION, bSymbol);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.typeDescriptor = typeDescriptor;
+        this.docAttachment = getDocAttachment(bSymbol);
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
         this.readonly = Symbols.isFlagOn(bSymbol.flags, Flags.READONLY);
     }
@@ -83,6 +87,11 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
     @Override
     public List<AnnotationSymbol> annotations() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Optional<Documentation> documentation() {
+        return Optional.ofNullable(this.docAttachment);
     }
 
     /**

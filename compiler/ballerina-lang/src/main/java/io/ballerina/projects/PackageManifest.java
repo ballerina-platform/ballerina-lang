@@ -123,13 +123,31 @@ public class PackageManifest {
     public static class Platform {
         // We could eventually add more things to the platform
         private final List<Map<String, Object>> dependencies;
+        private final List<Map<String, Object>> repositories;
 
         public Platform(List<Map<String, Object>> dependencies) {
-            this.dependencies = Collections.unmodifiableList(dependencies);
+            this(dependencies, Collections.emptyList());
+        }
+
+        public Platform(List<Map<String, Object>> dependencies, List<Map<String, Object>> repositories) {
+            if (dependencies != null) {
+                this.dependencies = Collections.unmodifiableList(dependencies);
+            } else {
+                this.dependencies = Collections.emptyList();
+            }
+            if (repositories != null) {
+                this.repositories = Collections.unmodifiableList(repositories);
+            } else {
+                this.repositories = Collections.emptyList();
+            }
         }
 
         public List<Map<String, Object>> dependencies() {
             return dependencies;
+        }
+
+        public List<Map<String, Object>> repositories() {
+            return repositories;
         }
     }
 }

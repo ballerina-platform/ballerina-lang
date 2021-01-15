@@ -21,6 +21,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -45,5 +46,10 @@ public class TopLevelNodesTest {
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Person'", 4, 13);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'testString'", 9, 8);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Company'", 11, 1);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

@@ -1,4 +1,5 @@
 import ballerina/lang.'error;
+import ballerina/lang.'value;
 
 function errorConstructReasonTest() returns [error, error, error, string, any, string] {
     error er1 = error("error1");
@@ -154,7 +155,7 @@ function testGenericErrorWithDetailRecord() returns boolean {
     int detailStatusCode = 123;
     error e = error(reason, message = detailMessage, statusCode = detailStatusCode);
     string errReason = e.message();
-    map<anydata|readonly> errDetail = e.detail();
+    map<value:Cloneable> errDetail = e.detail();
     return errReason == reason && <string> checkpanic errDetail.get("message") == detailMessage &&
             <int> checkpanic errDetail.get("statusCode") == detailStatusCode;
 }
@@ -201,7 +202,7 @@ function testErrorConstrWithConstLiteralForConstReason() returns error {
 
 function testUnspecifiedErrorDetailFrozenness() returns boolean {
     error e1 = error("reason 1");
-    map<anydata|readonly> m1 = e1.detail();
+    map<value:Cloneable> m1 = e1.detail();
     error? err = trap addValueToMap(m1, "k", 1);
     return err is error && err.message() == "{ballerina/lang.map}InvalidUpdate";
 }

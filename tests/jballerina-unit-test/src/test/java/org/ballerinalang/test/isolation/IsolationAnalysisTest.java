@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -225,5 +226,10 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_IN_OBJECT_FIELD_DEFAULT, 68, 14);
         validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_OBJECT_FIELD_DEFAULT, 74, 12);
         Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

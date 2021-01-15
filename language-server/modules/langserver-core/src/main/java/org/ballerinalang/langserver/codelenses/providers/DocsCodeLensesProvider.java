@@ -24,16 +24,17 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Document;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.command.docs.DocumentationGenerator;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
 import java.util.ArrayList;
@@ -50,13 +51,11 @@ import java.util.Optional;
 public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
     public DocsCodeLensesProvider() {
         super("docs.CodeLenses");
-        // TODO: Fix me
-//        LSClientConfigHolder.getInstance().register(new ClientConfigListener() {
-//            @Override
-//            public void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig) {
-//                isEnabled = newConfig.getCodeLens().getDocs().isEnabled();
-//            }
-//        });
+    }
+
+    @Override
+    public boolean isEnabled(LanguageServerContext serverContext) {
+        return LSClientConfigHolder.getInstance(serverContext).getConfig().getCodeLens().getDocs().isEnabled();
     }
 
     /**
@@ -72,8 +71,10 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
             return lenses;
         }
         for (ModuleMemberDeclarationNode member : ((ModulePartNode) document.get().syntaxTree().rootNode()).members()) {
-            Position nodeTopMostPos = null;
-            int line = 0;
+            if (DocumentationGenerator.hasDocs(member)) {
+                continue;
+            }
+            Range nodeRange = null;
             boolean showLens = false;
             switch (member.kind()) {
                 case FUNCTION_DEFINITION:
@@ -85,47 +86,26 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
                             break;
                         }
                     }
-                    nodeTopMostPos = CommonUtil.toRange(funcDef.lineRange()).getStart();
-                    line = nodeTopMostPos.getLine();
-                    if (funcDef.metadata().isPresent() && !funcDef.metadata().get().annotations().isEmpty()) {
-                        LineRange topAnnotRange = funcDef.metadata().get().annotations().get(0).lineRange();
-                        nodeTopMostPos = CommonUtil.toRange(topAnnotRange).getStart();
-                    }
+                    nodeRange = CommonUtil.toRange(funcDef.lineRange());
                     break;
                 case TYPE_DEFINITION:
                     TypeDefinitionNode typeDef = (TypeDefinitionNode) member;
                     showLens = typeDef.visibilityQualifier()
                             .map(s -> s.kind() == SyntaxKind.PUBLIC_KEYWORD)
                             .orElse(false);
-                    nodeTopMostPos = CommonUtil.toRange(typeDef.lineRange()).getStart();
-                    line = nodeTopMostPos.getLine();
-                    if (typeDef.metadata().isPresent() && !typeDef.metadata().get().annotations().isEmpty()) {
-                        LineRange topAnnotRange = typeDef.metadata().get().annotations().get(0).lineRange();
-                        nodeTopMostPos = CommonUtil.toRange(topAnnotRange).getStart();
-                    }
+                    nodeRange = CommonUtil.toRange(typeDef.lineRange());
                     break;
                 case CLASS_DEFINITION:
                     ClassDefinitionNode classDef = (ClassDefinitionNode) member;
                     showLens = classDef.visibilityQualifier()
                             .map(s -> s.kind() == SyntaxKind.PUBLIC_KEYWORD)
                             .orElse(false);
-                    nodeTopMostPos = CommonUtil.toRange(classDef.lineRange()).getStart();
-                    line = nodeTopMostPos.getLine();
-                    if (classDef.metadata().isPresent() && !classDef.metadata().get().annotations().isEmpty()) {
-                        LineRange topAnnotRange = classDef.metadata().get().annotations().get(0).lineRange();
-                        nodeTopMostPos = CommonUtil.toRange(topAnnotRange).getStart();
-                    }
+                    nodeRange = CommonUtil.toRange(classDef.lineRange());
                     break;
                 case SERVICE_DECLARATION:
                     ServiceDeclarationNode serviceDeclr = (ServiceDeclarationNode) member;
                     showLens = false;
-                    nodeTopMostPos = CommonUtil.toRange(serviceDeclr.lineRange()).getStart();
-                    line = nodeTopMostPos.getLine();
-                    if (serviceDeclr.metadata().isPresent() &&
-                            !serviceDeclr.metadata().get().annotations().isEmpty()) {
-                        LineRange topAnnotRange = serviceDeclr.metadata().get().annotations().get(0).lineRange();
-                        nodeTopMostPos = CommonUtil.toRange(topAnnotRange).getStart();
-                    }
+                    nodeRange = CommonUtil.toRange(serviceDeclr.lineRange());
                     break;
                 default:
                     break;
@@ -133,12 +113,12 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
             if (showLens) {
                 String documentUri = context.fileUri();
                 CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, documentUri);
-                CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_LINE,
-                        String.valueOf(line));
+                CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,
+                                                                 nodeRange);
                 List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
                 Command command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,
-                        AddDocumentationExecutor.COMMAND, args);
-                lenses.add(new CodeLens(new Range(nodeTopMostPos, nodeTopMostPos), command, null));
+                                              AddDocumentationExecutor.COMMAND, args);
+                lenses.add(new CodeLens(nodeRange, command, null));
             }
         }
 
