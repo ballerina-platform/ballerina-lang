@@ -42,7 +42,7 @@ function cleanup () {
 }
 
 @test:Config{
-    before: "init"
+    before: init
 }
 function testBefore () {
     test:assertTrue(i == 1, msg = "Expected i to be 1, but i = "+i.toString());
@@ -50,15 +50,15 @@ function testBefore () {
 }
 
 @test:Config{
-    before: "init", 
-    after: "cleanup"
+    before: init,
+    after: cleanup
 }
 function test1 () {
     test:assertTrue(i == 1, msg = "Expected i to be 1, but i = "+i.toString());
 }
 
 @test:Config{
-    dependsOn: ["test1"]
+    dependsOn: [test1]
 }
 function testAfter () {
     test:assertTrue(i == 0, msg = "Expected i to be 0, but i = "+i.toString());
@@ -66,7 +66,7 @@ function testAfter () {
 }
 
 @test:Config{
-    after: "cleanup"
+    after: cleanup
 }
 function test2 () {
     reset();
@@ -74,7 +74,7 @@ function test2 () {
 }
 
 @test:Config{
-    dependsOn: ["test2"]
+    dependsOn: [test2]
 }
 function testAfterAlone () {
     test:assertTrue(i == 0, msg = "Expected i to be 0, but i = "+i.toString());
@@ -92,7 +92,7 @@ function test4 () {
 }
 
 @test:Config{
-    dependsOn: ["test3", "test4", "test5"]
+    dependsOn: [test3, test4, test5]
 }
 function testDependsOn1 () {
     test:assertTrue(j == 3, msg = "Expected j to be 3, but j = " +j.toString());

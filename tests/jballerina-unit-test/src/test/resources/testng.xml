@@ -194,6 +194,7 @@
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementSyntaxErrorsTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.CaptureBindingPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtListMatchPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtMappingMatchPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtTypeNarrowingTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementOnFailTest"></class>
             <class name="org.ballerinalang.test.lock.LocksWithOnFailTest"></class>
@@ -240,11 +241,6 @@
                 <methods>
                     <exclude name="testParameterStatusWithNativeInvocations"/>
                     <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.documentation.ErrorsTest">
-                <methods>
-                    <exclude name="testErrorAsAType"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.bir.BirVariableOptimizationTest">

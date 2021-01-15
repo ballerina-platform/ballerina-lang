@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.bindgen.command.BindingsGenerator.getBalPackageName;
+import static org.ballerinalang.bindgen.command.BindingsGenerator.getModulesFlag;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.isDirectJavaClass;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setAllClasses;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ACCESS_FIELD;
@@ -54,13 +56,17 @@ public class JClass {
     private String packageName;
     private String accessModifier;
     private String shortClassName;
+    private String balPackageName;
+    private Class currentClass;
 
+    private boolean modulesFlag = false;
     private boolean isInterface = false;
     private boolean isDirectClass = false;
     private boolean isAbstract = false;
     private boolean importJavaArraysModule = false;
 
     private Set<String> superClasses = new HashSet<>();
+    private Set<String> importedPackages = new HashSet<>();
     private Set<String> superClassNames = new LinkedHashSet<>();
     private List<JField> fieldList = new ArrayList<>();
     private List<JMethod> methodList = new ArrayList<>();
@@ -69,12 +75,15 @@ public class JClass {
     private Map<String, Integer> overloadedMethods = new HashMap<>();
 
     public JClass(Class c) {
+        currentClass = c;
         className = c.getName();
         prefix = className.replace(".", "_").replace("$", "_");
         shortClassName = getAlias(c);
         packageName = c.getPackage().getName();
         shortClassName = getExceptionName(c, shortClassName);
         superClassNames.add(c.getName());
+        modulesFlag = getModulesFlag();
+        balPackageName = getBalPackageName();
 
         setAllClasses(shortClassName);
         if (c.isInterface()) {
@@ -105,6 +114,10 @@ public class JClass {
             populateMethodsInOrder(c);
             populateFields(c.getFields());
         }
+
+        if (modulesFlag) {
+            importedPackages.remove(c.getPackageName());
+        }
     }
 
     private void populateMethodsInOrder(Class c) {
@@ -118,7 +131,7 @@ public class JClass {
                 List<Method> methods = new ArrayList<>();
                 for (Map.Entry<Method, String> mapValue : methodClassMap.entrySet()) {
                     if (mapValue.getValue().equals(superclass)) {
-                        jMethods.add(new JMethod(mapValue.getKey()));
+                        jMethods.add(new JMethod(mapValue.getKey(), currentClass));
                         methods.add(mapValue.getKey());
                     }
                 }
@@ -159,6 +172,9 @@ public class JClass {
         int i = 1;
         for (Constructor constructor : constructors) {
             JConstructor jConstructor = new JConstructor(constructor);
+            if (modulesFlag) {
+                importedPackages.addAll(jConstructor.getImportedPackages());
+            }
             constructorList.add(jConstructor);
             if (jConstructor.requireJavaArrays()) {
                 importJavaArraysModule = true;
@@ -193,12 +209,15 @@ public class JClass {
     private void populateMethods(List<Method> declaredMethods) {
         for (Method method : declaredMethods) {
             if (isPublicMethod(method)) {
-                JMethod jMethod = new JMethod(method);
+                JMethod jMethod = new JMethod(method, currentClass);
                 jMethod.setShortClassName(shortClassName);
                 if (jMethod.requireJavaArrays()) {
                     importJavaArraysModule = true;
                 }
                 methodList.add(jMethod);
+                if (modulesFlag) {
+                    importedPackages.addAll(jMethod.getImportedPackages());
+                }
             }
         }
     }
@@ -220,6 +239,9 @@ public class JClass {
                 }
                 if (!isFinalField(field) && isPublicField(field)) {
                     fieldList.add(new JField(field, MUTATE_FIELD));
+                    if (modulesFlag) {
+                        importedPackages.add(field.getDeclaringClass().getPackageName());
+                    }
                 }
             }
         }

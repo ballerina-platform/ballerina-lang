@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
@@ -60,11 +59,10 @@ public class CodeActionRouter {
         Optional<NonTerminalNode> matchedNode = CodeActionUtil.getTopLevelNode(ctx.cursorPosition(), syntaxTree);
         CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(matchedNode.orElse(null));
         SemanticModel semanticModel = ctx.workspace().semanticModel(ctx.filePath()).orElseThrow();
-        String relPath = ctx.workspace().relativePath(ctx.filePath()).orElseThrow();
         if (matchedNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
             Range range = CommonUtil.toRange(matchedNode.get().lineRange());
             Node expressionNode = CodeActionUtil.largestExpressionNode(matchedNode.get(), range);
-            TypeSymbol matchedTypeSymbol = semanticModel.type(relPath, expressionNode.lineRange()).orElse(null);
+            TypeSymbol matchedTypeSymbol = semanticModel.type(expressionNode.lineRange()).orElse(null);
 
             PositionDetails posDetails = CodeActionPositionDetails.from(matchedNode.get(), null, matchedTypeSymbol);
             ctx.setPositionDetails(posDetails);
@@ -82,24 +80,25 @@ public class CodeActionRouter {
         }
 
         // Get available diagnostics based code-actions
-        List<Diagnostic> cursorDiagnostics = ctx.cursorDiagnostics();
-        if (cursorDiagnostics != null && !cursorDiagnostics.isEmpty()) {
-            for (Diagnostic diagnostic : cursorDiagnostics) {
-                PositionDetails positionDetails = computePositionDetails(diagnostic.getRange(), syntaxTree, ctx);
-                ctx.setPositionDetails(positionDetails);
-                codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx).forEach(provider -> {
-                    try {
-                        List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic, ctx);
-                        if (codeActionsOut != null) {
-                            codeActions.addAll(codeActionsOut);
+        ctx.allDiagnostics().stream().
+                filter(diag -> CommonUtil.isWithinRange(ctx.cursorPosition(),
+                                                        CommonUtil.toRange(diag.location().lineRange())))
+                .forEach(diagnostic -> {
+                    Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+                    PositionDetails positionDetails = computePositionDetails(range, syntaxTree, ctx);
+                    ctx.setPositionDetails(positionDetails);
+                    codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx).forEach(provider -> {
+                        try {
+                            List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic, ctx);
+                            if (codeActionsOut != null) {
+                                codeActions.addAll(codeActionsOut);
+                            }
+                        } catch (Exception e) {
+                            String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
+                            clientLogger.logError(msg, e, null, (Position) null);
                         }
-                    } catch (Exception e) {
-                        String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
-                        clientLogger.logError(msg, e, null, (Position) null);
-                    }
+                    });
                 });
-            }
-        }
         return codeActions;
     }
 }

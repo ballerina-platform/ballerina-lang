@@ -23,7 +23,6 @@ import org.ballerinalang.model.types.ValueType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
@@ -146,13 +145,5 @@ public class BType implements ValueType {
         public String toString() {
             return "(" + trueType + ", " + falseType + ")";
         }
-    }
-
-    public boolean isAnydata() {
-        return this.tag <= TypeTags.ANYDATA;
-    }
-
-    public boolean isPureType() {
-        return this.tag == TypeTags.ERROR || this.isAnydata();
     }
 }

@@ -21,7 +21,6 @@ import com.atomikos.icatch.jta.UserTransactionManager;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.config.ConfigRegistry;
@@ -149,7 +148,7 @@ public class TransactionResourceManager {
      *
      * @return boolean whether the atomikos transaction manager should be enabled or not
      */
-    private boolean getTransactionManagerEnabled() {
+    public boolean getTransactionManagerEnabled() {
         boolean transactionManagerEnabled = CONFIG_REGISTRY.getAsBoolean(CONFIG_TRANSACTION_MANAGER_ENABLED);
         return transactionManagerEnabled;
     }
@@ -265,6 +264,7 @@ public class TransactionResourceManager {
      */
     public boolean notifyCommit(String transactionId, String transactionBlockId) {
         Strand strand = Scheduler.getStrand();
+        endXATransaction(transactionId, transactionBlockId);
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean commitSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -391,8 +391,7 @@ public class TransactionResourceManager {
                     trx = userTransactionManager.getTransaction();
                     trxRegistry.put(combinedId, trx);
                 }
-                trx.enlistResource(xaResource);
-            } catch (RollbackException | SystemException | NotSupportedException e) {
+            } catch (SystemException | NotSupportedException e) {
                 log.error("error in initiating transaction " + transactionId + ":" + e.getMessage(), e);
             }
         } else {
@@ -543,11 +542,12 @@ public class TransactionResourceManager {
     private void invokeCommittedFunction(Strand strand, String transactionId, String transactionBlockId) {
         List<BFunctionPointer> fpValueList = committedFuncRegistry.get(transactionId);
         if (fpValueList != null) {
-            Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true };
-            AsyncUtils.invokeAndForgetFunctionPointerAsync(fpValueList, "trxCommit",
-                    COMMIT_METADATA, () -> args,
-                    result -> {
-                    }, Scheduler.getStrand().scheduler);
+            Object[] args = {strand, strand.currentTrxContext.getInfoRecord(), true};
+            for (int i = fpValueList.size(); i > 0; i--) {
+                BFunctionPointer fp = fpValueList.get(i - 1);
+                //TODO: Replace fp.getFunction().apply
+                fp.getFunction().apply(args);
+            }
         }
     }
 
@@ -556,10 +556,11 @@ public class TransactionResourceManager {
         //TODO: Need to pass the retryManager to get the willRetry value.
         if (fpValueList != null) {
             Object[] args = {strand, strand.currentTrxContext.getInfoRecord(), true, error, true, false, true};
-            AsyncUtils.invokeAndForgetFunctionPointerAsync(fpValueList, "trxAbort",
-                    COMMIT_METADATA, () -> args,
-                    result -> {
-                    }, Scheduler.getStrand().scheduler);
+            for (int i = fpValueList.size(); i > 0; i--) {
+                BFunctionPointer fp = fpValueList.get(i - 1);
+                //TODO: Replace fp.getFunction().apply
+                fp.getFunction().apply(args);
+            }
         }
     }
 
