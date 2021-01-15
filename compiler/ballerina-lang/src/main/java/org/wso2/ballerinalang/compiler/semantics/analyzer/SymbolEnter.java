@@ -2569,6 +2569,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         invokableSymbol.type = new BInvokableType(paramTypes, restType, invokableNode.returnTypeNode.type, null);
         invokableSymbol.type.tsymbol = functionTypeSymbol;
+        invokableSymbol.type.tsymbol.type = invokableSymbol.type;
     }
 
     private void defineSymbol(Location pos, BSymbol symbol) {
