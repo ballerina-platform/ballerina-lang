@@ -769,7 +769,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateWorkerAnnAttachments(varNode.expr);
 
-        if (isIgnoredOrEmpty(varNode)) {
+        if (this.symbolEnter.isIgnoredOrEmpty(varNode)) {
             // Fake symbol to prevent runtime failures down the line.
             varNode.symbol = new BVarSymbol(0, Names.IGNORE, env.enclPkg.packageID, symTable.anyType, env.scope.owner,
                                             varNode.pos, VIRTUAL);
@@ -1046,11 +1046,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 errorType.detailType = ((BErrorType) varNode.type).detailType;
             }
         }
-        if (!validateErrorVariable(varNode)) {
+
+        int ownerSymTag = env.scope.owner.tag;
+        // If this is a module error variable, checkTypeAndVarCountConsistency already done at symbolEnter.
+        if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
+                !(this.symbolEnter.symbolEnterAndValidateErrorVariable(varNode, env))) {
             varNode.type = symTable.semanticError;
             return;
         }
-        symbolEnter.defineNode(varNode, env);
+
+        if (varNode.type == symTable.semanticError) {
+            // This will return module error variables with type error
+            return;
+        }
+
+        varNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+            annotationAttachment.accept(this);
+        });
+
+        validateAnnotationAttachmentCount(varNode.annAttachments);
+
         if (varNode.expr == null) {
             // We have no rhs to do type checking.
             return;
@@ -1180,7 +1196,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     symResolver.resolveTypeNode(errorVariable.typeNode, env);
                 }
                 errorVariable.type = rhsType;
-                if (!validateErrorVariable(errorVariable)) {
+                if (!this.symbolEnter.symbolEnterAndValidateErrorVariable(errorVariable, env)) {
                     errorVariable.type = symTable.semanticError;
                     return;
                 }
@@ -1247,7 +1263,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 errorVariable.type = rhsType;
-                validateErrorVariable(errorVariable);
+                this.symbolEnter.validateErrorVariable(errorVariable, env);
                 recursivelySetFinalFlag(errorVariable);
                 break;
         }
@@ -1305,205 +1321,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         recursivelySetFinalFlag(bLangErrorDetailEntry.valueBindingPattern));
                 break;
         }
-    }
-
-    private boolean validateErrorVariable(BLangErrorVariable errorVariable) {
-        BErrorType errorType;
-        switch (errorVariable.type.tag) {
-            case TypeTags.UNION:
-                BUnionType unionType = ((BUnionType) errorVariable.type);
-                List<BErrorType> possibleTypes = unionType.getMemberTypes().stream()
-                        .filter(type -> TypeTags.ERROR == type.tag)
-                        .map(BErrorType.class::cast)
-                        .collect(Collectors.toList());
-                if (possibleTypes.isEmpty()) {
-                    dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN,
-                               errorVariable.type);
-                    return false;
-                }
-                if (possibleTypes.size() > 1) {
-                    LinkedHashSet<BType> detailType = new LinkedHashSet<>();
-                    for (BErrorType possibleErrType : possibleTypes) {
-                        detailType.add(possibleErrType.detailType);
-                    }
-                    BType errorDetailType = detailType.size() > 1
-                                    ? BUnionType.create(null, detailType)
-                                    : detailType.iterator().next();
-                    errorType = new BErrorType(null, errorDetailType);
-                } else {
-                    errorType = possibleTypes.get(0);
-                }
-                break;
-            case TypeTags.ERROR:
-                errorType = (BErrorType) errorVariable.type;
-                break;
-            default:
-                dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN, errorVariable.type);
-                return false;
-        }
-        errorVariable.type = errorType;
-
-        if (!errorVariable.isInMatchStmt) {
-            errorVariable.message.type = symTable.stringType;
-            errorVariable.message.accept(this);
-
-            if (errorVariable.cause != null) {
-                errorVariable.cause.type = symTable.errorOrNilType;
-                errorVariable.cause.accept(this);
-            }
-        }
-
-        if (errorVariable.detail == null || (errorVariable.detail.isEmpty()
-                && !isRestDetailBindingAvailable(errorVariable))) {
-            return validateErrorMessageMatchPatternSyntax(errorVariable);
-        }
-
-        if (errorType.detailType.getKind() == TypeKind.RECORD || errorType.detailType.getKind() == TypeKind.MAP) {
-            return validateErrorVariable(errorVariable, errorType);
-        } else if (errorType.detailType.getKind() == TypeKind.UNION) {
-            BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
-                                                                    env.enclPkg.packageID, symTable.errorType,
-                                                                    env.scope.owner, errorVariable.pos, SOURCE);
-            // TODO: detail type need to be a union representing all details of members of `errorType`
-            errorVariable.type = new BErrorType(errorTypeSymbol, symTable.detailType);
-            return validateErrorVariable(errorVariable);
-        }
-
-        if (isRestDetailBindingAvailable(errorVariable)) {
-            errorVariable.restDetail.type = symTable.detailType;
-            errorVariable.restDetail.accept(this);
-        }
-        return true;
-    }
-
-    private boolean validateErrorVariable(BLangErrorVariable errorVariable, BErrorType errorType) {
-        errorVariable.message.type = symTable.stringType;
-        errorVariable.message.accept(this);
-
-        BRecordType recordType = getDetailAsARecordType(errorType);
-        LinkedHashMap<String, BField> detailFields = recordType.fields;
-        Set<String> matchedDetailFields = new HashSet<>();
-        for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
-            String entryName = errorDetailEntry.key.getValue();
-            matchedDetailFields.add(entryName);
-            BField entryField = detailFields.get(entryName);
-
-            BLangVariable boundVar = errorDetailEntry.valueBindingPattern;
-            if (entryField != null) {
-                if ((entryField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL) {
-                    boundVar.type = BUnionType.create(null, entryField.type, symTable.nilType);
-                } else {
-                    boundVar.type = entryField.type;
-                }
-            } else {
-                if (recordType.sealed) {
-                    dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN,
-                               errorVariable.type);
-                    boundVar.type = symTable.semanticError;
-                    return false;
-                } else {
-                    boundVar.type = BUnionType.create(null, recordType.restFieldType, symTable.nilType);
-                }
-            }
-
-            boolean isIgnoredVar = boundVar.getKind() == NodeKind.VARIABLE
-                    && ((BLangSimpleVariable) boundVar).name.value.equals(Names.IGNORE.value);
-            if (!isIgnoredVar) {
-                boundVar.accept(this);
-            }
-        }
-
-        if (isRestDetailBindingAvailable(errorVariable)) {
-            // Type of rest pattern is a map type where constraint type is,
-            // union of keys whose values are not matched in error binding/match pattern.
-            BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE);
-            BType constraint = getRestMapConstraintType(detailFields, matchedDetailFields, recordType);
-            BMapType restType = new BMapType(TypeTags.MAP, constraint, typeSymbol);
-            typeSymbol.type = restType;
-            errorVariable.restDetail.type = restType;
-            errorVariable.restDetail.accept(this);
-        }
-        return true;
-    }
-
-    private BRecordType getDetailAsARecordType(BErrorType errorType) {
-        if (errorType.detailType.getKind() == TypeKind.RECORD) {
-            return (BRecordType) errorType.detailType;
-        }
-        BRecordType detailRecord = new BRecordType(null);
-        BMapType detailMap = (BMapType) errorType.detailType;
-        detailRecord.sealed = false;
-        detailRecord.restFieldType = detailMap.constraint;
-        return detailRecord;
-    }
-
-    private BType getRestMapConstraintType(Map<String, BField> errorDetailFields, Set<String> matchedDetailFields,
-                                           BRecordType recordType) {
-        BUnionType restUnionType = BUnionType.create(null);
-        if (!recordType.sealed) {
-            if (recordType.restFieldType.tag == TypeTags.UNION) {
-                BUnionType restFieldUnion = (BUnionType) recordType.restFieldType;
-                // This is to update type name for users to read easily the cyclic unions
-                if (restFieldUnion.isCyclic && errorDetailFields.entrySet().isEmpty()) {
-                    restUnionType.isCyclic = true;
-                    restUnionType.tsymbol = restFieldUnion.tsymbol;
-                }
-            } else {
-                restUnionType.add(recordType.restFieldType);
-            }
-        }
-        for (Map.Entry<String, BField> entry : errorDetailFields.entrySet()) {
-            if (!matchedDetailFields.contains(entry.getKey())) {
-                BType type = entry.getValue().getType();
-                if (!types.isAssignable(type, restUnionType)) {
-                    restUnionType.add(type);
-                }
-            }
-        }
-
-        Set<BType> memberTypes = restUnionType.getMemberTypes();
-        if (memberTypes.size() == 1) {
-            return memberTypes.iterator().next();
-        }
-
-        return restUnionType;
-    }
-
-    private boolean validateErrorMessageMatchPatternSyntax(BLangErrorVariable errorVariable) {
-        if (errorVariable.isInMatchStmt
-                && !errorVariable.reasonVarPrefixAvailable
-                && errorVariable.reasonMatchConst == null
-                && isReasonSpecified(errorVariable)) {
-
-            BSymbol reasonConst = symResolver.lookupSymbolInMainSpace(this.env.enclEnv,
-                    names.fromString(errorVariable.message.name.value));
-            if ((reasonConst.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
-                dlog.error(errorVariable.message.pos, DiagnosticErrorCode.INVALID_ERROR_REASON_BINDING_PATTERN,
-                        errorVariable.message.name);
-            } else {
-                dlog.error(errorVariable.message.pos, DiagnosticErrorCode.UNSUPPORTED_ERROR_REASON_CONST_MATCH);
-            }
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isReasonSpecified(BLangErrorVariable errorVariable) {
-        return !isIgnoredOrEmpty(errorVariable.message);
-    }
-
-    private boolean isIgnoredOrEmpty(BLangSimpleVariable varNode) {
-        return varNode.name.value.equals(Names.IGNORE.value) || varNode.name.value.equals("");
-    }
-
-    private boolean isRestDetailBindingAvailable(BLangErrorVariable errorVariable) {
-        return errorVariable.restDetail != null &&
-                !errorVariable.restDetail.name.value.equals(Names.IGNORE.value);
-    }
-
-    private BTypeSymbol createTypeSymbol(int type) {
-        return new BTypeSymbol(type, Flags.PUBLIC, Names.EMPTY, env.enclPkg.packageID,
-                               null, env.scope.owner, symTable.builtinPos, VIRTUAL);
     }
 
     // Statements
@@ -1919,7 +1736,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!(rhsErrorType.detailType.tag == TypeTags.RECORD || rhsErrorType.detailType.tag == TypeTags.MAP)) {
             return;
         }
-        BRecordType rhsDetailType = getDetailAsARecordType(rhsErrorType);
+        BRecordType rhsDetailType = this.symbolEnter.getDetailAsARecordType(rhsErrorType);
         Map<String, BField> fields = rhsDetailType.fields;
 
         BType wideType = interpolateWideType(rhsDetailType, lhsRef.detail);
