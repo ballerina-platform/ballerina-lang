@@ -28,6 +28,8 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
@@ -60,6 +62,8 @@ class AIDataMapperCodeActionUtil {
     private static final int HTTP_422_UN_PROCESSABLE_ENTITY = 422;
     private static final int HTTP_500_INTERNAL_SERVER_ERROR = 500;
     private static final int MAXIMUM_CACHE_SIZE = 100;
+    private static final int RIGHT_SYMBOL_INDEX = 1;
+    private static final int LEFT_SYMBOL_INDEX = 0;
     private static Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
 
@@ -93,26 +97,6 @@ class AIDataMapperCodeActionUtil {
         boolean foundErrorLeft = false;
         boolean foundErrorRight = false;
 
-        // If the project has multiple modules
-        if (foundTypeLeft.contains(":")) {
-            foundTypeLeft = foundTypeLeft.split(":")[foundTypeLeft.split(":").length - 1];
-            // If the check or checkpanic is to get the symbol name
-            if (foundTypeLeft.contains("|")) {
-                foundTypeLeft = foundTypeLeft.split("[|]")[0];
-                foundErrorLeft = true;
-            }
-        }
-
-        // If the project has multiple modules
-        if (foundTypeRight.contains(":")) {
-            foundTypeRight = foundTypeRight.split(":")[foundTypeRight.split(":").length - 1];
-            // If the function is returning an error need to get the symbol name
-            if (foundTypeRight.contains("|")) {
-                foundTypeRight = foundTypeRight.split("[|]")[0];
-                foundErrorRight = true;
-            }
-        }
-
         // If the check or checkpanic is to get the symbol name
         if (foundTypeLeft.contains("|")) {
             foundTypeLeft = foundTypeLeft.split("[(|]")[1];
@@ -130,13 +114,10 @@ class AIDataMapperCodeActionUtil {
 
         // To restrict the code action from appearing for handled cases.
         List<Symbol> fileContentSymbols = semanticModel.moduleLevelSymbols();
-        String finalFoundTypeLeft = foundTypeLeft;
-        boolean foundLeft = fileContentSymbols.stream().anyMatch(p -> p.name().contains(finalFoundTypeLeft));
-        String finalFoundTypeRight = foundTypeRight;
-        boolean foundRight = fileContentSymbols.stream().anyMatch(p -> p.name().contains(finalFoundTypeRight));
 
-        // If the symbols can't be found do not show the datamapping code action
-        if (!(foundRight && foundLeft)) {
+        List<DiagnosticProperty<?>> props = diagnostic.properties();
+        if (props.size() != 2 || props.get(RIGHT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC ||
+                props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC) {
             return fEdits;
         }
 
@@ -155,10 +136,8 @@ class AIDataMapperCodeActionUtil {
         String symbolAtCursorName = symbolAtCursor.name();
         String symbolAtCursorType = SymbolUtil.getTypeDescriptor(symbolAtCursor).get().typeKind().toString();
 
-        //check if the symbol at cursor is a record type or a function
         String generatedFunctionName;
         // Insert function call in the code where error is found
-//        Range newTextRange = diagnostic.getRange();
         switch (symbolAtCursorType) {
             case "RECORD":
             case "TYPE_REFERENCE":
@@ -246,6 +225,7 @@ class AIDataMapperCodeActionUtil {
                                                             CodeActionContext context, String foundTypeLeft,
                                                             String foundTypeRight,
                                                             List<Symbol> fileContentSymbols)
+
             throws IOException {
         JsonObject rightRecordJSON = new JsonObject();
         JsonObject leftRecordJSON = new JsonObject();
