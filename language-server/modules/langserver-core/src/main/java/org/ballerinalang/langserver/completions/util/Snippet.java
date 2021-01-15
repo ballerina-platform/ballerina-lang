@@ -142,6 +142,10 @@ public enum Snippet {
 
     EXPR_OBJECT_CONSTRUCTOR(SnippetGenerator.getObjectConstructorSnippet()),
 
+    EXPR_BASE16_LITERAL(SnippetGenerator.getBase16LiteralSnippet()),
+
+    EXPR_BASE64_LITERAL(SnippetGenerator.getBase64LiteralSnippet()),
+
 
     // Keyword Snippets
     KW_ON(SnippetGenerator.getOnSnippet()),
