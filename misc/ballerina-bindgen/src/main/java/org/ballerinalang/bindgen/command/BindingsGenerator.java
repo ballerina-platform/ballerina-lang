@@ -43,10 +43,10 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NA
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.MODULES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.getExistingBindings;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getUpdatedConstantsList;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
@@ -71,11 +71,14 @@ public class BindingsGenerator {
     private Set<String> classNames = new HashSet<>();
 
     private static String outputPath;
+    private static String balPackageName;
+    private static boolean modulesFlag = false;
     private static boolean directJavaClass = true;
     private static Set<String> classPaths = new HashSet<>();
     private static Path userDir = Paths.get(System.getProperty(USER_DIR));
 
     private static Set<String> allClasses = new HashSet<>();
+    private static Set<String> allPackages = new HashSet<>();
     private static Set<String> classListForLooping = new HashSet<>();
     private static Set<String> allJavaClasses = new HashSet<>();
     private static Set<JError> exceptionList = new HashSet<>();
@@ -114,8 +117,6 @@ public class BindingsGenerator {
             while (!classListForLooping.isEmpty()) {
                 Set<String> newSet = new HashSet<>(classListForLooping);
                 newSet.removeAll(classNames);
-                List<String> existingBindings = getExistingBindings(newSet, modulePath.toFile());
-                newSet.removeAll(existingBindings);
                 allJavaClasses.addAll(newSet);
                 classListForLooping.clear();
                 generateBindings(newSet, classLoader, dependenciesPath);
@@ -174,16 +175,15 @@ public class BindingsGenerator {
 
     private void setDirectoryPaths() throws BindgenException {
         String userPath = userDir.toString();
-        if (outputPath != null) {
+        if (modulesFlag) {
+            userPath = Paths.get(userPath, MODULES_DIR).toString();
+        } else if (outputPath != null) {
             if (!Paths.get(outputPath).toFile().exists()) {
                 throw new BindgenException("Output path provided [" + outputPath + "] could not be found.");
             }
             userPath = outputPath;
         }
-        // The folder structure is flattened to address the Project API changes.
-        modulePath = Paths.get(userPath);
-        dependenciesPath = Paths.get(userPath);
-        utilsDirPath = Paths.get(userPath);
+        utilsDirPath = dependenciesPath = modulePath = Paths.get(userPath);
     }
 
     private void handleFailedClassGens() {
@@ -201,22 +201,37 @@ public class BindingsGenerator {
         createDirectory(utilsDirStrPath);
 
         // Create the Constants.bal file.
-        Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
-        Set<String> names = new HashSet<>(allClasses);
-        if (constantsPath.toFile().exists()) {
-            getUpdatedConstantsList(constantsPath, names);
-        }
-        if (!names.isEmpty()) {
-            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
+        if (!modulesFlag) {
+            Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
+            generateConstantFiles(constantsPath);
+        } else {
+            for (String packagePath : allPackages) {
+                Path constantsPath = Paths.get(modulePath.toString(), packagePath, CONSTANTS_FILE_NAME);
+                generateConstantFiles(constantsPath);
+            }
         }
 
         // Create the .bal files for Ballerina error types.
         for (JError jError : exceptionList) {
             jError.setAccessModifier(accessModifier);
             String fileName = jError.getShortExceptionName() + BAL_EXTENSION;
+            if (modulesFlag) {
+                utilsDirStrPath = Paths.get(modulePath.toString(), jError.getPackageName()).toString();
+                createDirectory(utilsDirStrPath);
+            }
             // The folder structure is flattened to address the Project API changes.
             writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
                     Paths.get(utilsDirStrPath, fileName).toString(), false);
+        }
+    }
+
+    private void generateConstantFiles(Path constantPaths) throws BindgenException {
+        Set<String> names = new HashSet<>(allClasses);
+        if (constantPaths.toFile().exists()) {
+            getUpdatedConstantsList(constantPaths, names);
+        }
+        if (!names.isEmpty()) {
+            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantPaths.toString(), true);
         }
     }
 
@@ -242,17 +257,22 @@ public class BindingsGenerator {
                     if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance);
                         jClass.setAccessModifier(accessModifier);
-                        // The folder structure is flattened to address the Project API changes.
-                        String filePath = Paths.get(modulePath.toString(), jClass.getShortClassName()
-                                + BAL_EXTENSION).toString();
+                        allPackages.add(jClass.getPackageName());
+                        String filePath;
+                        if (modulesFlag) {
+                            String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
+                            createDirectory(outputFile);
+                            filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
+                        } else {
+                            filePath = Paths.get(modulePath.toString(), jClass.getShortClassName()
+                                    + BAL_EXTENSION).toString();
+                        }
                         writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
                         outStream.println("\t" + c);
                     }
                 }
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
                 failedClassGens.put(c, e.toString());
-            } catch (BindgenException e) {
-                throw new BindgenException("Error while generating Ballerina bridge code: " + e);
             }
         }
     }
@@ -307,5 +327,21 @@ public class BindingsGenerator {
 
     void setPublic() {
         this.accessModifier = "public ";
+    }
+
+    static void setModulesFlag(boolean modulesFlag) {
+        BindingsGenerator.modulesFlag = modulesFlag;
+    }
+
+    public static boolean getModulesFlag() {
+        return modulesFlag;
+    }
+
+    public static void setBalPackageName(String balPackageName) {
+        BindingsGenerator.balPackageName = balPackageName;
+    }
+
+    public static String getBalPackageName() {
+        return balPackageName;
     }
 }

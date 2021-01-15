@@ -27,7 +27,8 @@ public class Construct {
     public String description;
     @Expose
     public boolean isDeprecated;
-
+    @Expose
+    public Type inclusionType = null;
     public Construct(String name, String description, boolean isDeprecated) {
         this.name = name;
         this.description = description;

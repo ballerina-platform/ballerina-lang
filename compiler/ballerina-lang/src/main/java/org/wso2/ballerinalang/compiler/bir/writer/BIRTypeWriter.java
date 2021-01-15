@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -82,6 +84,8 @@ public class BIRTypeWriter implements TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
+    private static IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
+    private static IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
@@ -92,7 +96,10 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
         buff.writeLong(type.flags);
-        buff.writeInt(TypeFlags.asMask(type.isNullable(), type.isAnydata(), type.isPureType()));
+        isPureTypeUniqueVisitor.reset();
+        isAnydataUniqueVisitor.reset();
+        buff.writeInt(TypeFlags.asMask(type.isNullable(), isAnydataUniqueVisitor.visit(type),
+                isPureTypeUniqueVisitor.visit(type)));
         type.accept(this);
     }
 
@@ -275,10 +282,28 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BUnionType bUnionType) {
+        buff.writeBoolean(bUnionType.isCyclic);
+        BTypeSymbol tsymbol = bUnionType.tsymbol;
+        if (bUnionType.isCyclic && (tsymbol != null && !tsymbol.name.getValue().isEmpty())) {
+            buff.writeBoolean(true);
+            writePackageIndex(tsymbol);
+            buff.writeInt(addStringCPEntry(bUnionType.tsymbol.name.value));
+        } else {
+            buff.writeBoolean(false);
+        }
         buff.writeInt(bUnionType.getMemberTypes().size());
         for (BType memberType : bUnionType.getMemberTypes()) {
             writeTypeCpIndex(memberType);
         }
+    }
+
+    private void writePackageIndex(BTypeSymbol tsymbol) {
+
+        int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
+        int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
+        int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
     }
 
     @Override
@@ -296,11 +321,7 @@ public class BIRTypeWriter implements TypeVisitor {
         BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) bRecordType.tsymbol;
 
         // Write the package details in the form of constant pool entry TODO find a better approach
-        int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
-        int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
-        int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
-        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
-        buff.writeInt(pkgIndex);
+        writePackageIndex(tsymbol);
 
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeBoolean(bRecordType.sealed);
@@ -347,11 +368,7 @@ public class BIRTypeWriter implements TypeVisitor {
         BTypeSymbol tSymbol = bObjectType.tsymbol;
 
         // Write the package details in the form of constant pool entry TODO find a better approach
-        int orgCPIndex = addStringCPEntry(tSymbol.pkgID.orgName.value);
-        int nameCPIndex = addStringCPEntry(tSymbol.pkgID.name.value);
-        int versionCPIndex = addStringCPEntry(tSymbol.pkgID.version.value);
-        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
-        buff.writeInt(pkgIndex);
+        writePackageIndex(tSymbol);
 
         buff.writeInt(addStringCPEntry(tSymbol.name.value));
         //TODO below two line are a temp solution, introduce a generic concept

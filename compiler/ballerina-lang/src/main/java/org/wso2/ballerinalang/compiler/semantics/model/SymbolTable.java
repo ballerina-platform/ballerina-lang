@@ -25,6 +25,8 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -114,27 +116,21 @@ public class SymbolTable {
     public final BType decimalType = new BType(TypeTags.DECIMAL, null, Flags.READONLY);
     public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY);
-    public final BType jsonType = new BJSONType(TypeTags.JSON, null);
+
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
-    public final BType anydataType = new BAnydataType(TypeTags.ANYDATA, null);
     public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BMapType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
-    public final BMapType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
-    public final BMapType mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
+
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BArrayType arrayType = new BArrayType(anyType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
-    public final BArrayType arrayAnydataType = new BArrayType(anydataType);
-    public final BArrayType arrayJsonType = new BArrayType(jsonType);
+
     public final BType tupleType = new BTupleType(Lists.of(noType));
     public final BType recordType = new BRecordType(null);
     public final BType stringArrayType = new BArrayType(stringType);
-    public final BType jsonArrayType = new BArrayType(jsonType);
-    public final BType anydataArrayType = new BArrayType(anydataType);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
     public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
-    public final BType anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
     public final BType pathParamAllowedType = BUnionType.create(null,
             intType, stringType, floatType, booleanType, decimalType);
     public final BIntersectionType anyAndReadonly;
@@ -143,12 +139,8 @@ public class SymbolTable {
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
-    public final BUnionType anydataOrReadOnlyType = BUnionType.create(null, anydataType, readonlyType);
 
-    public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
-    public BType tableType = new BTableType(TypeTags.TABLE, anydataType, null);
-    public BMapType detailType = new BMapType(TypeTags.MAP, anydataOrReadonly, null);
-    public BErrorType errorType = new BErrorType(null, detailType);
+    public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;
     public BUnionType pureType;
     public BUnionType errorOrNilType;
@@ -174,6 +166,21 @@ public class SymbolTable {
 
     public final BType xmlType = new BXMLType(BUnionType.create(null, xmlElementType, xmlCommentType,
             xmlPIType, xmlTextType),  null);
+
+    public BAnydataType anydataType;
+    public BArrayType arrayAnydataType;
+    public BMapType mapAnydataType;
+    public BType anydataOrReadonly;
+    public BType streamType;
+    public BType tableType;
+
+    public BArrayType arrayJsonType;
+    public BMapType mapJsonType;
+    public BJSONType jsonType;
+
+    public BUnionType cloneableType;
+    public BMapType detailType;
+    public BErrorType errorType;
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -235,16 +242,11 @@ public class SymbolTable {
         initializeType(decimalType, TypeKind.DECIMAL.typeName(), BUILTIN);
         initializeType(stringType, TypeKind.STRING.typeName(), BUILTIN);
         initializeType(booleanType, TypeKind.BOOLEAN.typeName(), BUILTIN);
-        initializeType(jsonType, TypeKind.JSON.typeName(), BUILTIN);
         initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
-        initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
-        initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
         initializeType(mapType, TypeKind.MAP.typeName(), VIRTUAL);
         initializeType(mapStringType, TypeKind.MAP.typeName(), VIRTUAL);
-        initializeType(mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
         initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
         initializeType(anyType, TypeKind.ANY.typeName(), BUILTIN);
-        initializeType(anydataType, TypeKind.ANYDATA.typeName(), BUILTIN);
         initializeType(nilType, TypeKind.NIL.typeName(), BUILTIN);
         initializeType(neverType, TypeKind.NEVER.typeName(), BUILTIN);
         initializeType(handleType, TypeKind.HANDLE.typeName(), BUILTIN);
@@ -267,6 +269,8 @@ public class SymbolTable {
         BLangLiteral trueLiteral = new BLangLiteral();
         trueLiteral.type = this.booleanType;
         trueLiteral.value = Boolean.TRUE;
+
+        defineCyclicUnionBasedInternalTypes();
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                                                                 names.fromString("$anonType$TRUE"),
@@ -381,7 +385,7 @@ public class SymbolTable {
                                                 Map.entry(Names.XML, this.langXmlModuleSymbol));
     }
 
-    private void initializeType(BType type, String name, SymbolOrigin origin) {
+    public void initializeType(BType type, String name, SymbolOrigin origin) {
         initializeType(type, names.fromString(name), origin);
     }
 
@@ -728,5 +732,81 @@ public class SymbolTable {
         BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos,
                                                      BUILTIN);
         rootScope.define(name, symbol);
+    }
+
+    private void defineCyclicUnionBasedInternalTypes() {
+        defineAnydataCyclicTypeAndDependentTypes();
+        defineJsonCyclicTypeAndDependentTypes();
+        defineCloneableCyclicTypeAndDependentTypes();
+    }
+
+    private void defineCloneableCyclicTypeAndDependentTypes() {
+        cloneableType = BUnionType.create(null, readonlyType, xmlType);
+        addCyclicArrayMapTableOfMapMembers(cloneableType);
+
+        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, rootPkgSymbol.pkgID,
+                cloneableType, rootPkgSymbol, builtinPos, BUILTIN);
+
+        detailType = new BMapType(TypeTags.MAP, cloneableType, null);
+        errorType = new BErrorType(null, detailType);
+        errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
+                rootPkgSymbol.pkgID, errorType, rootPkgSymbol, builtinPos, BUILTIN);
+
+        errorOrNilType = BUnionType.create(null, errorType, nilType);
+        anyOrErrorType = BUnionType.create(null, anyType, errorType);
+
+        mapAllType = new BMapType(TypeTags.MAP, anyOrErrorType, null);
+        arrayAllType = new BArrayType(anyOrErrorType);
+        typeDesc.constraint = anyOrErrorType;
+        futureType.constraint = anyOrErrorType;
+
+        pureType = BUnionType.create(null, anydataType, errorType);
+        streamType = new BStreamType(TypeTags.STREAM, pureType, null, null);
+        tableType = new BTableType(TypeTags.TABLE, pureType, null);
+
+        initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
+        initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
+    }
+
+    private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {
+        BArrayType arrayCloneableType = new BArrayType(unionType);
+        BMapType mapCloneableType = new BMapType(TypeTags.MAP, unionType, null);
+        BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
+        unionType.add(arrayCloneableType);
+        unionType.add(mapCloneableType);
+        unionType.add(tableMapCloneableType);
+        unionType.isCyclic = true;
+    }
+
+    private void defineJsonCyclicTypeAndDependentTypes() {
+        BUnionType jsonInternal = BUnionType.create(null, nilType, booleanType, intType, floatType, decimalType,
+                stringType);
+        BArrayType arrayJsonTypeInternal = new BArrayType(jsonInternal);
+        BMapType mapJsonTypeInternal = new BMapType(TypeTags.MAP, jsonInternal, null);
+        jsonInternal.add(arrayJsonTypeInternal);
+        jsonInternal.add(mapJsonTypeInternal);
+        jsonInternal.isCyclic = true;
+
+        jsonType = new BJSONType(jsonInternal);
+        jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, rootPkgSymbol.pkgID, jsonType,
+                rootPkgSymbol, builtinPos, BUILTIN);
+
+        arrayJsonType = new BArrayType(jsonType);
+        mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
+    }
+
+    private void defineAnydataCyclicTypeAndDependentTypes() {
+        BUnionType anyDataInternal = BUnionType.create(null, nilType, booleanType, intType, floatType, decimalType,
+                stringType, xmlType);
+        addCyclicArrayMapTableOfMapMembers(anyDataInternal);
+
+        anydataType = new BAnydataType(anyDataInternal);
+        anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, rootPkgSymbol.pkgID,
+                anydataType, rootPkgSymbol, builtinPos, BUILTIN);
+        arrayAnydataType = new BArrayType(anydataType);
+        mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
+        anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
+
+        initializeType(mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
     }
 }

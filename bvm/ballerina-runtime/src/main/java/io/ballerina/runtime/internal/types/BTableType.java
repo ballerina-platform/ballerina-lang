@@ -98,9 +98,9 @@ public class BTableType extends BType implements TableType {
                 }
                 keyStringBuilder.append(fieldName);
             }
-            stringRep = super.toString() + "<" + constraint.getName() + "> key(" + keyStringBuilder.toString() + ")";
+            stringRep = super.toString() + "<" + constraint + "> key(" + keyStringBuilder.toString() + ")";
         } else {
-            stringRep = super.toString() + "<" + constraint.getName() + ">" +
+            stringRep = super.toString() + "<" + constraint + ">" +
                     ((keyType != null) ? (" key<" + keyType + ">") : "");
         }
 

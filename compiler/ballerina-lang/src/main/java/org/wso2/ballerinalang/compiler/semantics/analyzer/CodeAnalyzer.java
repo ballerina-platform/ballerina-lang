@@ -2326,7 +2326,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             was.hasErrors = true;
         } else if (workerSendNode.expr instanceof ActionNode) {
             this.dlog.error(workerSendNode.expr.pos, DiagnosticErrorCode.INVALID_SEND_EXPR);
-        } else if (!type.isAnydata()) {
+        } else if (!types.isAssignable(type, symTable.cloneableType)) {
             this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_SEND, type);
         }
 
@@ -3657,13 +3657,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(funcNode.pos, DiagnosticErrorCode.MAIN_SHOULD_BE_PUBLIC);
         }
 
+        IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
         funcNode.requiredParams.forEach(param -> {
-            if (!param.type.isAnydata()) {
+            if (!isAnydataUniqueVisitor.visit(param.type)) {
                 this.dlog.error(param.pos, DiagnosticErrorCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.type);
             }
         });
 
-        if (funcNode.restParam != null && !funcNode.restParam.type.isAnydata()) {
+        isAnydataUniqueVisitor.reset();
+
+        if (funcNode.restParam != null && !isAnydataUniqueVisitor.visit(funcNode.restParam.type)) {
             this.dlog.error(funcNode.restParam.pos, DiagnosticErrorCode.MAIN_PARAMS_SHOULD_BE_ANYDATA,
                             funcNode.restParam.type);
         }

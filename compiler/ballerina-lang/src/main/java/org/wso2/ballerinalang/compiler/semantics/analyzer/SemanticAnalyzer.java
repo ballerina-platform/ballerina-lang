@@ -1666,7 +1666,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                            BRecordType recordType) {
         BUnionType restUnionType = BUnionType.create(null);
         if (!recordType.sealed) {
-            restUnionType.add(recordType.restFieldType);
+            if (recordType.restFieldType.tag == TypeTags.UNION) {
+                BUnionType restFieldUnion = (BUnionType) recordType.restFieldType;
+                // This is to update type name for users to read easily the cyclic unions
+                if (restFieldUnion.isCyclic && errorDetailFields.entrySet().isEmpty()) {
+                    restUnionType.isCyclic = true;
+                    restUnionType.tsymbol = restFieldUnion.tsymbol;
+                }
+            } else {
+                restUnionType.add(recordType.restFieldType);
+            }
         }
         for (Map.Entry<String, BField> entry : errorDetailFields.entrySet()) {
             if (!matchedDetailFields.contains(entry.getKey())) {
@@ -2120,23 +2129,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean hasOnlyAnydataTypedFields(BRecordType recordType) {
-        for (BField field : recordType.fields.values()) {
-            BType fieldType = field.type;
-            if (!fieldType.isAnydata()) {
-                return false;
-            }
-        }
-        return recordType.sealed || recordType.restFieldType.isAnydata();
+        IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
+        return isAnydataUniqueVisitor.visit(recordType);
     }
 
     private boolean hasOnlyPureTypedFields(BRecordType recordType) {
+        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
         for (BField field : recordType.fields.values()) {
             BType fieldType = field.type;
-            if (!fieldType.isPureType()) {
+            if (!isPureTypeUniqueVisitor.visit(fieldType)) {
                 return false;
             }
+            isPureTypeUniqueVisitor.reset();
         }
-        return recordType.sealed || recordType.restFieldType.isPureType();
+        return recordType.sealed || isPureTypeUniqueVisitor.visit(recordType);
     }
 
     private boolean hasErrorTypedField(BRecordType recordType) {

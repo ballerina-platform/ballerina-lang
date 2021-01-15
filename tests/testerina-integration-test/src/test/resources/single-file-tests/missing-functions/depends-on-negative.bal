@@ -19,7 +19,7 @@ import ballerina/test;
 // Tests the behaviour when a non-existing function is provided as the dependsOn function
 
 @test:Config {
-    dependsOn:["non-existing"]
+    dependsOn: [nonExisting]
 }
 public function test2() {
 }

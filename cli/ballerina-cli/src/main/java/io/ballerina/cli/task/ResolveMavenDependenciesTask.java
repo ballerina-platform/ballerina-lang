@@ -53,7 +53,8 @@ public class ResolveMavenDependenciesTask implements Task {
         }
 
         List<Map<String, Object>> platformLibraries = platform.dependencies();
-        //List<Repository> mavenCustomRepos = manifest.getPlatform().getRepositories();
+        List<Map<String, Object>> platformRepositories = platform.repositories();
+        List<Map<String, Object>> mavenCustomRepos = new ArrayList<>();
         List<Map<String, Object>> mavenDependencies = new ArrayList<>();
         if (platformLibraries == null) {
             return;
@@ -63,25 +64,25 @@ public class ResolveMavenDependenciesTask implements Task {
                 + "platform-libs";
         MavenResolver resolver = new MavenResolver(targetRepo);
 
-//        if (mavenCustomRepos != null && mavenCustomRepos.size() > 0) {
-//            for (Repository repository : mavenCustomRepos) {
-//                String id = repository.getId();
-//                String url = repository.getUrl();
-//                if (id == null && url == null) {
-//                    throw LauncherUtils
-//                            .createLauncherException("custom maven repository properties are not specified for " +
-//                            "given platform repository.");
-//                }
-//
-//                String username = repository.getUsername();
-//                String password = repository.getPassword();
-//                if (username != null && password != null) {
-//                    resolver.addRepository(id, url, username, password);
-//                    continue;
-//                }
-//                resolver.addRepository(id, url);
-//            }
-//        }
+        for (Map<String, Object> repository : platformRepositories) {
+            if (repository.get("id") == null || repository.get("url") == null) {
+                throw createLauncherException("custom maven repository properties are not specified for " +
+                        "given platform repository.");
+            }
+            mavenCustomRepos.add(repository);
+        }
+
+        if (mavenCustomRepos.size() > 0) {
+            for (Map<String, Object> repository : mavenCustomRepos) {
+                if (repository.get("id") != null && repository.get("url") != null &&
+                        repository.get("username") != null && repository.get("password") != null) {
+                    resolver.addRepository(repository.get("id").toString(), repository.get("url").toString(),
+                            repository.get("username").toString(), repository.get("password").toString());
+                    continue;
+                }
+                resolver.addRepository(repository.get("id").toString(), repository.get("url").toString());
+            }
+        }
 
         for (Map<String, Object> library : platformLibraries) {
             if (library.get("path") == null) {
