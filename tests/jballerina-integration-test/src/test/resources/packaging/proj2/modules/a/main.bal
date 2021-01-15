@@ -59,3 +59,4 @@ public function incrementCount() {
 public function assertCount(int val) {
     test:assertEquals(count, val);
 }
+
