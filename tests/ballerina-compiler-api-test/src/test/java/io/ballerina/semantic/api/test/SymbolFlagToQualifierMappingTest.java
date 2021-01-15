@@ -18,10 +18,13 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
@@ -46,6 +49,7 @@ import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -104,5 +108,15 @@ public class SymbolFlagToQualifierMappingTest {
                 {19, 20, SymbolKind.METHOD},
                 {75, 7, SymbolKind.CONSTANT},
         };
+    }
+
+    @Test
+    public void testRecordField() {
+        Optional<Symbol> optionalSymbol = model.symbol(srcFile, LinePosition.from(51, 5));
+        TypeDefinitionSymbol person = (TypeDefinitionSymbol) optionalSymbol.get();
+        RecordTypeSymbol type = (RecordTypeSymbol) person.typeDescriptor();
+        FieldSymbol field = type.fieldDescriptors().get(1);
+        assertTrue(field.isOptional());
+        assertFalse(field.hasDefaultValue());
     }
 }
