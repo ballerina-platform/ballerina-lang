@@ -109,9 +109,6 @@ class JvmObservabilityGen {
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
     private static final Location COMPILE_TIME_CONST_POS =
             new BLangDiagnosticLocation(null, -1, -1, -1, -1);
-    private static final String INIT_FUNCTION_SUFFIX = ".<init>";
-    private static final String START_FUNCTION_SUFFIX = ".<start>";
-    private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
     private final PackageCache packageCache;
     private final SymbolTable symbolTable;
@@ -134,19 +131,13 @@ class JvmObservabilityGen {
      * Instrument the package by rewriting the BIR to add relevant Observability related instructions.
      *
      * @param pkg The package to instrument
-     * @param entryPointExists The boolean to check if the pkg has entry points
      */
-    void instrumentPackage(BIRPackage pkg, boolean entryPointExists) {
+    void instrumentPackage(BIRPackage pkg) {
         for (int i = 0; i < pkg.functions.size(); i++) {
             BIRFunction func = pkg.functions.get(i);
 
-            // If there is an entry point in the package, then we instrument with control flow checkpoints
-            if (entryPointExists) {
-                if (!(func.name.value.equalsIgnoreCase(INIT_FUNCTION_SUFFIX) ||
-                        func.name.value.equalsIgnoreCase(START_FUNCTION_SUFFIX) ||
-                        func.name.value.equalsIgnoreCase(STOP_FUNCTION_SUFFIX))) {
-                    rewriteControlFlowInvocation(func, pkg);
-                }
+            if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
+                rewriteControlFlowInvocation(func, pkg);
             }
             rewriteAsyncInvocations(func, null, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
@@ -163,12 +154,9 @@ class JvmObservabilityGen {
             boolean isService = (typeDef.type.flags & Flags.SERVICE) == Flags.SERVICE;
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
                 BIRFunction func = typeDef.attachedFuncs.get(i);
-
-                // Instrumenting the control flow of attached functions
-                if (entryPointExists) {
-                    if (!(func.name.value.equalsIgnoreCase(INIT_FUNCTION_SUFFIX) ||
-                            func.name.value.equalsIgnoreCase(START_FUNCTION_SUFFIX) ||
-                            func.name.value.equalsIgnoreCase(STOP_FUNCTION_SUFFIX))) {
+                if (isService) {
+                    if ((func.flags & Flags.RESOURCE) == Flags.RESOURCE ||
+                            (func.flags & Flags.REMOTE) == Flags.REMOTE) {
                         rewriteControlFlowInvocation(func, pkg);
                     }
                 }
