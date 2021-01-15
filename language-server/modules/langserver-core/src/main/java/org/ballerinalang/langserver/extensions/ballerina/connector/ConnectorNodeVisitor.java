@@ -75,13 +75,15 @@ public class ConnectorNodeVisitor extends NodeVisitor {
     public void visit(ClassDefinitionNode classDefinitionNode) {
         Optional<Symbol> symbol = this.semanticModel.symbol(classDefinitionNode);
 
-        if (symbol.isPresent()) {
-            ClassSymbol classSymbol = (ClassSymbol) symbol.get();
-            boolean isClient = classSymbol.qualifiers().contains(Qualifier.CLIENT);
+        if (symbol.isEmpty()) {
+            return;
+        }
 
-            if (isClient) {
-                this.connectors.add(classDefinitionNode);
-            }
+        ClassSymbol classSymbol = (ClassSymbol) symbol.get();
+        boolean isClient = classSymbol.qualifiers().contains(Qualifier.CLIENT);
+
+        if (isClient) {
+            this.connectors.add(classDefinitionNode);
         }
     }
 

@@ -161,7 +161,7 @@ class AIDataMapperCodeActionUtil {
         Optional<Document> srcFile = context.workspace().document(context.filePath());
 
         if (srcFile.isEmpty()) {
-            return ""; // TODO: Check with Isuru whether this is ok
+            return "";
         }
 
         SemanticModel model = context.workspace().semanticModel(context.filePath()).get();
