@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public interface ModuleSymbol extends Symbol {
+public interface ModuleSymbol extends NamedSymbol {
 
     /**
      * Get the public functions defined within the module.

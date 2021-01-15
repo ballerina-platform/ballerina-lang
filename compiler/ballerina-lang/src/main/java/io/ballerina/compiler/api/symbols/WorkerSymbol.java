@@ -22,7 +22,7 @@ package io.ballerina.compiler.api.symbols;
  *
  * @since 2.0.0
  */
-public interface WorkerSymbol extends Symbol, Annotatable {
+public interface WorkerSymbol extends NamedSymbol, Annotatable {
 
     /**
      * Get the return type.

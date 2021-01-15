@@ -21,7 +21,7 @@ package io.ballerina.compiler.api.symbols;
  *
  * @since 2.0.0
  */
-public interface TypeReferenceTypeSymbol extends TypeSymbol {
+public interface TypeReferenceTypeSymbol extends NamedSymbol, TypeSymbol {
 
     /**
      * Get the associated type descriptor.
