@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -51,6 +52,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
@@ -166,14 +168,28 @@ public class ServiceDesugar {
                 listenerVarRef = ASTBuilderUtil.createVariableRef(pos, listenerVar.symbol);
             }
 
+            if (types.containsErrorType(listenerVarRef.type)) {
+                BLangCheckedExpr listenerCheckExpr = ASTBuilderUtil.createCheckExpr(pos, listenerVarRef,
+                        getListenerType(listenerVarRef.type));
+                listenerCheckExpr.equivalentErrorTypeList.add(symTable.errorType);
+                BLangSimpleVariable listenerWithoutErrors = ASTBuilderUtil.createVariable(pos,
+                        LISTENER + "$CheckTemp" + count,
+                        getListenerTypeWithoutError(listenerVarRef.type),
+                        listenerCheckExpr,
+                        null);
+                ASTBuilderUtil.defineVariable(listenerWithoutErrors, env.enclPkg.symbol, names);
+                env.enclPkg.globalVars.add(listenerWithoutErrors);
+                BLangSimpleVarRef checkedRef = ASTBuilderUtil.createVariableRef(pos, listenerWithoutErrors.symbol);
+                listenerVarRef = checkedRef;
+            }
+
             //      (.<init>)              ->      y.__attach(x, {});
             // Find correct symbol.
             BTypeSymbol listenerTypeSymbol = getListenerType(listenerVarRef.type).tsymbol;
             final Name functionName = names
                     .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, ATTACH_METHOD));
             BInvokableSymbol methodRef = (BInvokableSymbol) symResolver
-                    .lookupMemberSymbol(pos, listenerTypeSymbol.scope, env,
-                            functionName, SymTag.INVOKABLE);
+                    .lookupMemberSymbol(pos, listenerTypeSymbol.scope, env, functionName, SymTag.INVOKABLE);
 
             // Create method invocation
             List<BLangExpression> args = new ArrayList<>();
@@ -196,6 +212,20 @@ public class ServiceDesugar {
         }
     }
 
+    private BType getListenerTypeWithoutError(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            LinkedHashSet<BType> members = new LinkedHashSet<>();
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (types.isAssignable(memberType, symTable.errorType)) {
+                    continue;
+                }
+                members.add(memberType);
+            }
+            return BUnionType.create(null, members);
+        }
+        return type;
+    }
+
     private BType getListenerType(BType type) {
         if (type.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
@@ -213,9 +243,20 @@ public class ServiceDesugar {
         // Create method invocation
         final BLangInvocation methodInvocation =
                 ASTBuilderUtil.createInvocationExprForMethod(pos, methodRefSymbol, args, symResolver);
-        BLangCheckedExpr listenerCheckExpr = ASTBuilderUtil.createCheckExpr(pos, varRef, getListenerType(varRef.type));
-        listenerCheckExpr.equivalentErrorTypeList.add(symTable.errorType);
-        methodInvocation.expr = listenerCheckExpr;
+
+        // If listener contain errors we need to cast this to a listener type so that, attached function invocation
+        // call is generated in BIRGen. Casting to the first listener type should be fine as actual method invocation
+        // is based on the value rather than the type.
+        BType listenerType = getListenerType(varRef.type);
+        if (!types.isSameType(listenerType, varRef.type)) {
+            BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+            castExpr.expr = varRef;
+            castExpr.type = listenerType;
+            castExpr.targetType = castExpr.type;
+            methodInvocation.expr = castExpr;
+        } else {
+            methodInvocation.expr = varRef;
+        }
 
         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, methodInvocation, symTable.nilType);
         checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
