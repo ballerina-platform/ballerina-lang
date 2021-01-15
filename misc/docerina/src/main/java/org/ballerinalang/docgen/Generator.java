@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
@@ -598,8 +599,8 @@ public class Generator {
                         Type type = new Type(field.name());
                         Type elemType;
                         String name;
-                        if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            name = field.typeDescriptor().name();
+                        if (field.typeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                            name = ((TypeReferenceTypeSymbol) field.typeDescriptor()).name();
                         } else {
                             name = field.typeDescriptor().signature();
                         }
@@ -614,8 +615,8 @@ public class Generator {
                         Type type = new Type(field.name());
                         Type elemType;
                         String name;
-                        if (field.typeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                            name = field.typeDescriptor().name();
+                        if (field.typeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                            name = ((TypeReferenceTypeSymbol) field.typeDescriptor()).name();
                         } else {
                             name = field.typeDescriptor().signature();
                         }

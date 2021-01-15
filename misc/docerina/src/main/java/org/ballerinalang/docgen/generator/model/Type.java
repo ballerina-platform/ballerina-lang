@@ -17,6 +17,7 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -281,12 +282,11 @@ public class Type {
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
                 return getTypeCategory(((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor());
             }
-        } else if (typeDescriptor.kind().equals(SymbolKind.CLASS)) {
-            Qualifiable classSymbol = (Qualifiable) typeDescriptor;
+        } else if (typeDescriptor.kind() == SymbolKind.CLASS) {
+            ClassSymbol classSymbol = (ClassSymbol) typeDescriptor;
             if (classSymbol.qualifiers().contains(Qualifier.CLIENT)) {
                 return "clients";
-            } else if (classSymbol.qualifiers().contains(Qualifier.LISTENER) ||
-                    typeDescriptor.name().equals("Listener")) {
+            } else if (classSymbol.qualifiers().contains(Qualifier.LISTENER) || classSymbol.name().equals("Listener")) {
                 return "listeners";
             } else {
                 return "classes";
