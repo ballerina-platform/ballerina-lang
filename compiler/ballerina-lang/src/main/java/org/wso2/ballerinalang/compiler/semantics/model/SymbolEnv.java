@@ -262,21 +262,6 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv createPatternEnv(BLangMatchPattern pattern, SymbolEnv env) {
-        // Create a scope for the block node if one doesn't exists
-        Scope scope = pattern.scope;
-        if (scope == null) {
-            scope = new Scope(env.scope.owner);
-            pattern.scope = scope;
-        }
-
-        SymbolEnv symbolEnv = new SymbolEnv(pattern, scope);
-        env.copyTo(symbolEnv);
-        symbolEnv.envCount = env.envCount + 1;
-        symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
-        return symbolEnv;
-    }
-
     public static SymbolEnv createFuncBodyEnv(BLangFunctionBody body, SymbolEnv env) {
         Scope scope = body.scope;
         if (scope == null) {
