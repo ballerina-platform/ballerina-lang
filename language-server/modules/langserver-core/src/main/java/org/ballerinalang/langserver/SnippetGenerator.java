@@ -705,6 +705,42 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Table Type Descriptor Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getTableTypeDescSnippet() {
+        String snippet = "type ${1:TypeName} table<${2}>;";
+
+        return new SnippetBlock(ItemResolverConstants.TABLE_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get Table Type Descriptor Snippet Block with key.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getTableWithKeyTypeDescSnippet() {
+        String snippet = "type ${1:TypeName} table<${2}> key${3}";
+
+        return new SnippetBlock(ItemResolverConstants.TABLE_WITH_KEY_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get stream definition Snippet Block with key.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStreamDefSnippet() {
+        String snippet = "stream<${1}> ${2:streamName} = new;";
+
+        return new SnippetBlock(ItemResolverConstants.TABLE_WITH_KEY_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
      * Get Closed Record Type Descriptor Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1572,5 +1608,15 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getMapTypeSnippet() {
         return new SnippetBlock("map", "map", ItemResolverConstants.TYPE, Kind.TYPE);
+    }
+
+    /**
+     * Get Keyword Snippet Block.
+     *
+     * @param keyword keyword to be added
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getKeywordSnippet(String keyword) {
+        return new SnippetBlock(keyword, keyword, ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
     }
 }

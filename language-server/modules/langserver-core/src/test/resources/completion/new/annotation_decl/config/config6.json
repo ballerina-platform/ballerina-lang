@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 8,
-    "character": 1
+    "line": 3,
+    "character": 52
   },
-  "source": "service_decl/source/source7.bal",
+  "source": "annotation_decl/source/source6.bal",
   "items": [
     {
       "label": "import",
@@ -222,6 +222,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "MapType",
+      "kind": "Unit",
+      "detail": "Array",
+      "sortText": "B",
+      "insertText": "MapType",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error",
       "kind": "Event",
       "detail": "Error",
@@ -244,11 +252,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject",
-      "kind": "Interface",
-      "detail": "Object",
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
       "sortText": "B",
-      "insertText": "TestObject",
+      "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -256,6 +264,14 @@
       "detail": "Union",
       "sortText": "B",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecordArrayType1",
+      "kind": "Unit",
+      "detail": "Array",
+      "sortText": "B",
+      "insertText": "TestRecordArrayType1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -477,11 +493,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -500,11 +516,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -523,11 +539,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -546,11 +562,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -569,11 +585,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -592,11 +608,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -615,11 +631,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
