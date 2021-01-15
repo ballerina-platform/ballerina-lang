@@ -15,8 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects;
+package io.ballerina.projects.internal;
 
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
