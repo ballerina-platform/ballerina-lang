@@ -29,7 +29,6 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
 import org.ballerinalang.datamapper.utils.HttpClientRequest;
@@ -179,11 +178,7 @@ class AIDataMapperCodeActionUtil {
 
                 } else if (foundErrorLeft && foundErrorRight) {
                     // get the information about the line positions
-                    LineRange lineRange = context.positionDetails().matchedNode().lineRange();
-                    Position startPosOfFunName = new Position(lineRange.startLine().line(), lineRange.startLine().
-                            offset());
-                    Position endPosOfFunName = new Position(lineRange.endLine().line(), lineRange.endLine().offset());
-                    newTextRange = new Range(startPosOfFunName, endPosOfFunName);
+                    newTextRange = CommonUtil.toRange(context.positionDetails().matchedNode().lineRange());
                     generatedFunctionName =
                             String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, functionCall);
                     fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
