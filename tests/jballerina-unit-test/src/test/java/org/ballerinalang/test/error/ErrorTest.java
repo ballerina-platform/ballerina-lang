@@ -151,8 +151,8 @@ public class ErrorTest {
 
         Assert.assertEquals(message,
                 "error: largeNumber {\"message\":\"large number\"}\n" +
-                        "\tat error_test:errorPanicCallee(error_test.bal:37)\n" +
-                        "\t   error_test:errorPanicTest(error_test.bal:31)");
+                        "\tat error_test:errorPanicCallee(error_test.bal:38)\n" +
+                        "\t   error_test:errorPanicTest(error_test.bal:32)");
     }
 
     @Test
@@ -257,13 +257,13 @@ public class ErrorTest {
     public void testErrorNegative() {
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'map<any>', expected a subtype of 'map<(anydata|readonly)>'", 41, 28);
+                "invalid error detail type 'map<any>', expected a subtype of 'map<Cloneable>'", 41, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'boolean', expected a subtype of 'map<(anydata|readonly)>'", 42, 28);
+                "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 42, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error<Foo>', found 'error'", 45, 17);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'boolean', expected a subtype of 'map<(anydata|readonly)>'", 48, 11);
+                "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 48, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error<boolean>', found 'error'", 48, 24);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -357,7 +357,7 @@ public class ErrorTest {
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
                 "at ballerina.lang.array.1_1_0:slice(array.bal:126)\n\t" +
-                "   error_test:testStackTraceInNative(error_test.bal:276)");
+                "   error_test:testStackTraceInNative(error_test.bal:277)");
     }
 
     @Test
@@ -390,9 +390,9 @@ public class ErrorTest {
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:340}";
+                "lineNumber:341}";
         String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:344}";
+                "lineNumber:345}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);
