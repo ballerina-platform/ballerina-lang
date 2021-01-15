@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashMap;
@@ -107,6 +108,40 @@ public class TypeNarrower extends BLangNodeVisitor {
                                                  originalSym.origin == VIRTUAL);
         }
 
+        return targetEnv;
+    }
+
+    /**
+     * Evaluate an expression to truth value. Remove the given type from the type of expression and new expression type
+     * is assigned to the target node.
+     *
+     * @param expr         Expression to evaluate
+     * @param typeToRemove Type which is going to remove from expr
+     * @param targetNode   Node to which the type narrowing applies
+     * @param env          Current environment
+     * @return target environment
+     */
+    public SymbolEnv evaluateTruth(BLangExpression expr, BType typeToRemove, BLangNode targetNode, SymbolEnv env) {
+        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF || typeToRemove == null) {
+            return env;
+        }
+
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
+        Name varName = new Name(varRef.variableName.value);
+        BType originalType;
+        if (env.scope.entries.containsKey(varName)) {
+            originalType = env.scope.entries.get(varName).symbol.type;
+        } else {
+            originalType = varRef.type;
+        }
+        BType remainingType = types.getRemainingMatchExprType(originalType, typeToRemove);
+        if (remainingType == symTable.semanticError) {
+            return env;
+        }
+        SymbolEnv targetEnv = getTargetEnv(targetNode, env);
+        BVarSymbol originalVarSym = getOriginalVarSymbol((BVarSymbol) varRef.symbol);
+        symbolEnter.defineTypeNarrowedSymbol(varRef.pos, targetEnv, originalVarSym, remainingType,
+                originalVarSym.origin == VIRTUAL);
         return targetEnv;
     }
 

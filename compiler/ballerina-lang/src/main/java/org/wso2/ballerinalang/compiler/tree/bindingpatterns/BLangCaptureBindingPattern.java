@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
 
-import org.ballerinalang.model.symbols.VariableSymbol;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.bindingpattern.CaptureBindingPattern;
@@ -51,10 +50,5 @@ public class BLangCaptureBindingPattern extends BLangBindingPattern implements C
     @Override
     public void setIdentifier(IdentifierNode identifier) {
         this.identifier = (BLangIdentifier) identifier;
-    }
-
-    @Override
-    public VariableSymbol getSymbol() {
-        return symbol;
     }
 }

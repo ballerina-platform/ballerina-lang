@@ -23,7 +23,6 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -564,31 +563,6 @@ public class PathDependencyTestCase extends BaseTest {
         balClient.runMain("test", new String[]{"bar"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
                           caseResources.toString());
         buildLogLeecher.waitForText(10000);
-    }
-
-    @Test(description = "Test if observability jar gets packed with executable if observability flag is given.")
-    public void testObservabilityFlag() throws BallerinaTestException, IOException {
-        // Test ballerina init
-        Path projectPath = tempTestResources.resolve("case7").resolve("TestProject1");
-        String moduleExecutableFileName = "foo" + BLANG_COMPILED_JAR_EXT;
-        String observabilityEntry = "org/ballerinalang/observe/trace/extension/choreo/";
-        Path executablePath = projectPath.resolve(ProjectDirConstants.TARGET_DIR_NAME).
-                resolve(ProjectDirConstants.BIN_DIR_NAME).resolve(moduleExecutableFileName);
-
-        // Build module without "--observability-included" flag
-        String buildText = ProjectDirConstants.TARGET_DIR_NAME + File.separator + ProjectDirConstants.BIN_DIR_NAME +
-                File.separator + moduleExecutableFileName;
-        LogLeecher buildLeecher = new LogLeecher(buildText);
-        balClient.runMain("build", new String[] { "-a" }, envVariables, new String[] {},
-                new LogLeecher[] { buildLeecher }, projectPath.toString());
-        buildLeecher.waitForText(5000);
-        Assert.assertFalse(isJarEntryExists(executablePath, observabilityEntry));
-
-        // Build module with "--observability-included" flag
-        balClient.runMain("build", new String[] { "--observability-included", "-a" }, envVariables,
-                new String[] {}, new LogLeecher[] { buildLeecher }, projectPath.toString());
-        buildLeecher.waitForText(5000);
-        Assert.assertTrue(isJarEntryExists(executablePath, observabilityEntry));
     }
 
     /**

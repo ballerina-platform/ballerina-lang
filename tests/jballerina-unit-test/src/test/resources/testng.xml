@@ -161,6 +161,7 @@
             <class name="org.ballerinalang.test.javainterop.basic.ConstructorTest"></class>
             <class name="org.ballerinalang.test.javainterop.basic.FieldAccessMutateTest"></class>
             <class name="org.ballerinalang.test.javainterop.basic.JavaToBallerinaTest"></class>
+            <class name="org.ballerinalang.test.javainterop.basic.JavaCastTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.FunctionsReturningPrimitivesTest"></class>
             <class name="org.ballerinalang.test.javainterop.basic.HandleRefersNullTest"></class>
             <class name="org.ballerinalang.test.javainterop.primitivetypes.PrimitiveConversionInFunctionReturnsTest"></class>
@@ -193,6 +194,8 @@
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementSyntaxErrorsTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.CaptureBindingPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtListMatchPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtMappingMatchPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtTypeNarrowingTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementOnFailTest"></class>
             <class name="org.ballerinalang.test.lock.LocksWithOnFailTest"></class>
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
@@ -238,11 +241,6 @@
                 <methods>
                     <exclude name="testParameterStatusWithNativeInvocations"/>
                     <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.documentation.ErrorsTest">
-                <methods>
-                    <exclude name="testErrorAsAType"/>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.bir.BirVariableOptimizationTest">

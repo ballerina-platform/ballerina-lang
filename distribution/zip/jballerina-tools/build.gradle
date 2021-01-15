@@ -106,7 +106,6 @@ dependencies {
     dist project(':central-client')
     dist project(':ballerina-cli')
     dist project(':ballerina-rt')
-    dist project(':ballerina-choreo-extension-rt')
 
     dist project(':testerina:testerina-core')
     dist project(':formatter:formatter-core')
@@ -148,6 +147,7 @@ dependencies {
     balxBir project(path: ':ballerina-lang:java', configuration: 'bir')
 
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-observability-internal', configuration: 'balDoc')
 //    balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
 
     // Lang Libs
@@ -180,6 +180,7 @@ dependencies {
     balDoc project(path: ':testerina:testerina-core', configuration: 'balDoc')
 
     distributionBalo project(path: ':ballerina-observability', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-observability-internal', configuration: 'distributionBalo')
 
     distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
     distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')

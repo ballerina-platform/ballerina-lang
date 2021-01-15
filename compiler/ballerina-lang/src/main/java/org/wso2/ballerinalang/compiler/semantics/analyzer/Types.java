@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -296,9 +297,8 @@ public class Types {
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BTupleType listMatchPatternType,
+    BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BTupleType listMatchPatternType,
                                                  SymbolEnv env) {
-
         if (matchExpr == null) {
             return listMatchPatternType;
         }
@@ -317,7 +317,7 @@ public class Types {
         return symTable.noType;
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BLangExpression constPatternExpr) {
+    BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BLangExpression constPatternExpr) {
         if (matchExpr == null) {
             if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
@@ -379,6 +379,18 @@ public class Types {
         return symTable.noType;
     }
 
+    BType resolvePatternTypeFromMatchExpr(BLangMappingMatchPattern mappingMatchPattern, BType patternType,
+                                                 SymbolEnv env) {
+        if (mappingMatchPattern.matchExpr == null) {
+            return patternType;
+        }
+        BType intersectionType = getTypeIntersection(mappingMatchPattern.matchExpr.type, patternType, env);
+        if (intersectionType == symTable.semanticError) {
+            return symTable.noType;
+        }
+        return intersectionType;
+    }
+
     private boolean containsAnyType(BType type) {
         if (type.tag != TypeTags.UNION) {
             return type.tag == TypeTags.ANY;
@@ -392,9 +404,31 @@ public class Types {
         return false;
     }
 
-    public BType mergeTypes(BType typeFirst, BType typeSecond) {
-        if (containsAnyType(typeFirst)) {
+    private boolean containsAnyDataType(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return type.tag == TypeTags.ANYDATA;
+        }
+
+        for (BType memberTypes : ((BUnionType) type).getMemberTypes()) {
+            if (memberTypes.tag == TypeTags.ANYDATA) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    BType mergeTypes(BType typeFirst, BType typeSecond) {
+        if (containsAnyType(typeFirst) && !containsErrorType(typeSecond)) {
             return typeSecond;
+        }
+        if (containsAnyType(typeSecond) && !containsErrorType(typeFirst)) {
+            return typeFirst;
+        }
+        if (containsAnyDataType(typeFirst) && !containsErrorType(typeSecond)) {
+            return typeSecond;
+        }
+        if (containsAnyDataType(typeSecond) && !containsErrorType(typeFirst)) {
+            return typeFirst;
         }
         if (isSameBasicType(typeFirst, typeSecond)) {
             return typeFirst;
@@ -625,7 +659,7 @@ public class Types {
             return true;
         }
 
-        if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
+        if (TypeTags.isXMLTypeTag(sourceTag) && (TypeTags.isXMLTypeTag(targetTag) || targetTag == TypeTags.STRING)) {
             return isXMLTypeAssignable(source, target, unresolvedTypes);
         }
 
@@ -634,14 +668,6 @@ public class Types {
         }
 
         if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.XML_TEXT) {
-            return true;
-        }
-
-        if (sourceTag == TypeTags.STRING && targetTag == TypeTags.XML_TEXT) {
-            return true;
-        }
-
-        if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.STRING) {
             return true;
         }
 
@@ -932,11 +958,69 @@ public class Types {
                     return isAssignable(sourceType, target.constraint, unresolvedTypes);
                 }
                 BXMLType source = (BXMLType) sourceType;
+                if (source.constraint.tag == TypeTags.NEVER) {
+                    if (sourceTag == targetTag) {
+                        return true;
+                    }
+                    return isAssignable(source, target.constraint, unresolvedTypes);
+                }
                 return isAssignable(source.constraint, target.constraint, unresolvedTypes);
             }
             return true;
         }
+        if (sourceTag == TypeTags.XML) {
+            BXMLType source = (BXMLType) sourceType;
+            if (targetTag == TypeTags.XML_TEXT) {
+                if (source.constraint != null) {
+                    return source.constraint.tag == TypeTags.NEVER;
+                }
+                return false;
+            }
+            if (targetTag == TypeTags.STRING) {
+                if (source.constraint.tag == TypeTags.NEVER) {
+                    return true;
+                }
+                return isAssignable(source.constraint, targetType, unresolvedTypes);
+            }
+        } else if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.STRING) {
+            return true;
+        }
         return sourceTag == targetTag;
+    }
+
+    public boolean isXMLExprCastableToString(BType source, BType target) {
+        if (target.tag == TypeTags.STRING && isXMLSourceCastableToString(source)) {
+            return true;
+        }
+        if (target.tag == TypeTags.UNION || target.tag == TypeTags.FINITE) {
+            return isAssignable(target, symTable.stringType) && isXMLSourceCastableToString(source);
+        }
+        return false;
+    }
+
+    public boolean isXMLSourceCastableToString(BType source) {
+        int exprTag = source.tag;
+        if (exprTag == TypeTags.XML_TEXT) {
+            return true;
+        }
+        if (exprTag == TypeTags.XML) {
+            BXMLType conversionExpressionType = (BXMLType) source;
+            // Revisit and check xml<xml<constraint>>> on chained iteration.
+            while (conversionExpressionType.constraint.tag == TypeTags.XML) {
+                conversionExpressionType = (BXMLType) conversionExpressionType.constraint;
+            }
+            return conversionExpressionType.constraint.tag == TypeTags.NEVER ||
+                    conversionExpressionType.constraint.tag == TypeTags.XML_TEXT;
+        }
+        if (exprTag == TypeTags.UNION) {
+            for (BType member : ((BUnionType) source).getMemberTypes()) {
+                if (!TypeTags.isXMLTypeTag(member.tag) && !(member.tag == TypeTags.STRING)) {
+                    return false;
+                }
+            }
+            return isAssignable(source, symTable.stringType);
+        }
+        return false;
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -1098,6 +1182,8 @@ public class Types {
             case TypeTags.TYPEDESC:
             case TypeTags.HANDLE:
                 return true;
+            case TypeTags.XML:
+                return ((BXMLType) type).constraint.tag == TypeTags.NEVER;
         }
         return false;
     }
@@ -1442,7 +1528,55 @@ public class Types {
                 varType = inferRecordFieldType(recordType);
                 break;
             case TypeTags.XML:
-                varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
+                BType constraint = ((BXMLType) collectionType).constraint;
+                while (constraint.tag == TypeTags.XML) {
+                    collectionType = constraint;
+                    constraint = ((BXMLType) collectionType).constraint;
+                }
+                switch (constraint.tag) {
+                    case TypeTags.XML_ELEMENT:
+                        varType = symTable.xmlElementType;
+                        break;
+                    case TypeTags.XML_COMMENT:
+                        varType = symTable.xmlCommentType;
+                        break;
+                    case TypeTags.XML_TEXT:
+                        varType = symTable.xmlTextType;
+                        break;
+                    case TypeTags.XML_PI:
+                        varType = symTable.xmlPIType;
+                        break;
+                    default:
+                        Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
+                        Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
+                                ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
+                        if (collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes)) {
+                            varType = symTable.xmlType;
+                        } else {
+                            LinkedHashSet<BType> collectionTypesInSymTable = new LinkedHashSet<>();
+                            for (BType subType : collectionTypes) {
+                                switch (subType.tag) {
+                                    case TypeTags.XML_ELEMENT:
+                                        collectionTypesInSymTable.add(symTable.xmlElementType);
+                                        break;
+                                    case TypeTags.XML_COMMENT:
+                                        collectionTypesInSymTable.add(symTable.xmlCommentType);
+                                        break;
+                                    case TypeTags.XML_TEXT:
+                                        collectionTypesInSymTable.add(symTable.xmlTextType);
+                                        break;
+                                    case TypeTags.XML_PI:
+                                        collectionTypesInSymTable.add(symTable.xmlPIType);
+                                        break;
+                                }
+
+                            }
+                            varType = BUnionType.create(null, collectionTypesInSymTable);
+                        }
+                }
+                break;
+            case TypeTags.XML_TEXT:
+                varType = symTable.xmlTextType;
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
@@ -1905,8 +2039,14 @@ public class Types {
                 && (actualType.tag == TypeTags.UNION
                 && isAllErrorMembers((BUnionType) actualType))) {
             return true;
-        } else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.XML_TEXT) {
-            return true;
+        } else if (targetType.tag == TypeTags.STRING) {
+            if (actualType.tag == TypeTags.XML) {
+                return isXMLTypeAssignable(actualType, targetType, new HashSet<>());
+            }
+            if (actualType.tag == TypeTags.UNION) {
+                return isAssignable(actualType, symTable.stringType);
+            }
+            return actualType.tag == TypeTags.XML_TEXT;
         }
         return false;
     }
@@ -1930,7 +2070,7 @@ public class Types {
         boolean validTypeCast = false;
 
         if (sourceType.tag == TypeTags.UNION) {
-            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) sourceType, targetType)
+            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) sourceType, targetType, null)
                     != symTable.semanticError) {
                 // string|typedesc v1 = "hello world";
                 // json|table<Foo> v2 = <json|table<Foo>> v1;
@@ -1939,7 +2079,7 @@ public class Types {
         }
 
         if (targetType.tag == TypeTags.UNION) {
-            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) targetType, sourceType)
+            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) targetType, sourceType, null)
                     != symTable.semanticError) {
                 // string|int v1 = "hello world";
                 // string|boolean v2 = <string|boolean> v1;
@@ -2719,25 +2859,13 @@ public class Types {
      * @return           a single type or a new union type if at least one member type of the union type is
      *                      assignable to targetType, else semanticError
      */
-    BType getTypeForUnionTypeMembersAssignableToType(BUnionType unionType, BType targetType) {
+    BType getTypeForUnionTypeMembersAssignableToType(BUnionType unionType, BType targetType, SymbolEnv env) {
         List<BType> intersection = new LinkedList<>();
 
-        // type FooOne "foo"|1;
-        // type FooBar "foo"|"bar";
-        // unionType - boolean|FooOne, targetType - boolean|FooBar
         unionType.getMemberTypes().forEach(memType -> {
-            if (memType.tag == TypeTags.FINITE) {
-                // since "foo" of FooOne is assignable to FooBar, a new finite type of only "foo" would be returned
-                BType finiteTypeWithMatches = getTypeForFiniteTypeValuesAssignableToType((BFiniteType) memType,
-                                                                                         targetType);
-                if (finiteTypeWithMatches != symTable.semanticError) {
-                    intersection.add(finiteTypeWithMatches);
-                }
-            } else {
-                // boolean is assignable to boolean, thus boolean is added as a member type
-                if (isAssignable(memType, targetType)) {
-                    intersection.add(memType);
-                }
+            BType memberIntersectionType = getTypeIntersection(memType, targetType, env);
+            if (memberIntersectionType != symTable.semanticError) {
+                intersection.add(memberIntersectionType);
             }
         });
 
@@ -3065,6 +3193,69 @@ public class Types {
         return false;
     }
 
+    public BType getRemainingMatchExprType(BType originalType, BType typeToRemove) {
+        switch (originalType.tag) {
+            case TypeTags.UNION:
+                return getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove));
+            case TypeTags.FINITE:
+                return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove));
+            case TypeTags.TUPLE:
+                return getRemainingType((BTupleType) originalType, typeToRemove);
+            default:
+                return originalType;
+        }
+    }
+
+    private BType getRemainingType(BTupleType originalType, BType typeToRemove) {
+        switch (typeToRemove.tag) {
+            case TypeTags.TUPLE:
+                return getRemainingType(originalType, (BTupleType) typeToRemove);
+            case TypeTags.ARRAY:
+                return getRemainingType(originalType, (BArrayType) typeToRemove);
+            default:
+                return originalType;
+        }
+    }
+
+    private BType getRemainingType(BTupleType originalType, BTupleType typeToRemove) {
+        if (originalType.restType != null) {
+            return originalType;
+        }
+
+        List<BType> originalTupleTypes = new ArrayList<>(originalType.tupleTypes);
+        List<BType> typesToRemove = new ArrayList<>(typeToRemove.tupleTypes);
+        if (originalTupleTypes.size() < typesToRemove.size()) {
+            return originalType;
+        }
+        List<BType> tupleTypes = new ArrayList<>();
+        for (int i = 0; i < originalTupleTypes.size(); i++) {
+            tupleTypes.add(getRemainingMatchExprType(originalTupleTypes.get(i), typesToRemove.get(i)));
+        }
+        if (typeToRemove.restType == null) {
+            return new BTupleType(tupleTypes);
+        }
+        if (originalTupleTypes.size() == typesToRemove.size()) {
+            return originalType;
+        }
+        for (int i = typesToRemove.size(); i < originalTupleTypes.size(); i++) {
+            tupleTypes.add(getRemainingMatchExprType(originalTupleTypes.get(i), typeToRemove.restType));
+        }
+        return new BTupleType(tupleTypes);
+    }
+
+    private BType getRemainingType(BTupleType originalType, BArrayType typeToRemove) {
+        BType eType = typeToRemove.eType;
+        List<BType> tupleTypes = new ArrayList<>();
+        for (BType tupleType : originalType.tupleTypes) {
+            tupleTypes.add(getRemainingMatchExprType(tupleType, eType));
+        }
+        BTupleType remainingType = new BTupleType(tupleTypes);
+        if (originalType.restType != null) {
+            remainingType.restType = getRemainingMatchExprType(originalType.restType, eType);
+        }
+        return remainingType;
+    }
+
     public BType getRemainingType(BType originalType, BType typeToRemove) {
         switch (originalType.tag) {
             case TypeTags.UNION:
@@ -3094,12 +3285,12 @@ public class Types {
                     return intersectionType;
                 }
             } else if (lhsType.tag == TypeTags.UNION) {
-                BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) lhsType, type);
+                BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) lhsType, type, env);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
             } else if (type.tag == TypeTags.UNION) {
-                BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) type, lhsType);
+                BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) type, lhsType, env);
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
@@ -3246,7 +3437,6 @@ public class Types {
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
         errorType.flags |= errorTypeSymbol.flags;
         errorTypeSymbol.type = errorType;
-        symResolver.markParameterizedType(errorType, detailType);
         errorType.typeIdSet = BTypeIdSet.emptySet();
 
         return errorType;

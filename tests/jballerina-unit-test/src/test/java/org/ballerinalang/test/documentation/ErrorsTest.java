@@ -52,10 +52,37 @@ public class ErrorsTest {
 
     @Test(description = "Test error type")
     public void testErrorAsAType() {
-        Assert.assertEquals(testModule.errors.size(), 2, "Two errors expected");
+        Assert.assertEquals(testModule.errors.size(), 5, "Two errors expected");
         Assert.assertEquals(testModule.errors.get(0).name, "CacheError", "The error should be " +
                 "CacheError. But Found:" + testModule.errors.get(0).name);
-        Assert.assertEquals(testModule.errors.get(1).name, "Error", "The error should be " +
-                "Error. But Found:" + testModule.errors.get(1).name);
+        Assert.assertEquals(testModule.errors.get(1).name, "CancelledError", "The error should be " +
+                "CancelledError. But Found:" + testModule.errors.get(1).name);
+        Assert.assertEquals(testModule.errors.get(2).name, "UnKnownError", "The error should be " +
+                "UnKnownError. But Found:" + testModule.errors.get(2).name);
+        Assert.assertEquals(testModule.errors.get(3).name, "Error", "The error should be " +
+                "Error. But Found:" + testModule.errors.get(3).name);
+        Assert.assertEquals(testModule.errors.get(4).name, "GrpcError", "The error should be " +
+                "GrpcError. But Found:" + testModule.errors.get(4).name);
+
+        Assert.assertEquals(testModule.errors.get(3).detailType.name, "CacheError",
+                "The error detailtype should be CacheError. But Found:" +
+                        testModule.errors.get(3).detailType.name);
+        Assert.assertEquals(testModule.errors.get(3).detailType.category, "errors",
+                "The detailtype category should be errors. But Found:" + testModule.errors.get(3)
+                        .detailType.category);
+
+        Assert.assertEquals(testModule.errors.get(4).detailType.memberTypes.get(0).name, "CancelledError",
+                "The name of first membertype, of error detailtype, should be CancelledError. But Found:" +
+                        testModule.errors.get(4).detailType.memberTypes.get(0).name);
+        Assert.assertEquals(testModule.errors.get(4).detailType.memberTypes.get(0).category, "errors",
+                "The category of first membertype, of error detailtype, should be errors. But Found:" +
+                        testModule.errors.get(4).detailType.memberTypes.get(0).category);
+
+        Assert.assertEquals(testModule.errors.get(4).detailType.memberTypes.get(1).name, "UnKnownError",
+                "The name of second membertype, of error detailtype, should be CancelledError. But Found:" +
+                        testModule.errors.get(4).detailType.memberTypes.get(1).name);
+        Assert.assertEquals(testModule.errors.get(4).detailType.memberTypes.get(1).category, "errors",
+                "The category of second membertype, of error detailtype, should be errors. But Found:" +
+                        testModule.errors.get(4).detailType.memberTypes.get(1).category);
     }
 }

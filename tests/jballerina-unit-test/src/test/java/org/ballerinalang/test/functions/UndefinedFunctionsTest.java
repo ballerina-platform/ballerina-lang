@@ -22,6 +22,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -47,5 +48,10 @@ public class UndefinedFunctionsTest {
         BAssertUtil.validateError(result, i++, "undefined function 'add' in type 'string'", 4, 16);
         BAssertUtil.validateError(result, i++, "undefined function 'length' in type 'string?'", 17, 30);
         BAssertUtil.validateError(result, i++, "undefined function 'delete' in type 'map<string>'", 26, 13);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

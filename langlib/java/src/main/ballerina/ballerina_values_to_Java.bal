@@ -91,6 +91,16 @@ public isolated function getClass(string name) returns handle | error = @Method 
     paramTypes: ["io.ballerina.runtime.api.values.BString"]
 } external;
 
+# Returns a Ballerina `string` representation of the Java object referred by the `int`.
+#
+# + v - The value to be converted to a string
+# + return - A string resulting from the conversion
+isolated function getStringValue(int v) returns string = @Method {
+    'class: "org.ballerinalang.langlib.java.ToString",
+    name: "toString",
+    paramTypes: ["java.lang.Long"]
+} external;
+
 # Returns an `JObject|error`, which is obtained after casting the provided `JObject` instance
 # to the given `JObject` type depending on assignability.
 # ```ballerina
