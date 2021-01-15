@@ -384,7 +384,7 @@ public class FunctionSignatureTest {
     @Test()
     public void testOptionalArgsInNativeFunc() {
 //        CompileResult result = BCompileUtil.compile("test-src/functions/TestProj", "foo.bar");
-        CompileResult result = BCompileUtil.compile("test-src/functions/testproj/foo.bar");
+        CompileResult result = BCompileUtil.compile("test-src/functions/testproj");
         BValue[] returns = BRunUtil.invoke(result, "testOptionalArgsInNativeFunc");
 
         Assert.assertTrue(returns[0] instanceof BInteger);

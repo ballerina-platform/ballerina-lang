@@ -25,13 +25,17 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 
 import java.nio.file.Path;
 import java.util.Optional;
+
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 
 /**
  * {@code BuildProject} represents Ballerina project instance created from the project directory.
@@ -81,7 +85,7 @@ public class BuildProject extends Project {
         populateCompilerContext();
     }
 
-    public Optional<Path> modulePath(ModuleId moduleId) {
+    private Optional<Path> modulePath(ModuleId moduleId) {
         if (currentPackage().moduleIds().contains(moduleId)) {
             if (currentPackage().getDefaultModule().moduleId() == moduleId) {
                 return Optional.of(sourceRoot);
@@ -110,5 +114,48 @@ public class BuildProject extends Project {
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public DocumentId documentId(Path file) {
+        if (isFilePathInProject(file)) {
+            Path parent = Optional.of(file.toAbsolutePath().getParent()).get();
+            for (ModuleId moduleId : this.currentPackage().moduleIds()) {
+                String moduleDirName;
+                if (moduleId.moduleName().contains(DOT)) {
+                    moduleDirName = moduleId.moduleName()
+                            .split(this.currentPackage().packageName().toString() + DOT)[1];
+                } else {
+                    moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
+                }
+
+                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName) || Optional.of(
+                        Optional.of(parent.getParent()).get().getFileName()).get().toString().equals(moduleDirName)) {
+                    Module module = this.currentPackage().module(moduleId);
+                    for (DocumentId documentId : module.documentIds()) {
+                        if (module.document(documentId).name().equals(
+                                Optional.of(file.getFileName()).get().toString())) {
+                            return documentId;
+                        }
+                    }
+                    for (DocumentId documentId : module.testDocumentIds()) {
+                        if (module.document(documentId).name().split(ProjectConstants.TEST_DIR_NAME + "/")[1]
+                                .equals(Optional.of(file.getFileName()).get().toString())) {
+                            return documentId;
+                        }
+                    }
+                }
+            }
+        }
+        throw new ProjectException("provided path does not belong to the project");
+    }
+
+    private boolean isFilePathInProject(Path filepath) {
+        try {
+            ProjectPaths.packageRoot(filepath);
+        } catch (ProjectException e) {
+            return false;
+        }
+        return true;
     }
 }
