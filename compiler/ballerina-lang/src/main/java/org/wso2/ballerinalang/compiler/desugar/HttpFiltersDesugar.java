@@ -155,10 +155,8 @@ public class HttpFiltersDesugar {
 
     boolean isRequiredParamsAvailable(BLangFunction resourceNode) {
         return resourceNode.requiredParams.size() >= 2 &&
-                resourceNode.requiredParams.stream().
-                        anyMatch(param -> param.type.tsymbol.name.value.equals(CALLER_TYPE_NAME)) &&
-                resourceNode.requiredParams.stream().
-                        anyMatch(param -> param.type.tsymbol.name.value.equals(REQUEST_TYPE_NAME));
+                resourceNode.requiredParams.get(0).type.tsymbol.name.value.equals(CALLER_TYPE_NAME) &&
+                resourceNode.requiredParams.get(1).type.tsymbol.name.value.equals(REQUEST_TYPE_NAME);
     }
 
     boolean isHttpPackage(List<BType> expressionTypes) {
