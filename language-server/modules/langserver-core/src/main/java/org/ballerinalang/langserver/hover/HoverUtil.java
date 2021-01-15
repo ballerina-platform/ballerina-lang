@@ -87,7 +87,7 @@ public class HoverUtil {
             case TYPE:
                 if (((TypeSymbol) symbolAtCursor.get()).typeKind() == TypeDescKind.TYPE_REFERENCE) {
                     return getTypeRefHoverMarkupContent((TypeReferenceTypeSymbol) symbolAtCursor.get(),
-                                                        semanticModel.get(), relPath);
+                                                        semanticModel.get(), srcFile.get());
                 }
                 return getDefaultHoverObject();
             default:
@@ -204,8 +204,8 @@ public class HoverUtil {
     }
 
     private static Hover getTypeRefHoverMarkupContent(TypeReferenceTypeSymbol typeSymbol, SemanticModel model,
-                                                      String fileName) {
-        Optional<Symbol> associatedDef = model.symbol(fileName, typeSymbol.location().lineRange().startLine());
+                                                      Document srcFile) {
+        Optional<Symbol> associatedDef = model.symbol(srcFile, typeSymbol.location().lineRange().startLine());
 
         if (associatedDef.isEmpty()) {
             return getDefaultHoverObject();

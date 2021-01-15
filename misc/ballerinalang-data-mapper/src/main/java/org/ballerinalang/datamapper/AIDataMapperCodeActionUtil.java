@@ -159,11 +159,6 @@ class AIDataMapperCodeActionUtil {
 
         // Schema 1
         Optional<Document> srcFile = context.workspace().document(context.filePath());
-
-        if (srcFile.isEmpty()) {
-            return "";
-        }
-
         SemanticModel model = context.workspace().semanticModel(context.filePath()).get();
         LinePosition cursorPos = LinePosition.from(context.cursorPosition().getLine(),
                                                    context.cursorPosition().getCharacter());

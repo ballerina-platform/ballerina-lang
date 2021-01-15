@@ -27,13 +27,17 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertSame;
 
@@ -45,17 +49,19 @@ import static org.testng.Assert.assertSame;
 public class TypeCacheTest {
 
     private SemanticModel model;
-    private final String fileName = "type_cache_test.bal";
+    private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/type_cache_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/type_cache_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
 
     @Test
     public void testRecords() {
         TypeDefinitionSymbol personDefSymbol =
-                (TypeDefinitionSymbol) model.symbol(fileName, LinePosition.from(30, 5)).get();
+                (TypeDefinitionSymbol) model.symbol(srcFile, LinePosition.from(30, 5)).get();
         TypeSymbol personTypedesc = personDefSymbol.typeDescriptor();
         List<FieldSymbol> personFields = ((RecordTypeSymbol) personTypedesc).fieldDescriptors();
         FieldSymbol parentField = personFields.stream().filter(field -> "parent".equals(field.name())).findAny().get();
@@ -64,7 +70,7 @@ public class TypeCacheTest {
         assertSame(personTypedesc, ((TypeReferenceTypeSymbol) type).typeDescriptor());
 
         TypeDefinitionSymbol employeeDefSymbol =
-                (TypeDefinitionSymbol) model.symbol(fileName, LinePosition.from(36, 5)).get();
+                (TypeDefinitionSymbol) model.symbol(srcFile, LinePosition.from(36, 5)).get();
         TypeSymbol typeInclusion = ((RecordTypeSymbol) employeeDefSymbol.typeDescriptor()).typeInclusions().get(0);
 
         assertSame(personTypedesc, ((TypeReferenceTypeSymbol) typeInclusion).typeDescriptor());
@@ -81,24 +87,24 @@ public class TypeCacheTest {
     @Test(enabled = false)
     public void testObjectsAndClasses() {
         ClassSymbol personClzSymbol =
-                (ClassSymbol) model.symbol(fileName, LinePosition.from(16, 6)).get();
+                (ClassSymbol) model.symbol(srcFile, LinePosition.from(16, 6)).get();
         VariableSymbol personVar =
-                (VariableSymbol) model.symbol(fileName, LinePosition.from(42, 14)).get();
+                (VariableSymbol) model.symbol(srcFile, LinePosition.from(42, 14)).get();
         assertSame(personClzSymbol, ((TypeReferenceTypeSymbol) personVar.typeDescriptor()).typeDescriptor());
     }
 
     @Test
     public void testFunctionTypes() {
         FunctionSymbol fnAdd =
-                (FunctionSymbol) model.symbol(fileName, LinePosition.from(46, 9)).get();
+                (FunctionSymbol) model.symbol(srcFile, LinePosition.from(46, 9)).get();
         FunctionSymbol fnAdd2 =
-                (FunctionSymbol) model.symbol(fileName, LinePosition.from(43, 14)).get();
+                (FunctionSymbol) model.symbol(srcFile, LinePosition.from(43, 14)).get();
         assertSame(fnAdd.typeDescriptor(), fnAdd2.typeDescriptor());
 
         FunctionSymbol fnSum1 =
-                (FunctionSymbol) model.symbol(fileName, LinePosition.from(48, 9)).get();
+                (FunctionSymbol) model.symbol(srcFile, LinePosition.from(48, 9)).get();
         FunctionSymbol fnSum2 =
-                (FunctionSymbol) model.symbol(fileName, LinePosition.from(48, 9)).get();
+                (FunctionSymbol) model.symbol(srcFile, LinePosition.from(48, 9)).get();
 
         // Due to the issue with overridden equals() in BInvokableType, this equivalent function type to the above
         // one doesn't get cached. Hence not the same typedesc.
