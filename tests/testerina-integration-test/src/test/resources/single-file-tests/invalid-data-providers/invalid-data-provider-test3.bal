@@ -18,7 +18,7 @@ import ballerina/test;
 
 // tests an invalid tuple data provider
 @test:Config{
-    dataProvider:"invalidDataGen3"
+    dataProvider: invalidDataGen3
 }
 function testInvalidTupleDataProvider ([string, string, [string, string]] result) {
 

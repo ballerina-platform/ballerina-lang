@@ -206,6 +206,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "type TypeName table<>;",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "insertText": "type ${1:TypeName} table<${2}>;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type TypeName table<> key",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "insertText": "type ${1:TypeName} table<${2}> key${3}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error",
       "kind": "Event",
       "detail": "Error",

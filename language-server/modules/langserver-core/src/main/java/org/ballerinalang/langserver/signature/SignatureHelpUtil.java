@@ -135,7 +135,7 @@ public class SignatureHelpUtil {
         Map<String, String> paramToDesc = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
-        Optional<Documentation> documentation = functionSymbol.docAttachment();
+        Optional<Documentation> documentation = functionSymbol.documentation();
         List<Parameter> parameters = new ArrayList<>();
         // TODO: Handle the error constructor in the next phase
         // Handle error constructors
