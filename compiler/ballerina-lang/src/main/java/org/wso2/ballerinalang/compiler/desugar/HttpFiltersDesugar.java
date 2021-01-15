@@ -127,6 +127,8 @@ public class HttpFiltersDesugar {
 
     private static final String ORG_NAME = "ballerina";
     private static final String PACKAGE_NAME = "http";
+    private static final String CALLER_TYPE_NAME = "Caller";
+    private static final String REQUEST_TYPE_NAME = "Request";
 
     private static final int ENDPOINT_PARAM_NUM = 0;
     private static final int REQUEST_PARAM_NUM = 1;
@@ -149,6 +151,14 @@ public class HttpFiltersDesugar {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
+    }
+
+    boolean isRequiredParamsAvailable(BLangFunction resourceNode) {
+        return resourceNode.requiredParams.size() >= 2 &&
+                resourceNode.requiredParams.stream().
+                        anyMatch(param -> param.type.tsymbol.name.value.equals(CALLER_TYPE_NAME)) &&
+                resourceNode.requiredParams.stream().
+                        anyMatch(param -> param.type.tsymbol.name.value.equals(REQUEST_TYPE_NAME));
     }
 
     boolean isHttpPackage(List<BType> expressionTypes) {
