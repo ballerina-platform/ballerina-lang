@@ -27,7 +27,7 @@ jobs:
                         ~/.gradle/caches
                         ~/.gradle/wrapper
                     key: ${{ runner.os }}-gradle-${{ github.sha }}
-                    restore-keys: ${{ runner.os }}-gradle
+                    restore-keys: ${{ runner.os }}-gradle-
 
             -   name: Initialize Sub Modules
                 run: git submodule update --init
@@ -37,7 +37,7 @@ jobs:
                     NEXUS_USERNAME: ${{ secrets.BALLERINA_BOT_USERNAME }}
                     NEXUS_PASSWORD: ${{ secrets.BALLERINA_BOT_TOKEN }}
                 run: |
-                    ./gradlew publish -x test -x check -PpublishToGithub --scan
+                    ./gradlew publish -x test -x check -x createJavadoc -PpublishToGithub --scan
 
             -   name: Trigger Standard Library Module Builds
                 run: |
