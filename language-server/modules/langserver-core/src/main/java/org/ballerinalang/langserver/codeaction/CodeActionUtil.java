@@ -505,11 +505,8 @@ public class CodeActionUtil {
                     // Cursor within the service
                     ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) member;
                     for (Node memberNode : serviceDeclrNode.members()) {
-                        if (memberNode.kind() == SyntaxKind.FUNCTION_DEFINITION
-                                && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
-                            // Cursor on the resource function
-                            return Optional.of((NonTerminalNode) memberNode);
-                        } else if (memberNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION
+                        if ((memberNode.kind() == SyntaxKind.FUNCTION_DEFINITION ||
+                                memberNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION)
                                 && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
                             // Cursor on the resource function
                             return Optional.of((NonTerminalNode) memberNode);

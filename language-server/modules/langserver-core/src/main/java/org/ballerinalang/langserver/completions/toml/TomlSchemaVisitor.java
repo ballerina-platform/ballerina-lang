@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ballerinalang.langserver.completions.toml;
 
 import io.ballerina.toml.validator.schema.AbstractSchema;
@@ -9,6 +24,7 @@ import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.toml.validator.schema.SchemaVisitor;
 import io.ballerina.toml.validator.schema.StringSchema;
 import io.ballerina.toml.validator.schema.Type;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -131,6 +147,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
         item.setInsertText(objectNode.prettyPrint());
         item.setDetail("Table");
         item.setLabel(this.parentKey.getKey());
+        item.setSortText(SortingUtil.genSortText(2));
         return item;
     }
 
@@ -142,6 +159,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
         item.setLabel(key);
         item.setKind(CompletionItemKind.Snippet);
         item.setInsertTextFormat(InsertTextFormat.Snippet);
+        item.setSortText(SortingUtil.genSortText(2));
         return item;
     }
 
@@ -153,6 +171,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
         item.setKind(CompletionItemKind.Snippet);
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(TomlSyntaxTreeUtil.TABLE_ARRAY);
+        item.setSortText(SortingUtil.genSortText(2));
         return item;
     }
 
@@ -164,6 +183,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
         item.setKind(CompletionItemKind.Snippet);
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(TomlSyntaxTreeUtil.BOOLEAN);
+        item.setSortText(SortingUtil.genSortText(1));
         return item;
     }
 
@@ -175,6 +195,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
         item.setKind(CompletionItemKind.Snippet);
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(TomlSyntaxTreeUtil.NUMBER);
+        item.setSortText(SortingUtil.genSortText(1));
         return item;
     }
 
@@ -186,6 +207,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
         item.setKind(CompletionItemKind.Snippet);
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(TomlSyntaxTreeUtil.STRING);
+        item.setSortText(SortingUtil.genSortText(1));
         return item;
     }
 }

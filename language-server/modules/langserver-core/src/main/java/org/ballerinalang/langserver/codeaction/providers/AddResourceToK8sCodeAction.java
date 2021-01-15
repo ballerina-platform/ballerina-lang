@@ -42,26 +42,18 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Code Action for resource into Kubernetes.toml
+ * Code Action for resource into Kubernetes.toml.
  *
  * @since 2.0.0
  */
@@ -69,8 +61,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class AddResourceToK8sCodeAction extends AbstractCodeActionProvider {
 
     public AddResourceToK8sCodeAction() {
-        super(Collections.singletonList(
-                CodeActionNodeType.RESOURCE));
+        super(Collections.singletonList(CodeActionNodeType.RESOURCE));
     }
 
     /**
@@ -164,7 +155,7 @@ public class AddResourceToK8sCodeAction extends AbstractCodeActionProvider {
                 "path = \"" + servicePath + "/" + resourcePath + "\"" + CommonUtil.LINE_SEPARATOR;
     }
 
-    private class ListenerVisitor extends NodeVisitor {
+    private static class ListenerVisitor extends NodeVisitor {
 
         private String targetListenerName;
         private int port;

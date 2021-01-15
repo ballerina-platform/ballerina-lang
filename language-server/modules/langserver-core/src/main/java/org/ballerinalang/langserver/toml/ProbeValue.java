@@ -20,9 +20,11 @@ import io.ballerina.toml.syntax.tree.Node;
 /**
  * Represents a value in Kubernetes.toml Probe.
  *
+ * @param <T> Value type
  * @since 2.0.0
  */
-public class ProbeValue <T>{
+public class ProbeValue<T> {
+
     private final Node node;
     private final T value;
 

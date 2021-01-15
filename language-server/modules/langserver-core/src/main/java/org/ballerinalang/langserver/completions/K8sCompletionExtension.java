@@ -42,8 +42,8 @@ public class K8sCompletionExtension implements CompletionExtension {
     }
 
     @Override
-    public List<CompletionItem> execute(CompletionParams inputParams, CompletionContext context, LanguageServerContext serverContext)
-            throws Throwable {
+    public List<CompletionItem> execute(CompletionParams inputParams, CompletionContext context,
+                                        LanguageServerContext serverContext) throws Throwable {
         K8sCompletionContextImpl k8sContext = new K8sCompletionContextImpl(context, serverContext);
         K8sCompletionRouter k8sCompletionRouter = new K8sCompletionRouter();
         return k8sCompletionRouter.getCompletionItems(k8sContext);

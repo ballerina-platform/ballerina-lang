@@ -33,6 +33,7 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.LanguageExtension")
 public class TomlCodeActionExtension implements CodeActionExtension {
+
     @Override
     public boolean validate(CodeActionParams inputParams) {
         // Here we check the .bal extension
@@ -40,7 +41,8 @@ public class TomlCodeActionExtension implements CodeActionExtension {
     }
 
     @Override
-    public List<? extends CodeAction> execute(CodeActionParams inputParams, CodeActionContext context, LanguageServerContext serverContext) {
+    public List<? extends CodeAction> execute(CodeActionParams inputParams, CodeActionContext context,
+                                              LanguageServerContext serverContext) {
         return TomlCodeActionRouter.getAvailableCodeActions(context);
     }
 }

@@ -93,7 +93,7 @@ public class K8sCompletionRouter {
             }
             reference = reference.parent();
         }
-        return new ArrayList<>(completions.values());
+        return new ArrayList<>(addRooTablesToCompletions(c2cSnippets.keySet(), new HashMap<>()).values());
     }
 
     private Map<String, CompletionItem> getTableArrayCompletions(TableArrayNode arrayNode, Map<Parent,
@@ -151,9 +151,12 @@ public class K8sCompletionRouter {
         return removeExistingChildTables(completions, existingChildEntries);
     }
 
-    private void addRooTablesToCompletions(Set<Parent> parents, Map<String, CompletionItem> completions) {
+    private Map<String, CompletionItem> addRooTablesToCompletions(Set<Parent> parents, Map<String, CompletionItem> completions) {
         for (Parent parent : parents) {
             String key = parent.getKey();
+            if (completions.containsKey(key)) {
+                continue;
+            }
             ParentType type = parent.getType();
             CompletionItem item = new CompletionItem();
             if (type == ParentType.TABLE) {
@@ -163,6 +166,7 @@ public class K8sCompletionRouter {
                 item.setLabel(key);
                 item.setKind(CompletionItemKind.Snippet);
                 item.setInsertTextFormat(InsertTextFormat.Snippet);
+                item.setSortText(SortingUtil.genSortText(3));
             } else if (type == ParentType.TABLE_ARRAY) {
                 TableArray objectNode = new TableArray(key);
                 item.setInsertText(objectNode.prettyPrint());
@@ -170,11 +174,13 @@ public class K8sCompletionRouter {
                 item.setKind(CompletionItemKind.Snippet);
                 item.setInsertTextFormat(InsertTextFormat.Snippet);
                 item.setDetail(TomlSyntaxTreeUtil.TABLE_ARRAY);
+                item.setSortText(SortingUtil.genSortText(3));
             } else {
                 continue;
             }
             completions.put(key, item);
         }
+        return completions;
     }
 
     private Map<String, CompletionItem> getChildFromDottedKey(Map<Parent, Map<String, CompletionItem>> snippets,

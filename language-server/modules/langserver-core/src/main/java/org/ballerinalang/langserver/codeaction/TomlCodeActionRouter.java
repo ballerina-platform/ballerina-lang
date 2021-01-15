@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
@@ -223,20 +238,17 @@ public class TomlCodeActionRouter {
     }
 
     private static String getProbeServiceWithImportString(int port, String servicePath, String resourcePath) {
-        return String
-                .format("import ballerina/http;%s%s",
-                        CommonUtil.LINE_SEPARATOR, getProbeServiceString(port,servicePath,resourcePath));
+        return String.format("import ballerina/http;%s%s",
+                        CommonUtil.LINE_SEPARATOR, getProbeServiceString(port, servicePath, resourcePath));
     }
 
     private static String getProbeServiceString(int port, String servicePath, String resourcePath) {
-        return String
-                .format("%sservice http:Service %s on new http:Listener(%d) {%s    resource " +
-                                "function get %s (http:Caller caller) returns error? {%s        check caller->ok" +
-                                "(\"Resource is Ready\");%s    }%s}%s",
-                        CommonUtil.LINE_SEPARATOR, servicePath, port,
-                        CommonUtil.LINE_SEPARATOR, resourcePath,
-                        CommonUtil.LINE_SEPARATOR, CommonUtil.LINE_SEPARATOR, CommonUtil.LINE_SEPARATOR,
-                        CommonUtil.LINE_SEPARATOR);
+        return String.format("%sservice http:Service %s on new http:Listener(%d) {%s    resource " +
+                        "function get %s (http:Caller caller) returns error? {%s        check caller->ok" +
+                        "(\"Resource is Ready\");%s    }%s}%s",
+                CommonUtil.LINE_SEPARATOR, servicePath, port, CommonUtil.LINE_SEPARATOR, resourcePath,
+                CommonUtil.LINE_SEPARATOR, CommonUtil.LINE_SEPARATOR, CommonUtil.LINE_SEPARATOR,
+                CommonUtil.LINE_SEPARATOR);
     }
 
     public static List<CodeAction> handleInvalidPort(Diagnostic diagnostic, CodeActionContext ctx, Probe probe) {
