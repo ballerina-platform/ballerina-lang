@@ -756,6 +756,12 @@ public class Desugar extends BLangNodeVisitor {
                     }
                 }
 
+                // Module init should fail if listener is a error value.
+                if (Symbols.isFlagOn(globalVarFlags, Flags.LISTENER)
+                        && types.containsErrorType(globalVar.expr.type)) {
+                    globalVar.expr = ASTBuilderUtil.createCheckExpr(globalVar.expr.pos, globalVar.expr, globalVar.type);
+                }
+
                 BLangAssignment assignment = createAssignmentStmt(globalVar);
                 initFnBody.stmts.add(assignment);
             }
