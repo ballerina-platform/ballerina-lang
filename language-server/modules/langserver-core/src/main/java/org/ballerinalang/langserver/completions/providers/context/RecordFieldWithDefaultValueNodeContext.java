@@ -99,13 +99,13 @@ public class RecordFieldWithDefaultValueNodeContext extends
             Stream<Symbol> classesAndTypes = Stream.concat(moduleSymbol.classes().stream(),
                     moduleSymbol.typeDefinitions().stream());
             objectType = classesAndTypes
-                    .filter(symbol -> SymbolUtil.isClass(symbol) && symbol.name().equals(identifier))
+                    .filter(symbol -> SymbolUtil.isClass(symbol) && ((ClassSymbol) symbol).name().equals(identifier))
                     .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else if (typeNameNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) typeNameNode).name().text();
             objectType = visibleSymbols.stream()
-                    .filter(symbol -> SymbolUtil.isClass(symbol) && symbol.name().equals(identifier))
+                    .filter(symbol -> SymbolUtil.isClass(symbol) && ((ClassSymbol) symbol).name().equals(identifier))
                     .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else {

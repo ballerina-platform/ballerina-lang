@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -162,7 +163,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         String name = ((SimpleNameReferenceNode) referenceNode).name().text();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<Symbol> symbolRef = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(name))
+                .filter(symbol -> symbol instanceof Identifiable && ((Identifiable) symbol).name().equals(name))
                 .findFirst();
         if (symbolRef.isEmpty()) {
             return Optional.empty();
@@ -176,7 +177,8 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION &&
+                        ((FunctionSymbol) symbol).name().equals(fName))
                 .map(symbol -> (FunctionSymbol) symbol)
                 .findFirst();
         if (symbolRef.isEmpty()) {

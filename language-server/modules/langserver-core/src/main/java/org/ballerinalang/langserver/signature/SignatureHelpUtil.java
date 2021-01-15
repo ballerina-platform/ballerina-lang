@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.signature;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -353,14 +354,18 @@ public class SignatureHelpUtil {
             List<Symbol> filteredContent;
             if (nameReferenceNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 funcName = ((QualifiedNameReferenceNode) nameReferenceNode).identifier().text();
-                filteredContent = QNameReferenceUtil.getModuleContent(context,
-                        (QualifiedNameReferenceNode) nameReferenceNode,
-                        symbolPredicate.and(symbol -> symbol.name().equals(funcName)));
+                Predicate<Symbol> isSameFuncName = symbolPredicate.and(
+                        symbol -> ((FunctionSymbol) symbol).name().equals(funcName));
+                filteredContent =
+                        QNameReferenceUtil.getModuleContent(context, (QualifiedNameReferenceNode) nameReferenceNode,
+                                                            isSameFuncName);
             } else {
                 funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
                 List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+                Predicate<Symbol> isSameFuncName = symbolPredicate.and(
+                        symbol -> ((FunctionSymbol) symbol).name().equals(funcName));
                 filteredContent = visibleSymbols.stream()
-                        .filter(symbolPredicate.and(symbol -> symbol.name().equals(funcName)))
+                        .filter(isSameFuncName)
                         .collect(Collectors.toList());
             }
 
@@ -457,7 +462,7 @@ public class SignatureHelpUtil {
         String name = ((SimpleNameReferenceNode) referenceNode).name().text();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<Symbol> symbolRef = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(name))
+                .filter(symbol -> symbol instanceof Identifiable && ((Identifiable) symbol).name().equals(name))
                 .findFirst();
         if (symbolRef.isEmpty()) {
             return Optional.empty();
@@ -471,7 +476,8 @@ public class SignatureHelpUtil {
         String fName = ((SimpleNameReferenceNode) expr.functionName()).name().text();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<FunctionSymbol> symbolRef = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(fName) && symbol.kind() == SymbolKind.FUNCTION)
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION &&
+                        ((FunctionSymbol) symbol).name().equals(fName))
                 .map(symbol -> (FunctionSymbol) symbol)
                 .findFirst();
         if (symbolRef.isEmpty()) {

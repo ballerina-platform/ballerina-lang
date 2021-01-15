@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.common.utils;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -401,8 +402,13 @@ public class CommonUtil {
     public static Optional<ModuleSymbol> searchModuleForAlias(PositionedOperationContext context, String alias) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         for (Symbol symbol : visibleSymbols) {
-            if (symbol.kind() == MODULE && symbol.name().equals(alias)) {
-                return Optional.of((ModuleSymbol) symbol);
+            if (symbol.kind() != MODULE) {
+                continue;
+            }
+
+            ModuleSymbol module = (ModuleSymbol) symbol;
+            if (module.name().equals(alias)) {
+                return Optional.of(module);
             }
         }
 
@@ -622,14 +628,15 @@ public class CommonUtil {
      * @return random argument name
      */
     public static String generateVariableName(Symbol symbol, TypeSymbol typeSymbol, Set<String> names) {
-        if (symbol != null) {
+        if (symbol instanceof Identifiable) {
             // Start naming with symbol-name
-            return generateVariableName(1, symbol.name(), names);
+            return generateVariableName(1, ((Identifiable) symbol).name(), names);
         } else if (typeSymbol != null) {
             // If symbol is null, try typeSymbol
             String name;
-            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE && !typeSymbol.name().startsWith("$")) {
-                name = typeSymbol.name();
+            if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE
+                    && !((TypeReferenceTypeSymbol) typeSymbol).name().startsWith("$")) {
+                name = ((TypeReferenceTypeSymbol) typeSymbol).name();
             } else {
                 TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
                 switch (rawType.typeKind()) {
@@ -831,7 +838,11 @@ public class CommonUtil {
      * @return set of strings
      */
     public static Set<String> getAllNameEntries(List<Symbol> visibleSymbols) {
-        return visibleSymbols.stream().map(Symbol::name).collect(Collectors.toSet());
+        return visibleSymbols.stream()
+                .filter(s -> s instanceof Identifiable)
+                .map(s -> (Identifiable) s)
+                .map(Identifiable::name)
+                .collect(Collectors.toSet());
     }
 
     /**

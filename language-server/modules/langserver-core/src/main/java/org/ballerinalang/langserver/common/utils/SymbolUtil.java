@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -201,7 +202,7 @@ public class SymbolUtil {
         }
         List<String> attachedMethods = ((ClassSymbol) CommonUtil.getRawType(symbolTypeDesc.get())).methods()
                 .stream()
-                .map(Symbol::name)
+                .map(MethodSymbol::name)
                 .collect(Collectors.toList());
         return attachedMethods.contains("start") && attachedMethods.contains("immediateStop")
                 && attachedMethods.contains("immediateStop") && attachedMethods.contains("attach");

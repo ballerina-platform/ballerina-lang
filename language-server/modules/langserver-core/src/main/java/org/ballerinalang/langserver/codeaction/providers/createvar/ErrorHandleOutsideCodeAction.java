@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.createvar;
 
+import io.ballerina.compiler.api.symbols.Identifiable;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
@@ -60,8 +62,11 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
+
+        Symbol matchedSymbol = context.positionDetails().matchedSymbol();
         TypeSymbol typeSymbol = context.positionDetails().matchedExprType();
-        if (typeSymbol == null || typeSymbol.typeKind() != TypeDescKind.UNION) {
+        if (!(matchedSymbol instanceof Identifiable) || typeSymbol == null
+                || typeSymbol.typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }
         UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol;
@@ -77,7 +82,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         edits.addAll(getAddCheckTextEdits(CommonUtil.toRange(diagnostic.location().lineRange()).getStart(), context));
 
         String commandTitle = String.format(CommandConstants.CREATE_VAR_ADD_CHECK_TITLE,
-                                            context.positionDetails().matchedSymbol().name());
+                                            ((Identifiable) matchedSymbol).name());
         return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(commandTitle, edits, uri));
     }
 

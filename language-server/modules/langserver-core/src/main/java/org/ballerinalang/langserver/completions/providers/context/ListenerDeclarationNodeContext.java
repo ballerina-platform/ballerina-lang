@@ -16,7 +16,9 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.NamedSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
@@ -165,7 +167,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<ModuleSymbol> moduleSymbol = visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == MODULE && symbol.name().equals(modulePrefix))
+                .filter(symbol -> symbol.kind() == MODULE && ((ModuleSymbol) symbol).name().equals(modulePrefix))
                 .map(symbol -> (ModuleSymbol) symbol)
                 .findAny();
 
@@ -267,7 +269,8 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                 return Optional.empty();
             }
             ModuleSymbol module = moduleSymbol.get();
-            Stream<Symbol> objsAndClasses = Stream.concat(module.classes().stream(), module.typeDefinitions().stream());
+            Stream<NamedSymbol> objsAndClasses = Stream.concat(module.classes().stream(),
+                                                               module.typeDefinitions().stream());
             typeSymbol = objsAndClasses
                     .filter(type -> SymbolUtil.isListener(type)
                             && type.name().equals(nameReferenceNode.identifier().text()))
@@ -278,7 +281,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) typeDescriptor;
             typeSymbol = visibleSymbols.stream()
                     .filter(visibleSymbol -> SymbolUtil.isListener(visibleSymbol)
-                            && visibleSymbol.name().equals(nameReferenceNode.name().text()))
+                            && ((Identifiable) visibleSymbol).name().equals(nameReferenceNode.name().text()))
                     .map(symbol -> (ClassSymbol) symbol)
                     .findAny();
         }

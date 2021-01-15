@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.createvar;
 
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -91,7 +92,9 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
 
         Position position = CommonUtil.toPosition(context.positionDetails().matchedNode().lineRange().startLine());
         Set<String> allNameEntries = context.visibleSymbols(position).stream()
-                .map(Symbol::name)
+                .filter(s -> s instanceof Identifiable)
+                .map(s -> (Identifiable) s)
+                .map(Identifiable::name)
                 .collect(Collectors.toSet());
 
         String name = CommonUtil.generateVariableName(matchedSymbol, typeDescriptor, allNameEntries);

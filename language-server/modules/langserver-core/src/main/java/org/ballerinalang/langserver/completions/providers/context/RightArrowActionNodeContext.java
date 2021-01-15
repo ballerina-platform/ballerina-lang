@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -58,12 +59,15 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
         switch (node.kind()) {
             case SIMPLE_NAME_REFERENCE:
                 predicate = symbol -> symbol.kind() != SymbolKind.FUNCTION
-                        && symbol.name().equals(((SimpleNameReferenceNode) node).name().text());
+                        && symbol instanceof Identifiable &&
+                        ((Identifiable) symbol).name().equals(((SimpleNameReferenceNode) node).name().text());
                 break;
             case FUNCTION_CALL:
                 predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION
-                        && symbol.name().equals(((SimpleNameReferenceNode) ((FunctionCallExpressionNode) node)
-                        .functionName()).name().text());
+                        && symbol instanceof Identifiable &&
+                        ((Identifiable) symbol).name().equals(
+                                ((SimpleNameReferenceNode) ((FunctionCallExpressionNode) node).functionName()).name()
+                                        .text());
                 break;
             default:
                 return completionItems;

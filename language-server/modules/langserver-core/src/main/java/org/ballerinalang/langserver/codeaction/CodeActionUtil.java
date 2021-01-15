@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -194,7 +195,7 @@ public class CodeActionUtil {
      */
     public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> edits,
                                                 DocumentServiceContext context) {
-        if (typeDescriptor.name().startsWith("$")) {
+        if (typeDescriptor instanceof Identifiable && ((Identifiable) typeDescriptor).name().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);

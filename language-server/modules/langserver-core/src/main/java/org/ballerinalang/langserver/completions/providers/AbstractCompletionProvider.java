@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -160,11 +161,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 VariableSymbol varSymbol = (VariableSymbol) symbol;
                 TypeSymbol typeDesc = (varSymbol).typeDescriptor();
                 String typeName = typeDesc == null ? "" : typeDesc.signature();
-                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
+                CompletionItem variableCItem =
+                        VariableCompletionItemBuilder.build(varSymbol, varSymbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
                 // Here skip all the package symbols since the package is added separately
-                CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.name());
+                CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, ((Identifiable) symbol).name());
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, typeCItem));
             } else if (symbol.kind() == SymbolKind.WORKER) {
                 CompletionItem workerItem = WorkerCompletionItemBuilder.build((WorkerSymbol) symbol);
@@ -191,7 +193,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         visibleSymbols.forEach(bSymbol -> {
             if (bSymbol.kind() == SymbolKind.TYPE_DEFINITION || bSymbol.kind() == SymbolKind.CLASS
                     || bSymbol.kind() == ENUM) {
-                CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
+                CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, ((Identifiable) bSymbol).name());
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
         });

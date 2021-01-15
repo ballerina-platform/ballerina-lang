@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.NamedSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -160,7 +161,7 @@ public class MappingConstructorExpressionNodeContext extends
             if (typeDesc.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                 String varName = ((SimpleNameReferenceNode) typeDesc).name().text();
                 return visibleSymbols.stream()
-                        .filter(symbol -> SymbolUtil.isRecord(symbol) && symbol.name().equals(varName))
+                        .filter(symbol -> SymbolUtil.isRecord(symbol) && ((NamedSymbol) symbol).name().equals(varName))
                         .map(SymbolUtil::getTypeDescForRecordSymbol)
                         .findFirst();
             }
@@ -187,7 +188,8 @@ public class MappingConstructorExpressionNodeContext extends
             if (bPattern.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
                 String variableName = ((CaptureBindingPatternNode) bPattern).variableName().text();
                 return visibleSymbols.stream()
-                        .filter(symbol -> SymbolUtil.isRecord(symbol) && symbol.name().equals(variableName))
+                        .filter(symbol -> SymbolUtil.isRecord(symbol) &&
+                                ((NamedSymbol) symbol).name().equals(variableName))
                         .map(SymbolUtil::getTypeDescForRecordSymbol)
                         .findFirst();
             }
@@ -196,7 +198,7 @@ public class MappingConstructorExpressionNodeContext extends
             if (varRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                 String varName = ((SimpleNameReferenceNode) varRef).name().text();
                 return visibleSymbols.stream()
-                        .filter(symbol -> SymbolUtil.isRecord(symbol) && symbol.name().equals(varName))
+                        .filter(symbol -> SymbolUtil.isRecord(symbol) && ((NamedSymbol) symbol).name().equals(varName))
                         .map(SymbolUtil::getTypeDescForRecordSymbol)
                         .findFirst();
             }
@@ -219,14 +221,14 @@ public class MappingConstructorExpressionNodeContext extends
             if (!(symbol instanceof VariableSymbol)) {
                 return;
             }
-            TypeSymbol typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
-            String symbolName = symbol.name();
+            VariableSymbol varSymbol = (VariableSymbol) symbol;
+            TypeSymbol typeDescriptor = varSymbol.typeDescriptor();
+            String symbolName = varSymbol.name();
             if (fieldTypeMap.containsKey(symbolName)
                     && fieldTypeMap.get(symbolName).typeKind() == typeDescriptor.typeKind()) {
                 String bTypeName = typeDescriptor.signature();
-                CompletionItem cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbolName,
-                        bTypeName);
-                completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
+                CompletionItem cItem = VariableCompletionItemBuilder.build(varSymbol, symbolName, bTypeName);
+                completionItems.add(new SymbolCompletionItem(ctx, varSymbol, cItem));
             }
         });
 
@@ -300,7 +302,8 @@ public class MappingConstructorExpressionNodeContext extends
         }
 
         Optional<TypeSymbol> bTypeSymbol = searchableEntries.stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION && symbol.name().equals(annotationName))
+                .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION &&
+                        ((AnnotationSymbol) symbol).name().equals(annotationName))
                 .map(entry -> ((AnnotationSymbol) entry).typeDescriptor().orElse(null))
                 .findAny();
         if (bTypeSymbol.isEmpty() || CommonUtil.getRawType(bTypeSymbol.get()).typeKind() != TypeDescKind.RECORD) {

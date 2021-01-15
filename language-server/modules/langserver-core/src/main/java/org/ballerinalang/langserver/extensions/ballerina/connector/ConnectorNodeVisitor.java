@@ -91,8 +91,9 @@ public class ConnectorNodeVisitor extends NodeVisitor {
         Optional<Symbol> typeSymbol = this.semanticModel.symbol(typeDefinitionNode);
 
         if (typeSymbol.isPresent() && typeSymbol.get() instanceof TypeDefinitionSymbol) {
-            TypeSymbol rawType = getRawType(((TypeDefinitionSymbol) typeSymbol.get()).typeDescriptor());
-            String typeName = String.format("%s:%s", typeSymbol.get().moduleID().toString(), typeSymbol.get().name());
+            TypeDefinitionSymbol typeDef = (TypeDefinitionSymbol) typeSymbol.get();
+            TypeSymbol rawType = getRawType(typeDef.typeDescriptor());
+            String typeName = String.format("%s:%s", typeDef.moduleID().toString(), typeDef.name());
             if (rawType.typeKind() == TypeDescKind.RECORD || rawType.typeKind() == TypeDescKind.UNION) {
                 this.records.put(typeName, typeDefinitionNode);
             }

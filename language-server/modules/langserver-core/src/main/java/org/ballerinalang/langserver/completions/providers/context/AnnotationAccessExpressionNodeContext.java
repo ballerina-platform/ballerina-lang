@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -165,7 +166,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
             case SIMPLE_NAME_REFERENCE:
                 String nameRef = ((SimpleNameReferenceNode) expressionNode).name().text();
                 for (Symbol symbol : visibleSymbols) {
-                    if (symbol.name().equals(nameRef)) {
+                    if (symbol instanceof Identifiable && ((Identifiable) symbol).name().equals(nameRef)) {
                         return Optional.of(symbol);
                     }
                 }
@@ -188,7 +189,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
                 } else if (refName.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                     String funcName = ((SimpleNameReferenceNode) refName).name().text();
                     for (Symbol symbol : visibleSymbols) {
-                        if (symbol.kind() == FUNCTION && symbol.name().equals(funcName)) {
+                        if (symbol.kind() == FUNCTION && ((FunctionSymbol) symbol).name().equals(funcName)) {
                             return Optional.of(symbol);
                         }
                     }

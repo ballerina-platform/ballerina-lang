@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
@@ -97,12 +98,14 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
                 return Optional.empty();
             }
             nameReferenceSymbol = pkgSymbol.get().allSymbols().stream()
-                    .filter(symbol -> symbol.name().equals(nameReferenceNode.identifier().text()))
+                    .filter(symbol -> symbol instanceof Identifiable &&
+                            ((Identifiable) symbol).name().equals(nameReferenceNode.identifier().text()))
                     .findFirst();
         } else if (typeDescriptor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) typeDescriptor;
             nameReferenceSymbol = visibleSymbols.stream()
-                    .filter(symbol -> symbol.name().equals(nameReferenceNode.name().text()))
+                    .filter(symbol -> symbol instanceof Identifiable &&
+                            ((Identifiable) symbol).name().equals(nameReferenceNode.name().text()))
                     .findFirst();
         }
 
@@ -120,7 +123,8 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         }
         String varName = ((SimpleNameReferenceNode) varRefNode).name().text();
         Optional<Symbol> varEntry = visibleSymbols.stream()
-                .filter(symbol -> symbol.name().equals(varName))
+                .filter(symbol -> symbol instanceof Identifiable &&
+                        ((Identifiable) symbol).name().equals(varName))
                 .findFirst();
 
         if (varEntry.isEmpty() || !SymbolUtil.isObject(varEntry.get())) {

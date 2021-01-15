@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.createvar;
 
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -60,7 +61,8 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         Symbol matchedSymbol = context.positionDetails().matchedSymbol();
         TypeSymbol typeDescriptor = context.positionDetails().matchedExprType();
         String uri = context.fileUri();
-        if (typeDescriptor == null || typeDescriptor.typeKind() != TypeDescKind.UNION) {
+        if (!(matchedSymbol instanceof Identifiable) || typeDescriptor == null
+                || typeDescriptor.typeKind() != TypeDescKind.UNION) {
             return Collections.emptyList();
         }
         UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor;
@@ -74,7 +76,8 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, context);
 
         // Add type guard code action
-        String commandTitle = String.format(CommandConstants.CREATE_VAR_TYPE_GUARD_TITLE, matchedSymbol.name());
+        String commandTitle = String.format(CommandConstants.CREATE_VAR_TYPE_GUARD_TITLE,
+                                            ((Identifiable) matchedSymbol).name());
         List<TextEdit> edits = CodeActionUtil.getTypeGuardCodeActionEdits(createVarTextEdits.name, range, unionType,
                                                                           context);
         if (edits.isEmpty()) {

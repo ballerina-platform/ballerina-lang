@@ -235,16 +235,17 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     if (symbol.kind() != SymbolKind.VARIABLE) {
                         return false;
                     }
-                    TypeSymbol typeDesc = ((VariableSymbol) symbol).typeDescriptor();
-                    return typeDesc.typeKind() == TypeDescKind.UNION && !capturedSymbols.contains(symbol.name());
+                    VariableSymbol varSymbol = (VariableSymbol) symbol;
+                    TypeSymbol typeDesc = varSymbol.typeDescriptor();
+                    return typeDesc.typeKind() == TypeDescKind.UNION && !capturedSymbols.contains(varSymbol.name());
                 })
                 .map(symbol -> {
-                    capturedSymbols.add(symbol.name());
+                    VariableSymbol varSymbol = (VariableSymbol) symbol;
+                    capturedSymbols.add(varSymbol.name());
                     List<TypeSymbol> errorTypes = new ArrayList<>();
                     List<TypeSymbol> resultTypes = new ArrayList<>();
                     List<TypeSymbol> members
-                            = new ArrayList<>(((UnionTypeSymbol) ((VariableSymbol) symbol).typeDescriptor())
-                            .memberTypeDescriptors());
+                            = new ArrayList<>(((UnionTypeSymbol) varSymbol.typeDescriptor()).memberTypeDescriptors());
                     members.forEach(bType -> {
                         if (bType.typeKind() == TypeDescKind.ERROR) {
                             errorTypes.add(bType);
@@ -255,7 +256,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     if (errorTypes.size() == 1) {
                         resultTypes.addAll(errorTypes);
                     }
-                    String symbolName = symbol.name();
+                    String symbolName = varSymbol.name();
                     String label = symbolName + " - typeguard " + symbolName;
                     String detail = "Destructure the variable " + symbolName + " with typeguard";
                     StringBuilder snippet = new StringBuilder();

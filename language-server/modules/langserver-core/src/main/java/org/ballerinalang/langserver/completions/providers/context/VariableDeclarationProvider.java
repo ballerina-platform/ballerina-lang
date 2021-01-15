@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.NamedSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -96,8 +97,8 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
             }
             String identifier = ((QualifiedNameReferenceNode) typeDescriptorNode).identifier().text();
             ModuleSymbol moduleSymbol = module.get();
-            Stream<Symbol> classesAndTypes = Stream.concat(moduleSymbol.classes().stream(),
-                    moduleSymbol.typeDefinitions().stream());
+            Stream<NamedSymbol> classesAndTypes = Stream.concat(moduleSymbol.classes().stream(),
+                                                                moduleSymbol.typeDefinitions().stream());
             classSymbol = classesAndTypes
                     .filter(typeSymbol -> SymbolUtil.isClass(typeSymbol) && typeSymbol.name().equals(identifier))
                     .map(SymbolUtil::getTypeDescForClassSymbol)
@@ -105,7 +106,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         } else if (typeDescriptorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) typeDescriptorNode).name().text();
             classSymbol = visibleSymbols.stream()
-                    .filter(symbol -> SymbolUtil.isClass(symbol) && symbol.name().equals(identifier))
+                    .filter(symbol -> SymbolUtil.isClass(symbol) && ((ClassSymbol) symbol).name().equals(identifier))
                     .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else {

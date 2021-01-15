@@ -98,7 +98,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         if (varRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) varRef).name().text();
             objectType = visibleSymbols.stream()
-                    .filter(symbol -> symbol.name().equals(identifier) && SymbolUtil.isClass(symbol))
+                    .filter(symbol -> SymbolUtil.isClass(symbol) && ((ClassSymbol) symbol).name().equals(identifier))
                     .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else {
