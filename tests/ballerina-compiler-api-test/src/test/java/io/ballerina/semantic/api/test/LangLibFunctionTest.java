@@ -42,6 +42,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
@@ -317,6 +318,22 @@ public class LangLibFunctionTest {
                 {64, 22, expFunctions},
                 {65, 32, Stream.concat(expFunctions.stream(), additionalFuncs.stream()).collect(Collectors.toList())}
         };
+    }
+
+    @Test
+    public void testIntersectionType() {
+        Symbol symbol = getSymbol(70, 21);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), INTERSECTION);
+
+        List<String> expFunctions = List.of("reduce", "forEach", "shift", "length", "sort", "reverse", "toStream",
+                                            "remove", "push", "filter", "pop", "lastIndexOf", "iterator", "removeAll",
+                                            "setLength", "slice", "enumerate", "unshift", "map", "indexOf",
+                                            "cloneWithType", "cloneReadOnly", "toBalString", "toJson", "isReadOnly",
+                                            "fromJsonWithType", "mergeJson", "clone", "ensureType", "toString",
+                                            "toJsonString");
+
+        assertLangLibList(type.langLibMethods(), expFunctions);
     }
 
     private Symbol getSymbol(int line, int column) {
