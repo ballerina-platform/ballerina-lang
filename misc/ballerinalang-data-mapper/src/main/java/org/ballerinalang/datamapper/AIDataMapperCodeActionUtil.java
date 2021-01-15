@@ -27,6 +27,8 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
@@ -52,6 +54,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 /**
@@ -91,11 +94,24 @@ class AIDataMapperCodeActionUtil {
             return fEdits;
         }
 
+
         String foundTypeLeft = matcher.group(1);
         String foundTypeRight = matcher.group(2);
 
+
         boolean foundErrorLeft = false;
         boolean foundErrorRight = false;
+
+        if (foundTypeLeft.contains("|")) {
+            foundTypeLeft = foundTypeLeft.split("[(|]")[1];
+            foundErrorLeft = true;
+        }
+
+        // Restrict data mapper code action for multi module projects
+        Optional<Project> project = context.workspace().project(context.filePath());
+        if (project.get().kind() == ProjectKind.BUILD_PROJECT) {
+            return fEdits;
+        }
 
         // If the check or checkpanic is to get the symbol name
         if (foundTypeLeft.contains("|")) {
@@ -108,6 +124,7 @@ class AIDataMapperCodeActionUtil {
             foundTypeRight = foundTypeRight.split("[(|]")[1];
             foundErrorRight = true;
         }
+
 
         // Get the semantic model
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
