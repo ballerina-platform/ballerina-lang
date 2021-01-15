@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -22,8 +22,7 @@ function init() {
    assertCount(1);
 }
 
-public function main() {
-}
+listener ABC ep = new ABC("ModA");
 
 public class ABC {
 
@@ -35,41 +34,16 @@ public class ABC {
 
     public function 'start() returns error? {
        incrementCount();
-       if (self.name == "ModA") {
-        assertCount(4);
-       } else if (self.name == "ModB") {
-        assertCount(5);
-       } else if (self.name == "ModC") {
-        assertCount(6);
-       }
+       assertCount(2);
     }
 
     public function gracefulStop() returns error? {
        incrementCount();
-       if (self.name == "ModC") {
-        assertCount(7);
-        panic error("Stopped module C");
-       } else if (self.name == "ModB") {
-        assertCount(8);
-        panic error("Stopped module B");
-       } else if (self.name == "ModA") {
-        assertCount(9);
-        panic error("Stopped module A");
-       }
+       assertCount(3);
+       panic error("Stopped module A");
     }
 
     public function immediateStop() returns error? {
-       incrementCount();
-       if (self.name == "ModC") {
-        assertCount(7);
-        panic error("Immediate stop module C");
-       } else if (self.name == "ModB") {
-        assertCount(8);
-        panic error("Immediate stop module B");
-       } else if (self.name == "ModA") {
-        assertCount(9);
-        panic error("Immediate stop module A");
-       }
     }
 
     public function attach(service object {} s, string[]? name) returns error? {
@@ -79,11 +53,10 @@ public class ABC {
     }
 }
 
-listener ABC ep = new ABC("ModA");
-
 public function incrementCount() {
     count += 1;
 }
 public function assertCount(int val) {
     test:assertEquals(count, val);
 }
+

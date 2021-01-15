@@ -47,6 +47,19 @@ public class ModuleExecutionFlowTests extends BaseTest {
         runAndAssert(projectPath);
     }
 
+    @Test
+    public void testImportModuleHasListener() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging", "proj2");
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                                   null, null);
+        LogLeecher errLeecherA = new LogLeecher("Stopped module A", LogLeecher.LeecherType.ERROR);
+        serverInstance.addErrorLogLeecher(errLeecherA);
+        serverInstance.shutdownServer();
+        errLeecherA.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
+
     private void runAndAssert(Path projectPath) throws BallerinaTestException {
         BServerInstance serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
