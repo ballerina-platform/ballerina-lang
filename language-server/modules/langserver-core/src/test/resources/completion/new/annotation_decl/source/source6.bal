@@ -1,7 +1,7 @@
 
 import ballerina/module1;
 
-public const annotation TestRecord1 testAnnotation 
+public const annotation TestRecord1 testAnnotation o
 
 type TestRecord1 record {
     

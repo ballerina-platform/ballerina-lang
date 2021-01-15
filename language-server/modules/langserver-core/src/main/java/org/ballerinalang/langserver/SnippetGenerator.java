@@ -1609,4 +1609,14 @@ public class SnippetGenerator {
     public static SnippetBlock getMapTypeSnippet() {
         return new SnippetBlock("map", "map", ItemResolverConstants.TYPE, Kind.TYPE);
     }
+
+    /**
+     * Get Keyword Snippet Block.
+     *
+     * @param keyword keyword to be added
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getKeywordSnippet(String keyword) {
+        return new SnippetBlock(keyword, keyword, ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
+    }
 }

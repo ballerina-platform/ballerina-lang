@@ -17,27 +17,17 @@
  */
 package org.ballerinalang.langserver.completion;
 
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Service Body Context tests.
+ * Annotation declaration Context tests.
  *
  * @since 2.0.0
  */
-public class ServiceBodyTest extends CompletionTestNew {
-
-    @Override
-    @Test(groups = {"broken"})
-    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
-        super.test(config, configPath);
-    }
-    
+public class AnnotationDeclarationTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -46,11 +36,11 @@ public class ServiceBodyTest extends CompletionTestNew {
 
     @Override
     public String getTestResourceDir() {
-        return "service_body";
+        return "annotation_decl";
     }
 
     @Override
     public List<String> skipList() {
-        return Collections.singletonList("config3.json");
+        return Collections.singletonList("config6.json");
     }
 }
