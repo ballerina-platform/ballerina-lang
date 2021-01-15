@@ -19,13 +19,17 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -39,13 +43,14 @@ public class SymbolAtCursorTest {
 
     @Test(dataProvider = "BasicsPosProvider")
     public void testBasics(int line, int column, String expSymbolName) {
-        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
-                "test-src/symbol_at_cursor_basic_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_basic_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
 
-        Optional<Symbol> symbol = model.symbol("symbol_at_cursor_basic_test.bal", LinePosition.from(line, column));
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
 
-        if (!symbol.isPresent()) {
+        if (symbol.isEmpty()) {
             assertNull(expSymbolName);
         }
     }
@@ -95,13 +100,14 @@ public class SymbolAtCursorTest {
 
     @Test(dataProvider = "EnumPosProvider")
     public void testEnum(int line, int column, String expSymbolName) {
-        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
-                "test-src/symbol_at_cursor_enum_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_enum_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
 
-        Optional<Symbol> symbol = model.symbol("symbol_at_cursor_enum_test.bal", LinePosition.from(line, column));
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
 
-        if (!symbol.isPresent()) {
+        if (symbol.isEmpty()) {
             assertNull(expSymbolName);
         }
     }
@@ -121,13 +127,14 @@ public class SymbolAtCursorTest {
 
     @Test(dataProvider = "WorkerSymbolPosProvider")
     public void testWorkers(int line, int column, String expSymbolName) {
-        SemanticModel model = SemanticAPITestUtils.getDefaultModulesSemanticModel(
-                "test-src/symbol_lookup_with_workers_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_workers_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
 
-        Optional<Symbol> symbol = model.symbol("symbol_lookup_with_workers_test.bal", LinePosition.from(line, column));
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
 
-        if (!symbol.isPresent()) {
+        if (symbol.isEmpty()) {
             assertNull(expSymbolName);
         }
     }
@@ -147,11 +154,11 @@ public class SymbolAtCursorTest {
 
     @Test(dataProvider = "MissingConstructPosProvider")
     public void testMissingConstructs(int line, int column) {
-        SemanticModel model = SemanticAPITestUtils
-                .getDefaultModulesSemanticModel("test-src/symbol_at_cursor_undefined_constructs_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_undefined_constructs_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
 
-        Optional<Symbol> symbol = model.symbol("symbol_at_cursor_undefined_constructs_test.bal",
-                                               LinePosition.from(line, column));
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
         symbol.ifPresent(value -> assertTrue(true, "Unexpected symbol: " + value.name()));
     }
 

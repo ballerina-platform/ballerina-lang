@@ -202,28 +202,24 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     private void populateConnectorFunctionParamRecords(Node parameterNode, SemanticModel semanticModel,
                                                        Map<String, TypeDefinitionNode> jsonRecords,
                                                        Map<String, JsonElement> connectorRecords) {
-        Optional<TypeSymbol> paramType = semanticModel
-                .type(parameterNode.syntaxTree().filePath(), parameterNode.lineRange());
+        Optional<TypeSymbol> paramType = semanticModel.type(parameterNode.lineRange());
         if (paramType.isPresent()) {
             if (paramType.get().typeKind() == TypeDescKind.UNION) {
                 String parameterTypeName = "";
                 if (parameterNode instanceof RequiredParameterNode) {
-                    Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode.syntaxTree().filePath(),
-                            ((RequiredParameterNode) parameterNode).paramName().get().lineRange().startLine());
+                    Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode);
                     if (paramSymbol.isPresent()) {
                         parameterTypeName = String.format("%s:%s", paramSymbol.get().moduleID(),
                                 ((RequiredParameterNode) parameterNode).typeName());
                     }
                 } else if (parameterNode instanceof DefaultableParameterNode) {
-                    Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode.syntaxTree().filePath(),
-                            ((DefaultableParameterNode) parameterNode).paramName().get().lineRange().startLine());
+                    Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode);
                     if (paramSymbol.isPresent()) {
                         parameterTypeName = String.format("%s:%s", paramSymbol.get().moduleID(),
                                 ((DefaultableParameterNode) parameterNode).typeName());
                     }
                 } else if (parameterNode instanceof RestParameterNode) {
-                    Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode.syntaxTree().filePath(),
-                            ((RestParameterNode) parameterNode).paramName().get().lineRange().startLine());
+                    Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode);
                     if (paramSymbol.isPresent()) {
                         parameterTypeName = String.format("%s:%s", paramSymbol.get().moduleID(),
                                 ((RestParameterNode) parameterNode).typeName());
@@ -282,10 +278,9 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
             Optional<Symbol> fieldType;
             if (field instanceof TypeReferenceNode) {
-                fieldType = semanticModel.symbol(field.syntaxTree().filePath(),
-                        ((TypeReferenceNode) field).typeName().lineRange().startLine());
+                fieldType = semanticModel.symbol(((TypeReferenceNode) field).typeName());
             } else {
-                fieldType = semanticModel.symbol(field.syntaxTree().filePath(), field.lineRange().startLine());
+                fieldType = semanticModel.symbol(field);
             }
 
             if (fieldType.isPresent() && fieldType.get() instanceof TypeReferenceTypeSymbol) {

@@ -22,11 +22,15 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -39,17 +43,19 @@ import static org.testng.Assert.assertTrue;
 public class TypeAssignabilityTest {
 
     private SemanticModel model;
-    private final String fileName = "type_assignability_test.bal";
+    private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/type_assignability_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/type_assignability_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
 
     @Test(dataProvider = "ClassPosProvider")
     public void testAssignabilityForClasses(int sourceLine, int sourceCol, int targetLine, int targetCol) {
-        ClassSymbol srcSymbol = (ClassSymbol) model.symbol(fileName, from(sourceLine, sourceCol)).get();
-        ClassSymbol targetSymbol = (ClassSymbol) model.symbol(fileName, from(targetLine, targetCol)).get();
+        ClassSymbol srcSymbol = (ClassSymbol) model.symbol(srcFile, from(sourceLine, sourceCol)).get();
+        ClassSymbol targetSymbol = (ClassSymbol) model.symbol(srcFile, from(targetLine, targetCol)).get();
 
         assertTrue(srcSymbol.assignableTo(targetSymbol));
     }
@@ -64,8 +70,8 @@ public class TypeAssignabilityTest {
 
     @Test
     public void testAssignabilityForClassesAndObjects() {
-        ClassSymbol srcSymbol = (ClassSymbol) model.symbol(fileName, from(30, 6)).get();
-        TypeDefinitionSymbol targetSymbol = (TypeDefinitionSymbol) model.symbol(fileName, from(39, 5)).get();
+        ClassSymbol srcSymbol = (ClassSymbol) model.symbol(srcFile, from(30, 6)).get();
+        TypeDefinitionSymbol targetSymbol = (TypeDefinitionSymbol) model.symbol(srcFile, from(39, 5)).get();
 
         assertTrue(srcSymbol.assignableTo(targetSymbol.typeDescriptor()));
     }
@@ -74,9 +80,9 @@ public class TypeAssignabilityTest {
     public void testAssignabilityForTypeDefs(int sourceLine, int sourceCol, int targetLine, int targetCol,
                                              boolean assignable) {
         TypeDefinitionSymbol srcSymbol =
-                (TypeDefinitionSymbol) model.symbol(fileName, from(sourceLine, sourceCol)).get();
+                (TypeDefinitionSymbol) model.symbol(srcFile, from(sourceLine, sourceCol)).get();
         TypeDefinitionSymbol targetSymbol =
-                (TypeDefinitionSymbol) model.symbol(fileName, from(targetLine, targetCol)).get();
+                (TypeDefinitionSymbol) model.symbol(srcFile, from(targetLine, targetCol)).get();
 
         assertEquals(srcSymbol.typeDescriptor().assignableTo(targetSymbol.typeDescriptor()), assignable);
     }
@@ -93,8 +99,8 @@ public class TypeAssignabilityTest {
     @Test(dataProvider = "VarPosProvider")
     public void testAssignabilityForVars(int sourceLine, int sourceCol, int targetLine, int targetCol,
                                          boolean assignable) {
-        VariableSymbol srcSymbol = (VariableSymbol) model.symbol(fileName, from(sourceLine, sourceCol)).get();
-        VariableSymbol targetSymbol = (VariableSymbol) model.symbol(fileName, from(targetLine, targetCol)).get();
+        VariableSymbol srcSymbol = (VariableSymbol) model.symbol(srcFile, from(sourceLine, sourceCol)).get();
+        VariableSymbol targetSymbol = (VariableSymbol) model.symbol(srcFile, from(targetLine, targetCol)).get();
 
         assertEquals(srcSymbol.typeDescriptor().assignableTo(targetSymbol.typeDescriptor()), assignable);
     }
