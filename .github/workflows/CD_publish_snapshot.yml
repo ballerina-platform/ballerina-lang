@@ -2,8 +2,8 @@ name: Publish Ballerina Snapshot
 
 on:
     push:
-      branches:
-        - master
+        branches:
+            - master
     workflow_dispatch:
 
 jobs:
@@ -19,6 +19,15 @@ jobs:
                 uses: actions/setup-java@v1
                 with:
                     java-version: 11
+
+            -   name: Cache Gradle packages
+                uses: actions/cache@v2
+                with:
+                    path: |
+                        ~/.gradle/caches
+                        ~/.gradle/wrapper
+                    key: ${{ runner.os }}-gradle-${{ github.sha }}
+                    restore-keys: ${{ runner.os }}-gradle
 
             -   name: Initialize Sub Modules
                 run: git submodule update --init
