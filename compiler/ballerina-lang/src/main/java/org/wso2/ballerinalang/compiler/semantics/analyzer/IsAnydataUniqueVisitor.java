@@ -58,7 +58,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         isAnydata = true;
     }
 
-    private boolean isanydata(BType type) {
+    private boolean isAnydata(BType type) {
         switch (type.tag) {
             case TypeTags.INT:
             case TypeTags.BYTE:
@@ -96,7 +96,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BAnnotationType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
@@ -113,32 +113,32 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BBuiltInRefType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BAnyType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BAnydataType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BErrorType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BInvokableType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BJSONType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
@@ -154,42 +154,42 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BStreamType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BTypedescType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BParameterizedType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BNeverType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BNilType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BNoType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BPackageType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BStructureType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
@@ -215,12 +215,12 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BXMLType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BTableType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
@@ -240,7 +240,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BObjectType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
@@ -318,17 +318,17 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.XML_TEXT:
                 return visit((BXMLSubType) type);
         }
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BFutureType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override
     public Boolean visit(BHandleType type) {
-        return isanydata(type);
+        return isAnydata(type);
     }
 
     @Override

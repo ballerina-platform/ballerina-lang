@@ -456,7 +456,7 @@ public class Entity {
     #
     # + return - All header names as a `string[]`
     public function getHeaderNames() returns @tainted string[] {
-        return <string[]>self.headerNames.clone();
+        return self.headerNames.clone();
         //return self.headerNames.clone();
     }
 

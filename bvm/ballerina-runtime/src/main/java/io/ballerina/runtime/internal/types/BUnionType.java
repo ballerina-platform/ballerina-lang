@@ -251,8 +251,8 @@ public class BUnionType extends BType implements UnionType {
 
     private boolean checkNillable(List<Type> memberTypes) {
         this.resolving = true;
-        for (Type t : memberTypes) {
-            if (t.isNilable()) {
+        for (Type member : memberTypes) {
+            if (member.isNilable()) {
                 this.resolving = false;
                 return true;
             }

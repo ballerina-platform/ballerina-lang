@@ -2881,43 +2881,43 @@ public class TypeChecker {
         }
     }
 
-    private static boolean checkFillerValue(BType type, List<Type> unAnalyzedTypes) {
-
+    private static boolean checkFillerValue(BUnionType type,  List<Type> unAnalyzedTypes) {
         if (unAnalyzedTypes.contains(type)) {
             return true;
         }
         unAnalyzedTypes.add(type);
-        switch (type.getTag()) {
-            case TypeTags.RECORD_TYPE_TAG:
-                BRecordType recordType = (BRecordType) type;
-                for (Field field : recordType.getFields().values()) {
-                    if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) {
-                        continue;
-                    }
-                    if (!SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED)) {
-                        continue;
-                    }
-                    return false;
-                }
-                return true;
-            case TypeTags.UNION_TAG:
-                BUnionType unionType = (BUnionType) type;
-                // NIL is a member.
-                if (unionType.isNullable()) {
-                    return true;
-                }
-                // All members are of same type.
-                Iterator<Type> iterator = unionType.getMemberTypes().iterator();
-                Type firstMember;
-                for (firstMember = iterator.next(); iterator.hasNext(); ) {
-                    if (!isSameType(firstMember, iterator.next())) {
-                        return false;
-                    }
-                }
-                // Control reaching this point means there is only one type in the union.
-                return isValueType(firstMember) && hasFillerValue(firstMember);
+
+        // NIL is a member.
+        if (type.isNullable()) {
+            return true;
         }
-        return false;
+        // All members are of same type.
+        Iterator<Type> iterator = type.getMemberTypes().iterator();
+        Type firstMember;
+        for (firstMember = iterator.next(); iterator.hasNext(); ) {
+            if (!isSameType(firstMember, iterator.next())) {
+                return false;
+            }
+        }
+        // Control reaching this point means there is only one type in the union.
+        return isValueType(firstMember) && hasFillerValue(firstMember);
+    }
+
+    private static boolean checkFillerValue(BRecordType type, List<Type> unAnalyzedTypes) {
+        if (unAnalyzedTypes.contains(type)) {
+            return true;
+        }
+        unAnalyzedTypes.add(type);
+        for (Field field : type.getFields().values()) {
+            if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) {
+                continue;
+            }
+            if (!SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED)) {
+                continue;
+            }
+            return false;
+        }
+        return true;
     }
 
     private static boolean checkFillerValue(BArrayType type) {
