@@ -250,7 +250,10 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        if (isTypeSymbol(symbolAtCursor) && !PositionUtil.withinBlock(position, symbolAtCursor.pos)) {
+        if (isTypeSymbol(symbolAtCursor) &&
+                !(compilationUnit.getPackageID().equals(symbolAtCursor.pkgID)
+                        && compilationUnit.getName().equals(symbolAtCursor.pos.lineRange().filePath())
+                        && PositionUtil.withinBlock(position, symbolAtCursor.pos))) {
             ModuleID moduleID = new BallerinaModuleID(symbolAtCursor.pkgID);
             return Optional.of(new BallerinaTypeReferenceTypeSymbol(this.compilerContext, moduleID, symbolAtCursor.type,
                                                                     symbolAtCursor.getName().getValue()));
