@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
@@ -267,17 +268,21 @@ public class ServiceDesugar {
     }
 
     void engageCustomServiceDesugar(BLangService service, SymbolEnv env) {
+        List<BType> expressionTypes = service.attachedExprs.stream().map(expression -> expression.type)
+                .collect(Collectors.toList());
         service.serviceClass.functions.stream().filter(fun -> Symbols.isFlagOn(fun.symbol.flags, Flags.RESOURCE))
-                .forEach(func -> engageCustomResourceDesugar(func, env));
+                .forEach(func -> engageCustomResourceDesugar(func, env, expressionTypes));
     }
 
-    private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env) {
+    private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env, List<BType> expressionTypes) {
         if (Symbols.isFlagOn(functionNode.symbol.flags, Flags.TRANSACTIONAL)) {
             BLangExpressionStmt stmt = new BLangExpressionStmt(transactionDesugar
                     .createBeginParticipantInvocation(functionNode.pos));
             ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
         }
-        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
-//        httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
+        if (httpFiltersDesugar.isHttpPackage(expressionTypes)) {
+            httpFiltersDesugar.addFilterStatements(functionNode, env);
+//            httpFiltersDesugar.addOrderParamConfig(functionNode, env);
+        }
     }
 }

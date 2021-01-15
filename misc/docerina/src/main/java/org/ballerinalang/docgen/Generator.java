@@ -583,6 +583,7 @@ public class Generator {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
                 Type type = Type.fromNode(recordField.typeName(), semanticModel, fileName);
+                type.isNullable = recordField.questionMarkToken().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
                         "");
                 variables.add(defaultableVariable);
