@@ -53,15 +53,15 @@ public function afterFunc() {
 }
 
 @test:Config {
-    before: "beforeFunc",
-    after: "afterFunc"
+    before: beforeFunc,
+    after: afterFunc
 }
 public function test1() {
     a = a + "test1";
 }
 
 @test:Config {
-    dependsOn:["test1"]
+    dependsOn: [test1]
 }
 public function test2() {
     a = a + "test2";

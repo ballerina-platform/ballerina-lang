@@ -27,8 +27,8 @@ function beforeFunc() {
 
 // 2nd function
 @test:Config {
-    before:"beforeFunc",
-    after:"afterFunc"
+    before: beforeFunc,
+    after: afterFunc
 }
 public function testFunc() {
     testString += "test";
@@ -41,7 +41,7 @@ public function afterFunc() {
 
 // 2nd function
 @test:Config {
-    dependsOn:["testFunc"]
+    dependsOn: [testFunc]
 }
 public function testFunc2() {
     test:assertEquals(testString, "beforetestafter");

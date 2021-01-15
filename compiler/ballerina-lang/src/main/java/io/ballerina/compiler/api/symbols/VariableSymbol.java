@@ -22,7 +22,7 @@ package io.ballerina.compiler.api.symbols;
  *
  * @since 2.0.0
  */
-public interface VariableSymbol extends Symbol, Qualifiable, Deprecatable, Annotatable {
+public interface VariableSymbol extends Symbol, Qualifiable, Deprecatable, Annotatable, Documentable {
 
     /**
      * Get the Type of the variable.

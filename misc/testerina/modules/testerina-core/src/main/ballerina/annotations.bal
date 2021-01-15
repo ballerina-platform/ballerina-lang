@@ -25,10 +25,10 @@
 public type TestConfig record {
     boolean enable = true;
     string[] groups = [];
-    string dataProvider = "";
-    string before = "";
-    string after = "";
-    string[] dependsOn = [];
+    function() returns (any) dataProvider?;
+    function() returns (any) before?;
+    function() returns (any) after?;
+    (function() returns (any))[] dependsOn?;
 };
 
 # Configuration of the function to be mocked.
