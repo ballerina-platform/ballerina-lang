@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.bindgen.utils;
 
+import io.ballerina.projects.BallerinaToml;
+import io.ballerina.projects.BallerinaTomlException;
 import io.ballerina.projects.PackageManifest;
-import io.ballerina.projects.internal.BallerinaTomlProcessor;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.maven.Dependency;
@@ -117,8 +118,12 @@ public class BindgenMvnResolver {
     private static void populateBallerinaToml(String groupId, String artifactId, String version, File tomlFile,
                                               Path projectRoot, String parent) throws BindgenException {
         try (FileWriterWithEncoding fileWriter = new FileWriterWithEncoding(tomlFile, StandardCharsets.UTF_8, true)) {
-            PackageManifest.Platform platform = BallerinaTomlProcessor.parseAsPackageManifest(tomlFile.toPath())
-                    .platform("java11");
+            BallerinaToml ballerinaToml = BallerinaToml.from(tomlFile.toPath());
+            if (ballerinaToml.diagnostics().hasErrors()) {
+                throw new BallerinaTomlException(ballerinaToml.getErrorMessage());
+            }
+
+            PackageManifest.Platform platform = ballerinaToml.packageManifest().platform("java11");
             if (platform != null && platform.dependencies() != null) {
                 for (Map<String, Object> library : platform.dependencies()) {
                     if (library.get("path") == null &&

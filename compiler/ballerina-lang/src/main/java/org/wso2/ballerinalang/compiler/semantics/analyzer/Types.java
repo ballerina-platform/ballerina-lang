@@ -2291,7 +2291,35 @@ public class Types {
         return getElementType(((BArrayType) type).getElementType());
     }
 
+    public boolean checkListenerCompatibilityAtServiceDecl(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            // There should be at least one listener compatible type and all the member types, except error type
+            // should be listener compatible.
+            int listenerCompatibleTypeCount = 0;
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (memberType.tag != TypeTags.ERROR) {
+                    if (!checkListenerCompatibility(memberType)) {
+                        return false;
+                    }
+                    listenerCompatibleTypeCount++;
+                }
+            }
+            return listenerCompatibleTypeCount > 0;
+        }
+        return checkListenerCompatibility(type);
+    }
+
     public boolean checkListenerCompatibility(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            for (BType memberType : unionType.getMemberTypes()) {
+                if (!checkListenerCompatibility(memberType)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         if (type.tag != TypeTags.OBJECT) {
             return false;
         }
