@@ -66,7 +66,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     protected JsonElement transformSyntaxNode(Node node) {
         JsonObject nodeJson = new JsonObject();
         NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
-
         for (ChildNodeEntry childNodeEntry : nonTerminalNode.childEntries()) {
             if (childNodeEntry.isList()) {
                 JsonArray childList = new JsonArray();
@@ -78,10 +77,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeJson.add(childNodeEntry.name(), apply(childNodeEntry.node().get()));
             }
         }
-
         nodeJson.addProperty("source", node.toSourceCode());
         nodeJson.addProperty("kind", prettifyKind(node.kind().toString()));
-
         // TODO: Generalize the diagnostic implementation.
         Iterable<Diagnostic> syntaxDiagnostics = node.diagnostics();
         if (syntaxDiagnostics!= null) {
@@ -132,7 +129,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 // Check if required params contains endpoints.
                 if (node instanceof RequiredParameterNode) {
                     RequiredParameterNode requiredParameterNode = (RequiredParameterNode) node;
-
                     if (requiredParameterNode.paramName().isPresent()) {
                         Optional<Symbol> paramNameSymbol = this.semanticModel
                                 .symbol(this.fileName, requiredParameterNode.paramName().get()
@@ -329,7 +325,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             nodeInfo.add("invalidNodes", response.get(0));
             nodeInfo.add("leadingMinutiae", response.get(1));
             nodeInfo.add("trailingMinutiae", detectMinutiae(node.trailingMinutiae()));
-
             if (node.lineRange() != null) {
                 LineRange lineRange = node.lineRange();
                 LinePosition startLine = lineRange.startLine();
@@ -381,10 +376,10 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private JsonArray detectMinutiae(MinutiaeList minutiae){
         JsonArray minutiaeList = new JsonArray();
         for (Minutiae m : minutiae) {
-                JsonObject nodeJson = new JsonObject();
-                nodeJson.addProperty("kind", m.kind().toString());
-                nodeJson.addProperty("minutiae", m.text());
-                minutiaeList.add(nodeJson);
+            JsonObject nodeJson = new JsonObject();
+            nodeJson.addProperty("kind", m.kind().toString());
+            nodeJson.addProperty("minutiae", m.text());
+            minutiaeList.add(nodeJson);
         }
         return minutiaeList;
     }
