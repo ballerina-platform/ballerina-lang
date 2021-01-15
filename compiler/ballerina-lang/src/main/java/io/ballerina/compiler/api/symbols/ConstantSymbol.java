@@ -22,7 +22,7 @@ package io.ballerina.compiler.api.symbols;
  *
  * @since 2.0.0
  */
-public interface ConstantSymbol extends VariableSymbol, SingletonTypeSymbol, Annotatable, Deprecatable {
+public interface ConstantSymbol extends VariableSymbol, SingletonTypeSymbol, Annotatable, Deprecatable, Documentable {
 
     /**
      * Get the constant value.

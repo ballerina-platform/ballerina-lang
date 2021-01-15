@@ -18,6 +18,7 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BallerinaToml;
+import io.ballerina.projects.BallerinaTomlException;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
@@ -53,10 +54,14 @@ public class PackageConfigCreator {
 
         Path balTomlFilePath = projectDirPath.resolve(ProjectConstants.BALLERINA_TOML);
         BallerinaToml ballerinaToml = BallerinaToml.from(balTomlFilePath);
+
+        if (ballerinaToml.diagnostics().hasErrors()) {
+            throw new BallerinaTomlException(ballerinaToml.getErrorMessage());
+        }
+
         // TODO Create the PackageManifest from the BallerinaToml file
         // TODO Validate the ballerinaToml content inside the Ballerina toml file
-        PackageManifest packageManifest = ProjectFiles.createPackageManifest(
-                balTomlFilePath);
+        PackageManifest packageManifest = ProjectFiles.createPackageManifest(ballerinaToml);
         PackageData packageData = ProjectFiles.loadBuildProjectPackageData(projectDirPath);
         return createPackageConfig(packageData, packageManifest, ballerinaToml);
     }

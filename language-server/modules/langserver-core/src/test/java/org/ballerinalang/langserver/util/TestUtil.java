@@ -36,6 +36,7 @@ import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
@@ -43,6 +44,7 @@ import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
+import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -50,6 +52,7 @@ import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
+import org.eclipse.lsp4j.SignatureHelpParams;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
@@ -119,7 +122,7 @@ public class TestUtil {
      * @return {@link String}   Response as String
      */
     public static String getHoverResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(HOVER, getTextDocumentPositionParams(filePath, position));
+        CompletableFuture result = serviceEndpoint.request(HOVER, getHoverParams(filePath, position));
         return getResponseString(result);
     }
 
@@ -159,8 +162,7 @@ public class TestUtil {
      * @return {@link String}   Response as String
      */
     public static String getSignatureHelpResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(SIGNATURE_HELP,
-                getTextDocumentPositionParams(filePath, position));
+        CompletableFuture result = serviceEndpoint.request(SIGNATURE_HELP, getSignatureParams(filePath, position));
         return getResponseString(result);
     }
 
@@ -173,8 +175,7 @@ public class TestUtil {
      * @return {@link String}   Response as String
      */
     public static String getDefinitionResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(DEFINITION,
-                getTextDocumentPositionParams(filePath, position));
+        CompletableFuture result = serviceEndpoint.request(DEFINITION, getDefinitionParams(filePath, position));
         return getResponseString(result);
     }
 
@@ -399,6 +400,30 @@ public class TestUtil {
         positionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
 
         return positionParams;
+    }
+
+    private static HoverParams getHoverParams(String filePath, Position position) {
+        HoverParams hoverParams = new HoverParams();
+        hoverParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        hoverParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+
+        return hoverParams;
+    }
+
+    private static DefinitionParams getDefinitionParams(String filePath, Position position) {
+        DefinitionParams definitionParams = new DefinitionParams();
+        definitionParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        definitionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+
+        return definitionParams;
+    }
+
+    private static SignatureHelpParams getSignatureParams(String filePath, Position position) {
+        SignatureHelpParams signatureHelpParams = new SignatureHelpParams();
+        signatureHelpParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        signatureHelpParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+
+        return signatureHelpParams;
     }
 
     private static CompletionParams getCompletionParams(String filePath, Position position) {
