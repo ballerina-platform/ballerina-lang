@@ -20,6 +20,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -42,7 +43,7 @@ public class BasicWorkerActionsNegativeTest {
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 5, "Worker actions semantics negative test error" +
                 " count");
         BAssertUtil.validateError(resultSemanticsNegative, index++,
-                "invalid type for worker send 'Person', expected anydata", 44, 22);
+                "invalid type for worker send 'Person', expected value:Cloneable", 44, 22);
         BAssertUtil.validateError(resultSemanticsNegative, index++, "undefined worker 'w4'", 46, 17);
         BAssertUtil.validateError(resultSemanticsNegative, index++, "variable assignment is required",
                 61, 9);
@@ -82,5 +83,11 @@ public class BasicWorkerActionsNegativeTest {
 
         Assert.assertEquals(resultNegative.getErrorCount(), index, "Worker actions negative test error count");
 
+    }
+
+    @AfterClass
+    public void tearDown() {
+        resultNegative = null;
+        resultSemanticsNegative = null;
     }
 }

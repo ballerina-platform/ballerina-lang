@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'value;
+
 type SMS error <record {| string message?; error cause?; string...; |}>;
 type SMA error <record {| string message?; error cause?; anydata...; |}>;
 type CMS error <record {| string message?; error cause?; string...; |}>;
@@ -88,7 +90,7 @@ function testBasicErrorVariableWithRecordDetails() returns [string, string, stri
     return [res1, res2, message, fatal, rec];
 }
 
-function testErrorInTuple() returns [int, string, string, anydata|readonly, boolean] {
+function testErrorInTuple() returns [int, string, string, value:Cloneable, boolean] {
     Foo f = { message: "fooMsg", fatal: true };
     [int, string, error, [error, Foo]] t1 = [12, "Bal", error("Err", message = "Something Wrong"),
                                                                 [error("Err2", message = "Something Wrong2"), f]];
@@ -96,7 +98,7 @@ function testErrorInTuple() returns [int, string, string, anydata|readonly, bool
     return [intVar, stringVar, erroVar.message(), errorVar2.detail()["message"], fooVar.fatal];
 }
 
-function testErrorInTupleWithVar() returns [int, string, string, anydata|readonly, boolean] {
+function testErrorInTupleWithVar() returns [int, string, string, value:Cloneable, boolean] {
     Foo f = { message: "fooMsg", fatal: false };
     [int, string, error, [error, Foo]] t1 = [12, "Bal", error("Err", message = "Something Wrong"),
                                                                 [error("Err2", message = "Something Wrong2"), f]];
@@ -104,14 +106,14 @@ function testErrorInTupleWithVar() returns [int, string, string, anydata|readonl
     return [intVar, stringVar, erroVar.message(), errorVar2.detail()["message"], fooVar.fatal];
 }
 
-//function testErrorInTupleWithDestructure() returns [int, string, string, map<anydata|readonly>, boolean] {
+//function testErrorInTupleWithDestructure() returns [int, string, string, map<value:Cloneable>, boolean] {
 //    [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
 //    [int, string, [error, boolean]] [intVar, stringVar, [error(reasonVar, ... detailVar), booleanVar]] = t1;
 //
 //    return [intVar, stringVar, reasonVar, detailVar, booleanVar];
 //}
 //
-//function testErrorInTupleWithDestructure2() returns [int, string, string, anydata|readonly, boolean] {
+//function testErrorInTupleWithDestructure2() returns [int, string, string, value:Cloneable, boolean] {
 //    [int, string, [error, boolean]] t1 = [12, "Bal", [error("Err2", message = "Something Wrong2"), true]];
 //    [int, string, [error, boolean]] [intVar, stringVar, [error(reasonVar, message = message), booleanVar]] = t1;
 //    return [intVar, stringVar, reasonVar, message, booleanVar];
@@ -122,13 +124,13 @@ type Bar record {
     error e;
 };
 
-function testErrorInRecordWithDestructure() returns [int, string, anydata|readonly] {
+function testErrorInRecordWithDestructure() returns [int, string, value:Cloneable] {
     Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
     Bar { x, e: error(reason, ...detail) } = b;
     return [x, reason, detail["message"]];
 }
 
-function testErrorWithAnonErrorType() returns [string, anydata|readonly] {
+function testErrorWithAnonErrorType() returns [string, value:Cloneable] {
     error err = error("Error Code", message = "Fatal");
     error <simpleError> error(reason, message = message) = err;
     return [reason, message];
@@ -187,4 +189,4 @@ function testSealedDetailDestructuring() returns [string, map<anydata|readonly>]
     return [reason, rest];
 }
 
-type simpleError record {| (anydata|readonly)...; |};
+type simpleError record {| (value:Cloneable)...; |};

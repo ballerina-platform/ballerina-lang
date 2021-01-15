@@ -18,16 +18,18 @@ package org.ballerinalang.langserver.codeaction.providers;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
@@ -57,16 +59,15 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     CodeActionContext context) {
-        if (!(diagnostic.getMessage().startsWith(UNDEFINED_FUNCTION))) {
+        if (!(diagnostic.message().startsWith(UNDEFINED_FUNCTION))) {
             return Collections.emptyList();
         }
 
-        String diagnosticMessage = diagnostic.getMessage();
-        Position position = diagnostic.getRange().getStart();
+        String diagnosticMessage = diagnostic.message();
+        Position position = CommonUtil.toRange(diagnostic.location().lineRange()).getStart();
         String uri = context.fileUri();
         CommandArgument posArg = CommandArgument.from(CommandConstants.ARG_KEY_NODE_POS, position);
         CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
-        List<Diagnostic> diagnostics = new ArrayList<>();
 
         List<Object> args = Arrays.asList(posArg, uriArg);
         Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
@@ -80,7 +81,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
                 CodeAction action = new CodeAction(commandTitle);
                 action.setKind(CodeActionKind.QuickFix);
                 action.setCommand(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args));
-                action.setDiagnostics(diagnostics);
+                action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
                 return Collections.singletonList(action);
             }
         }

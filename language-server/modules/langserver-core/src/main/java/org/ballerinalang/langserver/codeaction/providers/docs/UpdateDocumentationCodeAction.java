@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction.providers.docs;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
@@ -30,7 +31,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,25 +48,24 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
-        if (!DiagnosticWarningCode.UNDOCUMENTED_PARAMETER.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.UNDOCUMENTED_FIELD.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.UNDOCUMENTED_VARIABLE.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_VARIABLE.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.VARIABLE_ALREADY_DOCUMENTED.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.UNDOCUMENTED_RETURN_PARAMETER.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.NO_DOCUMENTABLE_RETURN_PARAMETER.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.INVALID_DOCUMENTATION_REFERENCE.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.INVALID_USAGE_OF_PARAMETER_REFERENCE.diagnosticId().equals(
-                        diagnostic.getCode()) &&
-                !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE.diagnosticId().equals(
-                        diagnostic.getCode()) &&
-                !DiagnosticWarningCode.DUPLICATE_DOCUMENTED_ATTRIBUTE.diagnosticId().equals(diagnostic.getCode()) &&
-                !DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT.diagnosticId().equals(diagnostic.getCode())) {
+        String code = diagnostic.diagnosticInfo().code();
+        if (!DiagnosticWarningCode.UNDOCUMENTED_PARAMETER.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.UNDOCUMENTED_FIELD.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.UNDOCUMENTED_VARIABLE.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_VARIABLE.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.VARIABLE_ALREADY_DOCUMENTED.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.UNDOCUMENTED_RETURN_PARAMETER.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.NO_DOCUMENTABLE_RETURN_PARAMETER.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.INVALID_DOCUMENTATION_REFERENCE.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.INVALID_USAGE_OF_PARAMETER_REFERENCE.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.DUPLICATE_DOCUMENTED_ATTRIBUTE.diagnosticId().equals(code) &&
+                !DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT.diagnosticId().equals(code)) {
             return Collections.emptyList();
         }
         String docUri = context.fileUri();
@@ -87,7 +86,7 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
 
         CodeAction action = new CodeAction(CommandConstants.UPDATE_DOCUMENTATION_TITLE);
         action.setKind(CodeActionKind.QuickFix);
-        action.setDiagnostics(Collections.singletonList(diagnostic));
+        action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList(diagnostic)));
         Command command = new Command(CommandConstants.UPDATE_DOCUMENTATION_TITLE, UpdateDocumentationExecutor.COMMAND,
                                       args);
         action.setCommand(command);

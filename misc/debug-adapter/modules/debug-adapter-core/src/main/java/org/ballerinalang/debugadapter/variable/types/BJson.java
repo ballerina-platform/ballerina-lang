@@ -50,7 +50,7 @@ public class BJson extends BCompoundVariable {
         Map<String, Value> childMap = new HashMap<>();
         try {
             Optional<Value> jsonValues = VariableUtils.getFieldValue(jvmValue, FIELD_JSON_DATA);
-            if (!jsonValues.isPresent()) {
+            if (jsonValues.isEmpty()) {
                 return childMap;
             }
             for (Value jsonMap : ((ArrayReference) jsonValues.get()).getValues()) {

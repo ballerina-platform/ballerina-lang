@@ -20,6 +20,7 @@ package org.ballerinalang.test.enums;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -89,5 +90,13 @@ public class EnumTest {
         validateError(accessTestNegative, i++, "attempt to refer to non-accessible symbol 'PF'", 23, 4);
         validateError(accessTestNegative, i++, "unknown type 'PF'", 23, 4);
         assertEquals(accessTestNegative.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        negativeTest = null;
+        accessTest = null;
+        accessTestNegative = null;
     }
 }

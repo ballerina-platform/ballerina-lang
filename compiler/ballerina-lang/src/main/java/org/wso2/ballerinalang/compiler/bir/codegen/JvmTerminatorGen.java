@@ -128,6 +128,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_E
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_LOCAL_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_TRANSACTIONAL_FUNCTION_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_TRANSACTIONAL_LOCAL_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
@@ -943,7 +945,8 @@ public class JvmTerminatorGen {
             this.mv.visitLdcInsn(workerName);
         }
 
-        this.submitToScheduler(callIns.lhsOp, moduleClassName, attachedType, parentFunction, concurrent);
+        this.submitToScheduler(callIns.lhsOp, moduleClassName, attachedType, parentFunction, concurrent,
+                callIns.transactional);
     }
 
     private void generateWaitIns(BIRTerminator.Wait waitInst, int localVarOffset) {
@@ -1064,7 +1067,7 @@ public class JvmTerminatorGen {
             paramIndex += 1;
         }
 
-        // if async, we submit this to sceduler (worker scenario)
+        // if async, we submit this to scheduler (worker scenario)
 
         if (fpCall.isAsync) {
             String workerName = fpCall.lhsOp.variableDcl.metaVarName;
@@ -1089,7 +1092,7 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName",
                                     String.format("(L%s;L%s;)L%s;", FUNCTION_POINTER, STRING_VALUE, STRING_VALUE),
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, true);
+            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, true, fpCall.transactional);
             Label afterSubmit = new Label();
             this.mv.visitJumpInsn(GOTO, afterSubmit);
             this.mv.visitLabel(notConcurrent);
@@ -1105,7 +1108,7 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "getStrandName",
                                     String.format("(L%s;L%s;)L%s;", FUNCTION_POINTER, STRING_VALUE, STRING_VALUE),
                                     false);
-            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, false);
+            this.submitToScheduler(fpCall.lhsOp, moduleClassName, attachedType, funcName, false, fpCall.transactional);
             this.mv.visitLabel(afterSubmit);
         } else {
             this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply",
@@ -1205,7 +1208,7 @@ public class JvmTerminatorGen {
     }
 
     private void submitToScheduler(BIROperand lhsOp, String moduleClassName, BType attachedType,
-                                   String parentFunction, boolean concurrent) {
+                                   String parentFunction, boolean concurrent, boolean transactional) {
 
         String metaDataVarName;
         ScheduleFunctionInfo strandMetaData;
@@ -1220,7 +1223,15 @@ public class JvmTerminatorGen {
         }
         asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, strandMetaData);
         this.mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, String.format("L%s;", STRAND_METADATA));
-        if (concurrent) {
+        if (transactional && concurrent) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_TRANSACTIONAL_FUNCTION_METHOD,
+                    String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, B_FUNCTION_POINTER,
+                            STRAND_CLASS, TYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
+        } else if (transactional) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_TRANSACTIONAL_LOCAL_METHOD,
+                    String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, B_FUNCTION_POINTER,
+                            STRAND_CLASS, TYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
+        } else if (concurrent) {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
                                String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, B_FUNCTION_POINTER,
                                              STRAND_CLASS, TYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);

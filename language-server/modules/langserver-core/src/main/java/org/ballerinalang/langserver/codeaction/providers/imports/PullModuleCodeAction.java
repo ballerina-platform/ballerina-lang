@@ -15,7 +15,9 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.imports;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -25,7 +27,6 @@ import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,11 +52,11 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     CodeActionContext context) {
-        if (!(diagnostic.getMessage().startsWith(UNRESOLVED_MODULE))) {
+        if (!(diagnostic.message().startsWith(UNRESOLVED_MODULE))) {
             return Collections.emptyList();
         }
 
-        String diagnosticMessage = diagnostic.getMessage();
+        String diagnosticMessage = diagnostic.message();
         String uri = context.fileUri();
         CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
@@ -74,7 +75,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
             CodeAction action = new CodeAction(commandTitle);
             action.setKind(CodeActionKind.QuickFix);
             action.setCommand(new Command(commandTitle, PullModuleExecutor.COMMAND, args));
-            action.setDiagnostics(diagnostics);
+            action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
             return Collections.singletonList(action);
         }
         return Collections.emptyList();

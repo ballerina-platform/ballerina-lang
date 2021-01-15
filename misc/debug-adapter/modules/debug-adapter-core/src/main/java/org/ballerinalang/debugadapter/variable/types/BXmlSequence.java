@@ -59,11 +59,11 @@ public class BXmlSequence extends BCompoundVariable {
         Map<String, Value> childMap = new HashMap<>();
         try {
             Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
-            if (!children.isPresent()) {
+            if (children.isEmpty()) {
                 return childMap;
             }
             Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), FIELD_ELEMENT_DATA);
-            if (!childArray.isPresent()) {
+            if (childArray.isEmpty()) {
                 return childMap;
             }
             List<Value> childrenValues = ((ArrayReference) childArray.get()).getValues();

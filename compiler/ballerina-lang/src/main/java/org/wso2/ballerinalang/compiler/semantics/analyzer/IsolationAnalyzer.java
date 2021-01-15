@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
@@ -147,7 +146,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
@@ -614,7 +615,19 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRestMatchPattern restMatchPattern) {
+    }
 
+    @Override
+    public void visit(BLangMappingMatchPattern mappingMatchPattern) {
+        for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
+            analyzeNode(fieldMatchPattern, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangFieldMatchPattern fieldMatchPattern) {
+        analyzeNode(fieldMatchPattern.fieldName, env);
+        analyzeNode(fieldMatchPattern.matchPattern, env);
     }
 
     @Override

@@ -140,7 +140,7 @@ public class GlobalVariableRefAnalyzer {
 
         // Means no dependencies for this node.
         if (providers.isEmpty()) {
-            return new HashSet<>();
+            return new HashSet<>(0);
         }
 
         // Means the current node has dependencies. Lets analyze its dependencies further.
@@ -187,7 +187,7 @@ public class GlobalVariableRefAnalyzer {
             return this.globalVariablesDependsOn.getOrDefault(symbol, new HashSet<>());
         }
 
-        return new HashSet<>();
+        return new HashSet<>(0);
     }
 
     private boolean isFunction(BSymbol symbol) {

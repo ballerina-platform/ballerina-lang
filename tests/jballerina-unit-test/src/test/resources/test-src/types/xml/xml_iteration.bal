@@ -1,4 +1,3 @@
-import ballerina/io;
 import ballerina/lang.'int as intlib;
 
 // Sample XML taken from: https://www.w3schools.com/xml/books.xml
@@ -40,11 +39,9 @@ function foreachTest() returns [int, string][] {
 
     int i = 0;
     foreach var x in bookstore/<book> {
-        if x is xml {
-            titles[count] = [i, (x/<title>/*).toString()];
-            count +=1;
-            i +=1;
-        }
+        titles[count] = [i, (x/<title>/*).toString()];
+        count += 1;
+        i += 1;
     }
 
     return titles;
@@ -103,6 +100,7 @@ function chainedIterableOps() returns xml {
 xml theXml = xml `<book>the book</book>`;
 xml bitOfText = xml `bit of text\u2702\u2705`;
 xml compositeXml = theXml + bitOfText;
+string output = "";
 
 xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <p:name>bob</p:name>
@@ -113,22 +111,113 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <q:ID>1131313</q:ID>
     </p:person>`;
 
-function xmlSequenceIter() returns string {
-    string result = "";
+function concatString (string v) {
+    output += v + "\n";
+}
 
-    foreach xml|string elem in compositeXml {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+function xmlSequenceIter() returns string {
+    output = "";
+
+    foreach xml elem in compositeXml {
+        concatString(elem.toString());
     }
-    return result;
+    return output;
 }
 
 function xmlCharItemIter() returns string {
-    string result = "";
-
-    foreach xml|string elem in bitOfText {
-        string str = io:sprintf("%s\n", elem);
-        result += str;
+    output = "";
+    int i = 0;
+    foreach xml elem in bitOfText {
+        concatString(elem.toString());
+        i += 1;
     }
-    return result;
+    return output;
+}
+
+function testXmlElementSequenceIteration() {
+    xml el = xml `<foo>foo</foo>`;
+    xml<'xml:Element> seq = <xml<'xml:Element>> el.concat(xml `<bar/>`);
+
+    output = "";
+    foreach 'xml:Element elem in seq {
+        concatString(elem.toString());
+    }
+    assert(output, "<foo>foo</foo>\n<bar></bar>\n");
+
+    record {| 'xml:Element value; |}? nextElement1 = seq.iterator().next();
+    assert(nextElement1.toString(), "{\"value\":`<foo>foo</foo>`}");
+}
+
+function testXmlTextSequenceIteration() {
+    xml<'xml:Text> txt1 = xml `bit of text\u2702\u2705`;
+    'xml:Text txt2 = xml `bit of text\u2702\u2705`;
+
+    output = "";
+    foreach 'xml:Text elem in txt1 {
+        concatString(elem.toString());
+    }
+    assert(output, "bit of text\\u2702\\u2705\n");
+
+    output = "";
+    foreach 'xml:Text elem in txt2 {
+        concatString(elem.toString());
+    }
+    assert(output, "bit of text\\u2702\\u2705\n");
+
+    record {| 'xml:Text value; |}? nextText1 = txt1.iterator().next();
+    assert(nextText1.toString(), "{\"value\":`bit of text\\u2702\\u2705`}");
+
+    record {| 'xml:Text value; |}? nextText2 = txt2.iterator().next();
+    assert(nextText2.toString(), "{\"value\":`bit of text\\u2702\\u2705`}");
+}
+
+function testXmlCommentSequenceIteration() {
+     xml<'xml:Comment> comment1 = xml `<!--I am a comment-->`;
+
+     output = "";
+     foreach 'xml:Comment elem in comment1 {
+         concatString(elem.toString());
+     }
+     assert(output, "<!--I am a comment-->\n");
+
+     record {| 'xml:Comment value; |}? nextComment1 = comment1.iterator().next();
+     assert(nextComment1.toString(), "{\"value\":`<!--I am a comment-->`}");
+}
+
+function testXmlPISequenceIteration() {
+     xml<'xml:ProcessingInstruction> pi1 = xml `<?target data?>`;
+
+     output = "";
+     foreach 'xml:ProcessingInstruction elem in pi1 {
+         concatString(elem.toString());
+     }
+     assert(output, "<?target data?>\n");
+
+     record {| 'xml:ProcessingInstruction value; |}? nextPI1 = pi1.iterator().next();
+     assert(nextPI1.toString(), "{\"value\":`<?target data?>`}");
+}
+
+function testXmlUnionSequenceIteration() {
+    xml el = xml `<foo>foo</foo>`;
+    xml<'xml:Element|'xml:Text> seq = <xml<'xml:Element|'xml:Text>> el.concat(xml `<bar/>`);
+
+    output = "";
+    foreach 'xml:Element|'xml:Text elem in seq {
+        concatString(elem.toString());
+    }
+    assert(output, "<foo>foo</foo>\n<bar></bar>\n");
+
+    record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal1 = seq.iterator().next();
+    assert(nextUnionXMLVal1.toString(), "{\"value\":`<foo>foo</foo>`}");
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
 }

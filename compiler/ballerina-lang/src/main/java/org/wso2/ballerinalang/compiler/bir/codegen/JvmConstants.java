@@ -223,6 +223,10 @@ public class JvmConstants {
     public static final String BLOCKED_ON_EXTERN_FIELD = "blockedOnExtern";
     public static final String IS_BLOCKED_ON_EXTERN_FIELD = "isBlockedOnExtern";
 
+    // union related constants
+    public static final String SET_MEMBERS_METHOD = "setMemberTypes";
+    public static final String SET_CYCLIC_METHOD = "setCyclic";
+
     // Immutable type related constants.
     public static final String SET_IMMUTABLE_TYPE_METHOD = "setImmutableType";
 
@@ -278,13 +282,15 @@ public class JvmConstants {
     public static final String RECORD_INIT_WRAPPER_NAME = "$init";
     public static final String LISTENER_REGISTRY_VARIABLE = "$listenerRegistry";
     public static final String CONFIGURE_INIT = "$configureInit";
-    public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
+    public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$populateConfigurationData";
 
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
+    public static final String SCHEDULE_TRANSACTIONAL_FUNCTION_METHOD = "scheduleTransactionalFunction";
     public static final String SCHEDULE_LOCAL_METHOD = "scheduleLocal";
+    public static final String SCHEDULE_TRANSACTIONAL_LOCAL_METHOD = "scheduleTransactionalLocal";
     public static final String SCHEDULER_START_METHOD = "start";
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";

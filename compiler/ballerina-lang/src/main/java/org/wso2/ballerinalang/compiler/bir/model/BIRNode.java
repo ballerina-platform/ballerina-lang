@@ -62,6 +62,7 @@ public abstract class BIRNode {
         public final List<BIRFunction> functions;
         public final List<BIRAnnotation> annotations;
         public final List<BIRConstant> constants;
+        public boolean isListenerAvailable;
 
         public BIRPackage(Location pos, Name org, Name name, Name version,
                           Name sourceFileName) {

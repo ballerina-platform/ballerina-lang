@@ -21,13 +21,15 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.Collections;
@@ -51,7 +53,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     CodeActionContext context) {
-        if (!(diagnostic.getMessage().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
+        if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
 
@@ -68,12 +70,13 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
             return Collections.emptyList();
         }
 
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(diagnostic.getRange(), context);
+        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, context);
 
         // Add type guard code action
         String commandTitle = String.format(CommandConstants.CREATE_VAR_TYPE_GUARD_TITLE, matchedSymbol.name());
-        List<TextEdit> edits = CodeActionUtil.getTypeGuardCodeActionEdits(createVarTextEdits.name,
-                                                                          diagnostic.getRange(), unionType, context);
+        List<TextEdit> edits = CodeActionUtil.getTypeGuardCodeActionEdits(createVarTextEdits.name, range, unionType,
+                                                                          context);
         if (edits.isEmpty()) {
             return Collections.emptyList();
         }

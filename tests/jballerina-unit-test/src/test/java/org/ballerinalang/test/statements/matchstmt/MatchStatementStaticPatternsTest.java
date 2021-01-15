@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -468,5 +469,13 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 158, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 159, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 160, 13);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
+        resultNegative2 = null;
+        resultSemanticsNegative = null;
     }
 }

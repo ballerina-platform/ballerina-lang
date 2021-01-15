@@ -41,7 +41,6 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
-import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlAttributesType;
 import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.internal.IteratorUtils;
@@ -65,17 +64,20 @@ import io.ballerina.runtime.internal.types.BReadonlyType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BStringType;
+import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlAttributesType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 
 /**
@@ -145,16 +147,10 @@ public class PredefinedTypes {
                                                      new BUnionType(Arrays.asList(TYPE_ELEMENT, TYPE_COMMENT,
                                                                                   TYPE_PROCESSING_INSTRUCTION,
                                                                                   TYPE_TEXT)), EMPTY_MODULE);
-    public static final JsonType TYPE_JSON = new BJsonType(TypeConstants.JSON_TNAME, EMPTY_MODULE, false);
-    public static final ArrayType TYPE_JSON_ARRAY = new BArrayType(TYPE_JSON);
-    public static final JsonType TYPE_READONLY_JSON = new BJsonType(TypeConstants.READONLY_JSON_TNAME, EMPTY_MODULE,
-                                                                    true);
+
+
     public static final AnyType TYPE_ANY = new BAnyType(TypeConstants.ANY_TNAME, EMPTY_MODULE, false);
     public static final AnyType TYPE_READONLY_ANY = new BAnyType(TypeConstants.READONLY_ANY_TNAME, EMPTY_MODULE, true);
-    public static final AnydataType TYPE_ANYDATA =
-            new BAnydataType(TypeConstants.ANYDATA_TNAME, EMPTY_MODULE, false);
-    public static final AnydataType TYPE_READONLY_ANYDATA = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME,
-                                                                             EMPTY_MODULE, true);
     public static final StreamType TYPE_STREAM = new BStreamType(TypeConstants.STREAM_TNAME, TYPE_ANY, EMPTY_MODULE);
     public static final TypedescType TYPE_TYPEDESC = new BTypedescType(TypeConstants.TYPEDESC_TNAME, EMPTY_MODULE);
     public static final MapType TYPE_MAP = new BMapType(TypeConstants.MAP_TNAME, TYPE_ANY, EMPTY_MODULE);
@@ -166,17 +162,90 @@ public class PredefinedTypes {
     public static final IteratorType TYPE_ITERATOR = new BIteratorType(TypeConstants.ITERATOR_TNAME, EMPTY_MODULE);
     public static final ServiceType TYPE_ANY_SERVICE = new BServiceType(TypeConstants.SERVICE, EMPTY_MODULE, 0);
     public static final HandleType TYPE_HANDLE = new BHandleType(TypeConstants.HANDLE_TNAME, EMPTY_MODULE);
-    public static final UnionType ANYDATA_OR_READONLY = new BUnionType(Arrays.asList(TYPE_ANYDATA, TYPE_READONLY));
-    private static final MapType TYPE_DETAIL = new BMapType(TypeConstants.MAP_TNAME, ANYDATA_OR_READONLY, EMPTY_MODULE);
-    public static final Type TYPE_ERROR_DETAIL = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_DETAIL);
-    public static final ErrorType TYPE_ERROR = new BErrorType(TypeConstants.ERROR, EMPTY_MODULE, TYPE_DETAIL);
+
+    public static final JsonType TYPE_JSON;
+    public static final JsonType TYPE_READONLY_JSON;
+    public static final ArrayType TYPE_JSON_ARRAY;
+    public static final AnydataType TYPE_ANYDATA;
+    public static final AnydataType TYPE_READONLY_ANYDATA;
+    public static final MapType TYPE_DETAIL;
+    public static final Type TYPE_ERROR_DETAIL;
+    public static final ErrorType TYPE_ERROR;
+    public static final BUnionType TYPE_CLONEABLE;
 
     public static final RecordType STRING_ITR_NEXT_RETURN_TYPE =
             IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING);
-    public static final RecordType XML_ITR_NEXT_RETURN_TYPE = IteratorUtils
-            .createIteratorNextReturnType(
-                    new BUnionType(Arrays.asList(PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_XML)));
 
-    private PredefinedTypes() {
+    public static final RecordType XML_ITR_NEXT_RETURN_ELEMENT_TYPE =
+            IteratorUtils.createIteratorNextReturnType(TYPE_ELEMENT);
+    public static final RecordType XML_ITR_NEXT_RETURN_TEXT_TYPE =
+            IteratorUtils.createIteratorNextReturnType(TYPE_TEXT);
+    public static final RecordType XML_ITR_NEXT_RETURN_COMMENT_TYPE =
+            IteratorUtils.createIteratorNextReturnType(TYPE_COMMENT);
+    public static final RecordType XML_ITR_NEXT_RETURN_PI_TYPE =
+            IteratorUtils.createIteratorNextReturnType(TYPE_PROCESSING_INSTRUCTION);
+
+    // type anydata =  ()|boolean|int|float|decimal|string|xml|anydata[]|map<anydata>|table<map<anydata>>
+    static {
+        ArrayList<Type> members = new ArrayList<>();
+        members.add(TYPE_NULL);
+        members.add(TYPE_BOOLEAN);
+        members.add(TYPE_INT);
+        members.add(TYPE_FLOAT);
+        members.add(TYPE_DECIMAL);
+        members.add(TYPE_STRING);
+        members.add(TYPE_XML);
+        BAnydataType anydataType = new BAnydataType(new BUnionType(TypeConstants.ANYDATA_TNAME, EMPTY_MODULE,
+                members), TypeConstants.ANYDATA_TNAME, false);
+        anydataType.isCyclic = true;
+        MapType internalAnydataMap = new BMapType(TypeConstants.MAP_TNAME, anydataType, EMPTY_MODULE);
+        ArrayType internalAnydataArray = new BArrayType(anydataType);
+        BTableType internalAnydataMapTable = new BTableType(internalAnydataMap, false);
+        members.add(internalAnydataArray);
+        members.add(internalAnydataMap);
+        members.add(internalAnydataMapTable);
+        TYPE_ANYDATA = anydataType;
+        TYPE_READONLY_ANYDATA = new BAnydataType(anydataType, TypeConstants.READONLY_ANYDATA_TNAME, true);
+    }
+
+    // type json = ()|boolean|int|float|decimal|string|json[]|map<json>
+    static {
+        ArrayList<Type> members = new ArrayList<>();
+        members.add(TYPE_NULL);
+        members.add(TYPE_BOOLEAN);
+        members.add(TYPE_INT);
+        members.add(TYPE_FLOAT);
+        members.add(TYPE_DECIMAL);
+        members.add(TYPE_STRING);
+        BJsonType jsonType = new BJsonType(new BUnionType(TypeConstants.JSON_TNAME, EMPTY_MODULE, members),
+                TypeConstants.JSON_TNAME, false);
+        jsonType.isCyclic = true;
+        MapType internalJsonMap = new BMapType(TypeConstants.MAP_TNAME, jsonType, EMPTY_MODULE);
+        ArrayType internalJsonArray = new BArrayType(jsonType);
+        members.add(internalJsonArray);
+        members.add(internalJsonMap);
+        TYPE_JSON = jsonType;
+        TYPE_JSON_ARRAY = new BArrayType(TYPE_JSON);
+        TYPE_READONLY_JSON = new BJsonType(jsonType, TypeConstants.READONLY_JSON_TNAME, true);
+    }
+
+    // public type Cloneable readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>
+    static {
+        ArrayList<Type> members = new ArrayList<>();
+        members.add(TYPE_XML);
+        members.add(TYPE_READONLY);
+        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        BUnionType cloneable = new BUnionType(TypeConstants.CLONEABLE_TNAME, valueModule, members);
+        cloneable.isCyclic = true;
+        MapType internalCloneableMap = new BMapType(TypeConstants.MAP_TNAME, cloneable, valueModule);
+        ArrayType internalCloneableArray = new BArrayType(cloneable);
+        BTableType internalCloneableMapTable = new BTableType(internalCloneableMap, false);
+        members.add(internalCloneableMap);
+        members.add(internalCloneableArray);
+        members.add(internalCloneableMapTable);
+        TYPE_CLONEABLE = cloneable;
+        TYPE_DETAIL = new BMapType(TypeConstants.MAP_TNAME, TYPE_CLONEABLE, EMPTY_MODULE);
+        TYPE_ERROR_DETAIL = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_DETAIL);
+        TYPE_ERROR = new BErrorType(TypeConstants.ERROR, EMPTY_MODULE, TYPE_DETAIL);
     }
 }

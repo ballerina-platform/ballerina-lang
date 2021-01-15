@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -117,5 +118,11 @@ public class AbstractObjectTest {
     public void testAbstractObjectInObject() {
         BValue[] result = BRunUtil.invoke(abstractObjects, "testAbstractObjectInObject");
         Assert.assertEquals(result[0].stringValue(), "{city:\"Colombo\", address:{city:\"Colombo\"}}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        anonAbstractObjects = null;
+        abstractObjects = null;
     }
 }

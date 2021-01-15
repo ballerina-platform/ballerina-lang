@@ -58,6 +58,10 @@ type DistinctIntersectionError distinct ErrorOne & ErrorFive;
 
 type IntersectionOfDistinctErrors distinct DistinctErrorOne & DistinctErrorThree;
 
+type RecordWithIntersectionReference record {
+    IntersectionErrorThree err;
+};
+
 function testIntersectionForExistingDetail() {
     var err = error IntersectionError("message", x = "x", y = "y");
     assertEquality(err.detail().x, "x");
@@ -102,6 +106,23 @@ function testIntersectionOfDistinctErrors() {
 
     DistinctErrorThree errThree = err;
     assertEquality(errThree.detail().z, 10);
+}
+
+public function testIntersectionAsFieldInRecord() {
+    var err = error IntersectionErrorThree("message", x = "x", z = "z");
+    RecordWithIntersectionReference errRec = {err};
+    assertEquality(errRec.err, err);
+}
+
+public function testIntersectionAsFieldInAnonymousRecord() {
+    var err = error IntersectionErrorThree("message", x = "x", z = "z");
+    RecordWithIntersectionReference errRec = getAnonymousRecord(err);
+    assertEquality(errRec.err, err);
+}
+
+function getAnonymousRecord(IntersectionErrorThree err) returns record {IntersectionErrorThree err;} {
+    record {IntersectionErrorThree err;} errRec = {err};
+    return errRec;
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
