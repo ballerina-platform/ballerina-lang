@@ -158,9 +158,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "resiliency_source_03.bal", "module_var_decl_source_10.bal", "error_binding_pattern_source_03.bal",
                 "match_stmt_source_06.bal", "match_stmt_source_07.bal", "match_stmt_source_11.bal",
                 "receive_action_source_02.bal", "receive_action_source_03.bal", "module_var_decl_source_15.bal",
-                "annot_decl_source_02.bal", "object_constructor_source_08.bal",
-                "annotations_source_01.bal", "do_stmt_source_08.bal", "func_params_source_10.bal",
-                "func_params_source_11.bal", "func_params_source_13.bal");
+                "annot_decl_source_02.bal", "do_stmt_source_08.bal", "func_params_source_11.bal",
+                "func_params_source_13.bal");
     }
 
     @DataProvider(name = "test-file-provider")
