@@ -62,6 +62,8 @@ import java.util.stream.Collectors;
  * may need to be imported.
  * Eg: object {abc/c:P p;}. These situations are rare since most of the time,
  * the object or record is exported outright instead of specifying sub-types.
+ *
+ * @since slp8
  */
 public class TypeSignatureTransformer extends TypeSymbolTransformer<String> {
     private static final String ANON_MODULE = "$anon";

@@ -41,6 +41,8 @@ import java.util.List;
 /**
  * Visits all the nodes and informs whether the type needs
  * elevating due to some types not being visible to the REPL.
+ *
+ * @since slp8
  */
 public class TypeVisibilityVisitor extends TypeSymbolVisitor {
     private final List<TypeSymbol> invisibleTypes;

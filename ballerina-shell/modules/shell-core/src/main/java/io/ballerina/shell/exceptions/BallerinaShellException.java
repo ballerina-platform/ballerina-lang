@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,6 +22,8 @@ package io.ballerina.shell.exceptions;
  * Base exception class for all exceptions in the ballerina shell.
  * Every inherit exception that is thrown in this project are of this base type.
  * All other exceptions will be unhandled exceptions.
+ *
+ * @since slp8
  */
 public abstract class BallerinaShellException extends Exception {
     public BallerinaShellException(String message) {

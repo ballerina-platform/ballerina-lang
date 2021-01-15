@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,6 +22,8 @@ package io.ballerina.shell.parser;
  * Parses the source code line using a trial based method.
  * The source code is placed in several places and is attempted to parse.
  * This continues until the correct type can be determined.
+ *
+ * @since slp8
  */
 public abstract class TrialTreeParser extends TreeParser {
     protected static final long DEFAULT_TIMEOUT_MS = 100;

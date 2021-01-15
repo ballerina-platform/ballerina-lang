@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -39,6 +39,8 @@ import java.util.concurrent.TimeoutException;
  * This will process without timing out so we can get a
  * better error message.
  * Otherwise error will be just 'timed out'
+ *
+ * @since slp8
  */
 public class GetErrorMessageTrial extends TreeParserTrial {
     private static final int ERROR_TIMEOUT_MULTIPLIER = 10;

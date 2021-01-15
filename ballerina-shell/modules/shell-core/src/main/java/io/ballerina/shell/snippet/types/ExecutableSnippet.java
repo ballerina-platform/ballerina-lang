@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -26,6 +26,8 @@ import io.ballerina.shell.snippet.SnippetSubKind;
  * Represents a snippet that is executable.
  * Executable snippets changes the state (global vars) of the program when run.
  * Imports and module dclns are not executable.
+ *
+ * @since slp8
  */
 public abstract class ExecutableSnippet extends Snippet {
     protected ExecutableSnippet(SnippetSubKind subKind, Node rootNode) {

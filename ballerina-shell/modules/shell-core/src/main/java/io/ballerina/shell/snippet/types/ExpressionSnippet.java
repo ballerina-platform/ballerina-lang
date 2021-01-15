@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -24,6 +24,8 @@ import io.ballerina.shell.snippet.SnippetSubKind;
 /**
  * These are expressions that are executable. These do not have to contain semicolons.
  * If the expression is a Expression Statement, the semicolon will be stripped.
+ *
+ * @since slp8
  */
 public class ExpressionSnippet extends ExecutableSnippet {
     public ExpressionSnippet(ExpressionNode rootNode) {

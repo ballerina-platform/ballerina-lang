@@ -24,6 +24,8 @@ import io.ballerina.shell.exceptions.InvokerException;
 
 /**
  * Utility calls for performance measurements.
+ *
+ * @since slp8
  */
 public class InvokerTimeIt {
     /**

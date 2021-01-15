@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -33,6 +33,8 @@ import io.ballerina.tools.text.TextDocuments;
  * Puts in the module level and checks for module level entries.
  * Checks if this is a possible module dcln. If it is definitely as module dcln,
  * any error is rejected. Otherwise, it is still checked.
+ *
+ * @since slp8
  */
 public class ModuleMemberTrial extends DualTreeParserTrial {
     public ModuleMemberTrial(TrialTreeParser parentParser) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -24,6 +24,8 @@ import io.ballerina.shell.snippet.SnippetSubKind;
 /**
  * These will be variable declarations.
  * Currently only module level variable declarations are accepted.
+ *
+ * @since slp8
  */
 public class VariableDeclarationSnippet extends ExecutableSnippet {
     public VariableDeclarationSnippet(ModuleVariableDeclarationNode rootNode) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -28,6 +28,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
  * The transformation state saving logic should be implemented in child classes.
  *
  * @param <T> Type to transform.
+ * @since slp8
  */
 public abstract class TypeSymbolTransformer<T> extends TypeSymbolVisitor {
     private T state;

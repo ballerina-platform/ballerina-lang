@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -26,6 +26,8 @@ import java.util.List;
  * Base class reports diagnostics.
  * Encapsulates the diagnostic list and add APIs to add/view diagnostics.
  * A diagnostic represents error, a warning or a message.
+ *
+ * @since slp8
  */
 public abstract class DiagnosticReporter {
     private final List<Diagnostic> diagnostics;

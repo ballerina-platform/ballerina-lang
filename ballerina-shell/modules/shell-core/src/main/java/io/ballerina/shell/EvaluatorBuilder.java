@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -34,6 +34,8 @@ import java.util.Objects;
  * Allows to change the components used to evaluation.
  * By default this will use {@link SeparatorPreprocessor}, {@link TrialTreeParser},
  * {@link BasicSnippetFactory} and {@link ClassLoadInvoker}.
+ *
+ * @since slp8
  */
 public class EvaluatorBuilder {
     private Preprocessor preprocessor;

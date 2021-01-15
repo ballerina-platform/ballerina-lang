@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -30,6 +30,8 @@ import java.util.Stack;
  * Preprocessor to split the input into several statements
  * based on the semicolons and brackets. Outputs the split input.
  * If a comment starting is detected, this will ignore anything upto a new line.
+ *
+ * @since slp8
  */
 public class SeparatorPreprocessor extends Preprocessor {
     private static final char ESCAPE_CHAR = '\\';

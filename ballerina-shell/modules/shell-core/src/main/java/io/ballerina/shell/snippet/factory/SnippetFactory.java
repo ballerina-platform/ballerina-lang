@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -35,6 +35,8 @@ import java.util.List;
  * Snippet factory that is expected to generate snippets from given nodes.
  * Each implemented method except {@code createSnippet} will return null
  * if the snippet creation failed.
+ *
+ * @since slp8
  */
 public abstract class SnippetFactory extends DiagnosticReporter {
     /**
