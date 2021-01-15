@@ -129,10 +129,8 @@ public class BuildProject extends Project {
                     moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
                 }
 
-                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName)
-                        || Optional.of(
-                        Optional.of(
-                                parent.getParent()).get().getFileName()).get().toString().equals(moduleDirName)) {
+                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName) || Optional.of(
+                        Optional.of(parent.getParent()).get().getFileName()).get().toString().equals(moduleDirName)) {
                     Module module = this.currentPackage().module(moduleId);
                     for (DocumentId documentId : module.documentIds()) {
                         if (module.document(documentId).name().equals(
