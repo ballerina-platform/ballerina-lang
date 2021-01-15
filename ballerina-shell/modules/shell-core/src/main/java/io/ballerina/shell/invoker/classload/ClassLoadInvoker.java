@@ -649,7 +649,7 @@ public class ClassLoadInvoker extends Invoker implements ImportProcessor {
         LinePosition cursorPos = ((FunctionBodyBlockNode) bodyNode).closeBraceToken().lineRange().startLine();
 
         return compilation.getSemanticModel(moduleId)
-                .visibleSymbols(document.name(), cursorPos).stream()
+                .visibleSymbols(document, cursorPos).stream()
                 .filter((s) -> !knownSymbols.contains(new HashedSymbol(s)))
                 .collect(Collectors.toList());
     }
