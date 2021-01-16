@@ -80,10 +80,10 @@ public class ClassSymbolTest {
     @Test
     public void testTypeReference() {
         Symbol symbol = model.symbol(srcFile, LinePosition.from(40, 6)).get();
-        assertEquals(symbol.name(), "Person1");
         assertEquals(symbol.kind(), TYPE);
 
         TypeReferenceTypeSymbol tSymbol = (TypeReferenceTypeSymbol) symbol;
+        assertEquals(tSymbol.name(), "Person1");
         assertEquals(tSymbol.typeKind(), TYPE_REFERENCE);
 
         ClassSymbol clazz = (ClassSymbol) tSymbol.typeDescriptor();
@@ -96,10 +96,10 @@ public class ClassSymbolTest {
     @Test
     public void testClassWithoutInit() {
         Symbol symbol = model.symbol(srcFile, LinePosition.from(41, 4)).get();
-        assertEquals(symbol.name(), "Person2");
         assertEquals(symbol.kind(), TYPE);
 
         TypeReferenceTypeSymbol tSymbol = (TypeReferenceTypeSymbol) symbol;
+        assertEquals(tSymbol.name(), "Person2");
         assertEquals(tSymbol.typeKind(), TYPE_REFERENCE);
 
         ClassSymbol clazz = (ClassSymbol) tSymbol.typeDescriptor();

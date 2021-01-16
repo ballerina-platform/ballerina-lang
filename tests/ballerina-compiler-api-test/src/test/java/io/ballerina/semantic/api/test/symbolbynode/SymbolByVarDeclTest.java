@@ -18,6 +18,7 @@
 package io.ballerina.semantic.api.test.symbolbynode;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -82,7 +83,7 @@ public class SymbolByVarDeclTest extends SymbolByNodeTest {
             @Override
             public void visit(TypedBindingPatternNode typedBindingPatternNode) {
                 Optional<Symbol> symbol = model.symbol(typedBindingPatternNode);
-                Object[] expVals = expVarDetails.get(symbol.get().name());
+                Object[] expVals = expVarDetails.get(((Identifiable) symbol.get()).name());
                 assertSymbol(symbol.get(), (String) expVals[0], (TypeDescKind) expVals[1]);
 
                 typedBindingPatternNode.bindingPattern().accept(this);
@@ -91,7 +92,7 @@ public class SymbolByVarDeclTest extends SymbolByNodeTest {
             @Override
             public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
                 Optional<Symbol> symbol = model.symbol(captureBindingPatternNode);
-                Object[] expVals = expVarDetails.get(symbol.get().name());
+                Object[] expVals = expVarDetails.get(((Identifiable) symbol.get()).name());
                 assertSymbol(symbol.get(), (String) expVals[0], (TypeDescKind) expVals[1]);
             }
         };
@@ -104,7 +105,7 @@ public class SymbolByVarDeclTest extends SymbolByNodeTest {
 
     private void assertSymbol(Symbol symbol, String name, TypeDescKind typeKind) {
         assertEquals(symbol.kind(), VARIABLE);
-        assertEquals(symbol.name(), name);
+        assertEquals(((Identifiable) symbol).name(), name);
         assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), typeKind);
         incrementAssertCount();
     }

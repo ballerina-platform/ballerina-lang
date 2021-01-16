@@ -18,6 +18,7 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -48,7 +49,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(((Identifiable) value).name(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -105,7 +106,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(((Identifiable) value).name(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -132,7 +133,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(((Identifiable) value).name(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -159,7 +160,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertTrue(true, "Unexpected symbol: " + value.name()));
+        symbol.ifPresent(value -> assertTrue(true, "Unexpected symbol: " + ((Identifiable) value).name()));
     }
 
     @DataProvider(name = "MissingConstructPosProvider")

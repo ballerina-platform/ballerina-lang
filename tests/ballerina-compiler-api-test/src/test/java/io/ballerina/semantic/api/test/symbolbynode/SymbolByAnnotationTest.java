@@ -18,6 +18,7 @@
 package io.ballerina.semantic.api.test.symbolbynode;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
@@ -69,7 +70,7 @@ public class SymbolByAnnotationTest extends SymbolByNodeTest {
     private void assertSymbol(Node node, SemanticModel model) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), ANNOTATION);
-        assertEquals(symbol.get().name(), "v1");
+        assertEquals(((Identifiable) symbol.get()).name(), "v1");
         incrementAssertCount();
     }
 }

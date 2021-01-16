@@ -19,6 +19,7 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.projects.Document;
@@ -94,7 +95,7 @@ public class SymbolBIRTest {
         assertList(symbolsInScope, expSymbolNames);
 
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
-                .filter(sym -> sym.name().equals("testproject")).findAny().get();
+                .filter(sym -> ((Identifiable) sym).name().equals("testproject")).findAny().get();
         List<String> fooFunctions = getSymbolNames(fooPkgSymbol, SymTag.FUNCTION);
         SemanticAPITestUtils.assertList(fooModule.functions(), fooFunctions);
 
@@ -118,7 +119,7 @@ public class SymbolBIRTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(((Identifiable) value).name(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -146,9 +147,9 @@ public class SymbolBIRTest {
         assertEquals(actualValues.size(), expectedValues.size());
 
         for (SymbolInfo val : expectedValues) {
-            assertTrue(actualValues.stream().anyMatch(sym -> val.equals(new SymbolInfo(sym.name(), sym.kind()))),
+            assertTrue(actualValues.stream()
+                               .anyMatch(sym -> val.equals(new SymbolInfo(((Identifiable) sym).name(), sym.kind()))),
                        "Symbol not found: " + val);
-
         }
     }
 

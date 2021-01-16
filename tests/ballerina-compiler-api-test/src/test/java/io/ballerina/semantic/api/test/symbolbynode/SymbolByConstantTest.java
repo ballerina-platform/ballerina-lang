@@ -18,6 +18,7 @@
 package io.ballerina.semantic.api.test.symbolbynode;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -68,7 +69,7 @@ public class SymbolByConstantTest extends SymbolByNodeTest {
     private void assertSymbol(Node node, SemanticModel model) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), CONSTANT);
-        assertEquals(symbol.get().name(), "PI");
+        assertEquals(((Identifiable) symbol.get()).name(), "PI");
         incrementAssertCount();
     }
 }

@@ -19,6 +19,7 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -98,7 +99,8 @@ public class SymbolEquivalenceTest {
 
             for (int j = i + 1; j < symbols.size(); j++) {
                 assertFalse(symbol.equals(symbols.get(j)),
-                            "'" + symbol.name() + "' is equal to '" + symbols.get(j).name() + "'");
+                            "'" + ((Identifiable) symbol).name() + "' is equal to '" +
+                                    ((Identifiable) symbols.get(j)).name() + "'");
                 assertNotEquals(symbol.hashCode(), symbols.get(j).hashCode());
             }
         }
@@ -160,7 +162,8 @@ public class SymbolEquivalenceTest {
 
             for (int j = i + 1; j < symbols.size(); j++) {
                 assertTrue(symbol.equals(symbols.get(j)),
-                           "'" + symbol.name() + "' not equal to '" + symbols.get(j).name() + "'");
+                           "'" + ((Identifiable) symbol).name() + "' not equal to '" +
+                                   ((Identifiable) symbols.get(j)).name() + "'");
                 assertEquals(symbol.hashCode(), symbols.get(j).hashCode());
             }
         }

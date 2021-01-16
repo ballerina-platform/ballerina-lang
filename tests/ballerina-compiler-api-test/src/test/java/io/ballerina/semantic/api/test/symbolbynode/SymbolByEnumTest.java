@@ -18,6 +18,7 @@
 package io.ballerina.semantic.api.test.symbolbynode;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
@@ -79,7 +80,7 @@ public class SymbolByEnumTest extends SymbolByNodeTest {
     private void assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), kind);
-        assertEquals(symbol.get().name(), name);
+        assertEquals(((Identifiable) symbol.get()).name(), name);
         incrementAssertCount();
     }
 }

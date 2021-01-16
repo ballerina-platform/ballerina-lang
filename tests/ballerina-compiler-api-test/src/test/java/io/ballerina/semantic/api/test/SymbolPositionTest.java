@@ -18,6 +18,7 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -60,7 +61,7 @@ public class SymbolPositionTest {
             assertNull(expSymbolName);
         }
 
-        assertEquals(symbol.get().name(), expSymbolName);
+        assertEquals(((Identifiable) symbol.get()).name(), expSymbolName);
 
         Location pos = symbol.get().location();
         assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");
@@ -93,7 +94,7 @@ public class SymbolPositionTest {
     public void testTypeNarrowedSymbolPositions(int line, int col) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
 
-        assertEquals(symbol.get().name(), "val");
+        assertEquals(((Identifiable) symbol.get()).name(), "val");
 
         Location pos = symbol.get().location();
         assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");

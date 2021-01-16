@@ -18,6 +18,7 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -71,7 +72,7 @@ public class TestSourcesTest {
             assertNull(expSymbolName);
         }
 
-        assertEquals(symbol.get().name(), expSymbolName);
+        assertEquals(((Identifiable) symbol.get()).name(), expSymbolName);
     }
 
     @DataProvider(name = "SymbolPosProvider")

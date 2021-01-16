@@ -19,6 +19,7 @@ package io.ballerina.semantic.api.test.util;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.NamedSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
@@ -100,7 +101,9 @@ public class SemanticAPITestUtils {
     }
 
     public static void assertList(List<? extends Symbol> actualValues, List<String> expectedValues) {
-        Map<String, Symbol> symbols = actualValues.stream().collect(Collectors.toMap(Symbol::name, s -> s));
+        Map<String, Symbol> symbols = actualValues.stream()
+                .map(s -> (NamedSymbol) s)
+                .collect(Collectors.toMap(NamedSymbol::name, s -> s));
         assertList(symbols, expectedValues);
     }
 
@@ -117,7 +120,8 @@ public class SemanticAPITestUtils {
         List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(line, column));
         return allInScopeSymbols.stream()
                 .filter(s -> s.moduleID().equals(moduleID))
-                .collect(Collectors.toMap(Symbol::name, s -> s));
+                .map(s -> (NamedSymbol) s)
+                .collect(Collectors.toMap(NamedSymbol::name, s -> s));
     }
 
     public static List<String> getSymbolNames(List<String> mainList, String... args) {

@@ -90,7 +90,7 @@ public class ServiceSemanticAPITest {
     public void testServiceDeclTypedesc() {
         TypeSymbol symbol = (TypeSymbol) model.symbol(srcFile, from(66, 8)).get();
         assertEquals(symbol.typeKind(), TYPE_REFERENCE);
-        assertEquals(symbol.name(), "ProcessingService");
+        assertEquals(((TypeReferenceTypeSymbol) symbol).name(), "ProcessingService");
         assertEquals(((TypeReferenceTypeSymbol) symbol).typeDescriptor().typeKind(), OBJECT);
     }
 
@@ -99,7 +99,7 @@ public class ServiceSemanticAPITest {
         VariableSymbol symbol = (VariableSymbol) model.symbol(srcFile, from(66, 31)).get();
         assertEquals(symbol.name(), "lsn");
         assertEquals(symbol.typeDescriptor().typeKind(), TYPE_REFERENCE);
-        assertEquals(symbol.typeDescriptor().name(), "Listener");
+        assertEquals(((TypeReferenceTypeSymbol) symbol.typeDescriptor()).name(), "Listener");
         assertEquals(symbol.qualifiers().size(), 2);
         assertTrue(symbol.qualifiers().contains(LISTENER));
         assertTrue(symbol.qualifiers().contains(FINAL));
