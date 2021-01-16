@@ -20,6 +20,8 @@ import com.sun.jdi.Field;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Identifiable;
+import io.ballerina.compiler.api.symbols.NamedSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -122,8 +124,8 @@ public class BallerinaTypeResolver {
         return semanticContext.moduleLevelSymbols()
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS)
-                .filter(symbol -> encodeIdentifier(symbol.name(), IdentifierModifier.IdentifierType.OTHER)
-                        .equals(typeName))
+                .filter(symbol -> encodeIdentifier(((Identifiable) symbol).name(),
+                                                   IdentifierModifier.IdentifierType.OTHER).equals(typeName))
                 .findAny();
     }
 }
