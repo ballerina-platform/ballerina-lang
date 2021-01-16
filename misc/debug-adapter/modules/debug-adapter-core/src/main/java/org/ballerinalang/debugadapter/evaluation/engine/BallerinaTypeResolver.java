@@ -21,7 +21,6 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Identifiable;
-import io.ballerina.compiler.api.symbols.NamedSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.Node;

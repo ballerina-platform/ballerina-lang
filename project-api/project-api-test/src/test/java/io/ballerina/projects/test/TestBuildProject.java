@@ -18,6 +18,7 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
@@ -758,7 +759,7 @@ public class TestBuildProject {
 
         // Test symbol
         Optional<Symbol> symbol = semanticModel.symbol(srcFile, LinePosition.from(5, 10));
-        symbol.ifPresent(value -> assertEquals(value.name(), "runServices"));
+        symbol.ifPresent(value -> assertEquals(((Identifiable) value).name(), "runServices"));
     }
 
     @AfterClass (alwaysRun = true)
