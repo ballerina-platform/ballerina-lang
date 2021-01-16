@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
@@ -46,14 +47,14 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     private Map<LineRange, ASTModification> deleteRanges;
     private Map<LineRange, ASTModification> toBeDeletedRanges = new HashMap<>();
     private SemanticModel semanticModel;
-    private String fileName;
+    private Document srcFile;
 
-    public UnusedSymbolsVisitor(String fileName, SemanticModel semanticModel, Map<LineRange,
-            ASTModification> deleteRanges) {
+    public UnusedSymbolsVisitor(Document srcFile, SemanticModel semanticModel,
+                                Map<LineRange, ASTModification> deleteRanges) {
         this.semanticModel = semanticModel;
         this.deleteRanges = deleteRanges;
         this.toBeDeletedRanges.putAll(deleteRanges);
-        this.fileName = fileName;
+        this.srcFile = srcFile;
     }
 
     private void addUnusedImportNode(ImportDeclarationNode importDeclarationNode) {
@@ -104,7 +105,7 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     }
 
     private void moveUnusedtoUsedImport(LineRange lineRange, ImportDeclarationNode importDeclarationNode) {
-        List<Location> locations = this.semanticModel.references(fileName, lineRange.startLine());
+        List<Location> locations = this.semanticModel.references(srcFile, lineRange.startLine());
         boolean availableOutSideDeleteRange = false;
         for (Location location : locations) {
             if (isWithinLineRange(importDeclarationNode.lineRange(), location.lineRange())) {
@@ -127,7 +128,7 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     private void decideVariablesToBeDeleted(LineRange lineRange) {
         LineRange deleteRange = getDeleteRange(lineRange);
         if (deleteRange != null) {
-            List<Location> locations = this.semanticModel.references(fileName, lineRange.startLine());
+            List<Location> locations = this.semanticModel.references(srcFile, lineRange.startLine());
             for (Location location : locations) {
                 if (isWithinLineRange(deleteRange, location.lineRange())) {
                     continue;

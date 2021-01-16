@@ -14,6 +14,8 @@
  * limitations under the License.
  *
  */
+import org.apache.tools.ant.taskdefs.condition.Os
+
 apply plugin: 'base'
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
@@ -63,11 +65,32 @@ test {
     dependsOn ':ballerina-lang:build'
     dependsOn createTestDistributionCache
     dependsOn createTestBre
-    
+
+    if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+        finalizedBy jacocoTestReport
+    }
+
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+task jacocoMergeTest(type: JacocoMerge) {
+    dependsOn ':ballerina-lang:build'
+    String langProjectBuildDir = project(":ballerina-lang").buildDir
+    destinationFile = file("$buildDir/jacoco/all-test.exec")
+    executionData = files("$buildDir/jacoco/test.exec", "$langProjectBuildDir/jacoco/test.exec")
+}
+
+jacocoTestReport.doFirst{
+        String langProjectDir = project(":ballerina-lang").projectDir
+        String langProjectBuildDir = project(":ballerina-lang").buildDir
+        classDirectories = files("$langProjectBuildDir/classes/java/main/io/ballerina/projects")
+        sourceDirectories = files("$langProjectDir/src/main/java")
+        executionData = files("$buildDir/jacoco/all-test.exec")
+}
+
+jacocoTestReport.dependsOn(jacocoMergeTest)
 
 ext.moduleName = 'io.ballerina.projects.test'
 

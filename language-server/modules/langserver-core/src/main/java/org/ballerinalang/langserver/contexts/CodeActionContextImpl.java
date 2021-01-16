@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.contexts;
 
 import io.ballerina.compiler.api.SemanticModel;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -40,7 +39,7 @@ import java.util.Optional;
 public class CodeActionContextImpl extends AbstractDocumentServiceContext implements CodeActionContext {
 
     private Position cursorPosition;
-    private List<Diagnostic> diagnostics;
+    private List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics;
     private final CodeActionParams params;
     private PositionDetails positionDetails;
 
@@ -65,10 +64,10 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     }
 
     @Override
-    public List<Diagnostic> allDiagnostics() {
+    public List<io.ballerina.tools.diagnostics.Diagnostic> allDiagnostics() {
         if (diagnostics == null) {
             Optional<SemanticModel> semanticModel = this.workspace().semanticModel(this.filePath());
-            semanticModel.ifPresent(model -> this.diagnostics = CodeActionUtil.toDiagnostics(model.diagnostics()));
+            semanticModel.ifPresent(model -> this.diagnostics = model.diagnostics());
         }
 
         return this.diagnostics;

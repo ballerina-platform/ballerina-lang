@@ -28,6 +28,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
@@ -126,6 +127,12 @@ public class RunTestsTask implements Task {
 
     @Override
     public void execute(Project project) {
+        try {
+            ProjectUtils.checkExecutePermission(project.sourceRoot());
+        } catch (ProjectException e) {
+            throw createLauncherException(e.getMessage());
+        }
+
         filterTestGroups();
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
@@ -341,6 +348,7 @@ public class RunTestsTask implements Task {
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
         String orgName = module.packageInstance().packageOrg().toString();
         String packageName = module.packageInstance().packageName().toString();
+        String moduleName = module.isDefaultModule() ? "" : module.moduleName().moduleNamePart();
 
         String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
                 .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
@@ -369,6 +377,7 @@ public class RunTestsTask implements Task {
             cmdArgs.add(target.path().toString());
             cmdArgs.add(orgName);
             cmdArgs.add(packageName);
+            cmdArgs.add(moduleName);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
             Process proc = processBuilder.start();
             return proc.waitFor();

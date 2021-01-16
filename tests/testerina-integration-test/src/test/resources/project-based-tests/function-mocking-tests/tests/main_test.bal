@@ -94,8 +94,7 @@ public function mockFloatAdd(float a, float b) returns (float) {
 // TESTS
 //
 
-@test:Config {
-}
+@test:Config {}
 public function call_Test1() {
     // IntAdd
     test:when(mock_intAdd).call("mockIntAdd1");
@@ -111,8 +110,7 @@ public function call_Test1() {
      test:assertEquals(floatAdd(10.6, 4.5), 6.1);
 }
 
-@test:Config {
-}
+@test:Config {}
 public function call_Test2() {
     // Set which function to call
     test:when(mock_intAdd).call("mockIntAdd1");
@@ -127,29 +125,25 @@ public function call_Test2() {
     test:assertEquals(intAdd(10, 6), 4);
 }
 
-@test:Config {
-}
+@test:Config {}
 public function call_Test3() {
     test:when(mock_intAdd).call("invalidMockFunction");
     test:assertEquals(intAdd(10, 6), 4);
 }
 
-@test:Config {
-}
+@test:Config {}
 public function call_Test4() {
     test:when(mock_intAdd).call("mockIntAdd3");
     test:assertEquals(intAdd(10, 6), 4);
 }
 
-@test:Config {
-}
+@test:Config {}
 public function call_Test5() {
     test:when(mock_intAdd).call("mockIntAdd4");
     test:assertEquals(intAdd(10, 6), 4);
 }
 
-@test:Config {
-}
+@test:Config {}
 public function call_Test6() {
     TestClass testClass = new();
     test:when(mock_intAdd).call("mockIntAdd1");
@@ -169,8 +163,7 @@ public function call_Test8() {
     test:assertEquals(intAdd3(1, 3, 5), -9);
 }
 
-@test:Config {
-}
+@test:Config {}
 public function thenReturn_Test1() {
     test:when(mock_intAdd).thenReturn(5);
     test:assertEquals(intAdd(10, 4), 5);
@@ -182,8 +175,7 @@ public function thenReturn_Test1() {
     test:assertEquals(floatAdd(10, 5), 10.5);
 }
 
-@test:Config {
-}
+@test:Config {}
 public function withArguments_Test1() {
     test:when(mock_intAdd).withArguments(20, 14).thenReturn(100);
     test:assertEquals(intAdd(20, 14), 100);
@@ -192,8 +184,7 @@ public function withArguments_Test1() {
     test:assertEquals(stringAdd("string1"), "test");
 }
 
-@test:Config {
-}
+@test:Config {}
 public function callOriginal_Test1() {
     // IntAdd
     test:when(mock_intAdd).callOriginal();

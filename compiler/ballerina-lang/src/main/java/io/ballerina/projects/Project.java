@@ -94,4 +94,6 @@ public abstract class Project {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, this.sourceRoot().toAbsolutePath().toString());
     }
+
+    public abstract DocumentId documentId(Path file);
 }

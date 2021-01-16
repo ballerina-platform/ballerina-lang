@@ -50,7 +50,7 @@ public class BMap extends BCompoundVariable {
         Map<String, Value> childVarMap = new HashMap<>();
         try {
             Optional<Value> mapValues = VariableUtils.getFieldValue(jvmValue, FIELD_MAP_DATA);
-            if (!mapValues.isPresent()) {
+            if (mapValues.isEmpty()) {
                 return childVarMap;
             }
             for (Value map : ((ArrayReference) mapValues.get()).getValues()) {

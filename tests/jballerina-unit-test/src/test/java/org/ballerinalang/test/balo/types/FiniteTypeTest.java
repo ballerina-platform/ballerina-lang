@@ -29,6 +29,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -42,7 +43,7 @@ public class FiniteTypeTest {
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/finite_type_project/finitetypetest");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/finite_type_project");
         result = BCompileUtil.compile("test-src/balo/test_balo/types/finite_type_test.bal");
     }
 
@@ -305,6 +306,11 @@ public class FiniteTypeTest {
                 {"testFiniteTypesAsUnionsAsBroaderTypes_1"},
                 {"testFiniteTypesAsUnionsAsBroaderTypes_2"}
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }
 

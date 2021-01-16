@@ -33,14 +33,16 @@ public enum BArrayState {
     OPEN((byte) 3);
 
     byte value;
-    private static final Map<Byte, BArrayState> map = new HashMap<>();
+    private static final Map<Byte, BArrayState> map;
 
     BArrayState(byte value) {
         this.value = value;
     }
 
     static {
-        for (BArrayState pageType : BArrayState.values()) {
+        BArrayState[] values = BArrayState.values();
+        map = new HashMap<>(values.length);
+        for (BArrayState pageType : values) {
             map.put(pageType.value, pageType);
         }
     }

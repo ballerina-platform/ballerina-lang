@@ -56,18 +56,28 @@ public class CodeActionProvidersHolder {
 
     private CodeActionProvidersHolder(LanguageServerContext serverContext) {
         serverContext.put(CODE_ACTION_PROVIDERS_HOLDER_KEY, this);
+        loadServices();
+    }
+
+    private void loadServices() {
+        if (!CodeActionProvidersHolder.nodeBasedProviders.isEmpty()) {
+            return;
+        }
         ServiceLoader<LSCodeActionProvider> serviceLoader = ServiceLoader.load(LSCodeActionProvider.class);
         for (CodeActionNodeType nodeType : CodeActionNodeType.values()) {
-            nodeBasedProviders.put(nodeType, new ArrayList<>());
+            CodeActionProvidersHolder.nodeBasedProviders.put(nodeType, new ArrayList<>());
         }
         for (LSCodeActionProvider provider : serviceLoader) {
+            if (provider == null) {
+                continue;
+            }
             if (provider.isNodeBasedSupported()) {
                 for (CodeActionNodeType nodeType : provider.getCodeActionNodeTypes()) {
-                    nodeBasedProviders.get(nodeType).add(provider);
+                    CodeActionProvidersHolder.nodeBasedProviders.get(nodeType).add(provider);
                 }
             }
             if (provider.isDiagBasedSupported()) {
-                diagnosticsBasedProviders.add(provider);
+                CodeActionProvidersHolder.diagnosticsBasedProviders.add(provider);
             }
         }
     }
@@ -79,8 +89,8 @@ public class CodeActionProvidersHolder {
      * @return node based providers
      */
     List<LSCodeActionProvider> getActiveNodeBasedProviders(CodeActionNodeType nodeType, CodeActionContext ctx) {
-        if (nodeBasedProviders.containsKey(nodeType)) {
-            return nodeBasedProviders.get(nodeType).stream()
+        if (CodeActionProvidersHolder.nodeBasedProviders.containsKey(nodeType)) {
+            return CodeActionProvidersHolder.nodeBasedProviders.get(nodeType).stream()
                     .filter(provider -> provider.isEnabled(ctx.languageServercontext()))
                     .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
                     .collect(Collectors.toList());
@@ -94,7 +104,7 @@ public class CodeActionProvidersHolder {
      * @return diagnostic based providers
      */
     List<LSCodeActionProvider> getActiveDiagnosticsBasedProviders(CodeActionContext ctx) {
-        return diagnosticsBasedProviders.stream()
+        return CodeActionProvidersHolder.diagnosticsBasedProviders.stream()
                 .filter(provider -> provider.isEnabled(ctx.languageServercontext()))
                 .sorted(Comparator.comparingInt(LSCodeActionProvider::priority))
                 .collect(Collectors.toList());

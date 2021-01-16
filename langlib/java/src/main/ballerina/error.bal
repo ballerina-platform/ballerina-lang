@@ -14,5 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# The type of value to which `clone` and `cloneReadOnly` can be applied.
+type __Cloneable2 readonly|xml|__Cloneable2[]|map<__Cloneable2>|table<map<__Cloneable2>>;
+
 # Represents a `JavaError` with the message and the cause.
-public type JavaClassNotFoundError distinct error;
+public type JavaClassNotFoundError distinct error<map<__Cloneable2>>;
