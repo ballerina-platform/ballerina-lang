@@ -171,7 +171,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                         .map((entry) -> new PublishDiagnosticsParams(entry.getKey(), entry.getValue()))
                         .collect(Collectors.toList());
             } catch (Throwable e) {
-                String msg = "Operation 'ballerinaDocument/project' failed!";
+                String msg = "Operation 'ballerinaDocument/diagnostics' failed!";
                 this.clientLogger.logError(msg, e, params.getDocumentIdentifier(), (Position) null);
                 return Collections.emptyList();
             }
