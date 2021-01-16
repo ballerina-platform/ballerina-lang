@@ -55,14 +55,14 @@ public class ExpressionValidator extends StatementValidator {
         failIf(expression.isEmpty(), "Failed to derive the expression due to a parsing error.");
 
         // Validate for syntax errors.
-        if (expression.get().hasDiagnostics()) {
+        if (syntaxTree.hasDiagnostics()) {
             final StringJoiner errors = new StringJoiner(System.lineSeparator());
-            expression.get().diagnostics().forEach(diagnostic -> {
+            syntaxTree.diagnostics().forEach(diagnostic -> {
                 if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
                     errors.add(diagnostic.message());
                 }
             });
-            failIf(errors.length() > 0, String.format(EvaluationExceptionKind.SYNTAX_ERROR.getString(),
+            failIf(errors.length() > 0, String.format(EvaluationExceptionKind.SYNTAX_ERROR.getReason(),
                     errors.toString()));
         }
     }
