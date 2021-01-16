@@ -34,13 +34,13 @@ public class ListenerBaloTest {
 
     private CompileResult compileResult;
 
-    @BeforeClass(enabled = false)
+    @BeforeClass
     public void setup() {
-        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_listener/listenerproject");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_listener");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/listener/external_listener_access.bal");
     }
 
-    @Test(description = "Test access listener in different module", enabled = false)
+    @Test(description = "Test access listener in different module")
     public void testBasicStructAsObject() {
         final BValue[] result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
         Assert.assertEquals(result.length, 1, "expected one return type");
@@ -48,7 +48,7 @@ public class ListenerBaloTest {
         Assert.assertEquals(result[0].stringValue(), "2_3");
     }
 
-    @AfterClass(enabled = false)
+    @AfterClass()
     public void tearDown() {
         BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_listener", "listenerProject", "bee");
     }

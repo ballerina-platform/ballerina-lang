@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -30,6 +31,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represent Function Symbol.
@@ -41,6 +43,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     private final FunctionTypeSymbol typeDescriptor;
     private final List<Qualifier> qualifiers;
     private final List<AnnotationSymbol> annots;
+    private final Documentation docAttachment;
     private final boolean isExternal;
     private final boolean deprecated;
 
@@ -53,6 +56,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
         super(name, moduleID, SymbolKind.FUNCTION, invokableSymbol);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
+        this.docAttachment = getDocAttachment(invokableSymbol);
         this.typeDescriptor = typeDescriptor;
         this.isExternal = Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE);
         this.deprecated = Symbols.isFlagOn(invokableSymbol.flags, Flags.DEPRECATED);
@@ -86,6 +90,11 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     @Override
     public List<AnnotationSymbol> annotations() {
         return this.annots;
+    }
+
+    @Override
+    public Optional<Documentation> documentation() {
+        return Optional.ofNullable(this.docAttachment);
     }
 
     /**

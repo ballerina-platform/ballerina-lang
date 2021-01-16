@@ -19,6 +19,7 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
@@ -28,7 +29,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -147,13 +147,13 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
                 .collect(Collectors.toList());
     }
 
-    private List<String[]> extractImportsToBeRemoved(List<Diagnostic> allDiagnotics) {
+    private List<String[]> extractImportsToBeRemoved(List<io.ballerina.tools.diagnostics.Diagnostic> allDiagnotics) {
         List<String[]> importsToBeRemoved = new ArrayList<>();
 
         // Filter unused imports
         for (Diagnostic diag : allDiagnotics) {
-            if (diag.getMessage().startsWith(UNUSED_IMPORT_MODULE)) {
-                Matcher matcher = CommandConstants.UNUSED_IMPORT_MODULE_PATTERN.matcher(diag.getMessage());
+            if (diag.message().startsWith(UNUSED_IMPORT_MODULE)) {
+                Matcher matcher = CommandConstants.UNUSED_IMPORT_MODULE_PATTERN.matcher(diag.message());
                 if (matcher.find()) {
                     String pkgName = matcher.group(1).trim();
                     String version = matcher.groupCount() > 1 && matcher.group(2) != null ? matcher.group(2) : "";

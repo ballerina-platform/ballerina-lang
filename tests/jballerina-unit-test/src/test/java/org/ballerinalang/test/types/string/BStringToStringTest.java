@@ -19,6 +19,7 @@
 package org.ballerinalang.test.types.string;
 
 import org.ballerinalang.test.BCompileUtil;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -75,5 +76,10 @@ public class BStringToStringTest extends BStringTestCommons {
     @Test
     public void testArrayValueToString() {
         testAndAssert("testArrayValueToString", 30);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

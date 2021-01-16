@@ -94,7 +94,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             Module module = currentPackage.module(moduleId);
             for (DocumentId documentId : module.documentIds()) {
                 Document document = module.document(documentId);
-                JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(document.syntaxTree(), semanticModel);
+                JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
                 packageHolder.addSyntaxTree(module.descriptor(), document.name(), syntaxTreeJSON);
             }
         }

@@ -228,7 +228,7 @@
             </run>
         </groups>
         <classes>
-<!--                <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests" />-->
+                <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests" />
 <!--            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>-->
@@ -240,7 +240,7 @@
 <!--            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>-->
 <!--&lt;!&ndash;            <class name="org.ballerinalang.test.packaging.MultipleVersionsModuleTestCase"/>&ndash;&gt;-->
 <!--            <class name="org.ballerinalang.test.packaging.DependencyScopeTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.MavenTestCase"/>-->
+            <class name="org.ballerinalang.test.packaging.MavenTestCase"/>
         </classes>
     </test>
 
@@ -298,10 +298,10 @@
         </classes>
     </test>
 
-<!--    <test name="ballerina-bindgen-tests" parallel="false">-->
-<!--        <parameter name="enableJBallerinaTests" value="true" />-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.bindgen.BindgenTestCase" />-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="ballerina-bindgen-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.bindgen.BindgenTestCase" />
+        </classes>
+    </test>
 </suite>

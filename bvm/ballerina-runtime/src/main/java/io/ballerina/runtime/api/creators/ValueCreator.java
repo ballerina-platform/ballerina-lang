@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package io.ballerina.runtime.api.creators;
 
 import io.ballerina.runtime.api.Module;
@@ -86,13 +87,13 @@ public class ValueCreator {
     }
 
     /**
-     * Creates a new tuple with given tuple type.
+     * Creates a new integer array.
      *
-     * @param type the {@code TupleType} object representing the type
-     * @return the new array
+     * @param values initial array values
+     * @return integer array
      */
-    public static BArray createTupleValue(TupleType type) {
-        return new TupleValueImpl(type);
+    public static BArray createArrayValue(long[] values) {
+        return new ArrayValueImpl(values, false);
     }
 
     /**
@@ -101,8 +102,8 @@ public class ValueCreator {
      * @param values initial array values
      * @return integer array
      */
-    public static BArray createArrayValue(long[] values) {
-        return new ArrayValueImpl(values);
+    public static BArray createReadonlyArrayValue(long[] values) {
+        return new ArrayValueImpl(values, true);
     }
 
     /**
@@ -112,7 +113,17 @@ public class ValueCreator {
      * @return boolean array
      */
     public static BArray createArrayValue(boolean[] values) {
-        return new ArrayValueImpl(values);
+        return new ArrayValueImpl(values, false);
+    }
+
+    /**
+     * Creates a new boolean array.
+     *
+     * @param values initial array values
+     * @return boolean array
+     */
+    public static BArray createReadonlyArrayValue(boolean[] values) {
+        return new ArrayValueImpl(values, true);
     }
 
     /**
@@ -122,7 +133,17 @@ public class ValueCreator {
      * @return byte array
      */
     public static BArray createArrayValue(byte[] values) {
-        return new ArrayValueImpl(values);
+        return new ArrayValueImpl(values, false);
+    }
+
+    /**
+     * Creates a new byte array.
+     *
+     * @param values initial array values
+     * @return byte array
+     */
+    public static BArray createReadonlyArrayValue(byte[] values) {
+        return new ArrayValueImpl(values, true);
     }
 
     /**
@@ -132,7 +153,17 @@ public class ValueCreator {
      * @return float array
      */
     public static BArray createArrayValue(double[] values) {
-        return new ArrayValueImpl(values);
+        return new ArrayValueImpl(values, false);
+    }
+
+    /**
+     * Creates a new float array.
+     *
+     * @param values initial array values
+     * @return float array
+     */
+    public static BArray createReadonlyArrayValue(double[] values) {
+        return new ArrayValueImpl(values, true);
     }
 
     /**
@@ -142,7 +173,17 @@ public class ValueCreator {
      * @return string array
      */
     public static BArray createArrayValue(BString[] values) {
-        return new ArrayValueImpl(values);
+        return new ArrayValueImpl(values, false);
+    }
+
+    /**
+     * Creates a new string array.
+     *
+     * @param values initial array values
+     * @return string array
+     */
+    public static BArray createReadonlyArrayValue(BString[] values) {
+        return new ArrayValueImpl(values, true);
     }
 
     /**
@@ -165,6 +206,16 @@ public class ValueCreator {
      */
     public static BArray createArrayValue(ArrayType type, int length) {
         return new ArrayValueImpl(type, length);
+    }
+
+    /**
+     * Creates a new tuple with given tuple type.
+     *
+     * @param type the {@code TupleType} object representing the type
+     * @return the new array
+     */
+    public static BArray createTupleValue(TupleType type) {
+        return new TupleValueImpl(type);
     }
 
     /**
@@ -715,5 +766,8 @@ public class ValueCreator {
      */
     public static BTable createTableValue(TableType tableType) {
         return new TableValueImpl(tableType);
+    }
+
+    private ValueCreator() {
     }
 }

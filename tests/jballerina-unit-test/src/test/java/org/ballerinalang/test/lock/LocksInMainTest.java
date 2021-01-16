@@ -29,6 +29,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -296,5 +297,10 @@ public class LocksInMainTest {
     @Test(description = "Test for global reference updated inside conditional statment")
     public void testForGlobalRefUpdateInsideConditional() {
         BRunUtil.invoke(parallelCompileResult, "testForGlobalRefUpdateInsideConditional");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        parallelCompileResult = null;
     }
 }

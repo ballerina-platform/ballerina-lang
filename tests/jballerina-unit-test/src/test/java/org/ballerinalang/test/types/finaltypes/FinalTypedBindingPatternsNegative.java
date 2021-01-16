@@ -21,6 +21,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -58,5 +59,10 @@ public class FinalTypedBindingPatternsNegative {
         BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'i'", 83, 5);
         BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'j'", 84, 5);
         BAssertUtil.validateError(compileResult, index, "cannot assign a value to final 'k'", 85, 5);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

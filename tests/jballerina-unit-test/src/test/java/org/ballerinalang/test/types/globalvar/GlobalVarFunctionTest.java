@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -107,5 +108,10 @@ public class GlobalVarFunctionTest {
 
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"James\", \"age\":30}");
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 3432.3423);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

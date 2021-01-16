@@ -25,6 +25,8 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
@@ -70,6 +72,12 @@ public class RunExecutableTask implements Task {
         out.println();
         out.println("Running executable");
         out.println();
+
+        try {
+            ProjectUtils.checkExecutePermission(project.sourceRoot());
+        } catch (ProjectException e) {
+            throw createLauncherException(e.getMessage());
+        }
 
         this.runGeneratedExecutable(project.currentPackage().getDefaultModule(), project);
     }

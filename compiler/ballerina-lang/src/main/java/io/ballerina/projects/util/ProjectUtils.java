@@ -244,12 +244,6 @@ public class ProjectUtils {
         return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
     }
 
-    public static Path getChoreoRuntimeJarPath() {
-        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
-        String runtimeJarName = "ballerina-choreo-extension-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
-        return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
-    }
-
     public static List<Path> testDependencies() {
         List<Path> dependencies = new ArrayList<>();
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
@@ -468,5 +462,23 @@ public class ProjectUtils {
         }
 
         return null;
+    }
+
+    public static void checkWritePermission(Path path) {
+        if (!path.toFile().canWrite()) {
+            throw new ProjectException("'" + path + "' does not have write permissions");
+        }
+    }
+
+    public static void checkReadPermission(Path path) {
+        if (!path.toFile().canRead()) {
+            throw new ProjectException("'" + path + "' does not have read permissions");
+        }
+    }
+
+    public static void checkExecutePermission(Path path) {
+        if (!path.toFile().canRead()) {
+            throw new ProjectException("'" + path + "' does not have execute permissions");
+        }
     }
 }

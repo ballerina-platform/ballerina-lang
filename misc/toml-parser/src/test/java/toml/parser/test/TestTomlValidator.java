@@ -37,7 +37,7 @@ public class TestTomlValidator {
     private static final PrintStream OUT = System.out;
 
     public static void main(String [] args) throws IOException {
-        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "c2c-schema.json");
+        Path resourceDirectory = Paths.get("src", "test", "resources", "validator", "sample-schema.json");
         TomlValidator validator = new TomlValidator(Schema.from(resourceDirectory));
 
         Path sampleInput = Paths.get("src", "test", "resources", "validator", "sample.toml");

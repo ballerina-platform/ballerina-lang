@@ -63,11 +63,14 @@ public class Names {
     public static final Name QUERY = new Name("query");
     public static final Name RUNTIME = new Name("runtime");
     public static final Name TRANSACTION = new Name("transaction");
+    public static final Name OBSERVE = new Name("observe");
     public static final Name TABLE = new Name("table");
     public static final Name TYPEDESC = new Name("typedesc");
     public static final Name STRING = new Name("string");
     public static final Name VALUE = new Name("value");
     public static final Name XML = new Name("xml");
+    public static final Name JSON = new Name("json");
+    public static final Name ANYDATA = new Name("anydata");
     public static final Name UTILS_PACKAGE = new Name("utils");
     public static final Name BUILTIN_ORG = new Name("ballerina");
     public static final Name RUNTIME_PACKAGE = new Name("runtime");
@@ -102,6 +105,10 @@ public class Names {
 
     public static final Name NEVER = new Name("never");
     public static final Name RAW_TEMPLATE = new Name("RawTemplate");
+    public static final Name CLONEABLE = new Name("Cloneable");
+    public static final Name CLONEABLE_INTERNAL = new Name("__Cloneable");
+    public static final Name CLONEABLE_INTERNAL1 = new Name("__Cloneable1");
+    public static final Name CLONEABLE_INTERNAL2 = new Name("__Cloneable2");
 
     // Subtypes
     public static final Name SIGNED32 = new Name(STRING_SIGNED32);
@@ -161,6 +168,7 @@ public class Names {
     public static final Name TRANSACTION_VERSION = new Name(BLangCompilerConstants.TRANSACTION_VERSION);
     public static final Name TRANSACTION_INTERNAL_VERSION =
             new Name(BLangCompilerConstants.TRANSACTION_INTERNAL_VERSION);
+    public static final Name OBSERVE_INTERNAL_VERSION = new Name(BLangCompilerConstants.OBSERVE_INTERNAL_VERSION);
 
     public CompilerContext context;
 

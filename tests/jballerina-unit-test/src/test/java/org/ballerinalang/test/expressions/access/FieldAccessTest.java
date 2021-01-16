@@ -199,4 +199,10 @@ public class FieldAccessTest {
         BValue[] returns = BRunUtil.invoke(result, "testJsonFieldAccessOnInvocation");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test
+    public void testFieldAccessOnMapConstruct() {
+        BValue[] returns = BRunUtil.invoke(result, "testFieldAccessOnMapConstruct");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
 }

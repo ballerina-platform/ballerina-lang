@@ -1,0 +1,121 @@
+{
+  "position": {
+    "line": 3,
+    "character": 55
+  },
+  "source": "annotation_decl/source/source9.bal",
+  "items": [
+    {
+      "label": "source",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "source",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "type ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "class",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "class ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "object function",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service remote function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "service remote function",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "parameter",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "parameter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "parameter",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "parameter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object field",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "object field",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record field",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "record field",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source annotation",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "source annotation",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source external",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "source external",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source var",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "source var",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source const",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "source const",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source listener",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "source listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source worker",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "source worker",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

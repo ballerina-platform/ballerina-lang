@@ -15,10 +15,14 @@
 // under the License.
 
 import ballerina/java;
+import ballerina/lang.'value as value;
+
+# The type of value to which `clone` and `cloneReadOnly` can be applied.
+type __Cloneable1 readonly|xml|__Cloneable1[]|map<__Cloneable1>|table<map<__Cloneable1>>;
 
 # The type to which error detail records must belong.
 public type Detail record {|
-   (anydata|readonly)...;
+   __Cloneable1...;
 |};
 
 # A type parameter that is a subtype of error `Detail` record type.

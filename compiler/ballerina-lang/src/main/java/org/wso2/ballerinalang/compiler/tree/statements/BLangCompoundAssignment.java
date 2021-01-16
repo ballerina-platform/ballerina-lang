@@ -25,15 +25,15 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
 /**
  * @since 0.965.0
  */
 public class BLangCompoundAssignment extends BLangStatement implements CompoundAssignmentNode {
 
-    public BLangVariableReference varRef;
+    public BLangAccessExpression varRef;
     public BLangExpression expr;
     public OperatorKind opKind;
     public BLangExpression modifiedExpr;
@@ -41,7 +41,7 @@ public class BLangCompoundAssignment extends BLangStatement implements CompoundA
     public BLangCompoundAssignment() {
     }
 
-    public BLangCompoundAssignment(Location pos, BLangVariableReference varRef,
+    public BLangCompoundAssignment(Location pos, BLangAccessExpression varRef,
                                    BLangExpression expr) {
         this.pos = pos;
         this.varRef = varRef;
@@ -70,7 +70,7 @@ public class BLangCompoundAssignment extends BLangStatement implements CompoundA
 
     @Override
     public void setVariable(VariableReferenceNode variableReferenceNode) {
-        this.varRef = (BLangVariableReference) variableReferenceNode;
+        this.varRef = (BLangAccessExpression) variableReferenceNode;
     }
 
     @Override

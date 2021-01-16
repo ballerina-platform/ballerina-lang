@@ -23,8 +23,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
@@ -179,19 +177,12 @@ public class SuspendedContext {
     }
 
     private void loadDocument() {
-        if (project instanceof BuildProject) {
-            BuildProject prj = (BuildProject) project;
-            Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
-            if (breakPointSourcePath.isEmpty()) {
-                return;
-            }
-            Optional<DocumentId> docId = ProjectLoader.getDocumentId(breakPointSourcePath.get(), prj);
-            Module module = prj.currentPackage().module(docId.get().moduleId());
-            document = module.document(docId.get());
-        } else {
-            SingleFileProject prj = (SingleFileProject) project;
-            DocumentId docId = prj.currentPackage().getDefaultModule().documentIds().iterator().next();
-            document = prj.currentPackage().getDefaultModule().document(docId);
+        Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
+        if (breakPointSourcePath.isEmpty()) {
+            return;
         }
+        DocumentId documentId = project.documentId(breakPointSourcePath.get());
+        Module module = project.currentPackage().module(documentId.moduleId());
+        document = module.document(documentId);
     }
 }
