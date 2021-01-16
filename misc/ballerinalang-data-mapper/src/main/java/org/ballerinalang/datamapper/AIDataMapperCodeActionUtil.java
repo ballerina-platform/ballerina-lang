@@ -23,6 +23,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.Identifiable;
+import io.ballerina.compiler.api.symbols.NamedSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -96,8 +98,10 @@ class AIDataMapperCodeActionUtil {
 
         // To restrict the code action from appearing for handled cases.
         List<Symbol> fileContentSymbols = semanticModel.moduleLevelSymbols();
-        boolean foundLeft = fileContentSymbols.stream().anyMatch(p -> p.name().contains(foundTypeLeft));
-        boolean foundRight = fileContentSymbols.stream().anyMatch(p -> p.name().contains(foundTypeRight));
+        boolean foundLeft = fileContentSymbols.stream()
+                .anyMatch(p -> p instanceof Identifiable && ((Identifiable) p).name().contains(foundTypeLeft));
+        boolean foundRight = fileContentSymbols.stream()
+                .anyMatch(p -> p instanceof Identifiable && ((Identifiable) p).name().contains(foundTypeRight));
 
         if (!(foundRight && foundLeft)) {
             return fEdits;
@@ -114,7 +118,7 @@ class AIDataMapperCodeActionUtil {
 
         LinePosition linePosition = LinePosition.from(context.cursorPosition().getLine(), context.cursorPosition().
                 getCharacter());
-        String symbolAtCursor = semanticModel.symbol(srcFile.get(), linePosition).get().name();
+        String symbolAtCursor = ((NamedSymbol) semanticModel.symbol(srcFile.get(), linePosition).get()).name();
 
         String generatedFunctionName =
                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursor);
@@ -123,7 +127,8 @@ class AIDataMapperCodeActionUtil {
         // Insert function declaration at the bottom of the file
         String functionName = String.format("map%sTo%s", foundTypeRight, foundTypeLeft);
 
-        boolean found = fileContentSymbols.stream().anyMatch(p -> p.name().contains(functionName));
+        boolean found = fileContentSymbols.stream()
+                .anyMatch(p -> p instanceof Identifiable && ((Identifiable) p).name().contains(functionName));
         if (!found) {
             TextDocument fileContentTextDocument = context.workspace().syntaxTree(context.filePath()).get().
                     textDocument();
