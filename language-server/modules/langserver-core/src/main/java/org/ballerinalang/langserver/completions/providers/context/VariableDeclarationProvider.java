@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.NamedSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -106,7 +107,7 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
         } else if (typeDescriptorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) typeDescriptorNode).name().text();
             classSymbol = visibleSymbols.stream()
-                    .filter(symbol -> SymbolUtil.isClass(symbol) && ((ClassSymbol) symbol).name().equals(identifier))
+                    .filter(symbol -> SymbolUtil.isClass(symbol) && ((Identifiable) symbol).name().equals(identifier))
                     .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else {

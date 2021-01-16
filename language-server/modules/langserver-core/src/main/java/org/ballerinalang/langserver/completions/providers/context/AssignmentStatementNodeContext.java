@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.Identifiable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -98,7 +99,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         if (varRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) varRef).name().text();
             objectType = visibleSymbols.stream()
-                    .filter(symbol -> SymbolUtil.isClass(symbol) && ((ClassSymbol) symbol).name().equals(identifier))
+                    .filter(symbol -> SymbolUtil.isClass(symbol) && ((Identifiable) symbol).name().equals(identifier))
                     .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else {
