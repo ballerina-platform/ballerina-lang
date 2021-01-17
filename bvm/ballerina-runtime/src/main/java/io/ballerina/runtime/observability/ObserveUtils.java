@@ -227,10 +227,8 @@ public class ObserveUtils {
         if (observerContext == null) {
             return;
         }
-        observers.forEach(observer -> {
-            observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, TAG_TRUE_VALUE);
-            observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, errorValue);
-        });
+        observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, TAG_TRUE_VALUE);
+        observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR_VALUE, errorValue);
     }
 
     /**
