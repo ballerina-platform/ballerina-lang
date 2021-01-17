@@ -54,7 +54,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class BallerinaToml {
+public class BallerinaToml extends TomlDocument{
 
     private TomlDocumentContext ballerinaTomlContext;
     private Package aPackage;
@@ -70,21 +70,30 @@ public class BallerinaToml {
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
 
-//    private BallerinaToml(Path filePath) {
-//        super(filePath);
-//        this.filePath = filePath;
-//        this.diagnosticList = new ArrayList<>();
-//        this.packageManifest = parseAsPackageManifest();
-//        this.buildOptions = parseBuildOptions();
-
-
     private BallerinaToml(Package aPackage, TomlDocumentContext ballerinaTomlContext) {
+        super(null);
         this.aPackage = aPackage;
         this.ballerinaTomlContext = ballerinaTomlContext;
+        // this.filePath = filePath;
+        this.diagnosticList = new ArrayList<>();
+        this.packageManifest = parseAsPackageManifest();
+        this.buildOptions = parseBuildOptions();
     }
 
-    public static BallerinaToml from(Package pkg, TomlDocumentContext ballerinaTomlContext) {
+    private BallerinaToml(Path tomlFile) {
+        super(tomlFile);
+        // this.filePath = filePath;
+        this.diagnosticList = new ArrayList<>();
+        this.packageManifest = parseAsPackageManifest();
+        this.buildOptions = parseBuildOptions();
+    }
+
+    public static BallerinaToml from(TomlDocumentContext ballerinaTomlContext, Package pkg) {
         return new BallerinaToml(pkg, ballerinaTomlContext);
+    }
+
+    public static BallerinaToml from(Path tomlFile) {
+        return new BallerinaToml(tomlFile);
     }
 
     public DiagnosticResult diagnostics() {

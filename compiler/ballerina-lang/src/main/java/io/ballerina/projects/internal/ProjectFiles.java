@@ -60,23 +60,21 @@ public class ProjectFiles {
         DocumentData documentData = loadDocument(filePath);
         ModuleData defaultModule = ModuleData
                 .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null);
-        return PackageData.from(filePath, defaultModule, Collections.emptyList(), null);
+        return PackageData.from(filePath, defaultModule, Collections.emptyList(),
+                null, null, null, null);
     }
 
     public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
         ModuleData defaultModule = loadModule(packageDirPath);
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
-        MdDocument packageMd = loadPackageMd(packageDirPath);
-        
-        return PackageData.from(packageDirPath, defaultModule, otherModules, packageMd);
-    }
 
-    private static MdDocument loadPackageMd(Path packageDirPath) {
-        Path packageMdPath = packageDirPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-        if (Files.exists(packageMdPath)) {
-            return new MdDocument(packageMdPath);
-        }
-        return null;
+        DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
+        DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
+        DocumentData kubernetesToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
+        DocumentData packageMd = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
+
+        return PackageData.from(packageDirPath, defaultModule, otherModules,
+                ballerinaToml, dependenciesToml, kubernetesToml, packageMd);
     }
 
     private static List<ModuleData> loadOtherModules(Path packageDirPath) {
@@ -178,7 +176,8 @@ public class ProjectFiles {
 
     public static BuildOptions createBuildOptions(Path projectPath, BuildOptions theirOptions) {
         Path ballerinaTomlFilePath = projectPath.resolve(ProjectConstants.BALLERINA_TOML);
-        BallerinaToml ballerinaToml = BallerinaToml.from(ballerinaTomlFilePath);
+        // todo fix me
+        BallerinaToml ballerinaToml = null;//BallerinaToml.from(ballerinaTomlFilePath);
         if (ballerinaToml.diagnostics().hasErrors()) {
             throw new BallerinaTomlException(ballerinaToml.getErrorMessage());
         }

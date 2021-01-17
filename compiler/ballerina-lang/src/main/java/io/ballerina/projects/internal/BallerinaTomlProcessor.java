@@ -111,7 +111,8 @@ public class BallerinaTomlProcessor {
         Map<String, Object> platformEntries = (Map<String, Object>) otherEntries.remove("platform");
         Map<String, Platform> platforms = getPlatforms(platformEntries);
 
-        return PackageManifest.from(pkgDesc, dependencies, platforms, otherEntries);
+        //return PackageManifest.from(pkgDesc, dependencies, platforms, otherEntries);
+        return PackageManifest.from(pkgDesc, dependencies, platforms, null);
     }
 
     @SuppressWarnings("unchecked")

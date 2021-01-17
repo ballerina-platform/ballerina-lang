@@ -40,18 +40,13 @@ import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -80,23 +75,15 @@ public class BaloFiles {
             String pkgName = packageManifest.name().toString();
             Path defaultModulePathInBalo = zipFileSystem.getPath(MODULES_ROOT, pkgName);
             ModuleData defaultModule = loadModule(defaultModulePathInBalo);
-            MdDocument packageMd = loadPackageMd(zipFileSystem);
+            DocumentData packageMd = loadDocument(zipFileSystem.getPath(ProjectConstants.BALO_DOCS_DIR)
+                    .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
             // load other modules
             Path modulesPathInBalo = zipFileSystem.getPath(MODULES_ROOT);
             List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo, defaultModulePathInBalo);
-            return PackageData.from(balrPath, defaultModule, otherModules, packageMd);
+            return PackageData.from(balrPath, defaultModule, otherModules, packageMd, null, null, null);
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
         }
-    }
-
-    private static MdDocument loadPackageMd(FileSystem zipFileSystem) {
-        Path packageMdPath = zipFileSystem.getPath(ProjectConstants.BALO_DOCS_DIR)
-                .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-        if (Files.exists(packageMdPath)) {
-            return new MdDocument(packageMdPath);
-        }
-        return null;
     }
 
     private static void validatePackageJson(PackageJson packageJson, Path balrPath) {
@@ -108,6 +95,20 @@ public class BaloFiles {
         }
         if (packageJson.getVersion() == null || "".equals(packageJson.getVersion())) {
             throw new ProjectException("'version' does not exists in 'package.json': " + balrPath);
+        }
+    }
+
+    public static DocumentData loadDocument(Path documentFilePath) {
+        if (Files.notExists(documentFilePath)) {
+            return null;
+        } else {
+            String content;
+            try {
+                content = Files.readString(documentFilePath, Charset.defaultCharset());
+            } catch (IOException e) {
+                throw new ProjectException(e);
+            }
+            return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
         }
     }
 

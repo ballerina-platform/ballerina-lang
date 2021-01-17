@@ -145,12 +145,11 @@ public class PackageCompilation {
     }
 
     private void addOtherDiagnostics(List<Diagnostic> diagnostics) {
-        Optional<BallerinaToml> ballerinaTomlOptional = rootPackageContext.ballerinaToml();
-        if (ballerinaTomlOptional.isEmpty()) {
-            return;
+        Optional<TomlDocumentContext> ballerinaToml = rootPackageContext.ballerinaTomlContext();
+        if (ballerinaToml.isPresent()) {
+            // todo fix me
+            // BallerinaToml ballerinaToml = ballerinaTomlOptional.get();
+            // diagnostics.addAll(ballerinaToml.diagnostics().allDiagnostics);
         }
-
-        BallerinaToml ballerinaToml = ballerinaTomlOptional.get();
-        diagnostics.addAll(ballerinaToml.diagnostics().allDiagnostics);
     }
 }

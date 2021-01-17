@@ -633,7 +633,7 @@ public class TestBuildProject {
         ModuleDescriptor moduleDesc = ModuleDescriptor.from(moduleName, pkgManifest.descriptor());
 
         ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleDesc, Collections.emptyList(),
-                Collections.emptyList(), Collections.emptyList());
+                Collections.emptyList(),null,  Collections.emptyList());
         Package newPackage = oldPackage.modify().addModule(newModuleConfig).apply();
 
         Assert.assertEquals(newPackage.module(newModuleId).documentIds().size(), 0);
@@ -685,7 +685,7 @@ public class TestBuildProject {
 
         ModuleConfig newModuleConfig = ModuleConfig.from(newModuleId, moduleDesc,
                 Collections.singletonList(documentConfig),
-                Collections.singletonList(testDocumentConfig), Collections.emptyList());
+                Collections.singletonList(testDocumentConfig), null, Collections.emptyList());
         Package newPackage = oldPackage.modify().addModule(newModuleConfig).apply();
 
         Assert.assertEquals(newPackage.module(newModuleId).documentIds().size(), 1);

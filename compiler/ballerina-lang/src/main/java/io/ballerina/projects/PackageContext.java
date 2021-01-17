@@ -20,12 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.PackageResolution.DependencyResolution;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Maintains the internal state of a {@code Package} instance.
@@ -95,10 +90,10 @@ class PackageContext {
         }
 
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
-                TomlDocumentContext.from(packageConfig.ballerinaToml()),
-                TomlDocumentContext.from(packageConfig.dependenciesToml()),
-                TomlDocumentContext.from(packageConfig.kubernetesToml()),
-                MdDocumentContext.from(packageConfig.packageMd()),
+                packageConfig.ballerinaToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
+                packageConfig.dependenciesToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
+                packageConfig.kubernetesToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
+                packageConfig.packageMd().map(c ->MdDocumentContext.from(c)).orElse(null),
                 compilationOptions,
                 moduleContextMap, packageConfig.packageDescDependencyGraph());
     }
@@ -127,12 +122,20 @@ class PackageContext {
         return packageManifest;
     }
 
-    MdDocumentContext packageMd() {
-        return packageMdContext;
+    Optional<TomlDocumentContext> ballerinaTomlContext() {
+        return Optional.ofNullable(ballerinaTomlContext);
     }
 
-    TomlDocumentContext ballerinaTomlContext() {
-        return ballerinaTomlContext;
+    Optional<TomlDocumentContext> dependenciesTomlContext() {
+        return Optional.ofNullable(dependenciesTomlContext);
+    }
+
+    Optional<TomlDocumentContext> kubernetesTomlContext() {
+        return Optional.ofNullable(kubernetesTomlContext);
+    }
+
+    Optional<MdDocumentContext> packageMdContext() {
+        return Optional.ofNullable(packageMdContext);
     }
 
     CompilationOptions compilationOptions() {

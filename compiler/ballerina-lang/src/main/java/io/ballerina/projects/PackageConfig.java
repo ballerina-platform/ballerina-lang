@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * {@code PackageConfig} contains necessary configuration elements required to
@@ -105,12 +106,12 @@ public class PackageConfig {
         return packageManifest;
     }
 
-    public DocumentConfig ballerinaToml() {
-        return ballerinaToml;
+    public Optional<DocumentConfig> ballerinaToml() {
+        return Optional.ofNullable(ballerinaToml);
     }
 
-    public DocumentConfig kubernetesToml() {
-        return kubernetesToml;
+    public Optional<DocumentConfig> kubernetesToml() {
+        return Optional.ofNullable(kubernetesToml);
     }
 
     public CompilationOptions compilationOptions() {
@@ -131,11 +132,11 @@ public class PackageConfig {
         return otherModules;
     }
 
-    public DocumentConfig packageMd() {
-        return packageMd;
+    public Optional<DocumentConfig> packageMd() {
+        return Optional.ofNullable(packageMd);
     }
 
-    public DocumentConfig dependenciesToml() {
-        return this.dependenciesToml;
+    public Optional<DocumentConfig> dependenciesToml() {
+        return Optional.ofNullable(this.dependenciesToml);
     }
 }

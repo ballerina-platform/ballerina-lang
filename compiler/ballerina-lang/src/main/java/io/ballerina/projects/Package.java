@@ -22,7 +22,7 @@ public class Package {
     private final Map<ModuleId, Module> moduleMap;
     private final Function<ModuleId, Module> populateModuleFunc;
     // Following are not final since they will be lazy loaded
-    private PackageMd packageMd = null;
+    private Optional<PackageMd> packageMd = null;
     private Optional<BallerinaToml> ballerinaToml = null;
     private DependenciesToml dependenciesToml = null;
     private KubernetesToml kubernetesToml = null;
@@ -142,15 +142,20 @@ public class Package {
 
     public Optional<BallerinaToml> ballerinaToml() {
         if (null == this.ballerinaToml) {
-            this.ballerinaToml = Optional.ofNullable(
-                    BallerinaToml.from(this, this.packageContext.ballerinaTomlContext());
+            this.ballerinaToml = this.packageContext.ballerinaTomlContext().map(c ->
+                    BallerinaToml.from(c, this)
             );
         }
         return this.ballerinaToml;
     }
 
-    public Optional<MdDocument> packageMd() {
-        return Optional.ofNullable(this.packageContext.packageMd());
+    public Optional<PackageMd> packageMd() {
+        if (null == this.packageMd) {
+            this.packageMd = this.packageContext.packageMdContext().map(c ->
+                    PackageMd.from(c, this)
+            );
+        }
+        return this.packageMd;
     }
 
     /**
@@ -187,22 +192,26 @@ public class Package {
     public static class Modifier {
         private PackageId packageId;
         private PackageManifest packageManifest;
-        private BallerinaToml ballerinaToml;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
         private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
         private CompilationOptions compilationOptions;
-        private MdDocument packageMd;
+        private TomlDocumentContext ballerinaTomlContext;
+        private TomlDocumentContext dependenciesTomlContext;
+        private TomlDocumentContext kubernetesTomlContext;
+        private MdDocumentContext packageMdContext;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
             this.packageManifest = oldPackage.manifest();
-            this.ballerinaToml = oldPackage.ballerinaToml().orElse(null);
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
             this.pkgDescDependencyGraph = oldPackage.packageContext().dependencyGraph();
             this.compilationOptions = oldPackage.compilationOptions();
-            this.packageMd = oldPackage.packageMd().orElse(null);
+            this.ballerinaTomlContext = oldPackage.packageContext.ballerinaTomlContext().orElse(null);
+            this.dependenciesTomlContext = oldPackage.packageContext.dependenciesTomlContext().orElse(null);
+            this.kubernetesTomlContext = oldPackage.packageContext.kubernetesTomlContext().orElse(null);
+            this.packageMdContext = oldPackage.packageContext.packageMdContext().orElse(null);
         }
 
         Modifier updateModule(ModuleContext newModuleContext) {
@@ -253,8 +262,9 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
-                    this.ballerinaToml, this.compilationOptions, this.moduleContextMap, this.pkgDescDependencyGraph,
-                    this.packageMd);
+                    this.ballerinaTomlContext, this.dependenciesTomlContext, this.kubernetesTomlContext,
+                    this.packageMdContext,  this.compilationOptions, this.moduleContextMap,
+                    this.pkgDescDependencyGraph);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }

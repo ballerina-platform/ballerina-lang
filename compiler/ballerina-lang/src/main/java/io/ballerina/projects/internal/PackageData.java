@@ -21,6 +21,7 @@ import io.ballerina.projects.*;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * {@code PackageFileData} represents a Ballerina package directory.
@@ -104,19 +105,19 @@ public class PackageData {
         return moduleDependencyGraph;
     }
 
-    public DocumentData ballerinaToml() {
-        return ballerinaToml;
+    public Optional<DocumentData> ballerinaToml() {
+        return Optional.ofNullable(ballerinaToml);
     }
 
-    public DocumentData dependenciesToml() {
-        return dependenciesToml;
+    public Optional<DocumentData> dependenciesToml() {
+        return Optional.ofNullable(dependenciesToml);
     }
 
-    public DocumentData kubernetesToml() {
-        return kubernetesToml;
+    public Optional<DocumentData> kubernetesToml() {
+        return Optional.ofNullable(kubernetesToml);
     }
 
-    public DocumentData packageMd() {
-        return packageMd;
+    public Optional<DocumentData> packageMd() {
+        return Optional.ofNullable(packageMd);
     }
 }
