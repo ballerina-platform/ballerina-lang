@@ -327,25 +327,7 @@ public class ObserveUtils {
     @Deprecated     // Discussion: https://groups.google.com/g/ballerina-dev/c/VMEk3t8boH0
     public static void logMessageToActiveSpan(String logLevel, Supplier<String> logMessage,
                                               boolean isError) {
-        if (!tracingEnabled) {
-            return;
-        }
-        Environment balEnv = new Environment(Scheduler.getStrand());
-        ObserverContext observerContext = (ObserverContext) balEnv.getStrandLocal(KEY_OBSERVER_CONTEXT);
-        if (observerContext == null) {
-            return;
-        }
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
-        if (span == null) {
-            return;
-        }
-        HashMap<String, Object> logs = new HashMap<>(1);
-        logs.put(logLevel, logMessage.get());
-        if (!isError) {
-            span.log(logs);
-        } else {
-            span.logError(logs);
-        }
+        // Do Nothing
     }
 
     /**
