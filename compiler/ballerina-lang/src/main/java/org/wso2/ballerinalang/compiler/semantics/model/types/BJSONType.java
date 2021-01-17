@@ -17,46 +17,54 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+
+import java.util.LinkedHashSet;
 
 /**
  * @since 0.94
  */
-public class BJSONType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
+public class BJSONType extends BUnionType {
 
-    private boolean nullable = true;
-    public BIntersectionType immutableType;
+    private static final int INITIAL_CAPACITY = 8;
 
-    public BJSONType(int tag, BTypeSymbol tsymbol) {
-        super(tag, tsymbol);
+    public BJSONType(BJSONType type, boolean nullable) {
+        super(type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable,
+                Symbols.isFlagOn(type.flags, Flags.READONLY));
+        mergeUnionType(type);
+        this.tag = TypeTags.JSON;
+        this.isCyclic = true;
     }
 
-    public BJSONType(int tag, BTypeSymbol tsymbol, boolean nullable) {
-        this(tag, tsymbol);
-        this.nullable = nullable;
+    public BJSONType(BUnionType type) {
+        super(type.tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), type.isNullable(), Symbols.isFlagOn(type.flags,
+                Flags.READONLY));
+        mergeUnionType(type);
+        this.immutableType = type.immutableType;
+        this.tag = TypeTags.JSON;
     }
 
-    public BJSONType(int tag, BTypeSymbol tsymbol, boolean nullable, long flags) {
-        this(tag, tsymbol);
-        this.nullable = nullable;
+    public BJSONType(BTypeSymbol typeSymbol, boolean nullable, long flags) {
+        super(typeSymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, Symbols.isFlagOn(flags, Flags.READONLY));
         this.flags = flags;
+        this.tag = TypeTags.JSON;
+        this.isCyclic = true;
     }
 
     @Override
-    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
-        return visitor.visit(this, t);
+    public String toString() {
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
+                getKind().typeName().concat(" & readonly");
     }
 
-    public boolean isNullable() {
-        return nullable;
-    }
-
-    public void setNullable(boolean nullable) {
-        this.nullable = nullable;
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.JSON;
     }
 
     @Override
@@ -65,13 +73,7 @@ public class BJSONType extends BBuiltInRefType implements SelectivelyImmutableRe
     }
 
     @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
-    }
-
-    @Override
-    public String toString() {
-        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
-                getKind().typeName().concat(" & readonly");
+    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
+        return visitor.visit(this, t);
     }
 }

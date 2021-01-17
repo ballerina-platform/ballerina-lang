@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -53,9 +53,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         }
 
         try {
-            // Get the syntax tree for the document.
-            Optional<SyntaxTree> syntaxTree = this.workspaceManager.syntaxTree(filePath.get());
-            if (syntaxTree.isEmpty()) {
+            Optional<Document> srcFile = this.workspaceManager.document(filePath.get());
+            if (srcFile.isEmpty()) {
                 return CompletableFuture.supplyAsync(() -> reply);
             }
 
@@ -63,11 +62,10 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
 
             // Get the generated syntax tree JSON with type info.
-            JsonElement jsonSyntaxTree = DiagramUtil
-                    .getSyntaxTreeJSON(syntaxTree.get(), semanticModel.get());
+            JsonElement jsonSyntaxTree = DiagramUtil.getSyntaxTreeJSON(srcFile.get(), semanticModel.get());
 
             // Preparing the response.
-            reply.setSource(syntaxTree.get().toSourceCode());
+            reply.setSource(srcFile.get().syntaxTree().toSourceCode());
             reply.setSyntaxTree(jsonSyntaxTree);
             reply.setParseSuccess(reply.getSyntaxTree() != null);
         } catch (Throwable e) {

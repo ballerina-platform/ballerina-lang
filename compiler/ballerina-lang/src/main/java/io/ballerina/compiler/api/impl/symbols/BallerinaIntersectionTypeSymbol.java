@@ -17,6 +17,8 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.LangLibrary;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -71,6 +73,17 @@ public class BallerinaIntersectionTypeSymbol extends AbstractTypeSymbol implemen
         TypesFactory typesFactory = TypesFactory.getInstance(this.context);
         this.effectiveType = typesFactory.getTypeDescriptor(((BIntersectionType) this.getBType()).effectiveType);
         return this.effectiveType;
+    }
+
+    @Override
+    public List<FunctionSymbol> langLibMethods() {
+        if (this.langLibFunctions == null) {
+            LangLibrary langLibrary = LangLibrary.getInstance(this.context);
+            List<FunctionSymbol> functions = langLibrary.getMethods(this.effectiveTypeDescriptor().typeKind());
+            this.langLibFunctions = filterLangLibMethods(functions, this.getBType());
+        }
+
+        return this.langLibFunctions;
     }
 
     @Override

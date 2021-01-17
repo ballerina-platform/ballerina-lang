@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.CompilerBackend.TargetPlatform;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -134,7 +135,8 @@ public class PackageCompilation {
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
             moduleContext.compile(compilerContext);
-            diagnostics.addAll(moduleContext.diagnostics());
+            moduleContext.diagnostics().forEach(diagnostic ->
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
 
         addOtherDiagnostics(diagnostics);

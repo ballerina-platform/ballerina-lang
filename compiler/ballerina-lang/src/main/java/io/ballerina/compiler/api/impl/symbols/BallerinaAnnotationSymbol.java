@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.AnnotationAttachPoint;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -45,6 +46,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
     private final TypeSymbol typeDescriptor;
     private final List<AnnotationAttachPoint> attachPoints;
     private final List<AnnotationSymbol> annots;
+    private final Documentation docAttachment;
     private final boolean deprecated;
 
     private BallerinaAnnotationSymbol(String name, PackageID moduleID, List<Qualifier> qualifiers,
@@ -55,6 +57,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
         this.typeDescriptor = typeDescriptor;
         this.attachPoints = Collections.unmodifiableList(attachPoints);
         this.annots = Collections.unmodifiableList(annots);
+        this.docAttachment = getDocAttachment(bSymbol);
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
     }
 
@@ -91,6 +94,11 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
     @Override
     public List<AnnotationSymbol> annotations() {
         return this.annots;
+    }
+
+    @Override
+    public Optional<Documentation> documentation() {
+        return Optional.ofNullable(this.docAttachment);
     }
 
     @Override

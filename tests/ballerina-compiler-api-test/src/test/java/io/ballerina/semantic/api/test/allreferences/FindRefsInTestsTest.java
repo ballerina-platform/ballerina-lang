@@ -18,12 +18,17 @@
 
 package io.ballerina.semantic.api.test.allreferences;
 
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.Project;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
+
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getModule;
 
 /**
  * Test cases for the finding all references of a symbol across a module, in tests.
@@ -35,7 +40,11 @@ public class FindRefsInTestsTest extends FindAllReferencesTest {
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getSemanticModelOf("test-src/test-project", "baz");
+        Project project = BCompileUtil.loadProject(getTestSourcePath());
+        Module baz = getModule(project, "baz");
+        model = baz.getCompilation().getSemanticModel();
+        DocumentId id = baz.testDocumentIds().iterator().next();
+        srcFile = baz.document(id);
     }
 
     @DataProvider(name = "PositionProvider")
@@ -48,11 +57,6 @@ public class FindRefsInTestsTest extends FindAllReferencesTest {
                                  location(20, 22, 24, getFileName()))
                 },
         };
-    }
-
-    @Override
-    public String getFileName() {
-        return "tests/test1.bal";
     }
 
     @Override

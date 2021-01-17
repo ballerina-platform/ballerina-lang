@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -30,6 +31,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a ballerina variable.
@@ -40,6 +42,7 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
 
     private final List<Qualifier> qualifiers;
     private final List<AnnotationSymbol> annots;
+    private final Documentation docAttachment;
     private final TypeSymbol typeDescriptorImpl;
     private final boolean deprecated;
 
@@ -53,6 +56,7 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
         super(name, moduleID, ballerinaSymbolKind, bSymbol);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
+        this.docAttachment = getDocAttachment(bSymbol);
         this.typeDescriptorImpl = typeDescriptorImpl;
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
     }
@@ -85,6 +89,11 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
     @Override
     public List<AnnotationSymbol> annotations() {
         return this.annots;
+    }
+
+    @Override
+    public Optional<Documentation> documentation() {
+        return Optional.ofNullable(this.docAttachment);
     }
 
     /**
