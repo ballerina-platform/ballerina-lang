@@ -62,7 +62,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     
     private final LanguageServerContext languageServerContext;
 
-    AbstractDocumentServiceContext(LSOperation operation,
+    protected AbstractDocumentServiceContext(LSOperation operation,
                                    String fileUri,
                                    WorkspaceManager wsManager,
                                    LanguageServerContext serverContext) {

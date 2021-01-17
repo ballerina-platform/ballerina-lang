@@ -27,6 +27,8 @@ import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.diagram.BallerinaDiagramService;
+import org.ballerinalang.langserver.extensions.ballerina.diagram.DiagramService;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
@@ -77,6 +79,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private final BallerinaTraceService ballerinaTraceService;
     private final Listener ballerinaTraceListener;
     private final BallerinaSymbolService ballerinaSymbolService;
+    private final DiagramService diagramService;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -94,6 +97,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         this.ballerinaTraceService = new BallerinaTraceServiceImpl(this);
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl();
+        this.diagramService = new BallerinaDiagramService(this, workspaceManager, serverContext);
 
         LSAnnotationCache.getInstance(this.serverContext).initiate();
     }
@@ -216,5 +220,10 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
     public BallerinaSymbolService getBallerinaSymbolService() {
         return ballerinaSymbolService;
+    }
+
+    @Override
+    public DiagramService getBallerinaDiagramService() {
+        return this.diagramService;
     }
 }

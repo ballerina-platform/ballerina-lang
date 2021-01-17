@@ -16,6 +16,8 @@
 package org.ballerinalang.langserver.extensions;
 
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService;
+import org.ballerinalang.langserver.extensions.ballerina.diagram.BallerinaDiagramService;
+import org.ballerinalang.langserver.extensions.ballerina.diagram.DiagramService;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
 import org.ballerinalang.langserver.extensions.ballerina.project.BallerinaProjectService;
@@ -42,4 +44,6 @@ public interface ExtendedLanguageServer extends LanguageServer {
     BallerinaTraceService getBallerinaTraceService();
     @JsonDelegate
     BallerinaSymbolService getBallerinaSymbolService();
+    @JsonDelegate
+    DiagramService getBallerinaDiagramService();
 }
