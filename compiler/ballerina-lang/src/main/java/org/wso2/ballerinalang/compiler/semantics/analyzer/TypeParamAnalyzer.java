@@ -168,14 +168,13 @@ public class TypeParamAnalyzer {
     // Private methods.
 
     private static boolean containsTypeParam(BType type, HashSet<BType> resolvedTypes) {
-
-        if (isTypeParam(type)) {
-            return true;
-        }
         if (resolvedTypes.contains(type)) {
             return false;
         }
         resolvedTypes.add(type);
+        if (isTypeParam(type)) {
+            return true;
+        }
         switch (type.tag) {
             case TypeTags.ARRAY:
                 return containsTypeParam(((BArrayType) type).eType, resolvedTypes);
@@ -245,7 +244,7 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private BType createBuiltInType(BType type, Name name, long flag) {
+    private BType createBuiltInType(BType type, Name name, long flags) {
         // Handle built-in types.
         switch (type.tag) {
             case TypeTags.INT:
@@ -254,13 +253,16 @@ public class TypeParamAnalyzer {
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
             case TypeTags.BOOLEAN:
-                return new BType(type.tag, null, name, flag);
+                return new BType(type.tag, null, name, flags);
             case TypeTags.ANY:
-                return new BAnyType(type.tag, null, name, flag);
+                return new BAnyType(type.tag, null, name, flags);
             case TypeTags.ANYDATA:
-                return new BAnydataType(type.tag, null, name, flag);
-            case TypeTags.READONLY: // TODO: 4/5/20 validate for cloneXxx
-                return new BReadonlyType(type.tag, null, name, flag);
+                BAnydataType anydataType = new BAnydataType((BUnionType) type);
+                anydataType.name = name;
+                anydataType.flags |= flags;
+                return anydataType;
+            case TypeTags.READONLY:
+                return new BReadonlyType(type.tag, null, name, flags);
         }
         // For others, we will use TSymbol.
         return type;
@@ -433,6 +435,10 @@ public class TypeParamAnalyzer {
 
     private boolean isSameTypeSymbolNameAndPkg(BTypeSymbol source, BTypeSymbol target) {
         if (source == null || target == null) {
+            return false;
+        }
+
+        if (source.name.getValue().isEmpty()) {
             return false;
         }
 
@@ -639,11 +645,12 @@ public class TypeParamAnalyzer {
 
     private BType getMatchingBoundType(BType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         if (isTypeParam(expType)) {
-            return env.typeParamsEntries.stream().filter(typeParamEntry -> typeParamEntry.typeParam == expType)
-                    .findFirst()
-                    .map(typeParamEntry -> typeParamEntry.boundType)
-                    // Else, this need to be inferred from the context.
-                    .orElse(symTable.noType);
+            for (SymbolEnv.TypeParamEntry typeParamEntry : env.typeParamsEntries) {
+                if (typeParamEntry.typeParam == expType) {
+                    return typeParamEntry.boundType;
+                }
+            }
+            return symTable.noType;
         }
 
         if (resolvedTypes.contains(expType)) {

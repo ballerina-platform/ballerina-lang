@@ -67,7 +67,7 @@ public isolated function getStackTrace() returns StackFrame[] {
     int i = 0;
     CallStackElement[] callStackElements = externGetStackTrace();
     lang_array:forEach(callStackElements, function (CallStackElement callStackElement) {
-                                stackFrame[i] = new StackFrameImpl(callStackElement.callableName,
+                                stackFrame[i] = new java:StackFrameImpl(callStackElement.callableName,
                                 callStackElement.moduleName, callStackElement.fileName, callStackElement.lineNumber);
                                 i += 1;
                             });
@@ -84,38 +84,6 @@ public type StackFrame object {
    # + return - A StackFrame as a `string`
    public function toString() returns string;
 };
-
-# Implementation for the `StackFrame`.
-#
-# + callableName - Callable name
-# + moduleName - Module name
-# + fileName - File name
-# + lineNumber - Line number
-// todo use readonly qualifier once #27501 fixed
-# public readonly class StackFrameImpl
-public class StackFrameImpl {
-
-    *StackFrame;
-    public string callableName;
-    public string moduleName;
-    public string fileName;
-    public int lineNumber;
-
-    # Returns a string representing for the `StackFrame`
-    #
-    # + return - A stack frame as string
-    public function toString() returns string {
-        return "callableName: " + self.callableName + " " + "moduleName: " + self.moduleName +
-                " " + "fileName: " + self.fileName + " " + "lineNumber: " + lang_value:toString(self.lineNumber);
-    }
-
-    public function init(string callableName, string moduleName, string fileName, int lineNumber) {
-        self.callableName = callableName;
-        self.moduleName = moduleName;
-        self.fileName = fileName;
-        self.lineNumber = lineNumber;
-    }
-}
 
 isolated function externGetStackTrace() returns CallStackElement[] = @java:Method {
     name: "getStackTrace",

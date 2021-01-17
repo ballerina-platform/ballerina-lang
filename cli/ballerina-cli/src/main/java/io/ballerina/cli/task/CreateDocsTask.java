@@ -18,6 +18,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.model.Target;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
@@ -50,7 +51,7 @@ public class CreateDocsTask implements Task {
             try {
                 target = new Target(sourceRootPath);
                 outputPath = target.getDocPath();
-            } catch (IOException e) {
+            } catch (IOException | ProjectException e) {
                 throw createLauncherException("error occurred while generating docs: " + e.getMessage());
             }
         }

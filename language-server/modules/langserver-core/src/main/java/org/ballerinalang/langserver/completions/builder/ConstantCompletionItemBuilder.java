@@ -55,7 +55,7 @@ public class ConstantCompletionItemBuilder {
 
     private static MarkupContent getDocumentation(ConstantSymbol constantSymbol) {
         MarkupContent docMarkupContent = new MarkupContent();
-        Optional<Documentation> docAttachment = constantSymbol.docAttachment();
+        Optional<Documentation> docAttachment = constantSymbol.documentation();
         String description = docAttachment.isEmpty() || docAttachment.get().description().isEmpty() ? ""
                 : docAttachment.get().description().get();
         docMarkupContent.setValue(description);

@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -246,6 +247,15 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                 });
                 completionItems.addAll(this.getCompletionItemList(objTypeDesc.methods(), context));
                 break;
+            case UNION:
+                UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rawType;
+                List<TypeSymbol> members = unionTypeSymbol.memberTypeDescriptors();
+                if (members.size() != 2
+                        || members.stream().noneMatch(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.NIL)) {
+                    break;
+                }
+                TypeSymbol evalType = members.get(0).typeKind() == TypeDescKind.NIL ? members.get(1) : members.get(0);
+                return this.getCompletionsForTypeDesc(context, evalType);
             default:
                 break;
         }

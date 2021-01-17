@@ -250,15 +250,17 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "redeclared symbol 'message'", 54, 36);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int', found 'map<(anydata|readonly)>'", 56, 18);
+                "incompatible types: expected 'int', found 'map<Cloneable>'", 56, 18);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid error variable; expecting an error type but found 'int' in type definition", 57, 47);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 63, 17);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found '(anydata|readonly)'", 64, 16);
+                "incompatible types: expected 'string', found " +
+                        "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 64, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found '(anydata|readonly)'", 70, 16);
+                "incompatible types: expected 'string', found " +
+                        "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 70, 16);
     }
 
     @AfterClass

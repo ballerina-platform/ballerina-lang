@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.command.executors;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Documentable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -88,8 +89,7 @@ public class UpdateDocumentationExecutor implements LSCommandExecutor {
             node = ((ModulePartNode) node).members().get(0);
         }
         SemanticModel semanticModel = ctx.workspace().semanticModel(filePath.get()).orElseThrow();
-        Optional<Symbol> documentableSymbol = getDocumentableSymbol(node, semanticModel,
-                                                                    filePath.get().toFile().getName());
+        Optional<Symbol> documentableSymbol = getDocumentableSymbol(node, semanticModel);
 
         Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(node);
         if (docAttachmentInfo.isPresent() && documentableSymbol.isPresent()) {
@@ -97,7 +97,7 @@ public class UpdateDocumentationExecutor implements LSCommandExecutor {
             Range range = getDocsRange(node).orElseThrow();
             LanguageClient languageClient = ctx.getLanguageClient();
 
-            docs = docs.mergeDocAttachment(documentableSymbol.get().docAttachment().orElseThrow());
+            docs = docs.mergeDocAttachment(((Documentable) documentableSymbol.get()).documentation().orElseThrow());
             return applySingleTextEdit(docs.getDocumentationString().trim(), range, textDocumentIdentifier,
                                        languageClient);
         }

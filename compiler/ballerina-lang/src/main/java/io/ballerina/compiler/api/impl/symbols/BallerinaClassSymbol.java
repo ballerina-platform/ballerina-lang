@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
@@ -55,6 +56,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     private final boolean deprecated;
     private final BClassSymbol internalSymbol;
     private final CompilerContext context;
+    private final Documentation docAttachment;
     private MethodSymbol initMethod;
 
     protected BallerinaClassSymbol(CompilerContext context, String name, PackageID moduleID, List<Qualifier> qualifiers,
@@ -63,6 +65,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
         super(name, moduleID, SymbolKind.CLASS, classSymbol);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
+        this.docAttachment = getDocAttachment(classSymbol);
         this.typeDescriptor = typeDescriptor;
         this.deprecated = Symbols.isFlagOn(classSymbol.flags, Flags.DEPRECATED);
         this.internalSymbol = classSymbol;
@@ -99,6 +102,11 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     @Override
     public List<AnnotationSymbol> annotations() {
         return this.annots;
+    }
+
+    @Override
+    public Optional<Documentation> documentation() {
+        return Optional.ofNullable(this.docAttachment);
     }
 
     @Override

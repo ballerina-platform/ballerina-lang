@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 /**
@@ -104,10 +106,15 @@ class AIDataMapperCodeActionUtil {
         // Insert function call in the code where error is found
         Range newTextRange = CommonUtil.toRange(diagnostic.location().lineRange());
 
-        String filePath = context.filePath().getFileName().toString();
+        Optional<Document> srcFile = context.workspace().document(context.filePath());
+
+        if (srcFile.isEmpty()) {
+            return fEdits;
+        }
+
         LinePosition linePosition = LinePosition.from(context.cursorPosition().getLine(), context.cursorPosition().
                 getCharacter());
-        String symbolAtCursor = semanticModel.symbol(filePath, linePosition).get().name();
+        String symbolAtCursor = semanticModel.symbol(srcFile.get(), linePosition).get().name();
 
         String generatedFunctionName =
                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursor);
@@ -151,10 +158,12 @@ class AIDataMapperCodeActionUtil {
 
 
         // Schema 1
-        List<FieldSymbol> rightSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(context.workspace().
-                semanticModel(context.filePath()).get().symbol(context.filePath().getFileName().toString(),
-                LinePosition.from(context.cursorPosition().getLine(), context.cursorPosition().getCharacter())).
-                get()).fieldDescriptors();
+        Optional<Document> srcFile = context.workspace().document(context.filePath());
+        SemanticModel model = context.workspace().semanticModel(context.filePath()).get();
+        LinePosition cursorPos = LinePosition.from(context.cursorPosition().getLine(),
+                                                   context.cursorPosition().getCharacter());
+        List<FieldSymbol> rightSchemaFields =
+                SymbolUtil.getTypeDescForRecordSymbol(model.symbol(srcFile.get(), cursorPos).get()).fieldDescriptors();
         JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
 
         rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
