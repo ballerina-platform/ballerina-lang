@@ -75,7 +75,7 @@ public class K8sCompletionRouter {
         if (node == null) {
             return new ArrayList<>();
         }
-        Map<String, CompletionItem> completions = new HashMap<>();
+        Map<String, CompletionItem> completions;
         Node reference = node;
         //Gets all the support completions from Schema. TODO Remove singlethon and add this to startup
         Map<Parent, Map<String, CompletionItem>> c2cSnippets = TomlSnippetManager.getInstance().getCompletions();
@@ -151,7 +151,8 @@ public class K8sCompletionRouter {
         return removeExistingChildTables(completions, existingChildEntries);
     }
 
-    private Map<String, CompletionItem> addRooTablesToCompletions(Set<Parent> parents, Map<String, CompletionItem> completions) {
+    private Map<String, CompletionItem> addRooTablesToCompletions(Set<Parent> parents,
+                                                                  Map<String, CompletionItem> completions) {
         for (Parent parent : parents) {
             String key = parent.getKey();
             if (completions.containsKey(key)) {

@@ -27,7 +27,7 @@ import org.eclipse.lsp4j.CodeActionParams;
 import java.util.List;
 
 /**
- * Code action extension implementation for ballerina.
+ * Code action extension implementation for Kubernetes.toml.
  *
  * @since 2.0.0
  */
@@ -36,13 +36,13 @@ public class TomlCodeActionExtension implements CodeActionExtension {
 
     @Override
     public boolean validate(CodeActionParams inputParams) {
-        // Here we check the .bal extension
         return inputParams.getTextDocument().getUri().endsWith("Kubernetes.toml");
     }
 
     @Override
     public List<? extends CodeAction> execute(CodeActionParams inputParams, CodeActionContext context,
                                               LanguageServerContext serverContext) {
-        return TomlCodeActionRouter.getAvailableCodeActions(context);
+        TomlCodeActionRouter tomlCodeActionRouter = new TomlCodeActionRouter();
+        return tomlCodeActionRouter.getAvailableCodeActions(context);
     }
 }
