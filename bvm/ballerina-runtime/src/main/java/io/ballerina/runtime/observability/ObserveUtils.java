@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.tracer.BSpan;
 import org.ballerinalang.config.ConfigRegistry;
@@ -185,9 +184,9 @@ public class ObserveUtils {
         eventAttributes.put(TAG_KEY_SRC_MODULE, pkg.getValue());
         eventAttributes.put(TAG_KEY_SRC_POSITION, position.getValue());
 
-        HashMap<String, Object> events = new HashMap<>(1);
-        events.put(CHECKPOINT_EVENT_NAME, eventAttributes);
-        span.log(events);
+        HashMap<String, Object> event = new HashMap<>(1);
+        event.put(CHECKPOINT_EVENT_NAME, eventAttributes);
+        span.addEvent(event);
     }
 
     /**
