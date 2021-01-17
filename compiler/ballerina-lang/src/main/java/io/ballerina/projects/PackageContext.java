@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -41,7 +40,11 @@ class PackageContext {
     private final Project project;
     private final PackageId packageId;
     private final PackageManifest packageManifest;
-    private final BallerinaToml ballerinaToml;
+    private final TomlDocumentContext ballerinaTomlContext;
+    private final TomlDocumentContext dependenciesTomlContext;
+    private final TomlDocumentContext kubernetesTomlContext;
+    private final MdDocumentContext packageMdContext;
+
     private final CompilationOptions compilationOptions;
     private ModuleContext defaultModuleContext;
     /**
@@ -61,14 +64,20 @@ class PackageContext {
     PackageContext(Project project,
                    PackageId packageId,
                    PackageManifest packageManifest,
-                   BallerinaToml ballerinaToml,
+                   TomlDocumentContext ballerinaTomlContext,
+                   TomlDocumentContext dependenciesTomlContext,
+                   TomlDocumentContext kubernetesTomlContext,
+                   MdDocumentContext packageMdContext,
                    CompilationOptions compilationOptions,
                    Map<ModuleId, ModuleContext> moduleContextMap,
                    DependencyGraph<PackageDescriptor> pkgDescDependencyGraph) {
         this.project = project;
         this.packageId = packageId;
         this.packageManifest = packageManifest;
-        this.ballerinaToml = ballerinaToml;
+        this.ballerinaTomlContext = ballerinaTomlContext;
+        this.dependenciesTomlContext = dependenciesTomlContext;
+        this.kubernetesTomlContext = kubernetesTomlContext;
+        this.packageMdContext = packageMdContext;
         this.compilationOptions = compilationOptions;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
         this.moduleContextMap = moduleContextMap;
@@ -76,6 +85,7 @@ class PackageContext {
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
         this.pkgDescDependencyGraph = pkgDescDependencyGraph;
+
     }
 
     static PackageContext from(Project project, PackageConfig packageConfig, CompilationOptions compilationOptions) {
@@ -85,7 +95,11 @@ class PackageContext {
         }
 
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
-                packageConfig.ballerinaToml(), compilationOptions,
+                TomlDocumentContext.from(packageConfig.ballerinaToml()),
+                TomlDocumentContext.from(packageConfig.dependenciesToml()),
+                TomlDocumentContext.from(packageConfig.kubernetesToml()),
+                MdDocumentContext.from(packageConfig.packageMd()),
+                compilationOptions,
                 moduleContextMap, packageConfig.packageDescDependencyGraph());
     }
 
@@ -113,8 +127,12 @@ class PackageContext {
         return packageManifest;
     }
 
-    Optional<BallerinaToml> ballerinaToml() {
-        return Optional.ofNullable(ballerinaToml);
+    MdDocumentContext packageMd() {
+        return packageMdContext;
+    }
+
+    TomlDocumentContext ballerinaTomlContext() {
+        return ballerinaTomlContext;
     }
 
     CompilationOptions compilationOptions() {

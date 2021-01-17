@@ -21,6 +21,7 @@ import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BallerinaTomlException;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.MdDocument;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.util.ProjectConstants;
@@ -58,14 +59,24 @@ public class ProjectFiles {
     public static PackageData loadSingleFileProjectPackageData(Path filePath) {
         DocumentData documentData = loadDocument(filePath);
         ModuleData defaultModule = ModuleData
-                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList());
-        return PackageData.from(filePath, defaultModule, Collections.emptyList());
+                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null);
+        return PackageData.from(filePath, defaultModule, Collections.emptyList(), null);
     }
 
     public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
         ModuleData defaultModule = loadModule(packageDirPath);
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
-        return PackageData.from(packageDirPath, defaultModule, otherModules);
+        MdDocument packageMd = loadPackageMd(packageDirPath);
+        
+        return PackageData.from(packageDirPath, defaultModule, otherModules, packageMd);
+    }
+
+    private static MdDocument loadPackageMd(Path packageDirPath) {
+        Path packageMdPath = packageDirPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+        if (Files.exists(packageMdPath)) {
+            return new MdDocument(packageMdPath);
+        }
+        return null;
     }
 
     private static List<ModuleData> loadOtherModules(Path packageDirPath) {
@@ -103,9 +114,20 @@ public class ProjectFiles {
         } else {
             testSrcDocs = Collections.emptyList();
         }
+
+        MdDocument moduleMd = loadModuleMd(moduleDirPath);
         // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
-        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs);
+        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd);
     }
+
+    private static MdDocument loadModuleMd(Path modulePath) {
+        Path moduleMdPath = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+        if (Files.exists(moduleMdPath)) {
+            return new MdDocument(moduleMdPath);
+        }
+        return null;
+    }
+
 
     public static List<DocumentData> loadDocuments(Path dirPath) {
         try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {

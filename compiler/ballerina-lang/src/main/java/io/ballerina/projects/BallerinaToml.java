@@ -48,13 +48,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
 /**
  * Represents the 'Ballerina.toml' file in a package.
  *
  * @since 2.0.0
  */
-public class BallerinaToml extends TomlDocument {
+public class BallerinaToml {
 
+    private TomlDocumentContext ballerinaTomlContext;
+    private Package aPackage;
     private DiagnosticResult diagnostics;
     private List<Diagnostic> diagnosticList;
     private PackageManifest packageManifest;
@@ -67,16 +70,21 @@ public class BallerinaToml extends TomlDocument {
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
 
-    private BallerinaToml(Path filePath) {
-        super(filePath);
-        this.filePath = filePath;
-        this.diagnosticList = new ArrayList<>();
-        this.packageManifest = parseAsPackageManifest();
-        this.buildOptions = parseBuildOptions();
+//    private BallerinaToml(Path filePath) {
+//        super(filePath);
+//        this.filePath = filePath;
+//        this.diagnosticList = new ArrayList<>();
+//        this.packageManifest = parseAsPackageManifest();
+//        this.buildOptions = parseBuildOptions();
+
+
+    private BallerinaToml(Package aPackage, TomlDocumentContext ballerinaTomlContext) {
+        this.aPackage = aPackage;
+        this.ballerinaTomlContext = ballerinaTomlContext;
     }
 
-    public static BallerinaToml from(Path filePath) {
-        return new BallerinaToml(filePath);
+    public static BallerinaToml from(Package pkg, TomlDocumentContext ballerinaTomlContext) {
+        return new BallerinaToml(pkg, ballerinaTomlContext);
     }
 
     public DiagnosticResult diagnostics() {
@@ -85,7 +93,7 @@ public class BallerinaToml extends TomlDocument {
         }
 
         // Add toml syntax diagnostics
-        syntaxTree().diagnostics().forEach(this.diagnosticList::add);
+        // syntaxTree().diagnostics().forEach(this.diagnosticList::add);
         diagnostics = new DefaultDiagnosticResult(this.diagnosticList);
         return diagnostics;
     }
@@ -470,4 +478,5 @@ public class BallerinaToml extends TomlDocument {
 
         this.diagnosticList.add(tomlDiagnostic);
     }
+
 }

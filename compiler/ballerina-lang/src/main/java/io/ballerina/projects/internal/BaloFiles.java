@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.MdDocument;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDescriptor;
@@ -34,6 +35,7 @@ import io.ballerina.projects.internal.balo.DependencyGraphJson;
 import io.ballerina.projects.internal.balo.ModuleDependency;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.PackageJson;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;
@@ -78,14 +80,23 @@ public class BaloFiles {
             String pkgName = packageManifest.name().toString();
             Path defaultModulePathInBalo = zipFileSystem.getPath(MODULES_ROOT, pkgName);
             ModuleData defaultModule = loadModule(defaultModulePathInBalo);
-
+            MdDocument packageMd = loadPackageMd(zipFileSystem);
             // load other modules
             Path modulesPathInBalo = zipFileSystem.getPath(MODULES_ROOT);
             List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo, defaultModulePathInBalo);
-            return PackageData.from(balrPath, defaultModule, otherModules);
+            return PackageData.from(balrPath, defaultModule, otherModules, packageMd);
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
         }
+    }
+
+    private static MdDocument loadPackageMd(FileSystem zipFileSystem) {
+        Path packageMdPath = zipFileSystem.getPath(ProjectConstants.BALO_DOCS_DIR)
+                .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+        if (Files.exists(packageMdPath)) {
+            return new MdDocument(packageMdPath);
+        }
+        return null;
     }
 
     private static void validatePackageJson(PackageJson packageJson, Path balrPath) {
@@ -121,9 +132,17 @@ public class BaloFiles {
 
         List<DocumentData> srcDocs = loadDocuments(modulePath);
         List<DocumentData> testSrcDocs = Collections.emptyList();
+        MdDocument moduleMd = loadModuleMd(modulePath);
 
-        // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
-        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs);
+        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd);
+    }
+
+    private static MdDocument loadModuleMd(Path modulePath) {
+        Path moduleMdPath = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+        if (Files.exists(moduleMdPath)) {
+            return new MdDocument(moduleMdPath);
+        }
+        return null;
     }
 
     private static List<ModuleData> loadOtherModules(Path modulesDirPath,

@@ -21,6 +21,11 @@ public class Package {
     private final PackageContext packageContext;
     private final Map<ModuleId, Module> moduleMap;
     private final Function<ModuleId, Module> populateModuleFunc;
+    // Following are not final since they will be lazy loaded
+    private PackageMd packageMd = null;
+    private Optional<BallerinaToml> ballerinaToml = null;
+    private DependenciesToml dependenciesToml = null;
+    private KubernetesToml kubernetesToml = null;
 
     private Package(PackageContext packageContext, Project project) {
         this.packageContext = packageContext;
@@ -136,7 +141,16 @@ public class Package {
     }
 
     public Optional<BallerinaToml> ballerinaToml() {
-        return packageContext.ballerinaToml();
+        if (null == this.ballerinaToml) {
+            this.ballerinaToml = Optional.ofNullable(
+                    BallerinaToml.from(this, this.packageContext.ballerinaTomlContext());
+            );
+        }
+        return this.ballerinaToml;
+    }
+
+    public Optional<MdDocument> packageMd() {
+        return Optional.ofNullable(this.packageContext.packageMd());
     }
 
     /**
@@ -178,6 +192,7 @@ public class Package {
         private Project project;
         private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
         private CompilationOptions compilationOptions;
+        private MdDocument packageMd;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
@@ -187,6 +202,7 @@ public class Package {
             this.project = oldPackage.project;
             this.pkgDescDependencyGraph = oldPackage.packageContext().dependencyGraph();
             this.compilationOptions = oldPackage.compilationOptions();
+            this.packageMd = oldPackage.packageMd().orElse(null);
         }
 
         Modifier updateModule(ModuleContext newModuleContext) {
@@ -237,7 +253,8 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
-                    this.ballerinaToml, this.compilationOptions, this.moduleContextMap, this.pkgDescDependencyGraph);
+                    this.ballerinaToml, this.compilationOptions, this.moduleContextMap, this.pkgDescDependencyGraph,
+                    this.packageMd);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }

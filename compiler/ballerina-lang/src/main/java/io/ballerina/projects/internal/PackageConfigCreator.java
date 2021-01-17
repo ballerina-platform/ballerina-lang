@@ -63,7 +63,7 @@ public class PackageConfigCreator {
         // TODO Validate the ballerinaToml content inside the Ballerina toml file
         PackageManifest packageManifest = ProjectFiles.createPackageManifest(ballerinaToml);
         PackageData packageData = ProjectFiles.loadBuildProjectPackageData(projectDirPath);
-        return createPackageConfig(packageData, packageManifest, ballerinaToml);
+        return createPackageConfig(packageData, packageManifest);
     }
 
     public static PackageConfig createSingleFileProjectConfig(Path filePath) {
@@ -85,24 +85,18 @@ public class PackageConfigCreator {
         BaloFiles.DependencyGraphResult packageDependencyGraph = BaloFiles
                 .createPackageDependencyGraph(balrPath, packageManifest.name().value());
 
-        return createPackageConfig(packageData, packageManifest, null,
+        return createPackageConfig(packageData, packageManifest,
                 packageDependencyGraph.packageDependencyGraph(), packageDependencyGraph.moduleDependencies());
     }
 
-    public static PackageConfig createPackageConfig(PackageData packageData, PackageManifest packageManifest) {
-        return createPackageConfig(packageData, packageManifest, null);
-    }
-
     public static PackageConfig createPackageConfig(PackageData packageData,
-                                                    PackageManifest packageManifest,
-                                                    BallerinaToml ballerinaToml) {
-        return createPackageConfig(packageData, packageManifest, ballerinaToml, DependencyGraph.emptyGraph(),
+                                                    PackageManifest packageManifest) {
+        return createPackageConfig(packageData, packageManifest, DependencyGraph.emptyGraph(),
                 Collections.emptyMap());
     }
 
     public static PackageConfig createPackageConfig(PackageData packageData,
                                                     PackageManifest packageManifest,
-                                                    BallerinaToml ballerinaToml,
                                                     DependencyGraph<PackageDescriptor> packageDependencyGraph,
                                                     Map<ModuleDescriptor, List<ModuleDescriptor>>
                                                             moduleDependencyGraph) {
@@ -123,8 +117,14 @@ public class PackageConfigCreator {
 
         moduleConfigs.add(createDefaultModuleConfig(packageManifest.descriptor(),
                 packageData.defaultModule(), packageId, moduleDependencyGraph));
+
+        DocumentConfig ballerinaToml = createDocumentConfig(packageData.ballerinaToml(),null);
+        DocumentConfig dependenciesToml = createDocumentConfig(packageData.dependenciesToml(),null);
+        DocumentConfig kubernetesToml = createDocumentConfig(packageData.kubernetesToml(),null);
+        DocumentConfig packageMd = createDocumentConfig(packageData.packageMd(),null);
+
         return PackageConfig.from(packageId, packageData.packagePath(), packageManifest, ballerinaToml,
-                moduleConfigs, packageDependencyGraph);
+                dependenciesToml, kubernetesToml, packageMd, moduleConfigs, packageDependencyGraph);
     }
 
     private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDesc,
@@ -165,7 +165,7 @@ public class PackageConfigCreator {
 
         List<DocumentConfig> srcDocs = getDocumentConfigs(moduleId, moduleData.sourceDocs());
         List<DocumentConfig> testSrcDocs = getDocumentConfigs(moduleId, moduleData.testSourceDocs());
-        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, dependencies);
+        return ModuleConfig.from(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleData.moduleMd(), dependencies);
     }
 
     private static List<DocumentConfig> getDocumentConfigs(ModuleId moduleId, List<DocumentData> documentData) {
