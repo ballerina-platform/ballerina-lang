@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.configurables;
 
+import io.ballerina.runtime.internal.configurable.ConfigurableConstants;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -25,7 +26,6 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.packaging.PackerinaTestUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -163,7 +163,7 @@ public class ConfigurableTest extends BaseTest {
      */
     private Map<String, String> addEnvVariables(String configFilePath) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        envVariables.put(JvmConstants.CONFIG_ENV_VARIABLE, configFilePath);
+        envVariables.put(ConfigurableConstants.CONFIG_ENV_VARIABLE, configFilePath);
         return envVariables;
     }
 

@@ -41,22 +41,18 @@ import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.AASTORE;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
-import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFNULL;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -65,14 +61,9 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIG_ENV_VARIABLE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATHS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SYSTEM;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -104,7 +95,6 @@ public class MainMethodGen {
     public void generateMainMethod(BIRNode.BIRFunction userMainFunc, ClassWriter cw, BIRNode.BIRPackage pkg,
                             String initClass, boolean serviceEPAvailable) {
 
-        generateGetFilePath(cw);
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null,
                                           null);
         mv.visitCode();
@@ -119,7 +109,7 @@ public class MainMethodGen {
 
         // set system properties
         initConfigurations(mv);
-        invokeConfigInit(mv, pkg.packageID, initClass);
+        invokeConfigInit(mv, pkg.packageID);
         // start all listeners
         startListeners(mv, serviceEPAvailable);
 
@@ -168,35 +158,14 @@ public class MainMethodGen {
         genReturn(mv, indexMap, futureVar);
     }
 
-    private void generateGetFilePath(ClassWriter cw) {
-        MethodVisitor mv =
-                cw.visitMethod(ACC_PRIVATE | ACC_STATIC, "getConfigPath", String.format("()L%s;", PATH), null, null);
-        mv.visitCode();
-        mv.visitMethodInsn(INVOKESTATIC, SYSTEM, "getenv", String.format("()L%s;", MAP), false);
-        mv.visitVarInsn(ASTORE, 0);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitLdcInsn(CONFIG_ENV_VARIABLE);
-        mv.visitFieldInsn(GETSTATIC, RUNTIME_UTILS, "USER_DIR", "L" + STRING_VALUE + ";");
-        mv.visitMethodInsn(INVOKEINTERFACE, MAP, "getOrDefault",
-                String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-        mv.visitInsn(ICONST_0);
-        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
-        mv.visitMethodInsn(INVOKESTATIC, PATHS, "get",
-                String.format("(L%s;[L%s;)L%s;", STRING_VALUE, STRING_VALUE, PATH), false);
-        mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-    }
-
     private void startScheduler(int schedulerVarIndex, MethodVisitor mv) {
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, JvmConstants.SCHEDULER, JvmConstants.SCHEDULER_START_METHOD, "()V", false);
     }
 
-    private void invokeConfigInit(MethodVisitor mv, PackageID packageID, String initClass) {
+    private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
         String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, "getConfigPath", "()L" + PATH + ";", false);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigPath", "()L" + PATH + ";", false);
         mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, "(L" + PATH + ";)V", false);
     }
 

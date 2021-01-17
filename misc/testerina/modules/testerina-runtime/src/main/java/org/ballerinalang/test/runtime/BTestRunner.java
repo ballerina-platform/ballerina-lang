@@ -84,7 +84,6 @@ public class BTestRunner {
     private static final String TEST_STOP_FUNCTION_NAME = ".<teststop>";
     private static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
 
-
     private PrintStream errStream;
     private PrintStream outStream;
     private TesterinaReport tReport;

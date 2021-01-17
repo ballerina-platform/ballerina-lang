@@ -32,6 +32,7 @@ public class ConfigurableConstants {
             "Configurable feature is yet to be supported for type '%s'";
     public static final String DEFAULT_MODULE = ".";
     public static final String SUBMODULE_DELIMITER = ".";
+    public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
 
     private ConfigurableConstants() {
     }
