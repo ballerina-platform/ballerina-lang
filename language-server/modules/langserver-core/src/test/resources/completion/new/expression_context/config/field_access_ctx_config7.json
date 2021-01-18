@@ -249,13 +249,13 @@
       }
     },
     {
-      "label": "cloneReadOnly()(anydata)",
+      "label": "cloneReadOnly()(CloneableType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `anydata`   \n- immutable clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `CloneableType`   \n- immutable clone of `v`  \n  \n"
         }
       },
       "insertText": "cloneReadOnly()",
