@@ -141,3 +141,25 @@ type Student record {|
     *Age;
     int...;
 |};
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+function assertFalse(any|error actual) {
+    assertEquality(false, actual);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(string `expected '${expectedValAsString}', found '${actualValAsString}'`);
+}
