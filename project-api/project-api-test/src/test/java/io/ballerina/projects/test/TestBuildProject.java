@@ -801,6 +801,36 @@ public class TestBuildProject {
         symbol.ifPresent(value -> assertEquals(value.name(), "runServices"));
     }
 
+    @Test(description = "tests if other documents exists ie. Ballerina.toml, Package.md", enabled = true)
+    public void testOtherDocuments() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Check if files exists
+        Package currentPackage = project.currentPackage();
+        Assert.assertTrue(currentPackage.ballerinaToml().isPresent());
+        Assert.assertTrue(currentPackage.dependenciesToml().isPresent());
+        Assert.assertTrue(currentPackage.kubernetesToml().isPresent());
+        Assert.assertTrue(currentPackage.packageMd().isPresent());
+        // Check module.md files
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertTrue(defaultModule.moduleMd().isPresent());
+        Module services = currentPackage
+                .module(ModuleName.from(currentPackage.packageName(), "services"));
+        Assert.assertTrue(services.moduleMd().isPresent());
+        Module storage = currentPackage
+                .module(ModuleName.from(currentPackage.packageName(), "storage"));
+        Assert.assertTrue(storage.moduleMd().isEmpty());
+    }
+
+
+
     @AfterClass (alwaysRun = true)
     public void reset() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
