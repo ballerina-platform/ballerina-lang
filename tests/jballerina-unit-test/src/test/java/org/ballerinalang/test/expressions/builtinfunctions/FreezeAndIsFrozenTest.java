@@ -442,7 +442,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testFreezeAndIsFrozenSemanticsNegativeCases() {
-        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 22);
+        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 21);
         int index = 0;
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'CloneableType', found 'PersonObj'", 19, 19);
@@ -488,8 +488,6 @@ public class FreezeAndIsFrozenTest {
                 106, 21);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'CloneableType', found '(int|Department|PersonObj)'", 113, 42);
-        validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'CloneableType', found '(anydata|error)'", 120, 19);
         validateError(semanticsNegativeResult, index,
                 "incompatible types: expected 'anydata', found '(anydata|error)'", 120, 19);
     }
