@@ -18,7 +18,7 @@
 package io.ballerina.compiler.api.symbols;
 
 /**
- * Represents a field of a class or of an object type descriptor.
+ * Represents a field of an object type descriptor.
  *
  * @since 2.0.0
  */

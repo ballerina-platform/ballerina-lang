@@ -19,6 +19,7 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaClassFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaClassSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaEnumSymbol;
@@ -127,6 +128,9 @@ public class SymbolFactory {
             }
             if (symbol.owner instanceof BRecordTypeSymbol) {
                 return createRecordFieldSymbol((BVarSymbol) symbol);
+            }
+            if (symbol.owner instanceof BClassSymbol) {
+                return createClassFieldSymbol((BVarSymbol) symbol);
             }
             if (symbol.owner instanceof BObjectTypeSymbol) {
                 return createObjectFieldSymbol((BVarSymbol) symbol);
@@ -276,6 +280,10 @@ public class SymbolFactory {
 
     public BallerinaObjectFieldSymbol createObjectFieldSymbol(BVarSymbol symbol) {
         return new BallerinaObjectFieldSymbol(this.context, getBField(symbol));
+    }
+
+    public BallerinaClassFieldSymbol createClassFieldSymbol(BVarSymbol symbol) {
+        return new BallerinaClassFieldSymbol(this.context, getBField(symbol));
     }
 
     public BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol, String name) {

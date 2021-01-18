@@ -50,7 +50,7 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
     private boolean deprecated;
 
     public BallerinaRecordFieldSymbol(CompilerContext context, BField bField) {
-        super(bField.name.value, bField.symbol.pkgID, SymbolKind.FIELD, bField.symbol);
+        super(bField.name.value, bField.symbol.pkgID, SymbolKind.RECORD_FIELD, bField.symbol);
         this.context = context;
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);

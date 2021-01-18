@@ -18,25 +18,16 @@
 package io.ballerina.compiler.api.symbols;
 
 /**
- * Represents the types of Symbols.
+ * Represents a field of a class.
  *
  * @since 2.0.0
  */
-public enum SymbolKind {
-    MODULE,
-    XMLNS,
-    FUNCTION,
-    METHOD,
-    CONSTANT,
-    TYPE_DEFINITION,
-    TYPE,
-    VARIABLE,
-    SERVICE,
-    CLASS,
-    WORKER,
-    ANNOTATION,
-    RECORD_FIELD,
-    OBJECT_FIELD,
-    CLASS_FIELD,
-    ENUM
+public interface ClassFieldSymbol extends ObjectFieldSymbol, Annotatable, Deprecatable, Documentable, Qualifiable {
+
+    /**
+     * Checks whether the field has a default value assigned to it.
+     *
+     * @return Returns 'true' if there is a default value
+     */
+    boolean hasDefaultValue();
 }

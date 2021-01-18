@@ -35,26 +35,32 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
+
 /**
- * Represents a field in a class or in an object type descriptor.
+ * Represents a field in an object type descriptor.
  *
  * @since 2.0.0
  */
 public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements ObjectFieldSymbol {
 
+    protected final BField bField;
     private final Documentation docAttachment;
-    private final BField bField;
     private final CompilerContext context;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
     private boolean deprecated;
 
-    public BallerinaObjectFieldSymbol(CompilerContext context, BField bField) {
-        super(bField.name.value, bField.symbol.pkgID, SymbolKind.FIELD, bField.symbol);
+    public BallerinaObjectFieldSymbol(CompilerContext context, BField bField, SymbolKind kind) {
+        super(bField.name.value, bField.symbol.pkgID, kind, bField.symbol);
         this.context = context;
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
         this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);
+    }
+
+    public BallerinaObjectFieldSymbol(CompilerContext context, BField bField) {
+        this(context, bField, OBJECT_FIELD);
     }
 
     @Override
