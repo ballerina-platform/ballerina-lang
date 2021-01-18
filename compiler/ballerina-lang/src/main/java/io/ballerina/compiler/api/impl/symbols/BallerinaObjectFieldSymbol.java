@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 
 /**
@@ -45,6 +46,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements ObjectFieldSymbol {
 
     protected final BField bField;
+    protected List<Qualifier> qualifiers;
     private final Documentation docAttachment;
     private final CompilerContext context;
     private TypeSymbol typeDescriptor;
@@ -106,13 +108,17 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
     @Override
     public List<Qualifier> qualifiers() {
-        if ((this.bField.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            return List.of(Qualifier.PUBLIC);
-        } else if ((this.bField.symbol.flags & Flags.PRIVATE) == Flags.PRIVATE) {
-            return List.of(Qualifier.PRIVATE);
+        if (this.qualifiers != null) {
+            return this.qualifiers;
         }
 
-        return Collections.emptyList();
+        List<Qualifier> quals = new ArrayList<>();
+        if (Symbols.isFlagOn(this.bField.symbol.flags, Flags.PUBLIC)) {
+            quals.add(PUBLIC);
+        }
+
+        this.qualifiers = Collections.unmodifiableList(quals);
+        return this.qualifiers;
     }
 
     @Override

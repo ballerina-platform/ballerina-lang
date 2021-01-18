@@ -19,13 +19,18 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static io.ballerina.compiler.api.symbols.Qualifier.FINAL;
+import static io.ballerina.compiler.api.symbols.Qualifier.PRIVATE;
+import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 
 /**
@@ -46,12 +51,24 @@ public class BallerinaClassFieldSymbol extends BallerinaObjectFieldSymbol implem
 
     @Override
     public List<Qualifier> qualifiers() {
-        if ((this.bField.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            return List.of(Qualifier.PUBLIC);
-        } else if ((this.bField.symbol.flags & Flags.PRIVATE) == Flags.PRIVATE) {
-            return List.of(Qualifier.PRIVATE);
+        if (this.qualifiers != null) {
+            return this.qualifiers;
         }
 
-        return Collections.emptyList();
+        final long symFlags = this.bField.symbol.flags;
+        List<Qualifier> quals = new ArrayList<>();
+
+        if (Symbols.isFlagOn(symFlags, Flags.PUBLIC)) {
+            quals.add(PUBLIC);
+        } else if (Symbols.isFlagOn(symFlags, Flags.PRIVATE)) {
+            quals.add(PRIVATE);
+        }
+
+        if (Symbols.isFlagOn(symFlags, Flags.FINAL)) {
+            quals.add(FINAL);
+        }
+
+        this.qualifiers = Collections.unmodifiableList(quals);
+        return this.qualifiers;
     }
 }

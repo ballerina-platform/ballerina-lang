@@ -35,6 +35,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
+import static io.ballerina.compiler.api.symbols.Qualifier.READONLY;
+
 /**
  * Represents a field with a name and type.
  *
@@ -47,6 +50,7 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
     private final CompilerContext context;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
+    private List<Qualifier> qualifiers;
     private boolean deprecated;
 
     public BallerinaRecordFieldSymbol(CompilerContext context, BField bField) {
@@ -125,13 +129,22 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
      */
     @Override
     public List<Qualifier> qualifiers() {
-        if ((this.bField.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            return List.of(Qualifier.PUBLIC);
-        } else if ((this.bField.symbol.flags & Flags.PRIVATE) == Flags.PRIVATE) {
-            return List.of(Qualifier.PRIVATE);
+        if (this.qualifiers != null) {
+            return this.qualifiers;
         }
 
-        return Collections.emptyList();
+        List<Qualifier> quals = new ArrayList<>();
+        final long symFlags = this.bField.symbol.flags;
+
+        if (Symbols.isFlagOn(symFlags, Flags.PUBLIC)) {
+            quals.add(PUBLIC);
+        }
+        if (Symbols.isFlagOn(symFlags, Flags.READONLY)) {
+            quals.add(READONLY);
+        }
+
+        this.qualifiers = Collections.unmodifiableList(quals);
+        return this.qualifiers;
     }
 
     /**
