@@ -63,6 +63,16 @@ public class BuildOptionsBuilder {
         return this;
     }
 
+    public BuildOptionsBuilder dumpBir(Boolean value) {
+        compilationOptionsBuilder.dumpBir(value);
+        return this;
+    }
+
+    public BuildOptionsBuilder dumpBirFile(String value) {
+        compilationOptionsBuilder.dumpBirFile(value);
+        return this;
+    }
+
     public BuildOptions build() {
         CompilationOptions compilationOptions = compilationOptionsBuilder.build();
         return new BuildOptions(testReport, codeCoverage, compilationOptions);

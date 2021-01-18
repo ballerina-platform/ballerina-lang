@@ -43,14 +43,7 @@ public final class WorkerCompletionItemBuilder {
         item.setLabel(name);
         item.setInsertText(name);
         item.setDetail(ItemResolverConstants.WORKER);
-        setMeta(item, workerSymbol);
-        return item;
-    }
-
-    private static void setMeta(CompletionItem item, WorkerSymbol workerSymbol) {
         item.setKind(CompletionItemKind.Variable);
-        if (workerSymbol.docAttachment().isPresent() && workerSymbol.docAttachment().get().description().isPresent()) {
-            item.setDocumentation(workerSymbol.docAttachment().get().description().get());
-        }
+        return item;
     }
 }

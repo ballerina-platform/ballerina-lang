@@ -66,8 +66,8 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
-    public Optional<Documentation> docAttachment() {
-        return this.functionSymbol.docAttachment();
+    public Optional<Documentation> documentation() {
+        return this.functionSymbol.documentation();
     }
 
     @Override

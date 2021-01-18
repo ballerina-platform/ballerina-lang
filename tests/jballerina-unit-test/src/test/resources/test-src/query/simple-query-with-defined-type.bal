@@ -249,7 +249,7 @@ function testMapWithArity() returns boolean {
 function testJSONArrayWithArity() returns boolean {
     json[] jdata = [{name: "bob", age: 10}, {name: "tom", age: 16}];
     string[] val = from var v in jdata
-                   select <string> v.name;
+                   select <string> checkpanic v.name;
     return val == ["bob", "tom"];
 }
 
@@ -422,7 +422,7 @@ function testQueryExprWithTypeConversion() returns Person1[]{
 			firstName: person.firstName,
 			lastName: person.lastName,
 			deptAccess: person.deptAccess,
-			address: <Address> m.cloneWithType(Address)
+			address: checkpanic m.cloneWithType(Address)
 		};
 
     return  outputPersonList;

@@ -321,4 +321,9 @@ public class MemberAccessTest {
     public void testMemberAccessInUnionType() {
         BRunUtil.invoke(result, "testMemberAccessInUnionType");
     }
+
+    @Test
+    public void testMemberAccessOnStructuralConstructs() {
+        BRunUtil.invoke(result, "testMemberAccessOnStructuralConstructs");
+    }
 }

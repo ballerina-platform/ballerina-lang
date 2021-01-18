@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
+import io.ballerina.compiler.api.symbols.Documentable;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -120,11 +121,17 @@ public class TypeCompletionItemBuilder {
             default:
                 item.setKind(CompletionItemKind.Unit);
         }
-        if (bSymbol.docAttachment().isPresent() && bSymbol.docAttachment().get().description().isPresent()) {
-            item.setDocumentation(bSymbol.docAttachment().get().description().get());
+
+        Documentable documentableSymbol = bSymbol instanceof Documentable ? (Documentable) bSymbol : null;
+        if (documentableSymbol != null && documentableSymbol.documentation().isPresent()
+                && documentableSymbol.documentation().get().description().isPresent()) {
+            item.setDocumentation(documentableSymbol.documentation().get().description().get());
         }
+
         // set sub bType
-        String name = typeDescriptor.get().typeKind().getName();
+        String name = typeDescriptor.get().kind() == SymbolKind.CLASS
+                ? typeDescriptor.get().kind().name()
+                : typeDescriptor.get().typeKind().getName();
         String detail = name.substring(0, 1).toUpperCase(Locale.ENGLISH)
                 + name.substring(1).toLowerCase(Locale.ENGLISH);
         item.setDetail(detail);

@@ -116,10 +116,10 @@ public class AssertionDiffEvaluator {
         List<String> actualKeyDiff = comparisonDiffList(actualKeyList, expectedKeyList);
         List<String> expectedKeyDiff = comparisonDiffList(expectedKeyList, actualKeyList);
         if (expectedKeyDiff.size() > 0) {
-            keyDiff = keyDiff.concat("expected keys\t:" + convertToString(expectedKeyDiff) + "\n");
+            keyDiff = keyDiff.concat("\nexpected keys\t:" + convertToString(expectedKeyDiff) + "\n");
         }
         if (actualKeyDiff.size() > 0) {
-            keyDiff = keyDiff.concat("actual keys\t:" + convertToString(actualKeyDiff) + "\n\n");
+            keyDiff = keyDiff.concat("actual keys\t:" + convertToString(actualKeyDiff));
         }
         return StringUtils.fromString(keyDiff);
     }

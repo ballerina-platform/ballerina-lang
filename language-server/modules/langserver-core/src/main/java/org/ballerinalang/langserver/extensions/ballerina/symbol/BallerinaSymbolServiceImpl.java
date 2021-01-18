@@ -15,9 +15,6 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -28,8 +25,6 @@ import java.util.concurrent.CompletableFuture;
  * @since 0.981.2
  */
 public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
-
-    private static final Logger logger = LoggerFactory.getLogger(BallerinaSymbolServiceImpl.class);
 
     @Override
     public CompletableFuture<BallerinaEndpointsResponse> endpoints() {

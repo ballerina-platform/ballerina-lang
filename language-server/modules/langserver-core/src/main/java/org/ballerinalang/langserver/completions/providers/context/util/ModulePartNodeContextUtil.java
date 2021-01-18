@@ -27,7 +27,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -58,7 +58,7 @@ public class ModulePartNodeContextUtil {
      * @param context LS Context
      * @return {@link List}     List of populated completion items
      */
-    public static List<LSCompletionItem> getTopLevelItems(CompletionContext context) {
+    public static List<LSCompletionItem> getTopLevelItems(BallerinaCompletionContext context) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<Snippet> snippets = Arrays.asList(
                 Snippet.KW_IMPORT, Snippet.KW_FUNCTION, Snippet.KW_TYPE, Snippet.KW_PUBLIC, Snippet.KW_ISOLATED,
@@ -67,7 +67,8 @@ public class ModulePartNodeContextUtil {
                 Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION, /*Snippet.DEF_SERVICE, Snippet.DEF_SERVICE_WEBSOCKET,
                 Snippet.DEF_SERVICE_WS_CLIENT, Snippet.DEF_SERVICE_GRPC,*/ Snippet.DEF_ANNOTATION, Snippet.DEF_RECORD,
                 Snippet.STMT_NAMESPACE_DECLARATION, Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM,
-                Snippet.DEF_CLOSED_RECORD, Snippet.DEF_ERROR_TYPE
+                Snippet.DEF_CLOSED_RECORD, Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC,
+                Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC
         );
 
         snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
@@ -109,7 +110,7 @@ public class ModulePartNodeContextUtil {
      * @param evalToken {@link Token}
      * @return {@link Boolean} whether the cursor at type desc context or not
      */
-    public static boolean onServiceTypeDescContext(Token evalToken, CompletionContext context) {
+    public static boolean onServiceTypeDescContext(Token evalToken, BallerinaCompletionContext context) {
         Optional<Minutiae> tokenValueAtCursor = ModulePartNodeContextUtil.findTokenValueInMinutiae(evalToken);
         int cursor = context.getCursorPositionInTree();
         
@@ -123,10 +124,10 @@ public class ModulePartNodeContextUtil {
     /**
      * Get the object type symbols for the service type descriptor context.
      *
-     * @param context {@link CompletionContext}
+     * @param context {@link BallerinaCompletionContext}
      * @return {@link List} of object symbols filtered
      */
-    public static List<Symbol> serviceTypeDescContextSymbols(CompletionContext context) {
+    public static List<Symbol> serviceTypeDescContextSymbols(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         return visibleSymbols.stream().filter(serviceTypeDescPredicate()).collect(Collectors.toList());
     }

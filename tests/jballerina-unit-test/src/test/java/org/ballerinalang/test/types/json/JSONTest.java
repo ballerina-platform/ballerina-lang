@@ -33,6 +33,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.mockito.Mockito;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -199,5 +200,10 @@ public class JSONTest {
     public void testStreamingJsonType() {
         StreamingJsonValue jsonValue = new StreamingJsonValue(Mockito.mock(JsonDataSource.class));
         Assert.assertEquals(jsonValue.getType().toString(), "map<json>[]");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

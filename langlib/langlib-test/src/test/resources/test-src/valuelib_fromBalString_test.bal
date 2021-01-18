@@ -293,17 +293,19 @@ function testFromBalStringOnCycles() {
          "\"2\":...[4],\"3\":...[0],\"4\":...[2]}},\"2\":{\"qq\":5,\"1\":[2,3,5,...[3]],\"2\":...[2],\"3\":...[0]," +
          "\"4\":{\"mm\":5,\"1\":...[4],\"2\":...[2]}},\"3\":...[0]}";
 
-     anydata|error result = s1.fromBalString();
-
+     anydata result = checkpanic s1.fromBalString();
      assert(result.toBalString(), s1);
 }
 
 function assert(anydata|error actual, anydata|error expected) {
     if (expected != actual) {
+        string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+        string actualValAsString = actual is error ? actual.toString() : actual.toString();
+
         typedesc<anydata|error> expT = typeof expected;
         typedesc<anydata|error> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        string reason = "expected [" + expectedValAsString + "] of type [" + expT.toString()
+                            + "], but found [" + actualValAsString + "] of type [" + actT.toString() + "]";
         error e = error(reason);
         panic e;
     }

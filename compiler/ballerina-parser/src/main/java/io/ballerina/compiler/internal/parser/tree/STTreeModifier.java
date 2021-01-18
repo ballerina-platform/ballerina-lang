@@ -566,11 +566,22 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STRequiredParameterNode transform(
             STRequiredParameterNode requiredParameterNode) {
         STNode annotations = modifyNode(requiredParameterNode.annotations);
-        STNode asteriskToken = modifyNode(requiredParameterNode.asteriskToken);
         STNode typeName = modifyNode(requiredParameterNode.typeName);
         STNode paramName = modifyNode(requiredParameterNode.paramName);
         return requiredParameterNode.modify(
-                requiredParameterNode.kind,
+                annotations,
+                typeName,
+                paramName);
+    }
+
+    @Override
+    public STIncludedRecordParameterNode transform(
+            STIncludedRecordParameterNode includedRecordParameterNode) {
+        STNode annotations = modifyNode(includedRecordParameterNode.annotations);
+        STNode asteriskToken = modifyNode(includedRecordParameterNode.asteriskToken);
+        STNode typeName = modifyNode(includedRecordParameterNode.typeName);
+        STNode paramName = modifyNode(includedRecordParameterNode.paramName);
+        return includedRecordParameterNode.modify(
                 annotations,
                 asteriskToken,
                 typeName,

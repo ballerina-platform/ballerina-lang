@@ -124,3 +124,85 @@ function testNegative2(int v) returns string {
     }
     return s; // variable 's' may not have been initialized
 }
+
+function testNegative3(any a, any b) returns string {
+    match a {
+        _ => {
+            match b {
+                "bar" => {
+                    return "s1";
+                }
+                _ => {
+                    return "s2";
+                }
+            }
+        }
+        "foo" => { // unreachable pattern
+
+        }
+    }
+    return "";
+}
+
+function testNegative4(any a, any b) returns string {
+    match a {
+        _ => {
+            match b {
+                "bar" => {
+                    return "s1";
+                }
+                _ => {
+                    return "s2";
+                }
+            }
+        }
+        "foo" => { // unreachable pattern
+            match b {
+                "bar" => {
+                    return "s1";
+                }
+                _ => {
+                    return "s2";
+                }
+            }
+        }
+    }
+    return ""; // unreachable code
+}
+
+public function testNegative5(any animal) returns string { // this function must return a result
+    int total = 1;
+    match animal {
+        "Mouse" => {
+            if (total == 2) {
+                return "Total 2";
+            }
+        }
+        _ => {
+            return "!Mouse";
+        }
+    }
+}
+
+public function testNegative6(any animal) returns string { // this function must return a result
+    int total = 1;
+    int age = 2;
+    match animal {
+        "Mouse" => {
+            if (total == 2) {
+                if (age > 3) {
+                    return "Age is greater that 3";
+                }
+            } else {
+                if (age > 3) {
+                    return "Age is greater that 3";
+                } else {
+                    return "Age is less than 3";
+                }
+            }
+        }
+        _ => {
+            return "!Mouse";
+        }
+    }
+}

@@ -19,9 +19,9 @@ package org.ballerinalang.langserver.contexts;
 
 import io.ballerina.compiler.api.SemanticModel;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -39,15 +39,16 @@ import java.util.Optional;
 public class CodeActionContextImpl extends AbstractDocumentServiceContext implements CodeActionContext {
 
     private Position cursorPosition;
-    private List<Diagnostic> diagnostics;
+    private List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics;
     private final CodeActionParams params;
     private PositionDetails positionDetails;
 
     public CodeActionContextImpl(LSOperation operation,
                                  String fileUri,
                                  WorkspaceManager wsManager,
-                                 CodeActionParams params) {
-        super(operation, fileUri, wsManager);
+                                 CodeActionParams params,
+                                 LanguageServerContext serverContext) {
+        super(operation, fileUri, wsManager, serverContext);
         this.params = params;
     }
 
@@ -58,15 +59,15 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
             int col = params.getRange().getStart().getCharacter();
             this.cursorPosition = new Position(line, col);
         }
-        
+
         return this.cursorPosition;
     }
 
     @Override
-    public List<Diagnostic> allDiagnostics() {
+    public List<io.ballerina.tools.diagnostics.Diagnostic> allDiagnostics() {
         if (diagnostics == null) {
             Optional<SemanticModel> semanticModel = this.workspace().semanticModel(this.filePath());
-            semanticModel.ifPresent(model -> this.diagnostics = CodeActionUtil.toDiagnostics(model.diagnostics()));
+            semanticModel.ifPresent(model -> this.diagnostics = model.diagnostics());
         }
 
         return this.diagnostics;
@@ -96,8 +97,9 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
 
         private final CodeActionParams params;
 
-        public CodeActionContextBuilder(CodeActionParams params) {
-            super(LSContextOperation.TXT_CODE_ACTION);
+        public CodeActionContextBuilder(CodeActionParams params,
+                                        LanguageServerContext serverContext) {
+            super(LSContextOperation.TXT_CODE_ACTION, serverContext);
             this.params = params;
         }
 
@@ -105,7 +107,8 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
             return new CodeActionContextImpl(this.operation,
                     this.fileUri,
                     this.wsManager,
-                    this.params);
+                    this.params,
+                    this.serverContext);
         }
 
         @Override

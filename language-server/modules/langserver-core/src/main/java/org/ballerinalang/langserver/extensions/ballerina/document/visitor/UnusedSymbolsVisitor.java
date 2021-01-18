@@ -21,10 +21,12 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
@@ -33,6 +35,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 /**
  * Common node visitor to override and remove assertion errors from NodeVisitor methods.
  */
@@ -43,14 +47,14 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     private Map<LineRange, ASTModification> deleteRanges;
     private Map<LineRange, ASTModification> toBeDeletedRanges = new HashMap<>();
     private SemanticModel semanticModel;
-    private String fileName;
+    private Document srcFile;
 
-    public UnusedSymbolsVisitor(String fileName, SemanticModel semanticModel, Map<LineRange,
-            ASTModification> deleteRanges) {
+    public UnusedSymbolsVisitor(Document srcFile, SemanticModel semanticModel,
+                                Map<LineRange, ASTModification> deleteRanges) {
         this.semanticModel = semanticModel;
         this.deleteRanges = deleteRanges;
         this.toBeDeletedRanges.putAll(deleteRanges);
-        this.fileName = fileName;
+        this.srcFile = srcFile;
     }
 
     private void addUnusedImportNode(ImportDeclarationNode importDeclarationNode) {
@@ -101,7 +105,7 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     }
 
     private void moveUnusedtoUsedImport(LineRange lineRange, ImportDeclarationNode importDeclarationNode) {
-        List<Location> locations = this.semanticModel.references(fileName, lineRange.startLine());
+        List<Location> locations = this.semanticModel.references(srcFile, lineRange.startLine());
         boolean availableOutSideDeleteRange = false;
         for (Location location : locations) {
             if (isWithinLineRange(importDeclarationNode.lineRange(), location.lineRange())) {
@@ -124,7 +128,7 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     private void decideVariablesToBeDeleted(LineRange lineRange) {
         LineRange deleteRange = getDeleteRange(lineRange);
         if (deleteRange != null) {
-            List<Location> locations = this.semanticModel.references(fileName, lineRange.startLine());
+            List<Location> locations = this.semanticModel.references(srcFile, lineRange.startLine());
             for (Location location : locations) {
                 if (isWithinLineRange(deleteRange, location.lineRange())) {
                     continue;
@@ -169,7 +173,12 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
         addUnusedImportNode(importDeclarationNode);
 
         if (importDeclarationNode.moduleName().size() > 0 && importDeclarationNode.moduleName().get(0) != null) {
-            moveUnusedtoUsedImport(importDeclarationNode.moduleName().get(0).lineRange(), importDeclarationNode);
+            Optional<ImportPrefixNode> prefix = importDeclarationNode.prefix();
+            if (prefix.isPresent()) {
+                moveUnusedtoUsedImport(prefix.get().prefix().lineRange(), importDeclarationNode);
+            } else {
+                moveUnusedtoUsedImport(importDeclarationNode.moduleName().get(0).lineRange(), importDeclarationNode);
+            }
         }
     }
 

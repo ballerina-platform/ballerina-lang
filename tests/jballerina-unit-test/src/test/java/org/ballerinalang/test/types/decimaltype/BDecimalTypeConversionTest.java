@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -106,5 +107,10 @@ public class BDecimalTypeConversionTest {
                 compareTo(DELTA) < 0, "Invalid decimal value returned.");
         Assert.assertEquals(val3.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)), 0,
                             "Invalid decimal value returned.");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -23,15 +23,11 @@ import com.google.gson.JsonElement;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.compiler.LSCompilerCache;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
@@ -40,6 +36,7 @@ import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
@@ -47,6 +44,7 @@ import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.FoldingRangeCapabilities;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
+import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -54,6 +52,7 @@ import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
+import org.eclipse.lsp4j.SignatureHelpParams;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
@@ -123,7 +122,7 @@ public class TestUtil {
      * @return {@link String}   Response as String
      */
     public static String getHoverResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(HOVER, getTextDocumentPositionParams(filePath, position));
+        CompletableFuture result = serviceEndpoint.request(HOVER, getHoverParams(filePath, position));
         return getResponseString(result);
     }
 
@@ -163,8 +162,7 @@ public class TestUtil {
      * @return {@link String}   Response as String
      */
     public static String getSignatureHelpResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(SIGNATURE_HELP,
-                getTextDocumentPositionParams(filePath, position));
+        CompletableFuture result = serviceEndpoint.request(SIGNATURE_HELP, getSignatureParams(filePath, position));
         return getResponseString(result);
     }
 
@@ -177,8 +175,7 @@ public class TestUtil {
      * @return {@link String}   Response as String
      */
     public static String getDefinitionResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture result = serviceEndpoint.request(DEFINITION,
-                getTextDocumentPositionParams(filePath, position));
+        CompletableFuture result = serviceEndpoint.request(DEFINITION, getDefinitionParams(filePath, position));
         return getResponseString(result);
     }
 
@@ -236,7 +233,6 @@ public class TestUtil {
      */
     public static String getCodeActionResponse(Endpoint serviceEndpoint, String filePath, Range range,
                                                CodeActionContext context) {
-        LSCompilerCache.clearAll();
         TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
         CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
         CompletableFuture result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
@@ -340,42 +336,17 @@ public class TestUtil {
         serviceEndpoint.notify("textDocument/didClose", new DidCloseTextDocumentParams(documentIdentifier));
     }
 
-
     /**
-     * Initialize the language server instance to use.
+     * Initialize the language server instance with given FoldingRangeCapabilities.
      *
      * @return {@link Endpoint}     Service Endpoint
      */
     public static Endpoint initializeLanguageSever() {
-        return initializeLanguageSeverAndGetDocManager().getLeft();
-    }
-
-    /**
-     * Initialize the language server instance to use.
-     *
-     * @return {@link Endpoint}     Service Endpoint
-     */
-    public static Pair<Endpoint, WorkspaceDocumentManager> initializeLanguageSeverAndGetDocManager() {
-        LSPackageLoader.clearHomeRepoPackages();
         BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
         Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
-        endpoint.request("initialize", getInitializeParams(null));
-        return new ImmutablePair<>(endpoint, languageServer.getDocumentManager());
-    }
+        endpoint.request("initialize", getInitializeParams());
 
-    /**
-     * Initialize the language server instance with given FoldingRangeCapabilities.
-     *
-     * @param foldingRangeCapabilities {@link FoldingRangeCapabilities} Folding range client capabilities
-     * @return {@link Endpoint}     Service Endpoint
-     */
-    public static Pair<Endpoint, WorkspaceDocumentManager> initializeLanguageSeverAndGetDocManager(
-            FoldingRangeCapabilities foldingRangeCapabilities) {
-        LSPackageLoader.clearHomeRepoPackages();
-        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
-        Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
-        endpoint.request("initialize", getInitializeParams(foldingRangeCapabilities));
-        return new ImmutablePair<>(endpoint, languageServer.getDocumentManager());
+        return endpoint;
     }
 
     /**
@@ -431,6 +402,30 @@ public class TestUtil {
         return positionParams;
     }
 
+    private static HoverParams getHoverParams(String filePath, Position position) {
+        HoverParams hoverParams = new HoverParams();
+        hoverParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        hoverParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+
+        return hoverParams;
+    }
+
+    private static DefinitionParams getDefinitionParams(String filePath, Position position) {
+        DefinitionParams definitionParams = new DefinitionParams();
+        definitionParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        definitionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+
+        return definitionParams;
+    }
+
+    private static SignatureHelpParams getSignatureParams(String filePath, Position position) {
+        SignatureHelpParams signatureHelpParams = new SignatureHelpParams();
+        signatureHelpParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        signatureHelpParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+
+        return signatureHelpParams;
+    }
+
     private static CompletionParams getCompletionParams(String filePath, Position position) {
         CompletionParams completionParams = new CompletionParams();
         completionParams.setTextDocument(getTextDocumentIdentifier(filePath));
@@ -442,10 +437,9 @@ public class TestUtil {
     /**
      * Creates an InitializeParams instance.
      *
-     * @param foldingRangeCapabilities {@link FoldingRangeCapabilities} Folding range client capabilities
      * @return {@link InitializeParams} Params for Language Server initialization
      */
-    private static InitializeParams getInitializeParams(FoldingRangeCapabilities foldingRangeCapabilities) {
+    private static InitializeParams getInitializeParams() {
         InitializeParams params = new InitializeParams();
         ClientCapabilities capabilities = new ClientCapabilities();
         TextDocumentClientCapabilities textDocumentClientCapabilities = new TextDocumentClientCapabilities();
@@ -458,9 +452,9 @@ public class TestUtil {
 
         textDocumentClientCapabilities.setCompletion(completionCapabilities);
         textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
-        if (foldingRangeCapabilities != null) {
-            textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
-        }
+        FoldingRangeCapabilities foldingRangeCapabilities = new FoldingRangeCapabilities();
+        foldingRangeCapabilities.setLineFoldingOnly(true);
+        textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
 
         capabilities.setTextDocument(textDocumentClientCapabilities);
         params.setCapabilities(capabilities);
@@ -488,13 +482,16 @@ public class TestUtil {
         return GSON.toJson(jsonrpcResponse).replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
 
-    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath, WorkspaceManager workspaceManager)
+    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath,
+                                                            WorkspaceManager workspaceManager,
+                                                            LanguageServerContext serverContext)
             throws IOException {
         List<Diagnostic> diagnostics = new ArrayList<>();
 
         DocumentServiceContext context = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
-                                                                         workspaceManager,
-                                                                         LSContextOperation.TXT_DID_OPEN);
+                workspaceManager,
+                LSContextOperation.TXT_DID_OPEN,
+                serverContext);
         DidOpenTextDocumentParams params = new DidOpenTextDocumentParams();
         TextDocumentItem textDocument = new TextDocumentItem();
         textDocument.setUri(sourcePath.toUri().toString());

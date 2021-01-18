@@ -47,8 +47,10 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -99,6 +101,8 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_COMMENT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_PROCESSING_INSTRUCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_TEXT;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -113,10 +117,13 @@ import static org.testng.Assert.assertTrue;
 public class TypedescriptorTest {
 
     private SemanticModel model;
+    private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/typedesc_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/typedesc_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
 
     @Test
@@ -211,7 +218,6 @@ public class TypedescriptorTest {
         Symbol symbol = getSymbol(18, 5);
         RecordTypeSymbol type = (RecordTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), RECORD);
-        assertFalse(type.inclusive());
         assertFalse(type.restTypeDescriptor().isPresent());
 
         List<FieldSymbol> fields = type.fieldDescriptors();
@@ -460,8 +466,8 @@ public class TypedescriptorTest {
 
     @Test
     public void testEnumsAsTypes() {
-        Optional<TypeSymbol> type = model.type("typedesc_test.bal",
-                                               LineRange.from("typedesc_test.bal", from(160, 37), from(160, 38)));
+        Optional<TypeSymbol> type =
+                model.type(LineRange.from("typedesc_test.bal", from(160, 37), from(160, 38)));
         assertEquals(type.get().typeKind(), TYPE_REFERENCE);
         assertEquals(type.get().name(), "Colour");
 
@@ -527,7 +533,7 @@ public class TypedescriptorTest {
     @Test
     public void testCompileErrorType1() {
         LineRange range = LineRange.from("typedesc_test.bal", from(181, 12), from(181, 17));
-        Optional<TypeSymbol> type = model.type("typedesc_test.bal", range);
+        Optional<TypeSymbol> type = model.type(range);
         assertEquals(type.get().typeKind(), COMPILATION_ERROR);
     }
 
@@ -558,7 +564,7 @@ public class TypedescriptorTest {
     }
 
     private Symbol getSymbol(int line, int column) {
-        return model.symbol("typedesc_test.bal", from(line, column)).get();
+        return model.symbol(srcFile, from(line, column)).get();
     }
 
     private void validateParam(ParameterSymbol param, String name, ParameterKind kind, TypeDescKind typeKind) {

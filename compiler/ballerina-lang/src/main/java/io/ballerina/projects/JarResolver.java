@@ -78,11 +78,6 @@ public class JarResolver {
         // 3) Add the runtime library path
         jarFilePaths.add(jBalBackend.runtimeLibrary().path());
 
-        // 4) Copy Choreo extension if --observability-included flag is set to true
-        if (this.rootPackageContext.compilationOptions().observabilityIncluded()) {
-            jarFilePaths.add(ProjectUtils.getChoreoRuntimeJarPath());
-        }
-
         // TODO Filter out duplicate jar entries
         return jarFilePaths;
     }

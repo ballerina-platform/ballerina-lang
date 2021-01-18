@@ -183,7 +183,10 @@ public function assertEquality(any|error expected, any|error actual) {
         successCount = successCount + 1;
         return;
     }
-    errorMessages[errorCount] = "expected '" + expected.toString() + "', found '" + actual.toString() + "'";
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    errorMessages[errorCount] = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'";
     errorCount = errorCount + 1;
 }
 

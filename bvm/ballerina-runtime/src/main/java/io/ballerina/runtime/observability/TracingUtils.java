@@ -30,8 +30,6 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_ERROR_MESSAGE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_MODULE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_POSITION;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ERROR;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_TRUE_VALUE;
 import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
@@ -113,12 +111,6 @@ public class TracingUtils {
             Map<String, String> traceTags = observerContext.getAllTags()
                     .stream()
                     .collect(Collectors.toMap(Tag::getKey, Tag::getValue));
-            if (observerContext.getEntrypointFunctionModule() != null) {
-                traceTags.put(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, observerContext.getEntrypointFunctionModule());
-            }
-            if (observerContext.getEntrypointFunctionPosition() != null) {
-                traceTags.put(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION, observerContext.getEntrypointFunctionPosition());
-            }
             span.addTags(traceTags);
             span.finishSpan();
         }

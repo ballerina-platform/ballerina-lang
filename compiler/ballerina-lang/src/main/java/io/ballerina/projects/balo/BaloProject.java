@@ -18,6 +18,7 @@
 
 package io.ballerina.projects.balo;
 
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -48,5 +49,10 @@ public class BaloProject extends Project {
 
     private BaloProject(ProjectEnvironmentBuilder environmentBuilder, Path baloPath) {
         super(ProjectKind.BALR_PROJECT, baloPath, environmentBuilder);
+    }
+
+    @Override
+    public DocumentId documentId(Path file) {
+        throw new UnsupportedOperationException();
     }
 }

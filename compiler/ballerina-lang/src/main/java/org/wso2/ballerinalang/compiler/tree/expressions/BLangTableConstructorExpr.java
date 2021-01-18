@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @since 1.3.0
  */
-public class BLangTableConstructorExpr extends BLangExpression implements TableConstructorExprNode {
+public class BLangTableConstructorExpr extends BLangAccessibleExpression implements TableConstructorExprNode {
 
     public BLangTableKeySpecifier tableKeySpecifier;
     public List<BLangRecordLiteral> recordLiteralList = new ArrayList<>();
