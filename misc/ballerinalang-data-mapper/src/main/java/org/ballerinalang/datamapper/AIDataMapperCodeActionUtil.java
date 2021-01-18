@@ -22,7 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -251,7 +251,8 @@ class AIDataMapperCodeActionUtil {
 
         // Schema 1
         Symbol rightSymbol = findSymbol(foundTypeRight, fileContentSymbols);
-        List<FieldSymbol> rightSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(rightSymbol).fieldDescriptors();
+        List<RecordFieldSymbol> rightSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(rightSymbol)
+                .fieldDescriptors();
 
         JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
 
@@ -261,7 +262,7 @@ class AIDataMapperCodeActionUtil {
         rightRecordJSON.add(PROPERTIES, rightSchema);
 
         // Schema 2
-        List<FieldSymbol> leftSchemaFields;
+        List<RecordFieldSymbol> leftSchemaFields;
         if (positionDetails.matchedSymbol() == null) {
             Symbol leftSymbol = findSymbol(foundTypeLeft, fileContentSymbols);
             leftSchemaFields = SymbolUtil.getTypeDescForRecordSymbol(leftSymbol).fieldDescriptors();
@@ -307,17 +308,17 @@ class AIDataMapperCodeActionUtil {
     /**
      * Convert record type symbols to json objects.
      *
-     * @param schemaFields {@link List<FieldSymbol>}
+     * @param schemaFields {@link List<RecordFieldSymbol>}
      * @return Field symbol properties
      */
-    private static JsonElement recordToJSON(List<FieldSymbol> schemaFields) {
+    private static JsonElement recordToJSON(List<RecordFieldSymbol> schemaFields) {
         JsonObject properties = new JsonObject();
-        for (FieldSymbol attribute : schemaFields) {
+        for (RecordFieldSymbol attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
             fieldDetails.addProperty(ID, "dummy_id");
             TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
             if (attributeType.typeKind() == TypeDescKind.RECORD) {
-                List<FieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
+                List<RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
                 fieldDetails.addProperty(TYPE, "ballerina_type");
                 fieldDetails.add(PROPERTIES, recordToJSON(recordFields));
             } else {
