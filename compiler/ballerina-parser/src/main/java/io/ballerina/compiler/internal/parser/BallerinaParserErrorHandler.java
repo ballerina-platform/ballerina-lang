@@ -129,10 +129,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL };
 
     private static final ParserRuleContext[] TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC =
-            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE_FIRST_QUALIFIER };
+            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.FUNC_DEF_OR_TYPE_FIRST_QUALIFIER };
 
     private static final ParserRuleContext[] FUNC_DEF_OR_FUNC_TYPE_WITHOUT_FIRST_QUALIFIER =
-            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE_SECOND_QUALIFIER };
+            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.FUNC_DEF_OR_TYPE_SECOND_QUALIFIER };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN };
@@ -270,8 +270,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
             ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.OBJECT_CONSTRUCTOR,
-            ParserRuleContext.ERROR_CONSTRUCTOR, ParserRuleContext.TRANSACTIONAL_KEYWORD,
-            ParserRuleContext.ISOLATED_KEYWORD };
+            ParserRuleContext.ERROR_CONSTRUCTOR, ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -635,7 +634,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.COMMA, ParserRuleContext.OBJECT_CONSTRUCTOR_BLOCK };
 
     private static final ParserRuleContext[] FUNC_TYPE_DESC_START =
-            { ParserRuleContext.ISOLATED_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD };
+            { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.FUNC_TYPE_FIRST_QUALIFIER };
+
+    private static final ParserRuleContext[] FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL =
+            { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.FUNC_TYPE_SECOND_QUALIFIER };
 
     private static final ParserRuleContext[] MODULE_CLASS_DEFINITION_START =
             { ParserRuleContext.CLASS_KEYWORD, ParserRuleContext.FIRST_CLASS_TYPE_QUALIFIER };
@@ -1108,7 +1110,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TRANSACTIONAL_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.TRANSACTIONAL_KEYWORD;
                     break;
-                case ISOLATED_KEYWORD:
                 case SERVICE_DECL_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.ISOLATED_KEYWORD;
                     break;
@@ -1155,6 +1156,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                             nextToken.kind == SyntaxKind.TRANSACTIONAL_KEYWORD ||
                             nextToken.kind == SyntaxKind.REMOTE_KEYWORD ||
                             nextToken.kind == SyntaxKind.RESOURCE_KEYWORD;
+                    break;
+                case FUNC_DEF_OR_TYPE_FIRST_QUALIFIER:
+                case FUNC_DEF_OR_TYPE_SECOND_QUALIFIER:
+                case FUNC_TYPE_FIRST_QUALIFIER:
+                case FUNC_TYPE_SECOND_QUALIFIER:
+                    hasMatch = nextToken.kind == SyntaxKind.ISOLATED_KEYWORD ||
+                            nextToken.kind == SyntaxKind.TRANSACTIONAL_KEYWORD;
                     break;
 
                 // start a context, so that we know where to fall back, and continue
@@ -1243,7 +1251,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DO_KEYWORD:
             case TRANSACTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
-            case ISOLATED_KEYWORD:
             case COMMIT_KEYWORD:
             case RETRY_KEYWORD:
             case ROLLBACK_KEYWORD:
@@ -1508,7 +1515,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLASS_DEF_WITHOUT_FIRST_QUALIFIER:
             case CLASS_DEF_WITHOUT_SECOND_QUALIFIER:
             case CLASS_DEF_WITHOUT_THIRD_QUALIFIER:
-            case FUNC_DEF_OR_FUNC_TYPE_WITHOUT_FIRST_QUALIFIER:
+            case FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER:
+            case FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL:
                 return true;
             default:
                 return false;
@@ -1531,8 +1539,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
                 alternativeRules = TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC;
                 break;
-            case FUNC_DEF_OR_FUNC_TYPE_WITHOUT_FIRST_QUALIFIER:
+            case FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER:
                 alternativeRules = FUNC_DEF_OR_FUNC_TYPE_WITHOUT_FIRST_QUALIFIER;
+                break;
+            case FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL:
+                alternativeRules = FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL;
                 break;
             case FUNC_OPTIONAL_RETURNS:
                 ParserRuleContext parentCtx = getParentContext();
@@ -2414,10 +2425,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EOF;
             case COMP_UNIT:
                 return ParserRuleContext.TOP_LEVEL_NODE;
-            case FUNC_DEF_OR_FUNC_TYPE_FIRST_QUALIFIER:
-                return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE_WITHOUT_FIRST_QUALIFIER;
-            case FUNC_DEF_OR_FUNC_TYPE_SECOND_QUALIFIER:
+            case FUNC_DEF_OR_TYPE_FIRST_QUALIFIER:
+                return ParserRuleContext.FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER;
+            case FUNC_DEF_OR_TYPE_SECOND_QUALIFIER:
                 return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
+            case FUNC_TYPE_FIRST_QUALIFIER:
+                return ParserRuleContext.FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL;
+            case FUNC_TYPE_SECOND_QUALIFIER:
+                return ParserRuleContext.FUNCTION_KEYWORD;
             case FUNC_DEF:
             case FUNC_DEF_OR_FUNC_TYPE:
                 return ParserRuleContext.FUNCTION_KEYWORD;
@@ -3288,36 +3303,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.RETRY_KEYWORD_RHS;
             case TRANSACTIONAL_KEYWORD:
                 parentCtx = getParentContext();
-                switch (parentCtx) {
-                    case COMP_UNIT:
-//                        return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE_WITHOUT_TRANSACTIONAL;
-                        throw new IllegalStateException("transactional");
-                    case OBJECT_MEMBER:
-                    case CLASS_MEMBER:
-                    case OBJECT_MEMBER_DESCRIPTOR:
-                        return ParserRuleContext.FUNCTION_KEYWORD;
-                    case NAMED_WORKER_DECL:
-                        return ParserRuleContext.WORKER_KEYWORD;
-                    default:
-                        return ParserRuleContext.EXPRESSION_RHS;
+                if (parentCtx == ParserRuleContext.NAMED_WORKER_DECL) {
+                    return ParserRuleContext.WORKER_KEYWORD;
                 }
-            case ISOLATED_KEYWORD:
-                parentCtx = getParentContext();
-                switch (parentCtx) {
-                    case COMP_UNIT:
-//                        return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE_WITHOUT_ISOLATED;
-                        throw new IllegalStateException("Isolated");
-                    case OBJECT_MEMBER:
-                    case CLASS_MEMBER:
-                    case OBJECT_MEMBER_DESCRIPTOR:
-                        return ParserRuleContext.FUNCTION_KEYWORD;
-                    case FUNC_TYPE_DESC:
-                    case FUNC_TYPE_DESC_OR_ANON_FUNC:
-                    case ANON_FUNC_EXPRESSION:
-                        return ParserRuleContext.FUNCTION_KEYWORD;
-                    default:
-                        return ParserRuleContext.EXPRESSION_RHS; // TODO: 8/14/20 verify
-                }
+                // Assume we only reach here for transactional-expr
+                return ParserRuleContext.EXPRESSION_RHS;
             case ENUM_KEYWORD:
                 return ParserRuleContext.MODULE_ENUM_NAME;
             case MATCH_KEYWORD:
@@ -3941,14 +3931,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_BODY_BLOCK:
                 endContext(); // end body block
                 return getNextRuleForCloseBraceInFuncBody();
+            case CLASS_MEMBER:
+                endContext();
+                // fall through
             case SERVICE_DECL:
             case MODULE_CLASS_DEFINITION:
                 endContext();
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case OBJECT_MEMBER:
-            case CLASS_MEMBER:
             case OBJECT_MEMBER_DESCRIPTOR:
-                endContext(); // end object member
+                endContext();
                 // fall through
             case RECORD_TYPE_DESCRIPTOR:
             case OBJECT_TYPE_DESCRIPTOR:
@@ -5156,8 +5148,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.TRANSACTION_KEYWORD;
             case TRANSACTIONAL_KEYWORD:
                 return SyntaxKind.TRANSACTIONAL_KEYWORD;
-            case ISOLATED_KEYWORD:
-                return SyntaxKind.ISOLATED_KEYWORD;
             case COMMIT_KEYWORD:
                 return SyntaxKind.COMMIT_KEYWORD;
             case RETRY_KEYWORD:
@@ -5248,8 +5238,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case THIRD_CLASS_TYPE_QUALIFIER:
             case FOURTH_CLASS_TYPE_QUALIFIER:
                 return SyntaxKind.CLASS_KEYWORD;
-            case FUNC_DEF_OR_FUNC_TYPE_FIRST_QUALIFIER:
-            case FUNC_DEF_OR_FUNC_TYPE_SECOND_QUALIFIER:
+            case FUNC_DEF_OR_TYPE_FIRST_QUALIFIER:
+            case FUNC_DEF_OR_TYPE_SECOND_QUALIFIER:
+            case FUNC_TYPE_FIRST_QUALIFIER:
+            case FUNC_TYPE_SECOND_QUALIFIER:
             case OBJECT_METHOD_FIRST_QUALIFIER:
             case OBJECT_METHOD_SECOND_QUALIFIER:
             case OBJECT_METHOD_THIRD_QUALIFIER:
