@@ -23,6 +23,8 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.ProjectLoader;
 
 import java.net.URI;
@@ -53,7 +55,12 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
      * @return {@link JsonArray} Array of packages
      */
     private JsonArray createJSONResponse(String sourceRoot) {
-        Package currentPackage = ProjectLoader.loadProject(Paths.get(URI.create(sourceRoot))).currentPackage();
+
+        Project project = ProjectLoader.loadProject(Paths.get(URI.create(sourceRoot)));
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return new JsonArray();
+        }
+        Package currentPackage = project.currentPackage();
         JsonObject jsonPackage = new JsonObject();
         jsonPackage.addProperty(ProjectConstants.NAME, currentPackage.packageName().value());
         JsonArray jsonModules = new JsonArray();
