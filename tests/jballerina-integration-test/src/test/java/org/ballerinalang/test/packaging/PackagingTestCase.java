@@ -217,7 +217,7 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test push all packages in project to central")
     public void testPushAllPackages() throws Exception {
-        // Test ballerina init
+        // Test bal init
         Path projectPath = tempProjectDirectory.resolve("pushAllPackageTest");
         
         // Create project
@@ -281,7 +281,7 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test and run a module which has a module name contains period. eg: foo.bar")
     public void testBuildAndRunModuleWithPeriod() throws BallerinaTestException {
-        // Test ballerina init
+        // Test bal init
         Path projectPath = tempProjectDirectory.resolve("buildAndRunModuleWithPeriodProject");
 
         // Create project

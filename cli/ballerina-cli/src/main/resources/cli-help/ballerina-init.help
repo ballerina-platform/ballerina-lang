@@ -2,8 +2,8 @@ NAME
        ballerina-init - Create a new Ballerina package inside the current directory.
 
 SYNOPSIS
-       ballerina init
-       ballerina init <package-name>
+       bal init
+       bal init <package-name>
 
 
 DESCRIPTION
@@ -44,15 +44,15 @@ OPTIONS
 
 EXAMPLES
      Initialise a package.
-        $ ballerina init
-        $ ballerina init <package-name>
+        $ bal init
+        $ bal init <package-name>
 
      Initialise a package with a 'main' template.
-        $ ballerina init --template main
-        $ ballerina init <package-name>
+        $ bal init --template main
+        $ bal init <package-name>
 
      Initialise a package with a Ballerina service.
-        $ ballerina init <package-name> -t service
+        $ bal init <package-name> -t service
 
      Initialise a package with a Ballerina library.
-        $ ballerina init <package-name> -t lib
+        $ bal init <package-name> -t lib

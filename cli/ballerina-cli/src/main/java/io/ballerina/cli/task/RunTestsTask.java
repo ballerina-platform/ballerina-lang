@@ -170,7 +170,7 @@ public class RunTestsTask implements Task {
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         TestProcessor testProcessor = new TestProcessor();
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
-        // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
+        // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
