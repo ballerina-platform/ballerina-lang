@@ -24,7 +24,7 @@ DESCRIPTION
        The package root directory also is the default module directory.
 
        The 'modules' directory contains other non-default Ballerina modules. Use
-       'ballerina add <module-name>' command to create modules.
+       'bal add <module-name>' command to create modules.
 
        The 'target' directory is created during the build process.
        The 'target' is the output directory that contains the build artifacts.

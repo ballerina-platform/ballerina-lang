@@ -18,7 +18,7 @@ fi
 
 echo "Function Name,Total Time (ms),Throughput (operations/second),GC Throughput (%),Freed Memory By FullGC (M), Max Pause (s)" > ${resultsFileName}
 
-ballerina build benchmark
+bal build benchmark
 
 for functionName in $(<benchmarkFunctions.txt)
     do

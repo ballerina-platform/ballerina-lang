@@ -290,7 +290,7 @@ public class ModuleBuildTestCase extends BaseTest {
         // Initialize the project
         initProject(projectPath, EMPTY_PROJECT_OPTS);
 
-        // Test for ballerina build on module with test sources
+        // Test for bal build on module with test sources
         String buildMsg = "Compiling source\n" +
                     "    foo:0.0.0\n" +
                     "\n" +

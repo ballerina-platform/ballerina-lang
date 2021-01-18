@@ -113,7 +113,7 @@ public class PackagingTestCase extends BaseTest {
 
         // First try to push without building
         String firstMsg = "error: cannot find balo file for the module: " + moduleName + ". Run " +
-                          "'ballerina build -c <module_name>' to compile and generate the balo.";
+                          "'bal build -c <module_name>' to compile and generate the balo.";
         LogLeecher clientLeecher = new LogLeecher(firstMsg, LeecherType.ERROR);
         balClient.runMain("push", new String[]{moduleName}, envVariables, new String[]{},
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
