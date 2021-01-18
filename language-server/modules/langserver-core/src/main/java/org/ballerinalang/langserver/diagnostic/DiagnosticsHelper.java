@@ -78,7 +78,7 @@ public class DiagnosticsHelper {
         if (project.isEmpty()) {
             return;
         }
-        Map<String, List<Diagnostic>> diagnosticMap = getBallerinaDiagnostics(context);
+        Map<String, List<Diagnostic>> diagnosticMap = getLatestDiagnostics(context);
 
         // If the client is null, returns
         if (client == null) {
@@ -99,7 +99,7 @@ public class DiagnosticsHelper {
         lastDiagnosticMap = diagnosticMap;
     }
 
-    public Map<String, List<Diagnostic>> getBallerinaDiagnostics(DocumentServiceContext context) {
+    public Map<String, List<Diagnostic>> getLatestDiagnostics(DocumentServiceContext context) {
         WorkspaceManager workspace = context.workspace();
         Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
 
