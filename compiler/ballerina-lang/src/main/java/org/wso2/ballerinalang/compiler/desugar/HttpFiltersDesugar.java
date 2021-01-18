@@ -188,7 +188,8 @@ public class HttpFiltersDesugar {
 //        addAssignmentAndForEach(resourceNode, filterContextVar, env);
     }
 
-    private void addHttpFilterFunctionInvocation(BLangResourceFunction resourceNode, SymbolEnv env, List<BLangStatement> statements) {
+    private void addHttpFilterFunctionInvocation(BLangResourceFunction resourceNode, SymbolEnv env,
+                                                 List<BLangStatement> statements) {
         BPackageSymbol httpPackageSymbol = getHttpPackageSymbol(env);
         if (httpPackageSymbol == null) {
             // Couldn't find http package in imports list.
@@ -196,11 +197,11 @@ public class HttpFiltersDesugar {
             return;
         }
         // Expected method type:
-        // `function authenticateResource(service object {} servieRef, string methodName, string[] resourcePath)
+        // `function authenticateResource(service object {} servieRef, string methodName, string[] resourcePath)`
         // The function is expected to panic with a distinct error when fail to authenticate.
         // http listener will handle this error.
         BSymbol methodSym = symResolver.lookupMethodInModule(httpPackageSymbol,
-                names.fromString(AUTHENTICATE_RESOURCE));
+                names.fromString(AUTHENTICATE_RESOURCE), env);
         if (methodSym == symTable.notFoundSymbol || !(methodSym instanceof BInvokableSymbol)) {
             return;
         }
