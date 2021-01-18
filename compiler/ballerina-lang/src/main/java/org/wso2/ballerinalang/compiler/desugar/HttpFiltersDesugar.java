@@ -182,6 +182,13 @@ public class HttpFiltersDesugar {
     }
 
     void addFilterStatements(BLangResourceFunction resourceNode, SymbolEnv env, List<BLangStatement> statements) {
+        addHttpFilterFunctionInvocation(resourceNode, env, statements);
+
+//        BLangSimpleVariable filterContextVar = addFilterContextCreation(resourceNode, env);
+//        addAssignmentAndForEach(resourceNode, filterContextVar, env);
+    }
+
+    private void addHttpFilterFunctionInvocation(BLangResourceFunction resourceNode, SymbolEnv env, List<BLangStatement> statements) {
         BPackageSymbol httpPackageSymbol = getHttpPackageSymbol(env);
         if (httpPackageSymbol == null) {
             // Couldn't find http package in imports list.
@@ -189,8 +196,9 @@ public class HttpFiltersDesugar {
             return;
         }
         // Expected method type:
-        // `function authenticateResource(Service servieRef, string methodName, string[] resourcePath) returns
-        // Unauthorized|Forbidden?`
+        // `function authenticateResource(service object {} servieRef, string methodName, string[] resourcePath)
+        // The function is expected to panic with a distinct error when fail to authenticate.
+        // http listener will handle this error.
         BSymbol methodSym = symResolver.lookupMethodInModule(httpPackageSymbol,
                 names.fromString(AUTHENTICATE_RESOURCE));
         if (methodSym == symTable.notFoundSymbol || !(methodSym instanceof BInvokableSymbol)) {
@@ -231,22 +239,6 @@ public class HttpFiltersDesugar {
                 resourceNode.symbol, pos, VIRTUAL);
         resourceNode.symbol.scope.define(resultSymbol.name, resultSymbol);
         result.var.symbol = resultSymbol;
-        BLangSimpleVarRef resultRef = ASTBuilderUtil.createVariableRef(pos, resultSymbol);
-
-        // Create if condition
-        // if (varRef != ()) { return varRef; }
-        BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, new BLangBlockStmt());
-        ifStmt.body = ASTBuilderUtil.createBlockStmt(pos);
-        statements.add(1, ifStmt);
-        ifStmt.body.addStatement(ASTBuilderUtil.createReturnStmt(pos, resultRef));
-        BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, resultRef,
-                ASTBuilderUtil.createLiteral(pos, symTable.nilType, null),
-                symTable.booleanType,
-                OperatorKind.REF_NOT_EQUAL, null);
-        ifStmt.expr = binaryExpr;
-//
-//        BLangSimpleVariable filterContextVar = addFilterContextCreation(resourceNode, env);
-//        addAssignmentAndForEach(resourceNode, filterContextVar, env);
     }
 
     /**
