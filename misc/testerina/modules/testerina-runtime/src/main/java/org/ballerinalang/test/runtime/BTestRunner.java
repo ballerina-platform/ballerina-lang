@@ -63,7 +63,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -106,8 +105,6 @@ public class BTestRunner {
      * @param suite test meta data for module
      */
     public void runTest(TestSuite suite)  {
-        // validate test suite
-        validateTestSuite(suite);
         int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
         suite.setTests(sortedTests);
@@ -121,44 +118,6 @@ public class BTestRunner {
             sortedTests.add(tests.get(idx));
         }
         return sortedTests;
-    }
-
-    /**
-     * Resolve function names to {@link TesterinaFunction}s.
-     *
-     * @param suite {@link TestSuite} whose functions to be resolved.
-     */
-    private static void validateTestSuite(TestSuite suite) {
-        Set<String> functionNames = suite.getTestUtilityFunctions().keySet();
-        for (Test test : suite.getTests()) {
-            if (test.getBeforeTestFunction() != null) {
-                if (!functionNames.contains(test.getBeforeTestFunction())) {
-                    String msg = String.format("Cannot find the specified before function : [%s] for testerina " +
-                            "function : [%s]", test.getBeforeTestFunction(), test.getTestName());
-                    throw new BallerinaTestException(msg);
-                }
-            }
-            if (test.getAfterTestFunction() != null) {
-                if (!functionNames.contains(test.getAfterTestFunction())) {
-                    String msg = String.format("Cannot find the specified after function : [%s] for testerina " +
-                            "function : [%s]", test.getAfterTestFunction(), test.getTestName());
-                    throw new BallerinaTestException(msg);
-                }
-            }
-
-            if (test.getDataProvider() != null && !functionNames.contains(test.getDataProvider())) {
-                String dataProvider = test.getDataProvider();
-                String message = String.format("Data provider function [%s] cannot be found.", dataProvider);
-                throw new BallerinaTestException(message);
-            }
-
-            for (String dependsOnFn : test.getDependsOnTestFunctions()) {
-                if (functionNames.stream().noneMatch(func -> func.equals(dependsOnFn))) {
-                    throw new BallerinaTestException("Cannot find the specified dependsOn function : "
-                            + dependsOnFn);
-                }
-            }
-        }
     }
 
     private static int[] checkCyclicDependencies(List<Test> tests) {
