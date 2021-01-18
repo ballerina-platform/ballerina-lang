@@ -27,9 +27,9 @@ type PersonObject object {
     public function getFullName() returns string;
 };
 
-class PersonClass {
-    string fname = "Anonymous";
-    string lname;
+public class PersonClass {
+    public string fName = "Anonymous";
+    string lName;
 
     public function init(string fname, string lname) {
         self.fname = fname;
