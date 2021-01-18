@@ -34,8 +34,8 @@ public class PackageConfig {
     private final PackageId packageId;
     private final PackageManifest packageManifest;
     private final DocumentConfig ballerinaToml;
-    private final DocumentConfig kubernetesToml;
     private final DocumentConfig dependenciesToml;
+    private final DocumentConfig kubernetesToml;
     private final Path packagePath;
     private final DependencyGraph<PackageDescriptor> packageDescDependencyGraph;
     private final Collection<ModuleConfig> otherModules;

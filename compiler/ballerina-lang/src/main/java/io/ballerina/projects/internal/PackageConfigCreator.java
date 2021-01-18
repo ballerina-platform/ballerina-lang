@@ -17,22 +17,7 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.BallerinaToml;
-import io.ballerina.projects.BallerinaTomlException;
-import io.ballerina.projects.DependencyGraph;
-import io.ballerina.projects.DocumentConfig;
-import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.ModuleConfig;
-import io.ballerina.projects.ModuleDescriptor;
-import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.ModuleName;
-import io.ballerina.projects.PackageConfig;
-import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.PackageId;
-import io.ballerina.projects.PackageManifest;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.*;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
@@ -52,17 +37,21 @@ public class PackageConfigCreator {
     public static PackageConfig createBuildProjectConfig(Path projectDirPath) {
         ProjectFiles.validateBuildProjectDirPath(projectDirPath);
 
-        Path balTomlFilePath = projectDirPath.resolve(ProjectConstants.BALLERINA_TOML);
-        BallerinaToml ballerinaToml = BallerinaToml.from(balTomlFilePath);
-
-        if (ballerinaToml.diagnostics().hasErrors()) {
-            throw new BallerinaTomlException(ballerinaToml.getErrorMessage());
-        }
-
         // TODO Create the PackageManifest from the BallerinaToml file
         // TODO Validate the ballerinaToml content inside the Ballerina toml file
-        PackageManifest packageManifest = ProjectFiles.createPackageManifest(ballerinaToml);
         PackageData packageData = ProjectFiles.loadBuildProjectPackageData(projectDirPath);
+
+        if (packageData.ballerinaToml().isEmpty()) {
+            throw new ProjectException(ProjectConstants.BALLERINA_TOML + " not found");
+        }
+
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML,
+                packageData.ballerinaToml().get().content());
+        TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML,
+                packageData.ballerinaToml().get().content());
+        ManifestBuilder manifestBuilder = ManifestBuilder.from(ballerinaToml, dependenciesToml);
+        PackageManifest packageManifest = manifestBuilder.packageManifest();
+
         return createPackageConfig(packageData, packageManifest);
     }
 

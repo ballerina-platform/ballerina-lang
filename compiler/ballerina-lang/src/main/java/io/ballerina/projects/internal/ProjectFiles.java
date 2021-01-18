@@ -170,23 +170,20 @@ public class ProjectFiles {
         return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);
     }
 
-    public static PackageManifest createPackageManifest(BallerinaToml ballerinaToml) {
-        return ballerinaToml.packageManifest();
-    }
-
     public static BuildOptions createBuildOptions(Path projectPath, BuildOptions theirOptions) {
         Path ballerinaTomlFilePath = projectPath.resolve(ProjectConstants.BALLERINA_TOML);
         // todo fix me
-        BallerinaToml ballerinaToml = null;//BallerinaToml.from(ballerinaTomlFilePath);
-        if (ballerinaToml.diagnostics().hasErrors()) {
-            throw new BallerinaTomlException(ballerinaToml.getErrorMessage());
-        }
-
-        BuildOptions defaultBuildOptions = ballerinaToml.buildOptions();
-        if (defaultBuildOptions == null) {
-            defaultBuildOptions = new BuildOptionsBuilder().build();
-        }
-        return defaultBuildOptions.acceptTheirs(theirOptions);
+//        BallerinaToml ballerinaToml = null;//BallerinaToml.from(ballerinaTomlFilePath);
+//        if (ballerinaToml.diagnostics().hasErrors()) {
+//            throw new BallerinaTomlException(ballerinaToml.getErrorMessage());
+//        }
+//
+//        BuildOptions defaultBuildOptions = ballerinaToml.buildOptions();
+//        if (defaultBuildOptions == null) {
+//            defaultBuildOptions = new BuildOptionsBuilder().build();
+//        }
+        // return defaultBuildOptions.acceptTheirs(theirOptions);
+        return theirOptions;
     }
 
     public static void validateBuildProjectDirPath(Path projectDirPath) {
