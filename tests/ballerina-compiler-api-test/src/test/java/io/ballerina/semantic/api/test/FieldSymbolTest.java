@@ -19,7 +19,9 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -59,9 +61,9 @@ public class FieldSymbolTest {
                                  boolean hasDefaultValue, String signature) {
         Symbol symbol = model.symbol(srcFile, from(line, col))
                 .orElseThrow(() -> new AssertionError("Expected a symbol at: (" + line + ", " + col + ")"));
-        assertEquals(symbol.kind(), SymbolKind.FIELD);
+        assertEquals(symbol.kind(), SymbolKind.RECORD_FIELD);
 
-        FieldSymbol fieldSymbol = (FieldSymbol) symbol;
+        RecordFieldSymbol fieldSymbol = (RecordFieldSymbol) symbol;
         assertEquals(fieldSymbol.name(), fieldName);
         assertEquals(fieldSymbol.typeDescriptor().typeKind(), typeKind);
         assertEquals(fieldSymbol.isOptional(), isOptional);
@@ -79,24 +81,22 @@ public class FieldSymbolTest {
     }
 
     @Test(dataProvider = "ObjectFieldPos")
-    public void testObjectFields(int line, int col, String fieldName, TypeDescKind typeKind, boolean hasDefaultValue,
-                                 String signature) {
+    public void testObjectFields(int line, int col, String fieldName, TypeDescKind typeKind, String signature) {
         Symbol symbol = model.symbol(srcFile, from(line, col))
                 .orElseThrow(() -> new AssertionError("Expected a symbol at: (" + line + ", " + col + ")"));
-        assertEquals(symbol.kind(), SymbolKind.FIELD);
+        assertEquals(symbol.kind(), SymbolKind.OBJECT_FIELD);
 
-        FieldSymbol fieldSymbol = (FieldSymbol) symbol;
+        ObjectFieldSymbol fieldSymbol = (ObjectFieldSymbol) symbol;
         assertEquals(fieldSymbol.name(), fieldName);
         assertEquals(fieldSymbol.typeDescriptor().typeKind(), typeKind);
-        assertEquals(fieldSymbol.hasDefaultValue(), hasDefaultValue);
         assertEquals(fieldSymbol.signature(), signature);
     }
 
     @DataProvider(name = "ObjectFieldPos")
     public Object[][] getObjectFieldPos() {
         return new Object[][]{
-                {23, 11, "fname", STRING, false, "string fname"},
-                {24, 11, "lname", STRING, false, "string lname"},
+                {23, 11, "fname", STRING, "string fname"},
+                {24, 11, "lname", STRING, "string lname"},
         };
     }
 
@@ -105,9 +105,9 @@ public class FieldSymbolTest {
                                 String signature) {
         Symbol symbol = model.symbol(srcFile, from(line, col))
                 .orElseThrow(() -> new AssertionError("Expected a symbol at: (" + line + ", " + col + ")"));
-        assertEquals(symbol.kind(), SymbolKind.FIELD);
+        assertEquals(symbol.kind(), SymbolKind.CLASS_FIELD);
 
-        FieldSymbol fieldSymbol = (FieldSymbol) symbol;
+        ClassFieldSymbol fieldSymbol = (ClassFieldSymbol) symbol;
         assertEquals(fieldSymbol.name(), fieldName);
         assertEquals(fieldSymbol.typeDescriptor().typeKind(), typeKind);
         assertEquals(fieldSymbol.hasDefaultValue(), hasDefaultValue);

@@ -23,17 +23,18 @@ import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -199,8 +200,8 @@ public class TypedescriptorTest {
         ClassSymbol clazz = (ClassSymbol) symbol;
         assertEquals(clazz.typeKind(), OBJECT);
 
-        List<FieldSymbol> fields = clazz.fieldDescriptors();
-        FieldSymbol field = fields.get(0);
+        List<ObjectFieldSymbol> fields = clazz.fieldDescriptors();
+        ObjectFieldSymbol field = fields.get(0);
         assertEquals(fields.size(), 1);
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
@@ -220,8 +221,8 @@ public class TypedescriptorTest {
         assertEquals(type.typeKind(), RECORD);
         assertFalse(type.restTypeDescriptor().isPresent());
 
-        List<FieldSymbol> fields = type.fieldDescriptors();
-        FieldSymbol field = fields.get(0);
+        List<RecordFieldSymbol> fields = type.fieldDescriptors();
+        RecordFieldSymbol field = fields.get(0);
         assertEquals(fields.size(), 1);
         assertEquals(field.name(), "path");
         assertEquals(field.typeDescriptor().typeKind(), STRING);

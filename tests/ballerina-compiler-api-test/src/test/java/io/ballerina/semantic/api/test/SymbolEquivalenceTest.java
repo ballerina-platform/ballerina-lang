@@ -19,7 +19,9 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
@@ -34,6 +36,7 @@ import org.testng.annotations.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
@@ -120,7 +123,8 @@ public class SymbolEquivalenceTest {
     public void testTypedescriptors(List<LinePosition> positions) {
         List<TypeSymbol> types = positions.stream()
                 .map(pos -> typesModel.symbol(typesSrcFile, pos).get())
-                .map(s -> ((VariableSymbol) s).typeDescriptor())
+                .map(s -> s.kind() == RECORD_FIELD ?
+                        ((RecordFieldSymbol) s).typeDescriptor() : ((VariableSymbol) s).typeDescriptor())
                 .collect(Collectors.toList());
         assertTypeSymbols(types);
     }
@@ -139,7 +143,8 @@ public class SymbolEquivalenceTest {
         List<LinePosition> positions = List.of(from(24, 17), from(19, 11), from(24, 26));
         List<TypeSymbol> types = positions.stream()
                 .map(pos -> typesModel.symbol(typesSrcFile, pos).get())
-                .map(s -> ((VariableSymbol) s).typeDescriptor())
+                .map(s -> s.kind() == RECORD_FIELD ?
+                        ((RecordFieldSymbol) s).typeDescriptor() : ((VariableSymbol) s).typeDescriptor())
                 .collect(Collectors.toList());
 
         for (int i = 0; i < types.size(); i++) {
