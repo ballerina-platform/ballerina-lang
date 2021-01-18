@@ -44,7 +44,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.FieldCompletionItem;
+import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
@@ -295,7 +295,7 @@ public class CommonUtil {
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
-            completionItems.add(new FieldCompletionItem(context, field, fieldItem));
+            completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem));
         });
 
         return completionItems;
