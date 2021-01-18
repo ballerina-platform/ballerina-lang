@@ -151,6 +151,7 @@ public class ObjectTypeReferenceTest {
         Assert.assertEquals(result.getErrorCount(), 0);
 
         BRunUtil.invoke(result, "testObjectConstructorWithReadOnlyReference");
+        BRunUtil.invoke(result, "testReadOnlyAndObjectIntersectionInclusion");
     }
 
     @Test
@@ -213,10 +214,12 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testSimpleObjectTypeReferenceNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'x'", 18, 6);
         BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'y'", 18, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'value'", 33, 6);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'value' is not initialized", 35, 56);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
