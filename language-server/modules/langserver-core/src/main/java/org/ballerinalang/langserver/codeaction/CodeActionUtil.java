@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -221,7 +221,7 @@ public class CodeActionUtil {
             // Map
             TypeSymbol prevType = null;
             boolean isConstrainedMap = true;
-            for (FieldSymbol recordField : recordLiteral.fieldDescriptors()) {
+            for (RecordFieldSymbol recordField : recordLiteral.fieldDescriptors()) {
                 TypeDescKind typeDescKind = recordField.typeDescriptor().typeKind();
                 if (prevType != null && typeDescKind != prevType.typeKind()) {
                     isConstrainedMap = false;

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langserver.completions;
 
-import io.ballerina.compiler.api.symbols.FieldSymbol;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
