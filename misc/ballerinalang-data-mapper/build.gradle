@@ -29,11 +29,11 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
 
     implementation project(':testerina:testerina-core')
-    implementation project(':ballerina-tool')
+    implementation project(':ballerina-cli')
 
     implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
 
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.1.2'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
 
     testCompile 'org.testng:testng'
 

@@ -21,14 +21,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
@@ -62,12 +63,10 @@ import java.util.stream.Collectors;
  */
 public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private SemanticModel semanticModel;
-    private String fileName;
     private List<JsonObject> visibleEpsForEachBlock;
 
-    public SyntaxTreeMapGenerator(String fileName, SemanticModel semanticModel) {
+    public SyntaxTreeMapGenerator(SemanticModel semanticModel) {
         this.semanticModel = semanticModel;
-        this.fileName = fileName;
         this.visibleEpsForEachBlock = new ArrayList<>();
     }
 
@@ -100,10 +99,10 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             position.addProperty("endColumn", endLine.offset());
             nodeJson.add("position", position);
 
+            // TODO: Check and remove the Type() API usage and replace with symbol() API;
+            JsonObject symbolJson = new JsonObject();
             try {
-                Optional<TypeSymbol> typeSymbol = this.semanticModel.type(this.fileName, lineRange);
-                Optional<Symbol> symbol = this.semanticModel.symbol(this.fileName, startLine);
-                JsonObject symbolJson = new JsonObject();
+                Optional<TypeSymbol> typeSymbol = this.semanticModel.type(lineRange);
                 if (typeSymbol.isPresent()) {
                     TypeSymbol rawType = getRawType(typeSymbol.get());
                     if (rawType.typeKind() == TypeDescKind.OBJECT) {
@@ -119,6 +118,18 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         }
                     }
                     symbolJson.add("typeSymbol", generateTypeJson(typeSymbol.get()));
+                }
+            } catch (Exception | AssertionError e) {
+                // TODO: Remove the AssertionError catcher when fix the symbolVisitor to be extended from BaseVisitor.
+                // Ignore as semantic API calls cannot break the ST JSON creation.
+            }
+
+            try {
+                Optional<Symbol> symbol = this.semanticModel.symbol(node);
+
+                if (symbol.isPresent() && (symbol.get() instanceof VariableSymbol)) {
+                    VariableSymbol variableSymbol = (VariableSymbol) symbol.get();
+                    markVisibleEp(variableSymbol, symbolJson, node);
                 }
 
                 if (symbol.isPresent()) {
@@ -149,6 +160,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 // Ignore as semantic API calls cannot break the ST JSON creation.
             }
 
+            nodeJson.add("typeData", symbolJson);
             if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK && this.visibleEpsForEachBlock.size() > 0
                     && nodeJson.get("typeData") != null) {
                 JsonArray eps = new JsonArray();
@@ -159,6 +171,22 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         }
 
         return nodeJson;
+    }
+
+    private void markVisibleEp(VariableSymbol variableSymbol, JsonObject symbolJson, Node node) {
+        TypeSymbol rawType = getRawType(variableSymbol.typeDescriptor());
+        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+            ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
+            boolean isEndpoint = objectTypeSymbol.qualifiers()
+                    .contains(Qualifier.CLIENT);
+            if (isEndpoint) {
+                symbolJson.addProperty("isEndpoint", true);
+                JsonObject ep = visibleEP(node, rawType);
+                if (ep.size() > 0) {
+                    this.visibleEpsForEachBlock.add(ep);
+                }
+            }
+        }
     }
 
     private JsonObject visibleEP(Node node, TypeSymbol typeSymbol) {
@@ -182,13 +210,15 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
         } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
-            SimpleNameReferenceNode simpleNameReferenceNode =
-                    (SimpleNameReferenceNode) assignmentStatementNode.varRef();
-            symbolMetaInfo.addProperty("name", simpleNameReferenceNode.name().text());
-            symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
-            symbolMetaInfo.addProperty("typeName", typeSymbol.name());
-            symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
-            symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
+            if (assignmentStatementNode.varRef() instanceof SimpleNameReferenceNode) {
+                SimpleNameReferenceNode simpleNameReferenceNode =
+                        (SimpleNameReferenceNode) assignmentStatementNode.varRef();
+                symbolMetaInfo.addProperty("name", simpleNameReferenceNode.name().text());
+                symbolMetaInfo.addProperty("isCaller", typeSymbol.name().equals("Caller"));
+                symbolMetaInfo.addProperty("typeName", typeSymbol.name());
+                symbolMetaInfo.addProperty("orgName", typeSymbol.moduleID().orgName());
+                symbolMetaInfo.addProperty("moduleName", typeSymbol.moduleID().moduleName());
+            }
         }
 
         return symbolMetaInfo;
@@ -201,10 +231,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
     private JsonElement generateTypeJson(Symbol symbol) throws JSONGenerationException {
         if (symbol == null) {
-            return JsonNull.INSTANCE;
-        }
-        if (symbol.moduleID() != null && "ballerina".equals(symbol.moduleID().orgName())
-                && "graphql".equals(symbol.moduleID().moduleName()) && "Listener".equals(symbol.name())) {
             return JsonNull.INSTANCE;
         }
 
@@ -237,21 +263,24 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             }
 
             if (prop instanceof Symbol) {
-                nodeJson.add(jsonName, generateTypeJson((Symbol) prop));
-            } else if (prop instanceof List) {
-                List listProp = (List) prop;
-                JsonArray listPropJson = new JsonArray();
-                for (Object listPropItem : listProp) {
-                    if (listPropItem instanceof Symbol) {
-                        listPropJson.add(generateTypeJson((Symbol) listPropItem));
-                    } else if (listPropItem instanceof String) {
-                        listPropJson.add((String) listPropItem);
-                    } else if (listPropItem instanceof Boolean) {
-                        listPropJson.add((Boolean) listPropItem);
-                    }
+                if (!jsonName.equals("typeDescriptor")) {
+                    nodeJson.add(jsonName, generateTypeJson((Symbol) prop));
                 }
-            } else if (prop instanceof BallerinaModuleID) {
-                BallerinaModuleID ballerinaModuleID = (BallerinaModuleID) prop;
+                // TODO: verify if this is needed and enable (need to add to the nodeJson as well)
+//            } else if (prop instanceof List) {
+//                List listProp = (List) prop;
+//                JsonArray listPropJson = new JsonArray();
+//                for (Object listPropItem : listProp) {
+//                    if (listPropItem instanceof Symbol) {
+//                        listPropJson.add(generateTypeJson((Symbol) listPropItem));
+//                    } else if (listPropItem instanceof String) {
+//                        listPropJson.add((String) listPropItem);
+//                    } else if (listPropItem instanceof Boolean) {
+//                        listPropJson.add((Boolean) listPropItem);
+//                    }
+//                }
+            } else if (prop instanceof ModuleID) {
+                ModuleID ballerinaModuleID = (ModuleID) prop;
                 JsonObject moduleIdJson = new JsonObject();
                 moduleIdJson.addProperty("orgName", ballerinaModuleID.orgName());
                 moduleIdJson.addProperty("moduleName", ballerinaModuleID.moduleName());
@@ -277,6 +306,17 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (node instanceof Token) {
             nodeInfo.addProperty("isToken", true);
             nodeInfo.addProperty("value", ((Token) node).text());
+            if (node.lineRange() != null) {
+                LineRange lineRange = node.lineRange();
+                LinePosition startLine = lineRange.startLine();
+                LinePosition endLine = lineRange.endLine();
+                JsonObject position = new JsonObject();
+                position.addProperty("startLine", startLine.line());
+                position.addProperty("startColumn", startLine.offset());
+                position.addProperty("endLine", endLine.line());
+                position.addProperty("endColumn", endLine.offset());
+                nodeInfo.add("position", position);
+            }
         } else {
             JsonElement memberValues = node.apply(this);
             memberValues.getAsJsonObject().entrySet().forEach(memberEntry -> {

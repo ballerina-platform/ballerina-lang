@@ -19,9 +19,9 @@
 package org.ballerinalang.test.documentation;
 
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.ballerinalang.docgen.generator.model.DocPackage;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
-import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -45,17 +45,44 @@ public class ErrorsTest {
                 "test-src" + File.separator + "documentation" + File.separator + "errors_project";
         io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
-        Project docerinaProject = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
+        DocPackage docerinaDocPackage = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
                 .packageOrg().toString(), project.currentPackage().packageVersion().toString());
-        testModule = docerinaProject.modules.get(0);
+        testModule = docerinaDocPackage.modules.get(0);
     }
 
     @Test(description = "Test error type")
     public void testErrorAsAType() {
-        Assert.assertEquals(testModule.errors.size(), 2, "Two errors expected");
+        Assert.assertEquals(testModule.errors.size(), 5, "Five errors expected");
         Assert.assertEquals(testModule.errors.get(0).name, "CacheError", "The error should be " +
                 "CacheError. But Found:" + testModule.errors.get(0).name);
-        Assert.assertEquals(testModule.errors.get(1).name, "Error", "The error should be " +
-                "Error. But Found:" + testModule.errors.get(1).name);
+        Assert.assertEquals(testModule.errors.get(1).name, "CancelledError", "The error should be " +
+                "CancelledError. But Found:" + testModule.errors.get(1).name);
+        Assert.assertEquals(testModule.errors.get(2).name, "UnKnownError", "The error should be " +
+                "UnKnownError. But Found:" + testModule.errors.get(2).name);
+        Assert.assertEquals(testModule.errors.get(3).name, "Error", "The error should be " +
+                "Error. But Found:" + testModule.errors.get(3).name);
+        Assert.assertEquals(testModule.errors.get(4).name, "GrpcError", "The error should be " +
+                "GrpcError. But Found:" + testModule.errors.get(4).name);
+
+        Assert.assertEquals(testModule.errors.get(3).detailType.name, "CacheError",
+                "The error detailtype should be CacheError. But Found:" +
+                        testModule.errors.get(3).detailType.name);
+        Assert.assertEquals(testModule.errors.get(3).detailType.category, "errors",
+                "The detailtype category should be errors. But Found:" + testModule.errors.get(3)
+                        .detailType.category);
+
+        Assert.assertEquals(testModule.errors.get(4).detailType.memberTypes.get(0).name, "CancelledError",
+                "The name of first membertype, of error detailtype, should be CancelledError. But Found:" +
+                        testModule.errors.get(4).detailType.memberTypes.get(0).name);
+        Assert.assertEquals(testModule.errors.get(4).detailType.memberTypes.get(0).category, "errors",
+                "The category of first membertype, of error detailtype, should be errors. But Found:" +
+                        testModule.errors.get(4).detailType.memberTypes.get(0).category);
+
+        Assert.assertEquals(testModule.errors.get(4).detailType.memberTypes.get(1).name, "UnKnownError",
+                "The name of second membertype, of error detailtype, should be CancelledError. But Found:" +
+                        testModule.errors.get(4).detailType.memberTypes.get(1).name);
+        Assert.assertEquals(testModule.errors.get(4).detailType.memberTypes.get(1).category, "errors",
+                "The category of second membertype, of error detailtype, should be errors. But Found:" +
+                        testModule.errors.get(4).detailType.memberTypes.get(1).category);
     }
 }

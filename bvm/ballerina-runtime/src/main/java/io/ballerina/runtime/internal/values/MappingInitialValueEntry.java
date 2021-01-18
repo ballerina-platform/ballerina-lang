@@ -39,8 +39,8 @@ public abstract class MappingInitialValueEntry implements BMapInitialValueEntry 
      */
     public static class KeyValueEntry extends MappingInitialValueEntry {
 
-        public Object key;
-        public Object value;
+        public final Object key;
+        public final Object value;
 
         public KeyValueEntry(Object key, Object value) {
             this.key = key;

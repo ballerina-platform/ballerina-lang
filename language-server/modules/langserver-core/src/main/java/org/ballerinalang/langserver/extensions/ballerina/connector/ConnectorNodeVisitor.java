@@ -18,8 +18,10 @@
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -71,32 +73,26 @@ public class ConnectorNodeVisitor extends NodeVisitor {
     }
 
     public void visit(ClassDefinitionNode classDefinitionNode) {
-        String fileName = classDefinitionNode.syntaxTree().filePath();
-        Optional<TypeSymbol> typeSymbol = this.semanticModel.type(fileName,
-                classDefinitionNode.className().lineRange());
+        Optional<Symbol> symbol = this.semanticModel.symbol(classDefinitionNode);
 
-        if (typeSymbol.isPresent()) {
-            TypeSymbol rawType = getRawType(typeSymbol.get());
-            if (rawType.typeKind() == TypeDescKind.OBJECT) {
-                ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
+        if (symbol.isEmpty()) {
+            return;
+        }
 
-                boolean isClient = objectTypeSymbol.qualifiers().contains(Qualifier.CLIENT);
-                if (isClient) {
-                    this.connectors.add(classDefinitionNode);
-                }
+        ClassSymbol classSymbol = (ClassSymbol) symbol.get();
+        boolean isClient = classSymbol.qualifiers().contains(Qualifier.CLIENT);
 
-            }
+        if (isClient) {
+            this.connectors.add(classDefinitionNode);
         }
     }
 
     public void visit(TypeDefinitionNode typeDefinitionNode) {
-        String fileName = typeDefinitionNode.syntaxTree().filePath();
-        Optional<TypeSymbol> typeSymbol = this.semanticModel.type(fileName,
-                typeDefinitionNode.typeDescriptor().lineRange());
+        Optional<Symbol> typeSymbol = this.semanticModel.symbol(typeDefinitionNode);
 
-        if (typeSymbol.isPresent()) {
-            TypeSymbol rawType = getRawType(typeSymbol.get());
-            String typeName = typeSymbol.get().signature(); // .name();
+        if (typeSymbol.isPresent() && typeSymbol.get() instanceof TypeDefinitionSymbol) {
+            TypeSymbol rawType = getRawType(((TypeDefinitionSymbol) typeSymbol.get()).typeDescriptor());
+            String typeName = String.format("%s:%s", typeSymbol.get().moduleID().toString(), typeSymbol.get().name());
             if (rawType.typeKind() == TypeDescKind.RECORD || rawType.typeKind() == TypeDescKind.UNION) {
                 this.records.put(typeName, typeDefinitionNode);
             }

@@ -64,8 +64,8 @@ public class TesterinaFunction {
      * @param types of the function parameters
      * @return output
      */
-    public Object directInvoke(Class[] types) {
-        return run(programFile, bFunctionName, scheduler, types);
+    public Object directInvoke(Class[] types, Object[] args) {
+        return run(programFile, bFunctionName, types, args);
     }
 
     public String getName() {
@@ -84,12 +84,11 @@ public class TesterinaFunction {
         this.groups = groups;
     }
 
-    private static Object run(Class<?> initClazz, String name, Scheduler scheduler,
-                              Class[] paramTypes) {
+    private static Object run(Class<?> initClazz, String name, Class[] paramTypes, Object[] args) {
         String funcName = cleanupFunctionName(name);
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
-            return method.invoke(null, scheduler.getListenerRegistry());
+            return method.invoke(null, args);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new BallerinaTestException("Failed to invoke the function '" +
                                                      funcName + " due to " + e.getMessage());

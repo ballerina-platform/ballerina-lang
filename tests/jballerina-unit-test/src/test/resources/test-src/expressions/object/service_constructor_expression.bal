@@ -18,7 +18,6 @@ import ballerina/java;
 
 public type S service object {
     remote function foo();
-    resource function get bar() returns int;
 };
 
 function testServiceCtor() {
@@ -59,6 +58,8 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error("AssertionError",
-            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

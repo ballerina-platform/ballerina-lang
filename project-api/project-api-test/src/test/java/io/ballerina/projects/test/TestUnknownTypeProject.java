@@ -229,6 +229,7 @@ public class TestUnknownTypeProject {
             Assert.fail(e.getMessage());
         }
         Assert.assertTrue(project instanceof SingleFileProject);
+        project.documentId(projectPath);
         // 2) Load the package
         Package currentPackage = project.currentPackage();
         // 3) Load the default module

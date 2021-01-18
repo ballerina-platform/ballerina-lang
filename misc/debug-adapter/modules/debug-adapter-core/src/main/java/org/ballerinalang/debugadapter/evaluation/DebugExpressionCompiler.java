@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -96,6 +97,13 @@ public class DebugExpressionCompiler {
         String newContent = new String(document.textDocument().apply(TextDocumentChange.from(textEdit)).toCharArray());
         Document newDocument = document.modify().withContent(newContent).apply();
         return newDocument.module().getCompilation();
+    }
+
+    public SemanticModel getSemanticInfo() {
+        if (document == null) {
+            document = context.getDocument();
+        }
+        return document.module().getCompilation().getSemanticModel();
     }
 
     /**

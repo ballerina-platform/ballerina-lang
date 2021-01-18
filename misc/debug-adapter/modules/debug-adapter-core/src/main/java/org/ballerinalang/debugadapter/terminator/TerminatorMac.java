@@ -16,12 +16,11 @@
 
 package org.ballerinalang.debugadapter.terminator;
 
-import org.apache.commons.compress.utils.IOUtils;
-
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+
+import static org.ballerinalang.debugadapter.utils.PackageUtils.closeQuietly;
 
 /**
  * Launcher Terminator Implementation for Mac.
@@ -65,9 +64,7 @@ public class TerminatorMac extends TerminatorUnix {
         } catch (Throwable e) {
 //            LOGGER.error("Launcher was unable to find the process ID for " + PROCESS_IDENTIFIER + ".");
         } finally {
-            if (reader != null) {
-                IOUtils.closeQuietly(reader);
-            }
+            closeQuietly(reader);
         }
     }
 }

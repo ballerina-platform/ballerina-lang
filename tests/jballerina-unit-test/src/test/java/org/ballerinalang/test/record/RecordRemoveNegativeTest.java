@@ -21,6 +21,7 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -44,5 +45,10 @@ public class RecordRemoveNegativeTest {
     @Test
     public void testClosedRecordRequiredFieldRemove() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveRequiredClosed");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

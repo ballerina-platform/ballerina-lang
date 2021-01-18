@@ -31,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -43,6 +44,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -173,7 +175,7 @@ public class CodeActionUtil {
      *
      * @param typeDescriptor {@link TypeSymbol}
      * @param edits          a list of {@link TextEdit}
-     * @param context        {@link LSContext}
+     * @param context        {@link CodeActionContext}
      * @return a list of possible type list
      */
     public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, List<TextEdit> edits,
@@ -187,7 +189,7 @@ public class CodeActionUtil {
      *
      * @param typeDescriptor {@link TypeSymbol}
      * @param edits          a list of {@link TextEdit}
-     * @param context        {@link LSContext}
+     * @param context        {@link CodeActionContext}
      * @return a list of possible type list
      */
     public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> edits,
@@ -303,18 +305,18 @@ public class CodeActionUtil {
      *
      * @param range      cursor {@link Range}
      * @param syntaxTree {@link SyntaxTree}
-     * @param context    {@link LSContext}
+     * @param context    {@link CodeActionContext}
      * @return {@link PositionDetails}
      */
     public static PositionDetails computePositionDetails(Range range, SyntaxTree syntaxTree,
                                                          CodeActionContext context) {
         // Find Cursor node
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
-        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
+        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
 
         Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode, range,
-                semanticModel, relPath);
+                                                                                        semanticModel, srcFile);
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
         Optional<TypeSymbol> matchedExprTypeSymbol;
@@ -325,7 +327,7 @@ public class CodeActionUtil {
             matchedNode = cursorNode;
             matchedSymbol = null;
         }
-        matchedExprTypeSymbol = semanticModel.type(relPath, largestExpressionNode(cursorNode, range).lineRange());
+        matchedExprTypeSymbol = semanticModel.type(largestExpressionNode(cursorNode, range).lineRange());
         return CodeActionPositionDetails.from(matchedNode, matchedSymbol, matchedExprTypeSymbol.orElse(null));
     }
 
@@ -397,10 +399,10 @@ public class CodeActionUtil {
 
         List<TextEdit> edits = new ArrayList<>();
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        String relativePath = context.workspace().relativePath(context.filePath()).orElseThrow();
-        Optional<Symbol> optEnclosedFuncSymbol = semanticModel.symbol(relativePath,
-                enclosedFunc.get().functionName().lineRange()
-                        .startLine());
+        Document document = context.workspace().document(context.filePath()).orElseThrow();
+        Optional<Symbol> optEnclosedFuncSymbol =
+                semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
+
         String returnText = "";
         Range returnRange = null;
         if (optEnclosedFuncSymbol.isPresent() && optEnclosedFuncSymbol.get().kind() == SymbolKind.FUNCTION) {
@@ -478,13 +480,13 @@ public class CodeActionUtil {
     /**
      * Get the top level node type at the cursor line.
      *
-     * @param position   {@link Position}
+     * @param cursorPos  {@link Position}
      * @param syntaxTree {@link SyntaxTree}
      * @return {@link String}   Top level node
      */
-    public static Optional<Node> getTopLevelNode(Position position, SyntaxTree syntaxTree) {
-        NonTerminalNode member = CommonUtil.findNode(new Range(position, position), syntaxTree);
-        LinePosition cursorPosition = LinePosition.from(position.getLine(), position.getCharacter());
+    public static Optional<NonTerminalNode> getTopLevelNode(Position cursorPos, SyntaxTree syntaxTree) {
+        NonTerminalNode member = CommonUtil.findNode(new Range(cursorPos, cursorPos), syntaxTree);
+        LinePosition cursorPosition = LinePosition.from(cursorPos.getLine(), cursorPos.getCharacter());
         int cursorPosOffset = syntaxTree.textDocument().textPositionFrom(cursorPosition);
         while (member != null) {
             boolean isWithinStartSegment = isWithinStartCodeSegment(member, cursorPosOffset);
@@ -505,7 +507,7 @@ public class CodeActionUtil {
                         if (memberNode.kind() == SyntaxKind.FUNCTION_DEFINITION
                                 && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
                             // Cursor on the resource function
-                            return Optional.of(memberNode);
+                            return Optional.of((NonTerminalNode) memberNode);
                         }
                     }
                     return Optional.of(member);
@@ -529,11 +531,12 @@ public class CodeActionUtil {
                         if (memberNode.kind() == SyntaxKind.METHOD_DECLARATION
                                 && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
                             // Cursor on the object function
-                            return Optional.of(memberNode);
+                            return Optional.of((NonTerminalNode) memberNode);
                         }
                     }
                     return Optional.of(member);
                 }
+                return Optional.empty();
             } else if (member.kind() == SyntaxKind.CLASS_DEFINITION) {
                 if (isWithinStartSegment) {
                     // Cursor on the class
@@ -545,7 +548,7 @@ public class CodeActionUtil {
                         if (memberNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION
                                 && isWithinStartCodeSegment(memberNode, cursorPosOffset)) {
                             // Cursor on the class function
-                            return Optional.of(memberNode);
+                            return Optional.of((NonTerminalNode) memberNode);
                         }
                     }
                     return Optional.of(member);
@@ -553,6 +556,8 @@ public class CodeActionUtil {
             } else if (isWithinBody && member.kind() == SyntaxKind.IMPORT_DECLARATION) {
                 return Optional.of(member);
             } else if (isWithinBody && member.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
+                return Optional.of(member);
+            } else if (isWithinBody && member.kind() == SyntaxKind.MARKDOWN_DOCUMENTATION) {
                 return Optional.of(member);
             } else {
                 member = member.parent();
@@ -612,6 +617,11 @@ public class CodeActionUtil {
                 return isWithinRange(positionOffset,
                         assignmentStatementNode.textRange().startOffset(),
                         assignmentStatementNode.semicolonToken().textRange().startOffset());
+            case MARKDOWN_DOCUMENTATION:
+                MarkdownDocumentationNode markdownDocumentationNode = (MarkdownDocumentationNode) node;
+                return isWithinRange(positionOffset,
+                        markdownDocumentationNode.textRange().startOffset(),
+                        markdownDocumentationNode.textRange().endOffset());
             default:
                 return false;
         }
@@ -690,7 +700,7 @@ public class CodeActionUtil {
     private static Optional<Pair<NonTerminalNode, Symbol>> getMatchedNodeAndSymbol(NonTerminalNode cursorNode,
                                                                                    Range range,
                                                                                    SemanticModel semanticModel,
-                                                                                   String relPath) {
+                                                                                   Document srcFile) {
         // Find invocation position
         ScopedSymbolFinder scopedSymbolFinder = new ScopedSymbolFinder(range);
         scopedSymbolFinder.visit(cursorNode);
@@ -700,7 +710,7 @@ public class CodeActionUtil {
         // Get Symbol of the position
         LinePosition position = scopedSymbolFinder.nodeIdentifierPos().get();
         LinePosition matchedNodePos = LinePosition.from(position.line(), position.offset() + 1);
-        Optional<Symbol> optMatchedSymbol = semanticModel.symbol(relPath, matchedNodePos);
+        Optional<Symbol> optMatchedSymbol = semanticModel.symbol(srcFile, matchedNodePos);
         if (optMatchedSymbol.isEmpty()) {
             return Optional.empty();
         }

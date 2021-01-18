@@ -22,7 +22,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class LetClauseNodeContext extends AbstractCompletionProvider<LetClauseNode> {
 
     public LetClauseNodeContext() {
@@ -43,7 +43,7 @@ public class LetClauseNodeContext extends AbstractCompletionProvider<LetClauseNo
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, LetClauseNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, LetClauseNode node) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
@@ -63,7 +63,7 @@ public class LetClauseNodeContext extends AbstractCompletionProvider<LetClauseNo
     }
 
     @Override
-    public boolean onPreValidation(CompletionContext context, LetClauseNode node) {
+    public boolean onPreValidation(BallerinaCompletionContext context, LetClauseNode node) {
         return !node.letKeyword().isMissing();
     }
 }

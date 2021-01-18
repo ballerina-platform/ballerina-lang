@@ -18,7 +18,7 @@ import ballerina/test;
 
 // tests an invalid data provider
 @test:Config{
-    dataProvider:"invalidDataGen2"
+    dataProvider: invalidDataGen2
 }
 function testInvalidDataProvider2(string fValue, string sValue, string result) {
 

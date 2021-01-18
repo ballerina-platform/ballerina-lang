@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -72,5 +73,10 @@ public class MultipleWhereClauseWithVarTypeTest {
         Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
         Assert.assertEquals(person1.get("lastName").stringValue(), "George");
         Assert.assertEquals(person1.get("deptAccess").stringValue(), "Operations");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

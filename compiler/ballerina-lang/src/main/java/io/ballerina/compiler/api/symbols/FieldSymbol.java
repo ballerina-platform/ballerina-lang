@@ -24,7 +24,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface FieldSymbol extends Symbol, Annotatable, Deprecatable {
+public interface FieldSymbol extends Symbol, Annotatable, Deprecatable, Documentable {
 
     /**
      * Whether optional field or not.
@@ -46,13 +46,6 @@ public interface FieldSymbol extends Symbol, Annotatable, Deprecatable {
      * @return {@link TypeSymbol} of the field
      */
     TypeSymbol typeDescriptor();
-
-    /**
-     * Get the documentation attachment.
-     *
-     * @return {@link Optional} doc attachment of the field
-     */
-    Optional<Documentation> documentation();
 
     /**
      * Get the accessibility modifier if available.

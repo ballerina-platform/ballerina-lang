@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -163,5 +164,13 @@ public class MatchStructuredPatternsTest {
                 "match statement has a static value default pattern and a binding value default pattern", 155, 5);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 166, 9);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 167, 13);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
+        resultSemanticsNegative = null;
+        resultNegative2 = null;
     }
 }

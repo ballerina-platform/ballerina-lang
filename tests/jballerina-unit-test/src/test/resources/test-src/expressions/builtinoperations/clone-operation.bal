@@ -364,8 +364,8 @@ string[*] reasonArray = [reason1, reason2, reason3, reason4];
 
 error err1 = error(reason1);
 error err2 = error(reason2, one = 1, two = "2");
-MyError err3 = MyError(reason3, one = "first");
-MyError err4 = MyError(reason4, one = "first", two = "second");
+MyError err3 = error MyError(reason3, one = "first");
+MyError err4 = error MyError(reason4, one = "first", two = "second");
 
 public function testCloneArrayWithError() returns boolean {
     error[*] errArray = [err1, err2, err3, err4];

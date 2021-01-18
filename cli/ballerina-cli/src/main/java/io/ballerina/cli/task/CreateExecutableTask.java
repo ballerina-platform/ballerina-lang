@@ -37,9 +37,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ServiceLoader;
 
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectUtils.checkWritePermission;
 
 /**
  * Task for creating the executable jar file.
@@ -64,6 +65,17 @@ public class CreateExecutableTask implements Task {
 
         Target target;
         Path currentDir = Paths.get(System.getProperty(USER_DIR));
+
+        try {
+            if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                checkWritePermission(currentDir);
+            } else {
+                checkWritePermission(project.sourceRoot());
+            }
+        } catch (ProjectException e) {
+            throw createLauncherException(e.getMessage());
+        }
+
         try {
             target = new Target(project.sourceRoot());
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {

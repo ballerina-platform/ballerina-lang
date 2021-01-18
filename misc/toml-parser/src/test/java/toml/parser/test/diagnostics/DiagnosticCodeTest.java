@@ -17,8 +17,8 @@
  */
 package toml.parser.test.diagnostics;
 
-import io.ballerina.toml.internal.diagnostics.DiagnosticCode;
 import io.ballerina.toml.internal.diagnostics.DiagnosticErrorCode;
+import io.ballerina.tools.diagnostics.DiagnosticCode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

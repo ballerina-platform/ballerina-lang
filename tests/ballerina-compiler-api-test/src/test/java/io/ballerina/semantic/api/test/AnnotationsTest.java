@@ -23,7 +23,9 @@ import io.ballerina.compiler.api.symbols.Annotatable;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -38,6 +40,8 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static java.util.List.of;
 import static org.testng.Assert.assertEquals;
@@ -50,16 +54,18 @@ import static org.testng.Assert.assertEquals;
 public class AnnotationsTest {
 
     private SemanticModel model;
-    private final String fileName = "annotations_test.bal";
+    private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/annotations_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/annotations_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
 
     @Test(dataProvider = "PosProvider")
     public void test(int line, int col, SymbolKind kind, List<String> annots) {
-        Optional<Symbol> symbol = model.symbol(fileName, from(line, col));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
         assertEquals(symbol.get().kind(), kind);
 
         List<AnnotationSymbol> annotSymbols = ((Annotatable) symbol.get()).annotations();

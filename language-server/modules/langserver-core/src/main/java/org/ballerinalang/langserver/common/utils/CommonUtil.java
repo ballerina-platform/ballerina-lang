@@ -40,8 +40,9 @@ import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.FieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -282,7 +283,7 @@ public class CommonUtil {
      * @param fields  List of field descriptors
      * @return {@link List}     List of completion items for the struct fields
      */
-    public static List<LSCompletionItem> getRecordFieldCompletionItems(CompletionContext context,
+    public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
                                                                        List<FieldSymbol> fields) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         fields.forEach(field -> {
@@ -307,7 +308,8 @@ public class CommonUtil {
      * @param fields  List of fields
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
-    public static LSCompletionItem getFillAllStructFieldsItem(CompletionContext context, List<FieldSymbol> fields) {
+    public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
+                                                              List<FieldSymbol> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
         for (FieldSymbol fieldSymbol : fields) {
@@ -335,7 +337,7 @@ public class CommonUtil {
      * @param context LS Operation context
      * @return {@link LSCompletionItem} generated for error type
      */
-    public static LSCompletionItem getErrorTypeCompletionItem(CompletionContext context) {
+    public static LSCompletionItem getErrorTypeCompletionItem(BallerinaCompletionContext context) {
         CompletionItem errorTypeCItem = new CompletionItem();
         errorTypeCItem.setInsertText(ItemResolverConstants.ERROR);
         errorTypeCItem.setLabel(ItemResolverConstants.ERROR);
@@ -366,7 +368,8 @@ public class CommonUtil {
      * @param typeName type name to be filtered against
      * @return {@link Optional} type found
      */
-    public static Optional<TypeSymbol> getTypeFromModule(CompletionContext context, String alias, String typeName) {
+    public static Optional<TypeSymbol> getTypeFromModule(BallerinaCompletionContext context, String alias,
+                                                         String typeName) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, alias);
         if (module.isEmpty()) {
             return Optional.empty();
@@ -395,7 +398,7 @@ public class CommonUtil {
      * @param alias   alias value
      * @return {@link Optional} scope entry for the module symbol
      */
-    public static Optional<ModuleSymbol> searchModuleForAlias(CompletionContext context, String alias) {
+    public static Optional<ModuleSymbol> searchModuleForAlias(PositionedOperationContext context, String alias) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         for (Symbol symbol : visibleSymbols) {
             if (symbol.kind() == MODULE && symbol.name().equals(alias)) {

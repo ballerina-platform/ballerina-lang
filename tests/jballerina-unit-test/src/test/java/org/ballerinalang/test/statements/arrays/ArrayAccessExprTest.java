@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -150,5 +151,10 @@ public class ArrayAccessExprTest {
     public void testAccessPrimitiveAsArray() {
         CompileResult compileResult = BCompileUtil.compile("test-src/statements/arrays/access-primitive-as-array.bal");
         BAssertUtil.validateError(compileResult, 0, "invalid operation: type 'int' does not support indexing", 3, 5);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

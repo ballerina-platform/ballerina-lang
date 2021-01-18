@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -119,5 +120,10 @@ public class FieldAccessMutateTest {
         args[1] = new BFloat(123.0f);
         BRunUtil.invoke(result, "testInstancePrimitiveFieldMutate", args);
         Assert.assertEquals(receiver.lkr, 123.0f);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

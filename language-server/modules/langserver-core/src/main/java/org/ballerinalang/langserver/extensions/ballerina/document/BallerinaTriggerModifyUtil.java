@@ -78,8 +78,6 @@ public class BallerinaTriggerModifyUtil {
             oldSyntaxTree.get();
         }
 
-        String fileName = compilationPath.toFile().getName();
-
         TextDocument oldTextDocument = oldSyntaxTree.get().textDocument();
 
         List<TextEdit> edits =
@@ -92,11 +90,12 @@ public class BallerinaTriggerModifyUtil {
         TextDocument newTextDoc = oldTextDocument.apply(textDocumentChange);
         SyntaxTree updatedSyntaxTree = SyntaxTree.from(newTextDoc);
         SemanticModel updatedSemanticModel = updateWorkspaceDocument(compilationPath, updatedSyntaxTree.toSourceCode(),
-                workspaceManager);
+                                                                     workspaceManager);
+        Document srcFile = workspaceManager.document(compilationPath).orElseThrow();
 
         //remove unused imports
-        UnusedSymbolsVisitor unusedSymbolsVisitor = new UnusedSymbolsVisitor(fileName, updatedSemanticModel,
-                new HashMap<>());
+        UnusedSymbolsVisitor unusedSymbolsVisitor = new UnusedSymbolsVisitor(srcFile, updatedSemanticModel,
+                                                                             new HashMap<>());
         unusedSymbolsVisitor.visit((ModulePartNode) updatedSyntaxTree.rootNode());
 
         if (!unusedSymbolsVisitor.getUnusedImports().isEmpty()) {
@@ -113,16 +112,16 @@ public class BallerinaTriggerModifyUtil {
         String formattedSource = Formatter.format(syntaxTree).toSourceCode();
 
         SemanticModel newSemanticModel = updateWorkspaceDocument(compilationPath, formattedSource,
-                workspaceManager);
-        Optional<SyntaxTree> formattedSyntaxTree = workspaceManager.syntaxTree(compilationPath);
-        if (formattedSyntaxTree.isEmpty()) {
+                                                                 workspaceManager);
+        Optional<Document> formattedSrcFile = workspaceManager.document(compilationPath);
+        if (formattedSrcFile.isEmpty()) {
             throw new JSONGenerationException("Modification error");
         }
 
-        JsonElement syntaxTreeJson = DiagramUtil.getSyntaxTreeJSON(formattedSyntaxTree.get(), newSemanticModel);
+        JsonElement syntaxTreeJson = DiagramUtil.getSyntaxTreeJSON(formattedSrcFile.get(), newSemanticModel);
         JsonObject jsonTreeWithSource = new JsonObject();
         jsonTreeWithSource.add("tree", syntaxTreeJson);
-        jsonTreeWithSource.addProperty("source", formattedSyntaxTree.get().toSourceCode());
+        jsonTreeWithSource.addProperty("source", formattedSrcFile.get().syntaxTree().toSourceCode());
         return jsonTreeWithSource;
     }
 

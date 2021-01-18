@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Represents the language server context.
+ * Represents the language server document service context.
  *
  * @since 2.0.0
  */
@@ -84,4 +84,11 @@ public interface DocumentServiceContext {
      * @return {@link Module}
      */
     Optional<Module> currentModule();
+
+    /**
+     * Get the language server context.
+     * 
+     * @return {@link LanguageServerContext}
+     */
+    LanguageServerContext languageServercontext();
 }

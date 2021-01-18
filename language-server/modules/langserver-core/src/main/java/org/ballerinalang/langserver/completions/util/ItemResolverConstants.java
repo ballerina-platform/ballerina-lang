@@ -84,6 +84,7 @@ public class ItemResolverConstants {
     public static final String LET_CLAUSE = "let clause";
     public static final String JOIN_CLAUSE = "join clause";
     public static final String ON_FAIL_CLAUSE = "on fail clause";
+    public static final String ON_CONFLICT_CLAUSE = "on conflict";
 
     // End of Basic Constructs
 
@@ -112,6 +113,9 @@ public class ItemResolverConstants {
     public static final String CLOSED_RECORD_TYPE = "type <RecordName> closed record";
     public static final String CLOSED_RECORD_TYPE_DESC = "record {||}";
     public static final String TYPE_TYPE = "type";
+    public static final String TABLE_TYPE = "type TypeName table<>;";
+    public static final String TABLE_WITH_KEY_TYPE = "type TypeName table<> key";
+    public static final String STREAM_DEF = "stream<> streamName = new;";
     public static final String REMOTE_FUNCTION_TYPE = "remote function";
     public static final String NEW_OBJECT_INITIALIZER_TYPE = "init function";
     public static final String ATTACH_FUNCTION_TYPE = "attach function";

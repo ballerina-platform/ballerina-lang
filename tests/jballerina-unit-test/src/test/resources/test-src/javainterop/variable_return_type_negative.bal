@@ -16,6 +16,7 @@
 
 
 import ballerina/java;
+import ballerina/lang.'value;
 
 function getValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
@@ -76,8 +77,8 @@ function getObject(typedesc<anydata> td) returns object {
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
-function getError(typedesc<string> reason, typedesc<record {| (anydata|readonly)...; |}> detail,
-                    error<record {| string message?; error cause?; (anydata|readonly)...; |}> err)
+function getError(typedesc<string> reason, typedesc<record {| (value:Cloneable)...; |}> detail,
+                    error<record {| string message?; error cause?; (value:Cloneable)...; |}> err)
                                                                     returns error<detail> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getError",

@@ -25,8 +25,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Optional;
-
 /**
  * {@code BRecordType} represents record type in Ballerina.
  *
@@ -45,8 +43,7 @@ public class BRecordType extends BStructureType implements RecordType {
     public static final String READONLY = "readonly";
     public boolean sealed;
     public BType restFieldType;
-    private Optional<Boolean> isAnyData = Optional.empty();
-    private boolean resolving = false;
+    public Boolean isAnyData = null;
 
     public BIntersectionType immutableType;
     public BRecordType mutableType;
@@ -100,30 +97,6 @@ public class BRecordType extends BStructureType implements RecordType {
             return !Symbols.isFlagOn(this.flags, Flags.READONLY) ? sb.toString() : sb.toString().concat(" & readonly");
         }
         return this.tsymbol.toString();
-    }
-
-    @Override
-    public final boolean isAnydata() {
-        if (!this.isAnyData.isPresent()) {
-            if (this.resolving) {
-                return true;
-            }
-            this.resolving = true;
-            this.isAnyData = Optional.of(this.findIsAnyData());
-            this.resolving = false;
-        }
-
-        return this.isAnyData.get();
-    }
-
-    private boolean findIsAnyData() {
-        for (BField field : this.fields.values()) {
-            if (!field.type.isPureType()) {
-                return false;
-            }
-        }
-
-        return (this.sealed || this.restFieldType.isPureType());
     }
 
     @Override

@@ -17,12 +17,16 @@
  */
 package org.ballerinalang.bindgen.model;
 
+import org.ballerinalang.bindgen.command.BindingsGenerator;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.getAllJavaClasses;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassListForLooping;
@@ -58,6 +62,7 @@ public class JMethod {
     private boolean javaArraysModule = false;
     private boolean hasPrimitiveParam = false;
 
+    private Class parentClass;
     private Method method;
     private String methodName;
     private String returnType;
@@ -72,13 +77,15 @@ public class JMethod {
 
     private List<JParameter> parameters = new ArrayList<>();
     private StringBuilder paramTypes = new StringBuilder();
+    private Set<String> importedPackages = new HashSet<>();
 
-    JMethod(Method m) {
+    JMethod(Method m, Class parentClass) {
         method = m;
         javaMethodName = m.getName();
         methodName = m.getName();
         shortClassName = getAlias(m.getDeclaringClass());
         isStatic = isStaticMethod(m);
+        this.parentClass = parentClass;
 
         // Set the attributes required to identify different return types.
         Class returnTypeClass = m.getReturnType();
@@ -94,6 +101,10 @@ public class JMethod {
                     JError jError = new JError(exceptionType);
                     exceptionName = jError.getShortExceptionName();
                     exceptionConstName = jError.getExceptionConstName();
+                    if (BindingsGenerator.getModulesFlag()) {
+                        exceptionName = getPackageAlias(exceptionName, exceptionType);
+                        exceptionConstName = getPackageAlias(exceptionConstName, exceptionType);
+                    }
                     setExceptionList(jError);
                     hasException = true;
                     handleException = true;
@@ -127,6 +138,16 @@ public class JMethod {
 
     private void setReturnTypeAttributes(Class returnTypeClass) {
         hasReturn = true;
+        if (!returnTypeClass.isPrimitive()) {
+            if (returnTypeClass.isArray()) {
+                if (!returnTypeClass.getComponentType().isPrimitive()) {
+                    importedPackages.add(returnTypeClass.getComponentType().getPackageName());
+                }
+            } else {
+                importedPackages.add(returnTypeClass.getPackageName());
+            }
+        }
+
         returnTypeJava = getJavaType(returnTypeClass);
         externalType = getBallerinaHandleType(returnTypeClass);
         returnType = getBallerinaParamType(returnTypeClass);
@@ -144,6 +165,10 @@ public class JMethod {
                 returnComponentType = getAlias(returnTypeClass.getComponentType());
                 returnComponentType = getExceptionName(returnTypeClass.getComponentType(), returnComponentType);
                 returnType = returnComponentType + ARRAY_BRACKETS;
+                if (BindingsGenerator.getModulesFlag()) {
+                    returnType = getPackageAlias(returnType, returnTypeClass.getComponentType());
+                    returnComponentType = getPackageAlias(returnComponentType, returnTypeClass.getComponentType());
+                }
                 objectReturn = true;
             }
         } else if (returnTypeClass.isPrimitive()) {
@@ -151,8 +176,18 @@ public class JMethod {
         } else if (getAlias(returnTypeClass).equals(JAVA_STRING)) {
             isStringReturn = true;
         } else {
+            if (BindingsGenerator.getModulesFlag()) {
+                returnType = getPackageAlias(returnType, returnTypeClass);
+            }
             objectReturn = true;
         }
+    }
+
+    private String getPackageAlias(String shortClassName, Class objectType) {
+        if (objectType.getPackage() != parentClass.getPackage()) {
+            return objectType.getPackageName().replace(".", "") + ":" + shortClassName;
+        }
+        return shortClassName;
     }
 
     private String getExceptionName(Class exception, String name) {
@@ -170,8 +205,9 @@ public class JMethod {
 
     private void setParameters(Parameter[] paramArr) {
         for (Parameter param : paramArr) {
+            importedPackages.add(param.getType().getPackageName());
             paramTypes.append(getAlias(param.getType()).toLowerCase(Locale.ENGLISH));
-            JParameter parameter = new JParameter(param);
+            JParameter parameter = new JParameter(param, parentClass);
             parameters.add(parameter);
             if (parameter.getIsPrimitiveArray()) {
                 javaArraysModule = true;
@@ -261,5 +297,9 @@ public class JMethod {
 
     boolean requireJavaArrays() {
         return javaArraysModule;
+    }
+
+    Set<String> getImportedPackages() {
+        return importedPackages;
     }
 }

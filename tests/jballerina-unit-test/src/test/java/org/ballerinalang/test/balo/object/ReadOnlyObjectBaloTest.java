@@ -21,6 +21,8 @@ package org.ballerinalang.test.balo.object;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -35,8 +37,8 @@ public class ReadOnlyObjectBaloTest {
 
     private CompileResult result;
 
-    @Test
-    public void testReadonlyRecordFields() {
+    @BeforeClass
+    public void setup() {
         BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_project_readonly_obj");
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_readonly_objects.bal");
     }
@@ -52,8 +54,13 @@ public class ReadOnlyObjectBaloTest {
                 BCompileUtil.compile("test-src/balo/test_balo/object/test_readonly_objects_negative.bal");
         int index = 0;
 
-        validateError(result, index++, "invalid intersection type: cannot have a 'readonly' intersection with a " +
-                "'readonly object'", 20, 5);
+        validateError(result, index++, "cannot initialize abstract object '(testorg/readonly_objects:" +
+                "1.0.0:CustomController & readonly)'", 20, 54);
         assertEquals(result.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

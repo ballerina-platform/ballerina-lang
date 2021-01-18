@@ -655,7 +655,7 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
     }
 
     // Set the fields of the object
-    mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setAttachedFunctions",
+    mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setMethods",
             io:sprintf("([L%s;)V", ATTACHED_FUNCTION), false);
 }
 

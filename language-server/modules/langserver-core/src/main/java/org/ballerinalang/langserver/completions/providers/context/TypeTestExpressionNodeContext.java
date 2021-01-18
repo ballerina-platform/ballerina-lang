@@ -21,7 +21,7 @@ import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -35,7 +35,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<TypeTestExpressionNode> {
 
     public TypeTestExpressionNodeContext() {
@@ -43,7 +43,7 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(CompletionContext context, TypeTestExpressionNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TypeTestExpressionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.onQualifiedNameIdentifier(context, node.typeDescriptor())) {

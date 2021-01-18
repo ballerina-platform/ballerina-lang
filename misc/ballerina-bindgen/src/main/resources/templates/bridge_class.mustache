@@ -9,6 +9,8 @@
 {{/unless}}
 import ballerina/java;{{#if importJavaArraysModule}}
 import ballerina/jarrays;{{/if}}
+{{#importedPackages}}
+import {{balPackageName}}.{{#escapeReservedWord this ""}}{{/escapeReservedWord}} as {{#replace this "." ""}}{{/replace}};{{/importedPackages}}
 
 # Ballerina object mapping for {{#if isInterface}}Java interface{{else}}{{#if isAbstract}}Java abstract class{{else}}Java class{{/if}}{{/if}} `{{className}}`.
 #
@@ -46,7 +48,7 @@ import ballerina/jarrays;{{/if}}
     {{accessModifier}}function {{#if reservedWord}}{{#controlChars methodName ""}}{{/controlChars}}{{else}}{{methodName}}{{/if}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) {{#getReturn this ""}}{{/getReturn}}{{#if (getReturn this "")}} {{/if}}{
         {{#if hasReturn}}{{externalType}}{{#if handleException}}|error{{/if}} externalObj = {{prefix}}_{{methodName}}(self.jObj{{#hasParams}}, {{/hasParams}}{{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}});{{#if handleException}}
         if (externalObj is error) {
-            {{exceptionName}} e = {{exceptionName}}({{exceptionConstName}}, message = externalObj.message(), cause = externalObj);
+            {{exceptionName}} e = error {{exceptionName}}({{exceptionConstName}}, message = externalObj.message(), cause = externalObj);
             return e;
         } else { {{/if}}{{#if objectReturn}}{{#if isArrayReturn}}
         {{returnType}} obj = [];
@@ -62,7 +64,7 @@ import ballerina/jarrays;{{/if}}
         return {{#if isStringReturn}}java:toString({{else if isArrayReturn}}<{{returnType}}>check jarrays:fromHandle({{/if}}externalObj{{#if isStringReturn}}){{else if isArrayReturn}}, "{{returnTypeJava}}"){{/if}};{{/if}}{{#if handleException}}
         }{{/if}}{{else}}{{#if hasException}}error|{{/if}}() obj = {{prefix}}_{{methodName}}(self.jObj{{#hasParams}}, {{/hasParams}}{{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}});{{#if hasException}}
         if (obj is error) {
-            {{#if handleException}}{{exceptionName}} e = {{exceptionName}}({{exceptionConstName}}, message = obj.message(), cause = obj);
+            {{#if handleException}}{{exceptionName}} e = error {{exceptionName}}({{exceptionConstName}}, message = obj.message(), cause = obj);
             return e;{{else}}return obj;{{/if}}
         }{{/if}}{{/if}}
     }{{/unless}}{{/methodList}}{{#fieldList}}{{#unless isStatic}}{{#if isSetter}}
@@ -89,7 +91,7 @@ import ballerina/jarrays;{{/if}}
 {{accessModifier}}function new{{shortClassName}}{{constructorName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) returns {{shortClassName}}{{#if hasException}}{{#if handleException}}|{{exceptionName}}{{/if}}{{#if returnError}}|error{{/if}}{{/if}} {
     handle{{#if handleException}}|error{{/if}} obj = {{prefix}}_{{externalFunctionName}}({{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}});{{#if handleException}}
     if (obj is error) {
-        {{exceptionName}} e = {{exceptionName}}({{exceptionConstName}}, message = obj.message(), cause = obj);
+        {{exceptionName}} e = error {{exceptionName}}({{exceptionConstName}}, message = obj.message(), cause = obj);
         return e;
     } else { {{/if}}
     {{shortClassName}} {{initObjectName}} = new(obj);
@@ -105,7 +107,7 @@ import ballerina/jarrays;{{/if}}
 {{accessModifier}}function {{shortClassName}}_{{methodName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) {{#getReturn this ""}}{{/getReturn}}{{#if (getReturn this "")}} {{/if}}{
     {{#if hasReturn}}{{externalType}}{{#if handleException}}|error{{/if}} externalObj = {{prefix}}_{{methodName}}({{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}});{{#if handleException}}
     if (externalObj is error) {
-        {{exceptionName}} e = {{exceptionName}}({{exceptionConstName}}, message = externalObj.message(), cause = externalObj);
+        {{exceptionName}} e = error {{exceptionName}}({{exceptionConstName}}, message = externalObj.message(), cause = externalObj);
         return e;
     } else { {{/if}}{{#if objectReturn}}{{#if isArrayReturn}}
     {{returnType}} obj = [];
@@ -121,7 +123,7 @@ import ballerina/jarrays;{{/if}}
     return {{#if isStringReturn}}java:toString({{else if isArrayReturn}}<{{returnType}}>check jarrays:fromHandle({{/if}}externalObj{{#if isStringReturn}}){{else if isArrayReturn}}, "{{returnTypeJava}}"){{/if}};{{/if}}{{#if handleException}}
     }{{/if}}{{else}}{{#if hasException}}error|{{/if}}() obj = {{prefix}}_{{methodName}}({{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}});{{#if hasException}}
     if (obj is error) {
-        {{#if handleException}}{{exceptionName}} e = {{exceptionName}}({{exceptionConstName}}, message = obj.message(), cause = obj);
+        {{#if handleException}}{{exceptionName}} e = error {{exceptionName}}({{exceptionConstName}}, message = obj.message(), cause = obj);
         return e;{{else}}return obj;{{/if}}
     }{{/if}}{{/if}}
 }

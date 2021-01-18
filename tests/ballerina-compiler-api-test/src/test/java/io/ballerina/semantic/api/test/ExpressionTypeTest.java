@@ -329,6 +329,6 @@ public class ExpressionTypeTest {
     private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {
         LinePosition start = LinePosition.from(sLine, sCol);
         LinePosition end = LinePosition.from(eLine, eCol);
-        return model.type("expressions_test.bal", LineRange.from("expressions_test.bal", start, end)).get();
+        return model.type(LineRange.from("expressions_test.bal", start, end)).get();
     }
 }

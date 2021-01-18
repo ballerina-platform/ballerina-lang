@@ -57,7 +57,6 @@ public class BLangService extends BLangNode implements ServiceNode {
     public BType listenerType;
     public List<BLangFunction> resourceFunctions;
 
-
     public BLangSimpleVariable serviceVariable;
     public List<IdentifierNode> absoluteResourcePath;
     public BLangLiteral serviceNameLiteral;
