@@ -85,7 +85,7 @@ public class SymbolFlagToQualifierMappingTest {
                 {19, 20, Set.of(PUBLIC)},
                 {35, 19, Set.of(READONLY)},
                 {49, 20, Set.of(ISOLATED)},
-                {52, 22, Set.of(READONLY, PUBLIC)},
+                {52, 22, Set.of(READONLY)},
                 {56, 16, Set.of(CLIENT)},
                 {57, 22, Set.of(REMOTE)},
                 {65, 17, Set.of(LISTENER, FINAL)},

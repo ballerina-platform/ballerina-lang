@@ -15,21 +15,22 @@
 // under the License.
 
 type PersonRecord record {|
-    string name;
+    readonly string name;
     int age = 0;
     string location?;
 |};
 
 type PersonObject object {
-    string fname;
+    public string fname;
     string lname;
 
     public function getFullName() returns string;
 };
 
 public class PersonClass {
-    public string fName = "Anonymous";
-    string lName;
+    public final string fName = "Anonymous";
+    private string lName;
+    int age = 0;
 
     public function init(string fname, string lname) {
         self.fname = fname;
