@@ -100,10 +100,12 @@ public class DiagnosticsTest {
     String getResponse(JsonObject configJsonObject) {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         DocumentServiceContext serviceContext = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
-                this.workspaceManager, LSContextOperation.TXT_DID_OPEN, this.serverContext);
+                                                                                this.workspaceManager,
+                                                                                LSContextOperation.TXT_DID_OPEN,
+                                                                                this.serverContext);
         workspaceManager.didOpen(sourcePath, null);
-        Map<String, List<Diagnostic>> diagnostics = DiagnosticsHelper.getInstance(serverContext)
-                .getBallerinaDiagnostics(serviceContext);
+        DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(serverContext);
+        Map<String, List<Diagnostic>> diagnostics = diagnosticsHelper.getLatestDiagnostics(serviceContext);
 
         return gson.toJson(diagnostics).replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
