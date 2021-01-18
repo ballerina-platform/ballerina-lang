@@ -61,7 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
@@ -124,8 +124,8 @@ public class SymbolFactory {
             if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
                 return createWorkerSymbol((BVarSymbol) symbol, name);
             }
-            if (symbol.owner instanceof BRecordTypeSymbol) {
-                return createRecordFieldSymbol((BVarSymbol) symbol);
+            if (symbol.owner instanceof BRecordTypeSymbol || symbol.owner instanceof BObjectTypeSymbol) {
+                return createFieldSymbol((BVarSymbol) symbol);
             }
 
             // return the variable symbol
@@ -266,9 +266,9 @@ public class SymbolFactory {
                 .build();
     }
 
-    public BallerinaFieldSymbol createRecordFieldSymbol(BVarSymbol symbol) {
+    public BallerinaFieldSymbol createFieldSymbol(BVarSymbol symbol) {
         String fieldName = symbol.name.value;
-        BRecordType type = (BRecordType) symbol.owner.type;
+        BStructureType type = (BStructureType) symbol.owner.type;
         BField field = type.fields.get(fieldName);
         return new BallerinaFieldSymbol(this.context, field);
     }

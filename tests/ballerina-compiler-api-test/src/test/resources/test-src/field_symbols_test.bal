@@ -14,14 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person record {|
+type PersonRecord record {|
     string name;
     int age = 0;
     string location?;
 |};
 
-class Person1 {
+type PersonObject object {
     string fname;
+    string lname;
+
+    public function getFullName() returns string;
+};
+
+class PersonClass {
+    string fname = "Anonymous";
     string lname;
 
     public function init(string fname, string lname) {

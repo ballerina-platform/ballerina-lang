@@ -59,4 +59,14 @@ public class FieldSymbolTest {
         FieldSymbol fieldSymbol = (FieldSymbol) symbol;
         assertEquals(fieldSymbol.name(), "name");
     }
+
+    @Test
+    public void testObjectFields() {
+        Symbol symbol = model.symbol(srcFile, from(23, 11))
+                .orElseThrow(() -> new AssertionError("Expected a symbol at: (23, 11)"));
+        assertEquals(symbol.kind(), SymbolKind.FIELD);
+
+        FieldSymbol fieldSymbol = (FieldSymbol) symbol;
+        assertEquals(fieldSymbol.name(), "fname");
+    }
 }
