@@ -2704,7 +2704,9 @@ public class Types {
             sourceTypes.add(source);
         }
 
+        boolean targetIsAUnion = false;
         if (target.tag == TypeTags.UNION) {
+            targetIsAUnion = true;
             targetTypes.addAll(getEffectiveMemberTypes((BUnionType) target));
         } else {
             targetTypes.add(target);
@@ -2728,6 +2730,16 @@ public class Types {
             }
 
             if (!isValueType(s)) {
+                // prevent cyclic unions being compared as individual items
+                if (s instanceof BUnionType && targetIsAUnion) {
+                    BUnionType sUnion = (BUnionType) s;
+                    BUnionType targetUnion = (BUnionType) target;
+                    if (sUnion.isCyclic && targetUnion.isCyclic) {
+                         if (isAssignable(sUnion, targetUnion, unresolvedTypes)) {
+                             return true;
+                         }
+                    }
+                }
                 continue;
             }
 
