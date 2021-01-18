@@ -457,8 +457,8 @@ public class FreezeAndIsFrozenTest {
         validateError(semanticsNegativeResult, index++,
                       "incompatible types: expected 'CloneableType', found '(PersonObjTwo|PersonObj)?[]'", 32, 10);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'CloneableType', found '[(PersonObj|PersonObjTwo),PersonObjTwo]'", 39,
-                9);
+                      "incompatible types: expected 'CloneableType', found '[(PersonObj|PersonObjTwo),PersonObjTwo]'",
+                39, 9);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'CloneableType', found 'Department'", 44, 9);
         validateError(semanticsNegativeResult, index++,
@@ -474,20 +474,20 @@ public class FreezeAndIsFrozenTest {
                 "incompatible types: expected 'CloneableType', found '[(string|PersonObj),"
                 + "(FreezeAllowedDepartment|float)]'", 60, 60);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'CloneableType', found 'FreezeAllowedDepartment'", 63, 35);
+                "incompatible types: expected 'CloneableType', found 'FreezeAllowedDepartment'", 63, 35);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'CloneableType', found '(string|PersonObj)'", 66, 27);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'any', found 'error'", 71, 9);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'CloneableType', found 'map<(string|PersonObj)>'", 81, 39);
+                "incompatible types: expected 'CloneableType', found 'map<(string|PersonObj)>'", 81, 39);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'CloneableType', found 'FreezeAllowedDepartment2'", 100, 42);
+                "incompatible types: expected 'CloneableType', found 'FreezeAllowedDepartment2'", 100, 42);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'CloneableType', found '[int,(string|PersonObj|float),boolean]'", 106,
-                      21);
+                "incompatible types: expected 'CloneableType', found '[int,(string|PersonObj|float),boolean]'",
+                106, 21);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'CloneableType', found '(int|Department|PersonObj)'", 113, 42);
+                "incompatible types: expected 'CloneableType', found '(int|Department|PersonObj)'", 113, 42);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'CloneableType', found '(anydata|error)'", 120, 19);
         validateError(semanticsNegativeResult, index,
