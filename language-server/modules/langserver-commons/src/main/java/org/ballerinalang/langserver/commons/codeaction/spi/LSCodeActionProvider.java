@@ -15,10 +15,11 @@
  */
 package org.ballerinalang.langserver.commons.codeaction.spi;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Diagnostic;
 
 import java.util.List;
 
@@ -43,7 +44,7 @@ public interface LSCodeActionProvider {
      *
      * @return True if code action is enabled, False otherwise
      */
-    default boolean isEnabled() {
+    default boolean isEnabled(LanguageServerContext serverContext) {
         return true;
     }
 
@@ -58,8 +59,8 @@ public interface LSCodeActionProvider {
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
-     * @param diagnostic      diagnostic to evaluate
-     * @param context         language server context
+     * @param diagnostic diagnostic to evaluate
+     * @param context    language server context
      * @return list of Code Actions
      */
     List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,

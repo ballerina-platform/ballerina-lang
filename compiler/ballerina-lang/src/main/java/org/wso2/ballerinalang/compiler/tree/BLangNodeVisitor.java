@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicParamExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
@@ -128,7 +129,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
@@ -368,11 +371,19 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangListMatchPattern listMatchPattern) {
+    public void visit(BLangMappingMatchPattern mappingMatchPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangFieldMatchPattern fieldMatchPattern) {
         throw new AssertionError();
     }
 
     public void visit(BLangRestMatchPattern restMatchPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangListMatchPattern listMatchPattern) {
         throw new AssertionError();
     }
 
@@ -687,6 +698,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangCheckedExpr checkedExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         throw new AssertionError();
     }
 

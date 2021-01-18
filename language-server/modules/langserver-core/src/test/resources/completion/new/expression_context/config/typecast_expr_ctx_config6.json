@@ -412,6 +412,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "base16",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "base16 `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "base64",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "base64 `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "value2",
       "kind": "Variable",
       "detail": "string",

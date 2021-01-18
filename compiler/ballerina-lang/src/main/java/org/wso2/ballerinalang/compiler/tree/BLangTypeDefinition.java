@@ -45,6 +45,7 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
     public Set<Flag> flagSet;
     public int precedence;
     public boolean isBuiltinTypeDef;
+    public boolean hasCyclicReference = false;
 
     public BTypeSymbol symbol;
 

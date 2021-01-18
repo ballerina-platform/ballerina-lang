@@ -19,15 +19,19 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
@@ -39,15 +43,18 @@ import static org.testng.Assert.assertNull;
 public class SymbolPositionTest {
 
     private SemanticModel model;
+    private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        model = SemanticAPITestUtils.getDefaultModulesSemanticModel("test-src/symbol_position_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbol_position_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
 
     @Test(dataProvider = "PositionProvider")
     public void testSymbolPositions(int sLine, int sCol, int eLine, int eCol, String expSymbolName) {
-        Optional<Symbol> symbol = model.symbol("symbol_position_test.bal", LinePosition.from(sLine, sCol));
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(sLine, sCol));
 
         if (!symbol.isPresent()) {
             assertNull(expSymbolName);
@@ -84,7 +91,7 @@ public class SymbolPositionTest {
 
     @Test(dataProvider = "PositionProvider2")
     public void testTypeNarrowedSymbolPositions(int line, int col) {
-        Optional<Symbol> symbol = model.symbol("symbol_position_test.bal", LinePosition.from(line, col));
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
 
         assertEquals(symbol.get().name(), "val");
 

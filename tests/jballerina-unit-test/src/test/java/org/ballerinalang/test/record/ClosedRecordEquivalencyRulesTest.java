@@ -22,6 +22,7 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -110,5 +111,10 @@ public class ClosedRecordEquivalencyRulesTest {
                       25);
         validateError(openRecToClosedRec, index, "incompatible types: expected 'AnotherPerson4', found 'Person2'", 74,
                       25);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        closedRecToClosedRec = null;
     }
 }

@@ -30,12 +30,14 @@ public class JError {
     private String accessModifier;
     private String exceptionConstName;
     private String shortExceptionName;
+    private String packageName;
 
     JError(Class exception) {
 
         exceptionName = exception.getName();
         shortExceptionName = exception.getSimpleName();
         exceptionConstName = exception.getSimpleName().toUpperCase(Locale.ENGLISH);
+        packageName = exception.getPackage().getName();
     }
 
     public String getShortExceptionName() {
@@ -44,6 +46,10 @@ public class JError {
 
     public String getExceptionConstName() {
         return exceptionConstName;
+    }
+
+    public String getPackageName() {
+      return packageName;
     }
 
     public void setAccessModifier(String accessModifier) {

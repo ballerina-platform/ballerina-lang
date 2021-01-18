@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -116,7 +117,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -321,6 +324,13 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        rewrite(errorConstructorExpr.positionalArgs);
+        rewrite(errorConstructorExpr.namedArgs);
+        result = errorConstructorExpr;
+    }
+
+    @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInv) {
         actionInv.expr = rewrite(actionInv.expr);
         rewrite(actionInv.requiredArgs);
@@ -505,6 +515,16 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangListMatchPattern listMatchPattern) {
         result = listMatchPattern;
+    }
+
+    @Override
+    public void visit(BLangMappingMatchPattern mappingMatchPattern) {
+        result = mappingMatchPattern;
+    }
+
+    @Override
+    public void visit(BLangFieldMatchPattern fieldMatchPattern) {
+        result = fieldMatchPattern;
     }
 
     @Override

@@ -93,13 +93,13 @@ public transactional isolated function getData() returns (any|error) & readonly 
 
 # Type of a commit handler function.
 # + info - information about the transaction being committed
-public type CommitHandler function(Info info);
+public type CommitHandler isolated function(Info info);
 
 # Type of a rollback handler function.
 # + info - information about the transaction being committed
 # + cause - an error describing the cause of the rollback, if there is
 # + willRetry - true if the transaction will be retried, false otherwise
-public type RollbackHandler function(Info info, error? cause, boolean willRetry);
+public type RollbackHandler isolated function(Info info, error? cause, boolean willRetry);
 
 # Adds a handler to be called if and when the global transaction commits.
 #

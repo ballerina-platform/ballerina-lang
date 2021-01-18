@@ -133,3 +133,7 @@ function testEqualsIgnoreCaseAscii() {
         i = i + 1;
     }
 }
+
+function testIncludes() returns boolean {
+    return strings:includes(str1, str, 6);
+}

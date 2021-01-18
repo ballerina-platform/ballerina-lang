@@ -25,6 +25,8 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -72,20 +74,22 @@ public class BallerinaSemanticModel implements SemanticModel {
     private final CompilerContext compilerContext;
     private final SymbolFactory symbolFactory;
     private final TypesFactory typesFactory;
+    private final SymbolTable symbolTable;
 
     public BallerinaSemanticModel(BLangPackage bLangPackage, CompilerContext context) {
         this.compilerContext = context;
         this.bLangPackage = bLangPackage;
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.typesFactory = TypesFactory.getInstance(context);
+        this.symbolTable = SymbolTable.getInstance(context);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<Symbol> visibleSymbols(String fileName, LinePosition linePosition) {
-        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+    public List<Symbol> visibleSymbols(Document srcFile, LinePosition linePosition) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(srcFile);
         BPackageSymbol moduleSymbol = getModuleSymbol(compilationUnit);
         SymbolTable symbolTable = SymbolTable.getInstance(this.compilerContext);
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(moduleSymbol);
@@ -120,23 +124,21 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public Optional<Symbol> symbol(String fileName, LinePosition position) {
-        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
-        SymbolFinder symbolFinder = new SymbolFinder();
-        BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
+    public Optional<Symbol> symbol(Document sourceDocument, LinePosition position) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(sourceDocument);
+        return lookupSymbol(compilationUnit, position);
+    }
 
-        if (symbolAtCursor == null) {
+    @Override
+    public Optional<Symbol> symbol(Node node) {
+        Optional<Location> nodeIdentifierLocation = node.apply(new SyntaxNodeToLocationMapper());
+
+        if (nodeIdentifierLocation.isEmpty()) {
             return Optional.empty();
         }
 
-        if (isTypeSymbol(symbolAtCursor) && !PositionUtil.withinBlock(position, symbolAtCursor.pos)) {
-            ModuleID moduleID = new BallerinaModuleID(symbolAtCursor.pkgID);
-            return Optional.of(new BallerinaTypeReferenceTypeSymbol(this.compilerContext, moduleID, symbolAtCursor.type,
-                                                                    symbolAtCursor.getName().getValue()));
-        }
-
-        return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor, symbolAtCursor.name.value));
-
+        BLangCompilationUnit compilationUnit = getCompilationUnit(nodeIdentifierLocation.get().lineRange().filePath());
+        return lookupSymbol(compilationUnit, nodeIdentifierLocation.get().lineRange().startLine());
     }
 
     /**
@@ -180,8 +182,8 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public List<Location> references(String fileName, LinePosition position) {
-        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+    public List<Location> references(Document sourceDocument, LinePosition position) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(sourceDocument);
         SymbolFinder symbolFinder = new SymbolFinder();
         BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
 
@@ -199,8 +201,8 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public Optional<TypeSymbol> type(String fileName, LineRange range) {
-        BLangCompilationUnit compilationUnit = getCompilationUnit(fileName);
+    public Optional<TypeSymbol> type(LineRange range) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(range.filePath());
         NodeFinder nodeFinder = new NodeFinder();
         BLangNode node = nodeFinder.lookup(compilationUnit, range);
 
@@ -240,6 +242,26 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     // Private helper methods for the public APIs above.
 
+    private Optional<Symbol> lookupSymbol(BLangCompilationUnit compilationUnit, LinePosition position) {
+        SymbolFinder symbolFinder = new SymbolFinder();
+        BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
+
+        if (symbolAtCursor == null || symbolAtCursor == symbolTable.notFoundSymbol) {
+            return Optional.empty();
+        }
+
+        if (isTypeSymbol(symbolAtCursor) &&
+                !(compilationUnit.getPackageID().equals(symbolAtCursor.pkgID)
+                        && compilationUnit.getName().equals(symbolAtCursor.pos.lineRange().filePath())
+                        && PositionUtil.withinBlock(position, symbolAtCursor.pos))) {
+            ModuleID moduleID = new BallerinaModuleID(symbolAtCursor.pkgID);
+            return Optional.of(new BallerinaTypeReferenceTypeSymbol(this.compilerContext, moduleID, symbolAtCursor.type,
+                                                                    symbolAtCursor.getName().getValue()));
+        }
+
+        return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor, symbolAtCursor.name.value));
+    }
+
     private boolean hasCursorPosPassedSymbolPos(BSymbol symbol, Location cursorPos) {
         if (symbol.origin != SOURCE) {
             return false;
@@ -271,6 +293,10 @@ public class BallerinaSemanticModel implements SemanticModel {
     private boolean isImportedSymbol(BSymbol symbol) {
         return symbol.origin == COMPILED_SOURCE &&
                 (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC) || symbol.getKind() == SymbolKind.PACKAGE);
+    }
+
+    private BLangCompilationUnit getCompilationUnit(Document srcFile) {
+        return getCompilationUnit(srcFile.name());
     }
 
     private BLangCompilationUnit getCompilationUnit(String srcFile) {

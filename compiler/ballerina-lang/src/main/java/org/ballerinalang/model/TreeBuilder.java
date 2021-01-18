@@ -60,6 +60,7 @@ import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.CheckPanickedExpressionNode;
 import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
 import org.ballerinalang.model.tree.expressions.ElvisExpressionNode;
+import org.ballerinalang.model.tree.expressions.ErrorConstructorExpressionNode;
 import org.ballerinalang.model.tree.expressions.ErrorVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
@@ -107,8 +108,10 @@ import org.ballerinalang.model.tree.expressions.XMLQNameNode;
 import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
 import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
 import org.ballerinalang.model.tree.matchpatterns.ConstPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.FieldMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.ListMatchPatternNode;
-import org.ballerinalang.model.tree.matchpatterns.RestMatchPattern;
+import org.ballerinalang.model.tree.matchpatterns.MappingMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.RestMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.VarBindingPatternMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.WildCardMatchPatternNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
@@ -210,6 +213,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -267,7 +271,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
@@ -425,6 +431,10 @@ public class TreeBuilder {
 
     public static ErrorDestructureNode createErrorDestructureStatementNode() {
         return new BLangErrorDestructure();
+    }
+
+    public static ErrorConstructorExpressionNode createErrorConstructorExpressionNode() {
+        return new BLangErrorConstructorExpr();
     }
 
     public static ExpressionStatementNode createExpressionStatementNode() {
@@ -772,8 +782,16 @@ public class TreeBuilder {
         return new BLangListMatchPattern();
     }
 
-    public static RestMatchPattern createRestMatchPattern() {
+    public static MappingMatchPatternNode createMappingMatchPattern() {
+        return new BLangMappingMatchPattern();
+    }
+
+    public static RestMatchPatternNode createRestMatchPattern() {
         return new BLangRestMatchPattern();
+    }
+
+    public static FieldMatchPatternNode createFieldMatchPattern() {
+        return new BLangFieldMatchPattern();
     }
 
     public static MatchClauseNode createMatchClause() {

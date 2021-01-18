@@ -67,7 +67,8 @@ public class ModulePartNodeContextUtil {
                 Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION, /*Snippet.DEF_SERVICE, Snippet.DEF_SERVICE_WEBSOCKET,
                 Snippet.DEF_SERVICE_WS_CLIENT, Snippet.DEF_SERVICE_GRPC,*/ Snippet.DEF_ANNOTATION, Snippet.DEF_RECORD,
                 Snippet.STMT_NAMESPACE_DECLARATION, Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM,
-                Snippet.DEF_CLOSED_RECORD, Snippet.DEF_ERROR_TYPE
+                Snippet.DEF_CLOSED_RECORD, Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC,
+                Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC
         );
 
         snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));

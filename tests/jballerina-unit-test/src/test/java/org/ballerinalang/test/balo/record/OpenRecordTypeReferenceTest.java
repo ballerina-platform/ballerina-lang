@@ -30,6 +30,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -170,5 +171,10 @@ public class OpenRecordTypeReferenceTest {
     @Test()
     public void testCreatingRecordWithOverriddenFields() {
         BRunUtil.invoke(compileResult, "testCreatingRecordWithOverriddenFields");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

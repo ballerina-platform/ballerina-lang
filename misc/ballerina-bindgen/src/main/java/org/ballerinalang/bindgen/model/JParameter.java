@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.bindgen.model;
 
+import org.ballerinalang.bindgen.command.BindingsGenerator;
+
 import java.lang.reflect.Parameter;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.getAllJavaClasses;
@@ -40,16 +42,23 @@ public class JParameter {
     private String componentType;
     private String fieldName;
 
+    private Class parentClass;
+    private Class parameterClass;
+
     private Boolean isObj = false;
     private Boolean hasNext = true;
     private Boolean isString = false;
     private Boolean isObjArray = false;
+    private boolean modulesFlag = false;
     private Boolean isStringArray = false;
     private Boolean isPrimitiveArray = false;
 
-    JParameter(Class parameterClass) {
+    JParameter(Class parameterClass, Class parentClass) {
+        this.parameterClass = parameterClass;
+        this.parentClass = parentClass;
         type = parameterClass.getName();
         shortTypeName = getBallerinaParamType(parameterClass);
+        modulesFlag = BindingsGenerator.getModulesFlag();
 
         // Append the prefix "J" in front of bindings generated for Java exceptions.
         try {
@@ -75,6 +84,9 @@ public class JParameter {
                 if (parameterClass.isArray()) {
                     setArrayAttributes(parameterClass);
                 } else {
+                    if (modulesFlag) {
+                        shortTypeName = getPackageAlias(shortTypeName, parameterClass);
+                    }
                     String paramType = parameterClass.getName();
                     if (!getAllJavaClasses().contains(paramType)) {
                         setClassListForLooping(paramType);
@@ -86,8 +98,8 @@ public class JParameter {
         fieldName = "arg";
     }
 
-    JParameter(Parameter parameter) {
-        this(parameter.getType());
+    JParameter(Parameter parameter, Class parentClass) {
+        this(parameter.getType(), parentClass);
         fieldName = parameter.getName();
     }
 
@@ -97,6 +109,9 @@ public class JParameter {
         if (!parameterClass.getComponentType().isPrimitive()) {
             isObjArray = true;
             isObj = false;
+            if (modulesFlag) {
+                shortTypeName = getPackageAlias(shortTypeName, component);
+            }
             String componentClass = parameterClass.getComponentType().getName();
             if (!getAllJavaClasses().contains(componentClass)) {
                 setClassListForLooping(componentClass);
@@ -105,6 +120,13 @@ public class JParameter {
             shortTypeName = getPrimitiveArrayType(type);
             isPrimitiveArray = true;
         }
+    }
+
+    private String getPackageAlias(String shortTypeName, Class parameterClass) {
+        if (parameterClass.getPackage() != parentClass.getPackage()) {
+            return parameterClass.getPackageName().replace(".", "") + ":" + shortTypeName;
+        }
+        return shortTypeName;
     }
 
     void setHasNext(boolean hasNext) {

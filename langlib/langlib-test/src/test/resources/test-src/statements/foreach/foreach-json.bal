@@ -20,7 +20,7 @@ function testJSONObject () returns string|error {
 function testJSONArray () returns (string) {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    json element = <json> j1.subjects;
+    json element = checkpanic j1.subjects;
     if element is json[] {
         foreach var j in element {
             concatString(j.toJsonString());
@@ -49,7 +49,7 @@ function testArrayOfJSON () returns string | error {
 function testJSONString () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    foreach var j in <map<json>>j1.name {
+    foreach var j in <map<json>> checkpanic j1.name {
         concatString(j.toJsonString());
     }
     return output;
@@ -58,7 +58,7 @@ function testJSONString () returns string|error {
 function testJSONNumber () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    foreach var j in <map<json>>j1.age {
+    foreach var j in <map<json>> checkpanic j1.age {
         concatString(j.toJsonString());
     }
     return output;
@@ -67,16 +67,16 @@ function testJSONNumber () returns string|error {
 function testJSONBoolean () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    foreach var j in <map<json>>j1.pass {
+    foreach var j in <map<json>> checkpanic j1.pass {
         concatString(j.toJsonString());
     }
     return output;
 }
 
-function testJSONNull () returns string|error {
+function testJSONNull() returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    foreach var j in <map<json>>j1.city {
+    foreach var j in <map<json>> checkpanic j1.city {
         concatString(j.toJsonString());
     }
     return output;

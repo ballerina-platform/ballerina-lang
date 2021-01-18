@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess;
@@ -702,7 +703,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(invocationExpr.annAttachments);
         find(invocationExpr.restArgs);
 
-        if (!invocationExpr.pkgAlias.value.isEmpty()) {
+        if (!invocationExpr.pkgAlias.value.isEmpty() && invocationExpr.symbol != null) {
             addIfSameSymbol(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos);
         }
         addIfSameSymbol(invocationExpr.symbol, invocationExpr.name.pos);
@@ -1016,6 +1017,13 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangErrorType errorType) {
         find(errorType.detailType);
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        find(errorConstructorExpr.errorTypeRef);
+        find(errorConstructorExpr.positionalArgs);
+        find(errorConstructorExpr.namedArgs);
     }
 
     @Override

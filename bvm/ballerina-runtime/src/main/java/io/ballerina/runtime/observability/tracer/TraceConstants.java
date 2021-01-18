@@ -18,8 +18,6 @@
 
 package io.ballerina.runtime.observability.tracer;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
-
 /**
  * {@code TraceConstants} define tracer constants.
  *
@@ -48,8 +46,4 @@ public class TraceConstants {
     public static final String LOG_KEY_EVENT_TYPE = "event";
     public static final String LOG_ERROR_KIND_EXCEPTION = "Exception";
     public static final String LOG_EVENT_TYPE_ERROR = "error";
-
-    public static final String JAEGER = "jaeger";
-    public static final String TRACER_NAME_CONFIG = CONFIG_TABLE_TRACING + ".name";
-
 }

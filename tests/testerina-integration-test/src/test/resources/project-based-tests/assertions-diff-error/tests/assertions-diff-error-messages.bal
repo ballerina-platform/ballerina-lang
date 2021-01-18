@@ -45,7 +45,7 @@ function testAssertStringValues() {
     error result = <error>err;
     test:assertTrue(result.message().toString().endsWith("--- expected\n+++ " +
     "actual \n \n @@ -1,1 +1,1 @@ \n \n -hello" +
-    " userr\n+hello user\n \n"));
+    " userr\n+hello user\n"));
 }
 
 @test:Config {}
@@ -63,7 +63,7 @@ function testAssertLongStringValues() {
     "programming language and platform for cloud-era appl\n-ication programmersss." +
     "\n+ication programmers.\n Sequence diagrams have been everyone’s " +
     "favorite tool to describe how distributed\n- & concurrent programs work.\n" +
-    "+ & conccurrent programs work.\n \n"));
+    "+ & conccurrent programs work.\n"));
 }
 
 @test:Config {}
@@ -72,7 +72,7 @@ function testAssertMultipleLinesString() {
     error result = <error>err;
     test:assertTrue(result.message().toString().endsWith("--- expected\n+++ " +
     "actual \n \n @@ -1,2 +1,2 @@ \n \n -hello userr\n+hello user\n Welcome to " +
-    "Ballerina\n \n"));
+    "Ballerina\n"));
 }
 
 @test:Config {}
@@ -101,8 +101,8 @@ function testAssertJsonValues() {
     "\nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"address\":" +
     "{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka...'\nactual\t: '" +
     "{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\"," +
-    "\"country\":\"Sri Lanka\"}}'\n \nDiff\t:\n \n\n \nkey: name\nexpected " +
-    "value\t: John Doe New\nactual value\t: John Doe \n \n");
+    "\"country\":\"Sri Lanka\"}}'\n \nDiff\t:\n\nkey: name\n \nexpected " +
+    "value\t: John Doe New\nactual value\t: John Doe");
 }
 
 @test:Config {}
@@ -115,9 +115,9 @@ function testAssertJsonInJson() {
     "\nexpected: '{\"name\":\"Anne\",\"age\":21,\"marks\":{\"maths\":100," +
     "\"physics\":90,\"status\":{\"pass\":false...'\nactual\t: '" +
     "{\"name\":\"Anne\",\"age\":\"21\",\"marks\":{\"maths\":100,\"physics\":90," +
-    "\"status\":{\"pass\":tru...'\n \nDiff\t:\n \n\n \nkey: age\nexpected " +
-    "value\t: <int> 21\nactual value\t: <string> 21 \n\n \nkey: marks.status." +
-    "pass\nexpected value\t: false\nactual value\t: true \n \n");
+    "\"status\":{\"pass\":tru...'\n \nDiff\t:\n\nkey: age\n \nexpected " +
+    "value\t: <int> 21\nactual value\t: <string> 21\n\nkey: marks.status." +
+    "pass\n \nexpected value\t: false\nactual value\t: true");
 }
 
 @test:Config {}
@@ -129,8 +129,8 @@ function testAssertLongJsonValues() {
     test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name\":\"John Doe New\"," +
     "\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\nactual\t: '{\"name\":" +
     "\"John Doe Old\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\n \n" +
-    "Diff\t:\n \n\n \nkey: name\nexpected value\t: John Doe New\nactual value\t: John Doe Old \n\n \n" +
-    "key: address.country\nexpected value\t: Sri Lanka\nactual value\t: Sri Lankaa \n \n");
+    "Diff\t:\n\nkey: name\n \nexpected value\t: John Doe New\nactual value\t: John Doe Old\n\n" +
+    "key: address.country\n \nexpected value\t: Sri Lanka\nactual value\t: Sri Lankaa");
 }
 
 @test:Config {}
@@ -143,9 +143,9 @@ function testAssertJsonWithKeyDiff() {
     "\nexpected: '{\"name2\":\"Anne\",\"age\":21,\"marks\":{\"maths\":100," +
     "\"physics\":90,\"status\":{\"pass2\":fal...'\nactual\t: '" +
     "{\"name\":\"Anne\",\"age\":\"21\",\"marks\":{\"maths\":100,\"physics\":90," +
-    "\"status\":{\"pass\":tru...'\n \nDiff\t:\n \nexpected keys\t: name2, " +
-    "marks.status.pass2\nactual keys\t: name, marks.status.pass\n\n\n \n\n " +
-    "\nkey: age\nexpected value\t: <int> 21\nactual value\t: <string> 21 \n \n");
+    "\"status\":{\"pass\":tru...'\n \nDiff\t:\n\nexpected keys\t: name2, " +
+    "marks.status.pass2\nactual keys\t: name, marks.status.pass\n\n" +
+    "key: age\n \nexpected value\t: <int> 21\nactual value\t: <string> 21\n");
 }
 
 @test:Config {}
@@ -158,12 +158,12 @@ function testAssertJsonWithCount() {
     error result = <error>err;
     test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name2\":\"Anne\",\"age\":21," +
     "\"marks\":{\"maths\":10,\"physics\":40,\"chemistry\":50,\"englis...'\nactual\t: '{\"name\":\"Anne\",\"age\":" +
-    "\"21\",\"marks\":{\"maths\":99,\"physics\":80,\"chemistry\":70,\"engli...'\n \nDiff\t:\n \nexpected keys\t: " +
-    "name2\nactual keys\t: name\n\n\n \n\n \nkey: age\nexpected value\t: <int> 21\nactual value\t: <string> 21 \n\n " +
-    "\nkey: marks.maths\nexpected value\t: 10\nactual value\t: 99 \n\n \nkey: marks.physics\nexpected value\t: 40\n" +
-    "actual value\t: 80 \n\n \nkey: marks.chemistry\nexpected value\t: 50\nactual value\t: 70 \n\n \nkey: " +
-    "marks.english\nexpected value\t: 55\nactual value\t: 95 \n\n \nkey: marks.status.pass\nexpected value\t: false\n" +
-    "actual value\t: true \n\n \nTotal value mismatches: 6\n \n \n");
+    "\"21\",\"marks\":{\"maths\":99,\"physics\":80,\"chemistry\":70,\"engli...'\n \nDiff\t:\n\nexpected keys\t: " +
+    "name2\nactual keys\t: name\n\nkey: age\n \nexpected value\t: <int> 21\nactual value\t: <string> 21\n\n" +
+    "key: marks.maths\n \nexpected value\t: 10\nactual value\t: 99\n\nkey: marks.physics\n \nexpected value\t: 40\n" +
+    "actual value\t: 80\n\nkey: marks.chemistry\n \nexpected value\t: 50\nactual value\t: 70\n\nkey: " +
+    "marks.english\n \nexpected value\t: 55\nactual value\t: 95\n\nkey: marks.status.pass\n \nexpected value\t: false\n" +
+    "actual value\t: true\n \nTotal value mismatches: 6\n");
 }
 
 @test:Config {}
@@ -224,7 +224,7 @@ function testAssertRecords() {
     test:assertEquals(result.message().toString(), "Assertion Failed!\n \n" +
     "expected: '{\"title\":\"The Revenant\",\"year\":\"2020\",\"released\":\"08 Jan 2020\",\"writer\":{\"fname\"...'" +
     "\nactual\t: '{\"title\":\"The Revenant\",\"year\":\"2015\",\"released\":\"08 Jan 2016\",\"writer\":{\"fname\"" +
-    "...'\n \nDiff\t:\n \n\n \nkey: year\nexpected value\t: 2020\nactual value\t: 2015 \n\n \nkey: released\n" +
-    "expected value\t: 08 Jan 2020\nactual value\t: 08 Jan 2016 \n\n \nkey: writer.age\nexpected value\t: 35\n" +
-    "actual value\t: 30 \n \n");
+    "...'\n \nDiff\t:\n\nkey: year\n \nexpected value\t: 2020\nactual value\t: 2015\n\nkey: released\n \n" +
+    "expected value\t: 08 Jan 2020\nactual value\t: 08 Jan 2016\n\nkey: writer.age\n \nexpected value\t: 35\n" +
+    "actual value\t: 30");
 }
