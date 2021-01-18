@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.util.references;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -40,18 +41,19 @@ public class ReferencesUtil {
     }
 
     public static List<Location> getReferences(PositionedOperationContext context) {
+        Optional<Document> srcFile = context.workspace().document(context.filePath());
         Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
         List<Location> locations = new ArrayList<>();
 
-        if (semanticModel.isEmpty()) {
+        if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             return locations;
         }
 
-        String relPath = context.workspace().relativePath(context.filePath()).orElseThrow();
         Position position = context.getCursorPosition();
         Optional<Project> project = context.workspace().project(context.filePath());
-        Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(relPath, LinePosition.from(position.getLine(),
-                position.getCharacter()));
+        Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(),
+                                                                     LinePosition.from(position.getLine(),
+                                                                                       position.getCharacter()));
 
         if (project.isEmpty() || symbolAtCursor.isEmpty()) {
             return locations;

@@ -105,13 +105,15 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     public List<Symbol> visibleSymbols(Position position) {
         if (this.visibleSymbols == null) {
             Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(this.filePath);
-            Optional<String> relativePath = this.workspaceManager.relativePath(filePath);
-            if (semanticModel.isEmpty() || relativePath.isEmpty()) {
+            Optional<Document> srcFile = this.workspaceManager.document(filePath);
+
+            if (semanticModel.isEmpty() || srcFile.isEmpty()) {
                 return Collections.emptyList();
             }
-            // TODO: file uri here should be the relative file URI
-            visibleSymbols = semanticModel.get().visibleSymbols(relativePath.get(),
-                    LinePosition.from(position.getLine(), position.getCharacter()));
+
+            visibleSymbols = semanticModel.get().visibleSymbols(srcFile.get(),
+                                                                LinePosition.from(position.getLine(),
+                                                                                  position.getCharacter()));
         }
 
         return visibleSymbols;

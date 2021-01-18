@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -94,10 +95,15 @@ class AIDataMapperCodeActionUtil {
             return fEdits;
         }
 
+        // Restrict data mapper code action for multi module projects
+        Optional<Project> project = context.workspace().project(context.filePath());
+        if (project.get().kind() == ProjectKind.BUILD_PROJECT) {
+            return fEdits;
+        }
+
 
         String foundTypeLeft = matcher.group(1);
         String foundTypeRight = matcher.group(2);
-
 
         boolean foundErrorLeft = false;
         boolean foundErrorRight = false;
@@ -105,12 +111,6 @@ class AIDataMapperCodeActionUtil {
         if (foundTypeLeft.contains("|")) {
             foundTypeLeft = foundTypeLeft.split("[(|]")[1];
             foundErrorLeft = true;
-        }
-
-        // Restrict data mapper code action for multi module projects
-        Optional<Project> project = context.workspace().project(context.filePath());
-        if (project.get().kind() == ProjectKind.BUILD_PROJECT) {
-            return fEdits;
         }
 
         // If the check or checkpanic is to get the symbol name
@@ -128,7 +128,6 @@ class AIDataMapperCodeActionUtil {
 
         // Get the semantic model
         SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-
         // To restrict the code action from appearing for handled cases.
         List<Symbol> fileContentSymbols = semanticModel.moduleLevelSymbols();
 
@@ -141,15 +140,18 @@ class AIDataMapperCodeActionUtil {
         // Insert function call in the code where error is found
         Range newTextRange = CommonUtil.toRange(diagnostic.location().lineRange());
 
-        String filePath = context.filePath().getFileName().toString();
-        LinePosition linePosition = LinePosition.from(context.cursorPosition().getLine(), context.cursorPosition().
-                getCharacter());
+        Optional<Document> srcFile = context.workspace().document(context.filePath());
 
-        if (semanticModel.symbol(filePath, linePosition).isEmpty()) {
+        if (srcFile.isEmpty()) {
             return fEdits;
         }
 
-        Symbol symbolAtCursor = semanticModel.symbol(filePath, linePosition).get();
+        LinePosition linePosition = LinePosition.from(context.cursorPosition().getLine(), context.cursorPosition().
+                getCharacter());
+
+        Symbol symbolAtCursor = semanticModel.symbol(srcFile.get(), linePosition).get();
+
+
         String symbolAtCursorName = symbolAtCursor.name();
         String symbolAtCursorType = SymbolUtil.getTypeDescriptor(symbolAtCursor).get().typeKind().toString();
 

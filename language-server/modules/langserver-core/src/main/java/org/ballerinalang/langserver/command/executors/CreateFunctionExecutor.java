@@ -104,8 +104,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             return new LSCommandExecutorException("Couldn't find a matching node");
         }
         SemanticModel semanticModel = context.workspace().semanticModel(filePath.get()).orElseThrow();
-        String relPath = context.workspace().relativePath(filePath.get()).orElseThrow();
-        TypeSymbol matchedTypeSymbol = semanticModel.type(relPath, identifier.lineRange()).orElse(null);
+        TypeSymbol matchedTypeSymbol = semanticModel.type(identifier.lineRange()).orElse(null);
         if (matchedTypeSymbol == null) {
             return Collections.emptyList();
         }

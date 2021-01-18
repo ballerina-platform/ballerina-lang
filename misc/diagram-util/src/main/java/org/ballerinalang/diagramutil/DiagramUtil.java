@@ -24,9 +24,7 @@ import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import io.ballerina.projects.Document;
 
 /**
  * This is the DiagramUtil class for Diagram related Utils which include the JSON conversion of the Syntax Tree.
@@ -36,17 +34,16 @@ public class DiagramUtil {
     /**
      * Get the Modified JSON ST with type info.
      *
-     * @param syntaxTree    SyntaxTree to be modified and in need to convert to JSON.
+     * @param srcFile       The source file associated with the syntax tree
      * @param semanticModel Semantic model for the syntax tree.
      * @return {@link JsonObject}   ST as a Json Object
      */
-    public static JsonElement getSyntaxTreeJSON(SyntaxTree syntaxTree, SemanticModel semanticModel) {
+    public static JsonElement getSyntaxTreeJSON(Document srcFile, SemanticModel semanticModel) {
         JsonElement syntaxTreeJson;
         try {
             // Map each type data by looking at the line ranges and prepare the SyntaxTree JSON.
-            Path filePath = Paths.get(syntaxTree.filePath());
-            String fileName = filePath.getFileName() != null ? filePath.getFileName().toString() : "";
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(fileName, semanticModel);
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
+            SyntaxTree syntaxTree = srcFile.syntaxTree();
             ModulePartNode modulePartNode = syntaxTree.rootNode();
             syntaxTreeJson = mapGenerator.transform(modulePartNode);
         } catch (NullPointerException e) {
@@ -60,8 +57,7 @@ public class DiagramUtil {
                                                            SemanticModel semanticModel) {
         JsonElement syntaxTreeJson;
         try {
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(
-                    classDefinitionNode.syntaxTree().filePath(), semanticModel);
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
             syntaxTreeJson = mapGenerator.transform(classDefinitionNode);
         } catch (NullPointerException e) {
             syntaxTreeJson = new JsonObject();
@@ -74,8 +70,7 @@ public class DiagramUtil {
                                                           SemanticModel semanticModel) {
         JsonElement syntaxTreeJson;
         try {
-            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(
-                    typeDefinitionNode.syntaxTree().filePath(), semanticModel);
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
             syntaxTreeJson = mapGenerator.transform(typeDefinitionNode);
         } catch (NullPointerException e) {
             syntaxTreeJson = new JsonObject();
