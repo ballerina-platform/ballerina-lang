@@ -46,7 +46,7 @@ import static java.nio.file.Files.createDirectories;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
- * This class represents the "ballerina pull" command.
+ * This class represents the "bal pull" command.
  *
  * @since 2.0.0
  */
@@ -81,12 +81,12 @@ public class PullCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.isEmpty()) {
-            CommandUtil.printError(this.errStream, "no package given", "ballerina pull <package-name> ", false);
+            CommandUtil.printError(this.errStream, "no package given", "bal pull <package-name> ", false);
             return;
         }
 
         if (argList.size() > 1) {
-            CommandUtil.printError(this.errStream, "too many arguments", "ballerina pull <package-name> ", false);
+            CommandUtil.printError(this.errStream, "too many arguments", "bal pull <package-name> ", false);
             return;
         }
 
@@ -102,7 +102,7 @@ public class PullCommand implements BLauncherCmd {
 
         if (!validPackageName(resourceName)) {
             CommandUtil.printError(errStream, "invalid package name. Provide the package name with the org name ",
-                    "ballerina pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}", false);
+                    "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}", false);
             return;
         }
 
@@ -163,7 +163,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina pull\n");
+        out.append("  bal pull\n");
     }
 
     @Override

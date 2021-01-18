@@ -33,7 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * This class tests invoking main function in a bal for jvm target via Ballerina Build Command and run it the jar for
+ * This class tests invoking main function in a bal for jvm target via bal build Command and run it the jar for
  * testing given outputs.
  */
 public class JarRunFunctionPositiveTestCase extends JBallerinaBaseTest {
