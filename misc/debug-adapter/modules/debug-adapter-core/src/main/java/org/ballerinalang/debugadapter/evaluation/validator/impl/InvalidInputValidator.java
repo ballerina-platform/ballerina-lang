@@ -24,6 +24,9 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.debugadapter.evaluation.parser.DebugParser;
 import org.ballerinalang.debugadapter.evaluation.validator.Validator;
 
+import static org.ballerinalang.debugadapter.evaluation.validator.ValidatorException.ERROR_INPUT_DOCUMENTATION;
+import static org.ballerinalang.debugadapter.evaluation.validator.ValidatorException.ERROR_INPUT_EMPTY_EXPRESSION;
+
 /**
  * Validator implementation to validate invalid ballerina sources (i.e. empty input, comments, documentation, etc.).
  *
@@ -40,17 +43,17 @@ public class InvalidInputValidator extends Validator {
     @Override
     public void validate(String source) throws Exception {
         // validates for blank statements.
-        failIf(source.isBlank(), "Empty expressions cannot be evaluated.");
+        failIf(source.isBlank(), ERROR_INPUT_EMPTY_EXPRESSION);
 
         // validates for documentation.
-        failIf(source.trim().startsWith(DOCUMENTATION_START), "Documentation is not allowed.");
+        failIf(source.trim().startsWith(DOCUMENTATION_START), ERROR_INPUT_DOCUMENTATION);
 
         // validates for empty expressions (which could be whitespaces, comments, etc).
         SyntaxTree syntaxTree = debugParser.getSyntaxTreeFor(source);
-        failIf(!syntaxTree.containsModulePart(), "Empty expressions cannot be evaluated.");
+        failIf(!syntaxTree.containsModulePart(), ERROR_INPUT_EMPTY_EXPRESSION);
         ModulePartNode moduleNode = syntaxTree.rootNode();
         NodeList<ModuleMemberDeclarationNode> members = moduleNode.members();
         NodeList<ImportDeclarationNode> imports = moduleNode.imports();
-        failIf(imports.isEmpty() && members.isEmpty(), "Empty expressions cannot be evaluated.");
+        failIf(imports.isEmpty() && members.isEmpty(), ERROR_INPUT_EMPTY_EXPRESSION);
     }
 }

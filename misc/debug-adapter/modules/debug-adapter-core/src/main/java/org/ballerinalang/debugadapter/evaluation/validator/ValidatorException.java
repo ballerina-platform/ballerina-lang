@@ -23,6 +23,14 @@ package org.ballerinalang.debugadapter.evaluation.validator;
  */
 public class ValidatorException extends Exception {
 
+    // Invalid input types
+    public static final String ERROR_INPUT_EMPTY_EXPRESSION = "Empty expressions cannot be evaluated.";
+    public static final String ERROR_INPUT_DOCUMENTATION = "Documentation is not allowed.";
+    // Unsupported input types
+    public static final String UNSUPPORTED_INPUT_IMPORT = "Import declaration evaluation is not supported.";
+    public static final String UNSUPPORTED_INPUT_TOPLEVEL_DCLN = "Top-level declaration evaluation is not supported.";
+    public static final String UNSUPPORTED_INPUT_STATEMENT = "Statement evaluation is not supported.";
+
     public ValidatorException(String message) {
         super(message);
     }

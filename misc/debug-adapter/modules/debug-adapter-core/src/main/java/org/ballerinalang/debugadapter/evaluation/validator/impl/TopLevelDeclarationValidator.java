@@ -28,6 +28,9 @@ import org.ballerinalang.debugadapter.evaluation.validator.Validator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.evaluation.validator.ValidatorException.UNSUPPORTED_INPUT_IMPORT;
+import static org.ballerinalang.debugadapter.evaluation.validator.ValidatorException.UNSUPPORTED_INPUT_TOPLEVEL_DCLN;
+
 /**
  * Validator implementation for ballerina top-level declarations(i.e. imports, services, etc.).
  *
@@ -50,16 +53,16 @@ public class TopLevelDeclarationValidator extends Validator {
         // Needs to do an additional string check due to false positive import declarations matched by the ballerina
         // parser.
         NodeList<ImportDeclarationNode> imports = moduleNode.imports();
-        failIf(imports.size() > 0 && imports.stream()
-                        .allMatch(importNode -> importNode.toSourceCode().trim().startsWith(IMPORT_START)),
-                "Import declaration evaluation is not supported.");
+        failIf(!imports.isEmpty() && imports.stream().allMatch(importNode ->
+                importNode.toSourceCode().trim().startsWith(IMPORT_START)), UNSUPPORTED_INPUT_IMPORT);
 
         // Checks for top-level declarations in user input.
         NodeList<ModuleMemberDeclarationNode> memberNodes = moduleNode.members();
         // Needs to filter out module variable declarations, since variable assignment statements can be parsed into
         // module-level variable declaration during this validation phase.
         List<ModuleMemberDeclarationNode> members = memberNodes.stream()
-                .filter(node -> node.kind() != SyntaxKind.MODULE_VAR_DECL).collect(Collectors.toList());
-        failIf(members.size() > 0, "Top-level declaration evaluation is not supported.");
+                .filter(node -> node.kind() != SyntaxKind.MODULE_VAR_DECL)
+                .collect(Collectors.toList());
+        failIf(members.size() > 0, UNSUPPORTED_INPUT_TOPLEVEL_DCLN);
     }
 }

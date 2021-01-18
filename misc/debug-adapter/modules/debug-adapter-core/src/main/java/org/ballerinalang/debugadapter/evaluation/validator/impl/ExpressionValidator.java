@@ -30,6 +30,8 @@ import org.ballerinalang.debugadapter.evaluation.validator.ValidatorException;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static org.ballerinalang.debugadapter.evaluation.validator.ValidatorException.UNSUPPORTED_INPUT_STATEMENT;
+
 /**
  * Validator implementation for ballerina expressions.
  *
@@ -50,7 +52,7 @@ public class ExpressionValidator extends StatementValidator {
         SyntaxTree syntaxTree = debugParser.getSyntaxTreeFor(source);
         NodeList<StatementNode> statements = getStatementsFrom(syntaxTree);
         StatementNode exprStatement = statements.get(0);
-        failIf(exprStatement.kind() != SyntaxKind.RETURN_STATEMENT, "Statement evaluation is not supported.");
+        failIf(exprStatement.kind() != SyntaxKind.RETURN_STATEMENT, UNSUPPORTED_INPUT_STATEMENT);
         Optional<ExpressionNode> expression = ((ReturnStatementNode) exprStatement).expression();
         failIf(expression.isEmpty(), "Failed to derive the expression due to a parsing error.");
 
