@@ -38,6 +38,7 @@ import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.DEFAULT_SERVICE_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_MODULE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_POSITION;
@@ -53,7 +54,6 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_RESOURCE_ACCESSOR;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_RESOURCE_PATH;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_TRUE_VALUE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
 
 /**
@@ -311,7 +311,7 @@ public class ObserveUtils {
             newObContext.setEntrypointFunctionPosition(prevObserverCtx.getEntrypointFunctionPosition());
             newObContext.setParent(prevObserverCtx);
         } else {
-            newObContext.setServiceName(UNKNOWN_SERVICE);
+            newObContext.setServiceName(DEFAULT_SERVICE_NAME);
             newObContext.setEntrypointFunctionModule(module.getValue());
             newObContext.setEntrypointFunctionPosition(position.getValue());
         }
