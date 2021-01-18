@@ -341,6 +341,6 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // unsupported expressions
         debugTestRunner.assertEvaluationError(context, "new()",
                 String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
-                        "new() - IMPLICIT_NEW_EXPRESSION"));
+                        "'new()' - IMPLICIT_NEW_EXPRESSION"));
     }
 }
