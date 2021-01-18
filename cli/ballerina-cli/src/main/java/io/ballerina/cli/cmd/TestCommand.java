@@ -47,7 +47,7 @@ import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
- * This class represents the "ballerina test" command.
+ * This class represents the "bal test" command.
  *
  * @since 2.0.0
  */
@@ -120,7 +120,7 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
     private boolean rerunTests;
 
-    private static final String testCmd = "ballerina test [--offline] [--skip-tests]\n" +
+    private static final String testCmd = "bal test [--offline] [--skip-tests]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
     public void execute() {
