@@ -3,7 +3,7 @@
 set -e
 
 BAL_HOME=$1
-chmod +x ${BAL_HOME}/bin/ballerina
+chmod +x ${BAL_HOME}/bin/bal
 export PATH=${BAL_HOME}/bin:$PATH
 resultsFolderName=results
 resultsFileName=${resultsFolderName}/$4.csv

@@ -20,7 +20,7 @@ set -e
 warmupIterations=$1
 benchmarkIterations=$2
 BAL_HOME=$3
-chmod +x ${BAL_HOME}/bin/ballerina
+chmod +x ${BAL_HOME}/bin/bal
 export PATH=${BAL_HOME}/bin:$PATH
 sourceDir=$4
 resultsDir=$5
