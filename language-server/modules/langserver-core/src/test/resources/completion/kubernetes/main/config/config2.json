@@ -1,0 +1,65 @@
+{
+    "position": {
+        "line": 6,
+        "character": 0
+    },
+    "source": "main/source/Kubernetes.toml",
+    "items": [
+        {
+            "label": "cloud.deployment.storage.volumes",
+            "kind": "Snippet",
+            "detail": "Table",
+            "sortText": "C",
+            "insertText": "[cloud.deployment.storage.volumes]\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.deployment.probes.readiness",
+            "kind": "Snippet",
+            "detail": "Table",
+            "sortText": "C",
+            "insertText": "[cloud.deployment.probes.readiness]\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.config.files",
+            "kind": "Snippet",
+            "detail": "Table Array",
+            "sortText": "C",
+            "insertText": "[[cloud.config.files]]\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.config.secrets",
+            "kind": "Snippet",
+            "detail": "Table Array",
+            "sortText": "C",
+            "insertText": "[[cloud.config.secrets]]\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "run_as",
+            "kind": "Snippet",
+            "detail": "String",
+            "sortText": "A",
+            "insertText": "run_as\u003d\"${1:}\"\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.deployment.autoscaling",
+            "kind": "Snippet",
+            "detail": "Table",
+            "sortText": "C",
+            "insertText": "[cloud.deployment.autoscaling]\n",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "cloud.config.envs",
+            "kind": "Snippet",
+            "detail": "Table Array",
+            "sortText": "C",
+            "insertText": "[[cloud.config.envs]]\n",
+            "insertTextFormat": "Snippet"
+        }
+    ]
+}
