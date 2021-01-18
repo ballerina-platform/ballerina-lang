@@ -52,7 +52,7 @@ public class ErrorsTest {
 
     @Test(description = "Test error type")
     public void testErrorAsAType() {
-        Assert.assertEquals(testModule.errors.size(), 5, "Two errors expected");
+        Assert.assertEquals(testModule.errors.size(), 5, "Five errors expected");
         Assert.assertEquals(testModule.errors.get(0).name, "CacheError", "The error should be " +
                 "CacheError. But Found:" + testModule.errors.get(0).name);
         Assert.assertEquals(testModule.errors.get(1).name, "CancelledError", "The error should be " +

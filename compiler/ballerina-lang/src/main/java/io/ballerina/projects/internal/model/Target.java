@@ -45,6 +45,8 @@ public class Target {
     private Path docPath;
 
     public Target(Path sourceRoot) throws IOException {
+        ProjectUtils.checkWritePermission(sourceRoot);
+
         this.targetPath = sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
         this.cache = this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME);
         this.baloCachePath = this.targetPath.resolve(ProjectConstants.TARGET_BALO_DIR_NAME);

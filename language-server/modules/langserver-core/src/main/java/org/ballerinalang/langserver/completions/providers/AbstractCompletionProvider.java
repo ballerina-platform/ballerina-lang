@@ -366,23 +366,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return new SymbolCompletionItem(context, symbol, completionItem);
     }
 
-    /**
-     * Whether the cursor is located at the qualified name reference context.
-     * This is added in order to support both of the following cases,
-     * Ex:
-     * (1) ... http:<cursor>
-     * (2) ... http:a<cursor>
-     *
-     * @param tokenAtCursor Token at cursor
-     * @param nodeAtCursor  Node at cursor
-     * @return {@link Boolean} status
-     */
-    @Deprecated
-    protected boolean qualifiedNameReferenceContext(Token tokenAtCursor, Node nodeAtCursor) {
-        return nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
-                || tokenAtCursor.text().equals(SyntaxKind.COLON_TOKEN.stringValue());
-    }
-
     protected List<LSCompletionItem> actionKWCompletions(BallerinaCompletionContext context) {
         /*
         Add the start keywords of the following actions.
@@ -423,6 +406,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE64_LITERAL.get()));
 
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol instanceof VariableSymbol || symbol.kind() == FUNCTION)

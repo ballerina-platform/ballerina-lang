@@ -71,10 +71,6 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
         visitor.visit(this);
     }
 
-    public final boolean isAnydata() {
-        return this.constraint.isPureType();
-    }
-
     @Override
     public BIntersectionType getImmutableType() {
         return this.immutableType;
