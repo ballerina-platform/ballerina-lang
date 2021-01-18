@@ -203,6 +203,10 @@ public class ObjectTypeReferenceTest {
                 "'readonly' reference: 'stream<int>' can never be 'readonly'", 119, 9);
         BAssertUtil.validateError(negativeResult, i++, "invalid field in an object constructor expression with a " +
                 "'readonly' reference: 'future' can never be 'readonly'", 120, 9);
+        BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
+                "descriptor in a 'class' that is not 'readonly'", 135, 6);
+        BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
+                "descriptor in an 'object' type descriptor", 141, 6);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -318,6 +322,12 @@ public class ObjectTypeReferenceTest {
                                           ". bars) returns int:Signed16', found 'function test8(int:Signed16 anInt, " +
                                           "Bar... bars) returns int'",
                                   84, 5);
+        BAssertUtil.validateError(result, index++, "no implementation found for the method 'toString' of class " +
+                "'InvalidReadOnlyClassWithMissingImpl'", 93, 1);
+        BAssertUtil.validateError(result, index++, "no implementation found for the method 'toFloat' of class " +
+                "'InvalidReadOnlyClassWithMissingImpls'", 101, 1);
+        BAssertUtil.validateError(result, index++, "no implementation found for the method 'toString' of class " +
+                "'InvalidReadOnlyClassWithMissingImpls'", 101, 1);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 

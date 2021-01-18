@@ -526,7 +526,19 @@ public class SymbolEnter extends BLangNodeVisitor {
             defineNode(f, objMethodsEnv);
         });
 
+        defineIncludedMethods(classDefinition, objMethodsEnv, false);
+    }
+
+    private void defineIncludedMethods(BLangClassDefinition classDefinition, SymbolEnv objMethodsEnv,
+                                       boolean defineReadOnlyInclusionsOnly) {
         Set<String> includedFunctionNames = new HashSet<>();
+
+        if (defineReadOnlyInclusionsOnly) {
+            for (BAttachedFunction function : ((BObjectTypeSymbol) classDefinition.type.tsymbol).referencedFunctions) {
+                includedFunctionNames.add(function.funcName.value);
+            }
+        }
+
         // Add the attached functions of the referenced types to this object.
         // Here it is assumed that all the attached functions of the referred type are
         // resolved by the time we reach here. It is achieved by ordering the typeDefs
@@ -538,7 +550,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             if (type.tag == TypeTags.INTERSECTION) {
+                if (!defineReadOnlyInclusionsOnly) {
+                    // Will be defined once all the readonly type's methods are defined.
+                    continue;
+                }
+
                 type = ((BIntersectionType) type).effectiveType;
+            } else {
+                if (defineReadOnlyInclusionsOnly) {
+                    if (!isImmutable((BObjectType) type)) {
+                        continue;
+                    }
+                } else if (isImmutable((BObjectType) type)) {
+                    continue;
+                }
             }
 
             List<BAttachedFunction> functions = ((BObjectTypeSymbol) type.tsymbol).attachedFuncs;
@@ -2487,8 +2512,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
             SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, pkgEnv);
             BObjectType objType = (BObjectType) ((BObjectTypeSymbol) classDefinition.symbol).type;
-
             defineReferencedClassFields(classDefinition, typeDefEnv, objType, true);
+
+            SymbolEnv objMethodsEnv = SymbolEnv.createClassMethodsEnv(classDefinition,
+                                                                      (BObjectTypeSymbol) classDefinition.symbol,
+                                                                      pkgEnv);
+            defineIncludedMethods(classDefinition, objMethodsEnv, true);
         }
     }
 
@@ -3060,9 +3089,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return Stream.empty();
             }
 
+            int referredTypeTag = referredType.tag;
             if (structureTypeNode.type.tag == TypeTags.OBJECT) {
-                if (referredType.tag != TypeTags.OBJECT) {
-                    dlog.error(typeRef.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
+                if (referredTypeTag != TypeTags.OBJECT) {
+                    DiagnosticErrorCode errorCode = DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE;
+
+                    if (referredTypeTag == TypeTags.INTERSECTION &&
+                            isReadOnlyAndObjectIntersection((BIntersectionType) referredType)) {
+                        errorCode = DiagnosticErrorCode.INVALID_READ_ONLY_TYPEDESC_INCLUSION_IN_OBJECT_TYPEDESC;
+                    }
+
+                    dlog.error(typeRef.pos, errorCode, typeRef);
                     invalidTypeRefs.add(typeRef);
                     return Stream.empty();
                 }
@@ -3089,7 +3126,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
 
-            if (structureTypeNode.type.tag == TypeTags.RECORD && referredType.tag != TypeTags.RECORD) {
+            if (structureTypeNode.type.tag == TypeTags.RECORD && referredTypeTag != TypeTags.RECORD) {
                 dlog.error(typeRef.pos, DiagnosticErrorCode.INCOMPATIBLE_RECORD_TYPE_REFERENCE, typeRef);
                 invalidTypeRefs.add(typeRef);
                 return Stream.empty();
@@ -3362,6 +3399,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         return true;
+    }
+
+    private boolean isReadOnlyAndObjectIntersection(BIntersectionType referredType) {
+        BType effectiveType = referredType.effectiveType;
+
+        if (effectiveType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(effectiveType.flags, Flags.READONLY)) {
+            return false;
+        }
+
+        for (BType constituentType : referredType.getConstituentTypes()) {
+            if (constituentType.tag == TypeTags.READONLY) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
