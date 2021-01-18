@@ -60,10 +60,10 @@ public class PackageConfigCreator {
             throw new ProjectException(ProjectConstants.BALLERINA_TOML + " not found");
         }
 
-        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML,
-                packageData.ballerinaToml().get().content());
-        TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML,
-                packageData.ballerinaToml().get().content());
+        TomlDocument ballerinaToml = packageData.ballerinaToml()
+                .map(d -> TomlDocument.from(ProjectConstants.BALLERINA_TOML, d.content())).orElse(null);
+        TomlDocument dependenciesToml = packageData.dependenciesToml()
+                .map(d -> TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML, d.content())).orElse(null);
         ManifestBuilder manifestBuilder = ManifestBuilder.from(ballerinaToml, dependenciesToml);
         PackageManifest packageManifest = manifestBuilder.packageManifest();
 

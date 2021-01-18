@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -49,7 +50,7 @@ import java.util.Set;
 public class ManifestBuilder {
 
     private TomlDocument ballerinaToml;
-    private TomlDocument dependenciesToml;
+    private Optional<TomlDocument> dependenciesToml;
     private DiagnosticResult diagnostics;
     private List<Diagnostic> diagnosticList;
     private PackageManifest packageManifest;
@@ -63,7 +64,7 @@ public class ManifestBuilder {
 
     private ManifestBuilder(TomlDocument ballerinaToml, TomlDocument dependenciesToml) {
         this.ballerinaToml = ballerinaToml;
-        this.dependenciesToml = dependenciesToml;
+        this.dependenciesToml = Optional.ofNullable(dependenciesToml);
         this.diagnosticList = new ArrayList<>();
         this.packageManifest = parseAsPackageManifest();
         this.buildOptions = parseBuildOptions();
@@ -211,8 +212,12 @@ public class ManifestBuilder {
     }
 
     private List<PackageManifest.Dependency> getDependencies() {
+        if (dependenciesToml.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         List<PackageManifest.Dependency> dependencies = new ArrayList<>();
-        TomlTableNode tomlTableNode = dependenciesToml.tomlAstNode();
+        TomlTableNode tomlTableNode = dependenciesToml.get().tomlAstNode();
 
         if (tomlTableNode.entries().isEmpty()) {
             addDiagnostic(null, DiagnosticSeverity.ERROR, tomlTableNode,

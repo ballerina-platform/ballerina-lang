@@ -108,4 +108,5 @@ public class ProjectConstants {
 
     public static final String BALLERINA_OFFLINE_FLAG = "ballerina.offline.flag";
     public static final String BALO_DOCS_DIR = "docs";
+    public static final String KUBERNETES_TOML = "Kubernetes.toml";
 }

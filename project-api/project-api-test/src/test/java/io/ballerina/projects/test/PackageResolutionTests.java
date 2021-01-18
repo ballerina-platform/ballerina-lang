@@ -63,6 +63,7 @@ public class PackageResolutionTests {
         // Here package_a depends on package_b
         // and package_b depends on package_c
         // Therefore package_c is transitive dependency of package_a
+
         BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_c");
         BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_b");
         BCompileUtil.compileAndCacheBalo("projects_for_resolution_tests/package_e");

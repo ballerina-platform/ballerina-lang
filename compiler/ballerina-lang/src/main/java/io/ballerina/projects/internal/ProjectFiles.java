@@ -65,8 +65,8 @@ public class ProjectFiles {
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
 
         DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
-        DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
-        DocumentData kubernetesToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
+        DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
+        DocumentData kubernetesToml = loadDocument(packageDirPath.resolve(ProjectConstants.KUBERNETES_TOML));
         DocumentData packageMd = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
 
         return PackageData.from(packageDirPath, defaultModule, otherModules,
@@ -146,6 +146,10 @@ public class ProjectFiles {
     }
 
     public static DocumentData loadDocument(Path documentFilePath) {
+        if (Files.notExists(documentFilePath)) {
+            return null;
+        }
+
         String content;
         try {
             content = Files.readString(documentFilePath, Charset.defaultCharset());
