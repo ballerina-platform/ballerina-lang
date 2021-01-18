@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -51,13 +52,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -127,6 +129,7 @@ public class HttpFiltersDesugar {
 
     private static final String ORG_NAME = "ballerina";
     private static final String PACKAGE_NAME = "http";
+    private static final String AUTHENTICATE_RESOURCE = "authenticateResource";
     private static final String CALLER_TYPE_NAME = "Caller";
     private static final String REQUEST_TYPE_NAME = "Request";
 
@@ -160,13 +163,90 @@ public class HttpFiltersDesugar {
     }
 
     boolean isHttpPackage(List<BType> expressionTypes) {
-        return expressionTypes.stream().anyMatch(a -> a.tsymbol.pkgID.orgName.value.equals(ORG_NAME) &&
-                a.tsymbol.pkgID.name.value.equals(PACKAGE_NAME));
+        for (BType expressionType : expressionTypes) {
+            if (expressionType.tag == TypeTags.UNION) {
+                for (BType memberType : ((BUnionType) expressionType).getMemberTypes()) {
+                    if (memberType.tag == TypeTags.OBJECT && isHttpPackage((BObjectType) memberType)) {
+                        return true;
+                    }
+                }
+            } else if (expressionType.tag == TypeTags.OBJECT && isHttpPackage((BObjectType) expressionType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    void addFilterStatements(BLangFunction resourceNode, SymbolEnv env) {
-        BLangSimpleVariable filterContextVar = addFilterContextCreation(resourceNode, env);
-        addAssignmentAndForEach(resourceNode, filterContextVar, env);
+    private boolean isHttpPackage(BObjectType type) {
+        return type.tsymbol.pkgID.orgName.value.equals(ORG_NAME) && type.tsymbol.pkgID.name.value.equals(PACKAGE_NAME);
+    }
+
+    void addFilterStatements(BLangResourceFunction resourceNode, SymbolEnv env, List<BLangStatement> statements) {
+        BPackageSymbol httpPackageSymbol = getHttpPackageSymbol(env);
+        if (httpPackageSymbol == null) {
+            // Couldn't find http package in imports list.
+            // TODO: should this be a assertion error?
+            return;
+        }
+        // Expected method type:
+        // `function authenticateResource(Service servieRef, string methodName, string[] resourcePath) returns
+        // Unauthorized|Forbidden?`
+        BSymbol methodSym = symResolver.lookupMethodInModule(httpPackageSymbol,
+                names.fromString(AUTHENTICATE_RESOURCE));
+        if (methodSym == symTable.notFoundSymbol || !(methodSym instanceof BInvokableSymbol)) {
+            return;
+        }
+        BInvokableSymbol filterInvocationSymbol = (BInvokableSymbol) methodSym;
+
+        Location pos = resourceNode.getPosition();
+
+        // Create method invocation.
+        BLangSimpleVarRef selfRef = ASTBuilderUtil.createVariableRef(
+                pos, resourceNode.symbol.receiverSymbol);
+
+        BLangLiteral methodNameLiteral = ASTBuilderUtil.createLiteral(
+                pos, symTable.stringType, resourceNode.methodName.value);
+
+        ArrayList<BLangExpression> pathLiterals = new ArrayList<>();
+        for (BLangIdentifier path : resourceNode.resourcePath) {
+            pathLiterals.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, path.value));
+        }
+        BLangListConstructorExpr.BLangArrayLiteral resourcePathLiteral = ASTBuilderUtil.createEmptyArrayLiteral(
+                pos, (BArrayType) symTable.stringArrayType);
+        resourcePathLiteral.exprs = pathLiterals;
+
+        ArrayList<BLangExpression> args = new ArrayList<>();
+        args.add(selfRef);
+        args.add(methodNameLiteral);
+        args.add(resourcePathLiteral);
+
+        BLangInvocation invocationExpr = ASTBuilderUtil
+                .createInvocationExprForMethod(pos, filterInvocationSymbol, args, symResolver);
+        BLangSimpleVariableDef result = ASTBuilderUtil.createVariableDef(pos,
+                ASTBuilderUtil.createVariable(pos, "$temp$http$filter$result", symTable.anyType, invocationExpr, null));
+        statements.add(0, result);
+
+        BVarSymbol resultSymbol = new BVarSymbol(0, names.fromIdNode(result.var.name), env.enclPkg.packageID,
+                result.var.type,
+                resourceNode.symbol, pos, VIRTUAL);
+        resourceNode.symbol.scope.define(resultSymbol.name, resultSymbol);
+        result.var.symbol = resultSymbol;
+        BLangSimpleVarRef resultRef = ASTBuilderUtil.createVariableRef(pos, resultSymbol);
+
+        // Create if condition
+        // if (varRef != ()) { return varRef; }
+        BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, new BLangBlockStmt());
+        ifStmt.body = ASTBuilderUtil.createBlockStmt(pos);
+        statements.add(1, ifStmt);
+        ifStmt.body.addStatement(ASTBuilderUtil.createReturnStmt(pos, resultRef));
+        BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, resultRef,
+                ASTBuilderUtil.createLiteral(pos, symTable.nilType, null),
+                symTable.booleanType,
+                OperatorKind.REF_NOT_EQUAL, null);
+        ifStmt.expr = binaryExpr;
+//
+//        BLangSimpleVariable filterContextVar = addFilterContextCreation(resourceNode, env);
+//        addAssignmentAndForEach(resourceNode, filterContextVar, env);
     }
 
     /**
@@ -177,7 +257,7 @@ public class HttpFiltersDesugar {
      */
     private BLangSimpleVariable addFilterContextCreation(BLangFunction resourceNode, SymbolEnv env) {
         BLangIdentifier pkgAlias =
-                ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env, resourceNode));
+                ASTBuilderUtil.createIdentifier(resourceNode.pos, getHttpPackageAlias(env, resourceNode.pos));
         BLangUserDefinedType filterContextUserDefinedType = new BLangUserDefinedType(
                 pkgAlias, ASTBuilderUtil.createIdentifier(resourceNode.pos, "FilterContext"));
         filterContextUserDefinedType.pos = resourceNode.pos;
@@ -252,10 +332,11 @@ public class HttpFiltersDesugar {
      * Get the alias name of the http import.
      *
      * @param env the symbol environment.
+     * @param pos
      * @return the alias name.
      */
-    private String getPackageAlias(SymbolEnv env, BLangNode node) {
-        String compUnitName = node.pos.lineRange().filePath();
+    private String getHttpPackageAlias(SymbolEnv env, Location pos) {
+        String compUnitName = pos.lineRange().filePath();
         for (BLangImportPackage importStmt : env.enclPkg.imports) {
             if (!ORG_NAME.equals(importStmt.symbol.pkgID.orgName.value) ||
                     !PACKAGE_NAME.equals(importStmt.symbol.pkgID.name.value)) {
@@ -269,6 +350,15 @@ public class HttpFiltersDesugar {
         }
 
         return PACKAGE_NAME;
+    }
+
+    private BPackageSymbol getHttpPackageSymbol(SymbolEnv env) {
+        for (BLangImportPackage pkg : env.enclPkg.imports) {
+            if (pkg.symbol.pkgID.orgName.value.equals(ORG_NAME) && pkg.symbol.pkgID.name.value.equals(PACKAGE_NAME)) {
+                return pkg.symbol;
+            }
+        }
+        return null;
     }
 
     /**
@@ -319,7 +409,7 @@ public class HttpFiltersDesugar {
         BType filtersType = filtersVal.type;
         BUnionType filterUnionType = (BUnionType) ((BArrayType) filtersType).eType;
         BLangIdentifier pkgAlias =
-                ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env, resourceNode));
+                ASTBuilderUtil.createIdentifier(resourceNode.pos, getHttpPackageAlias(env, resourceNode.pos));
         BLangUserDefinedType filterUserDefinedType = new BLangUserDefinedType(
                 pkgAlias, ASTBuilderUtil.createIdentifier(resourceNode.pos, "RequestFilter"));
         filterUserDefinedType.pos = resourceNode.pos;

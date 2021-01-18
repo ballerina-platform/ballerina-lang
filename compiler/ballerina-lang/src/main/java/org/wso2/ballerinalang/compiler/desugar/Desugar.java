@@ -6685,7 +6685,7 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.name = name;
         invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
 
-        invocationNode.symbol = symResolver.lookupLangLibMethodInModule(symTable.langInternalModuleSymbol,
+        invocationNode.symbol = symResolver.lookupMethodInModule(symTable.langInternalModuleSymbol,
                 names.fromString(functionName));
 
         ArrayList<BLangExpression> requiredArgs = new ArrayList<>();

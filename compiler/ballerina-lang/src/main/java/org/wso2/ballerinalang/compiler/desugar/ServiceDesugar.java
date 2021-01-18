@@ -33,7 +33,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -41,9 +43,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -280,10 +284,26 @@ public class ServiceDesugar {
                     .createBeginParticipantInvocation(functionNode.pos));
             ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
         }
-        if (httpFiltersDesugar.isHttpPackage(expressionTypes) &&
-                httpFiltersDesugar.isRequiredParamsAvailable(functionNode)) {
-            httpFiltersDesugar.addFilterStatements(functionNode, env);
-//            httpFiltersDesugar.addOrderParamConfig(functionNode, env);
+        if (httpFiltersDesugar.isHttpPackage(expressionTypes)) {
+            List<BLangStatement> statements = getFunctionBodyStatementList(functionNode);
+            httpFiltersDesugar.addFilterStatements((BLangResourceFunction) functionNode, env, statements);
         }
+    }
+
+    private List<BLangStatement> getFunctionBodyStatementList(BLangFunction functionNode) {
+        List<BLangStatement> statements = null;
+        if (functionNode.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
+            BLangExprFunctionBody exprFunctionBody = (BLangExprFunctionBody) functionNode.body;
+            BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(functionNode.getPosition());
+            statements = blockStmt.stmts;
+
+            BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(
+                            blockStmt,
+                            exprFunctionBody.expr);
+            exprFunctionBody.expr = statementExpression;
+        } else {
+            statements = ((BLangBlockFunctionBody) functionNode.body).stmts;
+        }
+        return statements;
     }
 }
