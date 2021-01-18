@@ -41,7 +41,7 @@ public class DocumentationTest {
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_documentation/testdocorg");
+        BCompileUtil.compileAndCacheBalo("test-src/balo/test_projects/test_documentation");
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/documentation/test_documentation.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
         symbol = ((BLangPackage) result.getAST()).symbol;

@@ -160,7 +160,7 @@ public class ServiceDesugar {
             } else {
                 // Define anonymous listener variable.
                 BLangSimpleVariable listenerVar = ASTBuilderUtil
-                        .createVariable(pos, LISTENER + service.name.value + UNDERSCORE + count++, attachExpr.type,
+                        .createVariable(pos, generateServiceListenerVarName(service) + count, attachExpr.type,
                                 attachExpr,
                                 null);
                 ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
@@ -174,7 +174,7 @@ public class ServiceDesugar {
                         getListenerType(listenerVarRef.type));
                 listenerCheckExpr.equivalentErrorTypeList.add(symTable.errorType);
                 BLangSimpleVariable listenerWithoutErrors = ASTBuilderUtil.createVariable(pos,
-                        LISTENER + "$CheckTemp" + count,
+                        generateServiceListenerVarName(service)  + "$CheckTemp" + count++,
                         getListenerTypeWithoutError(listenerVarRef.type),
                         listenerCheckExpr,
                         null);
@@ -211,6 +211,10 @@ public class ServiceDesugar {
 
             addMethodInvocation(pos, listenerVarRef, methodRef, args, attachments);
         }
+    }
+
+    private String generateServiceListenerVarName(BLangService service) {
+        return LISTENER + service.name.value + UNDERSCORE;
     }
 
     private BType getListenerTypeWithoutError(BType type) {
@@ -280,7 +284,8 @@ public class ServiceDesugar {
                     .createBeginParticipantInvocation(functionNode.pos));
             ((BLangBlockFunctionBody) functionNode.body).stmts.add(0, stmt);
         }
-        if (httpFiltersDesugar.isHttpPackage(expressionTypes)) {
+        if (httpFiltersDesugar.isHttpPackage(expressionTypes) &&
+                httpFiltersDesugar.isRequiredParamsAvailable(functionNode)) {
             httpFiltersDesugar.addFilterStatements(functionNode, env);
 //            httpFiltersDesugar.addOrderParamConfig(functionNode, env);
         }

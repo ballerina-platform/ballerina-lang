@@ -343,8 +343,11 @@ public class TestProcessor {
                         if (AFTER_SUITE_ALWAYS_RUN_FIELD_NAME.equals(specificField.fieldName().toString().trim())) {
                             ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
                             if (valueExpr != null) {
-                                if (Boolean.TRUE.toString().equals(valueExpr.toString())) {
-                                    alwaysRun.set(true);
+
+                                if (SyntaxKind.BOOLEAN_LITERAL == valueExpr.kind()) {
+                                    if (getStringValue(valueExpr).startsWith(Boolean.TRUE.toString())) {
+                                        alwaysRun.set(true);
+                                    }
                                 }
                             }
                         }
@@ -415,9 +418,11 @@ public class TestProcessor {
                         ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
                         if (valueExpr != null) {
                             if (TEST_ENABLE_ANNOTATION_NAME.equals(fieldName)) {
-                                if (Boolean.FALSE.toString().equals(getStringValue(valueExpr))) {
-                                    shouldSkip.set(true);
-                                    continue;
+                                if (SyntaxKind.BOOLEAN_LITERAL == valueExpr.kind()) {
+                                    if (getStringValue(valueExpr).startsWith(Boolean.FALSE.toString())) {
+                                        shouldSkip.set(true);
+                                        continue;
+                                    }
                                 }
                             }
                             if (GROUP_ANNOTATION_NAME.equals(fieldName)) {
