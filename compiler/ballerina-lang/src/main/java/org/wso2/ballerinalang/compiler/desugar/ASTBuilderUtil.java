@@ -724,11 +724,11 @@ public class ASTBuilderUtil {
         return matchExpr;
     }
 
-    public static BLangFieldBasedAccess createFieldAccessExpr(BLangAccessibleExpression varRef, BLangIdentifier field) {
+    public static BLangFieldBasedAccess createFieldAccessExpr(BLangExpression varRef, BLangIdentifier field) {
         return createFieldAccessExpr(varRef, field, false);
     }
 
-    public static BLangFieldBasedAccess createFieldAccessExpr(BLangAccessibleExpression varRef, BLangIdentifier field,
+    public static BLangFieldBasedAccess createFieldAccessExpr(BLangExpression varRef, BLangIdentifier field,
                                                               boolean except) {
         BLangFieldBasedAccess fieldAccessExpr = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldAccessExpr.expr = varRef;

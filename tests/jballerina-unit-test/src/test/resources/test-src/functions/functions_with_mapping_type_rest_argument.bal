@@ -67,7 +67,7 @@ function testFunctionWithMappingTypeRestArg() {
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 
-function assertEquality(any|error expected, any|error actual) {
+function assertEquality(any expected, any actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }
