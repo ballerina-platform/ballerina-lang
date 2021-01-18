@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
@@ -51,6 +52,7 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
     private final CompilerContext context;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
+    private String signature;
     private boolean deprecated;
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField, SymbolKind kind) {
@@ -123,6 +125,19 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
     @Override
     public String signature() {
-        return this.typeDescriptor().signature() + " " + this.name();
+        if (this.signature != null) {
+            return this.signature;
+        }
+
+        StringJoiner joiner = new StringJoiner(" ");
+
+        if (!this.qualifiers().isEmpty()) {
+            for (Qualifier qualifier : this.qualifiers()) {
+                joiner.add(qualifier.getValue());
+            }
+        }
+
+        this.signature = joiner.add(this.typeDescriptor().signature()).add(this.name()).toString();
+        return this.signature;
     }
 }

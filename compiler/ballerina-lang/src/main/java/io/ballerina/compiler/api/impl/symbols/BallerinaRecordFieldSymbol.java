@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -34,8 +34,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 
-import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.READONLY;
 
 /**
@@ -51,6 +51,7 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
     private List<Qualifier> qualifiers;
+    private String signature;
     private boolean deprecated;
 
     public BallerinaRecordFieldSymbol(CompilerContext context, BField bField) {
@@ -74,12 +75,12 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
      */
     @Override
     public boolean isOptional() {
-        return (this.bField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
+        return Symbols.isFlagOn(this.bField.symbol.flags, Flags.OPTIONAL);
     }
 
     @Override
     public boolean hasDefaultValue() {
-        return !isOptional() && (this.bField.symbol.flags & Flags.REQUIRED) != Flags.REQUIRED;
+        return !isOptional() && !Symbols.isFlagOn(this.bField.symbol.flags, Flags.REQUIRED);
     }
 
     /**
@@ -136,9 +137,6 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
         List<Qualifier> quals = new ArrayList<>();
         final long symFlags = this.bField.symbol.flags;
 
-        if (Symbols.isFlagOn(symFlags, Flags.PUBLIC)) {
-            quals.add(PUBLIC);
-        }
         if (Symbols.isFlagOn(symFlags, Flags.READONLY)) {
             quals.add(READONLY);
         }
@@ -152,11 +150,24 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
      */
     @Override
     public String signature() {
-        StringBuilder signature = new StringBuilder(this.typeDescriptor().signature() + " " + this.name());
-        if (this.isOptional()) {
-            signature.append("?");
+        if (this.signature != null) {
+            return this.signature;
         }
 
-        return signature.toString();
+        StringJoiner joiner = new StringJoiner(" ");
+
+        if (!this.qualifiers().isEmpty()) {
+            for (Qualifier qualifier : this.qualifiers()) {
+                joiner.add(qualifier.getValue());
+            }
+        }
+
+        this.signature = joiner.add(this.typeDescriptor().signature()).add(this.name()).toString();
+
+        if (this.isOptional()) {
+            this.signature += "?";
+        }
+
+        return this.signature;
     }
 }
