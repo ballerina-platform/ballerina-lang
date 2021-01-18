@@ -22,11 +22,12 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaClassSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaEnumSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.impl.symbols.BallerinaObjectFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaParameterSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaRecordFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
@@ -124,8 +125,11 @@ public class SymbolFactory {
             if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
                 return createWorkerSymbol((BVarSymbol) symbol, name);
             }
-            if (symbol.owner instanceof BRecordTypeSymbol || symbol.owner instanceof BObjectTypeSymbol) {
-                return createFieldSymbol((BVarSymbol) symbol);
+            if (symbol.owner instanceof BRecordTypeSymbol) {
+                return createRecordFieldSymbol((BVarSymbol) symbol);
+            }
+            if (symbol.owner instanceof BObjectTypeSymbol) {
+                return createObjectFieldSymbol((BVarSymbol) symbol);
             }
 
             // return the variable symbol
@@ -266,11 +270,12 @@ public class SymbolFactory {
                 .build();
     }
 
-    public BallerinaFieldSymbol createFieldSymbol(BVarSymbol symbol) {
-        String fieldName = symbol.name.value;
-        BStructureType type = (BStructureType) symbol.owner.type;
-        BField field = type.fields.get(fieldName);
-        return new BallerinaFieldSymbol(this.context, field);
+    public BallerinaRecordFieldSymbol createRecordFieldSymbol(BVarSymbol symbol) {
+        return new BallerinaRecordFieldSymbol(this.context, getBField(symbol));
+    }
+
+    public BallerinaObjectFieldSymbol createObjectFieldSymbol(BVarSymbol symbol) {
+        return new BallerinaObjectFieldSymbol(this.context, getBField(symbol));
     }
 
     public BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol, String name) {
@@ -474,5 +479,11 @@ public class SymbolFactory {
         if (Symbols.isFlagOn(mask, flag)) {
             symbolBuilder.withQualifier(qualifier);
         }
+    }
+
+    private BField getBField(BVarSymbol symbol) {
+        String fieldName = symbol.name.value;
+        BStructureType type = (BStructureType) symbol.owner.type;
+        return type.fields.get(fieldName);
     }
 }

@@ -30,7 +30,7 @@ public interface ObjectTypeSymbol extends TypeSymbol, Qualifiable {
      *
      * @return {@link List} of object fields
      */
-    List<FieldSymbol> fieldDescriptors();
+    List<ObjectFieldSymbol> fieldDescriptors();
 
     /**
      * Get the list of methods.
